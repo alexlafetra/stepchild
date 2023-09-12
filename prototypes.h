@@ -225,7 +225,7 @@ void toggleTriplets();
 uint8_t toggleTriplets(uint8_t subDiv);
 void changeSubDivInt(bool down);
 void changeSubDivInt(bool down, bool limitToView);
-uint8_t changeSubDiv(bool direction, uint8_t subDiv, bool allowZero);
+uint16_t changeSubDiv(bool direction, uint8_t subDiv, bool allowZero);
 String getPitchList(vector<uint8_t> intervals);
 uint16_t countNotesInRange(uint16_t start, uint16_t end);
 float analogReadTemp();

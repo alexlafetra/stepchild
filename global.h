@@ -54,6 +54,8 @@ bool pitchesOrNumbers = true;
 
 bool pramOffset = 1;
 
+bool stepButtonsAreActive = true;
+
 //lets you drag the loop indicators around
 //0 is off, 1 is start, -1 is end, 2 is both
 int8_t movingLoop = 0;

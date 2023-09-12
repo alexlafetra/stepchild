@@ -8738,10 +8738,6 @@ void moonScreenSaver(){
   if(phase >= 86){
     moonBool =!moonBool;
   }
-  Serial.println("hey from moon");
-  Serial.println(phase);
-  Serial.println(waxing);
-  Serial.flush();
   drawMoon(phase, waxing);
   // writeLEDs(phase/11-2, phase/11);
 }
@@ -8904,47 +8900,6 @@ void echoAnimation(){
   }
 }
 
-void waterDroplets(){
-  int maxReps = 5;//for how many rings
-  int spacing = 10;//for the spacing
-  int spacingMod = 1;//to change the spacing
-  int animFrame = 0;
-  int xCoord = 64;
-  int yCoord = 32;
-  bool done = false;
-  display.setTextColor(SSD1306_WHITE);
-  display.setFont(&FreeSerifItalic9pt7b);
-  while(!done){
-    display.clearDisplay();
-    if(animFrame<=32){
-      if(animFrame>8){//drops and reflection
-        display.drawCircle(xCoord, animFrame-8, 1+sin(animFrame), SSD1306_WHITE);
-        display.drawCircle(xCoord, screenHeight-(animFrame-8), 1+sin(animFrame), SSD1306_WHITE);
-      }
-      display.drawCircle(xCoord, animFrame, 3+sin(animFrame), SSD1306_WHITE);
-      display.drawCircle(xCoord, screenHeight-animFrame, 3+sin(animFrame), SSD1306_WHITE);
-    }
-    else if(animFrame>yCoord){
-      int reps = (animFrame-yCoord)/spacing+1;
-      if(reps>maxReps){
-        reps = maxReps;
-      }
-      if(reps<maxReps){//draw a little splash at the contact point for a while
-        display.drawCircle(xCoord, yCoord, 1+sin(animFrame), SSD1306_WHITE);
-      }
-      for(int i = 0; i<reps; i++){
-        drawEllipse(xCoord, yCoord, animFrame/3-spacing*i+sin(animFrame)*(i%2), animFrame/8-spacing*i/3, SSD1306_WHITE);
-      }
-    }
-    animFrame+=3;
-    if(animFrame>=500){
-      animFrame = 0;
-    }
-    display.setCursor(screenWidth/2-15,screenHeight-8);
-    display.print("echo");
-    display.display();
-  }
-}
 //animation for the file menu
 void fileAnimation(bool in){
   if(in){
@@ -9686,18 +9641,15 @@ void copy(){
   copyPos[0] = activeTrack;
   copyPos[1] = cursorPos;
 
+  uint16_t numberOfNotes = 0;
+
   //add all selected notes to the copy buffer
   if(selectionCount>0){
     for(int track = 0; track<trackData.size(); track++){
       for(int note = 1; note<=seqData[track].size()-1; note++){// <= bc notes aren't 0 indexed
         if(seqData[track][note].isSelected){
           copyBuffer[track].push_back(seqData[track][note]);
-          // Serial.print("id:");
-          // Serial.println(note);
-          // Serial.print("s:");
-          // Serial.println(seqData[track][note].startPos);
-          // Serial.print("e:");
-          // Serial.println(seqData[track][note].endPos);
+          numberOfNotes++;
         }
       }
     }
@@ -9706,7 +9658,10 @@ void copy(){
   //or if there's a target note, but it's not selected
   else if(lookupData[activeTrack][cursorPos] != 0){
     copyBuffer[activeTrack].push_back(seqData[activeTrack][lookupData[activeTrack][cursorPos]]);
+    numberOfNotes = 1;
   }
+  menuText = "copied "+stringify(numberOfNotes)+numberOfNotes=="1"?"note":"notes";
+;
 }
 
 void copyLoop(){
@@ -9750,6 +9705,7 @@ void debugPrintCopyBuffer(){
 //pastes copybuffer
 void paste(){
   if(copyBuffer.size()>0){
+    uint16_t pastedNotes;
     //offset of all the notes (relative to where they were copied from)
     int yOffset = activeTrack - copyPos[0];
     int xOffset = cursorPos - copyPos[1];
@@ -9781,11 +9737,12 @@ void paste(){
             }
             Note newNoteOn(start,end, vel, chance, mute, true);
             makeNote(newNoteOn,track,false);
-            // makeNote(track, start, end-start+1, vel, chance, mute, false, false);
+            pastedNotes++;
           }
         }
       }
     }
+    menuText = "pasted "+stringify(pastedNotes)+pastedNotes=="1"?"note":"notes";
   }
 }
 
@@ -13959,7 +13916,7 @@ bool isInView(int target){
     return false;
 }
 
-uint8_t changeSubDiv(bool direction, uint8_t subDiv, bool allowZero){
+uint16_t changeSubDiv(bool direction, uint8_t subDiv, bool allowZero){
   //down
   if(!direction){
     if(subDiv == 1 && allowZero)
@@ -14694,14 +14651,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
     uint8_t startHeight = 0;
     bool loopFlags = loopPoints;
 
-    //if there's a track offscreen ABOVE, then draw the info bar smaller
-    // if(startTrack>0 && !menuIsActive){
-    //   maxTracksShown = 6;
-    //   startHeight = 8;
-    //   trackHeight = (screenHeight-startHeight)/maxTracksShown;
-    //   loopFlags = false;
-    // }
-    if(maxTracksShown == 6){
+    if(maxTracksShown == 6 && !menuIsActive){
       startHeight = 8;
       trackHeight = (screenHeight-startHeight)/maxTracksShown;
       loopFlags = false;
@@ -16954,24 +16904,20 @@ bool anyActiveInputs(){
   }
 
   //stepButtons
-  digitalWrite(buttons_load,LOW);
-  digitalWrite(buttons_load,HIGH);
-  digitalWrite(buttons_clockIn, HIGH);
-  digitalWrite(buttons_clockEnable,LOW);
-  unsigned char bits_stepButtons = shiftIn(stepButtons_dataIn, buttons_clockIn, LSBFIRST);
-  digitalWrite(buttons_clockEnable, HIGH);
+  if(stepButtonsAreActive){
+    digitalWrite(buttons_load,LOW);
+    digitalWrite(buttons_load,HIGH);
+    digitalWrite(buttons_clockIn, HIGH);
+    digitalWrite(buttons_clockEnable,LOW);
+    unsigned char bits_stepButtons = shiftIn(stepButtons_dataIn, buttons_clockIn, LSBFIRST);
+    digitalWrite(buttons_clockEnable, HIGH);
   
-  // for(int digit = 0; digit<8; digit++){
-  //   if(!((bits_stepButtons>>digit)&1))
-  //     return true;
-  // }
+    for(int digit = 0; digit<8; digit++){
+      if(!((bits_stepButtons>>digit)&1))
+        return true;
+    }
+  }
 
-  //joystick
-  // int xVal = analogRead(x_Pin);
-  // int yVal = analogRead(y_Pin);
-  // if ((xVal > 800) || (xVal < 200) || (yVal > 800) ||(yVal < 200)) {
-  //   return true;
-  // }
   joyRead();
   if(x || y)
     return true;
@@ -17436,7 +17382,9 @@ bool fxMenuControls(){
           break;
         //random
         case 6:
+          menuIsActive = false;
           randMenu();
+          menuIsActive = true;
           break;
         //scramble
         case 7:
@@ -17696,6 +17644,157 @@ void debugMenuControls(){
     lastTime = millis();
     slideMenuOut(0,20);
     menuIsActive = false;
+  }
+}
+
+//60000/1000 = 60 seconds
+const uint16_t sleepTime = 60000;
+//120,000ms = 2min
+const uint32_t deepSleepTime = 120000;
+
+//turns off screen and LEDs, sends pico to deep sleep (Not done yet!)
+#ifndef HEADLESS
+void deepSleep(){
+  if(itsbeen(sleepTime)){
+    display.ssd1306_command(SSD1306_DISPLAYOFF);
+    clearButtons();
+    turnOffLEDs();
+    while(true){
+      delay(1);
+      if(anyActiveInputs()){
+        lastTime = millis();
+        break;
+      }
+    }
+    display.ssd1306_command(SSD1306_DISPLAYON);
+    updateLEDs();
+  }
+}
+#else
+void deepSleep(){
+    display.clearDisplay();
+    display.display();
+    while(true){
+        if(anyActiveInputs){
+            break;
+        }
+    }
+}
+#endif
+
+//screenSavers
+void screenSaver_cassette(){
+  WireFrame cassette = makeCassette();
+  cassette.scale = 4;
+  uint8_t rotationAmount = 0;
+  bool done = false;
+  while(true){
+    display.clearDisplay();
+    cassette.render();
+    display.display();
+    cassette.rotate(1,1);
+    rotationAmount++;
+    if(rotationAmount>360){
+      done = true;
+      rotationAmount = 0;
+    }
+    else{
+      done = false;
+    }
+    if(anyActiveInputs()){
+      lastTime = millis();
+      return;
+    }
+    else if(itsbeen(sleepTime) && done){
+      return;
+    }
+  }
+}
+
+void screenSaver_droplets(){
+  const uint8_t maxReps = 5;//for how many rings
+  const uint8_t spacing = 10;//for the spacing
+  const uint8_t xCoord = 64;
+  const uint8_t  yCoord = 32;
+  animOffset = 0;
+  bool done = false;
+  while(true){
+    display.clearDisplay();
+    if(animOffset<=32){
+      if(animOffset>8){//drops and reflection
+        display.drawCircle(xCoord, animOffset-8, 1+sin(animOffset), SSD1306_WHITE);
+        display.drawCircle(xCoord, screenHeight-(animOffset-8), 1+sin(animOffset), SSD1306_WHITE);
+      }
+      display.drawCircle(xCoord, animOffset, 3+sin(animOffset), SSD1306_WHITE);
+      display.drawCircle(xCoord, screenHeight-animOffset, 3+sin(animOffset), SSD1306_WHITE);
+    }
+    else if(animOffset>yCoord){
+      int reps = (animOffset-yCoord)/spacing+1;
+      if(reps>maxReps){
+        reps = maxReps;
+      }
+      for(int i = 0; i<reps; i++){
+        if(animOffset/3-spacing*i+sin(animOffset)*(i%2)<(screenWidth+16))
+          drawEllipse(xCoord, yCoord, animOffset/3-spacing*i+sin(animOffset)*(i%2), animOffset/8-spacing*i/3,SSD1306_WHITE);
+      }
+    }
+    display.display();
+    if(animOffset<yCoord){
+      animOffset+=5;
+    }
+    else
+      animOffset+=6;
+    if(animOffset>=8*spacing*maxReps/3+8*32+20){
+      animOffset = 0;
+      done = true;
+    }
+    else{
+      done = false;
+    }
+    if(anyActiveInputs()){
+      lastTime = millis();
+      return;
+    }
+    else if(itsbeen(sleepTime) && done){
+      return;
+    }
+  }
+}
+
+void screenSaver_template(){
+  bool done = false;
+  //loop that runs while the screensaver is active
+  while(true){
+    display.clearDisplay();
+    //put your rendering code here!
+    display.display();
+    //checking if any buttons are pressed and breaking out of the loop if so
+    if(anyActiveInputs()){
+      lastTime = millis();
+      return;
+    }
+    else if(itsbeen(sleepTime) && done){
+      return;
+    }
+  }
+}
+
+void screenSaver(){
+  //vector that holds all the screen savers
+  vector<void (*)()> screenSaverList = {screenSaver_droplets,screenSaver_cassette};
+  uint8_t which = random(0,screenSaverList.size());
+  //running the screen saver
+  lastTime = millis();
+  screenSaverList[which]();
+}
+
+void screenSaverCheck(){
+  while(itsbeen(sleepTime)){
+    // screenSaver_cassette();
+    screenSaver();
+    if(itsbeen(deepSleepTime)){
+      deepSleep();
+    }
   }
 }
 
@@ -18439,7 +18538,6 @@ void inputRead() {
     mainSequencerEncoders();
     joyCommands();
   }
-  // if(n||joy_Press||sel||shift||del||play||track_Press||note_Press||loop_Press||fx||menu_Press)//you can do this by checking old button states against new states
 }
 
 void drawX(uint8_t x1, uint8_t y1, uint8_t width){
@@ -18477,6 +18575,7 @@ void testItalicFont(){
     display.display();
   }
 }
+
 void bootscreen(){
   display.clearDisplay();
   uint16_t frameCount = 0;
@@ -18638,10 +18737,7 @@ void helloChild_5(){
   delay(500);
 }
 
-//this one is a bunch of floating prams
-void screenSaver1(){
 
-}
 
 void setupPins(){
   #ifndef HEADLESS
@@ -18686,7 +18782,6 @@ void setupPins(){
 }
 //startsMIDI and Serial
 void startSerial(){
-  // Serial.begin(9600);
   startMIDI();
 }
 void restartDisplay(){
@@ -18729,8 +18824,7 @@ void checkSerial(){
     lastTime = millis();
     displaySeq();
   }
-#endif
-#ifndef HEADLESS
+#else
 void setup() {
   Serial1.setRX(rxPin);
   Serial1.setTX(txPin_1);
@@ -18808,43 +18902,25 @@ void testLEDs(){
 void testJoyStick(){
   while(true){
     joyRead();
-    // if(x){
-      // Serial.println("x:"+stringify(x));
-      Serial.println("X:"+stringify(analogRead(x_Pin)));
-    // }
-    
-    // if(y){
-    //   Serial.println("Y:"+String(analogRead(y_Pin)));
-    //   Serial.println("y:"+String(y));
-    // }
-  }
-}
-//60000/1000 = 60 seconds
-const uint16_t sleepTime = 60000;
-
-void screen_depowerCheck(){
-  #ifndef HEADLESS
-  if(itsbeen(sleepTime)){
-    display.ssd1306_command(SSD1306_DISPLAYOFF);
-    clearButtons();
-    turnOffLEDs();
-    while(true){
-      delay(1);
-      if(anyActiveInputs()){
-        lastTime = millis();
-        break;
-      }
+    readButtons();
+    if(itsbeen(200) && menu_Press){
+      lastTime = millis();
+      return;
     }
-    display.ssd1306_command(SSD1306_DISPLAYON);
-    updateLEDs();
+    float X = analogRead(x_Pin);
+    float Y = analogRead(y_Pin);
+    display.clearDisplay();
+    printSmall(0,0,"X: "+stringify(X)+","+stringify(x),1);
+    printSmall(0,10,"Y: "+stringify(Y)+","+stringify(y),1);
+    display.drawCircle(X/8.0,Y/16.0,4,1);
+    display.display();
   }
-  #endif
 }
 
 void loop() {
   inputRead();
   displaySeq();
-  screen_depowerCheck();
+  screenSaverCheck();
 }
 
 //the closer the step is to the subDiv (both forward and backward), the shorter the time val

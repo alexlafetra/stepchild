@@ -13,8 +13,8 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
     printSmall(x1+29,y1+14,"min",1);
     frac = stepsToMeasures(minLength);
     printFraction_small(x1+29,y1+23,frac);
-        int8_t offset1 = 4*sin(millis()/100);
-        int8_t offset2 = 4*cos(millis()/100);
+    int8_t offset1 = 4*sin(millis()/100);
+    int8_t offset2 = 4*cos(millis()/100);
     display.fillRect(x1+12,y1+24-maxLength/6-offset1/2,6,maxLength/3+offset1,1);
     display.fillRect(x1+20,y1+24-minLength/6-offset2/2,6,minLength/3+offset2,1);
     }
@@ -43,10 +43,9 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
     const uint8_t y1 = 14;
     display.drawCircle(x1+28,y1+20,maxChance/6,1);
     display.fillCircle(x1+28,y1+20,minChance/6,1);
-    uint8_t diff = (maxChance-minChance)/8;
-    for(uint8_t i = (minChance/8)+1; i<(maxChance/8-diff/2*sin(float(millis())/float(100)))-2; i+=2){
-      display.drawCircle(x1+28,y1+20,i,1);
-    }
+    uint8_t diff = ceil(float(maxChance)/8.0-float(minChance)/8.0);
+    // for(uint8_t i = (minChance/8)+1; i<(maxChance/8-diff/2*sin(float(millis())/float(100)))-2; i+=2){
+    display.drawCircle(x1+28,y1+20,minChance/8+(millis()/50)%diff+1,1);
     printSmall(x1,y1+sin(millis()/200),"max",1);
     printSmall(x1,y1+6+sin(millis()/200),stringify(maxChance),1);
     printSmall(x1+45,y1+34+cos(millis()/200),"min",1);
@@ -59,8 +58,15 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
     {
     const uint8_t x1 = 36;
     const uint8_t y1 = 14;
-    printSmall(x1+10,y1,"randomize...",1);
-    printArp_wiggly(x1,y1+16,targetTrack?"Selected":"Everything",1);
+    printSmall(x1+8,y1,"randomize...",1);
+      if(targetTrack){
+        printArp_wiggly(x1,y1+16,"Everything",1);
+        printSmall_centered(64,y1+32,"(the whole seq)",1);
+      }
+      else{
+        printArp_wiggly(x1+4,y1+16,"Selection",1);
+        printSmall_centered(64,y1+32,"(select an area)",1);
+      }
     }
     break;
     //velocity
@@ -70,8 +76,8 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
       const uint8_t y1 = 14;
       display.drawCircle(x1+28,y1+20,maxVel/8,1);
       display.fillCircle(x1+28,y1+20,minVel/8,1);
-      uint8_t diff = (maxVel-minVel)/8;
-      for(uint8_t i = (minVel/8)+1; i<(maxVel/8-diff/2*sin(float(millis())/float(100)))-2; i+=2){
+      uint8_t diff = maxVel/8-minVel/8;
+      for(uint8_t i = (minVel/8)+1; i<(maxVel/8-diff*abs(sin(float(millis())/float(200))))-1; i+=2){
         display.drawCircle(x1+28,y1+20,i,1);
       }
       printSmall(x1,y1+sin(millis()/200),"max",1);
@@ -86,11 +92,200 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
       {
       const uint8_t x1 = 44;
       const uint8_t y1 = 10;
-      printArp_wiggly(x1,y1+10,gridBehavior?"On Grid":"Off Grid",1);
-      printSmall(x1,y1+25,"grid size:",1);
-      printFraction_small(x1,y1+35,stepsToMeasures(subDivInt));
+      if(gridBehavior){
+        printArp_wiggly(x1,y1+10,"On Grid",1);
+        printSmall_centered(64,y1+25,"locked to grid:",1);
+        printFraction_small_centered(62,y1+35,stepsToMeasures(subDivInt));
+      }
+      else{
+        printArp_wiggly(x1-4,y1+10,"Off Grid",1);
+        printSmall_centered(x1+24,y1+25,"create notes anywhere!",1);
+      }
       }
       break;
+  }
+}
+
+struct CoordinatePair{
+  uint16_t x1;
+  uint16_t x2;
+  uint8_t y1;
+  uint8_t y2;
+};
+
+void drawCoordinateBox(CoordinatePair coords){
+  if(!selBox.begun && (coords.x1 != coords.x2)){
+    //correcting bounds for view
+    unsigned short int X1;
+    unsigned short int X2;
+    unsigned short int Y1;
+    unsigned short int Y2;
+
+    if(coords.x1>coords.x2){
+      X1 = coords.x2;
+      X2 = coords.x1;
+    }
+    else{
+      X1 = coords.x1;
+      X2 = coords.x2;
+    }
+    if(coords.y1>coords.y2){
+      Y1 = coords.y2;
+      Y2 = coords.y1;
+    }
+    else{
+      Y1 = coords.y1;
+      Y2 = coords.y2;
+    }
+
+    //if it's offscreen, return
+    if(X2<=viewStart || X1>=viewEnd || Y1 > startTrack+maxTracksShown || Y2<startTrack){
+      return;
+    }
+
+    if(X1<viewStart){
+      X1 = viewStart;
+    }
+    if(X2>viewEnd){
+      X2 = viewEnd;
+    }
+    if(Y1<startTrack){
+      Y1 = startTrack;
+    }
+    if(Y2>(startTrack+maxTracksShown)){
+      Y2 = startTrack+maxTracksShown;
+    }
+    uint8_t startX = trackDisplay+(X1-viewStart)*scale;
+    uint8_t length = (X2-X1)*scale;
+    uint8_t startHeight = maxTracksShown==5?debugHeight:8;
+    uint8_t startY = (Y1-startTrack)*trackHeight+startHeight;
+    uint8_t height = ((Y2 - startTrack + 1)*trackHeight - startY)%(screenHeight-startHeight) + startHeight;
+   
+   if((millis())%400>200){
+      shadeRect(startX,startY,length,height,3);
+    }
+    else{
+      display.drawRect(startX,startY,length,height,1);
+    }
+  }
+}
+
+CoordinatePair selectArea(){
+  CoordinatePair coords;
+  coords.x1 = 0;
+  coords.x2 = 0;
+  while(true){
+    joyRead();
+    readButtons();
+    defaultEncoderControls();
+    if(sel && !selBox.begun && (x != 0 || y != 0)){
+      selBox.begun = true;
+      selBox.x1 = cursorPos;
+      selBox.y1 = activeTrack;
+      coords.x1 = cursorPos;
+      coords.y1 = activeTrack;
+    }
+    //if sel is released, and there's a selection box
+    if(!sel && selBox.begun){
+      selBox.x2 = cursorPos;
+      selBox.y2 = activeTrack;
+      selBox.begun = false;
+      coords.x2 = cursorPos;
+      coords.y2 = activeTrack;
+    }
+    if(itsbeen(200)){
+      if(n || menu_Press){
+        lastTime = millis();
+        return coords;
+      }
+    }
+    if (itsbeen(100)) {
+      if (x == 1 && !shift) {
+        //if cursor isn't on a measure marker, move it to the nearest one
+        if(cursorPos%subDivInt){
+          moveCursor(-cursorPos%subDivInt);
+          lastTime = millis();
+        }
+        else{
+          moveCursor(-subDivInt);
+          lastTime = millis();
+        }
+      }
+      if (x == -1 && !shift) {
+        if(cursorPos%subDivInt){
+          moveCursor(subDivInt-cursorPos%subDivInt);
+          lastTime = millis();
+        }
+        else{
+          moveCursor(subDivInt);
+          lastTime = millis();
+        }
+      }
+      if (y == 1) {
+        if(recording)
+          setActiveTrack(activeTrack + 1, false);
+        else
+          setActiveTrack(activeTrack + 1, true);
+        lastTime = millis();
+      }
+      if (y == -1) {
+        if(recording)
+          setActiveTrack(activeTrack - 1, false);
+        else
+          setActiveTrack(activeTrack - 1, true);
+        lastTime = millis();
+      }
+    }
+    if (itsbeen(50)) {
+      if (x == 1 && shift) {
+        moveCursor(-1);
+        lastTime = millis();
+      }
+      if (x == -1 && shift) {
+        moveCursor(1);
+        lastTime = millis();
+      }
+    }
+    display.clearDisplay();
+    drawSeq(true, false, true, false, false, viewStart, viewEnd);
+    drawCoordinateBox(coords);
+    display.drawBitmap(5,0,top_die_icon,14,15,1);
+    printSmall(trackDisplay,0,"select an area!",1);
+    display.display();
+  }
+}
+
+void genRandom(int8_t odds, int8_t minChance, int8_t maxChance, uint16_t minLength, uint16_t maxLength, uint8_t minVel, uint8_t maxVel,bool onGrid,bool target){
+  CoordinatePair coords = selectArea();
+  if(coords.x1>coords.x2){
+    uint16_t temp = coords.x1;
+    coords.x1 = coords.x2;
+    coords.x2 = temp;
+  }
+  if(coords.y1>coords.y2){
+    uint8_t temp = coords.y1;
+    coords.y1 = coords.y2;
+    coords.y2 = temp;
+  }
+  //iterate over the tracks (inclusively)
+  for(uint8_t t = coords.y1; t<=coords.y2; t++){
+    for(uint16_t step = coords.x1; step<coords.x2; step++){
+      //if it's not only making notes on the grid, or if the step is on a subDiv
+      if((!onGrid || !(step%subDivInt)) && lookupData[t][step] == 0){
+        if(random(0,100)<odds){
+          uint8_t chance = random(minChance,maxChance+1);
+          uint16_t length = random(minLength,maxLength+1);
+          uint8_t vel = random(minVel,maxVel+1);
+          //making sure notes won't run off the end
+          if(step+length>coords.x2){
+            length = coords.x2-step;
+          }
+          Note newNote = Note(step,step+length,vel,chance,false,false);
+          makeNote(newNote, t);
+          step = newNote.endPos-1;
+        }
+      }
+    }
   }
 }
 
@@ -158,7 +353,6 @@ void drawRandMenu(uint8_t whichTab){
 bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int8_t * maxChance, uint16_t * minLength, uint16_t * maxLength, uint8_t * minVel, uint8_t * maxVel, bool * gridBehavior, bool * targetTrack){
     joyRead();
     readButtons();
-    
     if(itsbeen(200)){
         if(x != 0){
             if(x == -1 && (*whichTab) < 3){
@@ -184,11 +378,38 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
             lastTime = millis();
             return false;
         }
+      if(n){
+        lastTime = millis();
+        genRandom(*odds, *minChance, * maxChance, *minLength, *maxLength, *minVel, *maxVel,*gridBehavior,*targetTrack);
+        return false;
+      }
     }
-    
     
     while(counterA != 0){
       switch(*whichTab){
+        //length
+        case 0:
+        {
+          if(counterA >= 1){
+            if(shift)
+              (*maxLength)++;
+            else{
+              *maxLength = changeSubDiv(true,*maxLength,false);
+            }
+            if(*maxLength>96)
+              *maxLength = 96;
+          }
+          else if(counterA <= -1){
+            if(shift && *maxLength>1)
+              (*maxLength)--;
+            else
+              *maxLength = changeSubDiv(false,*maxLength,false);
+          }
+          if((*maxLength)<(*minLength))
+            *minLength = *maxLength;
+          counterA += counterA<0?1:-1;
+        }
+          break;
         //odds
         case 1:
           if(counterA >= 1){
@@ -205,38 +426,44 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
             else
               (*odds)-=10;
             if(*odds<0)
-              *odds = 0;
+              (*odds) = 0;
           }
-          counterA += counterA<0?1:-1;;
+          counterA += counterA<0?1:-1;
           break;
-        //length
+        //chance
         case 2:
           if(counterA >= 1){
             if(shift)
-              (*maxLength)++;
+              (*maxChance)++;
             else{
-              if(*maxLength == 1)
-                *maxLength = 12;
-              else
-                (*maxLength)+=12;
+              if(*maxChance == 1)
+                *maxChance = 10;
+              else{
+                (*maxChance) += 10;
+              }
             }
-            if(*maxLength>96)
-              *maxLength = 96;
+            if(*maxChance>100)
+              *maxChance = 100;
           }
           else if(counterA <= -1){
-            if(shift && *maxLength>1)
-              (*maxLength)--;
-            else if(*maxLength>12)
-              (*maxLength)-=12;
+            if(shift && *maxChance>1)
+              (*maxChance)--;
+            else if(*maxChance>10)
+              (*maxChance) -= 10;
             else
-              (*maxLength) = 1;
+              *maxChance = 1;
+            if(*maxChance<*minChance)
+              *minChance = *maxChance;
           }
-          if(*maxLength<*minLength)
-            minLength = maxLength;
-          counterA += counterA<0?1:-1;;
+          counterA += counterA<0?1:-1;
+          break;
+        //randomize selection/everything
+        case 3:
+          *targetTrack = !*targetTrack;
+          counterA += counterA<0?1:-1;
           break;
         //velocity
-        case 3:
+        case 4:
           if(counterA >= 1){
             if(shift)
               maxVel++;
@@ -260,51 +487,39 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
             if(*maxVel<*minVel)
               *minVel = *maxVel;
           }
-          counterA += counterA<0?1:-1;;
-          break;
-        //chance
-        case 4:
-          if(counterA >= 1){
-            if(shift)
-              (*maxChance)++;
-            else{
-              if(*maxChance == 1)
-                *maxChance = 10;
-              else{
-                (*maxChance) += 10;
-                Serial.println(*maxChance);
-              }
-            }
-            if(*maxChance>100)
-              *maxChance = 100;
-          }
-          else if(counterA <= -1){
-            if(shift && *maxChance>1)
-              (*maxChance)--;
-            else if(*maxChance>10)
-              (*maxChance) -= 10;
-            else
-              *maxChance = 1;
-            if(*maxChance<*minChance)
-              *minChance = *maxChance;
-          }
-          counterA += counterA<0?1:-1;;
-          break;
-        //randomize selection/everything
-        case 5:
-          *targetTrack = !*targetTrack;
-          counterA += counterA<0?1:-1;;
+          counterA += counterA<0?1:-1;
           break;
         //grid on/off
-        case 6:
+        case 5:
           *gridBehavior = !*gridBehavior;
-          counterA += counterA<0?1:-1;;
+          counterA += counterA<0?1:-1;
           break;
       }
     }
 
     while(counterB != 0){
       switch(*whichTab){
+        //length
+        case 0:
+          if(counterB >= 1){
+            if(shift)
+              (*minLength)++;
+            else{
+              *minLength = changeSubDiv(true,*minLength,false);
+            }
+            if(*minLength>96)
+              *minLength = 96;
+          }
+          else if(counterB <= -1){
+            if(shift && *minLength>1)
+              (*minLength)--;
+            else
+              *minLength = changeSubDiv(false,*minLength,false);
+          }
+          if(*minLength>*maxLength)
+            *maxLength=*minLength;
+          counterB += counterB<0?1:-1;
+          break;
         //odds
         case 1:
           if(counterB >= 1){
@@ -323,63 +538,10 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
             if(*odds<0)
               (*odds) = 0;
           }
-          counterB += counterB<0?1:-1;;
-          break;
-        //length
-        case 2:
-          if(counterB >= 1){
-            if(shift)
-              (*minLength)++;
-            else{
-              if(*minLength == 1)
-                *minLength = 12;
-              else
-                (*minLength)+=12;
-            }
-            if(*minLength>96)
-              *minLength = 96;
-          }
-          else if(counterB <= -1){
-            if(shift && *minLength>1)
-              (*minLength)--;
-            else if(*minLength>12)
-              (*minLength)-=12;
-            else
-              *minLength = 1;
-          }
-          if(*minLength>*maxLength)
-            *maxLength=*minLength;
-          counterB += counterB<0?1:-1;;
-          break;
-        //velocity
-        case 3:
-          if(counterB >= 1){
-            if(shift)
-              (*minVel)++;
-            else{
-              if(*minVel == 1)
-                *minVel = 16;
-              else
-                (*minVel) += 16;
-            }
-            if(*minVel>127)
-              *minVel = 127;
-          }
-          else if(counterB <= -1){
-            if(shift && *minVel>1)
-              (*minVel)--;
-            else if(*minVel>16)
-             (*minVel) -= 16;
-            else
-              (*minVel) = 1;
-            
-            if(*minVel>*maxVel)
-              *maxVel = *minVel;
-          }
-          counterB += counterB<0?1:-1;;
+          counterB += counterB<0?1:-1;
           break;
         //chance
-        case 4:
+        case 2:
           if(counterB >= 1){
             if(shift)
               (*minChance)++;
@@ -403,22 +565,49 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
             if(*minChance>*maxChance)
               *maxChance = *minChance;
           }
-          counterB += counterB<0?1:-1;;
+          counterB += counterB<0?1:-1;
           break;
         //randomize selection/everything
-        case 5:
+        case 3:
           *targetTrack = !*targetTrack;
-          counterB += counterB<0?1:-1;;
+          counterB += counterB<0?1:-1;
+          break;
+                //velocity
+        case 4:
+          if(counterB >= 1){
+            if(shift)
+              (*minVel)++;
+            else{
+              if(*minVel == 1)
+                *minVel = 16;
+              else
+                (*minVel) += 16;
+            }
+            if(*minVel>127)
+              *minVel = 127;
+          }
+          else if(counterB <= -1){
+            if(shift && *minVel>1)
+              (*minVel)--;
+            else if(*minVel>16)
+             (*minVel) -= 16;
+            else
+              (*minVel) = 1;
+            
+            if(*minVel>*maxVel)
+              *maxVel = *minVel;
+          }
+          counterB += counterB<0?1:-1;
           break;
         //changing grid subDiv
-        case 6:
+        case 5:
           if(counterB >= 1){
             changeSubDivInt(true);
           }
           else if(counterB <= -1){
             changeSubDivInt(false);
           }
-          counterB += counterB<0?1:-1;;
+          counterB += counterB<0?1:-1;
           break;
       }
     }

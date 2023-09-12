@@ -201,7 +201,7 @@ void print7SegItalic(uint8_t x1, uint8_t y1, int num){
 
 void print7SegItalic_wiggly(uint8_t x1, uint8_t y1, String num){
   for(uint8_t i = 0; i<num.length(); i++){
-    print7SegItalic(x1+i*16, y1+3.0*sin(millis()/200+2*i),num.charAt(i));
+    print7SegItalic(x1+i*16, y1+float(3.0*float(sin(millis()/200.00+2*i))),num.charAt(i));
   }
 }
 

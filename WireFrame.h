@@ -1114,7 +1114,6 @@ WireFrame makeCassette(){
   b.scale = 2.5;
   b.rotate(30,0);
   b.rotate(15,2);
-  // b.view();
   return b;
 }
 WireFrame makeGraphBox(float offset){

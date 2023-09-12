@@ -98,36 +98,36 @@ void readButtons_MPX(){
     buttons[digit] = (bits_buttons>>digit)&1;
   }
 
-  //doing it again (as a test)
-  digitalWrite(buttons_load,LOW);
-  digitalWrite(buttons_load,HIGH);
-  digitalWrite(buttons_clockIn, HIGH);
-  digitalWrite(buttons_clockEnable,LOW);
-  unsigned char bits_stepButtons = shiftIn(stepButtons_dataIn, buttons_clockIn, MSBFIRST);
-  digitalWrite(buttons_clockEnable, HIGH);
-  
-  //checking if any are changed in order to do the keys
-  if(keys || drumPads){
-    for(int i = 0; i<8; i++){
-      //if the button has changed, set the value and call the keyboard function stuff
-      if(step_buttons[i] != !((bits_stepButtons>>i)&1)){
-        step_buttons[i] = !((bits_stepButtons>>i)&1);//set button equal to the new read value
-        // if(step_buttons[i] && !isBeingPlayed(keyboardPitch + i)){
-        //   sendMIDInoteOn(keyboardPitch+i,defaultVel,defaultChannel);
-        //   addNoteToPlaylist(keyboardPitch+i,defaultVel,defaultChannel);
-        // }
-        // else if(!step_buttons[i] && isBeingPlayed(keyboardPitch + i)){
-        //   sendMIDInoteOff(keyboardPitch+i,defaultVel,defaultChannel);
-        //   subNoteFromPlaylist(keyboardPitch+i);
-        // }
+  if(stepButtonsAreActive){
+    digitalWrite(buttons_load,LOW);
+    digitalWrite(buttons_load,HIGH);
+    digitalWrite(buttons_clockIn, HIGH);
+    digitalWrite(buttons_clockEnable,LOW);
+    unsigned char bits_stepButtons = shiftIn(stepButtons_dataIn, buttons_clockIn, MSBFIRST);
+    digitalWrite(buttons_clockEnable, HIGH);
+    
+    //checking if any are changed in order to do the keys
+    if(keys || drumPads){
+      for(int i = 0; i<8; i++){
+        //if the button has changed, set the value and call the keyboard function stuff
+        if(step_buttons[i] != !((bits_stepButtons>>i)&1)){
+          step_buttons[i] = !((bits_stepButtons>>i)&1);//set button equal to the new read value
+          // if(step_buttons[i] && !isBeingPlayed(keyboardPitch + i)){
+          //   sendMIDInoteOn(keyboardPitch+i,defaultVel,defaultChannel);
+          //   addNoteToPlaylist(keyboardPitch+i,defaultVel,defaultChannel);
+          // }
+          // else if(!step_buttons[i] && isBeingPlayed(keyboardPitch + i)){
+          //   sendMIDInoteOff(keyboardPitch+i,defaultVel,defaultChannel);
+          //   subNoteFromPlaylist(keyboardPitch+i);
+          // }
+        }
       }
     }
-  }
-  //normal operation
-  else{
-    for(int digit = 0; digit<8; digit++){
-      step_buttons[digit] = !((bits_stepButtons>>digit)&1);
-      step_buttons[digit] = 0;
+    //normal operation
+    else{
+      for(int digit = 0; digit<8; digit++){
+        step_buttons[digit] = !((bits_stepButtons>>digit)&1);
+      }
     }
   }
 
