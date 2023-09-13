@@ -1,3 +1,129 @@
+bool mainMenuControls(){
+  if(itsbeen(100)){
+    if(x != 0){
+      if(x == -1){
+        //if it's not divisible by four (in which case this would be 0)
+        if((activeMenu.highlight+1)%4)
+          activeMenu.highlight++;
+        lastTime = millis();
+      }
+      else if(x == 1){
+        if((activeMenu.highlight)%4)
+          activeMenu.highlight--;
+        lastTime = millis();
+      }
+    }
+    if(y != 0){
+      if(y == 1){
+        //first row
+        if(activeMenu.highlight < 8)
+          activeMenu.highlight += 4;
+        lastTime = millis();
+      }
+      else if(y == -1){
+        //second row
+        if(activeMenu.highlight > 3)
+          activeMenu.highlight -= 4;
+        lastTime = millis();
+      }
+    }
+  }
+  if(itsbeen(200)){
+    if(menu_Press){
+      if(shift){
+        slideMenuOut(0,20);
+        lastTime = millis();
+        constructMenu("DEBUG");
+      }
+      else{
+        lastTime = millis();
+        slideMenuOut(0,20);
+        menuIsActive = false;
+        return false;
+      }
+    }
+    if(loop_Press){
+      lastTime = millis();
+      loopMenu();
+    }
+    if(n){
+      lastTime = millis();
+      slideMenuOut(0,20);
+      constructMenu("FX");
+      fxMenu();
+    }
+    if(sel){
+      sel = false;
+      lastTime = millis();
+      switch(activeMenu.highlight){
+        //datatracks
+        case 0:
+          dataTrackViewer();
+          break;
+        //loop
+        case 1:
+          loopMenu();
+          break;
+        //keys
+        case 2:
+          // toggleKeys();
+          selectInstrumentMenu();
+          break;
+        //settings
+        case 3:
+          // slideMenuOut(0,20);
+          // constructMenu("SYS");  
+          constructMenu("SETTINGS");  
+          break;
+        //quicksave
+        case 4:
+          //if you're shifting, load most recent backup
+          if(shift){
+            loadBackup();
+          }
+          else{
+            quickSave();
+          }
+          break;
+        //fx
+        case 5:
+          slideMenuOut(0,20);
+          constructMenu("FX");
+          fxMenu();
+          break;
+        //rec
+        case 6:
+          // playBackMenu();
+          randMenu();
+          break;
+        //console
+        case 7:
+          console();
+          break;
+        //midi
+        case 8:
+          midiMenu();
+          break;
+        //files
+        case 9:
+          constructMenu("FILES");
+          break;
+        //clock
+        case 10:
+          slideMenuOut(0,20);
+          constructMenu("CLOCK");
+          break;
+        //arp
+        case 11:
+          arpMenu();
+          keyboardAnimation(38,14,0,14,false);
+          break;
+      }
+    }
+  }
+  return true;
+}
+
 void drawMainMenuLabel(){
   String text;
   switch(activeMenu.highlight){
@@ -27,7 +153,7 @@ void drawMainMenuLabel(){
       break;
     //rec
     case 6:
-      text = "PLY/REC";
+      text = "RANDOM";
       break;
     //heart
     case 7:
@@ -50,11 +176,7 @@ void drawMainMenuLabel(){
       text = "ARP";
       break;
   }
-  // display.setRotation(1);
-  drawLabel(112,32,text,true);
-  // drawBanner(112-text.length()*2-countSpaces(text),32,text);
-
-  // display.setRotation(UPRIGHT);
+  drawLabel(112,34,text,true);
 }
 void mainMenu(){
   uint8_t activeWireFrame;
@@ -62,18 +184,13 @@ void mainMenu(){
   icon.xPos = 112;
   icon.yPos = 16;
   while(true){
+    //controls
+    joyRead();
+    readButtons();
     if(!mainMenuControls())
       break;
-    display.clearDisplay();
-    drawSeq(true,false,false,false,false);
-    drawPram(5,0);
-    display.fillCircle(111,13,23,0);
-    display.drawCircle(111,13,23,1);
-    activeMenu.displayMainMenu();
-    icon.render();
-    drawMainMenuLabel();
-    display.display();
-    //if the highlight changes
+    
+    //if the highlight changes, get the new wireFrame
     if(activeWireFrame != activeMenu.highlight){
       icon = getMenuWireFrame();
       icon.xPos = 112;
@@ -83,9 +200,20 @@ void mainMenu(){
         icon.yPos = 16;
       activeWireFrame = activeMenu.highlight;
     }
+
     animateIcon(&icon);
-    joyRead();
-    readButtons();
+    display.clearDisplay();
+    drawSeq(true,false,false,false,false);
+    drawPram(5,0);
+    display.fillCircle(111,15,23,0);
+    display.drawCircle(111,15,23,1);
+    activeMenu.displayMainMenu();
+    if(activeWireFrame == 6)
+      icon.renderDie();
+    else
+      icon.render();
+    drawMainMenuLabel();
+    display.display();
   }
 }
 

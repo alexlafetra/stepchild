@@ -180,6 +180,7 @@ CoordinatePair selectArea(){
   coords.x2 = 0;
   coords.y1 = 0;
   coords.y2 = 0;
+  WireFrame graphics = genRandMenuObjects(16,8,10,0.5);
   while(true){
     joyRead();
     readButtons();
@@ -260,10 +261,12 @@ CoordinatePair selectArea(){
         lastTime = millis();
       }
     }
+    graphics.rotate(1,0);
+    graphics.rotate(1,1);
     display.clearDisplay();
     drawSeq(true, false, true, false, false, viewStart, viewEnd);
     drawCoordinateBox(coords);
-    display.drawBitmap(5,0,top_die_icon,14,15,1);
+    graphics.renderDie();
     if(coords.x1 == 0 && coords.x2 == 0 && coords.y1 == 0 && coords.y2 == 0){
       printSmall(trackDisplay,0,"select an area!",1);
     }

@@ -12,6 +12,7 @@ void moveDataTrackCursor(int moveAmount);
 void changeDataPoint(int8_t);
 void smoothDataTrack(uint16_t, uint16_t, uint8_t);
 bool isModulated(uint8_t ch);
+void dataTrackViewer();
 
 //Drawing functions
 void printSmall(int, int, String, uint16_t);
@@ -55,6 +56,8 @@ void drawCurlyBracket(int16_t x1, uint8_t y1, uint8_t length,uint8_t height,bool
 void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation);
 void drawQuantIcon(uint8_t,uint8_t,uint8_t,bool);
 void drawHumanizeIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim);
+void printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c);
+void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t numberOfKeys, bool into);
 
 //Menus
 void saveMenu();
@@ -72,6 +75,7 @@ void routeMenu();
 void warp();
 void reverseNotes();
 void inputMenu();
+void midiMenu();
 
 
 //Note editing

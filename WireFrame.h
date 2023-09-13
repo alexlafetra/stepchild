@@ -105,7 +105,8 @@ class WireFrame{
   WireFrame(vector<Vertex>,vector<vector<uint16_t>>);
 
   void render();
-  void renderCube();
+  void renderDie();
+  void renderDotsIfInFrontOf(float zCutoff);
   void rotate(float,uint8_t);
   void rotateAbsolute(float,uint8_t);
   void printVerts();
@@ -217,12 +218,10 @@ uint8_t WireFrame::getClosestVert(){
   }
   return closest;
 }
-void WireFrame::renderCube(){
+void WireFrame::renderDie(){
   //stores index of the farthest vertex
   if(drawDots){
-    for(uint8_t i = 0; i<verts.size(); i++){
-      verts[i].render(xPos,yPos,scale);
-    }
+    renderDotsIfInFrontOf(0.0);
   }
   if(drawEdges){
     uint8_t farthestVert;
@@ -241,14 +240,14 @@ void WireFrame::renderCube(){
         continue;
       }
       else
-        display.drawLine(verts[edges[edge][0]].x+xPos,verts[edges[edge][0]].y+yPos,verts[edges[edge][1]].x+xPos,verts[edges[edge][1]].y+yPos,SSD1306_WHITE);
+        display.drawLine(verts[edges[edge][0]].x*scale+xPos,verts[edges[edge][0]].y*scale+yPos,verts[edges[edge][1]].x*scale+xPos,verts[edges[edge][1]].y*scale+yPos,SSD1306_WHITE);
     }
   }
 }
 void WireFrame::render(){
   if(drawDots){
     for(uint8_t i = 0; i<dots.size(); i++){
-      verts[dots[i]].render(xPos,yPos,scale);
+      verts[dots[i]].render(xPos,yPos,scale,1);
       //for labelling verts
       // verts[dots[i]].render(xPos,yPos,scale,1,String(i));
     }
@@ -264,6 +263,12 @@ void WireFrame::render(){
   }
 }
 
+void WireFrame::renderDotsIfInFrontOf(float zCutoff){
+  for(uint8_t i = 0; i<dots.size(); i++){
+    if(verts[dots[i]].z>zCutoff)
+      verts[dots[i]].render(xPos,yPos,scale,1);
+  }
+}
 
 //roates each vert
 void WireFrame::rotate(float angle, uint8_t axis){
@@ -452,7 +457,7 @@ vector<WireFrame> animateRotation(vector<WireFrame> w, float angle, uint8_t spee
       newFrames[i].rotate(yA,1);
       newFrames[i].rotate(zA,2);
       if(i == 1)
-        newFrames[i].renderCube();
+        newFrames[i].renderDie();
       else
         newFrames[i].render();
     }
@@ -482,7 +487,7 @@ uint8_t getSide(WireFrame die){
     return 0;
 }
 
-vector<WireFrame> genRandMenuObjects(uint8_t distance){
+WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float scale){
   Vertex v1 = Vertex(10,10,10);
   Vertex v2 = Vertex(10,10,-10);
   Vertex v3 = Vertex(10,-10,10);
@@ -496,8 +501,9 @@ vector<WireFrame> genRandMenuObjects(uint8_t distance){
   WireFrame cube = WireFrame(vertices,edges);
 //  cube.xPos = 32;
 //  cube.yPos = 32;
-    cube.xPos = 64;
-    cube.yPos = 36;
+    cube.xPos = x1;
+    cube.yPos = y1;
+    cube.scale = scale;
 
   //1
   v1 = Vertex(0,0,distance);
@@ -533,16 +539,20 @@ vector<WireFrame> genRandMenuObjects(uint8_t distance){
   WireFrame allDots = WireFrame(verts2);
 //  allDots.xPos = 32;
 //  allDots.yPos = 32;
-    allDots.xPos = 64;
-    allDots.yPos = 36;
+    allDots.xPos = x1;
+    allDots.yPos = y1;
   allDots.drawEdges = false;
   allDots.drawDots = true;
   //so it draws all the dots
   for(uint8_t i = 0; i<allDots.verts.size(); i++){
     allDots.dots.push_back(i);
   }
-  vector<WireFrame> meshes = {allDots,cube};
-  return meshes;
+  allDots.scale = scale;
+  // vector<WireFrame> meshes = {allDots,cube};
+  // return meshes;
+  cube.add(allDots);
+  cube.drawDots = true;
+  return cube;
 }
 
 WireFrame genFrame(){

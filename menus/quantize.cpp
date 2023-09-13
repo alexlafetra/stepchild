@@ -295,6 +295,7 @@ void quantizeMenu(){
 
     //draw swing indicator
     printSmall(90,6,quantizeWithSwing?"swung":"unswung",1);
+    printSmall(0,53,"quantize",1);
 
     if(whichParam == 0){
       drawArrow(96+16+2*sin(millis()/200),56,2,1,true);

@@ -924,25 +924,6 @@ const unsigned char epd_bitmap_hand []  = {
 	0x41, 0x20, 0x60, 0x40, 0x20, 0x80, 0x1f, 0x00
 };
 
-// Array of all bitmaps for convenience. (Total bytes used to store images in  = 336)
-const unsigned char* mainMenu_icons[12] = {
-  // epd_bitmap_graph,
-  epd_bitmap_automation,
-  epd_bitmap_loop,
-  epd_bitmap_hand,
-  epd_bitmap_wrench,
-
-  epd_bitmap_CD,
-  epd_bitmap_fx,
-  playback1_bmp,
-  epd_bitmap_console,
-
-  epd_bitmap_midi,
-  epd_bitmap_folder,
-  epd_bitmap_clock,
-  epd_bitmap_arp
-};
-
 // 'echo', 12x12px
 const unsigned char epd_bitmap_echo []  = {
 	0x1f, 0x80, 0x20, 0x40, 0x4f, 0x20, 0x90, 0x90, 0xa6, 0x50, 0xa9, 0x50, 0xa9, 0x50, 0xa6, 0x50, 
@@ -1008,6 +989,26 @@ const unsigned char epd_bitmap_chop []  = {
 const unsigned char epd_bitmap_warp []  = {
 	0x00, 0x00, 0x08, 0x00, 0x0a, 0x00, 0x2a, 0x20, 0x2a, 0xa0, 0xaa, 0xa0, 0xaa, 0xa0, 0x2a, 0xa0, 
 	0x2a, 0x20, 0x0a, 0x00, 0x08, 0x00, 0x00, 0x00
+};
+
+// Array of all bitmaps for convenience. (Total bytes used to store images in  = 336)
+const unsigned char* mainMenu_icons[12] = {
+  // epd_bitmap_graph,
+  epd_bitmap_automation,
+  epd_bitmap_loop,
+  epd_bitmap_hand,
+  epd_bitmap_wrench,
+
+  epd_bitmap_CD,
+  epd_bitmap_fx,
+  epd_bitmap_rnd,
+//   playback1_bmp,
+  epd_bitmap_console,
+
+  epd_bitmap_midi,
+  epd_bitmap_folder,
+  epd_bitmap_clock,
+  epd_bitmap_arp
 };
 
 //fx menu icons

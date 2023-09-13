@@ -317,13 +317,13 @@ void printFraction_small_centered(uint8_t x1, uint8_t y1, String fraction){
     whole = fraction;
   }
     
-#ifndef HEADLESS
-  uint16_t num = numerator.toInt();
-  uint16_t denom = denominator.toInt();
-#else
-    uint16_t num = stoi(numerator);
-    uint16_t denom = stoi(denominator);
-#endif
+//#ifndef HEADLESS
+  uint16_t num = toInt(numerator);
+  uint16_t denom = toInt(denominator);
+//#else
+//    uint16_t num = stoi(numerator);
+//    uint16_t denom = stoi(denominator);
+//#endif
     
   length = whole.length();
   //if there's actually a numerator and a denominator

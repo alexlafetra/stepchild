@@ -76,6 +76,7 @@ using namespace std;
 
 void fileMenuControls_miniMenu(WireFrame* w);
 bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w);
+WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float scale);
 
 //classes
 #include "Note.h"
@@ -4035,7 +4036,8 @@ WireFrame getMenuWireFrame(){
       break;
     //keys
     case 2:
-      w = makeKeys();
+      w = makeCassette();
+      // w = makeKeys();
       break;
     //wrench
     case 3:
@@ -4052,7 +4054,7 @@ WireFrame getMenuWireFrame(){
       break;
     //rec
     case 6:
-      w = makeCassette();
+      w = genRandMenuObjects(0,0,10,1);
       break;
     //heart
     case 7:
@@ -4108,7 +4110,9 @@ void animateIcon(WireFrame* w){
       break;
     //rec
     case 6:
-      w -> rotate(3,1);
+      // w -> rotate(3,1);
+      w -> rotate(1,0);
+      w -> rotate(1,1);
       break;
     //heart
     case 7:
@@ -6394,7 +6398,7 @@ void printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool 
   }
   else{
     if(bigOct){
-      display.setCursor(xCoord+6,yCoord);
+      display.setCursor(xCoord,yCoord);
       display.print(pitch.charAt(1));
       // printChunky(xCoord+6,yCoord,stringify(pitch.charAt(1)),c);
       if(pitch.charAt(1) == '-'){
@@ -6405,12 +6409,14 @@ void printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool 
     else{
       xCoord+=6;
       if(pitch.charAt(1) == '-'){
-        printSmall(xCoord+10,yCoord,pitch.charAt(2),c);
+        xCoord+=4;
+        printSmall(xCoord,yCoord,pitch.charAt(2),c);
       }
     }
   }
-  if(pitch.charAt(pitch.length()-1) == "$"){
-
+  if(pitch.charAt(pitch.length()-1) == '$'){
+    // xCoord;
+    printSmall(xCoord,1+yCoord+sin(millis()/50),"$",c);
   }
 }
 
@@ -14690,10 +14696,9 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
                 display.drawBitmap(trackDisplay-7,y1+2,sine_small_bmp,6,4,SSD1306_WHITE);
             }
           }
-          if(trackData[track].noteLastSent != 255){
-            // display.drawRect(0,y1,trackDisplay,trackHeight+2,SSD1306_WHITE);
-            printSmall(trackDisplay-5,y1+1+sin(millis()/50),"$",1);
-          }
+          // if(trackData[track].noteLastSent != 255){
+          //   printSmall(trackDisplay-5,y1+1+sin(millis()/50),"$",1);
+          // }
           //track prime icon
           if(recording && trackData[track].isPrimed){
             if((millis()+track*10)%1000>500){
@@ -17034,137 +17039,6 @@ bool fxMenuControls(){
           break;
         //strum
         case 9:
-          break;
-      }
-    }
-  }
-  return true;
-}
-
-bool mainMenuControls(){
-  if(itsbeen(100)){
-    if(x != 0){
-      if(x == -1){
-        //if it's not divisible by four (in which case this would be 0)
-        if((activeMenu.highlight+1)%4)
-          activeMenu.highlight++;
-        lastTime = millis();
-      }
-      else if(x == 1){
-        if((activeMenu.highlight)%4)
-          activeMenu.highlight--;
-        lastTime = millis();
-      }
-    }
-    if(y != 0){
-      if(y == 1){
-        //first row
-        if(activeMenu.highlight < 8)
-          activeMenu.highlight += 4;
-        lastTime = millis();
-      }
-      else if(y == -1){
-        //second row
-        if(activeMenu.highlight > 3)
-          activeMenu.highlight -= 4;
-        lastTime = millis();
-      }
-    }
-  }
-  if(itsbeen(200)){
-    if(menu_Press){
-      if(shift){
-        slideMenuOut(0,20);
-        lastTime = millis();
-        constructMenu("DEBUG");
-      }
-      else{
-        lastTime = millis();
-        slideMenuOut(0,20);
-        menuIsActive = false;
-        return false;
-      }
-    }
-    if(loop_Press){
-      lastTime = millis();
-      loopMenu();
-    }
-    if(n){
-      lastTime = millis();
-      slideMenuOut(0,20);
-      constructMenu("FX");
-      fxMenu();
-    }
-    if(sel){
-      sel = false;
-      lastTime = millis();
-      switch(activeMenu.highlight){
-        //datatracks
-        case 0:
-          dataTrackViewer();
-          break;
-        //loop
-        case 1:
-          loopMenu();
-          break;
-        //keys
-        case 2:
-          // toggleKeys();
-          selectInstrumentMenu();
-          break;
-        //settings
-        case 3:
-          // slideMenuOut(0,20);
-          // constructMenu("SYS");  
-          constructMenu("SETTINGS");  
-          break;
-        //quicksave
-        case 4:
-          //if you're shifting, load most recent backup
-          if(shift){
-            loadBackup();
-          }
-          else{
-            quickSave();
-          }
-          break;
-        //fx
-        case 5:
-          slideMenuOut(0,20);
-          constructMenu("FX");
-          fxMenu();
-          break;
-        //rec
-        case 6:
-          // slideMenuOut(0,20);
-          playBackMenu();
-          // slideMenuIn(0,30);
-          break;
-        //console
-        case 7:
-          console();
-          break;
-        //midi
-        case 8:
-          // menuIsActive = false;
-          // slideMenuOut(0,20);
-          midiMenu();
-          break;
-        //files
-        case 9:
-          // slideMenuOut(0,20);
-          constructMenu("FILES");
-          break;
-        //clock
-        case 10:
-          slideMenuOut(0,20);
-          constructMenu("CLOCK");
-          break;
-        //arp
-        case 11:
-          // slideMenuOut(0,20);
-          arpMenu();
-          keyboardAnimation(38,14,0,14,false);
           break;
       }
     }
