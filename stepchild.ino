@@ -5013,7 +5013,7 @@ void arpMenu(){
     display.clearDisplay();
     //last note played
     String lastNote = pitchToString(activeArp.lastPitchSent,true,true);
-    printTrackPitch(115,0,lastNote,false,false, 1);
+    printPitch(115,0,lastNote,false,false, 1);
     if(activeArp.holding && millis()%800>400){
       printSmall(106,9,"[HOLD]",1);
     }
@@ -6362,15 +6362,21 @@ vector<vector<uint16_t>> getSelectionBounds(){
 #include "menus/main.cpp"
 
 //prints pitch with a small # and either a large or small Octave number
-void printTrackPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c){
+void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct, bool channel, uint16_t c){
+  printPitch(xCoord, yCoord, getTrackPitchOctave(trackID)+((trackData[trackID].noteLastSent != 255)?"$":""), bigOct, channel, c);
+}
+
+void printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c){
   display.setCursor(xCoord,yCoord);
   display.print(pitch.charAt(0));
+  xCoord+=6;
   // printChunky(xCoord,yCoord,stringify(pitch.charAt(0)),c);
   //if it's a sharp
   if(pitch.charAt(1) == '#'){
-    printSmall(xCoord+6,yCoord,pitch.charAt(1),c);
+    printSmall(xCoord,yCoord,pitch.charAt(1),c);
     if(bigOct){
-      display.setCursor(xCoord+12,yCoord);
+      xCoord+=6;
+      display.setCursor(xCoord,yCoord);
       display.print(pitch.charAt(2));
       // printChunky(xCoord+12,yCoord,stringify(pitch.charAt(2)),c);
       if(pitch.charAt(2) == '-'){
@@ -6378,9 +6384,11 @@ void printTrackPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, 
       }
     }
     else{
-      printSmall(xCoord+12,yCoord,pitch.charAt(2),c);
+      xCoord+=6;
+      printSmall(xCoord,yCoord,pitch.charAt(2),c);
       if(pitch.charAt(2) == '-'){
-        printSmall(xCoord+16,yCoord,pitch.charAt(3),c);
+        xCoord+=4;
+        printSmall(xCoord,yCoord,pitch.charAt(3),c);
       }
     }
   }
@@ -6395,11 +6403,14 @@ void printTrackPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, 
       }
     }
     else{
-      printSmall(xCoord+6,yCoord,pitch.charAt(1),c);
+      xCoord+=6;
       if(pitch.charAt(1) == '-'){
         printSmall(xCoord+10,yCoord,pitch.charAt(2),c);
       }
     }
+  }
+  if(pitch.charAt(pitch.length()-1) == "$"){
+
   }
 }
 
@@ -14559,7 +14570,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
         }
       }
 
-      //drawing loop points
+      //drawing loop points/flags
       if(loopPoints){//check
         if(step == loopData[activeLoop][0]){
           if(loopFlags){
@@ -14655,7 +14666,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
           //printing note names
           if(pitchesOrNumbers){
             int8_t octave = (trackData[track].pitch/12)-2;//idk why this offset is needed
-            printTrackPitch(xCoord, y1+trackHeight/2-2,getTrackPitchOctave(track),false,false,SSD1306_WHITE);
+            printTrackPitch(xCoord, y1+trackHeight/2-2,track,false,false,SSD1306_WHITE);
           }
           //just printing pitches
           else{
