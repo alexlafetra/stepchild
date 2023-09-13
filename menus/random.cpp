@@ -44,6 +44,9 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
     display.drawCircle(x1+28,y1+20,maxChance/6,1);
     display.fillCircle(x1+28,y1+20,minChance/6,1);
     uint8_t diff = ceil(float(maxChance)/8.0-float(minChance)/8.0);
+    if(!diff){
+        diff = 1;
+    }   
     // for(uint8_t i = (minChance/8)+1; i<(maxChance/8-diff/2*sin(float(millis())/float(100)))-2; i+=2){
     display.drawCircle(x1+28,y1+20,minChance/8+(millis()/50)%diff+1,1);
     printSmall(x1,y1+sin(millis()/200),"max",1);
@@ -157,7 +160,8 @@ void drawCoordinateBox(CoordinatePair coords){
     }
     uint8_t startX = trackDisplay+(X1-viewStart)*scale;
     uint8_t length = (X2-X1)*scale;
-    uint8_t startHeight = maxTracksShown==5?debugHeight:8;
+    // uint8_t startHeight = maxTracksShown==5?debugHeight:8;
+    uint8_t startHeight = debugHeight;
     uint8_t startY = (Y1-startTrack)*trackHeight+startHeight;
     uint8_t height = ((Y2 - startTrack + 1)*trackHeight - startY)%(screenHeight-startHeight) + startHeight;
    
@@ -174,6 +178,8 @@ CoordinatePair selectArea(){
   CoordinatePair coords;
   coords.x1 = 0;
   coords.x2 = 0;
+  coords.y1 = 0;
+  coords.y2 = 0;
   while(true){
     joyRead();
     readButtons();
@@ -194,7 +200,15 @@ CoordinatePair selectArea(){
       coords.y2 = activeTrack;
     }
     if(itsbeen(200)){
-      if(n || menu_Press){
+      if(n){
+        lastTime = millis();
+        return coords;
+      }
+      if(menu_Press){
+        coords.x1 = 0;
+        coords.x2 = 0;
+        coords.y1 = 0;
+        coords.y2 = 0;
         lastTime = millis();
         return coords;
       }
@@ -250,39 +264,49 @@ CoordinatePair selectArea(){
     drawSeq(true, false, true, false, false, viewStart, viewEnd);
     drawCoordinateBox(coords);
     display.drawBitmap(5,0,top_die_icon,14,15,1);
-    printSmall(trackDisplay,0,"select an area!",1);
+    if(coords.x1 == 0 && coords.x2 == 0 && coords.y1 == 0 && coords.y2 == 0){
+      printSmall(trackDisplay,0,"select an area!",1);
+    }
+    else{
+      printSmall(trackDisplay,0,"[n] to randomize",1);
+    }
     display.display();
   }
 }
 
 void genRandom(int8_t odds, int8_t minChance, int8_t maxChance, uint16_t minLength, uint16_t maxLength, uint8_t minVel, uint8_t maxVel,bool onGrid,bool target){
-  CoordinatePair coords = selectArea();
-  if(coords.x1>coords.x2){
-    uint16_t temp = coords.x1;
-    coords.x1 = coords.x2;
-    coords.x2 = temp;
-  }
-  if(coords.y1>coords.y2){
-    uint8_t temp = coords.y1;
-    coords.y1 = coords.y2;
-    coords.y2 = temp;
-  }
-  //iterate over the tracks (inclusively)
-  for(uint8_t t = coords.y1; t<=coords.y2; t++){
-    for(uint16_t step = coords.x1; step<coords.x2; step++){
-      //if it's not only making notes on the grid, or if the step is on a subDiv
-      if((!onGrid || !(step%subDivInt)) && lookupData[t][step] == 0){
-        if(random(0,100)<odds){
-          uint8_t chance = random(minChance,maxChance+1);
-          uint16_t length = random(minLength,maxLength+1);
-          uint8_t vel = random(minVel,maxVel+1);
-          //making sure notes won't run off the end
-          if(step+length>coords.x2){
-            length = coords.x2-step;
+  while(true){
+    CoordinatePair coords = selectArea();
+    if(coords.x1 == coords.x2 && coords.y1 == coords.y2){
+      break;
+    }
+    if(coords.x1>coords.x2){
+      uint16_t temp = coords.x1;
+      coords.x1 = coords.x2;
+      coords.x2 = temp;
+    }
+    if(coords.y1>coords.y2){
+      uint8_t temp = coords.y1;
+      coords.y1 = coords.y2;
+      coords.y2 = temp;
+    }
+    //iterate over the tracks (inclusively)
+    for(uint8_t t = coords.y1; t<=coords.y2; t++){
+      for(uint16_t step = coords.x1; step<coords.x2; step++){
+        //if it's not only making notes on the grid, or if the step is on a subDiv
+        if((!onGrid || !(step%subDivInt)) && lookupData[t][step] == 0){
+          if(random(0,100)<odds){
+            uint8_t chance = random(minChance,maxChance+1);
+            uint16_t length = random(minLength,maxLength+1);
+            uint8_t vel = random(minVel,maxVel+1);
+            //making sure notes won't run off the end
+            if(step+length>coords.x2){
+              length = coords.x2-step;
+            }
+            Note newNote = Note(step,step+length,vel,chance,false,false);
+            makeNote(newNote, t);
+            step = newNote.endPos-1;
           }
-          Note newNote = Note(step,step+length,vel,chance,false,false);
-          makeNote(newNote, t);
-          step = newNote.endPos-1;
         }
       }
     }
@@ -381,7 +405,6 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
       if(n){
         lastTime = millis();
         genRandom(*odds, *minChance, * maxChance, *minLength, *maxLength, *minVel, *maxVel,*gridBehavior,*targetTrack);
-        return false;
       }
     }
     

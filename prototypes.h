@@ -8,6 +8,7 @@ void debugPrint();
 void debugPrintLookup();
 
 //Automation
+void moveDataTrackCursor(int moveAmount);
 void changeDataPoint(int8_t);
 void smoothDataTrack(uint16_t, uint16_t, uint8_t);
 bool isModulated(uint8_t ch);
@@ -16,6 +17,7 @@ bool isModulated(uint8_t ch);
 void printSmall(int, int, String, uint16_t);
 void drawEllipse(uint8_t h, uint8_t k, int a, int b, uint16_t c);
 void shadeArea(unsigned short int, unsigned short int, unsigned short int, unsigned char, unsigned char);
+void shadeRect(unsigned short int x1, unsigned short int y1, unsigned short int len, unsigned char height, unsigned char shade);
 void drawNote_vel(unsigned short int, unsigned short int, unsigned short int, unsigned short int, unsigned short int, bool,bool);
 void drawDottedLineH(unsigned short int, unsigned short int, unsigned short int, unsigned short int);
 void displaySeq();
@@ -51,6 +53,8 @@ void drawPlayIcon(int8_t x1, int8_t y1);
 void drawSeq();
 void drawCurlyBracket(int16_t x1, uint8_t y1, uint8_t length,uint8_t height,bool start, bool end);
 void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation);
+void drawQuantIcon(uint8_t,uint8_t,uint8_t,bool);
+void drawHumanizeIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim);
 
 //Menus
 void saveMenu();
@@ -84,8 +88,10 @@ bool moveNote(int, int, int, int);
 bool moveNotes(int xAmount, int yAmount);
 void clearSelection();
 void clearSelection(int, int);
-void selectNote(bool, int, int);
+void selectNote(uint8_t track, uint16_t id);
 void selectAll(bool, bool, bool);
+void selectAll();
+void toggleSelectNote(uint8_t, uint16_t, bool); 
 unsigned short int getRecentNoteID();
 unsigned short int getRecentNoteID(int, int);
 void changeVel(int amount);
@@ -153,7 +159,7 @@ void joyRead();
 void readButtons();
 void mainSequencerEncoders();
 bool fxMenuControls();
-void echoMenuControls();
+bool echoMenuControls();
 void saveMenuControls();
 bool quantizeMenuControls(uint8_t* whichParam);
 bool humanizeMenuControls(uint8_t* cursor);
@@ -192,8 +198,9 @@ void setLoop(unsigned int id);
 void deleteLoop(uint8_t id);
 void setLoopToInfinite(uint8_t targetL);
 
-//Automation
-void moveDataTrackCursor(int moveAmount);
+//RP2040 Hardware
+float getBattLevel();
+float analogReadTemp();
 
 //Misc. helper functions
 vector<uint16_t> getSelectionBounds2();
@@ -228,7 +235,6 @@ void changeSubDivInt(bool down, bool limitToView);
 uint16_t changeSubDiv(bool direction, uint8_t subDiv, bool allowZero);
 String getPitchList(vector<uint8_t> intervals);
 uint16_t countNotesInRange(uint16_t start, uint16_t end);
-float analogReadTemp();
 bool isReceiving();
 String getInterval(int root, int pitch);
 void updateLEDs();
@@ -236,12 +242,12 @@ void writeLEDs(uint8_t led, bool state);
 void writeLEDs(uint8_t first, uint8_t last);
 void writeLEDs(bool leds[8]);
 bool onBeat(int subDiv, int fudge);
-float getBattLevel();
 void setNormalMode();
 String enterText(String title);
 void loadBackup();
 void quickSave();
 void bootscreen();
+uint16_t getIDAtCursor();
 
 //MIDI
 void sendMIDIallOff();

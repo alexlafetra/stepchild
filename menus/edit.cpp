@@ -108,11 +108,10 @@ void editMenuControls(uint8_t* stencil){
     //for special FX that want to use the selection box
     if(activeMenu.highlight == 6 && editingNote){
       //for randomize, fill box with random notes
-      if(currentQuickFunction = 3){
-        for(uint8_t i = selBox.y1; i<=selBox.y2; i++){
-          genRandomSequence(randomChance,randomInterval,randomSpacing,selBox.x1,selBox.x2,i);
-        }
-      }
+      // if(currentQuickFunction = 3){
+      //   for(uint8_t i = selBox.y1; i<=selBox.y2; i++){
+      //   }
+      // }
     }
     selBox.begun = false;
   }
@@ -535,29 +534,18 @@ void editMenuControls(uint8_t* stencil){
     if(sel && !selBox.begun){
       unsigned short int id;
       id = lookupData[activeTrack][cursorPos];
-      if(id == 0){
-        if(shift){
-          clearSelection();
-        }
-        else if(n){
-          selectAll(true);
-        }
+      //select all
+      if(n){
+        selectAll();
       }
+      //select only one
+      else if(shift){
+        clearSelection();
+        toggleSelectNote(activeTrack, id, false);
+      }
+      //normal select
       else{
-        //select all
-        if(n){
-          seqData[activeTrack][id].isSelected = !seqData[activeTrack][id].isSelected;
-          selectAll(seqData[activeTrack][id].isSelected);
-        }
-        //select only one
-        else if(shift){
-          clearSelection();
-          selectNote(activeTrack, seqData[activeTrack][id].startPos, false);
-        }
-        //normal select
-        else{
-          selectNote(activeTrack, seqData[activeTrack][id].startPos, true);          
-        }
+        toggleSelectNote(activeTrack, id, true);          
       }
       lastTime = millis();
     }
@@ -607,7 +595,7 @@ void editMenuControls(uint8_t* stencil){
   }
 }
 
-void drawMoveIcon(int8_t x1, int8_t y1, bool anim){
+void drawMoveIcon(uint8_t x1, uint8_t y1, bool anim){
   if(anim && (millis()%600) > 300){
     display.drawBitmap(x1+1,y1+1,arrow_small_bmp2,9,9,SSD1306_WHITE);
   }
@@ -616,7 +604,7 @@ void drawMoveIcon(int8_t x1, int8_t y1, bool anim){
   }
 }
 
-void drawLengthIcon(int8_t x1, int8_t y1, uint8_t length, uint8_t animThing, bool anim){
+void drawLengthIcon(uint8_t x1, uint8_t y1, uint8_t length, uint8_t animThing, bool anim){
   uint8_t offset=0;
   if(anim){
     offset+=(millis()/200)%(animThing);
@@ -628,8 +616,13 @@ void drawLengthIcon(int8_t x1, int8_t y1, uint8_t length, uint8_t animThing, boo
   display.fillRect(x1+offset+3,y1,length-2*offset-3,5,SSD1306_WHITE);
 }
 
+void drawFxIcon(uint8_t x1,uint8_t y1, uint8_t w, bool anim){
+  display.drawRect(x1,y1,w,w,SSD1306_WHITE);
+  printSmall(x1+2,y1+3,"fx",1);
+}
+
 //two blocks
-void drawQuantIcon(int8_t x1, int8_t y1, uint8_t size, bool anim){
+void drawQuantIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim){
   //dotted
   drawDottedRect(x1,y1+size/2-1,size/2+1,size/2+1,2);
   //full
@@ -641,7 +634,7 @@ void drawQuantIcon(int8_t x1, int8_t y1, uint8_t size, bool anim){
 }
 
 //one square, one rotated square
-void drawHumanizeIcon(int8_t x1, int8_t y1, uint8_t size, bool anim){
+void drawHumanizeIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim){
   float angle = 15;
   if(anim){
     angle = (millis()/15)%90;
@@ -770,21 +763,22 @@ void drawRandomIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
 }
 
 void drawQuickFunctionIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
-  switch(currentQuickFunction){
-    //warp
-    case 0:
-      drawWarpIcon(x1,y1,w,anim);
-      break;
-    case 1:
-      drawReverseIcon(x1,y1,w,anim);
-      break;
-    case 2:
-      drawEchoIcon(x1,y1,w,anim);
-      break;
-    case 3:
-      drawRandomIcon(x1,y1,w,anim);
-      break;
-  }
+  drawFxIcon(x1,y1,w,anim);
+  // switch(currentQuickFunction){
+  //   //warp
+  //   case 0:
+  //     drawWarpIcon(x1,y1,w,anim);
+  //     break;
+  //   case 1:
+  //     drawReverseIcon(x1,y1,w,anim);
+  //     break;
+  //   case 2:
+  //     drawEchoIcon(x1,y1,w,anim);
+  //     break;
+  //   case 3:
+  //     drawRandomIcon(x1,y1,w,anim);
+  //     break;
+  // }
 }
 
 void drawQuantBrackets(uint8_t x1, uint8_t y1){
@@ -871,8 +865,11 @@ void Menu::displayEditMenu(){
 }
 void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart){
   unsigned short int menuHeight = abs(bottomR[1]-topL[1]);
+
+  //back rect for stencil icon
+  display.drawRoundRect(-2,topL[0]-32,31,30,3,1);
   //drawing menu box
-  display.fillRect(topL[0],topL[1], bottomR[0]-topL[0], bottomR[1]-topL[1], SSD1306_BLACK);
+  display.fillRect(topL[0],topL[1]-2, bottomR[0]-topL[0]+3, bottomR[1]-topL[1], SSD1306_BLACK);
   display.drawRoundRect(topL[0],topL[1]-2, bottomR[0]-topL[0]+3, bottomR[1]-topL[1], 3, SSD1306_WHITE);
   
   //ensuring drawSeq draws chance-notes while editing chance
@@ -960,12 +957,9 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart){
       display.drawBitmap(screenWidth-windowStart-7,(activeMenu.page-1)*7+6,mouse_cursor_outline_bmp,9,15,1);
     }
     //target parameter text (just shows what param you're gonna edit)
-    display.fillRect(0,topL[0]-3,31,screenHeight-topL[0],0);
-    // display.drawFastHLine(0,22,32,1);
-    display.drawFastHLine(0,topL[0]-3,32,1);
-    // display.fillRoundRect(15-txt.length()*2-3,19,txt.length()*4+5,7,3,SSD1306_WHITE);
+    display.fillRect(0,topL[0]-2,31,screenHeight-topL[0],0);
+    // display.drawFastHLine(0,topL[0]-3,32,1);
     display.fillRoundRect(15-txt.length()*2-3,topL[0]-6,txt.length()*4+5,7,3,SSD1306_WHITE);
-    // printSmall(15-txt.length()*2,20,txt,SSD1306_BLACK);
     printSmall(15-txt.length()*2,topL[0]-5,txt,SSD1306_BLACK);
 
     //draw note info when you're on a note

@@ -269,29 +269,18 @@ bool viewLoopControls(uint8_t which){
     //select
     if(sel && !selBox.begun){
       uint16_t id = lookupData[activeTrack][cursorPos];
-      if(id == 0){
-        if(shift){
-          clearSelection();
-        }
-        else if(n){
-          selectAll(true);
-        }
+      //select all
+      if(n){
+        selectAll();
       }
+      //select only one
+      else if(shift){
+        clearSelection();
+        toggleSelectNote(activeTrack, id, false);
+      }
+      //normal select
       else{
-        //select all
-        if(n){
-          seqData[activeTrack][id].isSelected = !seqData[activeTrack][id].isSelected;
-          selectAll(seqData[activeTrack][id].isSelected);
-        }
-        //select only one
-        else if(shift){
-          clearSelection();
-          selectNote(activeTrack, seqData[activeTrack][id].startPos, false);
-        }
-        //normal select
-        else{
-          selectNote(activeTrack, seqData[activeTrack][id].startPos, true);          
-        }
+        toggleSelectNote(activeTrack, id, true);          
       }
       lastTime = millis();
     }

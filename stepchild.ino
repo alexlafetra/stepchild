@@ -221,7 +221,7 @@ void SelectionBox::displaySelBox(){
   }
 
   //same, but for tracks
-  uint8_t startHeight = maxTracksShown==5?debugHeight:8;
+  uint8_t startHeight = (menuIsActive||maxTracksShown==5)?debugHeight:8;
   startY = (Y1-startTrack)*trackHeight+startHeight;
   height = ((Y2+1-startTrack)*trackHeight)+startHeight - startY;
   if(Y1<startTrack){
@@ -2848,145 +2848,6 @@ void Menu::displayRecMenu(uint8_t menuCursor,uint8_t start, uint8_t active){
   }
 }
 
-//basically, there's a "chance" chance to make a "interval" note every "every" steps
-void genRandomSequence(uint8_t chance, uint8_t interval, uint8_t every, int start, int end, uint8_t track){
-  for(int i = start; i<end; i+=every){
-    uint8_t willIt = random(1,101);
-    if(willIt<chance){
-      makeNote(track, i, interval, false);
-    }
-  }
-}
-
-void oldRandMenu(){
-  menuIsActive = false;
-  uint8_t chance = 75;
-  uint8_t every = subDivInt;
-  uint8_t subDiv = subDivInt;
-  bool inLoop = true;
-  uint8_t cursor = 0;
-  uint8_t top = 6;
-  uint8_t left = 1;
-  uint8_t right = 5;
-  while(true){
-    display.clearDisplay();
-
-    display.setCursor(2,2);
-    display.print(chance);
-    display.print("%");
-
-    display.setCursor(126-stepsToMeasures(every).length()*6,2);
-    display.print(stepsToMeasures(every));
-
-    display.setCursor(2,56);
-    display.print(stepsToMeasures(subDiv));
-
-    if(inLoop){
-      display.setCursor(102,56);
-      display.print("loop");
-    }
-    switch(cursor){
-      case 0:
-        display.drawRoundRect(0,0,16,10,3,SSD1306_WHITE);
-        break;
-      case 1:
-        display.drawRoundRect(126-stepsToMeasures(every).length()*6,0,stepsToMeasures(every).length()*6+4,10,3,SSD1306_WHITE);
-        break;
-      case 2:
-        display.drawRoundRect(0,54,stepsToMeasures(subDiv).length()*6+4,10,3,SSD1306_WHITE);
-        break;
-      case 3:
-        display.drawRoundRect(102,54,16,10,3,SSD1306_WHITE);
-        break;
-    }
-    display.display();
-
-    if((millis()%100)>50){
-      top = random(1,7);
-      left = random(1,7);
-      right = random(1,7);
-    }
-    readButtons();
-    joyRead();
-    while(counterA != 0){
-      if(counterA >= 1){
-        switch(cursor){
-          case 0:
-            if(shift && chance<100)
-              chance++;
-            else if(!shift && chance<=95)
-              chance+=5;
-            break;
-          case 1:
-            if(every<384)
-              every*=2;
-            break;
-          case 2:
-            if(subDiv<384)
-              subDiv*=2;
-            break;
-        }
-      }
-      else if(counterA <= -1){
-        switch(cursor){
-          case 0:
-            if(shift && chance>1)
-              chance--;
-            else if(!shift && chance>5)
-              chance-=5;
-            break;
-          case 1:
-            if(every>1)
-              every/=2;
-            break;
-          case 2:
-            if(subDiv>1)
-              subDiv/=2;
-            break;
-        }
-      }
-      counterA += counterA<0?1:-1;
-    }
-    if(itsbeen(200)){
-      if(y != 0){
-        if(y == -1 && cursor>1){
-          cursor-=2;
-          lastTime = millis();
-        }
-        else if(y == 1 && cursor<2){
-          cursor+=2;
-          lastTime = millis();
-        }
-      }
-      if(x != 0){
-        if(x == -1 && (cursor == 0 || cursor == 2)){
-          cursor++;
-          lastTime = millis();
-        }
-        else if(x == 1 && (cursor == 1 || cursor == 3)){
-          cursor--;
-          lastTime = millis();
-        }
-      }
-      if(menu_Press){
-        lastTime = millis();
-        return;
-      }
-      if(n){
-        n = false;
-        lastTime = millis();
-        vector<uint8_t> tracks = selectMultipleTracks("");
-        vector<uint8_t> coords = selectSeqArea("");
-        for(uint8_t i = 0; i<tracks.size(); i++){
-          genRandomSequence(chance, subDiv, every, coords[0], coords[2], tracks[i]);
-        }
-        return;
-      }
-    }
-  }
-
-}
-
 void muteGroups(int callingTrack, int group){
   for(int track = 0; track<trackData.size(); track++){
     if(track != callingTrack && trackData[track].muteGroup == group && trackData[track].noteLastSent != 255){
@@ -3533,7 +3394,7 @@ void fragmentMenu(){
   fragmentAnimation(false);
 }
 
-void setTrackToNearestPitch(vector<uint8_t>pitches,int track){
+void setTrackToNearestPitch(vector<uint8_t>pitches,int track,bool allowDuplicates){
   int oldPitch = trackData[track].pitch;
   int pitchDistance = 127;
   int closestPitch;
@@ -3542,13 +3403,24 @@ void setTrackToNearestPitch(vector<uint8_t>pitches,int track){
     if(abs(pitches[i]+octaveOffset-oldPitch)<pitchDistance){
       pitchDistance = abs(pitches[i]+octaveOffset-oldPitch);
       closestPitch = i;
+      //if the track is already that pitch, return
       if(pitchDistance == 0){
-        break;
+        return;
+      }
+    }
+  }
+  //if no duplicates are allowed, check to see if there are any other tracks
+  //with this pitch
+  if(!allowDuplicates){
+    for(uint8_t t = 0; t<trackData.size(); t++){
+      if(t!=track && trackData[t].pitch == pitches[closestPitch]+octaveOffset){
+        return;
       }
     }
   }
   setTrackPitch(track,pitches[closestPitch]+octaveOffset,false);
 }
+
 //this one won't double up on a pitch
 void setTrackToNearestPitch_exclusive(vector<uint8_t>pitches,int track){
   int oldPitch = trackData[track].pitch;
@@ -3579,7 +3451,7 @@ void setTrackToNearestPitch_exclusive(vector<uint8_t>pitches,int track){
       }
       pitches.swap(newPitches);
       //recursively run the function again, just without the already-occupied pitch as an option
-      setTrackToNearestPitch(pitches, track);
+      setTrackToNearestPitch_exclusive(pitches, track);
     }
     //if there's only one pitch,set it to it
     else{
@@ -3604,14 +3476,14 @@ void deleteDuplicateEmptyTracks(){
 }
 
 void tuneTracksToScale(){
-  vector<uint8_t> tracks = selectMultipleTracks("tune which tracks?");
   selectKeysAnimation(true);
   vector<uint8_t> pitches = selectKeys();
   selectKeysAnimation(false);
+  vector<uint8_t> tracks = selectMultipleTracks("select tracks to tune");
+  bool allowDuplicates = binarySelectionBox(64,32,"no","ye","allow duplicate pitches?");
   for(int track = tracks.size()-1; track >= 0; track--){
-    setTrackToNearestPitch(pitches, tracks[track]);
+    setTrackToNearestPitch(pitches, tracks[track], allowDuplicates);
   }
-  deleteDuplicateEmptyTracks();
 }
 
 void keyboard(){
@@ -5805,17 +5677,133 @@ void drawEcho(unsigned short int xStart, unsigned short int yStart, short unsign
     // drawNote_vel(x1,y1,previewLength,trackHeight,vel,false,false);
   }
 }
+
 void echoMenu(){
   animOffset = 0;
   // echoAnimation();
-  while(menuIsActive && activeMenu.menuTitle == "ECHO"){
+  while(true){
     readButtons();
     joyRead();
-    echoMenuControls();
+    if(!echoMenuControls()){
+      return;
+    }
     display.clearDisplay();
     activeMenu.displayEchoMenu();
     display.display();
   }
+}
+
+bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)){
+  while(true){
+    joyRead();
+    readButtons();
+    defaultEncoderControls();
+    if(sel && !selBox.begun && (x != 0 || y != 0)){
+      selBox.begun = true;
+      selBox.x1 = cursorPos;
+      selBox.y1 = activeTrack;
+    }
+    //if sel is released, and there's a selection box
+    if(!sel && selBox.begun){
+      selBox.x2 = cursorPos;
+      selBox.y2 = activeTrack;
+      selBox.begun = false;
+      selectBox();
+    }
+    if(itsbeen(200)){
+      if(n){
+        lastTime = millis();
+        return true;
+      }
+      if(menu_Press){
+        clearSelection();
+        lastTime = millis();
+        return false;
+      }
+      if(sel){
+        if(shift){
+          clearSelection();
+          toggleSelectNote(activeTrack,getIDAtCursor(),false);
+        }
+        else{
+          toggleSelectNote(activeTrack,getIDAtCursor(),true);
+        }
+        lastTime = millis();
+      }
+    }
+    if (itsbeen(100)) {
+      if (x == 1 && !shift) {
+        //if cursor isn't on a measure marker, move it to the nearest one
+        if(cursorPos%subDivInt){
+          moveCursor(-cursorPos%subDivInt);
+          lastTime = millis();
+        }
+        else{
+          moveCursor(-subDivInt);
+          lastTime = millis();
+        }
+      }
+      if (x == -1 && !shift) {
+        if(cursorPos%subDivInt){
+          moveCursor(subDivInt-cursorPos%subDivInt);
+          lastTime = millis();
+        }
+        else{
+          moveCursor(subDivInt);
+          lastTime = millis();
+        }
+      }
+      if (y == 1) {
+        if(recording)
+          setActiveTrack(activeTrack + 1, false);
+        else
+          setActiveTrack(activeTrack + 1, true);
+        lastTime = millis();
+      }
+      if (y == -1) {
+        if(recording)
+          setActiveTrack(activeTrack - 1, false);
+        else
+          setActiveTrack(activeTrack - 1, true);
+        lastTime = millis();
+      }
+    }
+    if (itsbeen(50)) {
+      if (x == 1 && shift) {
+        moveCursor(-1);
+        lastTime = millis();
+      }
+      if (x == -1 && shift) {
+        moveCursor(1);
+        lastTime = millis();
+      }
+    }
+    display.clearDisplay();
+    drawSeq(true, false, true, false, false, viewStart, viewEnd);
+    if(!selectionCount){
+      printSmall(trackDisplay,0,"select notes to "+text+"!",1);
+    }
+    else{
+      printSmall(trackDisplay,0,stringify(selectionCount)+" selected - [n] to "+text,1);
+    }
+    iconFunction(7,1,14,true);
+    display.display();
+  }
+}
+
+void echoSelectedNotes(){
+  //if no notes are selected, just return
+  if(!selectionCount){
+    return;
+  }
+  for(uint8_t track = 0; track<trackData.size(); track++){
+    for(uint8_t note = 1; note<seqData[track].size(); note++){
+      if(seqData[track][note].isSelected){
+        echoNote(track,note);
+      }
+    }
+  }
+  clearSelection();
 }
 
 bool echoMenuControls_menuless(uint8_t* cursor){
@@ -6229,147 +6217,8 @@ void Menu::displayFilesMenu(int16_t textOffset, bool open, uint8_t menuStart, ui
 #include "menus/save.cpp"
 #include "menus/settings.cpp"
 #include "menus/quantize.cpp"
+#include "menus/humanize.cpp"
 
-
-void humanizeMenu(){
-  //cursor can be time, velocity, or chance
-  uint8_t cursor = 0;
-  while(true){
-    joyRead();
-    readButtons();
-    if(!humanizeMenuControls(&cursor)){
-      break;
-    }
-    display.clearDisplay();
-
-    //draw humanize amount
-    String q = stringify(humanizeParameters[0]);
-    while(q.length()<3){
-      q = "0"+q;
-    }
-    print7SegSmall(3,9,q+"%",1);
-    q = stringify(humanizeParameters[1]);
-    while(q.length()<3){
-      q = "0"+q;
-    }
-    print7SegSmall(3,29,q+"%",1);
-    q = stringify(humanizeParameters[2]);
-    while(q.length()<3){
-      q = "0"+q;
-    }
-    print7SegSmall(3,49,q+"%",1);
-
-    printFraction_small(30,8,stepsToMeasures(subDivInt));
-
-    //draw labels
-    switch(cursor){
-      //pos
-      case 0:
-        display.fillRoundRect(0,0,20,7,4,1);
-        display.drawRoundRect(-5,3,29,16,3,1);
-        printSmall(2,1,"time",0);
-        printSmall(2,21,"vel",1);
-        printSmall(2,41,"%",1);
-        display.setRotation(3);
-        printSmall(1,78,"(div)",1);
-        display.setRotation(UPRIGHT);
-        break;
-      //vel
-      case 1:
-        display.fillRoundRect(0,20,16,7,4,1);
-        display.drawRoundRect(-5,23,29,16,3,1);
-        printSmall(2,1,"time",1);
-        printSmall(2,21,"vel",0);
-        printSmall(2,41,"%",1);
-        break;
-      //chance
-      case 2:
-        display.fillRoundRect(0,40,8,7,4,1);
-        display.drawRoundRect(-5,43,29,16,3,1);
-        printSmall(2,1,"time",1);
-        printSmall(2,21,"vel",1);
-        printSmall(2,41,"%",0);
-        break;
-    }
-    //wormhole graphic
-    drawWormhole();
-    //title
-    display.fillRoundRect(77,0,54,9,3,1);
-    printCursive(79,1,"humanize",0);
-    display.display();
-  }
-}
-
-bool humanizeMenuControls(uint8_t* cursor){
-  if(itsbeen(100)){
-    //moving cursor
-    if(y != 0){
-      if(y == -1 && (*cursor)>0){
-        (*cursor)--;
-        lastTime = millis();
-      }
-      else if(y == 1 && (*cursor)<2){
-        (*cursor)++;
-        lastTime = millis();
-      }
-    }
-  }
-  if(itsbeen(200)){
-    if(menu_Press){
-      lastTime = millis();
-      return false;
-    }
-  }
-  //change amount
-  while(counterA != 0 ){
-    if(counterA >= 1 && humanizeParameters[(*cursor)]<100){
-      if(shift){
-        humanizeParameters[(*cursor)]++;
-      }
-      else{
-        humanizeParameters[(*cursor)]+=5;
-      }
-      if(humanizeParameters[(*cursor)]>100){
-        humanizeParameters[(*cursor)] = 100;
-      }
-    }
-    if(counterA <= -1 && humanizeParameters[(*cursor)]>0){
-      if(shift){
-        humanizeParameters[(*cursor)]--;
-      }
-      else{
-        humanizeParameters[(*cursor)]-=5;
-      }
-      if(humanizeParameters[(*cursor)]<0){
-        humanizeParameters[(*cursor)] = 0;
-      }
-    }
-    counterA += counterA<0?1:-1;;
-  }
-  switch((*cursor)){
-    case 0:
-      while(counterB != 0){
-        //if shifting, toggle between 1/3 and 1/4 mode
-        if(shift){
-          toggleTriplets();
-        }
-        else if(counterB >= 1){
-          changeSubDivInt(true);
-        }
-        //changing subdivint
-        else if(counterB <= -1){
-          changeSubDivInt(false);
-        }
-        counterB += counterB<0?1:-1;;
-      }
-      break;
-    case 1:
-      break;
-    case 2:
-      break;
-  }
-  return true;
-}
 void fillSquareVertically(uint8_t x0, uint8_t y0, uint8_t width, uint8_t fillAmount){
   display.drawRect(x0,y0,width,width,SSD1306_WHITE);
   uint8_t maxLine = float(fillAmount)/float(100)*(width-4);
@@ -8730,17 +8579,6 @@ void drawTetra(uint8_t h, uint8_t k, uint8_t height, uint8_t width, int xDepth, 
     display.drawTriangle(point[0][0],point[0][1],point[2][0],point[2][1],point[3][0],point[3][1],c);
   }
 }
-//moon changes phase along with the sequence
-void moonScreenSaver(){
-  static bool moonBool = 0;
-  bool waxing = moonBool;
-  float phase = float(88*(playheadPos-loopData[activeLoop][0]))/float((loopData[activeLoop][1]-loopData[activeLoop][0]));
-  if(phase >= 86){
-    moonBool =!moonBool;
-  }
-  drawMoon(phase, waxing);
-  // writeLEDs(phase/11-2, phase/11);
-}
 
 void moon(){
   int moonphase = 0;
@@ -9660,8 +9498,7 @@ void copy(){
     copyBuffer[activeTrack].push_back(seqData[activeTrack][lookupData[activeTrack][cursorPos]]);
     numberOfNotes = 1;
   }
-  menuText = "copied "+stringify(numberOfNotes)+numberOfNotes=="1"?"note":"notes";
-;
+  menuText = "copied "+stringify(numberOfNotes)+stringify(numberOfNotes)=="1"?"note":"notes";
 }
 
 void copyLoop(){
@@ -9742,7 +9579,7 @@ void paste(){
         }
       }
     }
-    menuText = "pasted "+stringify(pastedNotes)+pastedNotes=="1"?"note":"notes";
+    menuText = "pasted "+stringify(pastedNotes)+stringify(pastedNotes)=="1"?"note":"notes";
   }
 }
 
@@ -9806,19 +9643,15 @@ void echoNote(int track, int id){
   int repeats = echoData[2];
   Note targetNote = seqData[track][id];
   for(int i = 0; i<repeats; i++){
-    // Serial.println("making echo "+stringify(i)+" for note "+stringify(id));
     Note echoNote = targetNote;
+    echoNote.isSelected = false;
     uint16_t offset = (i+1)*delay;
     echoNote.startPos += offset;
     echoNote.endPos += offset;
     echoNote.velocity *= pow(float(decay)/float(100),i+1);
-    // Serial.println("velocity is "+stringify(echoNote.velocity));
-    // Serial.println("start is "+stringify(echoNote.startPos));
-    // Serial.println("end is "+stringify(echoNote.endPos));
     if(echoNote.velocity>0)
       makeNote(echoNote,track);
     else{
-      // Serial.println("2 freakin quiet");
       return;
     }
   }
@@ -10876,12 +10709,20 @@ vector<uint8_t> selectMultipleTracks(String text){
   vector<uint8_t> selection;
   while(true){
     display.clearDisplay();
-    drawSeq(true, false, false, false, false);
-    printSmall(0,0,text,1);
+    drawSeq(true, false, false, false, true, viewStart, viewEnd);
+    printSmall(screenWidth-text.length()*4,0,text,1);
+
+    display.setCursor(0,7);
+    display.setFont(&FreeSerifItalic9pt7b);
+    display.setTextColor(SSD1306_WHITE);
+    display.print("Trk");
+    display.print(stringify(activeTrack+1));
+    display.setFont();
+
     display.display();
     readButtons();
     joyRead();
-    if(itsbeen(60)){
+    if(itsbeen(100)){
       if(y == 1){
         setActiveTrack(activeTrack+1,true);
         lastTime = millis();
@@ -10897,12 +10738,13 @@ vector<uint8_t> selectMultipleTracks(String text){
         lastTime = millis();
         trackData[activeTrack].isSelected = !trackData[activeTrack].isSelected;
       }
-      //selecting all
+      //toggle the selection on all of them
       if(shift && sel){
         n = false;
         lastTime = millis();
+        trackData[activeTrack].isSelected = !trackData[activeTrack].isSelected;
         for(int i = 0; i<trackData.size(); i++){
-          trackData[i].isSelected = true;
+          trackData[i].isSelected = trackData[activeTrack].isSelected;
         }
       }
       if(n && !shift){
@@ -10917,7 +10759,7 @@ vector<uint8_t> selectMultipleTracks(String text){
         }
         break;
       }
-      if(del){
+      if(del || menu_Press){
         lastTime = millis();
         for(uint8_t track = 0; track<trackData.size(); track++){
           trackData[track].isSelected = false;
@@ -14472,11 +14314,12 @@ void drawTopIcons(){
 
   //note presence indicator(if notes are offscreen)
   if(areThereMoreNotes(true)){
+    uint8_t y1 = (maxTracksShown>5&&!menuIsActive)?8:debugHeight;
     if(!((animOffset/10)%2)){
-      display.fillTriangle(trackDisplay-7,debugHeight+3,trackDisplay-3,debugHeight+3,trackDisplay-5,debugHeight+1, SSD1306_WHITE);
+      display.fillTriangle(trackDisplay-7,y1+3,trackDisplay-3,y1+3,trackDisplay-5,y1+1, SSD1306_WHITE);
     }
     else{
-      display.fillTriangle(trackDisplay-7,debugHeight+2,trackDisplay-3,debugHeight+2,trackDisplay-5,debugHeight, SSD1306_WHITE);
+      display.fillTriangle(trackDisplay-7,y1+2,trackDisplay-3,y1+2,trackDisplay-5,y1, SSD1306_WHITE);
     }
   }
   if(areThereMoreNotes(false)){
@@ -14837,7 +14680,8 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
             }
           }
           if(trackData[track].noteLastSent != 255){
-            display.drawRect(0,y1,trackDisplay,trackHeight+2,SSD1306_WHITE);
+            // display.drawRect(0,y1,trackDisplay,trackHeight+2,SSD1306_WHITE);
+            printSmall(trackDisplay-5,y1+1+sin(millis()/50),"$",1);
           }
           //track prime icon
           if(recording && trackData[track].isPrimed){
@@ -15076,6 +14920,10 @@ void displaySeqSerial() {
   }
 }
 
+uint16_t getIDAtCursor(){
+  return lookupData[activeTrack][cursorPos];
+}
+
 //Selection------------------------------------------------------------------------------------------
 
 //this searches thru the buffer and deletes a target note, resets its tag
@@ -15099,6 +14947,13 @@ void clearSelection(){
   }
 }
 
+void deselectNote(uint8_t track, uint16_t id){
+  if(seqData[track][id].isSelected){
+    selectionCount--;
+    seqData[track][id].isSelected = false;
+  }
+}
+
 void selectNotesInTrack(uint8_t track){
   for(uint16_t note = 1; note<seqData.size(); note++){
     if(!seqData[track][note].isSelected){
@@ -15107,57 +14962,47 @@ void selectNotesInTrack(uint8_t track){
     }
   }
 }
-void selectAll(bool state){
-  for(uint8_t track = 0;track<trackData.size(); track++){
-    for(uint16_t note = 1; note<seqData[track].size(); note++){
-      seqData[track][note].isSelected = state;
-    }
-  }
+
+//select a note
+void selectNote(uint8_t track, uint16_t id){
+  //if it's already selected
+  if(seqData[track][id].isSelected)
+    return;
+  seqData[track][id].isSelected = true;
+  selectionCount++;
 }
 
-void selectNote(int track, int time, bool additive){
-  if(lookupData[track][time] != 0 && lookupData[track][time]<seqData[track].size()){
-    unsigned short int targetNoteID = lookupData[track][time];
-    bool isSelected = seqData[track][targetNoteID].isSelected;
-    if(!additive&&!isSelected){
+//togglet a note's selection state  by it's track and ID
+void toggleSelectNote(uint8_t track, uint16_t id, bool additive){
+    //if id == 0, just return
+    if(!id){
+      return;
+    }
+    if(!additive&&!seqData[track][id].isSelected){
       clearSelection();
-      seqData[track][targetNoteID].isSelected = true;
-      selectionCount++;
+      selectNote(track,id);
     }
     else{
-      if(isSelected && selectionCount>0)
-        clearSelection(track, time);
-      else if(!isSelected){
-        seqData[track][targetNoteID].isSelected = true;
-        selectionCount++;
+      if(seqData[track][id].isSelected && selectionCount>0)
+        deselectNote(track,id);
+      else if(!seqData[track][id].isSelected){
+        selectNote(track,id);
       }
     }
-  }
 }
 
-void selectNotesInTrack(){
-  for(int i = 0; i<seqData[activeTrack].size()-1;i++){
-    selectNote(activeTrack, seqData[activeTrack][i + 1].startPos, true);
+
+void selectAllNotesInTrack(){
+  for(uint16_t i = 1; i<seqData[activeTrack].size();i++){
+    selectNote(activeTrack, i);
   }
 }
 
 //selects all notes in a sequence, or in a track (or at a timestep maybe? not sure if that'd be useful for flow)
-void selectAll(bool additive, bool inTrack, bool inTime) {
-  if (inTrack) {
-    for (int i = 0; i < seqData[activeTrack].size()-1; i++) { //starting from the second note, select all notes in the track
-      selectNote(activeTrack, seqData[activeTrack][i + 1].startPos, additive);
-    }
-  }
-  else if (inTime) { //this'll be the thing that breaks
-    for (int i = 0; i < trackData.size(); i++) {
-      selectNote(i, seqData[activeTrack][cursorPos].startPos + 1, additive);
-    }
-  }
-  else { //rolling thru all notes in each track
-    for (int i = 0; i < trackData.size(); i++) {
-      for (int j = 0; j < seqData[i].size()-1; j++) {
-        selectNote(i, seqData[i][j + 1].startPos + 1, additive);
-      }
+void selectAll() {
+  for(uint8_t track = 0; track<trackData.size(); track++){
+    for(uint16_t id = 1; id<seqData[track].size(); id++){
+      selectNote(track,id);
     }
   }
 }
@@ -15198,11 +15043,7 @@ void selectBox(){
       if(lookupData[track][time] != 0){
         //this is a little inconsistent with how select usually works, but it allows whatever's in the box to DEFINITELY be selected.
         //it makes sense (a little) because it seems rare that you would ever need to deselect notes using the box
-        if(!seqData[track][lookupData[track][time]].isSelected){
-          selectNote(track, time, true);
-          // Serial.println("selecting note: "+String(lookupData[track][time]));
-          // Serial.println("seqdata has "+String(seqData[track].size()-1)+" real notes, does that seem right?");
-        }
+        selectNote(track, lookupData[track][time]);
         time = seqData[track][lookupData[track][time]].endPos-1;
       }
     }
@@ -15494,210 +15335,6 @@ void updateLookupData_track(unsigned short int track){
 void updateLookupData(){
   for(int track = 0; track<trackData.size(); track++){//for each track
     updateLookupData_track(track);
-  }
-  // Serial.println("updating...");
-}
-
-int16_t humanizeNote(uint8_t track, uint16_t id){
-  if(id == 0){
-    return 0;
-  }
-  //position
-  int16_t positionOffset = float(subDivInt*humanizeParameters[0])/float(100);
-  positionOffset = random(-positionOffset,positionOffset);
-  //velocity
-  int8_t velOffset = float(127*humanizeParameters[1])/float(100);
-  velOffset = random(-velOffset,velOffset);
-  //chance
-  int8_t chanceOffset = random(-humanizeParameters[2],humanizeParameters[2]);
-  if(velOffset != 0){
-    changeVel(id,track,velOffset);
-  }
-  if(chanceOffset != 0){
-    changeChance(id, track, chanceOffset);
-  }
-  //position offset last so the id doesn't change
-  if(positionOffset != 0){
-    moveNote(id,track,track,seqData[track][id].startPos+positionOffset);
-  }
-  return positionOffset;
-}
-
-void humanize(bool move){ 
-  //humanizing selected notes
-  if(selectionCount>0){
-    for(uint8_t track = 0; track<seqData.size(); track++){
-      for(uint16_t note = 1; note<seqData[track].size(); note++){
-        if(seqData[track][note].isSelected){
-          humanizeNote(track,note);
-        }
-      }
-    }
-  }
-  //quantizing the note at the cursor
-  if(lookupData[activeTrack][cursorPos] != 0){
-    int16_t amount = humanizeNote(activeTrack,lookupData[activeTrack][cursorPos]);
-    moveCursor(amount);
-  }
-}
-
-void quantize(bool move_the_cursor){
-  //quantizing selected notes
-  if(selectionCount>0){
-    if(!seqData[activeTrack][lookupData[activeTrack][cursorPos]].isSelected){
-      quantizeNote(activeTrack,lookupData[activeTrack][cursorPos]);
-    }
-    for(uint8_t track = 0; track<seqData.size(); track++){
-      for(uint16_t note = 1; note<seqData[track].size(); note++){
-        if(seqData[track][note].isSelected){
-          //if a note was deleted (when quantize fails)
-          if(!quantizeNote(track,note)){
-            note = 1;
-          }
-        }
-      }
-    }
-  }
-  //quantizing the note at the cursor
-  else if(lookupData[activeTrack][cursorPos] != 0){
-    uint16_t id = lookupData[activeTrack][cursorPos];
-    quantizeNote(activeTrack,lookupData[activeTrack][cursorPos],move_the_cursor);
-  }
-  // debugPrintLookup();
-}
-
-bool quantizeNote(uint8_t track, uint16_t id){
-  return quantizeNote(track,id, false);
-}
-
-bool quantizeNote(uint8_t track, uint16_t id,bool move){
-  if(id == 0){
-    return false;
-  }
-  uint32_t d1 = seqData[track][id].startPos%subDivInt;
-  uint32_t d2 = subDivInt-d1;
-  if(quantizeWithSwing){
-    //get value of closest swung subdiv
-    uint16_t closest = (subDivInt)*sin(2*PI/swingSubDiv * (seqData[track][id].startPos-swingSubDiv/4));
-    uint16_t amount1 = (subDivInt)*sin(2*PI/swingSubDiv * (seqData[track][id].startPos-swingSubDiv/4));
-    uint16_t amount2 = (subDivInt)*sin(2*PI/swingSubDiv * (seqData[track][id].startPos-swingSubDiv/4));
-    // Serial.println("--------------------");
-    // Serial.println("1:"+stringify(amount1));
-    // Serial.println("2:"+stringify(amount2));
-    // Serial.println("--------------------");
-    // Serial.flush();
-    d1 += amount1;
-    d2 += amount2;
-  }
-  uint16_t distance;
-  //move to the left
-  if(d1<=d2){
-    distance = d1*(float(quantizeAmount)/float(100));
-    if(!moveNote(id,track,track,seqData[track][id].startPos-distance)){
-      //if you can't move it, delete it
-      deleteNote_byID(track,id);
-      // Serial.println("deleting note: "+stringify(id));
-      return false;
-    }
-    else if(move){
-      moveCursor(-distance);
-    }
-  }
-  //move to the right
-  else{
-    distance = d2*(float(quantizeAmount)/float(100));
-    if(!moveNote(id,track,track,seqData[track][id].startPos+distance)){
-      //if you can't move it, delete it
-      deleteNote_byID(track,id);
-      // Serial.println("deleting note: "+stringify(id));
-      return false;
-    }
-    else if(move){
-      moveCursor(distance);
-    }
-  }
-  return true;
-}
-
-void quantizeNote(uint8_t track, uint8_t id, uint8_t amount, uint8_t deleteIfNoValidLocation){
-  Note targetNote = seqData[track][id];
-  uint16_t oldStart = targetNote.startPos;
-  //distance from a subDivint
-  uint16_t distance = oldStart%subDivInt;
-
-  uint16_t newStart;
-  uint16_t otherNewStart;
-  //if it's closer to the next subDivt
-  if(distance>=subDivInt/2){
-    //'amount' is a percentage, 100% means move to the nearest subDiv and 50% means move halfway to it
-    otherNewStart = oldStart-float(distance)*float(amount)/float(100);
-    distance = subDivInt-distance;
-    newStart = oldStart+float(distance)*float(amount)/float(100);
-
-  }
-  else if(distance<subDivInt/2){
-    newStart = oldStart-float(distance)*float(amount)/float(100);
-    distance = subDivInt-distance;
-    otherNewStart = oldStart+float(distance)*float(amount)/float(100);
-  }
-  if(swung){
-    newStart += swingOffset(newStart);
-    otherNewStart += swingOffset(otherNewStart);
-  }
-  Serial.println("trying to move to "+stringify(newStart));
-  //if the first move doesn't work, try a second move
-  if(!moveNote(id, track, track, newStart)){
-    //if they BOTH don't work, delete it (if that's desired) or mute it
-    Serial.println("failed! trying to move to "+stringify(otherNewStart));
-    if(!moveNote(id, track, track, otherNewStart)){
-      Serial.println("failed!");
-      //if it's in delete mode
-      if(deleteIfNoValidLocation == 1){
-        deleteNote(track,id);
-      }
-      //if it's in mute mode
-      else if(deleteIfNoValidLocation == 2){
-        muteNote(track,id,false);
-      }
-    }
-  }
-}
-
-void quantizeTrack(unsigned short int track,uint8_t amount, uint8_t deleteMode){
-  for(unsigned short int id = 1; id<seqData[track].size()-1+1; id++){
-    quantizeNote(track,id, amount, deleteMode);
-  }
-}
-
-void quantizeSelection(uint8_t amount, uint8_t deleteMode){
-  for(int track = 0; track<trackData.size(); track++){
-    for(int note = seqData[track].size()-1; note>0; note--){
-      if(seqData[track][note].isSelected)
-        quantizeNote(track, note, amount, deleteMode);
-    }
-  }
-}
-
-void quantizeLoop(uint8_t amount, uint8_t deleteMode){
-  for(int step = loopData[activeLoop][0]; step< loopData[activeLoop][1]; step++){
-    for(int track = 0; track<trackData.size(); track++){
-      if(lookupData[track][step] != 0);
-      quantizeNote(track, lookupData[track][step], amount, deleteMode);
-    }
-  }
-}
-void quantizeMultipleTracks(uint8_t amount, uint8_t deleteMode){
-  vector<uint8_t> trackIDs = selectMultipleTracks("Quantize which?");
-  for(int i = 0; i<trackIDs.size(); i++){
-    quantizeTrack(trackIDs[i], amount, deleteMode);
-  }
-}
-
-void quantizeSeq(uint8_t amount, uint8_t deleteMode){
-  for(uint8_t track = 0; track<trackData.size(); track++){
-    for(unsigned short int id = 1; id<seqData[track].size(); id++){
-      quantizeNote(track,id, amount, deleteMode);
-    }
   }
 }
 
@@ -16194,7 +15831,7 @@ void keyListen() {
         displaySeqSerial();
       break;
     case 's'://select a note
-      selectNote(activeTrack, cursorPos, true);
+        toggleSelectNote(activeTrack,getIDAtCursor(),true);
         displaySeqSerial();
       break;
     case 'p'://debug print selected notes
@@ -16237,7 +15874,7 @@ void keyListen() {
       constructMenu("ARP");
       break;
     case '3'://counts notes
-      echoMenu_menuless();
+      echoMenu();
       break;
     case '4'://counts notes
       constructMenu("CURVE");
@@ -16689,35 +16326,29 @@ void mainSequencerButtons(){
     }
     //select
     if(sel && !selBox.begun){
-      uint16_t id = lookupData[activeTrack][cursorPos];
+      uint16_t id = getIDAtCursor();
       if(id == 0){
-        if(shift){
-          clearSelection();
-        }
-        else if(n){
-          selectAll(true);
-        }
+        clearSelection();
       }
       else{
         //select all
         if(n){
-          seqData[activeTrack][id].isSelected = !seqData[activeTrack][id].isSelected;
-          selectAll(seqData[activeTrack][id].isSelected);
+          selectAll();
         }
         //select only one
         else if(shift){
           clearSelection();
-          selectNote(activeTrack, seqData[activeTrack][id].startPos, false);
+          toggleSelectNote(activeTrack,id, false);
         }
         //normal select
         else{
-          selectNote(activeTrack, seqData[activeTrack][id].startPos, true);          
+          toggleSelectNote(activeTrack, id, true);          
         }
       }
       lastTime = millis();
     }
     if(del && shift){
-      muteNote(activeTrack, lookupData[activeTrack][cursorPos], true);
+      muteNote(activeTrack, getIDAtCursor(), true);
       lastTime = millis();
     }
 
@@ -17361,7 +16992,7 @@ bool fxMenuControls(){
           break;
         //echo
         case 1:
-          echoMenu_menuless();
+          echoMenu();
           break;
         //humanize
         case 2:
@@ -17382,9 +17013,7 @@ bool fxMenuControls(){
           break;
         //random
         case 6:
-          menuIsActive = false;
           randMenu();
-          menuIsActive = true;
           break;
         //scramble
         case 7:
@@ -17647,157 +17276,6 @@ void debugMenuControls(){
   }
 }
 
-//60000/1000 = 60 seconds
-const uint16_t sleepTime = 60000;
-//120,000ms = 2min
-const uint32_t deepSleepTime = 120000;
-
-//turns off screen and LEDs, sends pico to deep sleep (Not done yet!)
-#ifndef HEADLESS
-void deepSleep(){
-  if(itsbeen(sleepTime)){
-    display.ssd1306_command(SSD1306_DISPLAYOFF);
-    clearButtons();
-    turnOffLEDs();
-    while(true){
-      delay(1);
-      if(anyActiveInputs()){
-        lastTime = millis();
-        break;
-      }
-    }
-    display.ssd1306_command(SSD1306_DISPLAYON);
-    updateLEDs();
-  }
-}
-#else
-void deepSleep(){
-    display.clearDisplay();
-    display.display();
-    while(true){
-        if(anyActiveInputs){
-            break;
-        }
-    }
-}
-#endif
-
-//screenSavers
-void screenSaver_cassette(){
-  WireFrame cassette = makeCassette();
-  cassette.scale = 4;
-  uint8_t rotationAmount = 0;
-  bool done = false;
-  while(true){
-    display.clearDisplay();
-    cassette.render();
-    display.display();
-    cassette.rotate(1,1);
-    rotationAmount++;
-    if(rotationAmount>360){
-      done = true;
-      rotationAmount = 0;
-    }
-    else{
-      done = false;
-    }
-    if(anyActiveInputs()){
-      lastTime = millis();
-      return;
-    }
-    else if(itsbeen(sleepTime) && done){
-      return;
-    }
-  }
-}
-
-void screenSaver_droplets(){
-  const uint8_t maxReps = 5;//for how many rings
-  const uint8_t spacing = 10;//for the spacing
-  const uint8_t xCoord = 64;
-  const uint8_t  yCoord = 32;
-  animOffset = 0;
-  bool done = false;
-  while(true){
-    display.clearDisplay();
-    if(animOffset<=32){
-      if(animOffset>8){//drops and reflection
-        display.drawCircle(xCoord, animOffset-8, 1+sin(animOffset), SSD1306_WHITE);
-        display.drawCircle(xCoord, screenHeight-(animOffset-8), 1+sin(animOffset), SSD1306_WHITE);
-      }
-      display.drawCircle(xCoord, animOffset, 3+sin(animOffset), SSD1306_WHITE);
-      display.drawCircle(xCoord, screenHeight-animOffset, 3+sin(animOffset), SSD1306_WHITE);
-    }
-    else if(animOffset>yCoord){
-      int reps = (animOffset-yCoord)/spacing+1;
-      if(reps>maxReps){
-        reps = maxReps;
-      }
-      for(int i = 0; i<reps; i++){
-        if(animOffset/3-spacing*i+sin(animOffset)*(i%2)<(screenWidth+16))
-          drawEllipse(xCoord, yCoord, animOffset/3-spacing*i+sin(animOffset)*(i%2), animOffset/8-spacing*i/3,SSD1306_WHITE);
-      }
-    }
-    display.display();
-    if(animOffset<yCoord){
-      animOffset+=5;
-    }
-    else
-      animOffset+=6;
-    if(animOffset>=8*spacing*maxReps/3+8*32+20){
-      animOffset = 0;
-      done = true;
-    }
-    else{
-      done = false;
-    }
-    if(anyActiveInputs()){
-      lastTime = millis();
-      return;
-    }
-    else if(itsbeen(sleepTime) && done){
-      return;
-    }
-  }
-}
-
-void screenSaver_template(){
-  bool done = false;
-  //loop that runs while the screensaver is active
-  while(true){
-    display.clearDisplay();
-    //put your rendering code here!
-    display.display();
-    //checking if any buttons are pressed and breaking out of the loop if so
-    if(anyActiveInputs()){
-      lastTime = millis();
-      return;
-    }
-    else if(itsbeen(sleepTime) && done){
-      return;
-    }
-  }
-}
-
-void screenSaver(){
-  //vector that holds all the screen savers
-  vector<void (*)()> screenSaverList = {screenSaver_droplets,screenSaver_cassette};
-  uint8_t which = random(0,screenSaverList.size());
-  //running the screen saver
-  lastTime = millis();
-  screenSaverList[which]();
-}
-
-void screenSaverCheck(){
-  while(itsbeen(sleepTime)){
-    // screenSaver_cassette();
-    screenSaver();
-    if(itsbeen(deepSleepTime)){
-      deepSleep();
-    }
-  }
-}
-
 void seqMenuControls(){
   menuScrolling();
   while(counterA != 0){
@@ -17882,7 +17360,7 @@ void systemMenuControls(){
   }
 }
 
-void echoMenuControls(){
+bool echoMenuControls(){
   if(itsbeen(200)){
     if(x == 1 && activeMenu.highlight > 0){
       activeMenu.highlight--;
@@ -17895,50 +17373,20 @@ void echoMenuControls(){
   }
   if(itsbeen(200)){
     if(menu_Press){
-      menuIsActive = false;
       lastTime = millis();
-      constructMenu("MENU");
+      return false;
     }
     if(n){
-      n = false;
       lastTime = millis();
-      int totalNotes = 0;
-      for(int track = 0; track<trackData.size(); track++){
-        totalNotes += seqData[track].size()-1;
-      }
-      if(totalNotes != 0){
-        lastTime = millis();
-        vector<String> ops = {"Specific Notes","Specific Tracks","Entire Sequence"};
-        int choice = vertSelectionBox(ops,10,16,100,38);
-        if(choice == 0){
-          vector<vector<uint8_t>> notes = selectMultipleNotes("[SEL] notes to echo","[N] To commit,[SH+N] to echo all");
-          int8_t choice = binarySelectionBox(64,32,"COMMIT?","DON'T");
-          for(int track = 0; track<notes.size(); track++){
-            for(int note = 0; note<notes[track].size(); note++){
-              echoNote(track, notes[track][note]);
-            }
-          }
-          menuIsActive = false;
-          constructMenu("MENU");
+      while(true){
+        //echo selected notes
+        if(selectNotes("echo",drawEchoIcon)){
+          echoSelectedNotes();
+          clearSelection();
         }
-        else if(choice == 1){
-          menuIsActive = false;
-          vector<uint8_t> tracks = selectMultipleTracks("echo which?");
-          for(int i = 0; i<tracks.size(); i++){
-            if(seqData[i].size()-1>0)
-              echoTrack(tracks[i]);
-          }
-          menuIsActive = false;
-          constructMenu("MENU");
-        }
-        else if(choice == 2){
-          for(int i = 0; i<trackData.size(); i++){
-            if(seqData[i].size()-1>0){
-              echoTrack(i);
-            }
-          }
-          menuIsActive = false;
-          constructMenu("MENU");
+        //cancel
+        else{
+          break;
         }
       }
     }
@@ -17989,7 +17437,9 @@ void echoMenuControls(){
     }
     counterB += counterB<0?1:-1;;
   }
+  return true;
 }
+
 void arpMenuControls(){
   menuScrolling();
   while(counterA != 0){
@@ -18141,140 +17591,6 @@ void noteMenuControls(){
       }
     }
   }
-}
-
-
-bool quantizeMenuControls(uint8_t* whichParam){
-  if(itsbeen(200)){
-    if(menu_Press || n){
-      lastTime = millis();
-      return false;
-    }
-  }
-  //changing subDivInt
-  while(counterB != 0){
-    if(counterB >= 1 && !shift){
-      changeSubDivInt(true);
-    }
-    //changing subdivint
-    if(counterB <= -1 && !shift){
-      changeSubDivInt(false);
-    }
-    //if shifting, toggle between 1/3 and 1/4 mode
-    else while(counterB != 0 && shift){
-      toggleTriplets();
-    }
-    counterB += counterB<0?1:-1;;
-    if(*whichParam != 1){
-      (*whichParam) = 1;
-    }
-  }
-  //changing quantize amount
-  while(counterA != 0){
-    if(counterA >= 1){
-      if(quantizeAmount < 100){
-        if(shift)
-          quantizeAmount++;
-        else{
-          quantizeAmount+=5;
-        }
-      }
-      if(quantizeAmount>100){
-        quantizeAmount = 100;
-      }
-    }
-    if(counterA <= -1){
-      if(quantizeAmount>0){
-        if(shift)
-          quantizeAmount--;
-        else{
-          quantizeAmount-=5;
-        }
-      }
-      if(quantizeAmount<0){
-        quantizeAmount = 0;
-      }
-    }
-    if(*whichParam != 0){
-      (*whichParam) = 0;
-    }
-    counterA += counterA<0?1:-1;;
-  }
-  if(itsbeen(60)){
-    if(y != 0){
-      if(y == 1 && (*whichParam) == 1){
-        *whichParam = 0;
-        lastTime = millis();
-      }
-      else if(y == -1 && (*whichParam) == 0){
-        *whichParam = 1;
-        lastTime = millis();
-      }
-    }
-    if(x!=0){
-      switch(*whichParam){
-        //editing quantize amount
-        case 0:
-          if(shift){
-            if(x == 1 && quantizeAmount>0){
-              quantizeAmount--;
-              lastTime = millis();
-            }
-            else if(x == -1 && quantizeAmount<100){
-              quantizeAmount++;
-              lastTime = millis();
-            }
-          }
-          else{
-            if(x == 1){
-              if(quantizeAmount>=10){
-                quantizeAmount-=10;
-                lastTime = millis();
-              }
-              else{
-                quantizeAmount = 0;
-                lastTime = millis();
-              }
-            }
-            else if(x == -1){
-              if(quantizeAmount<=90){
-                quantizeAmount+=10;
-                lastTime = millis();
-              }
-              else{
-                quantizeAmount = 100;
-                lastTime = millis();
-              }
-            }
-          }
-          break;
-        //changing subDivInt
-        case 1:
-          if(shift){
-            toggleTriplets();
-            lastTime = millis();
-          }
-          else{
-            if(x == -1){
-              changeSubDivInt(true);
-              lastTime = millis();
-            }
-            else if(x == 1){
-              changeSubDivInt(false);
-              lastTime = millis();
-            }
-          }
-          break;
-      }
-    }
-  }
-  if(itsbeen(200)){
-    if(sel){
-      quantizeWithSwing = !quantizeWithSwing;
-      lastTime = millis();
-    }
-  }
-  return true;
 }
 
 void quickSave(){
@@ -18916,6 +18232,8 @@ void testJoyStick(){
     display.display();
   }
 }
+
+#include "screenSavers.h"
 
 void loop() {
   inputRead();

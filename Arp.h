@@ -22,7 +22,6 @@ class Arp{
     uint8_t minPitchMod;
     unsigned char playheadPos;//tw0 values, 0 is the step and 1 is what range it's in
     uint8_t playStyle;
-
     uint8_t lastPitchSent;
     bool playing;
     bool uniformLength;

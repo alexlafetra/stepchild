@@ -536,7 +536,7 @@ void drawNoteBracket(int x1, int y1, int length, int height){
 }
 
 void drawNoteBracket(Note note, int track){
-  drawNoteBracket(trackDisplay+(note.startPos-viewStart)*scale,debugHeight+(track-startTrack)*trackHeight,(note.endPos-note.startPos)*scale+1,trackHeight);
+  drawNoteBracket(trackDisplay+(note.startPos-viewStart)*scale,debugHeight+(track-startTrack)*trackHeight,(note.endPos-note.startPos+1)*scale,trackHeight);
 }
 
 void drawSelectionBracket(){
