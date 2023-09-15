@@ -252,6 +252,7 @@ void loadBackup();
 void quickSave();
 void bootscreen();
 uint16_t getIDAtCursor();
+uint8_t countChar(String text,unsigned char c);
 
 //MIDI
 void sendMIDIallOff();

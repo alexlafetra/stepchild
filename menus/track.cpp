@@ -284,7 +284,12 @@ void Menu::displayTrackMenu_trackEdit(uint8_t xCursor){
   display.drawRoundRect(topL[0],topL[1]+12,bottomR[0]-topL[0]+1,bottomR[1]-topL[1]-11,3,SSD1306_WHITE);
   //top labels 
   const vector<String> texts = {"track","pitch","octave","channel","prime","latch","mute group"};
-  printChunky(bottomR[0]-texts[xCursor].length()*6,topL[1]+5,texts[xCursor],2);
+  if(xCursor != 6)
+    printChunky(bottomR[0]-texts[xCursor].length()*6,topL[1]+5,texts[xCursor],1);
+  else{
+    printChunky(bottomR[0]-30,topL[1],"mute",1);
+    printChunky(bottomR[0]-30,topL[1]+7,"group",1);
+  }
   drawTrackMenuTopInfo(topL[0]);
 
   //drawing menu options, and the highlight
@@ -330,7 +335,6 @@ void Menu::displayTrackMenu_trackEdit(uint8_t xCursor){
     display.drawCircle(topL[0]+col2X+4,39,2,SSD1306_WHITE);
   }
   
-  // display.drawRoundRect(topL[0]+2,42,screenWidth-topL[0]-2,27,3,SSD1306_WHITE);
   //edit
   display.drawBitmap(topL[0]+col1X,43,track_pencil,11,5,SSD1306_WHITE);
   //erase

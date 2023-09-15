@@ -111,6 +111,8 @@ bool checkNoteMove(Note targetNote, int track, int newTrack, int newStart);
 #include "scales.h"
 
 #include "menus/strum.cpp"
+#include "PWM.h"
+
 
 
 
@@ -144,9 +146,6 @@ vector<vector<uint16_t>> loopData = {{0,96,0,0}};//start,end,iterations,style
 //(style is either 0 = normal, 2 = random of same length, 1 = random any, 4 = inf repeat, 3 = return)
 //holds all the datatracks
 vector<dataTrack> dataTrackData;
-
-volatile bool noteOnReceived = false;
-volatile bool noteOffReceived = false;
 
 
 #include "Arp.h"
@@ -1495,174 +1494,22 @@ String decimalToNumeral(int dec){
 }
 
 #include "menus/loop.cpp"
-
-void drawConsoleTitle(){
-  const uint8_t x1 = 86;
-  display.fillRect(x1-4,0,33,9,0);
-  for(uint8_t i = 0; i<7; i++){
-    display.drawBitmap(x1+i*4,1+sin(millis()/100+i),consoleTitle[i],4,7,1);
-  }
-}
-//displays a scrolling list of midi ins and outs
-void console(){
-  vector<String> midiInMessages;
-  vector<String> CCInMessages;
-
-  //stores the last pitch received
-  uint8_t lastPitchReceived;
-  //stores last pitch
-  uint8_t lastVelReceived;
-  //stores channel the message was received on 
-  uint8_t lastChannelReceived;
-
-  uint8_t lastCCReceived;
-  uint8_t lastCCValReceived;
-  uint8_t lastCCChannelReceived;
-
-  const uint8_t maxLines = 8;
-
-  while(true){
-    readButtons();
-    if(itsbeen(200)){
-      if(menu_Press){
-        lastTime = millis();
-        return;
-      }
-    }
-    
-    display.clearDisplay();
-    //topline
-    display.drawFastHLine(0,8,114,1);
-    //midline
-    display.drawFastVLine(44,0,64,1);
-    //bounds on graph
-    drawDottedLineV(95,10,64,2);
-    drawDottedLineV(127,15,64,2);
-    display.drawBitmap(116,1+sin(millis()/200),mainMenu_icons[7],12,12,1);
-
-    //note icon
-    display.drawBitmap(3,1,epd_bitmap_small_note,5,5,1);
-    printSmall(20,1,"V",1);
-    display.drawBitmap(34,2,ch_tiny,6,3,1);
-
-    //CC icon
-    display.drawBitmap(48,2,cc_tiny,5,3,1);
-    printSmall(62,1,"V",1);
-    display.drawBitmap(76,2,ch_tiny,6,3,1);
-
-    drawConsoleTitle();
-
-    //printing midi in messages
-    for(uint8_t i = 0; i<midiInMessages.size(); i++){
-      printSmall(0,10+i*7,midiInMessages[i],1);
-    }
-    //printing CC in messages
-    for(uint8_t i = 0; i<CCInMessages.size(); i++){
-      printSmall(48,10+i*7,CCInMessages[i],1);
-      //printing line graph
-      display.drawFastVLine(95+toInt(CCInMessages[i].substring(8))/4,10+i*7,7,1);
-    }
-    display.display();
-
-    //note on
-    if(noteOnReceived){
-      noteOnReceived = false;
-      // noteOffReceived = false;
-      String text = pitchToString(recentNote[0],true,true);
-      String text2 = stringify(recentNote[1]);
-      String text3 = stringify(recentNote[2]);
-      for(int8_t i = 0; i<(3-text2.length()); i++){
-        text3 = "  "+text3;
-      }
-      for(int8_t i = 0; i<(4-text.length()); i++){
-        text2 = "  "+text2;
-      }
-      if(text.charAt(1) != '#'){
-        text2 = " "+text2;
-      }
-      // if(text.charAt(2) != '-' && text.charAt(1) != '-'){
-      //   text2 = "  "+text2;
-      // }
-      text+=" "+text2+" "+text3;
-      //if there are already 8 messages in the buffer
-      if(midiInMessages.size()>=maxLines){
-        for(uint8_t i = 1; i<maxLines; i++){
-          midiInMessages[i-1] = midiInMessages[i];
-        }
-        midiInMessages[maxLines-1] = text;
-      }
-      //add the new message
-      else{
-        midiInMessages.push_back(text);
-      }
-      lastPitchReceived = recentNote[0];
-      lastVelReceived = recentNote[1];
-      lastChannelReceived = recentNote[2];
-    } 
-
-    //CC
-    if(recentCC[0] != lastCCReceived || recentCC[1] != lastCCValReceived || recentCC[2] != lastCCChannelReceived){
-        String text = stringify(recentCC[0]);
-        String text2 = stringify(recentCC[1]);
-        String text3 = stringify(recentCC[2]);
-        for(int8_t i = 0; i<(3-text2.length()); i++){
-          text3 = "  "+text3;
-        }
-        for(int8_t i = 0; i<(3-text.length()); i++){
-          text2 = "  "+text2;
-        }
-        text+=" "+text2+" "+text3;
-      //if there are already 8 messages in the buffer
-      if(CCInMessages.size()>=maxLines){
-        for(uint8_t i = 1; i<maxLines; i++){
-          CCInMessages[i-1] = CCInMessages[i];
-        }
-        CCInMessages[maxLines - 1] = text;
-      }
-      //add the new message
-      else{
-        CCInMessages.push_back(text);
-      }
-      lastCCReceived = recentCC[0];
-      lastCCValReceived = recentCC[1];
-      lastCCChannelReceived = recentCC[2];
-    } 
-  }
-}
-
-//the cassette should block out most of the screen
-void cassette_recMenu(){
-  while(menuIsActive && activeMenu.menuTitle == "REC"){
-  int xOffset = 0;
-  int yOffset = 0;
-  //actual cassettes are 4:2.5:0.5
-  display.drawRoundRect(xOffset+14,yOffset+0,100,62,4,SSD1306_WHITE);//outer box
-  display.drawRoundRect(xOffset+19,yOffset+5,90,38,4,SSD1306_WHITE);//inner label
-  display.drawRoundRect(xOffset+34,yOffset+20,60,15,3,SSD1306_WHITE);//spool box
-  display.drawCircle(xOffset+41,yOffset+28,4,SSD1306_WHITE);//spool1
-  display.drawCircle(xOffset+86,yOffset+28,4,SSD1306_WHITE);//spool2
-  display.setTextColor(SSD1306_WHITE);
-  display.setFont(&FreeSerifItalic9pt7b);
-  display.setCursor(xOffset+40,yOffset+18);
-  display.print("(Loop)");
-  display.display();
-  }
-}
+#include "menus/console.cpp"
 
 void drawTrackInfo(uint8_t xCursor){
   const uint8_t sideWidth = 18;
   //track scrolling
   endTrack = startTrack + trackData.size();
   trackHeight = (screenHeight - debugHeight) / trackData.size();
-  if(trackData.size()>maxTracksShown){
-    endTrack = startTrack + maxTracksShown;
-    trackHeight = (screenHeight-debugHeight)/maxTracksShown;
+  if(trackData.size()>5){
+    endTrack = startTrack + 5;
+    trackHeight = (screenHeight-debugHeight)/5;
   }
-  while(activeTrack>endTrack-1 && trackData.size()>maxTracksShown){
+  while(activeTrack>endTrack-1 && trackData.size()>5){
     startTrack++;
     endTrack++;
   }
-  while(activeTrack<startTrack && trackData.size()>maxTracksShown){
+  while(activeTrack<startTrack && trackData.size()>5){
     startTrack--;
     endTrack--;
   }
@@ -1675,10 +1522,9 @@ void drawTrackInfo(uint8_t xCursor){
 
   //top and bottom bounds
   display.drawFastHLine(0,debugHeight-1,screenWidth,SSD1306_WHITE);
-  // display.fillRect(0,0,screenWidth,debugHeight,SSD1306_WHITE);
 
   //tracks
-  for(uint8_t track = startTrack; track<endTrack; track++){
+  for(uint8_t track = startTrack; track<startTrack+5; track++){
     unsigned short int y1 = (track-startTrack) * trackHeight + debugHeight-1;
     unsigned short int y2 = y1 + trackHeight;
     if(trackData[track].isSelected){
@@ -1699,16 +1545,11 @@ void drawTrackInfo(uint8_t xCursor){
     //track info display
     //single digit
     if((track+1)<10){
-      // display.setCursor(8, y1+3);
-      // display.print(String(track+1));
       printSmall(9,y1+5,stringify(track+1),SSD1306_WHITE);
     }
     else{
-      // display.setCursor(17-String(track+1).length()*6, y1+3);
-      // display.print(String(track+1));
       printSmall(17-stringify(track+1).length()*6,y1+5,stringify(track+1),SSD1306_WHITE);
     }
-
     //track cursor
     if(track == activeTrack){
       //track
@@ -2724,16 +2565,6 @@ void Menu::displayRecMenu(uint8_t menuCursor,uint8_t start, uint8_t active){
     display.fillCircle(12,5,5,SSD1306_WHITE);
   }
   
-  // display.setRotation(3);
-  // display.setFont(&FreeSerifItalic12pt7b);
-  // display.setCursor(0,14);
-  // display.print("menu");
-  // display.setFont();
-  // display.setRotation(UPRIGHT);
-  // if(millis()%1000>500){
-  //   display.fillCircle(118,57,5,SSD1306_WHITE);
-  // }
-
   uint8_t x1 = screenWidth-activeMenu.page;
 
   //options---------
@@ -4208,6 +4039,7 @@ int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String t
   return false;
 }
 
+//draws a VU meter, where val is the angle of the needle
 void drawVU(int8_t x1, int8_t y1, float val){
   display.drawBitmap(x1,y1,VUmeter_bmp,19,14,SSD1306_WHITE);
   float angle = radians(5)+(PI-radians(5))*val;
@@ -4216,6 +4048,8 @@ void drawVU(int8_t x1, int8_t y1, float val){
   display.drawLine(x1+9,y1+12,x1+10+pX,y1+12-pY,SSD1306_BLACK);
   display.drawRect(x1,y1,19,14,SSD1306_WHITE);
 }
+
+//draws a swinging pendulum, for the clock menu
 void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val){
   //pendulum
   int a = length;
@@ -4259,8 +4093,6 @@ void drawSlider(uint8_t x1, uint8_t y1, String a, String b, bool state){
   drawSlider(x1,y1,length,11,state);
   printSmall_centered(x1+length/4+2,y1+3,a,2);
   printSmall_centered(x1+3*length/4,y1+3,b,2);
-  // printSmall_centered(x1+length/2,y1+3,a,2);
-  // printSmall_centered(x1+length-b.length()*4-2,y1+3,b,2);
 }
 
 //returns the number of digits in a byte-sized (8bit) number
@@ -4292,21 +4124,7 @@ uint8_t countChar(String text,unsigned char c){
   }
   return count;
 }
-void drawCenteredBanner(int8_t x1, int8_t y1, String text){
-  uint8_t len = text.length()*4-countSpaces(text)*2+countChar(text,'#')*2;
-  x1-=len/2;
-  drawBanner(x1,y1,text);
-}
 
-void drawBanner(int8_t x1, int8_t y1, String text){
-  display.drawBitmap(x1-13,y1-4,bannerL_bmp,12,9,SSD1306_WHITE);
-  // display.drawBitmap(x1+text.length()*4-countSpaces(text)*2,y1,bannerR_bmp,11,9,SSD1306_WHITE);
-  display.setRotation(UPSIDEDOWN);
-  display.drawBitmap(screenWidth-(x1+text.length()*4-countSpaces(text)*2+countChar(text,'#')*2)-12,screenHeight-y1-9,bannerL_bmp,12,9,SSD1306_WHITE);
-  display.setRotation(UPRIGHT);
-  display.fillRect(x1-1,y1-1,text.length()*4-countSpaces(text)*2+countChar(text,'#')*2+1,7,SSD1306_WHITE);
-  printSmall(x1,y1,text,SSD1306_BLACK);
-}
 void drawFxLabel(){
   String text = "NAH";
   switch(activeMenu.highlight){
@@ -4405,6 +4223,9 @@ void selectInstrumentMenu(){
           case 5:
             toggleDrumPads();
             break;
+          case 6:
+            MIDItoCV();
+            break;
         }
       }
     }
@@ -4417,8 +4238,7 @@ void selectInstrumentMenu(){
     for(uint8_t j = 0; j<4; j++){
       for(uint8_t i = 0; i<4; i++){
         display.drawRoundRect(x1+16*i,y1+16*j+sin(millis()/200+j*4+i),width,height,3,1);
-        if(count<6)
-          display.drawBitmap(x1+16*i+1,y1+16*j+sin(millis()/200+j*4+i)+1,instrument_icons[count],12,12,1);
+        display.drawBitmap(x1+16*i+1,y1+16*j+sin(millis()/200+j*4+i)+1,instrument_icons[count],12,12,1);
         count++;
       }
     }
@@ -4449,6 +4269,9 @@ void selectInstrumentMenu(){
         break;
       case 5:
         text = "pads";
+        break;
+      case 6:
+        text = "CV";
         break;
     }
     // printArp(0,10,text,1);
@@ -9754,7 +9577,6 @@ void deleteNoteFromData(int track, int id){
   }
 }
 void deleteNote_byID(int track, int targetNoteID){
-    // Serial.println("deleting note "+stringify(targetNoteID));
   //if there's a note/something here, and it's in data
   if (targetNoteID != 0 && targetNoteID <= seqData[track].size()) {
     //clearing note from lookupData
@@ -15441,6 +15263,18 @@ void continueStep(unsigned short int step){
   }
 }
 
+//does nothing, just a placeholder
+void defaultNoteHandlerFunction(uint8_t channel, uint8_t pitch, uint8_t vel){
+  return;
+}
+
+//these functions are called whenever notes are sent/received
+//you can set them to special functions for different applications
+void (* noteOnReceivedHandlerFunc)(uint8_t, uint8_t, uint8_t) = defaultNoteHandlerFunction;
+void (* noteOffReceivedHandlerFunc)(uint8_t, uint8_t, uint8_t) = defaultNoteHandlerFunction;
+void (* noteOnSentHandlerFunc)(uint8_t, uint8_t, uint8_t) = defaultNoteHandlerFunction;
+void (* noteOffSentHandlerFunc)(uint8_t, uint8_t, uint8_t) = defaultNoteHandlerFunction;
+
 void handleStop_playing(){
   hasStarted = false;
   stop();
@@ -15478,12 +15312,14 @@ void handleNoteOn_Recording(uint8_t channel, uint8_t note, uint8_t velocity){
   recentNote[1] = velocity;
   recentNote[2] = channel;
   noteOnReceived = true;
+  noteOnReceivedHandlerFunc(channel,note,velocity);
 }
 
 void handleNoteOff_Recording(uint8_t channel, uint8_t note, uint8_t velocity){
   writeNoteOff(recheadPos, note, channel);
   waiting = false;
   noteOffReceived = true;
+  noteOffReceivedHandlerFunc(channel,note,velocity);
 }
 
 void handleCC_Recording(uint8_t channel, uint8_t cc, uint8_t value){
@@ -15492,15 +15328,6 @@ void handleCC_Recording(uint8_t channel, uint8_t cc, uint8_t value){
   recentCC[1] = value;
   recentCC[2] = channel;
   waiting = false;
-}
-
-void handleNoteOn_Listening(uint8_t channel, uint8_t note, uint8_t velocity){
-  int track = makeTrackWithPitch(note,channel);
-  trackData[track].noteLastSent = note;
-}
-
-void handleNoteOff_Listening(uint8_t channel, uint8_t note, uint8_t velocity){
-  trackData[getTrackWithPitch(note)].noteLastSent = 255;
 }
 
 void handleCC_Normal(uint8_t channel, uint8_t cc, uint8_t value){
@@ -15670,31 +15497,6 @@ void setNormalMode(){
   #endif
 }
 
-void toggleListeningMode(){
-  listening = !listening;
-  #ifndef HEADLESS
-  if(listening){
-    MIDI1.disconnectCallbackFromType(midi::NoteOn);
-    MIDI1.disconnectCallbackFromType(midi::NoteOff);
-    MIDI1.setHandleNoteOn(handleNoteOn_Listening);
-    MIDI1.setHandleNoteOff(handleNoteOff_Listening);
-
-    MIDI0.disconnectCallbackFromType(midi::NoteOn);
-    MIDI0.disconnectCallbackFromType(midi::NoteOff);
-    MIDI0.setHandleNoteOn(handleNoteOn_Listening);
-    MIDI0.setHandleNoteOff(handleNoteOff_Listening);
-  }
-  if(!listening){
-    stop();
-    MIDI1.disconnectCallbackFromType(midi::NoteOn);
-    MIDI1.disconnectCallbackFromType(midi::NoteOff);
-
-    MIDI0.disconnectCallbackFromType(midi::NoteOn);
-    MIDI0.disconnectCallbackFromType(midi::NoteOff);
-  }
-  #endif
-}
-
 void toggleRecordingMode(bool butWait){
   recording = !recording;
   //if it stopped recording
@@ -15712,11 +15514,20 @@ void toggleRecordingMode(bool butWait){
     }
     stop();
     #ifndef HEADLESS
+    //disconnecting all the midi callbacks!
     MIDI1.disconnectCallbackFromType(midi::NoteOn);
     MIDI1.disconnectCallbackFromType(midi::NoteOff);
     MIDI1.disconnectCallbackFromType(midi::Clock);
     MIDI1.disconnectCallbackFromType(midi::Start);
     MIDI1.disconnectCallbackFromType(midi::Stop);
+
+    MIDI0.disconnectCallbackFromType(midi::NoteOn);
+    MIDI0.disconnectCallbackFromType(midi::NoteOff);
+    MIDI0.disconnectCallbackFromType(midi::Clock);
+    MIDI0.disconnectCallbackFromType(midi::Start);
+    MIDI0.disconnectCallbackFromType(midi::Stop);
+
+    //reconnecting the midi callbacks
     MIDI1.setHandleNoteOn(handleNoteOn_Recording);
     MIDI1.setHandleNoteOff(handleNoteOff_Recording);
     MIDI1.setHandleClock(handleClock_recording);
@@ -15724,11 +15535,6 @@ void toggleRecordingMode(bool butWait){
     MIDI1.setHandleStop(handleStop_recording);
     MIDI1.setHandleControlChange(handleCC_Recording);
 
-    MIDI0.disconnectCallbackFromType(midi::NoteOn);
-    MIDI0.disconnectCallbackFromType(midi::NoteOff);
-    MIDI0.disconnectCallbackFromType(midi::Clock);
-    MIDI0.disconnectCallbackFromType(midi::Start);
-    MIDI0.disconnectCallbackFromType(midi::Stop);
     MIDI0.setHandleNoteOn(handleNoteOn_Recording);
     MIDI0.setHandleNoteOff(handleNoteOff_Recording);
     MIDI0.setHandleClock(handleClock_recording);
@@ -15738,7 +15544,7 @@ void toggleRecordingMode(bool butWait){
     #endif
     startTime = micros();
   }
-  if(!recording){//go back to normal listening mode
+  if(!recording){//go back to normal mode
     setNormalMode();
   }
 }
@@ -18050,36 +17856,30 @@ void setup() {
   USBDevice.setManufacturerDescriptor("Silent Instruments Inc.         ");
   USBDevice.setProductDescriptor     ("Stepchild V0.1                  ");
 
-  setupPins();
+  // setupPins();
 
   //seeding random number generator
-  srand(1);
-
-  initSeq(16,768);
-  turnOffLEDs();
-
-  // if(helloChild){
-    bootscreen();
-    // testItalicFont();
-    // helloChild_5();
-  // }
   if(tud_connected()){
     while (!TinyUSBDevice.mounted()) {
       delay(1);
     }
   }
+  srand(1);
 
-  setNormalMode();
-
+  initSeq(16,768);
+  turnOffLEDs();
   for(uint8_t i = 0; i<16; i++){
     controlKnobs[i].cc = i+1;
   }
 
   counterA = 0;
   counterB = 0;
+  setNormalMode();
+  // initPWM();
 
   core0ready = true;
   lastTime = millis();
+  bootscreen();
 }
 #endif
 
@@ -18124,6 +17924,7 @@ void loop() {
   inputRead();
   displaySeq();
   screenSaverCheck();
+  // testCVPitches();
 }
 
 //the closer the step is to the subDiv (both forward and backward), the shorter the time val

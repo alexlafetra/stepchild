@@ -584,3 +584,19 @@ void drawSelectionBracket(){
     }
   }
 }
+
+void drawCenteredBanner(int8_t x1, int8_t y1, String text){
+  uint8_t len = text.length()*4-countSpaces(text)*2+countChar(text,'#')*2;
+  x1-=len/2;
+  drawBanner(x1,y1,text);
+}
+
+void drawBanner(int8_t x1, int8_t y1, String text){
+  display.drawBitmap(x1-13,y1-4,bannerL_bmp,12,9,SSD1306_WHITE);
+  // display.drawBitmap(x1+text.length()*4-countSpaces(text)*2,y1,bannerR_bmp,11,9,SSD1306_WHITE);
+  display.setRotation(UPSIDEDOWN);
+  display.drawBitmap(screenWidth-(x1+text.length()*4-countSpaces(text)*2+countChar(text,'#')*2)-12,screenHeight-y1-9,bannerL_bmp,12,9,SSD1306_WHITE);
+  display.setRotation(UPRIGHT);
+  display.fillRect(x1-1,y1-1,text.length()*4-countSpaces(text)*2+countChar(text,'#')*2+1,7,SSD1306_WHITE);
+  printSmall(x1,y1,text,SSD1306_BLACK);
+}

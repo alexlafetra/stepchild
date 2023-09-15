@@ -487,36 +487,40 @@ uint8_t getSide(WireFrame die){
     return 0;
 }
 
-WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float scale){
-  Vertex v1 = Vertex(10,10,10);
-  Vertex v2 = Vertex(10,10,-10);
-  Vertex v3 = Vertex(10,-10,10);
-  Vertex v4 = Vertex(-10,10,10);
-  Vertex v5 = Vertex(10,-10,-10);
-  Vertex v6 = Vertex(-10,10,-10);
-  Vertex v7 = Vertex(-10,-10,10);
-  Vertex v8 = Vertex(-10,-10,-10);
+WireFrame makeCube(uint8_t size){
+  Vertex v1 = Vertex(size/2,size/2,size/2);
+  Vertex v2 = Vertex(size/2,size/2,-size/2);
+  Vertex v3 = Vertex(size/2,-size/2,size/2);
+  Vertex v4 = Vertex(-size/2,size/2,size/2);
+  Vertex v5 = Vertex(size/2,-size/2,-size/2);
+  Vertex v6 = Vertex(-size/2,size/2,-size/2);
+  Vertex v7 = Vertex(-size/2,-size/2,size/2);
+  Vertex v8 = Vertex(-size/2,-size/2,-size/2);
   vector<Vertex> vertices = {v1,v2,v3,v4,v5,v6,v7,v8};
   vector<vector<uint8_t>> edges = {{0,1},{0,2},{2,4},{4,1},{2,6},{4,7},{0,3},{1,5},{6,7},{5,3},{6,3},{5,7}};
-  WireFrame cube = WireFrame(vertices,edges);
-//  cube.xPos = 32;
-//  cube.yPos = 32;
-    cube.xPos = x1;
-    cube.yPos = y1;
-    cube.scale = scale;
+  return WireFrame(vertices,edges);
+}
+
+//makes a cube with die dots!
+//dots ~are~ accurate
+WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float scale){
+  WireFrame cube = makeCube(20);
+  cube.xPos = x1;
+  cube.yPos = y1;
+  cube.scale = scale;
 
   //1
-  v1 = Vertex(0,0,distance);
+  Vertex v1 = Vertex(0,0,distance);
   //2
-  v2 = Vertex(-5,distance,-5);
-  v3 = Vertex(5,distance,5);
+  Vertex v2 = Vertex(-5,distance,-5);
+  Vertex v3 = Vertex(5,distance,5);
   //3
-  v4 = Vertex(-distance,-5,-5);
-  v5 = Vertex(-distance,5,5);
-  v6 = Vertex(-distance,0,0);
+  Vertex v4 = Vertex(-distance,-5,-5);
+  Vertex v5 = Vertex(-distance,5,5);
+  Vertex v6 = Vertex(-distance,0,0);
   //4
-  v7 = Vertex(distance,-5,-5);
-  v8 = Vertex(distance,-5,5);
+  Vertex v7 = Vertex(distance,-5,-5);
+  Vertex v8 = Vertex(distance,-5,5);
   Vertex v9 = Vertex(distance,5,-5);
   Vertex v10 = Vertex(distance,5,5);
 
@@ -537,10 +541,8 @@ WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float sca
 
   vector<Vertex> verts2 = {v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12,v13,v14,v15,v16,v17,v18,v19,v20,v21};
   WireFrame allDots = WireFrame(verts2);
-//  allDots.xPos = 32;
-//  allDots.yPos = 32;
-    allDots.xPos = x1;
-    allDots.yPos = y1;
+  allDots.xPos = x1;
+  allDots.yPos = y1;
   allDots.drawEdges = false;
   allDots.drawDots = true;
   //so it draws all the dots
@@ -548,8 +550,6 @@ WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float sca
     allDots.dots.push_back(i);
   }
   allDots.scale = scale;
-  // vector<WireFrame> meshes = {allDots,cube};
-  // return meshes;
   cube.add(allDots);
   cube.drawDots = true;
   return cube;

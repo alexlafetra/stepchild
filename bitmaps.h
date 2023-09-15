@@ -1475,14 +1475,31 @@ const unsigned char drum_bmp []  = {
 	0x40, 0x20, 0x20, 0x40, 0x1f, 0x80, 0x00, 0x00
 };
 
+// 'cv', 12x12px
+const unsigned char cv_icon_bmp[] = {
+	0x00, 0x00, 0x1c, 0xe0, 0x22, 0x20, 0x5f, 0xc0, 0x52, 0xa0, 0x5e, 0xa0, 0x22, 0xa0, 0x1e, 0xa0, 
+	0x42, 0xa0, 0x41, 0x40, 0x70, 0x80, 0x00, 0x00
+};
+
 // Array of all bitmaps for convenience. (Total bytes used to store images in  = 48)
-const unsigned char* instrument_icons[6] = {
+const unsigned char* instrument_icons[16] = {
 	xy_bmp,
 	planets_bmp,
 	rain_bmp,
 	knobs_bmp,
 	keys_bmp,
-	drum_bmp
+	drum_bmp,
+	cv_icon_bmp,
+
+	epd_bitmap_empty,
+  	epd_bitmap_empty,
+	epd_bitmap_empty,
+	epd_bitmap_empty,
+	epd_bitmap_empty,
+	epd_bitmap_empty,
+	epd_bitmap_empty,
+	epd_bitmap_empty,
+	epd_bitmap_empty
 };
 
 

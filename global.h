@@ -41,7 +41,6 @@ uint8_t whichTemplate = 0;
 uint16_t bpm = 120;
 
 bool playing = false;
-bool listening = false;
 bool recording = false;
 bool gotClock = false;
 bool hasStarted = false;
@@ -174,3 +173,5 @@ String currentFile = "";
 //stores recent received note as pitch, vel, channel
 volatile uint8_t recentNote[3];
 volatile uint8_t recentCC [3];
+volatile bool noteOnReceived = false;
+volatile bool noteOffReceived = false;

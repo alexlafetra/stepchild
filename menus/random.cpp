@@ -1,5 +1,5 @@
 //Random Menu
-void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxChance, uint16_t minLength, uint16_t maxLength, uint8_t minVel, uint8_t maxVel, uint8_t gridBehavior, bool targetTrack){
+void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxChance, uint16_t minLength, uint16_t maxLength, uint8_t minVel, uint8_t maxVel, uint8_t gridBehavior, bool target){
   switch(which){
   //length
   case 0:
@@ -62,13 +62,13 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
     const uint8_t x1 = 36;
     const uint8_t y1 = 14;
     printSmall(x1+8,y1,"randomize...",1);
-      if(targetTrack){
-        printArp_wiggly(x1,y1+16,"Everything",1);
-        printSmall_centered(64,y1+32,"(the whole seq)",1);
+      if(target){
+        printArp_wiggly(x1,y1+16,"Notes",1);
+        printSmall_centered(64,y1+32,"(alter existing notes)",1);
       }
       else{
-        printArp_wiggly(x1+4,y1+16,"Selection",1);
-        printSmall_centered(64,y1+32,"(select an area)",1);
+        printArp_wiggly(x1+4,y1+16,"Empty",1);
+        printSmall_centered(64,y1+32,"(fill blank spaces)",1);
       }
     }
     break;
@@ -293,22 +293,49 @@ void genRandom(int8_t odds, int8_t minChance, int8_t maxChance, uint16_t minLeng
       coords.y1 = coords.y2;
       coords.y2 = temp;
     }
-    //iterate over the tracks (inclusively)
-    for(uint8_t t = coords.y1; t<=coords.y2; t++){
-      for(uint16_t step = coords.x1; step<coords.x2; step++){
-        //if it's not only making notes on the grid, or if the step is on a subDiv
-        if((!onGrid || !(step%subDivInt)) && lookupData[t][step] == 0){
-          if(random(0,100)<odds){
-            uint8_t chance = random(minChance,maxChance+1);
-            uint16_t length = random(minLength,maxLength+1);
-            uint8_t vel = random(minVel,maxVel+1);
-            //making sure notes won't run off the end
-            if(step+length>coords.x2){
-              length = coords.x2-step;
+    //if you're targeting empty spaces
+    if(!target){
+      //iterate over the tracks (inclusively)
+      for(uint8_t t = coords.y1; t<=coords.y2; t++){
+        for(uint16_t step = coords.x1; step<coords.x2; step++){
+          //if it's not only making notes on the grid, or if the step is on a subDiv
+          if((!onGrid || !(step%subDivInt)) && lookupData[t][step] == 0){
+            if(random(0,100)<odds){
+              uint8_t chance = random(minChance,maxChance+1);
+              uint16_t length = random(minLength,maxLength+1);
+              uint8_t vel = random(minVel,maxVel+1);
+              //making sure notes won't run off the end
+              if(step+length>coords.x2){
+                length = coords.x2-step;
+              }
+              Note newNote = Note(step,step+length,vel,chance,false,false);
+              makeNote(newNote, t);
+              step = newNote.endPos-1;
             }
-            Note newNote = Note(step,step+length,vel,chance,false,false);
-            makeNote(newNote, t);
-            step = newNote.endPos-1;
+          }
+        }
+      }
+    }
+    //if you're targeting existing notes
+    else{
+      //iterate over the tracks (inclusively)
+      for(uint8_t t = coords.y1; t<=coords.y2; t++){
+        for(uint16_t step = coords.x1; step<coords.x2; step++){
+          //ignore grid for this
+          if(lookupData[t][step] != 0){
+            if(random(0,100)<odds){
+              uint8_t chance = random(minChance,maxChance+1);
+              uint16_t length = random(minLength,maxLength+1);
+              uint8_t vel = random(minVel,maxVel+1);
+              //making sure notes won't run off the end
+              if(step+length>coords.x2){
+                length = coords.x2-step;
+              }
+              deleteNote_byID(t,lookupData[t][step]);
+              Note newNote = Note(step,step+length,vel,chance,false,false);
+              makeNote(newNote, t);
+              step = newNote.endPos-1;
+            }
           }
         }
       }
@@ -335,49 +362,73 @@ void drawRandMenu(uint8_t whichTab){
     const int8_t y2 = 28;
     const int8_t y3 = 52;
     //length
-    if(whichTab == 0)
-        display.fillRoundRect(-3,y1,30,9,3,1);
-    else
-        display.drawRoundRect(-3,y1,30,9,3,1);
+    if(whichTab == 0){
+      display.fillRoundRect(-3,y1,30,9,3,1);
+      drawArrow(18,y1+12+sin(millis()/100),2,2,false);
+    }
+    else{
+      display.fillRoundRect(-3,y1,30,9,3,0);
+      display.drawRoundRect(-3,y1,30,9,3,1);
+    }
     printSmall(1,y1+2,"length",2);
     
     //odds
-    if(whichTab == 1)
-        display.fillRoundRect(-3,y2,22,9,3,1);
-    else
-        display.drawRoundRect(-3,y2,22,9,3,1);
+    if(whichTab == 1){
+      display.fillRoundRect(-3,y2,22,9,3,1);
+      drawArrow(21+sin(millis()/100),y2+4,2,1,false);
+    }
+    else{
+      display.fillRoundRect(-3,y2,22,9,3,0);
+      display.drawRoundRect(-3,y2,22,9,3,1);
+    }
     printSmall(1,y2+2,"odds",2);
     
-    //odds
-    if(whichTab == 2)
-        display.fillRoundRect(-3,y3,30,9,3,1);
-    else
-        display.drawRoundRect(-3,y3,30,9,3,1);
+    //chance
+    if(whichTab == 2){
+      display.fillRoundRect(-3,y3,30,9,3,1);
+      drawArrow(18,y3-3+sin(millis()/100),2,3,false);
+    }
+    else{
+      display.fillRoundRect(-3,y3,30,9,3,0);
+      display.drawRoundRect(-3,y3,30,9,3,1);
+    }
     printSmall(1,y3+2,"chance",2);
     
     //target
-    if(whichTab == 3)
-        display.fillRoundRect(101,y1,32,9,3,1);
-    else
-        display.drawRoundRect(101,y1,32,9,3,1);
+    if(whichTab == 3){
+      display.fillRoundRect(101,y1,32,9,3,1);
+      drawArrow(109,y1+12+sin(millis()/100),2,2,false);
+    }
+    else{
+      display.fillRoundRect(101,y1,32,9,3,0);
+      display.drawRoundRect(101,y1,32,9,3,1);
+    }
     printSmall(104,y1+2,"target",2);
     
     //vel
-    if(whichTab == 4)
-        display.fillRoundRect(109,y2,21,9,3,1);
-    else
-        display.drawRoundRect(109,y2,21,9,3,1);
+    if(whichTab == 4){
+      display.fillRoundRect(109,y2,21,9,3,1);
+      drawArrow(107-sin(millis()/100),y2+4,2,0,false);
+    }
+    else{
+      display.fillRoundRect(109,y2,21,9,3,0);
+      display.drawRoundRect(109,y2,21,9,3,1);
+    }
     printSmall(112,y2+2,"velo",2);
     
     //target
-    if(whichTab == 5)
-        display.fillRoundRect(101,y3,32,9,3,1);
-    else
-        display.drawRoundRect(101,y3,32,9,3,1);
+    if(whichTab == 5){
+      display.fillRoundRect(101,y3,32,9,3,1);
+      drawArrow(109,y3-3+sin(millis()/100),2,3,false);
+    }
+    else{
+      display.fillRoundRect(101,y3,32,9,3,0);
+      display.drawRoundRect(101,y3,32,9,3,1);
+    }
     printSmall(104,y3+2,"timing",2);
 }
 
-bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int8_t * maxChance, uint16_t * minLength, uint16_t * maxLength, uint8_t * minVel, uint8_t * maxVel, bool * gridBehavior, bool * targetTrack){
+bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int8_t * maxChance, uint16_t * minLength, uint16_t * maxLength, uint8_t * minVel, uint8_t * maxVel, bool * gridBehavior, bool * target){
     joyRead();
     readButtons();
     if(itsbeen(200)){
@@ -407,7 +458,7 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
         }
       if(n){
         lastTime = millis();
-        genRandom(*odds, *minChance, * maxChance, *minLength, *maxLength, *minVel, *maxVel,*gridBehavior,*targetTrack);
+        genRandom(*odds, *minChance, * maxChance, *minLength, *maxLength, *minVel, *maxVel,*gridBehavior,*target);
       }
     }
     
@@ -485,7 +536,7 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
           break;
         //randomize selection/everything
         case 3:
-          *targetTrack = !*targetTrack;
+          *target = !*target;
           counterA += counterA<0?1:-1;
           break;
         //velocity
@@ -595,7 +646,7 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
           break;
         //randomize selection/everything
         case 3:
-          *targetTrack = !*targetTrack;
+          *target = !*target;
           counterB += counterB<0?1:-1;
           break;
                 //velocity
@@ -653,24 +704,26 @@ void randMenu(){
     uint8_t minVel = 64;
     uint8_t maxVel = 127;
     bool gridBehavior = true;//true is on the grid, false is off grid
-    bool targetTrack = 0;//0 is all, 1 is select
-    
-    float angleX,angleY,angleZ;
+    bool target = 0;//0 is all, 1 is select
+
+    WireFrame cube = makeCube(70);
+    cube.xPos = 64;
+    cube.yPos = 32;
     while(true){
-        if(!randMenuControls(&whichTab,&odds,&minChance,&maxChance,&minLength,&maxLength,&minVel,&maxVel,&gridBehavior,&targetTrack)){
+        if(!randMenuControls(&whichTab,&odds,&minChance,&maxChance,&minLength,&maxLength,&minVel,&maxVel,&gridBehavior,&target)){
             break;
         }
         
-        //wiggling all the objects before rendering them
-        angleX = sin(millis()/200)-20;
-        angleY = sin(millis()/200)+20;
-        angleZ = 2*sin(millis()/200)-20;
+        //rotating cube
+        cube.rotate(1,0);
+        cube.rotate(1,1);
         
         display.clearDisplay();
-        
-        printItalic(29,0,"randomize",1);
-        drawRandMenu(whichTab);
-        drawRandMenuOptions(whichTab,odds,minChance,maxChance,minLength,maxLength,minVel,maxVel,gridBehavior,targetTrack);
+        cube.renderDie();
+        printItalic(29,0,"randomize",1);//printing title
+        drawRandMenu(whichTab);//printing the side tabs (and bouncing arrows)
+        //printing the submenus
+        drawRandMenuOptions(whichTab,odds,minChance,maxChance,minLength,maxLength,minVel,maxVel,gridBehavior,target);
         display.display();
     }
 }
