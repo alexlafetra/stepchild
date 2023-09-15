@@ -272,7 +272,7 @@ void drawTrackMenuTopInfo(uint8_t topL){
 void Menu::displayTrackMenu_trackEdit(uint8_t xCursor){
   
   //title
-  display.setCursor((screenWidth-topL[0])-34,7);
+  display.setCursor((screenWidth-coords.x1)-34,7);
   display.setFont(&FreeSerifItalic9pt7b);
   display.setTextColor(SSD1306_WHITE);
   display.print("Trk");
@@ -280,17 +280,17 @@ void Menu::displayTrackMenu_trackEdit(uint8_t xCursor){
   display.setFont();
 
   //drawing menu box
-  display.fillRoundRect(topL[0],topL[1]+12,bottomR[0]-topL[0]+1,bottomR[1]-topL[1]-11,3,SSD1306_BLACK);
-  display.drawRoundRect(topL[0],topL[1]+12,bottomR[0]-topL[0]+1,bottomR[1]-topL[1]-11,3,SSD1306_WHITE);
+  display.fillRoundRect(coords.x1,coords.y1+12,coords.x2-coords.x1+1,coords.y2-coords.y1-11,3,SSD1306_BLACK);
+  display.drawRoundRect(coords.x1,coords.y1+12,coords.x2-coords.x1+1,coords.y2-coords.y1-11,3,SSD1306_WHITE);
   //top labels 
   const vector<String> texts = {"track","pitch","octave","channel","prime","latch","mute group"};
   if(xCursor != 6)
-    printChunky(bottomR[0]-texts[xCursor].length()*6,topL[1]+5,texts[xCursor],1);
+    printChunky(coords.x2-texts[xCursor].length()*6,coords.y1+5,texts[xCursor],1);
   else{
-    printChunky(bottomR[0]-30,topL[1],"mute",1);
-    printChunky(bottomR[0]-30,topL[1]+7,"group",1);
+    printChunky(coords.x2-30,coords.y1,"mute",1);
+    printChunky(coords.x2-30,coords.y1+7,"group",1);
   }
-  drawTrackMenuTopInfo(topL[0]);
+  drawTrackMenuTopInfo(coords.x1);
 
   //drawing menu options, and the highlight
   const uint8_t textWidth = 20;
@@ -300,73 +300,73 @@ void Menu::displayTrackMenu_trackEdit(uint8_t xCursor){
   //pitch
   String p = pitchToString(trackData[activeTrack].pitch,false,true);
   if(highlight == 0){
-    display.fillRoundRect(topL[0]+4,yPos+topL[1]+2,8+p.length()*4+12,9,4,SSD1306_WHITE);
-    display.drawChar(topL[0]+6,yPos+topL[1]+3,0x0E,SSD1306_BLACK,SSD1306_WHITE,1);
+    display.fillRoundRect(coords.x1+4,yPos+coords.y1+2,8+p.length()*4+12,9,4,SSD1306_WHITE);
+    display.drawChar(coords.x1+6,yPos+coords.y1+3,0x0E,SSD1306_BLACK,SSD1306_WHITE,1);
   }
   else
-    display.drawChar(topL[0]+6,yPos+topL[1]+3,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
-  printSmall(topL[0]+12,yPos+topL[1]+3,"$",2);//printing all the text inverse, so it turns black when highlighted
-  printSmall(topL[0]+14,yPos+topL[1]+4," = "+p,2);
+    display.drawChar(coords.x1+6,yPos+coords.y1+3,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
+  printSmall(coords.x1+12,yPos+coords.y1+3,"$",2);//printing all the text inverse, so it turns black when highlighted
+  printSmall(coords.x1+14,yPos+coords.y1+4," = "+p,2);
   //oct
   p = stringify(getOctave(trackData[activeTrack].pitch));
   if(highlight == 1)
-    display.fillRoundRect(topL[0]+4,yPos+topL[1]+3+textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
-  printSmall(topL[0]+6,yPos+topL[1]+4+textHeight,"/8 = "+p,2);
+    display.fillRoundRect(coords.x1+4,yPos+coords.y1+3+textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
+  printSmall(coords.x1+6,yPos+coords.y1+4+textHeight,"/8 = "+p,2);
   //channel
   p = stringify(trackData[activeTrack].channel);
   if(highlight == 2)
-    display.fillRoundRect(topL[0]+4,yPos+topL[1]+2+2*textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
-  printSmall(topL[0]+6,yPos+topL[1]+3+2*textHeight,"ch = "+p,2);
+    display.fillRoundRect(coords.x1+4,yPos+coords.y1+2+2*textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
+  printSmall(coords.x1+6,yPos+coords.y1+3+2*textHeight,"ch = "+p,2);
   
   const uint8_t col1X = 5;
   const uint8_t col2X = 19;
 
   //prime icon
-  // printSmall(topL[0]+col1X,37,"rec",1);
-  display.drawBitmap(topL[0]+col1X,38,rec_tiny,11,4,1,0);
+  // printSmall(coords.x1+col1X,37,"rec",1);
+  display.drawBitmap(coords.x1+col1X,38,rec_tiny,11,4,1,0);
   if(trackData[activeTrack].isPrimed){
-    // printSmall(topL[0]+2,37,"prime",1);
+    // printSmall(coords.x1+2,37,"prime",1);
     if(millis()%1000<500)
-      display.fillCircle(topL[0]+col2X+4,39,2,SSD1306_WHITE);
+      display.fillCircle(coords.x1+col2X+4,39,2,SSD1306_WHITE);
     else
-      display.drawCircle(topL[0]+col2X+4,39,2,SSD1306_WHITE);
+      display.drawCircle(coords.x1+col2X+4,39,2,SSD1306_WHITE);
   }
   else{
-    display.drawCircle(topL[0]+col2X+4,39,2,SSD1306_WHITE);
+    display.drawCircle(coords.x1+col2X+4,39,2,SSD1306_WHITE);
   }
   
   //edit
-  display.drawBitmap(topL[0]+col1X,43,track_pencil,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.x1+col1X,43,track_pencil,11,5,SSD1306_WHITE);
   //erase
-  display.drawBitmap(topL[0]+col2X,43,track_eraser,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.x1+col2X,43,track_eraser,11,5,SSD1306_WHITE);
   //mute
   if(trackData[activeTrack].isMuted)
-    display.drawBitmap(topL[0]+col1X,50,track_mute,11,5,SSD1306_WHITE);
+    display.drawBitmap(coords.x1+col1X,50,track_mute,11,5,SSD1306_WHITE);
   else
-    display.drawBitmap(topL[0]+col1X,50,track_unmute,11,5,SSD1306_WHITE);
+    display.drawBitmap(coords.x1+col1X,50,track_unmute,11,5,SSD1306_WHITE);
   //solo
-  display.drawBitmap(topL[0]+col2X,50,track_solo,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.x1+col2X,50,track_solo,11,5,SSD1306_WHITE);
   //move
-  display.drawBitmap(topL[0]+col1X,57,track_arrows,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.x1+col1X,57,track_arrows,11,5,SSD1306_WHITE);
   //latch
   if(trackData[activeTrack].isLatched)
-    display.drawBitmap(topL[0]+col2X+3,57,track_latch,5,5,SSD1306_WHITE);
+    display.drawBitmap(coords.x1+col2X+3,57,track_latch,5,5,SSD1306_WHITE);
   else
-    display.drawBitmap(topL[0]+col2X+3,57,track_unlatch,5,5,SSD1306_WHITE);
+    display.drawBitmap(coords.x1+col2X+3,57,track_unlatch,5,5,SSD1306_WHITE);
   
   //menu highlight
   if(highlight == 3)
-    drawArrow(topL[0]+25+sin(millis()/100),39,2,1,true);
+    drawArrow(coords.x1+25+sin(millis()/100),39,2,1,true);
   //first column
   else if(highlight>=4 && highlight<=6)
-    display.drawRoundRect(topL[0]+3,34+7*(highlight-3),15,9,2,SSD1306_WHITE);
+    display.drawRoundRect(coords.x1+3,34+7*(highlight-3),15,9,2,SSD1306_WHITE);
   else if(highlight>=7)
-    display.drawRoundRect(topL[0]+17,34+7*(highlight-6),15,9,2,SSD1306_WHITE);
+    display.drawRoundRect(coords.x1+17,34+7*(highlight-6),15,9,2,SSD1306_WHITE);
 }
 
 void Menu::displayTrackMenu(){
   //corner logo
-  display.setCursor((screenWidth-topL[0])-34,7);
+  display.setCursor((screenWidth-coords.x1)-34,7);
   display.setFont(&FreeSerifItalic9pt7b);
   display.setTextColor(SSD1306_WHITE);
   display.print("Trk");
@@ -375,11 +375,11 @@ void Menu::displayTrackMenu(){
   // display.drawFastHLine(0,16,32,SSD1306_WHITE);
 
   //track info
-  drawTrackMenuTopInfo(topL[0]);
+  drawTrackMenuTopInfo(coords.x1);
 
   //drawing menu box
-  display.fillRect(topL[0],topL[1], bottomR[0]-topL[0], bottomR[1]-topL[1], SSD1306_BLACK);
-  display.drawRoundRect(topL[0],topL[1]+12, bottomR[0]-topL[0]+1, bottomR[1]-topL[1]-11, 3,SSD1306_WHITE);
+  display.fillRect(coords.x1,coords.y1, coords.x2-coords.x1, coords.y2-coords.y1, SSD1306_BLACK);
+  display.drawRoundRect(coords.x1,coords.y1+12, coords.x2-coords.x1+1, coords.y2-coords.y1-11, 3,SSD1306_WHITE);
   String s;
   switch(highlight){
     case 0:
@@ -413,7 +413,7 @@ void Menu::displayTrackMenu(){
       s = "latch";
       break;
   }
-  printChunky(bottomR[0]-s.length()*6,topL[1]+5,s,SSD1306_WHITE);
+  printChunky(coords.x2-s.length()*6,coords.y1+5,s,SSD1306_WHITE);
 
   //drawing menu options, and the highlight
   const uint8_t textWidth = 20;
@@ -423,69 +423,152 @@ void Menu::displayTrackMenu(){
   //pitch
   String p = pitchToString(trackData[activeTrack].pitch,false,true);
   if(highlight == 0){
-    display.fillRoundRect(topL[0]+4,yPos+topL[1]+2,8+p.length()*4+12,9,4,SSD1306_WHITE);
-    display.drawChar(topL[0]+6,yPos+topL[1]+3,0x0E,SSD1306_BLACK,SSD1306_WHITE,1);
+    display.fillRoundRect(coords.x1+4,yPos+coords.y1+2,8+p.length()*4+12,9,4,SSD1306_WHITE);
+    display.drawChar(coords.x1+6,yPos+coords.y1+3,0x0E,SSD1306_BLACK,SSD1306_WHITE,1);
   }
   else
-    display.drawChar(topL[0]+6,yPos+topL[1]+3,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
-  printSmall(topL[0]+12,yPos+topL[1]+3,"$",2);//printing all the text inverse, so it turns black when highlighted
-  printSmall(topL[0]+14,yPos+topL[1]+4," = "+p,2);
+    display.drawChar(coords.x1+6,yPos+coords.y1+3,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
+  printSmall(coords.x1+12,yPos+coords.y1+3,"$",2);//printing all the text inverse, so it turns black when highlighted
+  printSmall(coords.x1+14,yPos+coords.y1+4," = "+p,2);
   //oct
   p = stringify(getOctave(trackData[activeTrack].pitch));
   if(highlight == 1)
-    display.fillRoundRect(topL[0]+4,yPos+topL[1]+3+textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
-  printSmall(topL[0]+6,yPos+topL[1]+4+textHeight,"/8 = "+p,2);
+    display.fillRoundRect(coords.x1+4,yPos+coords.y1+3+textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
+  printSmall(coords.x1+6,yPos+coords.y1+4+textHeight,"/8 = "+p,2);
   //channel
   p = stringify(trackData[activeTrack].channel);
   if(highlight == 2)
-    display.fillRoundRect(topL[0]+4,yPos+topL[1]+2+2*textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
-  printSmall(topL[0]+6,yPos+topL[1]+3+2*textHeight,"ch = "+p,2);
+    display.fillRoundRect(coords.x1+4,yPos+coords.y1+2+2*textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
+  printSmall(coords.x1+6,yPos+coords.y1+3+2*textHeight,"ch = "+p,2);
   
   const uint8_t col1X = 5;
   const uint8_t col2X = 19;
 
   //prime icon
-  // printSmall(topL[0]+col1X,37,"rec",1);
-  display.drawBitmap(topL[0]+col1X,38,rec_tiny,11,4,1,0);
+  // printSmall(coords.x1+col1X,37,"rec",1);
+  display.drawBitmap(coords.x1+col1X,38,rec_tiny,11,4,1,0);
   if(trackData[activeTrack].isPrimed){
-    // printSmall(topL[0]+2,37,"prime",1);
+    // printSmall(coords.x1+2,37,"prime",1);
     if(millis()%1000<500)
-      display.fillCircle(topL[0]+col2X+4,39,2,SSD1306_WHITE);
+      display.fillCircle(coords.x1+col2X+4,39,2,SSD1306_WHITE);
     else
-      display.drawCircle(topL[0]+col2X+4,39,2,SSD1306_WHITE);
+      display.drawCircle(coords.x1+col2X+4,39,2,SSD1306_WHITE);
   }
   else{
-    display.drawCircle(topL[0]+col2X+4,39,2,SSD1306_WHITE);
+    display.drawCircle(coords.x1+col2X+4,39,2,SSD1306_WHITE);
   }
 
-  // display.drawRoundRect(topL[0]+2,42,screenWidth-topL[0]-2,27,3,SSD1306_WHITE);
+  // display.drawRoundRect(coords.x1+2,42,screenWidth-coords.x1-2,27,3,SSD1306_WHITE);
   //edit
-  display.drawBitmap(topL[0]+col1X,43,track_pencil,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.x1+col1X,43,track_pencil,11,5,SSD1306_WHITE);
   //erase
-  display.drawBitmap(topL[0]+col2X,43,track_eraser,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.x1+col2X,43,track_eraser,11,5,SSD1306_WHITE);
   //mute
   if(trackData[activeTrack].isMuted)
-    display.drawBitmap(topL[0]+col1X,50,track_mute,11,5,SSD1306_WHITE);
+    display.drawBitmap(coords.x1+col1X,50,track_mute,11,5,SSD1306_WHITE);
   else
-    display.drawBitmap(topL[0]+col1X,50,track_unmute,11,5,SSD1306_WHITE);
+    display.drawBitmap(coords.x1+col1X,50,track_unmute,11,5,SSD1306_WHITE);
   //solo
-  display.drawBitmap(topL[0]+col2X,50,track_solo,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.x1+col2X,50,track_solo,11,5,SSD1306_WHITE);
   //move
-  display.drawBitmap(topL[0]+col1X,57,track_arrows,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.x1+col1X,57,track_arrows,11,5,SSD1306_WHITE);
   //latch
   if(trackData[activeTrack].isLatched)
-    display.drawBitmap(topL[0]+col2X+3,57,track_latch,5,5,SSD1306_WHITE);
+    display.drawBitmap(coords.x1+col2X+3,57,track_latch,5,5,SSD1306_WHITE);
   else
-    display.drawBitmap(topL[0]+col2X+3,57,track_unlatch,5,5,SSD1306_WHITE);
+    display.drawBitmap(coords.x1+col2X+3,57,track_unlatch,5,5,SSD1306_WHITE);
   
   //menu highlight
   if(highlight == 3)
-    drawArrow(topL[0]+28+sin(millis()/100),39,2,1,true);
+    drawArrow(coords.x1+28+sin(millis()/100),39,2,1,true);
   //first column
   else if(highlight>=4 && highlight<=6){
-    display.drawRoundRect(topL[0]+3,34+7*(highlight-3),15,9,2,SSD1306_WHITE);
+    display.drawRoundRect(coords.x1+3,34+7*(highlight-3),15,9,2,SSD1306_WHITE);
   }
   else if(highlight>=7){
-    display.drawRoundRect(topL[0]+17,34+7*(highlight-6),15,9,2,SSD1306_WHITE);
+    display.drawRoundRect(coords.x1+17,34+7*(highlight-6),15,9,2,SSD1306_WHITE);
+  }
+}
+
+//gen midi numbers taken from https://usermanuals.finalemusic.com/SongWriter2012Win/Content/PercussionMaps.htm
+void drawDrumIcon(uint8_t x1, uint8_t y1, uint8_t note){
+  int8_t which = -1;
+  switch(note){
+    //"bass drum" => 808
+    case 35:
+      which = 0;
+      break;
+    //"kick"
+    case 36:
+      which = 1;
+      break;
+    //cowbell
+    case 34:
+    case 56:
+      which = 2;
+      break;
+    //clap
+    case 39:
+      which = 3;
+      break;
+    //crash cymbal
+    case 49:
+      which = 4;
+      break;
+    //"laser" ==> gun (sfx)
+    case 27:
+    case 28:
+    case 29:
+    case 30:
+      which = 5;
+      break;
+    //closing hat pedal
+    case 44:
+      which = 6;
+      break;
+    //open hat
+    case 46:
+      which = 7;
+      break;
+    //closed hat
+    case 42:
+      which = 8;
+      break;
+    //rim
+    case 31:
+    case 32:
+    case 37:
+      which = 9;
+      break;
+    //shaker
+    case 82:
+      which = 10;
+      break;
+    //snare
+    case 38:
+    case 40:
+      which = 11;
+      break;
+    //tomL
+    case 45:
+      which = 12;
+      break;
+    //tomM
+    case 47:
+    case 48:
+      which = 13;
+      break;
+    //tomS
+    case 50:
+      which = 14;
+      break;
+    //triangle
+    case 80:
+    case 81:
+      which = 15;
+      break;
+  }
+  if(which != -1){
+    display.drawBitmap(x1,y1,drum_icons[which],16,8,1,0);
   }
 }

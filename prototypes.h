@@ -13,9 +13,9 @@ void changeDataPoint(int8_t);
 void smoothDataTrack(uint16_t, uint16_t, uint8_t);
 bool isModulated(uint8_t ch);
 void dataTrackViewer();
+String getCCParam(uint8_t param, uint8_t channel, uint8_t type);
 
 //Drawing functions
-void printSmall(int, int, String, uint16_t);
 void drawEllipse(uint8_t h, uint8_t k, int a, int b, uint16_t c);
 void shadeArea(unsigned short int, unsigned short int, unsigned short int, unsigned char, unsigned char);
 void shadeRect(unsigned short int x1, unsigned short int y1, unsigned short int len, unsigned char height, unsigned char shade);
@@ -40,9 +40,6 @@ void drawSlider(uint8_t x1, uint8_t y1, String a, String b, bool state);
 void drawBanner(int8_t x1, int8_t y1, String text);
 void drawArpStepLengths(uint8_t xStart, uint8_t yStart, uint8_t startNote, uint8_t xCursor, bool selected);
 void drawArpModeIcon(uint8_t x1, uint8_t y1, uint8_t which,uint16_t c);
-void printTrackPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c);
-void fillSquareVertically(uint8_t x0, uint8_t y0, uint8_t width, uint8_t fillAmount);
-void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmount);
 void drawSmallChannelIcon(uint8_t x1, uint8_t y1, uint8_t ch);
 void drawFullKeyBed(vector<uint8_t> pressList, vector<uint8_t> mask, uint8_t activeKey,uint8_t octave);
 void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask, uint8_t activeKey,uint8_t octave);
@@ -56,8 +53,16 @@ void drawCurlyBracket(int16_t x1, uint8_t y1, uint8_t length,uint8_t height,bool
 void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation);
 void drawQuantIcon(uint8_t,uint8_t,uint8_t,bool);
 void drawHumanizeIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim);
+void printTrackPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c);
 void printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c);
+void printSmall_centered(int x, int y, String t, uint16_t c);
+void printSmall(int, int, String, uint16_t);
+void fillSquareVertically(uint8_t x0, uint8_t y0, uint8_t width, uint8_t fillAmount);
+void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmount);
 void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t numberOfKeys, bool into);
+void printParam_centered(uint8_t which, uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);
+void printParam(uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);
+void printChannel(uint8_t xPos, uint8_t yPos, uint8_t channel, bool withBox);
 
 //Menus
 void saveMenu();
@@ -206,10 +211,23 @@ void setLoopToInfinite(uint8_t targetL);
 float getBattLevel();
 float analogReadTemp();
 
+//filesystem
+void writeSeqFile(String filename);
+vector<String> loadFiles();
+vector<String> loadFilesAndSizes();
+void loadBackup();
+void quickSave();
+void loadSeqFile(String filename);
+void renameSeqFile(String filename);
+bool deleteSeqFile(String filename);
+void duplicateSeqFile(String filename);
+void exportSeqFileToSerial(String filename);
+void exportSeqFileToSerial_standAlone(String filename);
+void dumpFilesToSerial();
+uint32_t getByteCount(String filename);
+
 //Misc. helper functions
 vector<uint16_t> getSelectionBounds2();
-void loadFiles();
-vector<String> loadFilesAndSizes();
 bool itsbeen(int);
 vector<uint8_t> selectKeys();
 vector<uint8_t> genScale(uint8_t, uint8_t);
@@ -248,8 +266,6 @@ void writeLEDs(bool leds[8]);
 bool onBeat(int subDiv, int fudge);
 void setNormalMode();
 String enterText(String title);
-void loadBackup();
-void quickSave();
 void bootscreen();
 uint16_t getIDAtCursor();
 uint8_t countChar(String text,unsigned char c);
@@ -260,3 +276,5 @@ void sendMIDInoteOn(uint8_t,uint8_t,uint8_t);
 void sendMIDInoteOff(uint8_t,uint8_t,uint8_t);
 void handleInternalCC(uint8_t, uint8_t, uint8_t, uint8_t);
 void sendMIDICC(uint8_t,uint8_t,uint8_t);
+uint8_t moveToNextCCParam(uint8_t param, bool up, uint8_t whichList);
+uint8_t selectCCParam_dataTrack(uint8_t which);

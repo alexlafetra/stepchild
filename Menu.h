@@ -1,85 +1,68 @@
 //Menu object
 class Menu{
   public:
-  Menu();
-  Menu(uint16_t,uint16_t,uint16_t,uint16_t);
-  Menu(unsigned short int, unsigned short int, unsigned short int, unsigned short int, String, vector<String>, vector<unsigned short int *>, unsigned char, bool);
-  Menu(unsigned short int, unsigned short int, unsigned short int, unsigned short int, String, vector<String>, unsigned char, bool);  
-  void displayMenu();
-  void displayMenu(bool,bool);
-  void displayMenu(bool, bool, bool);
-  void displayMainMenu();
-  void displayFilesMenu(int16_t, bool, uint8_t, uint8_t);
-  void displayFilesMenu(int16_t, bool, uint8_t, uint8_t,vector<String>);
-  void displayTrackMenu();
-  void displayTrackMenu_trackEdit(uint8_t);
-  void displayEditMenu(uint8_t*, uint8_t);
-  void displayEditMenu();
-  void displaySettingsMenu(uint8_t,uint8_t,uint8_t);
-  void displaySwingMenu();
-  void displayEchoMenu();
-  void displayRecMenu(uint8_t,uint8_t,uint8_t);
-  void displayFxMenu();
-  void displayHumanizeMenu();
-  void displayArpMenu();
-  void displayClockMenu(float);
-  bool moveMenuCursor(bool);
-  vector<String> options;
-  // vector<unsigned short int *> data;
-  // uint8_t listStart;
-  // uint8_t listEnd;
-  uint8_t highlight;
-  unsigned short int topL[2];
-  unsigned short int bottomR[2];
-  CoordinatePair coords;
-  bool isActive;
-  String menuTitle;
-  int8_t page;
+    //String for storing the menu title
+    String menuTitle;
+
+    //these are the coordinates that define the rectangle of a menu
+    //some menus don't really use this! especially if it's fullscreen
+    CoordinatePair coords;
+
+    //this is the menu "cursor"
+    //useful for highlighting and selecting items
+    uint8_t highlight;
+
+    //the page variable is basically a spare byte that you can set
+    //to toggle different menu states, or "pages," within one menu object
+    int8_t page;
+
+    Menu();
+    Menu(uint16_t,uint16_t,uint16_t,uint16_t);
+    Menu(unsigned short int x1, unsigned short int y1, unsigned short int x2, unsigned short int y2, String title);
+    void displayMenu();
+    void displayMenu(bool,bool);
+    void displayMenu(bool, bool, bool);
+    void displayMainMenu();
+    void displayFilesMenu();
+    void displayFilesMenu(int16_t, bool, uint8_t, uint8_t,vector<String>);
+    void displayTrackMenu();
+    void displayTrackMenu_trackEdit(uint8_t);
+    void displayEditMenu(uint8_t*, uint8_t);
+    void displayEditMenu();
+    void displaySettingsMenu(uint8_t,uint8_t,uint8_t);
+    void displayEchoMenu();
+    void displayRecMenu(uint8_t,uint8_t,uint8_t);
+    void displayFxMenu();
+    void displayHumanizeMenu();
+    void displayArpMenu();
+    void displayClockMenu(float);
+    bool moveMenuCursor(bool);
 };
 
 Menu::Menu(){
-  options = {"test","test","test"};
-  isActive = false;
   highlight = 0;
-  topL [0] = 0;
-  topL [1] = 0;
-  bottomR [0] = screenWidth;
-  bottomR [1] = screenHeight;
   menuTitle = "test";
   page = 0;
   coords.x1 = 0;
   coords.y1 = 0;
-  coords.x2 = 0;
-  coords.y2 = 0;
+  coords.x2 = screenWidth;
+  coords.y2 = screenHeight;
 }
 
 Menu::Menu(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
-  topL[0] = x1;
-  topL[1] = y1;
-  bottomR[0] = x2;
-  bottomR[1] = y2;
-  options = {};
   menuTitle = "MENU";
   page = 0;
   coords.x1 = x1;
   coords.y1 = y1;
   coords.x2 = x2;
-  coords.y2 = y1;
+  coords.y2 = y2;
 }
 
-Menu::Menu(unsigned short int x1, unsigned short int y1, unsigned short int x2, unsigned short int y2, String title, vector<String> ops, unsigned char s, bool f){
-  topL [0] = x1;
-  topL [1] = y1;
-  bottomR [0] = x2;
-  bottomR [1] = y2;
-
+Menu::Menu(unsigned short int x1, unsigned short int y1, unsigned short int x2, unsigned short int y2, String title){
   coords.x1 = x1;
   coords.y1 = y1;
   coords.x2 = x2;
-  coords.y2 = y1;
-
-  options = ops;
-  isActive = false;
+  coords.y2 = y2;
   highlight = 0;
   menuTitle = title;
   page = 0;
@@ -90,95 +73,282 @@ Menu activeMenu;
 void Menu::displayMenu(bool bounded, bool underlined, bool separateWindow){
   if(menuTitle == "CLOCK")
     activeMenu.displayClockMenu(1);
-  else if(menuTitle == "SWING")
-    activeMenu.displaySwingMenu();
   else if(menuTitle == "TRK")
     activeMenu.displayTrackMenu();
-  else if(menuTitle == "EDIT"){
+  else if(menuTitle == "EDIT")
     activeMenu.displayEditMenu();
-  }
-  else if(menuTitle == "FX"){
+  else if(menuTitle == "FX")
     activeMenu.displayFxMenu();
-  }
-  else{
-    unsigned short int menuHeight = abs(bottomR[1]-topL[1]);
-    if(separateWindow)
-      display.clearDisplay();
-    //drawing menu box (+16 so the title is transparent)
-    display.fillRect(topL[0],topL[1]+13, bottomR[0]-topL[0], bottomR[1]-topL[1], SSD1306_BLACK);
-    display.setCursor(topL[0],topL[1]+3);
-
-    //this is so the "MENU" sign slides out from the right
-    if(menuTitle == "MENU"){
-      display.setCursor(topL[0]+topL[1]-2,5);
-      display.fillRect(trackDisplay,0,screenWidth-trackDisplay,debugHeight,SSD1306_BLACK);
-    }
-    display.setFont(&FreeSerifItalic9pt7b);
-    display.print(menuTitle);
-    display.setFont();
-
-    if(bounded)
-      display.drawRect(topL[0],topL[1]+12, bottomR[0]-topL[0], bottomR[1]-topL[1]-12, SSD1306_WHITE);
-    else if(underlined)
-      display.drawFastHLine(topL[0],topL[1]+12,bottomR[0]-topL[0],SSD1306_WHITE);
-    //drawing menu options, and the highlight
-    unsigned short int textWidth = 20;
-    unsigned short int textHeight = menuHeight/5;
-
-    unsigned short int menuStart;
-    unsigned short int menuEnd;
-    unsigned short int yLoc = 0;
-
-    menuStart = 0;
-    menuEnd = options.size()-1;
-    if(highlight == 0){
-      menuStart = highlight;
-      menuEnd = highlight+3;
-    }
-    else if(highlight>0 && highlight<options.size()-2){
-      menuStart = highlight-1;
-      menuEnd = highlight+2;
-    }
-    else if(highlight >= options.size()-2){
-      menuStart = options.size()-4;
-      menuEnd = options.size()-1;
-    }
-    //making sure it can't read options that don't exist
-    if(menuEnd>=options.size())
-      menuEnd = options.size()-1;
-    //printing out the menu
-    for(int i = menuStart; i<=menuEnd; i++){
-      display.setCursor(topL[0]+3,(yLoc+1)*textHeight+topL[1]+2);
-      if(highlight != i){
-        //printing the special note icon
-        if(menuTitle == "TRK" && options[i] == "ptch"){
-          display.drawChar(topL[0]+3,(yLoc+1)*textHeight+topL[1]+2,0x0E,SSD1306_WHITE, SSD1306_BLACK,1);
-          display.setCursor(topL[0]+3+5,(yLoc+1)*textHeight+topL[1]+2);
-        }
-        else{
-          display.print(options[i]);
-        }
-      }
-      else if(highlight == i){
-        //printing the special note icon
-        if(menuTitle == "TRK" && options[i] == "ptch"){
-          display.fillRect(topL[0]+2,(yLoc+1)*textHeight+topL[1]+1,7,9,SSD1306_WHITE);
-          display.drawChar(topL[0]+3,(yLoc+1)*textHeight+topL[1]+2,0x0E,SSD1306_BLACK, SSD1306_WHITE,1);
-          display.setCursor(topL[0]+3+6,(yLoc+1)*textHeight+topL[1]+2);
-        }
-        else{
-          display.setTextColor(SSD1306_BLACK,SSD1306_WHITE);
-          display.print(options[i]);
-        }
-        display.setTextColor(SSD1306_WHITE,SSD1306_BLACK);
-      }
-      yLoc++;
-    }
-  }
+  else if(menuTitle == "TRK")
+      activeMenu.displayMenu(true,false,false);
+  else if(menuTitle == "EDIT")
+      activeMenu.displayMenu(false, true, false);
+  else if(menuTitle == "FILES")
+      activeMenu.displayFilesMenu();
+  else if(menuTitle == "MENU")
+    activeMenu.displayMainMenu();
 }
+
 void Menu::displayMenu(bool bounded, bool underlined){
   displayMenu(bounded, underlined, false);
 }
 void Menu::displayMenu(){
   displayMenu(true,true,false);
 }
+
+//slides a menu in from the top,right,bottom, or left
+void slideMenuIn(int fromWhere, int speed){
+  //sliding in from the right
+  if(fromWhere == 1){
+    //store original coords
+    CoordinatePair originalCoords = activeMenu.coords;
+    //then, offset the menu coordinates
+    int8_t offset = screenWidth-activeMenu.coords.x1;
+    activeMenu.coords.x1+=offset;
+    activeMenu.coords.x2+=offset;
+    //continuously move the menu coords and display it, until it reaches original position
+    while(activeMenu.coords.x1>originalCoords.x1){
+      activeMenu.coords.x1-=speed;
+      activeMenu.coords.x2-=speed;
+      if(activeMenu.coords.x1<originalCoords.x1){
+        activeMenu.coords.x1=originalCoords.x1;
+        activeMenu.coords.x2=originalCoords.x2;
+      }
+      displaySeq();
+    }
+    activeMenu.coords.x1 = originalCoords.x1;
+    activeMenu.coords.x2 = originalCoords.x2;
+  }
+  //from the bottom
+  else if(fromWhere == 0){
+    //store original coords
+    CoordinatePair originalCoords = activeMenu.coords;
+    //then, offset the menu coordinates
+    int8_t offset = screenHeight-activeMenu.coords.y1;
+    activeMenu.coords.y1+=offset;
+    activeMenu.coords.y2+=offset;
+    //continuously move the menu coords and display it, until it reaches original position
+    while(activeMenu.coords.y1>originalCoords.y1){
+      activeMenu.coords.y1-=speed;
+      activeMenu.coords.y2-=speed;
+      if(activeMenu.coords.y1<originalCoords.y1){
+        activeMenu.coords.y1=originalCoords.y1;
+        activeMenu.coords.y2=originalCoords.y2;
+      }
+      displaySeq();
+    }
+    activeMenu.coords.y1 = originalCoords.y1;
+    activeMenu.coords.y2 = originalCoords.y2;
+  }
+}
+
+//same thang, but in reverse
+void slideMenuOut(int toWhere, int speed){
+  if(toWhere == 1){//sliding out to the left side
+    while(activeMenu.coords.x1<screenWidth){
+      activeMenu.coords.x1+=speed;
+      activeMenu.coords.x2+=speed;
+      //make sure x bounds don't glitch out
+      if(activeMenu.coords.x2>screenWidth){
+        activeMenu.coords.x2 = screenWidth;
+      }
+      displaySeq();
+      drawPram(5,0);
+    }
+  }
+  //to the bottom
+  else if(toWhere == 0){
+    while(activeMenu.coords.y1<screenHeight){
+      activeMenu.coords.y1+=speed;
+      activeMenu.coords.y2+=speed;
+      //make sure y bounds don't glitch out
+      if(activeMenu.coords.y2>screenHeight){
+        activeMenu.coords.y2 = screenHeight;
+      }
+      displaySeq();
+      drawPram(5,0);
+    }
+  }
+}
+
+#define DEBUG 0
+#define MENU 1
+#define CLOCK 2
+#define SETTINGS 3
+#define SEQ 4
+#define LOOP 5
+#define MIDI 6
+#define FRAGMENT 7
+#define CURVE 8
+#define ARP 9
+#define FX 10
+#define EDIT 11
+#define TRK 12
+#define QZ 13
+#define HUMANIZE 14
+#define SAVE 15
+#define FILES 16
+#define REC 17
+
+void constructMenu(uint8_t id){
+  resetEncoders();
+  switch(id){
+    case(MENU):
+    {
+      Menu debugMenu(25,1,93,64,"MENU");
+      activeMenu = debugMenu;
+      if(menuIsActive){
+        slideMenuIn(0,30);
+      }
+      return;
+    }
+    case DEBUG:
+    {
+      Menu debugMenu(32,4,128,64,"DEBUG");
+      activeMenu = debugMenu;
+      if(menuIsActive){
+        slideMenuIn(0,30);
+      }
+      return;
+    }
+    //This one needs a slide in animation
+    case CLOCK:
+    {
+      Menu clckMenu(0,0,35,64,"CLOCK");
+      activeMenu = clckMenu;
+      if(menuIsActive){
+        slideMenuIn(0,20);
+      }
+      clockMenu();
+      return;
+    }
+    case SETTINGS:
+    {
+      Menu settingMenu(0,2,128,64,"SETTINGS");
+      activeMenu = settingMenu;
+      settingsMenu();
+      return;
+    }
+    case LOOP:
+    {
+      Menu loopMenu(2,4,80,60,"LOOP");
+      activeMenu = loopMenu;
+      return;
+      // cassetteAnimation();
+    }
+    case MIDI:
+    {
+      Menu midiMenu(2,4,80,60,"MIDI");
+      activeMenu = midiMenu;
+      return;
+    }
+    case FRAGMENT:
+    {
+      // fragmentMenu();
+      return;
+    }
+    case ARP:
+    {
+      Menu arpMenu(0,0,128,64,"ARP");
+      activeMenu = arpMenu;
+      return;
+    }
+    case FX:
+    {
+      Menu efexMenu(25,1,93,64,"FX");
+      activeMenu = efexMenu;
+      if(menuIsActive){
+        slideMenuIn(0,30);
+      }
+      return;
+    }
+    case EDIT:
+    {
+      Menu editingMenu(trackDisplay-5,0,screenWidth,debugHeight,"EDIT");
+      activeMenu = editingMenu;
+      if(menuIsActive){
+        slideMenuIn(1,48);
+      }
+      editMenu();
+      return;
+    }
+    case TRK:
+    {
+      Menu trkMenu(94,0,129,65,"TRK");
+      activeMenu = trkMenu;
+      if(menuIsActive){
+        slideMenuIn(1,10);
+      }
+      trackMenu();
+      return;
+    }
+    case FILES:
+    {
+      Menu fileMenu(7,3,128,64,"FILES");
+      activeMenu = fileMenu;
+      slideMenuIn(1,30);
+      filesMenu();
+      return;
+    }
+  }
+}
+//these gotta go here so the menu display can talk to them
+//doing it this way is a little better i think? so all the menu dat doesn't need to be global and only loads when you need it
+void constructMenu(String title){
+  if(title == "MENU"){
+    constructMenu(MENU);
+  }
+  else if(title == "DEBUG"){
+    constructMenu(DEBUG);
+  }
+  else if(title == "CLOCK"){
+    constructMenu(CLOCK);
+  }
+  else if(title == "SETTINGS"){
+    constructMenu(SETTINGS);
+  }
+  else if(title == "SEQ"){
+    constructMenu(SEQ);
+  }
+  else if(title == "LOOP"){
+    constructMenu(LOOP);
+  }
+  else if(title == "MIDI"){
+    constructMenu(MIDI);
+  }
+  else if(title == "FRAGMENT"){
+    constructMenu(FRAGMENT);
+  }
+  else if(title == "CURVE"){
+    constructMenu(CURVE);
+  }
+  else if(title == "ARP"){
+    constructMenu(ARP);
+  }
+  else if(title == "FX"){
+    constructMenu(FX);
+  }
+  //edit menu is called by note menu
+  else if(title == "EDIT"){
+    constructMenu(EDIT);
+  }
+  else if(title == "TRK"){
+    constructMenu(TRK);
+  }
+  else if(title == "QZ"){
+    constructMenu(QZ);
+  }
+  else if(title == "HUMANIZE"){
+    constructMenu(HUMANIZE);
+  }
+  else if(title == "SAVE"){
+    constructMenu(SAVE);
+  }
+  else if(title == "FILES"){
+    constructMenu(FILES);
+  }
+  else if(title == "REC"){
+    constructMenu(REC);
+  }
+}
+

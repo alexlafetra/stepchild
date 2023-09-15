@@ -1,3 +1,120 @@
+WireFrame getMainMenuWireFrame(){
+  WireFrame w;
+  switch(activeMenu.highlight){
+    //dataTracks
+    case 0:
+      w = makeGraphBox(5);
+      break;
+    //loops
+    case 1:
+      w = makeLoopArrows(0);
+      break;
+    //keys
+    case 2:
+      w = makeCassette();
+      // w = makeKeys();
+      break;
+    //wrench
+    case 3:
+      w = makeWrench();
+      break;
+
+    //quicksave
+    case 4:
+      w = makeCD();
+      break;
+    //fx
+    case 5:
+      w = makeHammer();
+      break;
+    //rec
+    case 6:
+      w = genRandMenuObjects(0,0,10,1);
+      break;
+    //heart
+    case 7:
+      w = makePram();
+      break;
+    //midi
+    case 8:
+      w = makeMIDI();
+      break;
+    //files
+    case 9:
+      w = makeFolder(30);
+      break;
+    //clock
+    case 10:
+      w = makeMetronome(0);
+      break;
+    //arp
+    case 11:
+      w = makeHand_flat(0,0,0,0,0);
+      w.yPos = 32;
+      break;
+  }
+  return w;
+}
+
+void animateIcon(WireFrame* w){
+  switch(activeMenu.highlight){
+    //datatracks
+    case 0:
+      graphAnimation(w);
+      w -> rotate(3,1);
+      break;
+    //loop
+    case 1:
+      loopArrowAnimation(w);
+      break;
+    //keys
+    case 2:
+      w -> rotate(3,1);
+      break;
+    //settings
+    case 3:
+      w -> rotate(3,1);
+      break;
+    case 4:
+      w -> rotate(3,1);
+      break;
+    //fx
+    case 5:
+      w -> rotate(3,1);
+      break;
+    //rec
+    case 6:
+      w -> rotate(1,0);
+      w -> rotate(1,1);
+      break;
+    //heart
+    case 7:
+      w -> rotate(3,1);
+      break;
+    
+    //midi
+    case 8:
+      w -> rotate(3,1);
+      break;
+    //files
+    case 9:
+      folderAnimation(w);
+      w -> rotate(3,1);
+      break;
+    //clock
+    case 10:
+      metAnimation(w);
+      w -> yPos = 16 + 2*sin(millis()/400);
+      break;
+    //arp
+    case 11:
+      handAnimation(w);
+      w -> yPos=20+2*sin(millis()/200);
+      w -> rotate(4*sin(millis()/400),1);
+      break;
+  }
+}
+
 bool mainMenuControls(){
   if(itsbeen(100)){
     if(x != 0){
@@ -180,7 +297,7 @@ void drawMainMenuLabel(){
 }
 void mainMenu(){
   uint8_t activeWireFrame;
-  WireFrame icon = getMenuWireFrame();
+  WireFrame icon = getMainMenuWireFrame();
   icon.xPos = 112;
   icon.yPos = 16;
   while(true){
@@ -192,7 +309,7 @@ void mainMenu(){
     
     //if the highlight changes, get the new wireFrame
     if(activeWireFrame != activeMenu.highlight){
-      icon = getMenuWireFrame();
+      icon = getMainMenuWireFrame();
       icon.xPos = 112;
       if(activeMenu.highlight == 7)
         icon.yPos = 11;
@@ -219,35 +336,31 @@ void mainMenu(){
 
 void Menu::displayMainMenu(){
   //drawing menu box (+16 so the title is transparent)
-  display.fillRect(topL[0],topL[1]+13, bottomR[0]-topL[0], bottomR[1]-topL[1], SSD1306_BLACK);
-  display.drawRect(topL[0],topL[1]+12, bottomR[0]-topL[0], bottomR[1]-topL[1]-12, SSD1306_WHITE);
+  display.fillRect(coords.x1,coords.y1+13, coords.x2-coords.x1, coords.y2-coords.y1, SSD1306_BLACK);
+  display.drawRect(coords.x1,coords.y1+12, coords.x2-coords.x1, coords.y2-coords.y1-12, SSD1306_WHITE);
 
-  display.setCursor(topL[0]+topL[1]-2,5);
-  display.setFont(&FreeSerifItalic9pt7b);
-  display.print("Menu");
-  display.setFont();
+  //if the title will be on screen
+  if(coords.x1+coords.y1-2<screenWidth){
+    display.setCursor(coords.x1+coords.y1-2,5);
+    display.setFont(&FreeSerifItalic9pt7b);
+    display.print("Menu");
+    display.setFont();
+  }
 
   const uint8_t width = 16;
   uint8_t count = 0;
   for(uint8_t j = 0; j<3; j++){
     for(uint8_t i = 0; i<4; i++){
-      //animate rec icon 
-      // if(count == 6){
-      //   if(sin(millis()/200+count)<0)
-      //     display.drawBitmap(topL[0]+4+width*i,topL[1]+j*(width-1)+17+sin(millis()/200+count),mainMenu_icons[count],12,12,SSD1306_WHITE);
-      //   else
-      //     display.drawBitmap(topL[0]+4+width*i,topL[1]+j*(width-1)+17+sin(millis()/200+count),playback2_bmp,12,12,SSD1306_WHITE);
-      // }
       //animate clock hands
      if(count == 10){
-        display.drawBitmap(topL[0]+4+width*i,topL[1]+j*(width-1)+17+sin(millis()/200+count),mainMenu_icons[count],12,12,SSD1306_WHITE);
-        drawCircleRadian(topL[0]+4+width*i+6,topL[1]+j*(width-1)+17+sin(millis()/200+count)+6,4,millis()/10,0);
-        drawCircleRadian(topL[0]+4+width*i+6,topL[1]+j*(width-1)+17+sin(millis()/200+count)+6,3,millis()/100,0);
+        display.drawBitmap(coords.x1+4+width*i,coords.y1+j*(width-1)+17+sin(millis()/200+count),mainMenu_icons[count],12,12,SSD1306_WHITE);
+        drawCircleRadian(coords.x1+4+width*i+6,coords.y1+j*(width-1)+17+sin(millis()/200+count)+6,4,millis()/10,0);
+        drawCircleRadian(coords.x1+4+width*i+6,coords.y1+j*(width-1)+17+sin(millis()/200+count)+6,3,millis()/100,0);
       }
       else
-        display.drawBitmap(topL[0]+4+width*i,topL[1]+j*(width-1)+17+sin(millis()/200+count),mainMenu_icons[count],12,12,SSD1306_WHITE);
+        display.drawBitmap(coords.x1+4+width*i,coords.y1+j*(width-1)+17+sin(millis()/200+count),mainMenu_icons[count],12,12,SSD1306_WHITE);
       if(i+4*j == highlight){
-        display.drawRoundRect(topL[0]+2+width*i,topL[1]+j*(width-1)+15+sin(millis()/200+count),width,width,3,SSD1306_WHITE);
+        display.drawRoundRect(coords.x1+2+width*i,coords.y1+j*(width-1)+15+sin(millis()/200+count),width,width,3,SSD1306_WHITE);
       }
       count++;
     }

@@ -600,3 +600,171 @@ void drawBanner(int8_t x1, int8_t y1, String text){
   display.fillRect(x1-1,y1-1,text.length()*4-countSpaces(text)*2+countChar(text,'#')*2+1,7,SSD1306_WHITE);
   printSmall(x1,y1,text,SSD1306_BLACK);
 }
+
+//draws a VU meter, where val is the angle of the needle
+void drawVU(int8_t x1, int8_t y1, float val){
+  display.drawBitmap(x1,y1,VUmeter_bmp,19,14,SSD1306_WHITE);
+  float angle = radians(5)+(PI-radians(5))*val;
+  int8_t pY = 12*sin(angle);
+  int8_t pX = 12*cos(angle);
+  display.drawLine(x1+9,y1+12,x1+10+pX,y1+12-pY,SSD1306_BLACK);
+  display.drawRect(x1,y1,19,14,SSD1306_WHITE);
+}
+
+//draws a swinging pendulum, for the clock menu
+void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val){
+  //pendulum
+  int a = length;
+  int h = x2;
+  int k = y2;
+  float x1;
+  float y1;
+  x1 = h + a * cos(radians(val))/float(2.4);
+  // if (val > 180) {
+    // y1 = k - a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
+  // }
+  // else {
+    y1 = k + a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
+  // }
+  display.drawLine(x1,y1,h,k,SSD1306_WHITE);
+  display.fillCircle(x1,y1,2,SSD1306_BLACK);
+  display.drawCircle(x1,y1,2,SSD1306_WHITE);
+}
+
+void drawLabel(uint8_t x1, uint8_t y1, String text, bool wOrB){
+  display.fillRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-1,text.length()*4-countSpaces(text)*2+5,7,3,wOrB == true ? 1:0 );
+  if(!wOrB)
+    display.drawRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-1,text.length()*4-countSpaces(text)*2+5,7,3,1);
+  printSmall(x1-text.length()*2+countSpaces(text),y1,text,2);
+}
+
+void drawSlider(uint8_t x1, uint8_t y1, uint8_t w, uint8_t h, bool state){
+  display.fillRect(x1,y1,w,h,0);
+  display.drawRect(x1,y1,w,h,SSD1306_WHITE);
+  if(state){
+    display.fillRect(x1+w/2,y1+2,w/2-2,h-4,SSD1306_WHITE);
+  }
+  else{
+    display.fillRect(x1+2,y1+2,w/2-2,h-4,SSD1306_WHITE);
+  }
+}
+void drawSlider(uint8_t x1, uint8_t y1, String a, String b, bool state){
+  uint8_t length = a.length()*4+b.length()*4+9;
+  //if length is odd, add 1
+  length+=(length%2)?1:0;
+  drawSlider(x1,y1,length,11,state);
+  printSmall_centered(x1+length/4+2,y1+3,a,2);
+  printSmall_centered(x1+3*length/4,y1+3,b,2);
+}
+
+void drawFullKeyBed(vector<uint8_t> pressList, vector<uint8_t> mask, uint8_t activeKey,uint8_t octave){
+  drawFullKeyBed(0,pressList,mask,activeKey,octave);
+}
+
+void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask, uint8_t activeKey,uint8_t octave){
+  //white keys
+  const uint8_t keyWidth = 5;
+  const uint8_t wKeyHeight = 13;
+  const uint8_t wKeyPattern[21] = {0, 2, 4, 5, 7,9 ,11,
+                                  12,14,16,17,19,21,23,
+                                  24,26,28,29,31,33,35};
+  //black keys
+  const uint8_t bKeyHeight = 8;
+  const uint8_t bKeyPattern[15] = {1, 3, 6, 8,10,
+                                  13,15,18,20,22,
+                                  25,27,30,32,34};
+  String text = pitchToString(activeKey,false,true);
+  //these 'patterns' help reference the actual note value from the iterator i'm using to draw them
+  //the reason i'm doing this in realtime, not with a bitmap, is so i can animate
+  //keypresses and (maybe) even change which keys are displayed at all    
+  //first draw white keys
+  for(uint8_t i = 0; i<21; i++){
+    //if there's no mask, or if the key is in the mask
+    if(mask.size() == 0 || isInVector(wKeyPattern[i],mask)){
+      //if it's pressed, draw it blinking
+      if(isInVector(wKeyPattern[i]+12*octave,pressList)){
+        if(millis()%800>400)
+          display.drawRect(i*(keyWidth+1),y1-1,keyWidth,wKeyHeight+1,SSD1306_WHITE);
+        else
+          display.fillRect(i*(keyWidth+1),y1-1,keyWidth,wKeyHeight+1,SSD1306_WHITE);
+        //if it's highlighted
+        if(wKeyPattern[i]+12*octave == activeKey){
+          display.drawRect(i*(keyWidth+1),y1-1,keyWidth,wKeyHeight+1,SSD1306_WHITE);
+          drawArrow(i*(keyWidth+1)+2,y1+17+sin(millis()/100),3,2,true);
+          printSmall(i*(keyWidth+1)+2-text.length()*2,y1+22+sin(millis()/100),text,SSD1306_WHITE);
+        }
+        display.drawPixel(i*(keyWidth+1)+2,y1+15,SSD1306_WHITE);
+      }
+      else{
+        //if it's highlighted
+        if(wKeyPattern[i]+12*octave == activeKey){
+          display.drawRect(i*(keyWidth+1),y1-1,keyWidth,wKeyHeight+1,SSD1306_WHITE);
+          drawArrow(i*(keyWidth+1)+2,y1+17+sin(millis()/100),3,2,true);
+          printSmall(i*(keyWidth+1)+2-text.length()*2,y1+22+sin(millis()/100),text,SSD1306_WHITE);
+        }
+        else
+          display.fillRect(i*(keyWidth+1),y1,keyWidth,wKeyHeight,SSD1306_WHITE);
+      }
+    }
+  }
+  //then draw black keys
+  uint8_t xPos = 3;
+  for(uint8_t i = 0; i<15; i++){
+    if(mask.size() == 0 || isInVector(bKeyPattern[i]+12*octave,mask)){
+      if(isInVector(bKeyPattern[i]+12*octave,pressList) || bKeyPattern[i]+12*octave == activeKey){
+        display.fillRect(xPos,y1,keyWidth,bKeyHeight,SSD1306_BLACK);
+        //if it's pressed
+        if(isInVector(bKeyPattern[i]+12*octave,pressList)){
+          if(millis()%800>400){
+            display.fillRect(xPos+1,y1,keyWidth-2,bKeyHeight-1,SSD1306_WHITE);
+          }
+          display.drawPixel(xPos+2,y1+15,SSD1306_WHITE);
+        }
+        else
+          display.fillRect(xPos+1,y1,keyWidth-2,bKeyHeight-1,SSD1306_WHITE);
+        display.drawRect(xPos-1,y1-1,keyWidth+2,bKeyHeight+2,SSD1306_WHITE);
+        if(bKeyPattern[i]+12*octave == activeKey){
+          drawArrow(xPos+2,y1+17+sin(millis()/100),3,2,false);
+          printSmall(xPos+2-text.length()*2,y1+22+sin(millis()/100),text,SSD1306_WHITE);
+        }
+      }
+      else{
+        display.fillRect(xPos,y1,keyWidth,bKeyHeight,SSD1306_BLACK);
+        display.drawRect(xPos-1,y1-1,keyWidth+2,bKeyHeight+2,SSD1306_WHITE);
+      }
+    }
+    //if it's a D# or a Bb, you're about to jump
+    if(abs(bKeyPattern[i]%12) == 3 || abs(bKeyPattern[i]%12) == 10)
+      xPos+= 2*(keyWidth+1); 
+    //if it's not, just increment like normal
+    else
+      xPos+= 1+keyWidth;
+  }
+}
+
+void drawX(uint8_t x1, uint8_t y1, uint8_t width){
+  uint8_t points[3][2] = {{uint8_t(x1-width/2+width/4),uint8_t(y1-width/2)},{x1,uint8_t(y1-width/4)},{uint8_t(x1+width/2-width/4),uint8_t(y1-width/2)}};
+}
+
+void drawStar(uint8_t centerX, uint8_t centerY, uint8_t r1, uint8_t r2, uint8_t points){
+  uint8_t numberOfPoints = points*2;//the actual number of points (both convex and concave vertices)
+  uint8_t coords[numberOfPoints][2];
+  for(uint8_t pt = 0; pt<numberOfPoints; pt++){
+    vector<uint8_t> pair;
+    //if it's odd, it's a convex point
+    if(!(pt%2))
+      pair = getRadian(centerX, centerY, r1, r1, pt*360/numberOfPoints);
+    else
+      pair = getRadian(centerX, centerY, r2, r2, pt*360/numberOfPoints);
+    coords[pt][0] = pair[0];
+    coords[pt][1] = pair[1];
+  }
+  for(uint8_t pt = 0; pt<numberOfPoints; pt++){
+    if(pt == numberOfPoints-1){
+      display.drawLine(coords[pt][0],coords[pt][1],coords[0][0],coords[0][1],SSD1306_WHITE);
+    }
+    else{
+      display.drawLine(coords[pt][0],coords[pt][1],coords[pt+1][0],coords[pt+1][1],SSD1306_WHITE);
+    }
+  }
+}

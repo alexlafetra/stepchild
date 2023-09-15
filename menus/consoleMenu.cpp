@@ -24,6 +24,10 @@ void console(){
   uint8_t lastCCValReceived;
   uint8_t lastCCChannelReceived;
 
+  uint8_t lastPitchSent;
+  uint8_t lastVelSent;
+  uint8_t lastChannelSent;
+
   const uint8_t maxLines = 8;
 
   while(true){
