@@ -53,7 +53,6 @@ void drawSwingCurve(int xPos, int yPos){
     display.drawFastVLine(xPos + ((playing ? playheadPos:recheadPos)%32)*sc,16,screenHeight-16,SSD1306_WHITE);
   }
   display.fillRect(activeMenu.topL[1]+70,0,58,16,SSD1306_BLACK);
-  // drawDottedLineDiagonal(xPos,yPos,xPos+64,yPos,4);
 }
 
 void Menu::displayClockMenu(float tVal){

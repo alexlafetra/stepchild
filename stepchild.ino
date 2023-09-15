@@ -74,6 +74,13 @@ using namespace std;
 //wireframe stuff
 #include "WireFrame.h"
 
+struct CoordinatePair{
+  uint16_t x1;
+  uint16_t x2;
+  uint8_t y1;
+  uint8_t y2;
+};
+
 void fileMenuControls_miniMenu(WireFrame* w);
 bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w);
 WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float scale);
@@ -854,194 +861,7 @@ void Progression::commit(){
   }
 }
 
-//Menu object
-class Menu{
-  public:
-  Menu();
-  Menu(uint16_t,uint16_t,uint16_t,uint16_t);
-  Menu(unsigned short int, unsigned short int, unsigned short int, unsigned short int, String, vector<String>, vector<unsigned short int *>, unsigned char, bool);
-  Menu(unsigned short int, unsigned short int, unsigned short int, unsigned short int, String, vector<String>, unsigned char, bool);  
-  void displayMenu();
-  void displayMenu(bool,bool);
-  void displayMenu(bool, bool, bool);
-  void displayMainMenu();
-  void displayFilesMenu(int16_t, bool, uint8_t, uint8_t);
-  void displayFilesMenu(int16_t, bool, uint8_t, uint8_t,vector<String>);
-  void displaySaveMenu();
-  void displaySaveMenu(uint8_t, uint8_t);
-  void displayTrackMenu();
-  void displayTrackMenu_trackEdit(uint8_t);
-  void displayEditMenu(uint8_t*, uint8_t);
-  void displayEditMenu();
-  void displaySettingsMenu(uint8_t,uint8_t,uint8_t);
-  void displaySwingMenu();
-  void displayEchoMenu();
-  void displayRecMenu(uint8_t,uint8_t,uint8_t);
-  void displayFxMenu();
-  void displayHumanizeMenu();
-  void displayArpMenu();
-  void displayClockMenu(float);
-  bool moveMenuCursor(bool);
-  vector<String> options;
-  vector<unsigned short int *> data;
-  uint8_t listStart;
-  uint8_t listEnd;
-  uint8_t highlight;
-  unsigned short int topL[2];
-  unsigned short int bottomR[2];
-  bool isActive;
-  String menuTitle;
-  int8_t page;
-};
-
-Menu::Menu(){
-  options = {"test","test","test"};
-  data = {0,0,0};
-  isActive = false;
-  highlight = 0;
-  topL [0] = 0;
-  topL [1] = 0;
-  bottomR [0] = screenWidth;
-  bottomR [1] = screenHeight;
-  menuTitle = "test";
-  page = 0;
-}
-
-Menu::Menu(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
-  topL[0] = x1;
-  topL[1] = y1;
-  bottomR[0] = x2;
-  bottomR[1] = y2;
-  data = {};
-  options = {};
-  menuTitle = "MENU";
-  page = 0;
-}
-
-Menu::Menu(unsigned short int x1, unsigned short int y1, unsigned short int x2, unsigned short int y2, String title, vector<String> ops, vector<unsigned short int *> dat, unsigned char s, bool f){
-  topL [0] = x1;
-  topL [1] = y1;
-  bottomR [0] = x2;
-  bottomR [1] = y2;
-  options = ops;
-  data = dat;
-  isActive = false;
-  highlight = 0;
-  menuTitle = title;
-  page = 0;
-}
-Menu::Menu(unsigned short int x1, unsigned short int y1, unsigned short int x2, unsigned short int y2, String title, vector<String> ops, unsigned char s, bool f){
-  topL [0] = x1;
-  topL [1] = y1;
-  bottomR [0] = x2;
-  bottomR [1] = y2;
-  data = {};
-  options = ops;
-  isActive = false;
-  highlight = 0;
-  menuTitle = title;
-  page = 0;
-}
-
-Menu activeMenu;
-
-void Menu::displayMenu(bool bounded, bool underlined, bool separateWindow){
-  if(menuTitle == "CLOCK")
-    activeMenu.displayClockMenu(1);
-  else if(menuTitle == "SWING")
-    activeMenu.displaySwingMenu();
-  else if(menuTitle == "SAVE")
-    activeMenu.displaySaveMenu();
-  else if(menuTitle == "TRK")
-    activeMenu.displayTrackMenu();
-  else if(menuTitle == "EDIT"){
-    activeMenu.displayEditMenu();
-  }
-  else if(menuTitle == "FX"){
-    activeMenu.displayFxMenu();
-  }
-  else{
-    unsigned short int menuHeight = abs(bottomR[1]-topL[1]);
-    if(separateWindow)
-      display.clearDisplay();
-    //drawing menu box (+16 so the title is transparent)
-    display.fillRect(topL[0],topL[1]+13, bottomR[0]-topL[0], bottomR[1]-topL[1], SSD1306_BLACK);
-    display.setCursor(topL[0],topL[1]+3);
-
-    //this is so the "MENU" sign slides out from the right
-    if(menuTitle == "MENU"){
-      display.setCursor(topL[0]+topL[1]-2,5);
-      display.fillRect(trackDisplay,0,screenWidth-trackDisplay,debugHeight,SSD1306_BLACK);
-    }
-    display.setFont(&FreeSerifItalic9pt7b);
-    display.print(menuTitle);
-    display.setFont();
-
-    if(bounded)
-      display.drawRect(topL[0],topL[1]+12, bottomR[0]-topL[0], bottomR[1]-topL[1]-12, SSD1306_WHITE);
-    else if(underlined)
-      display.drawFastHLine(topL[0],topL[1]+12,bottomR[0]-topL[0],SSD1306_WHITE);
-    //drawing menu options, and the highlight
-    unsigned short int textWidth = 20;
-    unsigned short int textHeight = menuHeight/5;
-
-    unsigned short int menuStart;
-    unsigned short int menuEnd;
-    unsigned short int yLoc = 0;
-
-    menuStart = 0;
-    menuEnd = options.size()-1;
-    if(highlight == 0){
-      menuStart = highlight;
-      menuEnd = highlight+3;
-    }
-    else if(highlight>0 && highlight<options.size()-2){
-      menuStart = highlight-1;
-      menuEnd = highlight+2;
-    }
-    else if(highlight >= options.size()-2){
-      menuStart = options.size()-4;
-      menuEnd = options.size()-1;
-    }
-    //making sure it can't read options that don't exist
-    if(menuEnd>=options.size())
-      menuEnd = options.size()-1;
-    //printing out the menu
-    for(int i = menuStart; i<=menuEnd; i++){
-      display.setCursor(topL[0]+3,(yLoc+1)*textHeight+topL[1]+2);
-      if(highlight != i){
-        //printing the special note icon
-        if(menuTitle == "TRK" && options[i] == "ptch"){
-          display.drawChar(topL[0]+3,(yLoc+1)*textHeight+topL[1]+2,0x0E,SSD1306_WHITE, SSD1306_BLACK,1);
-          display.setCursor(topL[0]+3+5,(yLoc+1)*textHeight+topL[1]+2);
-        }
-        else{
-          display.print(options[i]);
-        }
-      }
-      else if(highlight == i){
-        //printing the special note icon
-        if(menuTitle == "TRK" && options[i] == "ptch"){
-          display.fillRect(topL[0]+2,(yLoc+1)*textHeight+topL[1]+1,7,9,SSD1306_WHITE);
-          display.drawChar(topL[0]+3,(yLoc+1)*textHeight+topL[1]+2,0x0E,SSD1306_BLACK, SSD1306_WHITE,1);
-          display.setCursor(topL[0]+3+6,(yLoc+1)*textHeight+topL[1]+2);
-        }
-        else{
-          display.setTextColor(SSD1306_BLACK,SSD1306_WHITE);
-          display.print(options[i]);
-        }
-        display.setTextColor(SSD1306_WHITE,SSD1306_BLACK);
-      }
-      yLoc++;
-    }
-  }
-}
-void Menu::displayMenu(bool bounded, bool underlined){
-  displayMenu(bounded, underlined, false);
-}
-void Menu::displayMenu(){
-  displayMenu(true,true,false);
-}
+#include "Menu.h"
 
 //slides a menu in from the top,right,bottom, or left
 void slideMenuIn(int fromWhere, int speed){
@@ -1134,8 +954,7 @@ void constructMenu(uint8_t id){
     case(MENU):
     {
       vector<String> debugOptions = {"debugFill","write to serial","quantize","save","files","dataTracks","vinyl","MIDI","x/y","random","knobs","arp","echo","loop","clock","fragment","humanize","Sys","Moon","fx","keys","drumPads","rec","sequence","r_seq","r_serial","change display","HARD reset"};
-      vector<unsigned short int *> debugData = {};
-      Menu debugMenu(25,1,93,64,"MENU",debugOptions,debugData,0,0);
+      Menu debugMenu(25,1,93,64,"MENU",debugOptions,0,0);
       activeMenu = debugMenu;
       if(menuIsActive){
         slideMenuIn(0,30);
@@ -1145,8 +964,7 @@ void constructMenu(uint8_t id){
     case DEBUG:
     {
       vector<String> debugOptions = {"debugFill","write to serial","quantize","save","files","dataTracks","vinyl","MIDI","x/y","random","knobs","arp","echo","loop","clock","fragment","humanize","Sys","Moon","fx","keys","drumPads","rec","sequence","r_seq","r_serial","change display","HARD reset"};
-      vector<unsigned short int *> debugData = {};
-      Menu debugMenu(32,4,128,64,"DEBUG",debugOptions,debugData,0,0);
+      Menu debugMenu(32,4,128,64,"DEBUG",debugOptions,0,0);
       activeMenu = debugMenu;
       if(menuIsActive){
         slideMenuIn(0,30);
@@ -1157,8 +975,7 @@ void constructMenu(uint8_t id){
     case CLOCK:
     {
       vector<String> clockOptions = {"src","bpm","swing"};
-      vector<unsigned short int *> clockData = {};
-      Menu clckMenu(0,0,35,64,"CLOCK",clockOptions,clockData,0,0);
+      Menu clckMenu(0,0,35,64,"CLOCK",clockOptions,0,0);
       activeMenu = clckMenu;
       if(menuIsActive){
         slideMenuIn(0,20);
@@ -1169,25 +986,15 @@ void constructMenu(uint8_t id){
     case SETTINGS:
     {
       vector<String> settingsOptions = {""};
-      vector<unsigned short int *> settingsData = {};
-      Menu settingMenu(0,2,128,64,"SETTINGS",settingsOptions,settingsData,0,0);
+      Menu settingMenu(0,2,128,64,"SETTINGS",settingsOptions,0,0);
       activeMenu = settingMenu;
       settingsMenu();
-      return;
-    }
-    case SEQ:
-    {
-      vector<String> seqMenuOptions = {"Length","BPM","Erase","Clock","Loop","Output"};
-      vector<unsigned short int *> seqMenuData = {&seqEnd};
-      Menu seqMenu(2,4,80,60,"SEQ",seqMenuOptions,seqMenuData,0,0);
-      activeMenu = seqMenu;
       return;
     }
     case LOOP:
     {
       vector<String> loopOptions = {};
-      vector<unsigned short int *> loopMenuData = {};
-      Menu loopMenu(2,4,80,60,"LOOP",loopOptions,loopMenuData,0,0);
+      Menu loopMenu(2,4,80,60,"LOOP",loopOptions,0,0);
       activeMenu = loopMenu;
       return;
       // cassetteAnimation();
@@ -1195,8 +1002,7 @@ void constructMenu(uint8_t id){
     case MIDI:
     {
       vector<String> midiOptions = {};
-      vector<unsigned short int *> midiMenuData = {};
-      Menu midiMenu(2,4,80,60,"MIDI",midiOptions,midiMenuData,0,0);
+      Menu midiMenu(2,4,80,60,"MIDI",midiOptions,0,0);
       activeMenu = midiMenu;
       return;
     }
@@ -1205,18 +1011,9 @@ void constructMenu(uint8_t id){
       fragmentMenu();
       return;
     }
-   case CURVE:
-   {
-      genCurveDebug();
-      vector<String> curveOptions = {"fn","A","p","x","ph","commit"};
-      vector<unsigned short int *> curveData = {&debugCurve.function, &debugCurve.amplitude, &debugCurve.period, &debugCurve.xAxis, &debugCurve.phase};
-      Menu curveMenu(2,4,126,62,"CURVE",curveOptions,curveData,0,1);
-      activeMenu = curveMenu;
-      return;
-    }
     case ARP:
     {
-      vector<String> arpOptions = {"isArping","subDiv","style","octaves","notes"};
+      vector<String> arpOptions = {""};
       Menu arpMenu(0,0,128,64,"ARP",arpOptions,0,0);
       activeMenu = arpMenu;
       return;
@@ -1235,8 +1032,7 @@ void constructMenu(uint8_t id){
     case EDIT:
     {
       vector<String> editMenuOptions = {"V","%","L"};
-      vector<short unsigned int *> editMenuData = {};
-      Menu noteEditMenu(trackDisplay-5,0,screenWidth,debugHeight,"EDIT",editMenuOptions,editMenuData,0,0);
+      Menu noteEditMenu(trackDisplay-5,0,screenWidth,debugHeight,"EDIT",editMenuOptions,0,0);
       activeMenu = noteEditMenu;
       if(menuIsActive){
         slideMenuIn(1,48);
@@ -1247,8 +1043,7 @@ void constructMenu(uint8_t id){
     case TRK:
     {
       vector<String> trackMenuOptions = {"ptch","oc","ch","latch","mute","move","solo","dupe","tune","shrnk","edit"};
-      vector<unsigned short int *> trackMenuData = {};
-      Menu trkMenu(94,0,129,65,"TRK",trackMenuOptions,trackMenuData,0,0);
+      Menu trkMenu(94,0,129,65,"TRK",trackMenuOptions,0,0);
       activeMenu = trkMenu;
       if(menuIsActive){
         slideMenuIn(1,10);
@@ -1259,8 +1054,7 @@ void constructMenu(uint8_t id){
     case QZ:
     {
       vector<String> quantizeMenuOptions = {"trk","sel","loop","seq"};
-      vector<unsigned short int *> quantizeMenuData = {};
-      Menu quantizeMenu(0,0,trackDisplay,screenHeight,"QZ",quantizeMenuOptions,quantizeMenuData,0,0);
+      Menu quantizeMenu(0,0,trackDisplay,screenHeight,"QZ",quantizeMenuOptions,0,0);
       activeMenu = quantizeMenu;
       activeMenu.page = 50;
       if(menuIsActive){
@@ -1271,31 +1065,17 @@ void constructMenu(uint8_t id){
     case HUMANIZE:
     {
       vector<String> humanizeMenuOptions = {"pos","vel","chance"};
-      vector<unsigned short int *> humanizeMenuData = {};
-      Menu humanizeMenu(0,0,trackDisplay,screenHeight,"HUMANIZE",humanizeMenuOptions,humanizeMenuData,0,0);
+      Menu humanizeMenu(0,0,trackDisplay,screenHeight,"HUMANIZE",humanizeMenuOptions,0,0);
       activeMenu = humanizeMenu;
       if(menuIsActive){
         slideMenuIn(0,20);
       }
       return;
     }
-    case SAVE:
-    {
-      vector<String> saveMenuOptions = {"New"};
-      vector<unsigned short int *> saveMenuData = {};
-      Menu savesMenu(5,3,128,64,"SAVE",saveMenuOptions,saveMenuData,0,0);
-      activeMenu = savesMenu;
-      loadFiles();
-      // activeMenu.options.insert(activeMenu.options.begin(),"New");
-      slideMenuIn(1,30);
-      saveMenu();
-      return;
-    }
     case FILES:
     {
       vector<String> fileMenuOptions = {"*New*"};
-      vector<unsigned short int *> fileMenuData = {};
-      Menu fileMenu(7,3,128,64,"FILES",fileMenuOptions,fileMenuData,0,0);
+      Menu fileMenu(7,3,128,64,"FILES",fileMenuOptions,0,0);
       activeMenu = fileMenu;
       // vector<String> fileSizes = loadFiles();
       loadFiles();
@@ -1307,8 +1087,7 @@ void constructMenu(uint8_t id){
    {
       slideMenuOut(0,20);
       vector<String> recMenuOptions = {"Wait","Overwrite","Channel","Thru"};
-      vector<unsigned short int *> recMenuData = {};
-      Menu rMenu(32,5,80,60,"REC",recMenuOptions,recMenuData,0,0);
+      Menu rMenu(32,5,80,60,"REC",recMenuOptions,0,0);
       activeMenu = rMenu;
       recMenu();
       return;
@@ -6041,7 +5820,6 @@ void Menu::displayFilesMenu(int16_t textOffset, bool open, uint8_t menuStart, ui
 }
 
 #include "menus/track.cpp"
-#include "menus/save.cpp"
 #include "menus/settings.cpp"
 #include "menus/quantize.cpp"
 #include "menus/humanize.cpp"
@@ -17190,47 +16968,7 @@ void arpMenuControls(){
     }
   }
 }
-void curveMenuControls(){
-  menuScrolling();
-  if(activeMenu.highlight < activeMenu.data.size()){//if there's data for this option
-    if(counterA >= 1){
-      if(!shift && (activeMenu.options[activeMenu.highlight] != "fn" || (activeMenu.options[activeMenu.highlight] == "fn" && (*activeMenu.data[activeMenu.highlight]) < 5))){
-        (*activeMenu.data[activeMenu.highlight])++;
-      }
-      else if(shift && activeMenu.options[activeMenu.highlight] != "fn"){
-        (*activeMenu.data[activeMenu.highlight])+=10;
-      }
-      counterA += counterA<0?1:-1;;
-      genCurveDebug();
-    }
-    if(counterA <= -1 && (*activeMenu.data[activeMenu.highlight])>0){
-      if(shift && activeMenu.options[activeMenu.highlight] != "fn" && (*activeMenu.data[activeMenu.highlight])>=10){
-        (*activeMenu.data[activeMenu.highlight])-=10;
 
-      }
-      else
-        (*activeMenu.data[activeMenu.highlight])--;
-      counterA += counterA<0?1:-1;;
-      genCurveDebug();
-    }
-  }
-  if(sel){
-    sel = false;
-    if(activeMenu.options[activeMenu.highlight] == "commit"){
-      vector <String> ops = {"loop","seq","range"};
-      unsigned short int choice1 = vertSelectionBox(ops,45,5,45,55);
-      ops = {"vel","pos","chance"};
-      unsigned short int choice = vertSelectionBox(ops, 45, 5, 45, 55);
-      menuIsActive = false;
-      constructMenu("MENU");
-    }
-  }
-  if(activeMenu.options[activeMenu.highlight] == "ph")
-    animOffset = 0; 
-  else{
-    animOffset++;
-  }
-}
 //this should move the note the cursor is on (if any)
 bool moveNotes(int xAmount, int yAmount){
   if(selectionCount == 0){
@@ -17465,59 +17203,6 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w){
   return true;
 }
 
-void saveMenuControls(){
-  menuScrolling();
-  if(itsbeen(200)){
-    if(sel){
-      sel = false;
-      lastTime = millis();
-      if(activeMenu.options[activeMenu.highlight] == "New"){
-        String fileName = enterText("filename?");
-        if(fileName != "New"){
-          writeSeqFile(fileName);
-          slideMenuOut(1,30);
-          menuIsActive = false;
-          constructMenu("MENU");
-        }
-        else{
-          alert("Choose diff name, pls",800);
-        }
-      }
-      else{
-        String fileName = activeMenu.options[activeMenu.highlight];
-        vector<String> ops = {"NO","YEAH"};
-        int choice = horzSelectionBox("Overwrite?",ops,0,0,screenWidth,screenHeight);
-        if(choice){
-          writeSeqFile(fileName);
-          slideMenuOut(1,30);
-          menuIsActive = false;
-          constructMenu("MENU");
-        }
-      }
-    }
-    if(n){
-      n = false;
-      lastTime = millis();
-      String fileName = enterText("filename?");
-      if(fileName != "New"){
-        writeSeqFile(fileName);
-        slideMenuOut(1,30);
-        menuIsActive = false;
-        constructMenu("MENU");
-      }
-      else{
-        alert("Choose diff name, pls",800);
-      }
-    }
-    if(menu_Press){
-      lastTime = millis();
-      slideMenuOut(1,30);
-      menuIsActive = false;
-      constructMenu("MENU");
-    }
-  }
-}
-
 void inputRead() {
   joyRead();
   readButtons();
@@ -17526,14 +17211,10 @@ void inputRead() {
       debugMenuControls();
     else if(activeMenu.menuTitle == "MENU")
       mainMenuControls();
-    else if(activeMenu.menuTitle == "CURVE")
-      curveMenuControls();
     else if(activeMenu.menuTitle == "TRK")
       trackMenuControls();
     else if(activeMenu.menuTitle == "NOTE")
       noteMenuControls();
-    else if(activeMenu.menuTitle == "SAVE")
-      saveMenuControls();
     else if(activeMenu.menuTitle == "SEQ")
       seqMenuControls();
     else if(activeMenu.menuTitle == "SYS")

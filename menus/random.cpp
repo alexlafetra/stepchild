@@ -109,13 +109,6 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
   }
 }
 
-struct CoordinatePair{
-  uint16_t x1;
-  uint16_t x2;
-  uint8_t y1;
-  uint8_t y2;
-};
-
 void drawCoordinateBox(CoordinatePair coords){
   if(!selBox.begun && (coords.x1 != coords.x2)){
     //correcting bounds for view
