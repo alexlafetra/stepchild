@@ -48,13 +48,8 @@
 
   #undef CFG_TUH_RPI_PIO_USB
   #define CFG_TUH_RPI_PIO_USB 1
-  // #ifndef HEADLESS
-  Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-  // Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-// #endif
-#endif
 
-//#include <bits/stdc++.h>
+#endif
 
 // #define SSD1306_SETDISPLAYCLOCKDIV B0011000  ///< See datasheet
 
@@ -64,6 +59,11 @@
 #define SIDEWAYS_L 1
 
 using namespace std;
+
+#ifndef HEADLESS
+  Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+  // Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+#endif
 
 //program booleans and global data, constants
 #include "global.h"
@@ -140,16 +140,22 @@ Note offNote; //default note, always goes in element 0 of seqData for each track
 unsigned int selectionCount = 0;
 vector<vector<Note>> copyBuffer;//stores copied notes
 unsigned short int copyPos[2];
-//loopData is loopData[loopID][start, end, iterations]
 //stores cursor position in copy pos, makes a copy of all selected notes (or the target note)
 vector<Note> defaultVec = {offNote};//default vector for a track, holds offNote at 0
 vector<vector<uint16_t> > lookupData; //char map of notes; 0 = no note, 1-665,535 = noteID
 vector<Track> trackData;//holds tracks
 vector<vector<Note>> seqData;//making a 2D vec, number of rows = tracks, number of columns = usable notes, and stores Note objects
 
+//loopData is loopData[loopID][start, end, iterations]
 vector<vector<uint16_t>> loopData = {{0,96,0,0}};//start,end,iterations,style
 //(style is either 0 = normal, 1 = random any, 2 = random of same length,  4 = inf repeat, 3 = return)
 //refactor loopData into this
+
+
+/*
+  The Loop struct just stores loop data. It's not an object because... I thought it should be a struct?
+  It feels more like data, it originally replaced the loopData list
+*/
 
 struct Loop{
   uint16_t start;
@@ -158,16 +164,13 @@ struct Loop{
   uint8_t type;
 };
 
-
 //holds all the datatracks
 vector<dataTrack> dataTrackData;
-
 
 #include "Arp.h"
 #include "instruments/planets.cpp"
 
 Arp activeArp;
-
 
 unsigned short int animOffset = 0;//for animating curves
 
@@ -12881,12 +12884,11 @@ void helloChild_5(){
 
 void setupPins(){
   #ifndef HEADLESS
-  //joystick
+  //joystick analog inputs
   pinMode(x_Pin, INPUT);
   pinMode(y_Pin, INPUT);
-  // pinMode(joy_press_Pin, INPUT_PULLUP);
 
-  // pinMode(29, INPUT);
+  //onboard pins for LED and reading internal VCC
   pinMode(Vpin, INPUT);
   pinMode(onboard_ledPin, OUTPUT);
   digitalWrite(onboard_ledPin,HIGH);
@@ -12910,16 +12912,15 @@ void setupPins(){
   pinMode(clockPin_LEDS, OUTPUT);
   pinMode(dataPin_LEDS, OUTPUT);
 
-  // CPU0 handles the encoder interrupts now
-  //setting up interrupts (hopefully this helps the encoders catch more steps)
+  // CPU0 handles the encoder interrupts
   attachInterrupt(track_clk_Pin,rotaryActionA_Handler, CHANGE);
   attachInterrupt(track_data_Pin,rotaryActionA_Handler, CHANGE);
   attachInterrupt(note_clk_Pin,rotaryActionB_Handler, CHANGE);
   attachInterrupt(note_data_Pin,rotaryActionB_Handler, CHANGE);
 
-  pinMode(ledPin, OUTPUT);
   #endif
 }
+
 //startsMIDI and Serial
 void startSerial(){
   startMIDI();
@@ -12941,81 +12942,7 @@ void checkSerial(){
   #endif
 }
 
-#ifdef HEADLESS
-  void setup() {
-
-    // display.begin(i2c_Address,true);
-    display.display();
-    display.setRotation(UPRIGHT);
-
-    //seeding random number generator
-    srandom(1);
-
-    initSeq(16,768);
-    updateLEDs();
-
-    if(helloChild){
-      bootscreen();
-      // helloChild_5();
-    }
-    
-    setNormalMode();
-    turnOffLEDs();
-    core0ready = true;
-    lastTime = millis();
-    displaySeq();
-  }
-#else
-void setup() {
-  Serial1.setRX(rxPin);
-  Serial1.setTX(txPin_1);
-  Serial2.setTX(txPin_2);
-  Wire.setSDA(8);
-
-  startMIDI();
-  
-  //starting serial monitor output
-  Serial.begin(9600);
-  // if(!display.begin(SSD1306_EXTERNALVCC, i2c_Address)) {
-  if(!display.begin(SSD1306_SWITCHCAPVCC, i2c_Address)) {
-    for(;;); // Don't proceed, loop forever
-  }
-
-  // display.display();
-  display.setRotation(UPRIGHT);
-  display.setTextWrap(false);
-
-  // these two string must be exactly 32 chars long
-  //                                   01234567890123456789012345678912
-  USBDevice.setManufacturerDescriptor("Silent Instruments Inc.         ");
-  USBDevice.setProductDescriptor     ("Stepchild V0.1                  ");
-
-  // setupPins();
-
-  //seeding random number generator
-  if(tud_connected()){
-    while (!TinyUSBDevice.mounted()) {
-      delay(1);
-    }
-  }
-  srand(1);
-
-  initSeq(16,768);
-  turnOffLEDs();
-  for(uint8_t i = 0; i<16; i++){
-    controlKnobs[i].cc = i+1;
-  }
-
-  counterA = 0;
-  counterB = 0;
-  setNormalMode();
-  // initPWM();
-
-  core0ready = true;
-  lastTime = millis();
-  bootscreen();
-}
-#endif
+#include "setup.h"
 
 void sequenceLEDs(){
   int length = loopData[activeLoop][1]-loopData[activeLoop][0];
@@ -13055,12 +12982,10 @@ void testJoyStick(){
 #include "screenSavers.h"
 
 void loop() {
-  // inputRead();
+  inputRead();
   displaySeq();
   readButtons();
-  serialButtonPrint();
-  Serial.flush();
-  // screenSaverCheck();
+  screenSaverCheck();
 }
 
 //the closer the step is to the subDiv (both forward and backward), the shorter the time val
@@ -13180,13 +13105,6 @@ bool hasItBeenEnoughTime_clock(int timeStep){
     else{
       return false;
     }
-  }
-}
-
-//this sets up non-midi stuff
-void setup1() {
-  core1ready = true;
-  while(!core0ready){
   }
 }
 

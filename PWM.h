@@ -16,15 +16,20 @@ analogWrite(GPIO, duty cycle) to output a PWM signal to a specified pin with a d
 */
 
 // const uint8_t CV1_Pin = 5;
-const uint8_t CV1_Pin = 7;//just for V0.4 testing
 // const uint8_t CV2_Pin = 6;
 // const uint8_t CV3_Pin = 28;
+
+const uint8_t CV1_Pin = 7;//just for V0.4 testing
+const uint8_t CV2_Pin = 7;//just for V0.4 testing
+const uint8_t CV3_Pin = 7;//just for V0.4 testing
+
+
 
 void initPWM(){
 #ifndef HEADLESS
   pinMode(CV1_Pin, OUTPUT);
-//   pinMode(CV2_Pin, OUTPUT);
-//   pinMode(CV3_Pin, OUTPUT);
+  pinMode(CV2_Pin, OUTPUT);
+  pinMode(CV3_Pin, OUTPUT);
 
   //frequency of the oscillation
   analogWriteFreq(1000000);

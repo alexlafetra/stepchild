@@ -233,13 +233,8 @@ void printFractionCentered(uint8_t x1, uint8_t y1, String fraction){
   if(!foundSpaceOrSlash){
     whole = fraction;
   }
-#ifndef HEADLESS
-  uint16_t num = numerator.toInt();
-  uint16_t denom = denominator.toInt();
-#else
-    uint16_t num = stoi(numerator);
-    uint16_t denom = stoi(denominator);
-#endif
+  uint16_t num = toInt(numerator);
+  uint16_t denom = toInt(denominator);
 
   int16_t x2;
   //if there is a fractional part
@@ -293,6 +288,7 @@ uint8_t printFraction_small(uint8_t x1, uint8_t y1, String fraction){
   return length;
 }
 
+//centers the fractions
 void printFraction_small_centered(uint8_t x1, uint8_t y1, String fraction){
   uint8_t length = 0;
   String whole;
@@ -317,18 +313,13 @@ void printFraction_small_centered(uint8_t x1, uint8_t y1, String fraction){
     whole = fraction;
   }
     
-//#ifndef HEADLESS
   uint16_t num = toInt(numerator);
   uint16_t denom = toInt(denominator);
-//#else
-//    uint16_t num = stoi(numerator);
-//    uint16_t denom = stoi(denominator);
-//#endif
     
   length = whole.length();
   //if there's actually a numerator and a denominator
   if(num != 0 && denom != 0){
-    length+=numerator.length()+denominator.length();
+    length += numerator.length()+denominator.length()-1;//-1 because there's a slash
     printFraction(x1-length*2+whole.length()*4, y1-3, num, denom);
   }
   printSmall(x1-length*2,y1,whole,SSD1306_WHITE);

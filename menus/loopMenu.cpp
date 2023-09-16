@@ -1,6 +1,6 @@
 void printLoopTitle(uint8_t, uint8_t);
 void drawLoopBlocksVertically(int,int,int);
-void drawMiniLoopArea(uint8_t x1, uint8_t y1, uint8_t loop);
+void drawLoopPreview(uint8_t x1, uint8_t y1, uint8_t loop);
 void drawLoopInfo(uint8_t x1, uint8_t y1, uint8_t whichLoop);
 
 void moveCursorWithinLoop(int amount, uint8_t whichLoop){
@@ -302,32 +302,26 @@ bool viewLoopControls(uint8_t which){
  
     //loop
     if(loop_Press){
-      if(shift){
-        lastTime = millis();
-        loopMenu();
-      }
-      else{
-        //if you're not moving a loop, start
-        if(movingLoop == 0){
-          //if you're on the start, move the start
-          if(cursorPos == loopData[activeLoop][0]){
-            movingLoop = -1;
-          }
-          //if you're on the end
-          else if(cursorPos == loopData[activeLoop][1]){
-            movingLoop = 1;
-          }
-          //if you're not on either, move the whole loop
-          else{
-            movingLoop = 2;
-          }
-          lastTime = millis();
+      //if you're not moving a loop, start
+      if(movingLoop == 0){
+        //if you're on the start, move the start
+        if(cursorPos == loopData[activeLoop][0]){
+          movingLoop = -1;
         }
-        //if you were moving, stop
+        //if you're on the end
+        else if(cursorPos == loopData[activeLoop][1]){
+          movingLoop = 1;
+        }
+        //if you're not on either, move the whole loop
         else{
-          movingLoop = 0;
-          lastTime = millis();
+          movingLoop = 2;
         }
+        lastTime = millis();
+      }
+      //if you were moving, stop
+      else{
+        movingLoop = 0;
+        lastTime = millis();
       }
     }
     //menu press
@@ -390,16 +384,33 @@ void loopMenu(){
   while(true){
     joyRead();
     readButtons();
+    //changing the loop iterations
     while(counterA != 0){
-      if(counterA >= 1 && blockZoom>1){
-        blockZoom--;
+      if(counterA>0){
+        loopData[targetL][2]++;
       }
-      else if(counterA <= -1){
-        blockZoom++;
+      else{
+        if(loopData[targetL][2] != 0)
+          loopData[targetL][2]--;
       }
       counterA += counterA<0?1:-1;
     }
-
+    //changing the loop type
+    while(counterB != 0){
+      if(counterB>0){
+        if(loopData[targetL][3]<4)
+          loopData[targetL][3]++;
+        else
+          loopData[targetL][3] = 0;
+      }
+      else{
+        if(loopData[targetL][3]>0)
+          loopData[targetL][3]--;
+        else
+          loopData[targetL][3] = 4;
+      }
+      counterB += counterB<0?1:-1;
+    }
     if(itsbeen(100)){
       if(y != 0){
         if(y == 1){
@@ -419,7 +430,7 @@ void loopMenu(){
       //changing loop type and iterations
       if(x != 0){
         //iterations
-        if(shift){
+        if(!shift){
           if(x == -1){
             loopData[targetL][2]++;
             lastTime = millis();
@@ -477,7 +488,7 @@ void loopMenu(){
       }
       //infinite loop toggle
       if(loop_Press){
-        if(shift){
+        if(!shift){
           isLooping = !isLooping;
           lastTime = millis();
         }
@@ -498,10 +509,6 @@ void loopMenu(){
         return;
       }
     }
-    animOffset++;
-    if(animOffset>=100){
-      animOffset = 0;
-    }
 
     //checking bounds for display
     //if targetL is more than 4 loops away from starting loop, then move menu
@@ -512,38 +519,44 @@ void loopMenu(){
       dispStart--;
     }
 
+    //rotating background arrows while looping is active
+    if(isLooping){
+      w.rotate(-1,2);
+    }
+
     display.clearDisplay();
 
     //wireframe
     w.render();
 
+    //draw the highlight of the active loop (so it's behind everything)
+    display.fillRoundRect(11,4+(11)*(targetL-dispStart),106,16,3,0);
+    display.drawRoundRect(11,4+(11)*(targetL-dispStart),106,16,3,1);
+    display.fillRect(11,4+(11)*(targetL-dispStart),2,16,0);
+
     //title
     printLoopTitle(1,14);
     //side border line
     display.drawFastVLine(13,0,screenHeight,1);
-    
-    if(isLooping){
-      //loops
-      drawLoopBlocksVertically(dispStart,targetL,blockZoom);
-      //info
-      drawLoopInfo(56,0,targetL);
-      drawMiniLoopArea(95,48,targetL);
+
+    //loops
+    drawLoopBlocksVertically(dispStart,targetL,blockZoom);
+
+    //info
+    drawLoopInfo(56,0,targetL);
+    if(shift){
+      drawLoopPreview(95,48,targetL);
     }
     else{
-      display.drawRect(16,8,40,54,1);
-      shadeArea(17,9,38,52,4);
-      if(millis()%1000>500){
-        display.fillRoundRect(28,28,16,9,3,0);
-        display.drawRoundRect(28,28,16,9,3,1);
-        printSmall(30,30,"off",1);
-      }
+      display.drawRoundRect(screenWidth-7,43,13,23,3,1);
+      display.setRotation(SIDEWAYS_L);
+      printSmall(0,screenWidth-5,"shift",1);
+      display.setRotation(UPRIGHT);
     }
+
     //top border line
     display.drawFastHLine(13,0,40,1);
     display.display();
-    if(isLooping){
-      w.rotate(-1,2);
-    }
   }
 }
 
@@ -560,19 +573,22 @@ void drawLoopInfo(uint8_t x1, uint8_t y1, uint8_t whichLoop){
       playType = "rnd loop";
       break;
     case 2:
-      playType = "rnd same length";
+      playType = "rnd = length";
       break;
     case 3:
       playType = "return to 1st";
       break;
     case 4:
-      playType = "repeat";
+      playType = "inf repeat";
       break;
   }
   display.fillRoundRect(x1-3,y1-2,screenWidth-x1+5,9,3,0);
   display.drawRoundRect(x1-3,y1-2,screenWidth-x1+5,9,3,1);
   printSmall(x1,y1,"after:"+playType,1);
-  printSmall(x1+42,y1+8,"repeat "+stringify(loopData[whichLoop][2]+1),1);
+  String reps = stringify(loopData[whichLoop][2]+1)+(loopData[whichLoop][2]==0?"rep":"reps");
+  display.setRotation(SIDEWAYS_L);
+  printSmall(screenHeight-8-reps.length()*4,screenWidth-5,reps,1);
+  display.setRotation(UPRIGHT);
 }
 
 //x1 is start of the first loop, y1 is the midpoint of the first loop height,
@@ -624,57 +640,28 @@ void drawLoopArrow(uint8_t x1, uint8_t y1, uint8_t l, uint8_t h, uint8_t type, u
 }
 
 void printLoopTitle(uint8_t x1, uint8_t y1){
-  display.setRotation(SIDEWAYS_R);
-  display.drawBitmap(screenHeight-y1-5,screenWidth-x1-9-sin(millis()/100),loop_parenth,5,9,SSD1306_WHITE);
-  display.setRotation(SIDEWAYS_L);
-  display.drawBitmap(y1+5,x1-sin(millis()/100+1),loop_L,7,9,SSD1306_WHITE);
-  display.drawBitmap(y1+12,x1-sin(millis()/100+2),loop_O,7,9,SSD1306_WHITE);
-  display.drawBitmap(y1+19,x1-sin(millis()/100+3),loop_O,7,9,SSD1306_WHITE);
-  display.drawBitmap(y1+26,x1-sin(millis()/100+4),loop_P,7,9,SSD1306_WHITE);
-  display.drawBitmap(y1+33,x1-sin(millis()/100+5),loop_parenth,5,9,SSD1306_WHITE);
-  display.setRotation(UPRIGHT);
-}
-
-void printLoopType(uint8_t x1, uint8_t y1, uint8_t type){
-  switch(type){
-    case 0:
-      printSmall(x1,y1,"normal",SSD1306_WHITE);
-      break;
-    case 2:
-      printSmall(x1,y1,"rnd similar",SSD1306_WHITE);
-      break;
-    case 1:
-      printSmall(x1,y1,"rnd any",SSD1306_WHITE);
-      break;
-    case 3:
-      printSmall(x1,y1,"return",SSD1306_WHITE);
-      break;
-    case 4:
-      display.drawBitmap(x1,y1,inf_bmp,9,5,SSD1306_WHITE);
-      break;
+  if(isLooping){
+    display.setRotation(SIDEWAYS_R);
+    display.drawBitmap(screenHeight-y1-5,screenWidth-x1-9-sin(millis()/100),loop_parenth,5,9,SSD1306_WHITE);
+    display.setRotation(SIDEWAYS_L);
+    display.drawBitmap(y1+5,x1-sin(millis()/100+1),loop_L,7,9,SSD1306_WHITE);
+    display.drawBitmap(y1+12,x1-sin(millis()/100+2),loop_O,7,9,SSD1306_WHITE);
+    display.drawBitmap(y1+19,x1-sin(millis()/100+3),loop_O,7,9,SSD1306_WHITE);
+    display.drawBitmap(y1+26,x1-sin(millis()/100+4),loop_P,7,9,SSD1306_WHITE);
+    display.drawBitmap(y1+33,x1-sin(millis()/100+5),loop_parenth,5,9,SSD1306_WHITE);
+    display.setRotation(UPRIGHT);
   }
-}
-
-String getLoopType(uint8_t type){
-  String text;
-  switch(type){
-    case 0:
-      text = "normal";
-      break;
-    case 2:
-      text = "rnd similar";
-      break;
-    case 1:
-      text = "rnd";
-      break;
-    case 3:
-      text = "return";
-      break;
-    case 4:
-      text = "infinite";
-      break;
+  else{
+    display.setRotation(SIDEWAYS_R);
+    display.drawBitmap(screenHeight-y1-5,screenWidth-x1-9,loop_parenth,5,9,SSD1306_WHITE);
+    display.setRotation(SIDEWAYS_L);
+    display.drawBitmap(y1+5,x1,loop_L,7,9,SSD1306_WHITE);
+    display.drawBitmap(y1+12,x1,loop_O,7,9,SSD1306_WHITE);
+    display.drawBitmap(y1+19,x1,loop_O,7,9,SSD1306_WHITE);
+    display.drawBitmap(y1+26,x1,loop_P,7,9,SSD1306_WHITE);
+    display.drawBitmap(y1+33,x1,loop_parenth,5,9,SSD1306_WHITE);
+    display.setRotation(UPRIGHT);
   }
-  return text;
 }
 
 vector<uint8_t> getTracksWithNotes(){
@@ -701,7 +688,9 @@ vector<uint8_t> getTracksWithNotesInLoop(uint8_t loop){
 }
 
 //draws mini sequence in a 32x16 grid
-void drawMiniLoopArea(uint8_t x1, uint8_t y1, uint8_t loop){
+void drawLoopPreview(uint8_t x1, uint8_t y1, uint8_t loop){
+  display.fillRoundRect(x1-2,y1-15,37,37,3,0);
+  display.drawRoundRect(x1-2,y1-15,37,37,3,1);
   //scale
   float s = float(32)/float(loopData[loop][1]-loopData[loop][0]);
 
@@ -755,6 +744,12 @@ void drawMiniLoopArea(uint8_t x1, uint8_t y1, uint8_t loop){
   else{
     printSmall(x1+3,y1,"[Empty]",SSD1306_WHITE);
   }
+
+  printFraction_small_centered(x1+18,y1-18,stepsToMeasures(loopData[loop][1] - loopData[loop][0]));
+  display.setRotation(SIDEWAYS_L);
+  printSmall(screenHeight-y1+8,x1,stepsToPosition(loopData[loop][0],true),1);
+  printSmall(screenHeight-y1+8,x1+27,stepsToPosition(loopData[loop][1],true),1);
+  display.setRotation(UPRIGHT);
 }
 
 void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
@@ -782,7 +777,8 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
 
       //loop block
       display.drawRect(xStart, yStart+(loopHeight+3)*loop, length, loopHeight, 1);
-      shadeArea(xStart, yStart+(loopHeight+3)*loop, length, loopHeight,shade);
+      if(isLooping)
+        shadeArea(xStart, yStart+(loopHeight+3)*loop, length, loopHeight,shade);
       
       uint8_t x1 = xStart+length+3;
 
@@ -825,7 +821,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
             break;
         }
         //length
-        x1+=printFraction_small(x1,yStart+(loopHeight+3)*loop+2,stepsToMeasures(loopData[activeLoop][1]-loopData[activeLoop][0]))+2;
+        x1+=printFraction_small(x1,yStart+(loopHeight+3)*loop+1,stepsToMeasures(loopData[activeLoop][1]-loopData[activeLoop][0]))+2;
         if(playing){
           //play/iterations
           printSmall(x1,yStart+(loopHeight+3)*loop+1, "("+stringify(loopCount)+"/"+stringify(loopData[activeLoop][2]+1)+")", SSD1306_WHITE);

@@ -49,16 +49,14 @@ int8_t x,y;
 bool joy_Press,n,sel,shift,del,play,track_Press,note_Press, track_clk, note_clk,loop_Press, copy_Press, menu_Press;
 bool step_buttons[8] = {false,false,false,false,false,false,false,false};
 
-#ifndef HEADLESS
-int8_t encoderA = 0,encoderB = 0;
-#endif
+// #ifndef HEADLESS
+// int8_t encoderA = 0,encoderB = 0;
+// #endif
 
 #ifndef HEADLESS
 void joyRead(){
   float yVal = analogRead(x_Pin);
   float xVal = analogRead(y_Pin);
-  // Serial.println(xVal);
-  // Serial.println(yVal);
   x = 0;
   y = 0;
   if (xVal > 1000) {
@@ -76,11 +74,11 @@ void joyRead(){
 }
 #endif
 #ifdef HEADLESS
-  void joyRead(){
-      glfwPollEvents();
-      x = xKeyVal;
-      y = yKeyVal;
-  }
+void joyRead(){
+    glfwPollEvents();
+    x = xKeyVal;
+    y = yKeyVal;
+}
 #endif
 
 #ifndef HEADLESS
@@ -92,11 +90,16 @@ void readButtons_MPX(){
   digitalWrite(buttons_clockEnable,LOW);
   unsigned char bits_buttons = shiftIn(buttons_dataIn, buttons_clockIn, LSBFIRST);
   digitalWrite(buttons_clockEnable, HIGH);
+  Serial.println(bits_buttons);
+  Serial.flush();
 
+  String test;
   //grabbing values from the byte
   for(int digit = 0; digit<8; digit++){
     buttons[digit] = (bits_buttons>>digit)&1;
+    test+=" "+String((bits_buttons>>digit)&1);
   }
+  Serial.println(test);
 
   if(stepButtonsAreActive){
     digitalWrite(buttons_load,LOW);
@@ -105,29 +108,8 @@ void readButtons_MPX(){
     digitalWrite(buttons_clockEnable,LOW);
     unsigned char bits_stepButtons = shiftIn(stepButtons_dataIn, buttons_clockIn, MSBFIRST);
     digitalWrite(buttons_clockEnable, HIGH);
-    
-    //checking if any are changed in order to do the keys
-    if(keys || drumPads){
-      for(int i = 0; i<8; i++){
-        //if the button has changed, set the value and call the keyboard function stuff
-        if(step_buttons[i] != !((bits_stepButtons>>i)&1)){
-          step_buttons[i] = !((bits_stepButtons>>i)&1);//set button equal to the new read value
-          // if(step_buttons[i] && !isBeingPlayed(keyboardPitch + i)){
-          //   sendMIDInoteOn(keyboardPitch+i,defaultVel,defaultChannel);
-          //   addNoteToPlaylist(keyboardPitch+i,defaultVel,defaultChannel);
-          // }
-          // else if(!step_buttons[i] && isBeingPlayed(keyboardPitch + i)){
-          //   sendMIDInoteOff(keyboardPitch+i,defaultVel,defaultChannel);
-          //   subNoteFromPlaylist(keyboardPitch+i);
-          // }
-        }
-      }
-    }
-    //normal operation
-    else{
-      for(int digit = 0; digit<8; digit++){
-        step_buttons[digit] = !((bits_stepButtons>>digit)&1);
-      }
+    for(int digit = 0; digit<8; digit++){
+      step_buttons[digit] = !((bits_stepButtons>>digit)&1);
     }
   }
 
@@ -141,6 +123,7 @@ void readButtons_MPX(){
   copy_Press = !buttons[1];
   menu_Press = !buttons[0];
 }
+
 #endif
 #ifdef HEADLESS
 void readButtons_MPX(){
