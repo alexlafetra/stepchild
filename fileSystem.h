@@ -158,9 +158,9 @@ void writeSeqFile(String filename){
     //loops are stored as
     //(number of loops),(start1),(start2),(end1),(end2),(iterations),(style)
     for(uint8_t loop = 0; loop<loopData.size(); loop++){
-      uint8_t start[2] = {uint8_t(loopData[loop][0]>>8),uint8_t(loopData[loop][0])};
-      uint8_t end[2] = {uint8_t(loopData[loop][1]>>8),uint8_t(loopData[loop][1])};
-      uint8_t loopDat[2] = {uint8_t(loopData[loop][2]),uint8_t(loopData[loop][3])};
+      uint8_t start[2] = {uint8_t(loopData[loop].start>>8),uint8_t(loopData[loop].start)};
+      uint8_t end[2] = {uint8_t(loopData[loop].end>>8),uint8_t(loopData[loop].end)};
+      uint8_t loopDat[2] = {uint8_t(loopData[loop].reps),uint8_t(loopData[loop].type)};
       seqFile.write(start,2);
       seqFile.write(end,2);
       seqFile.write(loopDat,2);
@@ -264,9 +264,9 @@ void writeCurrentSeqToSerial(bool waitForResponse){
     //loops are stored as
     //(number of loops),(start1),(start2),(end1),(end2),(iterations),(style)
     for(uint8_t loop = 0; loop<loopData.size(); loop++){
-      uint8_t start[2] = {uint8_t(loopData[loop][0]>>8),uint8_t(loopData[loop][0])};
-      uint8_t end[2] = {uint8_t(loopData[loop][1]>>8),uint8_t(loopData[loop][1])};
-      uint8_t loopDat[2] = {uint8_t(loopData[loop][2]),uint8_t(loopData[loop][3])};
+      uint8_t start[2] = {uint8_t(loopData[loop].start>>8),uint8_t(loopData[loop].start)};
+      uint8_t end[2] = {uint8_t(loopData[loop].end>>8),uint8_t(loopData[loop].end)};
+      uint8_t loopDat[2] = {uint8_t(loopData[loop].reps),uint8_t(loopData[loop].type)};
       writeBytes(start,2);
       writeBytes(end,2);
       writeBytes(loopDat,2);
@@ -678,7 +678,7 @@ void loadSeqFile(String filename){
     //loading loops
     uint8_t numberOfLoops[1];
     seqFile.read(numberOfLoops,1);
-    vector<vector<uint16_t>> newLoopData;
+    vector<Loop> newLoopData;
     for(uint8_t loop = 0; loop<numberOfLoops[0]; loop++){
       uint8_t start[2];
       uint8_t end[2];
@@ -686,7 +686,11 @@ void loadSeqFile(String filename){
       seqFile.read(start,2);
       seqFile.read(end,2);
       seqFile.read(loopInfo,2);
-      vector<uint16_t> loopDat = {uint16_t((start[0]<<8)+start[1]),uint16_t((end[0]<<8)+end[1]),loopInfo[0],loopInfo[1]};
+      Loop loopDat;
+      loopDat.start = uint16_t((start[0]<<8)+start[1]);
+      loopDat.end = uint16_t((end[0]<<8)+end[1]);
+      loopDat.reps = loopInfo[0];
+      loopDat.type = loopInfo[1];
       newLoopData.push_back(loopDat);
     }
     loopData.swap(newLoopData);

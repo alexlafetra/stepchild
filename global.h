@@ -37,7 +37,6 @@ const vector<String> CCparameters = {"Bank Select","Mod Wheel","Breath Controlle
 const vector<String> MKIICCparameters = {"Ctrl ","EFX On/Off","EFX Selector"};
 const vector<String> stepChildCCParameters = {"Velocty","Probability","Pitch","BPM [Exp]","Swing [Exp]"};
 
-uint8_t whichTemplate = 0;
 uint16_t bpm = 120;
 
 bool playing = false;
@@ -54,10 +53,6 @@ bool pitchesOrNumbers = true;
 bool pramOffset = 1;
 
 bool stepButtonsAreActive = true;
-
-//lets you drag the loop indicators around
-//0 is off, 1 is start, -1 is end, 2 is both
-int8_t movingLoop = 0;
 
 bool externalClock = false;
 bool overwriteRecording = true;
@@ -90,6 +85,9 @@ uint8_t activeDataTrack;
 //counts up for each iteration of a loop
 uint8_t loopCount;//controls how many times sequence has looped
 bool isLooping = true;//controls whether or not the sequence loops at all
+//lets you drag the loop indicators around
+//0 is off, 1 is start, -1 is end, 2 is both
+int8_t movingLoop = 0;
 
 unsigned short int viewStart;//where the view ends, usually moves by measures but shift lets it move one at a time
 unsigned short int viewEnd;//where the view ends
@@ -101,6 +99,8 @@ float scale = 0.5;//HEY this needs to match the initial viewEnd call, otherwise 
 
 unsigned short int playheadPos;
 unsigned short int recheadPos;
+
+unsigned int selectionCount = 0;
 
 const unsigned char debugHeight = 16;
 const unsigned char trackDisplay = 32;
@@ -146,7 +146,6 @@ int32_t swingVal = 4000;
 //holds the subdiv the notes are swung to
 uint16_t swingSubDiv = 96;
 
-unsigned char const blank_ID = 0;//just a 0, as an unsigned char
 unsigned char defaultPitch;
 unsigned char defaultChannel;
 unsigned char defaultVel;//default velocity;

@@ -5,11 +5,11 @@ void drawLoopInfo(uint8_t x1, uint8_t y1, uint8_t whichLoop);
 
 void moveCursorWithinLoop(int amount, uint8_t whichLoop){
   //if the cursor is going to move before the loop
-  if(amount<0 && (cursorPos + amount)<loopData[whichLoop][0])
-    moveCursor(cursorPos - loopData[whichLoop][0]);
+  if(amount<0 && (cursorPos + amount)<loopData[whichLoop].start)
+    moveCursor(cursorPos - loopData[whichLoop].start);
   //if the cursor is going to move past the loop
-  else if(amount>0 && (cursorPos+amount)>=loopData[whichLoop][1])
-    moveCursor(loopData[whichLoop][1]-cursorPos);
+  else if(amount>0 && (cursorPos+amount)>=loopData[whichLoop].end)
+    moveCursor(loopData[whichLoop].end-cursorPos);
   //if not, then it's moving within the loop
   else
     moveCursor(amount);
@@ -17,7 +17,7 @@ void moveCursorWithinLoop(int amount, uint8_t whichLoop){
 
 bool isWithinLoop(int val, int loop, int amount, bool inclusive){
   if(!inclusive){
-    if(val<(loopData[loop][1]-amount) && val>(loopData[loop][0]+amount)){
+    if(val<(loopData[loop].end-amount) && val>(loopData[loop].start+amount)){
       return true;
     }
     else{
@@ -25,7 +25,7 @@ bool isWithinLoop(int val, int loop, int amount, bool inclusive){
     }
   }
   else{
-    if(val<=(loopData[loop][1]-amount) && val>=(loopData[loop][0]+amount)){
+    if(val<=(loopData[loop].end-amount) && val>=(loopData[loop].start+amount)){
       return true;
     }
     else{
@@ -34,8 +34,8 @@ bool isWithinLoop(int val, int loop, int amount, bool inclusive){
   }
 }
 
-void insertLoop(int afterThis, vector<unsigned short int> newLoop){
-  vector<vector<unsigned short int>> tempData;
+void insertLoop(int afterThis, Loop newLoop){
+  vector<Loop> tempData;
   for(int i = 0; i<loopData.size(); i++){
     tempData.push_back(loopData[i]);
     if(i == afterThis)
@@ -45,7 +45,7 @@ void insertLoop(int afterThis, vector<unsigned short int> newLoop){
 }
 
 void dupeLoop(int loop){
-  vector<vector<unsigned short int>> tempData;
+  vector<Loop> tempData;
   for(int i = 0; i<loopData.size(); i++){
     tempData.push_back(loopData[i]);
     if(i == loop)
@@ -57,32 +57,32 @@ void dupeLoop(int loop){
 void setLoopPoint(int32_t start, bool which){
   //set start
   if(which){
-    if(start<=loopData[activeLoop][1] && start>=0)
-      loopData[activeLoop][0] = start;
+    if(start<=loopData[activeLoop].end && start>=0)
+      loopData[activeLoop].start = start;
     else if(start < 0)
-      loopData[activeLoop][0] = 0;
-    else if(start>loopData[activeLoop][1])
-      loopData[activeLoop][0] = loopData[activeLoop][1];
-    loopData[activeLoop][0] = loopData[activeLoop][0];
-    menuText = "loop start: "+stepsToPosition(loopData[activeLoop][0],true);
+      loopData[activeLoop].start = 0;
+    else if(start>loopData[activeLoop].end)
+      loopData[activeLoop].start = loopData[activeLoop].end;
+    loopData[activeLoop].start = loopData[activeLoop].start;
+    menuText = "loop start: "+stepsToPosition(loopData[activeLoop].start,true);
   }
   //set end
   else{
-    if(start>=loopData[activeLoop][0] && start <= seqEnd)
-      loopData[activeLoop][1] = start;
+    if(start>=loopData[activeLoop].start && start <= seqEnd)
+      loopData[activeLoop].end = start;
     else if(start>seqEnd)
-      loopData[activeLoop][1] = seqEnd;
-    else if(start<loopData[activeLoop][0])
-      loopData[activeLoop][1] = loopData[activeLoop][0];
-    loopData[activeLoop][1] = loopData[activeLoop][1];
-    menuText = "loop end: "+stepsToPosition(loopData[activeLoop][1],true);
+      loopData[activeLoop].end = seqEnd;
+    else if(start<loopData[activeLoop].start)
+      loopData[activeLoop].end = loopData[activeLoop].start;
+    loopData[activeLoop].end = loopData[activeLoop].end;
+    menuText = "loop end: "+stepsToPosition(loopData[activeLoop].end,true);
   }
 }
 
 uint16_t getLongestLoop(){
   uint16_t longestLength = 0;
   for(uint8_t i = 0; i<loopData.size(); i++){
-    uint16_t l = loopData[i][1] - loopData[i][0];
+    uint16_t l = loopData[i].end - loopData[i].start;
     if(l>longestLength)
       longestLength = l;
   }
@@ -209,9 +209,9 @@ bool viewLoopControls(uint8_t which){
       if(movingLoop == 2)
         moveLoop(1);
       else if(movingLoop == -1)
-        loopData[activeLoop][0] = cursorPos;
+        loopData[activeLoop].start = cursorPos;
       else if(movingLoop == 1)
-        loopData[activeLoop][1] = cursorPos;
+        loopData[activeLoop].end = cursorPos;
     }
     //changing vel
     if (y == 1 && shift) {
@@ -305,11 +305,11 @@ bool viewLoopControls(uint8_t which){
       //if you're not moving a loop, start
       if(movingLoop == 0){
         //if you're on the start, move the start
-        if(cursorPos == loopData[activeLoop][0]){
+        if(cursorPos == loopData[activeLoop].start){
           movingLoop = -1;
         }
         //if you're on the end
-        else if(cursorPos == loopData[activeLoop][1]){
+        else if(cursorPos == loopData[activeLoop].end){
           movingLoop = 1;
         }
         //if you're not on either, move the whole loop
@@ -352,7 +352,7 @@ bool viewLoopControls(uint8_t which){
 }
 
 void viewLoop(uint8_t which){
-  setCursor(loopData[which][0]);
+  setCursor(loopData[which].start);
   setActiveLoop(which);
   String tempText;
   while(true){
@@ -363,7 +363,7 @@ void viewLoop(uint8_t which){
     tempText = menuText;
     menuText = "loop-"+stringify(which)+" "+menuText;
     display.clearDisplay();
-    drawSeq(true,true,true,false,false,loopData[which][0]>viewStart?loopData[which][0]:viewStart,loopData[which][1]<viewEnd?loopData[which][1]:viewEnd);
+    drawSeq(true,true,true,false,false,loopData[which].start>viewStart?loopData[which].start:viewStart,loopData[which].end<viewEnd?loopData[which].end:viewEnd);
     display.display();
     menuText = tempText;
   }
@@ -375,7 +375,11 @@ void loopMenu(){
   uint8_t targetL = activeLoop;
   uint8_t dispStart = activeLoop;
   int blockZoom = getLongestLoop()/30;
-  vector<short unsigned int> storedLoop = {loopData[targetL][0],loopData[targetL][1],loopData[targetL][2],loopData[targetL][3]};
+  Loop storedLoop;
+  storedLoop.start = loopData[targetL].start;
+  storedLoop.end = loopData[targetL].end;
+  storedLoop.reps = loopData[targetL].reps;
+  storedLoop.type = loopData[targetL].type;
   bool loopStored = false;
   WireFrame w = makeLoopArrows(0);
   w.xPos = 64;
@@ -387,27 +391,27 @@ void loopMenu(){
     //changing the loop iterations
     while(counterA != 0){
       if(counterA>0){
-        loopData[targetL][2]++;
+        loopData[targetL].reps++;
       }
       else{
-        if(loopData[targetL][2] != 0)
-          loopData[targetL][2]--;
+        if(loopData[targetL].reps != 0)
+          loopData[targetL].reps--;
       }
       counterA += counterA<0?1:-1;
     }
     //changing the loop type
     while(counterB != 0){
       if(counterB>0){
-        if(loopData[targetL][3]<4)
-          loopData[targetL][3]++;
+        if(loopData[targetL].type<4)
+          loopData[targetL].type++;
         else
-          loopData[targetL][3] = 0;
+          loopData[targetL].type = 0;
       }
       else{
-        if(loopData[targetL][3]>0)
-          loopData[targetL][3]--;
+        if(loopData[targetL].type>0)
+          loopData[targetL].type--;
         else
-          loopData[targetL][3] = 4;
+          loopData[targetL].type = 4;
       }
       counterB += counterB<0?1:-1;
     }
@@ -432,22 +436,22 @@ void loopMenu(){
         //iterations
         if(!shift){
           if(x == -1){
-            loopData[targetL][2]++;
+            loopData[targetL].reps++;
             lastTime = millis();
           }
-          else if(x == 1 && loopData[targetL][2]>0){
-            loopData[targetL][2]--;
+          else if(x == 1 && loopData[targetL].reps>0){
+            loopData[targetL].reps--;
             lastTime = millis();
           }
         }
         //loop type
         else{
-          if(x == -1 && loopData[targetL][3]<3){
-            loopData[targetL][3]++;
+          if(x == -1 && loopData[targetL].type<3){
+            loopData[targetL].type++;
             lastTime = millis();
           }
-          if(x == 1 && loopData[targetL][3]>0){
-            loopData[targetL][3]--;
+          if(x == 1 && loopData[targetL].type>0){
+            loopData[targetL].type--;
             lastTime = millis();
           }
         }
@@ -455,10 +459,10 @@ void loopMenu(){
       //copying a loop
       if(copy_Press && !shift){
         loopStored = true;
-        storedLoop[0] = loopData[targetL][0];
-        storedLoop[1] = loopData[targetL][1];
-        storedLoop[2] = loopData[targetL][2];
-        storedLoop[3] = loopData[targetL][3];
+        storedLoop.start = loopData[targetL].start;
+        storedLoop.end = loopData[targetL].end;
+        storedLoop.reps = loopData[targetL].reps;
+        storedLoop.type = loopData[targetL].type;
 
         lastTime = millis();
       }
@@ -565,7 +569,7 @@ void drawLoopInfo(uint8_t x1, uint8_t y1, uint8_t whichLoop){
   //type of loop (random, random of same size)
   String playType;
   //style
-  switch(loopData[whichLoop][3]){
+  switch(loopData[whichLoop].type){
     case 0:
       playType = "next";
       break;
@@ -585,7 +589,7 @@ void drawLoopInfo(uint8_t x1, uint8_t y1, uint8_t whichLoop){
   display.fillRoundRect(x1-3,y1-2,screenWidth-x1+5,9,3,0);
   display.drawRoundRect(x1-3,y1-2,screenWidth-x1+5,9,3,1);
   printSmall(x1,y1,"after:"+playType,1);
-  String reps = stringify(loopData[whichLoop][2]+1)+(loopData[whichLoop][2]==0?"rep":"reps");
+  String reps = stringify(loopData[whichLoop].reps+1)+(loopData[whichLoop].reps==0?"rep":"reps");
   display.setRotation(SIDEWAYS_L);
   printSmall(screenHeight-8-reps.length()*4,screenWidth-5,reps,1);
   display.setRotation(UPRIGHT);
@@ -677,7 +681,7 @@ vector<uint8_t> getTracksWithNotesInLoop(uint8_t loop){
   vector<uint8_t> list1 = getTracksWithNotes();
   vector<uint8_t> list2;
   for(uint8_t track = 0; track<list1.size(); track++){
-    for(uint16_t i = loopData[loop][0]; i<loopData[loop][1]; i++){
+    for(uint16_t i = loopData[loop].start; i<loopData[loop].end; i++){
       if(lookupData[list1[track]][i] != 0){
         list2.push_back(list1[track]);
         break;
@@ -692,7 +696,7 @@ void drawLoopPreview(uint8_t x1, uint8_t y1, uint8_t loop){
   display.fillRoundRect(x1-2,y1-15,37,37,3,0);
   display.drawRoundRect(x1-2,y1-15,37,37,3,1);
   //scale
-  float s = float(32)/float(loopData[loop][1]-loopData[loop][0]);
+  float s = float(32)/float(loopData[loop].end-loopData[loop].start);
 
   //figure out how many tracks to draw
   vector<uint8_t> tracksWithNotes = getTracksWithNotesInLoop(loop);
@@ -724,20 +728,20 @@ void drawLoopPreview(uint8_t x1, uint8_t y1, uint8_t loop){
     //move through each step of the loop
     for(uint8_t tr = 0; tr<tracksWithNotes.size(); tr++){
       uint8_t t = tracksWithNotes[tr];
-      for(uint16_t i = loopData[loop][0]; i<loopData[loop][1]; i++){
+      for(uint16_t i = loopData[loop].start; i<loopData[loop].end; i++){
         //if i finds the start positino of a note
         if(lookupData[t][i] != 0 && i == seqData[t][lookupData[t][i]].startPos){
           //get scaled length
           uint16_t length = (seqData[t][lookupData[t][i]].endPos - seqData[t][lookupData[t][i]].startPos+1);
           //draw line representing note
-          display.drawFastHLine(x1+float(i-loopData[loop][0])*s,y1+tr,length*s,SSD1306_WHITE);
+          display.drawFastHLine(x1+float(i-loopData[loop].start)*s,y1+tr,length*s,SSD1306_WHITE);
           i = seqData[t][lookupData[t][i]].endPos;
         }
       }
     }
     //drawing playhead, if it's in view
-    if(playing && playheadPos>loopData[loop][0] && playheadPos<loopData[loop][1]){
-      display.drawFastVLine(x1+(playheadPos-loopData[loop][0])*s,y1-1,tracksWithNotes.size()+2,SSD1306_WHITE);
+    if(playing && playheadPos>loopData[loop].start && playheadPos<loopData[loop].end){
+      display.drawFastVLine(x1+(playheadPos-loopData[loop].start)*s,y1-1,tracksWithNotes.size()+2,SSD1306_WHITE);
     }
   }
   //if there are no notes
@@ -745,10 +749,10 @@ void drawLoopPreview(uint8_t x1, uint8_t y1, uint8_t loop){
     printSmall(x1+3,y1,"[Empty]",SSD1306_WHITE);
   }
 
-  printFraction_small_centered(x1+18,y1-18,stepsToMeasures(loopData[loop][1] - loopData[loop][0]));
+  printFraction_small_centered(x1+18,y1-18,stepsToMeasures(loopData[loop].end - loopData[loop].start));
   display.setRotation(SIDEWAYS_L);
-  printSmall(screenHeight-y1+8,x1,stepsToPosition(loopData[loop][0],true),1);
-  printSmall(screenHeight-y1+8,x1+27,stepsToPosition(loopData[loop][1],true),1);
+  printSmall(screenHeight-y1+8,x1,stepsToPosition(loopData[loop].start,true),1);
+  printSmall(screenHeight-y1+8,x1+27,stepsToPosition(loopData[loop].end,true),1);
   display.setRotation(UPRIGHT);
 }
 
@@ -765,15 +769,15 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
       printSmall(xStart-15,yStart+(loopHeight+3)*loop+2,stringify(loop+firstLoop+1),SSD1306_WHITE);
 
       //scale is 1:12, so every 1/4 note is 2px
-      int length = (loopData[loop+firstLoop][1]-loopData[loop+firstLoop][0])/z;
-      int shade = (loopData[loop+firstLoop][0]+loopData[loop+firstLoop][1]+loop+firstLoop)%12+2;
+      int length = (loopData[loop+firstLoop].end-loopData[loop+firstLoop].start)/z;
+      int shade = (loopData[loop+firstLoop].start+loopData[loop+firstLoop].end+loop+firstLoop)%12+2;
 
       //clearing background
       display.fillRect(xStart, yStart+(loopHeight+3)*loop, length, loopHeight, 0);
 
       //play progress
       if(playing && loop+firstLoop == activeLoop)
-        display.fillRect(xStart, yStart+(loopHeight+3)*loop, float(length)*float(playheadPos-loopData[activeLoop][0])/float(loopData[activeLoop][1]-loopData[activeLoop][0]), loopHeight, SSD1306_WHITE);
+        display.fillRect(xStart, yStart+(loopHeight+3)*loop, float(length)*float(playheadPos-loopData[activeLoop].start)/float(loopData[activeLoop].end-loopData[activeLoop].start), loopHeight, SSD1306_WHITE);
 
       //loop block
       display.drawRect(xStart, yStart+(loopHeight+3)*loop, length, loopHeight, 1);
@@ -789,7 +793,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
           drawArrow(xStart-9+sin(millis()/100)+2, yStart+(loopHeight+3)*loop+4,2,0,true);
         }
         //loop types
-        switch(loopData[activeLoop][3]){
+        switch(loopData[activeLoop].type){
           //normal
           case 0:
             display.drawBitmap(x1,yStart+(loopHeight+3)*loop,down_arrow_bmp,7,7,SSD1306_WHITE);
@@ -821,18 +825,18 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
             break;
         }
         //length
-        x1+=printFraction_small(x1,yStart+(loopHeight+3)*loop+1,stepsToMeasures(loopData[activeLoop][1]-loopData[activeLoop][0]))+2;
+        x1+=printFraction_small(x1,yStart+(loopHeight+3)*loop+1,stepsToMeasures(loopData[activeLoop].end-loopData[activeLoop].start))+2;
         if(playing){
           //play/iterations
-          printSmall(x1,yStart+(loopHeight+3)*loop+1, "("+stringify(loopCount)+"/"+stringify(loopData[activeLoop][2]+1)+")", SSD1306_WHITE);
-          x1+=4*(stringify(loopCount).length()+stringify(loopData[activeLoop][2]+1).length()+3);
+          printSmall(x1,yStart+(loopHeight+3)*loop+1, "("+stringify(loopCount)+"/"+stringify(loopData[activeLoop].reps+1)+")", SSD1306_WHITE);
+          x1+=4*(stringify(loopCount).length()+stringify(loopData[activeLoop].reps+1).length()+3);
         }
         else{
           // play * iterations
           drawArrow(x1+2,yStart+(loopHeight+3)*loop+3,2,0,true);
           x1+=4;
-          printSmall(x1,yStart+(loopHeight+3)*loop+1, "|"+stringify(loopData[activeLoop][2]+1), SSD1306_WHITE);
-          x1+=4*(stringify(loopData[activeLoop][2]+1).length()+1)+1;
+          printSmall(x1,yStart+(loopHeight+3)*loop+1, "|"+stringify(loopData[activeLoop].reps+1), SSD1306_WHITE);
+          x1+=4*(stringify(loopData[activeLoop].reps+1).length()+1)+1;
         }
         //note icon
         printSmall(x1,yStart+(loopHeight+3)*loop+2+sin(millis()/100), "$", SSD1306_WHITE);
@@ -843,7 +847,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
         //highlight arrow
         drawArrow(xStart-9+sin(millis()/100)+2, yStart+(loopHeight+3)*loop+4,2,0,true);
         //loop types
-        switch(loopData[highlight][3]){
+        switch(loopData[highlight].type){
           //normal
           case 0:
             display.drawBitmap(x1,yStart+(loopHeight+3)*loop,down_arrow_bmp,7,7,SSD1306_WHITE);
@@ -875,20 +879,20 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
             break;
         }
         //length
-        x1+=printFraction_small(x1,yStart+(loopHeight+3)*loop+1,stepsToMeasures(loopData[highlight][1]-loopData[highlight][0]))+2;
+        x1+=printFraction_small(x1,yStart+(loopHeight+3)*loop+1,stepsToMeasures(loopData[highlight].end-loopData[highlight].start))+2;
         // play symbol
         drawArrow(x1+2,yStart+(loopHeight+3)*loop+3,2,0,true);
         x1+=4;
         // iterations
-        printSmall(x1,yStart+(loopHeight+3)*loop+1, "|"+stringify(loopData[highlight][2]+1), SSD1306_WHITE);
-        x1+=4*(stringify(loopData[highlight][2]+1).length()+1);
+        printSmall(x1,yStart+(loopHeight+3)*loop+1, "|"+stringify(loopData[highlight].reps+1), SSD1306_WHITE);
+        x1+=4*(stringify(loopData[highlight].reps+1).length()+1);
       }
       //if there is a return loop offscreen
       //draw a return line from the first loop (or top of screen) down
       for(uint8_t l = firstLoop+maxLoopsShown-1; l<loopData.size(); l++){
         //if there is a return loop offscreen
         //or if the last loop is normal, and offscreen
-        if(loopData[l][3] == 3 || (l == loopData.size()-1 && loopData[l][3] == 0)){
+        if(loopData[l].type == 3 || (l == loopData.size()-1 && loopData[l].type == 0)){
           //if the first loop is off screen too
           //just draw a vertical line
           if(firstLoop>0){
@@ -904,7 +908,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
         }
       }
       //drawing loop connectors
-      switch(loopData[loop+firstLoop][3]){
+      switch(loopData[loop+firstLoop].type){
         //normal loop
         case 0:
           //if it's the last loop on screen, but there are more loops

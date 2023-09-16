@@ -1029,10 +1029,10 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation){
           display.drawRoundRect(32+(step-viewStart)*scale,0,3,screenHeight,3,SSD1306_WHITE);
         
         //loop points
-        if(step == loopData[activeLoop][0]){
+        if(step == loopData[activeLoop].start){
           drawArrow(32+(step-viewStart)*scale-1+sin(millis()/100),59,4,0,true);
         }
-        else if(step == loopData[activeLoop][1]){
+        else if(step == loopData[activeLoop].end){
           drawArrow(32+(step-viewStart)*scale+2+sin(millis()/100),59,4,1,false);
         }
       }
@@ -1338,9 +1338,9 @@ void drawMiniDT(uint8_t x1, uint8_t y1, uint8_t height, uint8_t which){
     float yScale = float(height-1)/float(127);
     // float xScale = scale;
     //i starts at start, goes from start to the end of the screen
-    float sc = float(96)/float(loopData[activeLoop][1]-loopData[activeLoop][0]);
+    float sc = float(96)/float(loopData[activeLoop].end-loopData[activeLoop].start);
     //ends at viewEnd-1 because it draws lines 2 points at a time
-    for(uint16_t i = loopData[activeLoop][0]; i<loopData[activeLoop][1]; i++){
+    for(uint16_t i = loopData[activeLoop].start; i<loopData[activeLoop].end; i++){
       if(i<dataTrackData[which].data.size()){
         if(i == viewEnd - 1)
           display.drawLine(x1+(i-viewStart)*sc, y1+yScale*(127-getLastDTVal(i,which)),x1+(viewEnd-viewStart)*sc-1, y1+yScale*(127-getLastDTVal(i,which)),SSD1306_WHITE);

@@ -408,7 +408,7 @@ void addTrack(uint8_t pitch, uint8_t channel, bool latch, uint8_t muteGroup, boo
     trackData.push_back(newTrack);//adding track to vector data
     seqData.resize(trackData.size()); //adding row to seqData
     lookupData.resize(trackData.size()); //adding a row to the lookupData vector, to store lookupID's for notes in this track
-    lookupData[trackData.size()-1].resize(seqEnd, blank_ID);//adding all the columns the track holds to the lookupData
+    lookupData[trackData.size()-1].resize(seqEnd, 0);//adding all the columns the track holds to the lookupData
     seqData[trackData.size()-1] = defaultVec;//setting the note data for the new track to the default blank data
     activeTrack = trackData.size()-1;
     if(loudly){
@@ -432,7 +432,7 @@ int16_t addTrack_return(unsigned short int pitch, unsigned short int channel, bo
     trackData.push_back(newTrack);
     seqData.resize(trackData.size());
     lookupData.resize(trackData.size());
-    lookupData[trackData.size()-1].resize(seqEnd, blank_ID);
+    lookupData[trackData.size()-1].resize(seqEnd, 0);
     seqData[trackData.size()-1] = defaultVec;
     activeTrack = trackData.size()-1;
     if(loudly){
@@ -460,13 +460,13 @@ void eraseTrack() {
   seqData[activeTrack].resize(1);//truncating note data to just the first, blank note
   for (int i = 0; i < seqEnd; i++) {
     clearSelection(activeTrack, i);
-    lookupData[activeTrack][i] = blank_ID;
+    lookupData[activeTrack][i] = 0;
   }
 }
 void eraseTrack(int track) {
   seqData[track].resize(1);
   for (int i = 0; i < seqEnd; i++) {
     clearSelection(track, i);
-    lookupData[track][i] = blank_ID;
+    lookupData[track][i] = 0;
   }
 }

@@ -27,6 +27,7 @@ void settingsMenu(){
   gear.yPos = 10;
   gear.scale = 4;
   gear.rotate(-30,1);
+  uint8_t whichTemplate = 0;
   // gear.rotate(-20,0);
   while(true){
     joyRead();
@@ -159,12 +160,12 @@ void settingsMenu(){
 
     display.clearDisplay();
     gear.render();
-    activeMenu.displaySettingsMenu(menuTab,xCursor,x1);
+    activeMenu.displaySettingsMenu(menuTab,xCursor,x1,whichTemplate);
     display.display();
     gear.rotate(2,2);
   }
 }
-void drawTemplateOptions(uint8_t x1){
+void drawTemplateOptions(uint8_t x1,uint8_t whichTemplate){
   display.fillRect(x1,0,screenWidth-x1,screenHeight,0);
   display.drawFastVLine(x1,0,screenHeight,1);
   printSmall(x1+4,2,"templates",1);
@@ -176,7 +177,7 @@ void drawTemplateOptions(uint8_t x1){
   drawCheckbox(x1+30,31,whichTemplate == 2,activeMenu.highlight == 2);
 }
 
-void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2){
+void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8_t whichTemplate){
   drawSettingsTabs(whichMenu);
   switch(whichMenu){
     //sequence
@@ -233,7 +234,7 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2){
       printSmall(64-16,57,"templates",2);
       //template menu
       if(x2>0){
-        drawTemplateOptions(screenWidth-x2);
+        drawTemplateOptions(screenWidth-x2,whichTemplate);
       }
     }
       break;

@@ -29,7 +29,7 @@ class Menu{
     void displayTrackMenu_trackEdit(uint8_t);
     void displayEditMenu(uint8_t*, uint8_t);
     void displayEditMenu();
-    void displaySettingsMenu(uint8_t,uint8_t,uint8_t);
+    void displaySettingsMenu(uint8_t,uint8_t,uint8_t,uint8_t);
     void displayEchoMenu();
     void displayRecMenu(uint8_t,uint8_t,uint8_t);
     void displayFxMenu();
