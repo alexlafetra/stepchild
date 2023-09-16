@@ -36,7 +36,6 @@ class Menu{
     void displayHumanizeMenu();
     void displayArpMenu();
     void displayClockMenu(float);
-    bool moveMenuCursor(bool);
 };
 
 Menu::Menu(){

@@ -1,6 +1,6 @@
 //Specialized functions for drawing geometries
 
-void shadeArea(unsigned short int x1, unsigned short int y1, unsigned short int len, unsigned char height, unsigned char shade){
+void shadeArea(int16_t x1, int16_t y1, int16_t len, int16_t height, uint8_t shade){
   for(int j = 0; j<height; j++){
     for(int i = 0;(i+j%shade)<len; i+=shade){
       // if((i+j%shade)>=0 && (i+j%shade)<screenWidth && y1+j>=0 && y1+j<screenHeight){

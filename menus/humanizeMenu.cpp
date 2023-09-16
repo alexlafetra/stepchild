@@ -1,4 +1,3 @@
-
 int16_t humanizeNote(uint8_t track, uint16_t id){
   if(id == 0){
     return 0;
@@ -37,7 +36,7 @@ void humanizeSelectedNotes(){
   }
 }
 
-void humanize(bool move){ 
+void humanize(bool move){
   humanizeSelectedNotes();
   //quantizing the note at the cursor
   if(lookupData[activeTrack][cursorPos] != 0){
@@ -46,17 +45,75 @@ void humanize(bool move){
   }
 }
 
+struct PolarVertex2D{
+  float r;
+  float theta;
+};
+
+class HumanizeBlob{
+  public:
+    HumanizeBlob(float radius, uint8_t numberOfPoints);
+    vector<PolarVertex2D> points;
+    float increment;
+    void jiggle(float amount, float amount2, float amount3);
+    void render();
+};
+
+HumanizeBlob::HumanizeBlob(float radius, uint8_t numberOfPoints){
+  vector<PolarVertex2D> p;
+  increment = 2*PI/float(numberOfPoints);
+  for(uint8_t i = 0; i<numberOfPoints; i++){
+      PolarVertex2D v;
+      v.r = radius;
+      v.theta = float(i)*increment;
+      p.push_back(v);
+  }
+  points = p;
+}
+float getPseudoRandom(float theta, float amp,float timeAmp){
+    return amp*(cos((theta+float(timeAmp*millis())/100.0)*111.0)*cos(theta*3.0+float(timeAmp*millis())/1000.0)*sin(theta/7.0+float(timeAmp*millis())/100.0)*cos(theta/7.0+float(timeAmp*millis())/10.0)*sin(theta/5.0+float(timeAmp*millis()/100)));
+}
+
+float getX(PolarVertex2D a, float mod){
+    return (a.r+mod)*cos(a.theta);
+}
+float getY(PolarVertex2D a,float mod){
+    return (a.r+mod)*sin(a.theta);
+}
+
+void HumanizeBlob::jiggle(float radiusAmount, float timingAmount, float rotationAmount){
+  float pseudoRand = getPseudoRandom(points[0].theta,radiusAmount,timingAmount);
+  display.drawLine(getX(points[0],pseudoRand)+64,getY(points[0],pseudoRand)+32,getX(points[points.size()-1],pseudoRand)+64,getY(points[points.size()-1],pseudoRand)+32,1);
+  points[0].theta+=increment*rotationAmount;
+  for(uint8_t i = 1; i<points.size(); i++){
+    pseudoRand = getPseudoRandom(points[i].theta,radiusAmount,timingAmount);
+    display.drawLine(getX(points[i],pseudoRand)+64,getY(points[i],pseudoRand)+32,getX(points[i-1],pseudoRand)+64,getY(points[i-1],pseudoRand)+32,1);
+    points[i].theta+=increment*rotationAmount;
+  }
+}
+
+
+
+void HumanizeBlob::render(){
+//  display.drawLine(getX(points[0])+64,getY(points[0])+32,getX(points[points.size()-1])+64,getY(points[points.size()-1])+32,1);
+//  for(uint8_t i = 1; i<points.size(); i++){
+//    display.drawLine(getX(points[i])+64,getY(points[i])+32,getX(points[i-1])+64,getY(points[i-1])+32,1);
+//  }
+}
+
 void humanizeMenu(){
   //cursor can be time, velocity, or chance
   uint8_t cursor = 0;
+  HumanizeBlob blob = HumanizeBlob(20,30);
   while(true){
+    //timing, vel, chance
     joyRead();
     readButtons();
     if(!humanizeMenuControls(&cursor)){
       break;
     }
     display.clearDisplay();
-
+    
     //draw humanize amount
     String q = stringify(humanizeParameters[0]);
     while(q.length()<3){
@@ -107,7 +164,9 @@ void humanizeMenu(){
         break;
     }
     //wormhole graphic
-    drawWormhole();
+//    drawWormhole();
+//    blob.render();
+      blob.jiggle(float(humanizeParameters[1]+1)/10.0,float(humanizeParameters[2])/10.0,float(humanizeParameters[0])/500.0+1);
     //title
     display.fillRoundRect(77,0,54,9,3,1);
     printCursive(79,1,"humanize",0);

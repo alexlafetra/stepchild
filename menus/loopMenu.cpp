@@ -1,6 +1,7 @@
 void printLoopTitle(uint8_t, uint8_t);
 void drawLoopBlocksVertically(int,int,int);
-void drawLoopDiagram(uint8_t x1, uint8_t y1, uint8_t loop, int blockZoom);
+void drawMiniLoopArea(uint8_t x1, uint8_t y1, uint8_t loop);
+void drawLoopInfo(uint8_t x1, uint8_t y1, uint8_t whichLoop);
 
 void moveCursorWithinLoop(int amount, uint8_t whichLoop){
   //if the cursor is going to move before the loop
@@ -259,7 +260,6 @@ bool viewLoopControls(uint8_t which){
         drawingNote = true;
         lastTime = millis();
         moveCursorWithinLoop(subDivInt,which);
-        // debugPrintLookup();
       }
       if(shift){
         addTrack(defaultPitch, defaultChannel);
@@ -359,7 +359,7 @@ bool viewLoopControls(uint8_t which){
 
 void viewLoop(uint8_t which){
   setCursor(loopData[which][0]);
-  setLoop(which);
+  setActiveLoop(which);
   String tempText;
   while(true){
     joyRead();
@@ -374,19 +374,19 @@ void viewLoop(uint8_t which){
     menuText = tempText;
   }
 }
+const uint8_t maxLoopsShown = 6;
 
 void loopMenu(){
   uint8_t xStart = 32;
   uint8_t targetL = activeLoop;
   uint8_t dispStart = activeLoop;
-  int blockZoom = getLongestLoop()/20;
+  int blockZoom = getLongestLoop()/30;
   vector<short unsigned int> storedLoop = {loopData[targetL][0],loopData[targetL][1],loopData[targetL][2],loopData[targetL][3]};
   bool loopStored = false;
-  WireFrame w = makeMobius();
-  w.xPos = 100;
-  w.yPos = 50;
-  w.rotate(75,0);
-  uint8_t wfCounter = activeLoop;
+  WireFrame w = makeLoopArrows(0);
+  w.xPos = 64;
+  w.yPos = 32;
+  w.scale = 4.0;
   while(true){
     joyRead();
     readButtons();
@@ -411,13 +411,6 @@ void loopMenu(){
           if(targetL>0){
             targetL--;
           }
-        }
-        //if targetL is more than 4 loops away from starting loop, then move menu
-        while(targetL-dispStart > 3){
-          dispStart++;
-        }
-        while(targetL<dispStart){
-          dispStart--;
         }
         lastTime = millis();
       }
@@ -472,12 +465,14 @@ void loopMenu(){
       }
       //playing
       if(play){
+        setActiveLoop(targetL);
         togglePlayMode();
         lastTime = millis();
       }
       //new loop
       if(n){
         dupeLoop(targetL);
+        targetL++;
         lastTime = millis();
       }
       //infinite loop toggle
@@ -507,17 +502,32 @@ void loopMenu(){
     if(animOffset>=100){
       animOffset = 0;
     }
+
+    //checking bounds for display
+    //if targetL is more than 4 loops away from starting loop, then move menu
+    while(targetL-dispStart > (maxLoopsShown-2)){
+      dispStart++;
+    }
+    while(targetL<dispStart){
+      dispStart--;
+    }
+
     display.clearDisplay();
 
-    //title
-    printLoopTitle(80,1);
+    //wireframe
+    w.render();
 
+    //title
+    printLoopTitle(1,14);
+    //side border line
+    display.drawFastVLine(13,0,screenHeight,1);
+    
     if(isLooping){
       //loops
       drawLoopBlocksVertically(dispStart,targetL,blockZoom);
-
       //info
-      drawLoopDiagram(100,36,targetL,blockZoom*1.5);
+      drawLoopInfo(56,0,targetL);
+      drawMiniLoopArea(95,48,targetL);
     }
     else{
       display.drawRect(16,8,40,54,1);
@@ -528,20 +538,42 @@ void loopMenu(){
         printSmall(30,30,"off",1);
       }
     }
-
-    w.render();
+    //top border line
+    display.drawFastHLine(13,0,40,1);
     display.display();
     if(isLooping){
-      w.rotate(5,1);
-    }
-    if(wfCounter != activeLoop){
-      w.rotate(90,random(0,3));
-      w.scale = float(random(5,9))/float(3);
-      wfCounter = activeLoop;
+      w.rotate(-1,2);
     }
   }
 }
-const uint8_t maxLoopsShown = 6;
+
+//prints loop information out
+void drawLoopInfo(uint8_t x1, uint8_t y1, uint8_t whichLoop){
+  //type of loop (random, random of same size)
+  String playType;
+  //style
+  switch(loopData[whichLoop][3]){
+    case 0:
+      playType = "next";
+      break;
+    case 1:
+      playType = "rnd loop";
+      break;
+    case 2:
+      playType = "rnd same length";
+      break;
+    case 3:
+      playType = "return to 1st";
+      break;
+    case 4:
+      playType = "repeat";
+      break;
+  }
+  display.fillRoundRect(x1-3,y1-2,screenWidth-x1+5,9,3,0);
+  display.drawRoundRect(x1-3,y1-2,screenWidth-x1+5,9,3,1);
+  printSmall(x1,y1,"after:"+playType,1);
+  printSmall(x1+42,y1+8,"repeat "+stringify(loopData[whichLoop][2]+1),1);
+}
 
 //x1 is start of the first loop, y1 is the midpoint of the first loop height,
 //l is length of the first loop, 
@@ -572,7 +604,7 @@ void drawLoopArrow(uint8_t x1, uint8_t y1, uint8_t l, uint8_t h, uint8_t type, u
       //bottom elbow
       display.drawLine(x1-2,y1+5,x1-5,y1+2,SSD1306_WHITE);
       //if the first loop isn't on screen, draw a line to the top
-      if(number>maxLoopsShown)
+      if(number>(2+maxLoopsShown))//+2 because of the top and bottom loops
         display.drawLine(x1-5,y1+2,x1-5,0,SSD1306_WHITE);
       else{
         display.drawLine(x1-5,y1+2,x1-5,y1+2-11*number,SSD1306_WHITE);
@@ -592,14 +624,15 @@ void drawLoopArrow(uint8_t x1, uint8_t y1, uint8_t l, uint8_t h, uint8_t type, u
 }
 
 void printLoopTitle(uint8_t x1, uint8_t y1){
-  display.setRotation(UPSIDEDOWN);
-  display.drawBitmap(screenWidth-x1-5,screenHeight-y1-9-sin(millis()/100),loop_parenth,5,9,SSD1306_WHITE);
+  display.setRotation(SIDEWAYS_R);
+  display.drawBitmap(screenHeight-y1-5,screenWidth-x1-9-sin(millis()/100),loop_parenth,5,9,SSD1306_WHITE);
+  display.setRotation(SIDEWAYS_L);
+  display.drawBitmap(y1+5,x1-sin(millis()/100+1),loop_L,7,9,SSD1306_WHITE);
+  display.drawBitmap(y1+12,x1-sin(millis()/100+2),loop_O,7,9,SSD1306_WHITE);
+  display.drawBitmap(y1+19,x1-sin(millis()/100+3),loop_O,7,9,SSD1306_WHITE);
+  display.drawBitmap(y1+26,x1-sin(millis()/100+4),loop_P,7,9,SSD1306_WHITE);
+  display.drawBitmap(y1+33,x1-sin(millis()/100+5),loop_parenth,5,9,SSD1306_WHITE);
   display.setRotation(UPRIGHT);
-  display.drawBitmap(x1+5,y1-sin(millis()/100+1),loop_L,7,9,SSD1306_WHITE);
-  display.drawBitmap(x1+12,y1-sin(millis()/100+2),loop_O,7,9,SSD1306_WHITE);
-  display.drawBitmap(x1+19,y1-sin(millis()/100+3),loop_O,7,9,SSD1306_WHITE);
-  display.drawBitmap(x1+26,y1-sin(millis()/100+4),loop_P,7,9,SSD1306_WHITE);
-  display.drawBitmap(x1+33,y1-sin(millis()/100+5),loop_parenth,5,9,SSD1306_WHITE);
 }
 
 void printLoopType(uint8_t x1, uint8_t y1, uint8_t type){
@@ -674,12 +707,13 @@ void drawMiniLoopArea(uint8_t x1, uint8_t y1, uint8_t loop){
 
   //figure out how many tracks to draw
   vector<uint8_t> tracksWithNotes = getTracksWithNotesInLoop(loop);
+  y1 = tracksWithNotes.size()==0?screenHeight-8:screenHeight-tracksWithNotes.size();
 
+  printSmall(x1+9,y1-8,"view",1);
   //start
   display.fillTriangle(x1, y1-6, x1+4,y1-6,x1,y1-2,SSD1306_WHITE);
   //end
   display.drawTriangle(x1+32,y1-6,x1+28,y1-6,x1+32,y1-2,SSD1306_WHITE);
-
 
   //bounds
   if(tracksWithNotes.size()>0){
@@ -723,31 +757,31 @@ void drawMiniLoopArea(uint8_t x1, uint8_t y1, uint8_t loop){
   }
 }
 
-
-//draws a loop diagram that shows the start, end, length
-void drawLoopDiagram(uint8_t x1, uint8_t y1, uint8_t loop, int blockZoom){
-  drawMiniLoopArea(x1-17,y1-14,loop);
-}
-
 void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
-  const int yStart = 9;
-  const int xStart = 16;
+  const int yStart = 8;
+  const int xStart = 32;
   const int loopHeight = 8;
 
   //drawing all the loops
   //starts from -1 so you draw one "before" loop (just for looks)
-  for(int loop = -1; loop<maxLoopsShown+1; loop++){
+  for(int8_t loop = -1; loop<maxLoopsShown+1; loop++){
     if(loop+firstLoop<loopData.size()){
-      printSmall(1,yStart+(loopHeight+3)*loop+2,stringify(loop+firstLoop),SSD1306_WHITE);
+      //number
+      printSmall(xStart-15,yStart+(loopHeight+3)*loop+2,stringify(loop+firstLoop+1),SSD1306_WHITE);
 
       //scale is 1:12, so every 1/4 note is 2px
       int length = (loopData[loop+firstLoop][1]-loopData[loop+firstLoop][0])/z;
       int shade = (loopData[loop+firstLoop][0]+loopData[loop+firstLoop][1]+loop+firstLoop)%12+2;
-      //playhead, if playing
+
+      //clearing background
+      display.fillRect(xStart, yStart+(loopHeight+3)*loop, length, loopHeight, 0);
+
+      //play progress
       if(playing && loop+firstLoop == activeLoop)
         display.fillRect(xStart, yStart+(loopHeight+3)*loop, float(length)*float(playheadPos-loopData[activeLoop][0])/float(loopData[activeLoop][1]-loopData[activeLoop][0]), loopHeight, SSD1306_WHITE);
 
-      display.drawRect(xStart, yStart+(loopHeight+3)*loop, length, loopHeight, SSD1306_WHITE);
+      //loop block
+      display.drawRect(xStart, yStart+(loopHeight+3)*loop, length, loopHeight, 1);
       shadeArea(xStart, yStart+(loopHeight+3)*loop, length, loopHeight,shade);
       
       uint8_t x1 = xStart+length+3;

@@ -78,7 +78,24 @@ void fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
 }
 
 bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String> filenames){
-  menuScrolling();
+  if(itsbeen(50)){
+    if(y == -1 && activeMenu.highlight>0){
+        activeMenu.highlight--;
+        if(activeMenu.highlight<menuStart){
+            menuStart--;
+            menuEnd--;
+        }
+        lastTime = millis();
+    }
+    if(y == 1 && activeMenu.highlight<(filenames.size()-1)){
+        activeMenu.highlight++;
+        if(activeMenu.highlight>menuEnd){
+            menuStart++;
+            menuEnd++;
+        }
+        lastTime = millis();
+    }
+  }
   if(itsbeen(200)){
     if(menu_Press){
       lastTime = millis();

@@ -126,7 +126,7 @@ void testSolarSystem(){
   jupiter.moons.push_back(ganymede);
   venus.ring = true;
 
-  SolarSystem system = vector<Planet> {sun, mercury, earth, venus,jupiter};
+  SolarSystem system = vector<Planet> {sun, mercury, earth, venus, jupiter};
   
   system.xOff = screenWidth/2;
   system.yOff = screenHeight/2;

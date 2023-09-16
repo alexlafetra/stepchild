@@ -48,6 +48,10 @@
 
   #undef CFG_TUH_RPI_PIO_USB
   #define CFG_TUH_RPI_PIO_USB 1
+  // #ifndef HEADLESS
+  Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+  // Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+// #endif
 #endif
 
 //#include <bits/stdc++.h>
@@ -56,13 +60,10 @@
 
 #define UPRIGHT 2
 #define UPSIDEDOWN 0
+#define SIDEWAYS_R 3
+#define SIDEWAYS_L 1
 
 using namespace std;
-
-#ifndef HEADLESS
-  Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-  // Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-#endif
 
 //program booleans and global data, constants
 #include "global.h"
@@ -119,9 +120,6 @@ bool checkNoteMove(Note targetNote, int track, int newTrack, int newStart);
 
 #include "PWM.h"
 
-
-
-
 #ifndef HEADLESS
   SoftwareSerial Serial3 = SoftwareSerial(SerialPIO::NOPIN,txPin_3);
   SoftwareSerial Serial4 = SoftwareSerial(SerialPIO::NOPIN,txPin_4);
@@ -148,14 +146,25 @@ vector<Note> defaultVec = {offNote};//default vector for a track, holds offNote 
 vector<vector<uint16_t> > lookupData; //char map of notes; 0 = no note, 1-665,535 = noteID
 vector<Track> trackData;//holds tracks
 vector<vector<Note>> seqData;//making a 2D vec, number of rows = tracks, number of columns = usable notes, and stores Note objects
+
 vector<vector<uint16_t>> loopData = {{0,96,0,0}};//start,end,iterations,style
-//(style is either 0 = normal, 2 = random of same length, 1 = random any, 4 = inf repeat, 3 = return)
+//(style is either 0 = normal, 1 = random any, 2 = random of same length,  4 = inf repeat, 3 = return)
+//refactor loopData into this
+
+struct Loop{
+  uint16_t start;
+  uint16_t end;
+  uint8_t iterations;
+  uint8_t type;
+};
+
+
 //holds all the datatracks
 vector<dataTrack> dataTrackData;
 
 
 #include "Arp.h"
-#include "SolarSystem.h"
+#include "instruments/planets.cpp"
 
 Arp activeArp;
 
@@ -2201,7 +2210,7 @@ void fragmentAnimation(bool in){
   }
 }
 
-void shadeRect(unsigned short int x1, unsigned short int y1, unsigned short int len, unsigned char height, unsigned char shade){
+void shadeRect(int16_t x1, int16_t y1, int16_t len, int16_t height, uint8_t shade){
   display.drawRect(x1, y1, len, height, SSD1306_WHITE);
   shadeArea(x1,y1,len,height,shade);
 }
@@ -2694,133 +2703,7 @@ void knobs(){
   knobsAnimationOut(activeKnobA, activeKnobB, activeRow);
 }
 
-class Raindrop{
-  public:
-    uint8_t length;
-    uint8_t x1;
-    float y1;
-    float vel;//pixels/frame
-    bool madeSound;
-    Raindrop();
-    Raindrop(uint8_t,uint8_t,uint8_t);
-    void render();
-    bool update();
-};
-
-Raindrop::Raindrop(){
-  vel = 0.7;
-  length = vel*2;
-  x1 = random(0,screenWidth);
-  y1 = -length;//starts so the bottom of the line is on the top pixel of the screen
-  madeSound = false;
-}
-Raindrop::Raindrop(uint8_t xPos, uint8_t maxVel, uint8_t minVel){
-  vel = pow(float(random(minVel,maxVel))/float(5),2);
-  length = vel+3;
-  x1 = xPos;
-  y1 = -length;//starts so the bottom of the line is on the top pixel of the screen
-  madeSound = false;
-}
-void Raindrop::render(){
-  display.drawFastVLine(x1,y1,length,1);
-}
-bool Raindrop::update(){
-  bool  hasNotCrossedYet = false;
-  if(y1<64){
-    hasNotCrossedYet = true;
-  }
-  y1+=vel;
-  if(y1>64 &&  hasNotCrossedYet){
-    madeSound = true;
-  }
-  else{
-    madeSound = false;
-  }
-  if(y1>=screenHeight+length){
-    return false;
-  }
-  else{
-    return true;
-  }
-}
-
-//gradient on top representing rain flow, moveable 
-//drops velocities correspond to note vel
-//X axis is pitch bend? or pitch? and y-axis is intensity (can also be controlled with encoders)
-void rain(){
-  vector<Raindrop> drops;
-  //dropsPerFrame and stormIntensity both increase as the storm gets worse
-  uint8_t stormIntensity = 5;
-  uint8_t maxDrops = 10;
-  const uint8_t maxIntensity = 20;
-  uint8_t xCoord = 64;
-  const uint8_t intensityVariance = 5;
-  const uint8_t xVariance = 20;
-  uint8_t frames = 0;
-  while(true){
-    readButtons();
-    joyRead();
-    while(counterB != 0){
-      if(counterB >= 1 && stormIntensity<maxIntensity){
-        stormIntensity++;
-        maxDrops++;
-      }
-      else if(stormIntensity>1){
-        stormIntensity--;
-        maxDrops--;
-      }
-      counterB += counterB<0?1:-1;;
-    }
-    while(counterA != 0){
-      if(counterA >= 1 && xCoord<(screenWidth-xVariance)){
-        xCoord++;
-      }
-      else if(xCoord>xVariance){
-        xCoord--;
-      }
-      counterA += counterA<0?1:-1;
-    }
-    if(itsbeen(200)){
-      if(n){
-        lastTime = millis();
-        for(uint8_t i = 0; i<20; i++){
-          if(drops.size()<maxDrops)
-            drops.push_back(Raindrop(random(xCoord-xVariance,xCoord+xVariance),(stormIntensity<=intensityVariance)?0.1:(stormIntensity-intensityVariance),stormIntensity+intensityVariance));
-        }
-      }
-      if(menu_Press){
-        lastTime  =  millis();
-        return;
-      }
-    }
-    //rendering drops
-    display.clearDisplay();
-    printSmall(0,0,stringify(stormIntensity),1);
-    for(uint8_t i = 0; i<drops.size(); i++){
-      drops[i].render();
-    }
-    display.display();
-    for(uint8_t i = 0; i<drops.size(); i++){
-      if(!drops[i].update()){
-        drops.erase(drops.begin()+i,drops.begin()+i+1);
-        continue;
-      }
-      if(drops[i].madeSound){
-        sendMIDInoteOn(60,drops[i].vel,1);
-        sendMIDInoteOff(60,0,1);
-      }
-    }
-    //making new drops
-    for(uint8_t i = 0; i<random(0,maxDrops); i++){
-      if(drops.size()<maxDrops)
-        drops.push_back(Raindrop(random(xCoord-xVariance,xCoord+xVariance),(stormIntensity<=intensityVariance)?1:(stormIntensity-intensityVariance),stormIntensity+intensityVariance));
-    }
-  }
-}
-
-bool Menu::moveMenuCursor(bool forward){
-  return false;
-}
+#include "instruments/rain.cpp"
 
 //for no title
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2){
@@ -7886,7 +7769,7 @@ void leaveSleepMode(){
 }
 #endif
 
-void setLoop(unsigned int id){
+void setActiveLoop(unsigned int id){
   if(id<loopData.size() && id >=0){
     activeLoop = id;
     loopCount = 0;
@@ -7907,7 +7790,7 @@ void serialDispLoopData(){
 void addLoop(){
   vector<unsigned short int> newLoop{loopData[activeLoop][0],loopData[activeLoop][1],loopData[activeLoop][2],loopData[activeLoop][3]};//makes a copy of the current loop
   loopData.push_back(newLoop);
-  setLoop(loopData.size()-1);
+  setActiveLoop(loopData.size()-1);
 }
 
 void addLoop(unsigned short int start, unsigned short int end, unsigned short int iter, unsigned short int type){
@@ -7930,7 +7813,7 @@ void deleteLoop(uint8_t id){
       activeLoop = loopData.size()-1;
     }
   }
-  setLoop(activeLoop);
+  setActiveLoop(activeLoop);
 }
 
 void toggleLoop(){
@@ -8060,7 +7943,6 @@ void tapBpm(){
     }
     readButtons_MPX();
     joyRead();
-    menuScrolling();
     if(menu_Press){
       lastTime = millis();
       return;
@@ -12076,22 +11958,22 @@ void mainSequencerButtons(){
 }
 
 void serialButtonPrint(){
-  // if(n)
-  //   Serial.println("n");
-  // if(sel)
-  //   Serial.println("sel");
-  // if(shift)
-  //   Serial.println("shift");
-  // if(del)
-  //   Serial.println("del");
-  // if(loop_Press)
-  //   Serial.println("loop");
-  // if(play)
-  //   Serial.println("play");
-  // if(copy_Press)
-  //   Serial.println("copy");
-  // if(menu_Press)
-  //   Serial.println("menu");
+  if(n)
+    Serial.println("n");
+  if(sel)
+    Serial.println("sel");
+  if(shift)
+    Serial.println("shift");
+  if(del)
+    Serial.println("del");
+  if(loop_Press)
+    Serial.println("loop");
+  if(play)
+    Serial.println("play");
+  if(copy_Press)
+    Serial.println("copy");
+  if(menu_Press)
+    Serial.println("menu");
 
   // Serial.println("+-+");
   // Serial.println("|"+(n?stringify("X"):stringify("O"))+"| new");
@@ -12346,22 +12228,6 @@ void mainSequencerEncoders(){
     }
     counterB += counterB<0?1:-1;;
   }
-}
-
-bool menuScrolling(){
-  if(menuIsActive && itsbeen(100)){
-    bool didIt = false;
-    if(y == 1){
-      didIt = activeMenu.moveMenuCursor(true);
-      lastTime = millis();
-    }
-    if(y == -1){
-      didIt = activeMenu.moveMenuCursor(false);
-      lastTime = millis();
-    }
-    return didIt;
-  }
-  return false;
 }
 
 String enterText_serial(String title){
@@ -13189,9 +13055,12 @@ void testJoyStick(){
 #include "screenSavers.h"
 
 void loop() {
-  inputRead();
+  // inputRead();
   displaySeq();
-  screenSaverCheck();
+  readButtons();
+  serialButtonPrint();
+  Serial.flush();
+  // screenSaverCheck();
 }
 
 //the closer the step is to the subDiv (both forward and backward), the shorter the time val

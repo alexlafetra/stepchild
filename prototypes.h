@@ -17,8 +17,8 @@ String getCCParam(uint8_t param, uint8_t channel, uint8_t type);
 
 //Drawing functions
 void drawEllipse(uint8_t h, uint8_t k, int a, int b, uint16_t c);
-void shadeArea(unsigned short int, unsigned short int, unsigned short int, unsigned char, unsigned char);
-void shadeRect(unsigned short int x1, unsigned short int y1, unsigned short int len, unsigned char height, unsigned char shade);
+void shadeArea(int16_t, int16_t, int16_t, int16_t, uint8_t);
+void shadeRect(int16_t x1, int16_t y1, int16_t len, int16_t height, uint8_t shade);
 void drawNote_vel(unsigned short int, unsigned short int, unsigned short int, unsigned short int, unsigned short int, bool,bool);
 void drawDottedLineH(unsigned short int, unsigned short int, unsigned short int, unsigned short int);
 void displaySeq();
@@ -174,7 +174,6 @@ bool quantizeMenuControls(uint8_t* whichParam);
 bool humanizeMenuControls(uint8_t* cursor);
 bool mainMenuControls();
 bool anyActiveInputs();
-bool menuScrolling();
 void yControls();
 void defaultEncoderControls();
 int readEncoder(bool encoder);
@@ -203,7 +202,7 @@ void checkView();
 
 //Loops
 void moveLoop(int16_t amount);
-void setLoop(unsigned int id);
+void setActiveLoop(unsigned int id);
 void deleteLoop(uint8_t id);
 void setLoopToInfinite(uint8_t targetL);
 

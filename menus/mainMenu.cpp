@@ -7,18 +7,19 @@ WireFrame getMainMenuWireFrame(){
       break;
     //loops
     case 1:
-      w = makeLoopArrows(0);
+      // w = makeLoopArrows(0);
+      w = makeMobius();
+      w.rotate(90,0);
+      w.rotate(30,2);
       break;
-    //keys
+    //cassette icon
     case 2:
       w = makeCassette();
-      // w = makeKeys();
       break;
     //wrench
     case 3:
       w = makeWrench();
       break;
-
     //quicksave
     case 4:
       w = makeCD();
@@ -65,7 +66,8 @@ void animateIcon(WireFrame* w){
       break;
     //loop
     case 1:
-      loopArrowAnimation(w);
+      // loopArrowAnimation(w);
+      w -> rotate(3,1);
       break;
     //keys
     case 2:
