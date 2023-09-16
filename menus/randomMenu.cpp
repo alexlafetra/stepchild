@@ -63,11 +63,11 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
     const uint8_t y1 = 14;
     printSmall(x1+8,y1,"randomize...",1);
       if(target){
-        printArp_wiggly(x1,y1+16,"Notes",1);
+        printArp_wiggly(x1+8,y1+16,"Notes",1);
         printSmall_centered(64,y1+32,"(alter existing notes)",1);
       }
       else{
-        printArp_wiggly(x1+4,y1+16,"Empty",1);
+        printArp_wiggly(x1+8,y1+16,"Empty",1);
         printSmall_centered(64,y1+32,"(fill blank spaces)",1);
       }
     }
@@ -108,13 +108,6 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
       break;
   }
 }
-
-struct CoordinatePair{
-  uint16_t x1;
-  uint16_t x2;
-  uint8_t y1;
-  uint8_t y2;
-};
 
 void drawCoordinateBox(CoordinatePair coords){
   if(!selBox.begun && (coords.x1 != coords.x2)){

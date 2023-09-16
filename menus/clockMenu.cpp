@@ -52,8 +52,7 @@ void drawSwingCurve(int xPos, int yPos){
   if(playing || recording){
     display.drawFastVLine(xPos + ((playing ? playheadPos:recheadPos)%32)*sc,16,screenHeight-16,SSD1306_WHITE);
   }
-  display.fillRect(activeMenu.topL[1]+70,0,58,16,SSD1306_BLACK);
-  // drawDottedLineDiagonal(xPos,yPos,xPos+64,yPos,4);
+  display.fillRect(activeMenu.coords.y1+70,0,58,16,SSD1306_BLACK);
 }
 
 void Menu::displayClockMenu(float tVal){
@@ -67,48 +66,48 @@ void Menu::displayClockMenu(float tVal){
     case 0:
       {
       //bpm label
-      display.fillRoundRect(topL[1]+screenWidth-52,36,70,34,6,SSD1306_BLACK);
-      display.drawRoundRect(topL[1]+screenWidth-52,36,70,34,6,SSD1306_WHITE);
+      display.fillRoundRect(coords.y1+screenWidth-52,36,70,34,6,SSD1306_BLACK);
+      display.drawRoundRect(coords.y1+screenWidth-52,36,70,34,6,SSD1306_WHITE);
       String b = stringify(bpm);
       while(b.length()<3){
         b = "0"+b;
       }
       if((millis()%1000)>500)
-        print7SegString(topL[1]+screenWidth-48,40,b,true);
+        print7SegString(coords.y1+screenWidth-48,40,b,true);
       else
-        print7SegString(topL[1]+screenWidth-48,40,b,false);
-      printCursive(topL[1]+76,3,"bpm",SSD1306_WHITE);
+        print7SegString(coords.y1+screenWidth-48,40,b,false);
+      printCursive(coords.y1+76,3,"bpm",SSD1306_WHITE);
       x1 = 10+sin(millis()/100);
-      drawArrow(42+topL[1],13+19+x1+2,3,2,false);
+      drawArrow(42+coords.y1,13+19+x1+2,3,2,false);
       }
       break;
     //swing amplitude
     case 1:
       {
       x2 = 10+sin(millis()/100);
-      drawArrow(54+topL[1],13+27+x2+2,3,2,false);
-      drawSwingCurve(topL[1]+66,40);
-      display.drawFastHLine(topL[1]+70,16,58,SSD1306_WHITE);
+      drawArrow(54+coords.y1,13+27+x2+2,3,2,false);
+      drawSwingCurve(coords.y1+66,40);
+      display.drawFastHLine(coords.y1+70,16,58,SSD1306_WHITE);
       printSmall(109,4,stringify(swingVal/400)+"%",SSD1306_WHITE);
-      printCursive(topL[1]+76,3,"swing",SSD1306_WHITE);
+      printCursive(coords.y1+76,3,"swing",SSD1306_WHITE);
       }
       break;
     //swing sub div
     case 2:
       {
       x2 = 10+sin(millis()/100);
-      drawArrow(54+topL[1],13+27+x2+2,3,2,false);
-      drawSwingCurve(topL[1]+66,40);
-      display.drawFastHLine(topL[1]+70,16,58,SSD1306_WHITE);
+      drawArrow(54+coords.y1,13+27+x2+2,3,2,false);
+      drawSwingCurve(coords.y1+66,40);
+      display.drawFastHLine(coords.y1+70,16,58,SSD1306_WHITE);
       printFraction_small(109,4,stepsToMeasures(swingSubDiv));
-      printCursive(topL[1]+76,3,"swing",SSD1306_WHITE);
+      printCursive(coords.y1+76,3,"swing",SSD1306_WHITE);
       }
       break;
     //internal/external
     case 3:
       {
       x3 = 10+sin(millis()/100);
-      drawArrow(66+topL[1],13+31+x3+2,3,2,false);
+      drawArrow(66+coords.y1,13+31+x3+2,3,2,false);
       if(externalClock){
         drawBanner(84,52,"external");
         drawSmallStepchild(88,30+2*sin(millis()/200));
@@ -121,55 +120,55 @@ void Menu::displayClockMenu(float tVal){
         drawSmallStepchild(88,30+2*sin(millis()/200));
         display.drawBitmap(95,15+sin(millis()/200),up_arrow,9,12,SSD1306_WHITE);
       }
-      printCursive(topL[1]+76, 3, "source",SSD1306_WHITE);
+      printCursive(coords.y1+76, 3, "source",SSD1306_WHITE);
       }
       break;
   }
 
   //bpm
-  display.fillRoundRect(38+topL[1],13,9,19+x1,3,SSD1306_BLACK);
-  display.drawRoundRect(38+topL[1],13,9,19+x1,3,SSD1306_WHITE);
+  display.fillRoundRect(38+coords.y1,13,9,19+x1,3,SSD1306_BLACK);
+  display.drawRoundRect(38+coords.y1,13,9,19+x1,3,SSD1306_WHITE);
   display.setRotation(1);
-  printSmall(screenHeight-29-x1,topL[1]+40,"bpm",SSD1306_WHITE);
+  printSmall(screenHeight-29-x1,coords.y1+40,"bpm",SSD1306_WHITE);
   display.setRotation(2);
 
   //swing
-  display.fillRoundRect(50+topL[1],13,9,27+x2,3,SSD1306_BLACK);
-  display.drawRoundRect(50+topL[1],13,9,27+x2,3,SSD1306_WHITE);
+  display.fillRoundRect(50+coords.y1,13,9,27+x2,3,SSD1306_BLACK);
+  display.drawRoundRect(50+coords.y1,13,9,27+x2,3,SSD1306_WHITE);
   display.setRotation(1);
-  printSmall(screenHeight-37-x2,topL[1]+52,"swing",SSD1306_WHITE);
+  printSmall(screenHeight-37-x2,coords.y1+52,"swing",SSD1306_WHITE);
   display.setRotation(2);
 
   //source
-  display.fillRoundRect(62+topL[1],13,9,31+x3,3,SSD1306_BLACK);
-  display.drawRoundRect(62+topL[1],13,9,31+x3,3,SSD1306_WHITE);
+  display.fillRoundRect(62+coords.y1,13,9,31+x3,3,SSD1306_BLACK);
+  display.drawRoundRect(62+coords.y1,13,9,31+x3,3,SSD1306_WHITE);
   display.setRotation(1);
-  printSmall(screenHeight-41-x3,topL[1]+64,"source",SSD1306_WHITE);
+  printSmall(screenHeight-41-x3,coords.y1+64,"source",SSD1306_WHITE);
   display.setRotation(2);
 
   //title
-  display.fillRect(34+topL[1]-2,0,39,16,SSD1306_BLACK);
-  display.setCursor(34+topL[1]-2,5);
+  display.fillRect(34+coords.y1-2,0,39,16,SSD1306_BLACK);
+  display.setCursor(34+coords.y1-2,5);
   display.setFont(&FreeSerifItalic9pt7b);
   display.print("Clock");
   display.setFont();
 
     //clock animation
     if(!externalClock){
-        display.fillRect(0,activeMenu.topL[1],32,screenHeight-activeMenu.topL[1],SSD1306_BLACK);
-        drawPendulum(16,activeMenu.topL[1]+23,26,tVal);
-        display.fillRect(10,activeMenu.topL[1]+23,12,10,SSD1306_BLACK);
-        display.drawBitmap(6,activeMenu.topL[1]+5,clock_1_bmp,20,38,SSD1306_WHITE);
+        display.fillRect(0,activeMenu.coords.y1,32,screenHeight-activeMenu.coords.y1,SSD1306_BLACK);
+        drawPendulum(16,activeMenu.coords.y1+23,26,tVal);
+        display.fillRect(10,activeMenu.coords.y1+23,12,10,SSD1306_BLACK);
+        display.drawBitmap(6,activeMenu.coords.y1+5,clock_1_bmp,20,38,SSD1306_WHITE);
         x2 = 3*cos(millis()/200);
         int8_t y2 = 3*sin(millis()/200);
-        display.drawLine(15,activeMenu.topL[1]+15,15+x2,activeMenu.topL[1]+15+y2,SSD1306_BLACK);
+        display.drawLine(15,activeMenu.coords.y1+15,15+x2,activeMenu.coords.y1+15+y2,SSD1306_BLACK);
     }
     else{
-        display.fillRect(0,activeMenu.topL[1],32,screenHeight-activeMenu.topL[1],SSD1306_BLACK);
-        drawPendulum(16,activeMenu.topL[1]+23,26,90);
-        display.fillRect(10,activeMenu.topL[1]+23,12,10,SSD1306_BLACK);
-        display.drawBitmap(6,activeMenu.topL[1]+5,clock_1_bmp,20,38,SSD1306_WHITE);
-        display.drawLine(15,activeMenu.topL[1]+15,15,activeMenu.topL[1]+13,SSD1306_BLACK);
+        display.fillRect(0,activeMenu.coords.y1,32,screenHeight-activeMenu.coords.y1,SSD1306_BLACK);
+        drawPendulum(16,activeMenu.coords.y1+23,26,90);
+        display.fillRect(10,activeMenu.coords.y1+23,12,10,SSD1306_BLACK);
+        display.drawBitmap(6,activeMenu.coords.y1+5,clock_1_bmp,20,38,SSD1306_WHITE);
+        display.drawLine(15,activeMenu.coords.y1+15,15,activeMenu.coords.y1+13,SSD1306_BLACK);
     }
 }
 
@@ -343,62 +342,4 @@ void clockMenu(){
   slideMenuOut(0,16);
   // menuIsActive = false;
   constructMenu("MENU");
-}
-
-void Menu::displaySwingMenu(){
-  //pendulum
-  int a = 18;
-  int h = 20;
-  int k = 40;
-  float x1;
-  float y1;
-  display.fillRect(topL[0],topL[1],bottomR[0]-topL[0],bottomR[1]-topL[1],SSD1306_BLACK);
-  x1 = h + a * cos(radians(page));
-  if (page > 180) {
-    y1 = k - a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
-  }
-  else {
-    y1 = k + a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
-  }
-  display.drawLine(x1,y1,h,k,SSD1306_WHITE);
-  display.fillCircle(x1,y1,2,SSD1306_WHITE);
-
-  drawSwingCurve(50,32);
-
-  display.drawFastVLine(bottomR[0],topL[1],screenHeight,SSD1306_WHITE);
- //printing the menu
-  int menuStart;
-  if(activeMenu.highlight>1){
-    menuStart = activeMenu.highlight - 1;
-  }
-  else if(activeMenu.highlight<=1){
-    menuStart = 0;
-  }
-  for(int i = menuStart; i<menuStart+3; i++){
-    if(i<activeMenu.options.size()){
-      display.setCursor(topL[0]+4,topL[1]+2+(i-menuStart)*11);
-      if(i == activeMenu.highlight){
-        display.drawRoundRect(topL[0]+1,topL[1]+1+(i-menuStart)*11,activeMenu.options[i].length()*6+5,11,4,SSD1306_WHITE);
-        display.print(activeMenu.options[i]);
-      }
-      else{
-        display.print(activeMenu.options[i]);
-      }
-    }
-  }
-  if(options[highlight] == "amp"){
-    printSmall(66,2,stringify(swingVal/100)+"%",SSD1306_WHITE);
-  }
-  if(options[highlight] == "int"){
-    display.setCursor(66,2);
-    printSmall(66,2,stepsToMeasures(swingSubDiv),SSD1306_WHITE);
-  }
-  if(options[highlight] == "on"){
-    if(swung){
-      printSmall(66,2,"swingin'",SSD1306_WHITE);
-    }
-    else{
-      printSmall(66,2,"off",SSD1306_WHITE);
-    }
-  }
 }
