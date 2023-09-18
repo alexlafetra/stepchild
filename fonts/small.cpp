@@ -1,3 +1,340 @@
+// '0', 3x5px
+const unsigned char epd_bitmap_small_0 []  = {
+	0x40, 0xa0, 0xa0, 0xa0, 0x40
+};
+// '1', 3x5px
+const unsigned char epd_bitmap_small_1 []  = {
+	0x40, 0xc0, 0x40, 0x40, 0xe0
+};
+// '2', 3x5px
+const unsigned char epd_bitmap_small_2 []  = {
+	0x40, 0xa0, 0x20, 0x40, 0xe0
+};
+// '3', 3x5px
+const unsigned char epd_bitmap_small_3 []  = {
+	0xc0, 0x20, 0x40, 0x20, 0xc0
+};
+// '4', 3x5px
+const unsigned char epd_bitmap_small_4 []  = {
+	0xa0, 0xa0, 0x60, 0x20, 0x20
+};
+// '5', 3x5px
+const unsigned char epd_bitmap_small_5 []  = {
+	0xe0, 0x80, 0xe0, 0x20, 0xc0
+};
+// '6', 3x5px
+const unsigned char epd_bitmap_small_6 []  = {
+	0x20, 0x40, 0xc0, 0xa0, 0xe0
+};
+// '7', 3x5px
+const unsigned char epd_bitmap_small_7 []  = {
+	0xc0, 0x20, 0x20, 0x40, 0x80
+};
+// '8', 3x5px
+const unsigned char epd_bitmap_small_8 []  = {
+	0xe0, 0xa0, 0xe0, 0xa0, 0xe0
+};
+// '9', 3x5px
+const unsigned char epd_bitmap_small_9 []  = {
+	0xc0, 0xa0, 0x60, 0x20, 0xc0
+};
+// 'a', 3x5px
+const unsigned char epd_bitmap_small_a []  = {
+	0x40, 0xa0, 0xe0, 0xa0, 0xa0
+};
+// 'b', 3x5px
+const unsigned char epd_bitmap_small_b []  = {
+	0xc0, 0xa0, 0xc0, 0xa0, 0xc0
+};
+// 'c', 3x5px
+const unsigned char epd_bitmap_small_c []  = {
+	0x60, 0x80, 0x80, 0x80, 0x60
+};
+// 'colon', 3x5px
+const unsigned char epd_bitmap_small_colon []  = {
+	0x00, 0x40, 0x00, 0x40, 0x00
+};
+// 'e', 3x5px
+const unsigned char epd_bitmap_small_e []  = {
+	0x60, 0x80, 0xe0, 0x80, 0x60
+};
+// 'd', 3x5px
+const unsigned char epd_bitmap_small_d []  = {
+	0xc0, 0xa0, 0xa0, 0xa0, 0xc0
+};
+// 'g', 3x5px
+const unsigned char epd_bitmap_small_g []  = {
+	0x60, 0x80, 0x80, 0xa0, 0x60
+};
+// 'f', 3x5px
+const unsigned char epd_bitmap_small_f []  = {
+	0x60, 0x80, 0xc0, 0x80, 0x80
+};
+// 'h', 3x5px
+const unsigned char epd_bitmap_small_h []  = {
+	0xa0, 0xa0, 0xe0, 0xa0, 0xa0
+};
+// 'i', 3x5px
+const unsigned char epd_bitmap_small_i []  = {
+	0xe0, 0x40, 0x40, 0x40, 0xe0
+};
+// 'j', 3x5px
+const unsigned char epd_bitmap_small_j []  = {
+	0x60, 0x20, 0x20, 0xa0, 0x40
+};
+// 'k', 3x5px
+const unsigned char epd_bitmap_small_k []  = {
+	0xa0, 0xa0, 0xc0, 0xa0, 0xa0
+};
+// 'l', 3x5px
+const unsigned char epd_bitmap_small_l []  = {
+	0x80, 0x80, 0x80, 0x80, 0x60
+};
+// 'Lbracket', 3x5px
+const unsigned char epd_bitmap_small_LParenth []  = {
+	0x40, 0x80, 0x80, 0x80, 0x40
+};
+// 'm', 3x5px
+const unsigned char epd_bitmap_small_m []  = {
+	0xa0, 0xe0, 0xa0, 0xa0, 0xa0
+};
+// 'p', 3x5px
+const unsigned char epd_bitmap_small_p []  = {
+	0xc0, 0xa0, 0xc0, 0x80, 0x80
+};
+// 'o', 3x5px
+const unsigned char epd_bitmap_small_o []  = {
+	0x40, 0xa0, 0xa0, 0xa0, 0x40
+};
+// 'n', 3x5px
+const unsigned char epd_bitmap_small_n []  = {
+	0xc0, 0xa0, 0xa0, 0xa0, 0xa0
+};
+// 'plus', 3x5px
+const unsigned char epd_bitmap_small_plus []  = {
+	0x00, 0x40, 0xe0, 0x40, 0x00
+};
+// 'pt', 3x5px
+const unsigned char epd_bitmap_small_pt []  = {
+	0x00, 0x00, 0x00, 0x00, 0x40
+};
+// 'q', 3x5px
+const unsigned char epd_bitmap_small_q []  = {
+	0x40, 0xa0, 0xa0, 0x40, 0x20
+};
+// 'r', 3x5px
+const unsigned char epd_bitmap_small_r []  = {
+	0xc0, 0xa0, 0xc0, 0xa0, 0xa0
+};
+// 'Rbracket', 3x5px
+const unsigned char epd_bitmap_small_RParenth []  = {
+	0x40, 0x20, 0x20, 0x20, 0x40
+};
+// 's', 3x5px
+const unsigned char epd_bitmap_small_s []  = {
+	0x60, 0x80, 0x40, 0x20, 0xc0
+};
+// 'semicolon', 3x5px
+const unsigned char epd_bitmap_small_semicolon []  = {
+	0x00, 0x40, 0x00, 0x40, 0x80
+};
+// 't', 3x5px
+const unsigned char epd_bitmap_small_t []  = {
+	0xe0, 0x40, 0x40, 0x40, 0x40
+};
+// 'v', 3x5px
+const unsigned char epd_bitmap_small_v []  = {
+	0xa0, 0xa0, 0xa0, 0xa0, 0x40
+};
+// 'u', 3x5px
+const unsigned char epd_bitmap_small_u []  = {
+	0xa0, 0xa0, 0xa0, 0xa0, 0xe0
+};
+// 'y', 3x5px
+const unsigned char epd_bitmap_small_y []  = {
+	0xa0, 0xa0, 0x40, 0x40, 0x40
+};
+// 'z', 3x5px
+const unsigned char epd_bitmap_small_z []  = {
+	0xe0, 0x20, 0x40, 0x80, 0xe0
+};
+// 'x', 3x5px
+const unsigned char epd_bitmap_small_x []  = {
+	0xa0, 0xa0, 0x40, 0xa0, 0xa0
+};
+// 'w', 3x5px
+const unsigned char epd_bitmap_small_w []  = {
+	0xa0, 0xa0, 0xe0, 0xe0, 0xe0
+};
+// 'slash', 3x5px
+const unsigned char epd_bitmap_small_slash []  = {
+	0x20, 0x60, 0x40, 0xc0, 0x80
+};
+// 'dots', 3x5px
+const unsigned char epd_bitmap_small_dots []  = {
+	0x00, 0xa0, 0x00, 0xa0, 0x00
+};
+// 'comma', 3x5px
+const unsigned char epd_bitmap_small_comma []  = {
+	0x00, 0x00, 0x00, 0x40, 0x80
+};
+// '?', 3x5px
+const unsigned char epd_bitmap_small_question []  = {
+	0x40, 0x20, 0x40, 0x00, 0x40
+};
+// '!', 3x5px
+const unsigned char epd_bitmap_small_exclamation []  = {
+	0x40, 0x40, 0x40, 0x00, 0x40
+};
+// 'up', 3x5px
+const unsigned char epd_bitmap_small_up []  = {
+	0x40, 0xa0, 0x00, 0x00, 0x00
+};
+// 'down', 3x5px
+const unsigned char epd_bitmap_small_down []  = {
+	0x00, 0x00, 0x00, 0xa0, 0x40
+};
+// 'right', 3x5px
+const unsigned char epd_bitmap_small_right []  = {
+	0x00, 0x40, 0x20, 0x40, 0x00
+};
+// 'left', 3x5px
+const unsigned char epd_bitmap_small_left []  = {
+	0x00, 0x40, 0x80, 0x40, 0x00
+};
+// 'apostrophe', 3x5px
+const unsigned char epd_bitmap_small_apostrophe []  = {
+	0x40, 0x80, 0x00, 0x00, 0x00
+};
+// 'percent', 3x5px
+const unsigned char epd_bitmap_small_percent []  = {
+	0x80, 0x20, 0x40, 0x80, 0x20
+};
+// 'hash_1', 2x5px
+const unsigned char epd_bitmap_small_hash_1 []  = {
+	0x40, 0xc0, 0x40, 0xc0, 0x40
+};
+// 'hash_2', 3x5px
+const unsigned char epd_bitmap_small_hash_2 []  = {
+	0x40, 0xe0, 0x40, 0xe0, 0x40
+};
+// 'dash', 3x5px
+const unsigned char epd_bitmap_small_dash []  = {
+	0x00, 0x00, 0xe0, 0x00, 0x00
+};
+// 'phi', 3x5px
+const unsigned char epd_bitmap_small_phi []  = {
+	0x40, 0xe0, 0xa0, 0xe0, 0x40
+};
+// 'Lbracket', 3x5px
+const unsigned char epd_bitmap_small_Lbracket []  = {
+	0x60, 0x40, 0x40, 0x40, 0x60
+};
+// 'Rbracket', 3x5px
+const unsigned char epd_bitmap_small_Rbracket []  = {
+	0xc0, 0x40, 0x40, 0x40, 0xc0
+};
+// 'note', 3x5px
+const unsigned char epd_bitmap_small_note []  = {
+	0x60, 0x40, 0x40, 0xc0, 0xc0
+};
+// 'equals', 3x5px
+const unsigned char epd_bitmap_small_equals []  = {
+	0x00, 0xe0, 0x00, 0xe0, 0x00
+};
+// 'aster', 3x5px
+const unsigned char epd_bitmap_small_aster []  = {
+	0x00, 0x40, 0xa0, 0x40, 0x00
+};
+// 'mult', 3x5px
+const unsigned char epd_bitmap_small_mult []  = {
+	0x00, 0xa0, 0x40, 0xa0, 0x00
+};
+// 'delta', 7x7px
+const unsigned char epd_bitmap_small_delta []  = {
+	0x18, 0x18, 0x2c, 0x2c, 0x44, 0x46, 0xfe
+};
+// 'double_quotes', 3x5px
+const unsigned char epd_bitmap_small_double_quotes []  = {
+	0xa0, 0xa0, 0x00, 0x00, 0x00
+};
+// 'divide', 3x5px
+const unsigned char epd_bitmap_small_divide []  = {
+	0x40, 0x00, 0xe0, 0x00, 0x40
+};
+
+
+
+// Array of all bitmaps for convenience. (Total bytes used to store images in  = 1312)
+const unsigned char* small_font[66] = {
+	epd_bitmap_small_a,
+	epd_bitmap_small_b,
+	epd_bitmap_small_c,
+	epd_bitmap_small_d,
+	epd_bitmap_small_e,
+	epd_bitmap_small_f,
+	epd_bitmap_small_g,
+	epd_bitmap_small_h,
+	epd_bitmap_small_i,
+	epd_bitmap_small_j,
+	epd_bitmap_small_k,
+	epd_bitmap_small_l,
+	epd_bitmap_small_m,
+	epd_bitmap_small_n,
+	epd_bitmap_small_o,
+	epd_bitmap_small_p,
+	epd_bitmap_small_q,
+	epd_bitmap_small_r,
+	epd_bitmap_small_s,
+	epd_bitmap_small_t,
+	epd_bitmap_small_u,
+	epd_bitmap_small_v,
+  epd_bitmap_small_w,
+	epd_bitmap_small_x,
+	epd_bitmap_small_y,
+	epd_bitmap_small_z,
+  epd_bitmap_small_0,
+	epd_bitmap_small_1,
+	epd_bitmap_small_2,
+	epd_bitmap_small_3,
+	epd_bitmap_small_4,
+	epd_bitmap_small_5,
+	epd_bitmap_small_6,
+	epd_bitmap_small_7,
+	epd_bitmap_small_8,
+	epd_bitmap_small_9,
+  epd_bitmap_small_pt,
+  epd_bitmap_small_colon,
+  epd_bitmap_small_semicolon,
+  epd_bitmap_small_plus,
+	epd_bitmap_small_Lbracket,
+	epd_bitmap_small_Rbracket,
+  epd_bitmap_small_slash,
+  epd_bitmap_small_dots,
+  epd_bitmap_small_comma,
+  epd_bitmap_small_question,
+  epd_bitmap_small_exclamation,
+  epd_bitmap_small_up,
+  epd_bitmap_small_down,
+  epd_bitmap_small_left,
+  epd_bitmap_small_right,
+  epd_bitmap_small_apostrophe,
+  epd_bitmap_small_percent,
+  epd_bitmap_small_hash_1,
+  epd_bitmap_small_hash_2,
+  epd_bitmap_small_dash,
+  epd_bitmap_small_phi,
+  epd_bitmap_small_LParenth,
+  epd_bitmap_small_RParenth,
+  epd_bitmap_small_note,
+  epd_bitmap_small_equals,
+  epd_bitmap_small_aster,
+  epd_bitmap_small_mult,
+  epd_bitmap_small_delta,
+  epd_bitmap_small_double_quotes,
+  epd_bitmap_small_divide
+};
+
 //this one prints out one word at a time, with bounds
 void printSmall_overflow(int x, int y, int margin, String text, uint16_t c){
   int xCoord = x;

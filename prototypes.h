@@ -23,7 +23,7 @@ void drawNote_vel(unsigned short int, unsigned short int, unsigned short int, un
 void drawDottedLineH(unsigned short int, unsigned short int, unsigned short int, unsigned short int);
 void displaySeq();
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection);
-void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, uint16_t start, uint16_t end);
+void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, bool shadeOutsideLoop, uint16_t start, uint16_t end);
 void drawDisplay();
 void drawNote(unsigned short int, unsigned short int, unsigned short int, unsigned short int, unsigned short int, bool, bool);
 void drawBox(uint8_t cornerX, uint8_t cornerY, uint8_t width, uint8_t height, uint8_t depth, int8_t xSlant, uint8_t fill);
@@ -81,6 +81,13 @@ void warp();
 void reverseNotes();
 void inputMenu();
 void midiMenu();
+void chordBuilder();
+void echoMenu();
+void humanizeMenu();
+void quantizeMenu();
+void slideMenuIn(int fromWhere, int speed);
+void slideMenuOut(int fromWhere, int speed);
+void strumMenu();
 
 
 //Note editing
@@ -98,6 +105,7 @@ bool moveNotes(int xAmount, int yAmount);
 void clearSelection();
 void clearSelection(int, int);
 void selectNote(uint8_t track, uint16_t id);
+bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool));
 void selectAll(bool, bool, bool);
 void selectAll();
 void toggleSelectNote(uint8_t, uint16_t, bool); 
@@ -176,6 +184,10 @@ bool mainMenuControls();
 bool anyActiveInputs();
 void yControls();
 void defaultEncoderControls();
+void defaultSelectBoxControls();
+void defaultJoystickControls(bool);
+void defaultSelectControls();
+void defaultLoopControls();
 int readEncoder(bool encoder);
 
 //sequence
@@ -250,7 +262,7 @@ int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2);
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title);
 uint8_t countSpaces(String text);
 void toggleTriplets();
-uint8_t toggleTriplets(uint8_t subDiv);
+uint16_t toggleTriplets(uint16_t subDiv);
 void changeSubDivInt(bool down);
 void changeSubDivInt(bool down, bool limitToView);
 uint16_t changeSubDiv(bool direction, uint8_t subDiv, bool allowZero);

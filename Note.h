@@ -5,6 +5,7 @@ class Note {
     Note(unsigned short int, unsigned short int, unsigned char, unsigned char, bool, bool);
     Note(unsigned short int, unsigned short int, unsigned char);
     Note(unsigned short int, unsigned char, unsigned char);
+    uint16_t getLength();
     bool isSelected;
     bool muted;
     uint8_t velocity;
@@ -46,6 +47,9 @@ Note::Note(unsigned short int xPos, unsigned char vel, unsigned char odds){
   isSelected = false;
   chance = odds;
   muted = false;
+}
+uint16_t Note::getLength(){
+  return endPos-startPos+1;
 }
 
 void makeNote(Note newNoteOn, int track, bool loudly);

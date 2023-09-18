@@ -9,7 +9,7 @@ vector<uint8_t> selectMultipleTracks(String text){
   vector<uint8_t> selection;
   while(true){
     display.clearDisplay();
-    drawSeq(true, false, false, false, true, viewStart, viewEnd);
+    drawSeq(true, false, false, false, true, false, viewStart, viewEnd);
     printSmall(screenWidth-text.length()*4,0,text,1);
 
     display.setCursor(0,7);

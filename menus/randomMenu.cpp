@@ -257,7 +257,7 @@ CoordinatePair selectArea(){
     graphics.rotate(1,0);
     graphics.rotate(1,1);
     display.clearDisplay();
-    drawSeq(true, false, true, false, false, viewStart, viewEnd);
+    drawSeq(true, false, true, false, false, false, viewStart, viewEnd);
     drawCoordinateBox(coords);
     graphics.renderDie();
     if(coords.x1 == 0 && coords.x2 == 0 && coords.y1 == 0 && coords.y2 == 0){
@@ -689,7 +689,7 @@ void randMenu(){
     //which menu you're on
     uint8_t whichTab = 1;
     //vars for randomizer
-    int8_t odds = 100;
+    int8_t odds = 60;
     int8_t minChance = 100;
     int8_t maxChance = 100;
     uint16_t minLength = 24;

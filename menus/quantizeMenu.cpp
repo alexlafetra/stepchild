@@ -52,11 +52,6 @@ bool quantizeNote(uint8_t track, uint16_t id,bool move){
     uint16_t closest = (subDivInt)*sin(2*PI/swingSubDiv * (seqData[track][id].startPos-swingSubDiv/4));
     uint16_t amount1 = (subDivInt)*sin(2*PI/swingSubDiv * (seqData[track][id].startPos-swingSubDiv/4));
     uint16_t amount2 = (subDivInt)*sin(2*PI/swingSubDiv * (seqData[track][id].startPos-swingSubDiv/4));
-    // Serial.println("--------------------");
-    // Serial.println("1:"+stringify(amount1));
-    // Serial.println("2:"+stringify(amount2));
-    // Serial.println("--------------------");
-    // Serial.flush();
     d1 += amount1;
     d2 += amount2;
   }

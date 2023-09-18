@@ -1,41 +1,128 @@
+bool fxMenuControls(){
+  if(itsbeen(100)){
+    if(x != 0){
+      if(x == -1){
+        //if it's not divisible by four (in which case this would be 0)
+        if((activeMenu.highlight+1)%4)
+          activeMenu.highlight++;
+        lastTime = millis();
+      }
+      else if(x == 1){
+        if((activeMenu.highlight)%4)
+          activeMenu.highlight--;
+        lastTime = millis();
+      }
+    }
+    if(y != 0){
+      if(y == 1){
+        //first row
+        if(activeMenu.highlight < 20)
+          activeMenu.highlight += 4;
+        lastTime = millis();
+      }
+      else if(y == -1){
+        //second row
+        if(activeMenu.highlight > 3)
+          activeMenu.highlight -= 4;
+        lastTime = millis();
+      }
+      activeMenu.page = activeMenu.highlight/12;
+    }
+  }
+  if(itsbeen(200)){
+    if(menu_Press){
+      lastTime = millis();
+      slideMenuOut(0,20);
+      return false;
+    }
+    if(sel){
+      sel = false;
+      lastTime = millis();
+      switch(activeMenu.highlight){
+        //chord
+        case 0:
+          quantizeMenu();
+          break;
+        //echo
+        case 1:
+          humanizeMenu();
+          break;
+        //humanize
+        case 2:
+          strumMenu();
+          break;
+        case 3:
+          echoMenu();
+          break;
+        case 4:
+          chordBuilder();
+          break;
+        //reverse
+        case 5:
+          slideMenuOut(0,20);
+          reverse();
+          activeMenu.coords.x1 = 25;
+          activeMenu.coords.y1 = 1;
+          activeMenu.coords.x2 = 93;
+          activeMenu.coords.y2 = 64;
+          slideMenuIn(0,30);
+          break;
+        case 6:
+          warp();
+          break;
+        //scramble
+        case 7:
+          break;
+        //split
+        case 8:
+          break;
+        //strum
+        case 9:
+          break;
+      }
+    }
+  }
+  return true;
+}
+
 void drawFxLabel(){
   String text = "NAH";
   switch(activeMenu.highlight){
     case 0:
-      text = "CHORD";
+      text = "QUANTIZE";
       break;
     case 1:
-      text = "ECHO";
-      break;
-    case 2:
       text = "HUMANIZE";
       break;
+    case 2:
+      text = "STRUM";
+      break;
     case 3:
-      text = "WARP";
+      text = "ECHO";
       break;
     case 4:
-      text = "QUANTIZE";
+      text = "CHORD";
       break;
     case 5:
       text = "REVERSE";
       break;
     case 6:
-      text = "RANDOM";
+      // text = "RANDOM";
       break;
     case 7:
-      text = "SCRAMBLE";
+      // text = "SCRAMBLE";
       break;
     case 8:
-      text = "SPLIT";
+      // text = "SPLIT";
       break;
     case 9:
-      text = "STRUM";
+      // text = "WARP";
       break;
     case 10:
-      text = "CHOP";
+      // text = "CHOP";
       break;
     case 11:
-      text = "MAYHEM";
+      // text = "MAYHEM";
       break;
   }
   printChunky(activeMenu.coords.x1+activeMenu.coords.y1+38,4,text,SSD1306_WHITE);

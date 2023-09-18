@@ -363,7 +363,7 @@ void viewLoop(uint8_t which){
     tempText = menuText;
     menuText = "loop-"+stringify(which)+" "+menuText;
     display.clearDisplay();
-    drawSeq(true,true,true,false,false,loopData[which].start>viewStart?loopData[which].start:viewStart,loopData[which].end<viewEnd?loopData[which].end:viewEnd);
+    drawSeq(true,true,true,false,false,false,loopData[which].start>viewStart?loopData[which].start:viewStart,loopData[which].end<viewEnd?loopData[which].end:viewEnd);
     display.display();
     menuText = tempText;
   }
@@ -375,6 +375,7 @@ void loopMenu(){
   uint8_t targetL = activeLoop;
   uint8_t dispStart = activeLoop;
   int blockZoom = getLongestLoop()/30;
+  bool showingPreview = false;
   Loop storedLoop;
   storedLoop.start = loopData[targetL].start;
   storedLoop.end = loopData[targetL].end;
@@ -512,6 +513,10 @@ void loopMenu(){
         menu_Press = false;
         return;
       }
+      if(shift && !copy_Press && x == 0){
+        showingPreview = !showingPreview;
+        lastTime = millis();
+      }
     }
 
     //checking bounds for display
@@ -548,7 +553,7 @@ void loopMenu(){
 
     //info
     drawLoopInfo(56,0,targetL);
-    if(shift){
+    if(showingPreview){
       drawLoopPreview(95,48,targetL);
     }
     else{

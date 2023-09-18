@@ -51,6 +51,8 @@
 
 #endif
 
+#include <algorithm>
+
 // #define SSD1306_SETDISPLAYCLOCKDIV B0011000  ///< See datasheet
 
 #define UPRIGHT 2
@@ -75,12 +77,15 @@ using namespace std;
 //wireframe stuff
 #include "WireFrame.h"
 
+//Stores two (x,y) coordinate pairs as x1, y1, x2, y2
 struct CoordinatePair{
   int16_t x1;
   int16_t x2;
   int8_t y1;
   int8_t y2;
 };
+
+#include "Menu.h"
 
 void fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames);
 bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String> filenames);
@@ -93,6 +98,7 @@ void makeNote(Note newNoteOn, int track, bool loudly);
 void makeNote(Note newNoteOn, int track);
 void loadNote(Note newNote, uint8_t track);
 bool checkNoteMove(Note targetNote, int track, int newTrack, int newStart);
+vector<vector<Note>> grabAndDeleteSelectedNotes();
 
 #include "Track.h"
 #include "AutomationTrack.h"
@@ -148,24 +154,27 @@ vector<Track> trackData;//holds tracks
 vector<vector<Note>> seqData;//making a 2D vec, number of rows = tracks, number of columns = usable notes, and stores Note objects
 
 
-/*
-  The Loop struct just stores loop data. It's not an object because... I thought it should be a struct?
-  It feels more like data, it originally replaced the loopData list
-*/
-
+//Stores loop data as start,end,reps,and type
 struct Loop{
+  //The start of the Loop (in steps)
   uint16_t start;
+  //The end of the Loop (in steps)
   uint16_t end;
+  //the number of times-1 the loop will play before linking to the next loop. 0 sets the Loop to play once.
   uint8_t reps;
+  //how the Loop links to the next Loop
   uint8_t type;
+  /*
+  Type:
+  0 = go to next Loop
+  1 = go to a random Loop
+  2 = go to a random Loop of the same length
+  3 = return to the first Loop
+  4 = repeat this loop again (infinite repeat)
+  */
 };
 
 vector<Loop> loopData;
-
-//loopData is loopData[loopID][start, end, iterations]
-// vector<vector<uint16_t>> loopData = {{0,96,0,0}};//start,end,iterations,style
-//(style is either 0 = normal, 1 = random any, 2 = random of same length,  4 = inf repeat, 3 = return)
-//refactor loopData into this
 
 //holds all the datatracks
 vector<dataTrack> dataTrackData;
@@ -177,7 +186,7 @@ Arp activeArp;
 
 unsigned short int animOffset = 0;//for animating curves
 
-//this is just for the selectionbox
+//Holds coordinates and a flag set when the SelectionBox has been started
 class SelectionBox{
   public:
   uint16_t x1;
@@ -252,10 +261,7 @@ void SelectionBox::displaySelBox(){
   display.drawRect(startX, startY, len, height, SSD1306_WHITE);
   display.drawRect(startX+1, startY+1, len-2, height-2, SSD1306_WHITE);
 
-  // display.drawRect(startX+2, startY+2, len-4, height-4, SSD1306_WHITE);
   if(len>5 && height>=trackHeight){
-    // display.fillRect(startX+3,startY+3, len-6, height-6, SSD1306_BLACK);
-    // shadeArea(startX+3,startY+3, len-6, height-6,10);
     display.fillRect(startX+2,startY+2, len-4, height-4, SSD1306_BLACK);
     shadeArea(startX+2,startY+2, len-4, height-4,10);
   }
@@ -296,6 +302,7 @@ void noBitches(){
 }
 
 #include "menus/randomMenu.cpp"
+#include "menus/reverseMenu.cpp"
 
 void addNoteToPlaylist(uint8_t note, uint8_t vel, uint8_t channel){
   vector<uint8_t> temp = {note,vel,channel};
@@ -315,7 +322,7 @@ void clearPlaylist(){
   vector<vector<uint8_t>> tempList;
   playlist.swap(tempList);
 }
-void printPlaylist(){
+void debugPrintPlaylist(){
   Serial.print("{");
   for(int i = 0; i<playlist.size(); i++){
     Serial.print(playlist[i][0]);
@@ -325,6 +332,8 @@ void printPlaylist(){
   Serial.flush();
 }
 
+//draws an animated icon representing the type of interpolation algorithm being used
+//0 = linear, 1 = elliptical up, 2 = elliptical down
 void drawNodeEditingIcon(uint8_t xPos, uint8_t yPos, uint8_t type, uint8_t frame, bool text){
   const uint8_t width = 19;
   const uint8_t height = 10;
@@ -381,7 +390,9 @@ void drawNodeEditingIcon(uint8_t xPos, uint8_t yPos, uint8_t type, uint8_t frame
       }
   }
 }
+
 //draws a curve. Frame is to animated it! basically, sets x-offset. Pass a constant to it for no animation.
+//Type: 0 = custom, 1 = sinewave, 2 = square wave, 3 = saw, 4 = triangle, , 5 = random
 void drawCurveIcon(uint8_t xPos, uint8_t yPos, uint8_t type, uint8_t frame){
   //width
   const uint8_t width = 19;
@@ -451,103 +462,19 @@ void drawCurveIcon(uint8_t xPos, uint8_t yPos, uint8_t type, uint8_t frame){
         }
       }
       break;
+    //random
     case 5:
       {
         display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
         printSmall(xPos+4,yPos+3+sin(millis()/100),"R",SSD1306_WHITE);
         printSmall(xPos+8,yPos+3+sin(millis()/100+1),"N",SSD1306_WHITE);
         printSmall(xPos+12,yPos+3+sin(millis()/100+2),"D",SSD1306_WHITE);
-
       }
       break;
   }
 }
 
-String getTitleText(uint8_t which){
-  switch(which){
-    case 0:
-      return "Sequence Editor";
-    case 1:
-      return "Track Editor";
-    case 2: 
-      return "Note Editor";
-  }
-  return "";
-}
-uint8_t countStrings(uint8_t which){
-  uint8_t size = 0;
-  for(int i = 0; i<sizeof(helptext[which])/sizeof(*helptext[which]); i++){
-    if(helptext[which][i] != "")
-      size++;
-  }
-  return size;
-}
-
-void displayHelpText(uint8_t which){
-  uint8_t startLine = 0;//controls starting line
-  uint8_t scrollBar = 0;
-  uint8_t numberOfLines = 6;
-  uint8_t windowLength = 128;
-  bool info = false;
-
-  while(true){
-    display.clearDisplay();
-    readButtons();
-    joyRead();
-    if(itsbeen(200)){
-      if(menu_Press){
-        lastTime = millis();
-        break;
-      }
-      if(shift){
-        info = !info;
-        lastTime = millis();
-      }
-    }
-    if(itsbeen(50)){
-      if(y != 0){
-        if(y == -1 && startLine>0){
-          startLine--;
-          lastTime = millis();
-        }
-        else if(y == 1 && startLine+numberOfLines<sizeof(helptext[which])/sizeof(*helptext[which])){
-          startLine++;
-          lastTime = millis();
-        }
-      }
-    }
-    while(counterA != 0 || counterB != 0){
-      if(counterA >= 1 || counterB >= 1){
-        //if there's a line offscreen
-        if(startLine+numberOfLines<23)
-          startLine++;
-      }
-      else if(counterA <= -1||counterB <= -1){
-        if(startLine>0)
-          startLine--;
-      }
-      counterA += counterA<0?1:-1;
-      counterB += counterB<0?1:-1;
-    }
-    display.setCursor(0,0);
-    display.print(getTitleText(which));
-    //drawing the text
-    if(info){
-      display.drawRect(-1,-1,getTitleText(which).length()*6+4,12,SSD1306_WHITE);
-      printSmall_overflow(4,15,4,infotext[which],SSD1306_WHITE);
-    }
-    else{
-      display.drawRect(0,11,windowLength,64,SSD1306_WHITE);
-      for(int line = startLine; line<sizeof(helptext[which])/sizeof(*helptext[which]); line++){
-        printSmall(4,15+(line-startLine)*7,helptext[which][line],SSD1306_WHITE);
-      }
-    }
-    // Serial.println(sizeof(helptext[which])/sizeof(*helptext[which]));
-    Serial.println(startLine);
-    display.display();
-  }
-  return;
-}
+#include "helpScreen.h"
 
 void restartSerial(unsigned int baud){
   Serial.end();
@@ -776,8 +703,6 @@ void Progression::commit(){
     writeHead+=chords[i].length;
   }
 }
-
-#include "Menu.h"
 
 //draws and handles a vertical selection box
 unsigned short int vertSelectionBox(vector <String> options, unsigned short int x1, unsigned short int y1, unsigned short int width, unsigned short int height){
@@ -2838,6 +2763,7 @@ void drawEcho(unsigned short int xStart, unsigned short int yStart, short unsign
 
 void echoMenu(){
   animOffset = 0;
+  activeMenu.highlight = 0;
   // echoAnimation();
   while(true){
     readButtons();
@@ -2937,7 +2863,7 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
       }
     }
     display.clearDisplay();
-    drawSeq(true, false, true, false, false, viewStart, viewEnd);
+    drawSeq(true, false, true, false, false, false, viewStart, viewEnd);
     if(!selectionCount){
       printSmall(trackDisplay,0,"select notes to "+text+"!",1);
     }
@@ -4805,7 +4731,6 @@ void drawKeys(uint8_t xStart,uint8_t yStart,uint8_t octave,uint8_t numberOfKeys,
   //moves through every key. if it's a whitekey, it uses the whiteKeys variable to step through each white key
   for(int key = 0; key<numberOfKeys; key++){
     pressed = false;
-    // printPlaylist();
     if(fromPlaylist){
       for(int note = 0; note<playlist.size(); note++){
         if(playlist[note][0] == key+octave*12){
@@ -6812,7 +6737,7 @@ void deleteNote_byID(int track, int targetNoteID){
     temp.swap(seqData[track]);
     //since we deleted it from seqData, we need to update all the lookup values that are now 'off' by 1. Any value that's higher than the deleted note's ID should be decremented.
     if(seqData[track].size()-1>0){
-      for (int step = seqStart; step <= seqEnd; step++) {
+      for (uint16_t step = 0; step < lookupData[track].size(); step++) {
         if (lookupData[track][step] > targetNoteID) { //if there's a higher note and if there are still notes to be changed
           lookupData[track][step] -= 1;
         }
@@ -7099,6 +7024,35 @@ void eraseSeq() {
     eraseTrack(i);
   }
   clearSelection();
+}
+
+//returns a 2D vector containing a row for each track and a copy of each note that's currently selected on each track
+vector<vector<Note>> grabSelectedNotes(){
+    vector<vector<Note>> list;
+    for(uint8_t track = 0; track<trackData.size(); track++){
+        vector<Note> selectedNotesOnTrack;
+        for(uint16_t note = 1; note<seqData[track].size(); note++){
+            if(seqData[track][note].isSelected){
+                selectedNotesOnTrack.push_back(seqData[track][note]);
+            }
+        }
+        list.push_back(selectedNotesOnTrack);
+    }
+    return list;
+}
+vector<vector<Note>> grabAndDeleteSelectedNotes(){
+    vector<vector<Note>> list;
+    for(uint8_t track = 0; track<trackData.size(); track++){
+        vector<Note> selectedNotesOnTrack;
+        for(uint16_t note = 1; note<seqData[track].size(); note++){
+          if(seqData[track][note].isSelected){
+            selectedNotesOnTrack.push_back(seqData[track][note]);
+            deleteNote_byID(track,note);
+          }
+        }
+        list.push_back(selectedNotesOnTrack);
+    }
+    return list;
 }
 
 vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
@@ -8269,8 +8223,7 @@ void updateCursor(){
 }
 
 unsigned short int getNoteLength(unsigned short int track, unsigned short int id){
-  unsigned short int length = seqData[track][id].endPos-seqData[track][id].startPos+1;
-  return length;
+  return seqData[track][id].getLength();
 }
 
 int16_t changeNoteLength(int val, unsigned short int track, unsigned short int id){
@@ -9413,7 +9366,7 @@ void changeFragmentSubDivInt(bool down){
     }
   }
 }
-uint8_t toggleTriplets(uint8_t subDiv){
+uint16_t toggleTriplets(uint16_t subDiv){
     //this breaks the pattern, but lets you swap from 2/1 to 3/1 (rare case probs)
   if(subDiv == 192){
     subDiv = 32;
@@ -10062,11 +10015,11 @@ void displaySeq(){
 }
 
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection){
-  drawSeq(trackLabels,topLabels,loopPoints,menus,trackSelection,viewStart,viewEnd);
+  drawSeq(trackLabels,topLabels,loopPoints,menus,trackSelection,false,viewStart,viewEnd);
 }
 
 //this function is a mess!
-void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, uint16_t start, uint16_t end){
+void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, bool shadeOutsideLoop, uint16_t start, uint16_t end){
   if(!screenSaving){
     //handling the note view
     if(end>seqEnd){
@@ -10122,9 +10075,28 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
       height = startHeight+trackHeight*trackData.size();
 
     //drawing the measure bars
-    for (int step = start; step < end; step++) {
+    for (uint16_t step = start; step < end; step++) {
       unsigned short int x1 = trackDisplay+int((step-start)*scale);
       unsigned short int x2 = x1 + (step-start)*scale;
+
+      //shade everything outside the loop
+      if(shadeOutsideLoop){
+        if(step<loopData[activeLoop].start){
+          shadeArea(x1,startHeight,(loopData[activeLoop].start-step)*scale,screenHeight-startHeight,3);
+          step = loopData[activeLoop].start;
+          //ok, step shouldn't ever be zero in this case, since that would mean it was LESS than zero to begin
+          //with. But, just for thoroughnesses sake, make sure step doesn't overflow when you subtract from it
+          if(step != 0){
+            step--;
+          }
+          continue;
+        }
+        else if(step>loopData[activeLoop].end){
+          shadeArea(x1,startHeight,(viewEnd-loopData[activeLoop].end)*scale,screenHeight-startHeight,3);
+          break;
+        }
+      }
+
       //if the last track is showing
       if(endTrack == trackData.size()){
         //measure bars
@@ -10310,6 +10282,18 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
           drawNoteBracket(trackDisplay+3,y1-1,screenWidth-trackDisplay-5,trackHeight+2,true);
         // display.setTextColor(SSD1306_WHITE,SSD1306_BLACK);
         for (int step = start; step < end; step++) {
+          //if you only want to draw what's within the loop
+          if(shadeOutsideLoop){
+            //if you're less than the loop, jump to the start of the loop
+            //(this could also be in the initial for loop condition!)
+            if(step<loopData[activeLoop].start){
+              step = loopData[activeLoop].start;
+            }
+            //if you're past the loop end, break out of the for loop
+            else if(step>loopData[activeLoop].end){
+              break;
+            }
+          }
           int id = lookupData[track][step];
           unsigned short int x1 = trackDisplay+int((step-start)*scale);
           unsigned short int x2 = x1 + (step-start)*scale;
@@ -11056,13 +11040,11 @@ void handleNoteOn_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
   recentNote[0] = note;
   recentNote[1] = velocity;
   recentNote[2] = channel;
-  // printPlaylist();
   noteOnReceived = true;
 }
 
 void handleNoteOff_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
   subNoteFromPlaylist(note);
-  // printPlaylist();
   int track = getTrackWithPitch(note);
   if(track != -1){
     trackData[track].noteLastSent = 255;
@@ -11597,96 +11579,97 @@ void yControls(){
   }
 }
 
-void joyCommands(){
-  if(!menuIsActive){
-    if (itsbeen(100)) {
-      if (x == 1 && !shift) {
-        //if cursor isn't on a measure marker, move it to the nearest one
-        if(cursorPos%subDivInt){
-          moveCursor(-cursorPos%subDivInt);
-          lastTime = millis();
-          //moving entire loop
-          if(movingLoop == 2)
-            moveLoop(-cursorPos%subDivInt);
-        }
-        else{
-          moveCursor(-subDivInt);
-          lastTime = millis();
-          //moving entire loop
-          if(movingLoop == 2)
-            moveLoop(-subDivInt);
-        }
-        //moving loop start/end
-        if(movingLoop == -1){
-          setLoopPoint(cursorPos,true);
-        }
-        else if(movingLoop == 1){
-          setLoopPoint(cursorPos,false);
-        }
+//moving cursor, loop, and active track. Pass "true" to allow changing the velocity of notes
+void defaultJoystickControls(bool velocityEditingAllowed){
+  if (itsbeen(100)) {
+    if (x == 1 && !shift) {
+      //if cursor isn't on a measure marker, move it to the nearest one
+      if(cursorPos%subDivInt){
+        moveCursor(-cursorPos%subDivInt);
+        lastTime = millis();
+        //moving entire loop
+        if(movingLoop == 2)
+          moveLoop(-cursorPos%subDivInt);
       }
-      if (x == -1 && !shift) {
-        if(cursorPos%subDivInt){
-          moveCursor(subDivInt-cursorPos%subDivInt);
-          lastTime = millis();
-          if(movingLoop == 2)
-            moveLoop(subDivInt-cursorPos%subDivInt);
-        }
-        else{
-          moveCursor(subDivInt);
-          lastTime = millis();
-          if(movingLoop == 2)
-            moveLoop(subDivInt);
-        }
-        //moving loop start/end
-        if(movingLoop == -1){
-          setLoopPoint(cursorPos,true);
-        }
-        else if(movingLoop == 1){
-          setLoopPoint(cursorPos,false);
-        }
+      else{
+        moveCursor(-subDivInt);
+        lastTime = millis();
+        //moving entire loop
+        if(movingLoop == 2)
+          moveLoop(-subDivInt);
+      }
+      //moving loop start/end
+      if(movingLoop == -1){
+        setLoopPoint(cursorPos,true);
+      }
+      else if(movingLoop == 1){
+        setLoopPoint(cursorPos,false);
       }
     }
-    if(itsbeen(100)){
-      if (y == 1 && !shift && !loop_Press) {
-        if(recording)//if you're not in normal mode, you don't want it to be loud
-          setActiveTrack(activeTrack + 1, false);
-        else
-          setActiveTrack(activeTrack + 1, true);
-        drawingNote = false;
+    if (x == -1 && !shift) {
+      if(cursorPos%subDivInt){
+        moveCursor(subDivInt-cursorPos%subDivInt);
         lastTime = millis();
+        if(movingLoop == 2)
+          moveLoop(subDivInt-cursorPos%subDivInt);
       }
-      if (y == -1 && !shift && !loop_Press) {
-        if(recording)//if you're not in normal mode, you don't want it to be loud
-          setActiveTrack(activeTrack - 1, false);
-        else
-          setActiveTrack(activeTrack - 1, true);
-        drawingNote = false;
+      else{
+        moveCursor(subDivInt);
         lastTime = millis();
+        if(movingLoop == 2)
+          moveLoop(subDivInt);
+      }
+      //moving loop start/end
+      if(movingLoop == -1){
+        setLoopPoint(cursorPos,true);
+      }
+      else if(movingLoop == 1){
+        setLoopPoint(cursorPos,false);
       }
     }
-    if (itsbeen(50)) {
-      //moving
-      if (x == 1 && shift) {
-        moveCursor(-1);
-        lastTime = millis();
-        if(movingLoop == 2)
-          moveLoop(-1);
-        else if(movingLoop == -1)
-          setLoopPoint(cursorPos,true);
-        else if(movingLoop == 1)
-          setLoopPoint(cursorPos,false);
-      }
-      if (x == -1 && shift) {
-        moveCursor(1);
-        lastTime = millis();
-        if(movingLoop == 2)
-          moveLoop(1);
-        else if(movingLoop == -1)
-          loopData[activeLoop].start = cursorPos;
-        else if(movingLoop == 1)
-          loopData[activeLoop].end = cursorPos;
-      }
-      //changing vel
+  }
+  if(itsbeen(100)){
+    if (y == 1 && !shift && !loop_Press) {
+      if(recording)//if you're not in normal mode, you don't want it to be loud
+        setActiveTrack(activeTrack + 1, false);
+      else
+        setActiveTrack(activeTrack + 1, true);
+      drawingNote = false;
+      lastTime = millis();
+    }
+    if (y == -1 && !shift && !loop_Press) {
+      if(recording)//if you're not in normal mode, you don't want it to be loud
+        setActiveTrack(activeTrack - 1, false);
+      else
+        setActiveTrack(activeTrack - 1, true);
+      drawingNote = false;
+      lastTime = millis();
+    }
+  }
+  if (itsbeen(50)) {
+    //moving
+    if (x == 1 && shift) {
+      moveCursor(-1);
+      lastTime = millis();
+      if(movingLoop == 2)
+        moveLoop(-1);
+      else if(movingLoop == -1)
+        setLoopPoint(cursorPos,true);
+      else if(movingLoop == 1)
+        setLoopPoint(cursorPos,false);
+    }
+    if (x == -1 && shift) {
+      moveCursor(1);
+      lastTime = millis();
+      if(movingLoop == 2)
+        moveLoop(1);
+      else if(movingLoop == -1)
+        loopData[activeLoop].start = cursorPos;
+      else if(movingLoop == 1)
+        loopData[activeLoop].end = cursorPos;
+    }
+    //changing vel
+    if(velocityEditingAllowed){
       if (y == 1 && shift) {
         changeVel(-10);
         lastTime = millis();
@@ -11696,7 +11679,7 @@ void joyCommands(){
         lastTime = millis();
       }
 
-      if(lookupData[activeTrack][cursorPos]==0){
+      if(getIDAtCursor()==0){
         if(y == 1 && shift){
           defaultVel-=10;
           if(defaultVel<1)
@@ -11809,24 +11792,90 @@ void turnOffLEDs(){
   digitalWrite(latchPin_LEDS, HIGH);
 }
 
-void mainSequencerButtons(){
-  //selectionBox
-  //when sel is pressed and stick is moved, and there's no selection box
+void defaultSelectBoxControls(){
+  //when sel is pressed and stick is moved, and there's no selection box yet, start one
   if(sel && !selBox.begun && (x != 0 || y != 0)){
     selBox.begun = true;
     selBox.x1 = cursorPos;
     selBox.y1 = activeTrack;
   }
-  //if sel is released, and there's a selection box
+  //if sel is released, and there's a selection box, end it and select what was in the box
   if(!sel && selBox.begun){
     selBox.x2 = cursorPos;
     selBox.y2 = activeTrack;
     selectBox();
     selBox.begun = false;
   }
+}
+
+//default selection behavior
+void defaultSelectControls(){
+  if(sel && !selBox.begun){
+    uint16_t id = getIDAtCursor();
+    if(id == 0){
+      clearSelection();
+    }
+    else{
+      //select all
+      if(n){
+        selectAll();
+      }
+      //select only one
+      else if(shift){
+        clearSelection();
+        toggleSelectNote(activeTrack,id, false);
+      }
+      //normal select
+      else{
+        toggleSelectNote(activeTrack, id, true);          
+      }
+    }
+    lastTime = millis();
+  }
+}
+
+void defaultLoopControls(){
+  if(loop_Press){
+      //if you're not moving a loop, start
+      if(movingLoop == 0){
+        //if you're on the start, move the start
+        if(cursorPos == loopData[activeLoop].start){
+          movingLoop = -1;
+        }
+        //if you're on the end
+        else if(cursorPos == loopData[activeLoop].end){
+          movingLoop = 1;
+        }
+        //if you're not on either, move the whole loop
+        else{
+          movingLoop = 2;
+        }
+        lastTime = millis();
+      }
+      //if you were moving, stop
+      else{
+        movingLoop = 0;
+        lastTime = millis();
+      }
+  }
+}
+
+//default copy/paste behavior
+void defaultCopyControls(){
+  if(copy_Press){
+    if(shift)
+      paste();
+    else{
+      copy();
+    }
+    lastTime = millis();
+  }
+}
+void mainSequencerButtons(){
+  defaultSelectBoxControls();
   if(!n)
     drawingNote = false;
-  
+
   //delete happens a liitle faster (so you can draw/erase fast)
   if(itsbeen(75)){
     //delete
@@ -11835,7 +11884,7 @@ void mainSequencerButtons(){
         deleteSelected();
         lastTime = millis();
       }
-      else if(lookupData[activeTrack][cursorPos] != 0){
+      else if(getIDAtCursor() != 0){
         deleteNote(activeTrack,cursorPos);
         lastTime = millis();
       }
@@ -11843,42 +11892,28 @@ void mainSequencerButtons(){
   }
   if(itsbeen(200)){
     //new
-    if(n && !track_Press && !drawingNote && !sel){
-      if((!shift)&&(lookupData[activeTrack][cursorPos] == 0 || cursorPos != seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos)){
+    if(n && !drawingNote && !sel){
+      if((!shift)&& (getIDAtCursor() == 0 || cursorPos != seqData[activeTrack][getIDAtCursor()].startPos)){
         makeNote(activeTrack,cursorPos,subDivInt,true);
+        moveCursor(subDivInt);
         drawingNote = true;
         lastTime = millis();
-        moveCursor(subDivInt);
-        // debugPrintLookup();
       }
       if(shift){
         addTrack(defaultPitch, defaultChannel);
         lastTime = millis();
       }
     }
-    //select
-    if(sel && !selBox.begun){
-      uint16_t id = getIDAtCursor();
-      if(id == 0){
-        clearSelection();
-      }
-      else{
-        //select all
-        if(n){
-          selectAll();
-        }
-        //select only one
-        else if(shift){
-          clearSelection();
-          toggleSelectNote(activeTrack,id, false);
-        }
-        //normal select
-        else{
-          toggleSelectNote(activeTrack, id, true);          
-        }
-      }
-      lastTime = millis();
+    defaultSelectControls();
+    if(!shift){
+      defaultLoopControls();
     }
+    //special case for the main sequence; loop+shift jumps into the loop menu
+    else if(loop_Press){
+      lastTime = millis();
+      loopMenu();
+    }
+
     if(del && shift){
       muteNote(activeTrack, getIDAtCursor(), true);
       lastTime = millis();
@@ -11895,36 +11930,7 @@ void mainSequencerButtons(){
       lastTime = millis();
     }
  
-    //loop
-    if(loop_Press){
-      if(shift){
-        lastTime = millis();
-        loopMenu();
-      }
-      else{
-        //if you're not moving a loop, start
-        if(movingLoop == 0){
-          //if you're on the start, move the start
-          if(cursorPos == loopData[activeLoop].start){
-            movingLoop = -1;
-          }
-          //if you're on the end
-          else if(cursorPos == loopData[activeLoop].end){
-            movingLoop = 1;
-          }
-          //if you're not on either, move the whole loop
-          else{
-            movingLoop = 2;
-          }
-          lastTime = millis();
-        }
-        //if you were moving, stop
-        else{
-          movingLoop = 0;
-          lastTime = millis();
-        }
-      }
-    }
+
     //menu press
     if(menu_Press){
       if(shift){
@@ -11941,7 +11947,7 @@ void mainSequencerButtons(){
         return;
       }
     }
-    if(track_Press && !del && !n && !sel && !shift){
+    if(track_Press){
       menuIsActive = true;
       lastTime = millis();
       track_Press = false;
@@ -11953,19 +11959,10 @@ void mainSequencerButtons(){
       menuIsActive = true;
       constructMenu("EDIT");
     }
-    //copy/pasate
-    if(copy_Press){
-      if(shift)
-        paste();
-      else{
-        copy();
-      }
-      lastTime = millis();
-    }
   }
 }
 
-void serialButtonPrint(){
+void debugButtonPrint(){
   if(n)
     Serial.println("n");
   if(sel)
@@ -11982,38 +11979,6 @@ void serialButtonPrint(){
     Serial.println("copy");
   if(menu_Press)
     Serial.println("menu");
-
-  // Serial.println("+-+");
-  // Serial.println("|"+(n?stringify("X"):stringify("O"))+"| new");
-  // Serial.println("+-+");
-
-  // Serial.println("+-+");
-  // Serial.println("|"+(shift?"X":"O")+"| shift");
-  // Serial.println("+-+");
-
-  // Serial.println("+-+");
-  // Serial.println("|"+(sel?"X":"O")+"| select");
-  // Serial.println("+-+");
-
-  // Serial.println("+-+");
-  // Serial.println("|"+(del?"X":"O")+"| delete");
-  // Serial.println("+-+");
-
-  // Serial.println("+-+");
-  // Serial.println("|"+(loop_Press?"X":"O")+"| loop");
-  // Serial.println("+-+");
-
-  // Serial.println("+-+");
-  // Serial.println("|"+(play?"X":"O")+"| play");
-  // Serial.println("+-+");
-
-  // Serial.println("+-+");
-  // Serial.println("|"+(copy_Press?"X":"O")+"| copy");
-  // Serial.println("+-+");
-
-  // Serial.println("+-+");
-  // Serial.println("|"+(menu_Press?"X":"O")+"| menu");
-  // Serial.println("+-+");
 
   for(int i = 0; i<8; i++){
     if(step_buttons[i]){
@@ -12461,91 +12426,6 @@ String enterText(String title){
   return text;
 }
 
-bool fxMenuControls(){
-  if(itsbeen(100)){
-    if(x != 0){
-      if(x == -1){
-        //if it's not divisible by four (in which case this would be 0)
-        if((activeMenu.highlight+1)%4)
-          activeMenu.highlight++;
-        lastTime = millis();
-      }
-      else if(x == 1){
-        if((activeMenu.highlight)%4)
-          activeMenu.highlight--;
-        lastTime = millis();
-      }
-    }
-    if(y != 0){
-      if(y == 1){
-        //first row
-        if(activeMenu.highlight < 20)
-          activeMenu.highlight += 4;
-        lastTime = millis();
-      }
-      else if(y == -1){
-        //second row
-        if(activeMenu.highlight > 3)
-          activeMenu.highlight -= 4;
-        lastTime = millis();
-      }
-      activeMenu.page = activeMenu.highlight/12;
-    }
-  }
-  if(itsbeen(200)){
-    if(menu_Press){
-      lastTime = millis();
-      slideMenuOut(0,20);
-      return false;
-    }
-    if(sel){
-      sel = false;
-      lastTime = millis();
-      switch(activeMenu.highlight){
-        //chord
-        case 0:
-          chordBuilder();
-          break;
-        //echo
-        case 1:
-          echoMenu();
-          break;
-        //humanize
-        case 2:
-          humanizeMenu();
-          break;
-        //mayhem
-        case 3:
-          // slideMenuOut(0,20);
-          warp();
-          // slideMenuIn(0,30);
-          break;
-        //quant
-        case 4:
-          quantizeMenu();
-          break;
-        //reverse
-        case 5:
-          break;
-        //random
-        case 6:
-          randMenu();
-          break;
-        //scramble
-        case 7:
-          break;
-        //split
-        case 8:
-          break;
-        //strum
-        case 9:
-          break;
-      }
-    }
-  }
-  return true;
-}
-
 void debugMenuControls(){
 }
 
@@ -12721,7 +12601,7 @@ void inputRead() {
     mainSequencerButtons();
     stepButtons();
     mainSequencerEncoders();
-    joyCommands();
+    defaultJoystickControls(true);
   }
 }
 
