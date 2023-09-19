@@ -241,6 +241,7 @@ uint32_t getByteCount(String filename);
 vector<uint16_t> getSelectionBounds2();
 bool itsbeen(int);
 vector<uint8_t> selectKeys();
+vector<uint8_t> selectKeys(uint8_t startRoot);
 vector<uint8_t> genScale(uint8_t, uint8_t);
 vector<uint8_t> genScale(uint8_t, uint8_t, int8_t,uint8_t);
 float swingOffset(unsigned short int step);

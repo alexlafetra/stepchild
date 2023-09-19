@@ -622,6 +622,20 @@ void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val){
   display.drawCircle(x1,y1,2,SSD1306_WHITE);
 }
 
+void drawSideLabel(bool side, int8_t y1, String titleText, String bodyText){
+  switch(side){
+    //left
+    case 0:
+      display.fillRoundRect(0,y1-1,titleText.length()*4+4,7,4,1);
+      display.drawRoundRect(-5,y1+2,bodyText.length()*4+4,16,3,1);
+      printSmall(2,y1,titleText,2);
+      break;
+    //right
+    case 1:
+      break;
+  }
+}
+
 void drawLabel(uint8_t x1, uint8_t y1, String text, bool wOrB){
   display.fillRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-1,text.length()*4-countSpaces(text)*2+5,7,3,wOrB == true ? 1:0 );
   if(!wOrB)

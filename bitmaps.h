@@ -1011,48 +1011,6 @@ const unsigned char* mainMenu_icons[12] = {
   epd_bitmap_arp
 };
 
-//fx menu icons
-const unsigned char* fxMenu_icons[24] = {
-	epd_bitmap_quant,
-	epd_bitmap_humanize,
-	epd_bitmap_strum,
-	epd_bitmap_echo,
-
-//   epd_bitmap_warp,
-
-	epd_bitmap_chord,
-	epd_bitmap_reverse,
-	epd_bitmap_empty,
-	epd_bitmap_empty,
-	// epd_bitmap_rnd,
-	// epd_bitmap_scramble,
-
-	// epd_bitmap_splinter,
-//   epd_bitmap_chop,
-//   epd_bitmap_mayhem,
-	epd_bitmap_empty,
-	epd_bitmap_empty,
-	epd_bitmap_empty,
-	epd_bitmap_empty,
-
-
-//page 2
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-  epd_bitmap_empty
-};
-
 //track menu icons
 // 'delete', 9x5px
 const unsigned char track_delete []  = {
@@ -1497,8 +1455,8 @@ const unsigned char* instrument_icons[16] = {
 	keys_bmp,
 	drum_bmp,
 	cv_icon_bmp,
-
-	epd_bitmap_empty,
+	epd_bitmap_chord,
+	
   	epd_bitmap_empty,
 	epd_bitmap_empty,
 	epd_bitmap_empty,

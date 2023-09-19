@@ -1,3 +1,46 @@
+//fx menu icons
+const unsigned char* fxMenu_icons[24] = {
+	epd_bitmap_quant,
+	epd_bitmap_humanize,
+	epd_bitmap_strum,
+	epd_bitmap_echo,
+
+//   epd_bitmap_warp,
+
+	// epd_bitmap_chord,
+	epd_bitmap_reverse,
+	epd_bitmap_empty,
+	epd_bitmap_empty,
+  epd_bitmap_empty,
+	// epd_bitmap_rnd,
+	// epd_bitmap_scramble,
+
+	// epd_bitmap_splinter,
+//   epd_bitmap_chop,
+//   epd_bitmap_mayhem,
+	epd_bitmap_empty,
+	epd_bitmap_empty,
+	epd_bitmap_empty,
+	epd_bitmap_empty,
+
+
+//page 2
+  epd_bitmap_empty,
+  epd_bitmap_empty,
+  epd_bitmap_empty,
+  epd_bitmap_empty,
+
+  epd_bitmap_empty,
+  epd_bitmap_empty,
+  epd_bitmap_empty,
+  epd_bitmap_empty,
+
+  epd_bitmap_empty,
+  epd_bitmap_empty,
+  epd_bitmap_empty,
+  epd_bitmap_empty
+};
+
 bool fxMenuControls(){
   if(itsbeen(100)){
     if(x != 0){
@@ -54,11 +97,8 @@ bool fxMenuControls(){
         case 3:
           echoMenu();
           break;
-        case 4:
-          chordBuilder();
-          break;
         //reverse
-        case 5:
+        case 4:
           slideMenuOut(0,20);
           reverse();
           activeMenu.coords.x1 = 25;
@@ -66,6 +106,10 @@ bool fxMenuControls(){
           activeMenu.coords.x2 = 93;
           activeMenu.coords.y2 = 64;
           slideMenuIn(0,30);
+          break;
+        //chordbuilder
+        case 5:
+          // chordBuilder();
           break;
         case 6:
           warp();
@@ -101,10 +145,9 @@ void drawFxLabel(){
       text = "ECHO";
       break;
     case 4:
-      text = "CHORD";
+      text = "REVERSE";
       break;
     case 5:
-      text = "REVERSE";
       break;
     case 6:
       // text = "RANDOM";

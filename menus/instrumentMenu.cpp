@@ -56,6 +56,9 @@ void selectInstrumentMenu(){
           case 6:
             MIDItoCV();
             break;
+          case 7:
+            chordBuilder();
+            break;
         }
       }
     }
@@ -102,6 +105,9 @@ void selectInstrumentMenu(){
         break;
       case 6:
         text = "CV";
+        break;
+      case 7:
+        text = "chord";
         break;
     }
     // printArp(0,10,text,1);

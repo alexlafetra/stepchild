@@ -4898,12 +4898,16 @@ void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numbe
   }
 }
 
-vector<uint8_t> selectKeys() {
+vector<uint8_t> selectKeys(){
+  return selectKeys(0);
+}
+
+vector<uint8_t> selectKeys(uint8_t startRoot) {
   uint8_t selected = 0;
   bool keys[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   float animOffset = 0;
   bool done = false;
-  uint8_t root = 0;
+  uint8_t root = startRoot%12;
   //FUCK
   const uint8_t scaleOptions[12] =  { MAJOR , HARMONIC_MINOR , MELODIC_MINOR , MAJOR_PENTATONIC , MINOR_PENTATONIC , BLUE , DORIAN , PHRYGIAN , LYDIAN , MIXOLYDIAN , AEOLIAN , LOCRIAN };
   uint8_t activeScale;
