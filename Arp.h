@@ -75,6 +75,9 @@ Arp::Arp(){
   minPitchMod = 0;
 }
 
+Arp activeArp;
+
+
 bool Arp::hasItBeenEnoughTime(){
   if(swung){
     if(micros() - Arp::timeLastStepPlayed >= MicroSperTimeStep+swingOffset(stepCount)){
@@ -256,108 +259,67 @@ void Arp::debugPrintArp(){
   Serial.flush();
 }
 
+bool compareArpNotes(uint8_t id1,uint8_t id2){
+  return activeArp.notes[id1]>activeArp.notes[id2];
+}
 //sorts thru notes to create an order
 void Arp::setOrder(){
   vector<uint8_t> temp;
-  order.swap(temp);
+  // order.swap(temp);
+  order.erase(order.begin(),order.end());
   //order played is just the order of the playlist
   //there might be a more efficient way of doing this (like just assigning a range)
-  if(playStyle == 0){
-    for(int note = 0; note<notes.size(); note++){
-      order.push_back(note);
-    }
+  for(int note = 0; note<notes.size(); note++){
+    order.push_back(note);
   }
-  //descending
-  else if(Arp::playStyle == 1){
-    //get the highest note
-    int highest;
-    int highestIndex;
-
-    temp = notes;//this holds the notes that have yet to be ordered, gets deleted from
-  
-    while(temp.size()>0){
-      highestIndex = 0;
-      highest = 0;
-      for(int i = 0; i<temp.size(); i++){
-        if(temp[i]>highest){
-          highest = temp[i];
-          highestIndex = i;
-        }
+  switch(playStyle){
+    //play order
+    case 0:
+      break;
+    //descending by pitch
+    case 1:
+      sort(order.begin(),order.end(),compareArpNotes);
+      break;
+    //ascending
+    case 2:
+      sort(order.begin(),order.end(),compareArpNotes);
+      reverse(order.begin(),order.end());
+      break;
+    //up down
+    case 3:
+      {
+      //copy order into up
+      vector<uint8_t> up = order;
+      //clear order
+      order.erase(order.begin(),order.end());
+      //sort up by descending
+      sort(up.begin(),up.end(),compareArpNotes);
+      //copy to down, then reverse down so it's sorted by ascending
+      vector<uint8_t> down = up;
+      reverse(down.begin(),down.end());
+      //push a value from up, then down, into order
+      for(uint8_t i = 0; i<up.size()-1; i++){
+        order.push_back(up[i]);
+        order.push_back(down[i+1]);
       }
-      order.push_back(highestIndex);
-      temp.erase(temp.begin()+highestIndex);//knocking out the notes one by one
-    }
-  }
-  //ascending
-  else if(Arp::playStyle == 2){
-    //get the lowest note
-    int lowest;
-    int lowestIndex;
-
-    temp.swap(notes);//this holds the notes that have yet to be ordered, gets deleted from
-  
-    while(temp.size()>0){
-      lowestIndex = 0;
-      lowest = 127;
-      for(int i = 0; i<temp.size(); i++){
-        if(temp[i]<lowest){
-          lowest = temp[i];
-          lowestIndex = i;
-        }
       }
-      order.push_back(lowestIndex);
-      temp.erase(temp.begin()+lowestIndex);//knocking out the notes one by one
-    }
-  }
-  //up down
-  else if(Arp::playStyle == 3){
-    //first, organize order low-high
-    //get the highest note
-    int highest;
-    int highestIndex;
-
-    temp.swap(notes);//this holds the notes that have yet to be ordered, gets deleted from
-  
-    while(temp.size()>0){
-      highestIndex = 0;
-      highest = 0;
-      for(int i = 0; i<temp.size(); i++){
-        if(temp[i]>highest){
-          highest = temp[i];
-          highestIndex = i;
-        }
+      break;
+    //down up
+    case 4:
+      //copy order into up
+      vector<uint8_t> up = order;
+      //clear order
+      order.erase(order.begin(),order.end());
+      //sort up by descending
+      sort(up.begin(),up.end(),compareArpNotes);
+      //copy to down, then reverse down so it's sorted by ascending
+      vector<uint8_t> down = up;
+      reverse(down.begin(),down.end());
+      //push a value from down, then up, into order
+      for(uint8_t i = 0; i<up.size()-1; i++){
+        order.push_back(down[i]);
+        order.push_back(up[i+1]);
       }
-      order.push_back(highestIndex);
-      temp.erase(temp.begin()+highestIndex);//knocking out the notes one by one
-    }
-    //push back the notes in descending order
-    for(int i = order.size()-2; i>=0; i--){
-      order.push_back(order[i]);
-    }
-  }
-  //down up
-  else if(Arp::playStyle == 4){
-    //get the lowest note
-    int lowest;
-    int lowestIndex;
-
-    temp.swap(notes);//this holds the notes that have yet to be ordered, gets deleted from
-  
-    while(temp.size()>0){
-      lowestIndex = 0;
-      lowest = 127;
-      for(int i = 0; i<temp.size(); i++){
-        if(temp[i]<lowest){
-          lowest = temp[i];
-          lowestIndex = i;
-        }
-      }
-      order.push_back(lowestIndex);
-      temp.erase(temp.begin()+lowestIndex);//knocking out the notes one by one
-    }
-    //push back the notes in ascending order
-    for(int i = order.size()-2; i>=0; i--){
-      order.push_back(order[i]);
-    }
+      break;
   }
 }

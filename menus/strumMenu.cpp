@@ -137,7 +137,7 @@ void displayStrumMenu(uint8_t cursor, uint8_t sortType, uint8_t sortedValue, uin
     String amt = stepsToMeasures(amount);
     printFraction_small(0,3,amt);
     if(cursor == 0){
-        drawArrow(amt.length()*4+2+sin(millis()/200),5,3,1,false);
+        drawArrow(amt.length()*4+sin(millis()/200),5,3,1,false);
     }
     //type (ascending/descending)
     String type = sortType?stringify("ascending"):stringify("descending");
@@ -149,7 +149,7 @@ void displayStrumMenu(uint8_t cursor, uint8_t sortType, uint8_t sortedValue, uin
     String rnd = "vary - "+stringify(variation)+"%";
     printSmall(0,58,rnd,1);
     if(cursor == 2){
-        drawArrow(rnd.length()*4+2+sin(millis()/200),60,3,1,false);
+        drawArrow(rnd.length()*4+sin(millis()/200),60,3,1,false);
     }
     //target (pitch/track)
     String by = "by "+(sortedValue?stringify("trk #"):stringify("$"));

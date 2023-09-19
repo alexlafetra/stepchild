@@ -17,8 +17,8 @@ class Menu{
     int8_t page;
 
     Menu();
-    Menu(uint16_t,uint16_t,uint16_t,uint16_t);
-    Menu(unsigned short int x1, unsigned short int y1, unsigned short int x2, unsigned short int y2, String title);
+    Menu(int16_t,int16_t,int16_t,int16_t);
+    Menu(int16_t x1, int16_t y1, int16_t x2, int16_t y2, String title);
     void displayMenu();
     void displayMenu(bool,bool);
     void displayMenu(bool, bool, bool);
@@ -35,7 +35,7 @@ class Menu{
     void displayFxMenu();
     void displayHumanizeMenu();
     void displayArpMenu();
-    void displayClockMenu(float);
+    void displayClockMenu(float,uint8_t);
 };
 
 Menu::Menu(){
@@ -48,7 +48,7 @@ Menu::Menu(){
   coords.y2 = screenHeight;
 }
 
-Menu::Menu(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
+Menu::Menu(int16_t x1, int16_t y1, int16_t x2, int16_t y2){
   menuTitle = "MENU";
   page = 0;
   coords.x1 = x1;
@@ -57,7 +57,7 @@ Menu::Menu(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
   coords.y2 = y2;
 }
 
-Menu::Menu(unsigned short int x1, unsigned short int y1, unsigned short int x2, unsigned short int y2, String title){
+Menu::Menu(int16_t x1, int16_t y1, int16_t x2, int16_t y2, String title){
   coords.x1 = x1;
   coords.y1 = y1;
   coords.x2 = x2;
@@ -71,7 +71,7 @@ Menu activeMenu;
 
 void Menu::displayMenu(bool bounded, bool underlined, bool separateWindow){
   if(menuTitle == "CLOCK")
-    activeMenu.displayClockMenu(1);
+    activeMenu.displayClockMenu(1,0);
   else if(menuTitle == "TRK")
     activeMenu.displayTrackMenu();
   else if(menuTitle == "EDIT")

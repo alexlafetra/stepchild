@@ -157,7 +157,8 @@ unsigned short int timestep;
 unsigned int passiveTimer;
 
 //humanize values are timing, velocity, and chance
-int8_t humanizeParameters[3] = {0,0,0};
+//i very well might go back to using this array instead of the humanizer object
+// int8_t humanizeParameters[3] = {0,0,0};
 int8_t quantizeAmount = 100;
 bool quantizeWithSwing = false;
 //holds all the data for the echo fx

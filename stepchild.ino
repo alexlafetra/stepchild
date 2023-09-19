@@ -182,8 +182,6 @@ vector<dataTrack> dataTrackData;
 #include "Arp.h"
 #include "instruments/planets.cpp"
 
-Arp activeArp;
-
 unsigned short int animOffset = 0;//for animating curves
 
 //Holds coordinates and a flag set when the SelectionBox has been started
@@ -3229,16 +3227,16 @@ void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmou
 
 void drawWormhole(){
   srand(10);
-  float rotationOffset = humanizeParameters[0]*float(90)/float(100);
+  float rotationOffset = humanizerParameters.timingAmount*float(90)/float(100);
   int numSquares = 20;
   int xPos = 70;
   int yPos = 40;
-  // int r = random(-humanizeParameters[1]/4,humanizeParameters[1]/4);
+  // int r = random(-humanizerParameters.velocityAmount/4,humanizerParameters.velocityAmount/4);
   for(int i = 0; i<numSquares; i++){
     uint8_t rand = random(0,100)*4;
-    if(rand>humanizeParameters[2]){
-      // drawRotatedRect(xPos + 2*i + (i>12 ? (i-12)*2:0), yPos - i*i/10 + sin(millis()/100+i) + (i>10 ? pow(i-10,3)/20:0)+humanizeParameters[1]*sin(4*i/(PI)),40-2*i,40-2*i,rotationOffset*i,SSD1306_WHITE);
-      drawRotatedRect(xPos + 3*i, yPos -  2*i + sin(millis()/100+i) + humanizeParameters[1]*sin(4*i/(PI))/2,40-2*i,40-2*i,rotationOffset*i,SSD1306_WHITE);
+    if(rand>humanizerParameters.chanceAmount){
+      // drawRotatedRect(xPos + 2*i + (i>12 ? (i-12)*2:0), yPos - i*i/10 + sin(millis()/100+i) + (i>10 ? pow(i-10,3)/20:0)+humanizerParameters.velocityAmount*sin(4*i/(PI)),40-2*i,40-2*i,rotationOffset*i,SSD1306_WHITE);
+      drawRotatedRect(xPos + 3*i, yPos -  2*i + sin(millis()/100+i) + humanizerParameters.velocityAmount*sin(4*i/(PI))/2,40-2*i,40-2*i,rotationOffset*i,SSD1306_WHITE);
     }
   }
 }
@@ -3960,53 +3958,8 @@ void thruMenu(){ //controls which midi port you're editing
   }
 }
 
-void midiPortAnimation(bool in){
-  if(in){
-
-  }
-  else{
-
-  }
-}
-
-void midiPortAnimation_old(bool in){
-  if(in){
-    int8_t frameCount = 8;
-    while(frameCount>-3){
-      display.clearDisplay();
-      for(uint8_t port = 0; port<5; port++){
-        uint8_t xCoord = 6+port*25;
-        int8_t yCoord = 8+port*10+frameCount*8;
-        if(yCoord<8)
-          yCoord = 8;
-        if(port == 0)
-          display.drawBitmap(xCoord,yCoord,usb_logo_bmp,17,17,SSD1306_WHITE);
-        else
-          display.drawBitmap(xCoord,yCoord,MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
-      }
-      display.display();
-      // delay(100);
-      frameCount--;
-    }
-  }
-  else{
-    int8_t frameCount = -3;
-    while(frameCount<8){
-      display.clearDisplay();
-      for(uint8_t port = 0; port<5; port++){
-        uint8_t xCoord = 6+port*25;
-        int8_t yCoord = 8+frameCount*8+port*10;
-        if(yCoord<8)
-          yCoord = 8;
-        if(port == 0)
-          display.drawBitmap(xCoord,yCoord,usb_logo_bmp,17,17,SSD1306_WHITE);
-        else
-          display.drawBitmap(xCoord,yCoord,MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
-      }
-      display.display();
-      frameCount++;
-    }
-  }
+void cvMenu(){
+    
 }
 //this is a complex menu! it has two modes, and a very custom selection screen
 void midiMenu(){
@@ -4025,9 +3978,9 @@ void midiMenu(){
             case 0:
               routeMenu();
               break;
-            //channels
+            //CV
             case 1:
-              inputMenu();
+              cvMenu();
               break;
             case 2:
               thruMenu();
@@ -4042,7 +3995,6 @@ void midiMenu(){
       }
       if(menu_Press){
         lastTime = millis();
-        // midiPortAnimation(false);
         break;
       }
       if(play){
@@ -4325,7 +4277,7 @@ void midiMenu(){
     //bounding box
     //menu options
     printSmall(x1,y1,"Routing",SSD1306_WHITE);
-    printSmall(x1,y1+8,"Input",SSD1306_WHITE);
+    printSmall(x1,y1+8,"CV - wip",SSD1306_WHITE);
     printSmall(x1,y1+16,"Thru",SSD1306_WHITE);
       
     //center menu mode
@@ -7646,6 +7598,7 @@ void loadSettings(){
   else{
     createNewSettingsFile();
   }
+  LittleFS.end();
 }
 #endif
 
@@ -7741,6 +7694,7 @@ void serialDispLoopData(){
   Serial.print("count:");
   Serial.println(loopCount);
 }
+
 void addLoop(){
   Loop newLoop;
   newLoop.start = loopData[activeLoop].start;

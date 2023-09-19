@@ -17,15 +17,15 @@ void drawSmallStepchild(uint8_t x1, uint8_t y1){
   display.fillCircle(x1+19,y1+9,1,SSD1306_BLACK);
 }
 
-void drawSwingCurve(int xPos, int yPos){
+void drawSwingCurve(int8_t xPos, int8_t yPos){
   display.fillRect(xPos,-1,64,66,SSD1306_BLACK);
   display.drawRect(xPos,-1,64,66,SSD1306_WHITE);
   if(!swung){
-    printSmall(xPos+(screenWidth-xPos)/2-6,40,"off",SSD1306_WHITE);
+    printSmall(xPos+(screenWidth-xPos)/2-6,40,"off",1);
     if(millis()%1000>500){
       printSmall(xPos+(screenWidth-xPos)/2-10,50,"[sel]",1);
     }
-    display.drawFastVLine(xPos,16,48,SSD1306_WHITE);
+    display.drawFastVLine(xPos,16,48,1);
     return;
   }
   //starting point is zero, end point is 96
@@ -55,13 +55,13 @@ void drawSwingCurve(int xPos, int yPos){
   display.fillRect(activeMenu.coords.y1+70,0,58,16,SSD1306_BLACK);
 }
 
-void Menu::displayClockMenu(float tVal){
+void Menu::displayClockMenu(float tVal,uint8_t cursor){
   //lines
   display.drawFastHLine(trackDisplay,debugHeight,screenWidth-trackDisplay,SSD1306_WHITE);
-  uint8_t x1;
-  uint8_t x2;
-  uint8_t x3;
-  switch(page){
+  uint8_t x1 = 0;
+  int8_t x2 = 0;//needs to be signed! for whatever reason, you use this to do the tiny clock hands and it needs
+  uint8_t x3 = 0;//to be able to accept -1,1 from a cosine function
+  switch(cursor){
     //bpm
     case 0:
       {
@@ -175,10 +175,11 @@ void Menu::displayClockMenu(float tVal){
 void clockMenu(){
   float tVal = micros();
   float angle = 1;
+  uint8_t cursor = 0;
   while(true){
     display.clearDisplay();
     drawSeq(false,false,false,false,false);
-    activeMenu.displayClockMenu(angle);
+    activeMenu.displayClockMenu(angle,cursor);
     display.display();
 
     //for the clock pendulum
@@ -201,25 +202,25 @@ void clockMenu(){
         lastTime = millis();
       }
       if(x != 0){
-        if(x == 1 && activeMenu.page>0){
-          activeMenu.page--;
-          if(activeMenu.page == 2)
-            activeMenu.page--;
+        if(x == 1 && cursor>0){
+          cursor--;
+          if(cursor == 2)
+            cursor--;
           lastTime = millis();
         }
-        else if(x == -1 && activeMenu.page<3){
-          activeMenu.page++;
-          if(activeMenu.page == 2)
-            activeMenu.page++;
+        else if(x == -1 && cursor<3){
+          cursor++;
+          if(cursor == 2)
+            cursor++;
           lastTime = millis();
         }
       }
       if(sel){
-        if(activeMenu.page == 1 || activeMenu.page == 2){
+        if(cursor == 1 || cursor == 2){
           swung = !swung;
           lastTime = millis();
         }
-        else if(activeMenu.page == 3){
+        else if(cursor == 3){
           externalClock = !externalClock;
           lastTime = millis();
         }
@@ -227,7 +228,7 @@ void clockMenu(){
     }
     while(counterA != 0){
       if(counterA >= 1){
-        switch(activeMenu.page){
+        switch(cursor){
           //bpm
           case 0:
             if(!shift)
@@ -236,7 +237,7 @@ void clockMenu(){
               setBpm(bpm+1);
             break;
           case 2:
-            activeMenu.page = 1;
+            cursor = 1;
             break;
           //swing val
           //(complicated checking bc you're scaling it
@@ -266,7 +267,7 @@ void clockMenu(){
         }
       }
       else if(counterA <= -1){
-        switch(activeMenu.page){
+        switch(cursor){
           //bpm
           case 0:
             if(!shift)
@@ -276,7 +277,7 @@ void clockMenu(){
             lastTime = millis();
             break;
           case 2:
-            activeMenu.page = 1;
+            cursor = 1;
             break;
           //swing val
           //(complicated checking bc you're scaling it
@@ -309,9 +310,9 @@ void clockMenu(){
     }
     while(counterB != 0){
       if(counterB >= 1){
-        switch(activeMenu.page){
+        switch(cursor){
           case 1:
-            activeMenu.page = 2;
+            cursor = 2;
             break;
           //swing subdiv
           case 2:
@@ -323,9 +324,9 @@ void clockMenu(){
         }
       }
       else if(counterB <= -1){
-        switch(activeMenu.page){
+        switch(cursor){
           case 1:
-            activeMenu.page = 2;
+            cursor = 2;
             break;
           //swing subdiv
           case 2:

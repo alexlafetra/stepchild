@@ -684,7 +684,6 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
     return true;
 }
 
-
 void randMenu(){
     //which menu you're on
     uint8_t whichTab = 1;

@@ -1075,9 +1075,9 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart){
         //data
         display.fillRoundRect(0,18,33,27,3,0);
         display.drawRoundRect(-4,20,38,25,3,1);
-        printSmall(sin(millis()/300),23,"tmng:"+stringify(humanizeParameters[0])+"%",1);
-        printSmall(sin(millis()/300+1),30,"vel:"+stringify(humanizeParameters[1])+"%",1);
-        printSmall(sin(millis()/300+2),37,"chnc:"+stringify(humanizeParameters[2])+"%",1);
+        printSmall(sin(millis()/300),23,"tmng:"+stringify(humanizerParameters.timingAmount)+"%",1);
+        printSmall(sin(millis()/300+1),30,"vel:"+stringify(humanizerParameters.velocityAmount)+"%",1);
+        printSmall(sin(millis()/300+2),37,"chnc:"+stringify(humanizerParameters.chanceAmount)+"%",1);
 
         //fraction
         // printFraction(72,3,stepsToMeasures(subDivInt));
