@@ -1284,11 +1284,11 @@ const unsigned char arp_up_mode []  = {
 // Array of all bitmaps for convenience. (Total bytes used to store images in  = 288)
 const unsigned char* arpMode_icons[6] = {
 	arp_play_mode,
-	arp_random_mode,
-	arp_up_mode,
 	arp_down_mode,
+	arp_up_mode,
 	arp_up_down,
-	arp_down_up
+	arp_down_up,
+	arp_random_mode
 };
 
 //datatracks-----------------------

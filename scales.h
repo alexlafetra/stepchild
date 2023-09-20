@@ -13,7 +13,7 @@
 #define LOCRIAN 11
 
 String getScaleName(uint8_t scale){
-  const String scales[12] = {"major","melodic minor","harmonic minor","blue","dorian","phrygian","lydian","mixolydian","aeolian","locrian"};
+  const String scales[12] = {"major","melodic minor","harmonic minor","major pentatonic","minor pentatonoic","blue","dorian","phrygian","lydian","mixolydian","aeolian","locrian"};
   return scales[scale];
 }
 

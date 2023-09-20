@@ -199,23 +199,23 @@ void drawModBoxes(uint8_t cursor){
 
       String text;
       switch(activeArp.playStyle){
-        case 0:
-          text = "play order";
-          break;
         case 5:
-          text = "down/up";
+          text = "random";
           break;
         case 4:
-          text = "up/down";
+          text = "down/up";
           break;
         case 3:
-          text = "down";
+          text = "up/down";
           break;
         case 2:
           text = "up";
           break;
         case 1:
-          text = "random";
+          text = "down";
+          break;
+        case 0:
+          text = "play order";
           break;
       }
       // display.fillRoundRect(17,22,41,20,3,0);//box
@@ -277,13 +277,13 @@ void arpModMenu(){
         switch(cursor){
           case 0:
             if(!shift){
-              if(counterA <= -1){
+              if(counterA < 0){
                 if(activeArp.minVelMod>117)
                   activeArp.minVelMod = 127;
                 else
                   activeArp.minVelMod += 10;
               }
-              if(counterA >= 1){
+              if(counterA > 0 ){
                 if(activeArp.minVelMod>10)
                   activeArp.minVelMod-=10;
                 else
@@ -291,10 +291,10 @@ void arpModMenu(){
               }
             }
             else{
-              if(counterA <= -1 && activeArp.minVelMod<127){
+              if(counterA < 0 && activeArp.minVelMod<127){
                 activeArp.minVelMod++;
               }
-              else if(counterA >= 1 && activeArp.minVelMod>0){
+              else if(counterA > 0 && activeArp.minVelMod>0){
                 activeArp.minVelMod--;
               }
             }
@@ -302,13 +302,13 @@ void arpModMenu(){
             break;
           case 1:
             if(!shift){
-              if(counterA >= 1){
+              if(counterA > 0){
                 if(activeArp.chanceMod>90)
                   activeArp.chanceMod = 100;
                 else
                   activeArp.chanceMod += 10;
               }
-              if(counterA <= -1){
+              if(counterA < 0){
                 if(activeArp.chanceMod>10)
                   activeArp.chanceMod-=10;
                 else
@@ -316,10 +316,10 @@ void arpModMenu(){
               }
             }
             else{
-              if(counterA >= 1 && activeArp.chanceMod<100){
+              if(counterA > 0 && activeArp.chanceMod<100){
                 activeArp.chanceMod++;
               }
-              else if(counterA <= -1 && activeArp.chanceMod>0){
+              else if(counterA < 0 && activeArp.chanceMod>0){
                 activeArp.chanceMod--;
               }
             }
@@ -327,13 +327,13 @@ void arpModMenu(){
             break;
           case 2:
             if(!shift){
-              if(counterA >= 1){
+              if(counterA > 0){
                 if(activeArp.repMod>90)
                   activeArp.repMod = 100;
                 else
                   activeArp.repMod += 10;
               }
-              if(counterA <= -1){
+              if(counterA < 0){
                 if(activeArp.repMod>10)
                   activeArp.repMod-=10;
                 else
@@ -341,10 +341,10 @@ void arpModMenu(){
               }
             }
             else{
-              if(counterA >= 1 && activeArp.repMod<100){
+              if(counterA > 0 && activeArp.repMod<100){
                 activeArp.repMod++;
               }
-              else if(counterA <= -1 && activeArp.repMod>0){
+              else if(counterA < 0 && activeArp.repMod>0){
                 activeArp.repMod--;
               }
             }
@@ -352,13 +352,13 @@ void arpModMenu(){
             break;
           case 3:
             if(!shift){
-              if(counterA <= -1){
+              if(counterA < 0){
                 if(activeArp.minPitchMod>117)
                   activeArp.minPitchMod = 127;
                 else
                   activeArp.minPitchMod += 10;
               }
-              if(counterA >= 1){
+              if(counterA > 0){
                 if(activeArp.minPitchMod>10)
                   activeArp.minPitchMod-=10;
                 else
@@ -366,17 +366,17 @@ void arpModMenu(){
               }
             }
             else{
-              if(counterA <= -1 && activeArp.minPitchMod<127){
+              if(counterA < 0 && activeArp.minPitchMod<127){
                 activeArp.minPitchMod++;
               }
-              else if(counterA >= 1 && activeArp.minPitchMod>0){
+              else if(counterA > 0 && activeArp.minPitchMod>0){
                 activeArp.minPitchMod--;
               }
             }
             counterA += counterA<0?1:-1;;
             break;
           case 4:
-            if(counterA <= -1){
+            if(counterA < 0){
               if(activeArp.playStyle == 0)
                 activeArp.playStyle = 5;
               else
@@ -396,13 +396,13 @@ void arpModMenu(){
         switch(cursor){
           case 0:
             if(!shift){
-              if(counterB >= 1){
+              if(counterB > 0){
                 if(activeArp.maxVelMod>117)
                   activeArp.maxVelMod = 127;
                 else
                   activeArp.maxVelMod += 10;
               }
-              if(counterB <= -1){
+              if(counterB < 0){
                 if(activeArp.maxVelMod>10)
                   activeArp.maxVelMod-=10;
                 else
@@ -410,28 +410,30 @@ void arpModMenu(){
               }
             }
             else{
-              if(counterB >= 1 && activeArp.maxVelMod<127){
+              if(counterB > 0 && activeArp.maxVelMod<127){
                 activeArp.maxVelMod++;
               }
-              else if(counterB <= -1 && activeArp.maxVelMod>0){
+              else if(counterB < 0 && activeArp.maxVelMod>0){
                 activeArp.maxVelMod--;
               }
             }
             counterB += counterB<0?1:-1;;
             break;
           case 1:
+            counterB = 0;
             break;
           case 2:
+            counterB = 0;
             break;
           case 3:
             if(!shift){
-              if(counterB >= 1){
+              if(counterB > 0){
                 if(activeArp.maxPitchMod>117)
                   activeArp.maxPitchMod = 127;
                 else
                   activeArp.maxPitchMod += 10;
               }
-              if(counterB <= -1){
+              if(counterB < 0){
                 if(activeArp.maxPitchMod>10)
                   activeArp.maxPitchMod-=10;
                 else
@@ -439,10 +441,10 @@ void arpModMenu(){
               }
             }
             else{
-              if(counterB >= 1 && activeArp.maxPitchMod<127){
+              if(counterB > 0 && activeArp.maxPitchMod<127){
                 activeArp.maxPitchMod++;
               }
-              else if(counterB <= -1 && activeArp.maxPitchMod>0){
+              else if(counterB < 0 && activeArp.maxPitchMod>0){
                 activeArp.maxPitchMod--;
               }
             }
@@ -652,7 +654,7 @@ void arpMenu(){
               counterA += counterA<0?1:-1;;
             }
             else{
-              if(counterA >= 1){
+              if(counterA > 0){
                 activeArp.arpSubDiv = changeSubDiv(true,activeArp.arpSubDiv,false);
                 counterA += counterA<0?1:-1;;
               }
@@ -663,12 +665,12 @@ void arpMenu(){
             }
             break;
           case 2:
-            if(counterA >= 1){
+            if(counterA > 0){
               activeArp.playStyle++;
               if(activeArp.playStyle == 6)
                 activeArp.playStyle = 0;
             }
-            else if(counterA <= -1){
+            else if(counterA < 0){
               if(activeArp.playStyle == 0)
                 activeArp.playStyle = 5;
               else
@@ -679,10 +681,10 @@ void arpMenu(){
         }
       }
       while(counterB != 0){
-        if(counterB <= -1 && activeArp.channel>1){
+        if(counterB < 0 && activeArp.channel>1){
           activeArp.channel--;
         }
-        else if(counterB >= 1 && activeArp.channel<16){
+        else if(counterB > 0 && activeArp.channel<16){
           activeArp.channel++;
         }
         lastTime = millis();

@@ -9,10 +9,11 @@ class Arp{
     vector<unsigned char> order;
     vector<unsigned char> lengths;
     vector<unsigned char> extendedNotes;
-    unsigned short int arpSubDiv = 24;
+
+    uint16_t arpSubDiv = 24;
     //activeNote is the index of the order list, we move through order to call notes
-    unsigned char activeNote;
-    unsigned char range;
+    uint8_t activeNote;
+    uint8_t range;
     uint8_t channel;
     uint8_t maxVelMod;
     uint8_t minVelMod;
@@ -27,6 +28,7 @@ class Arp{
     bool uniformLength;
     bool holding;
     bool getNotesFromExternalInput;
+
     void grabNotesFromTracks(bool);
     void grabNotesFromPlaylist();
     void playstep();
@@ -145,7 +147,6 @@ void Arp::grabNotesFromPlaylist(){
       notes.push_back(playlist[i][0]+12*oct);
     }
   }
-  setOrder();
 }
 
 //playheadPos wraps around after each note, it just counts up until the next note needs to be played
@@ -200,6 +201,9 @@ void Arp::playstep(){
   //if not, try to grab some notes
   else
     grabNotesFromPlaylist();
+
+  //set the order of the notes
+  setOrder();
 }
 
 //range
@@ -215,6 +219,7 @@ void Arp::grabNotesFromTracks(bool sending){
       notes.push_back(trackData[track].pitch);
   }
 }
+
 //returns false if there are already 32 lengths in the buffer
 bool Arp::addStepLength(uint16_t length, uint8_t where){
   if(lengths.size()<32){
@@ -262,6 +267,11 @@ void Arp::debugPrintArp(){
 bool compareArpNotes(uint8_t id1,uint8_t id2){
   return activeArp.notes[id1]>activeArp.notes[id2];
 }
+
+bool randomSort(uint8_t id1, uint8_t id2){
+  return random(0,2);
+}
+
 //sorts thru notes to create an order
 void Arp::setOrder(){
   vector<uint8_t> temp;
@@ -298,7 +308,7 @@ void Arp::setOrder(){
       vector<uint8_t> down = up;
       reverse(down.begin(),down.end());
       //push a value from up, then down, into order
-      for(uint8_t i = 0; i<up.size()-1; i++){
+      for(uint8_t i = 0; i<up.size()-1; i+=2){
         order.push_back(up[i]);
         order.push_back(down[i+1]);
       }
@@ -306,6 +316,7 @@ void Arp::setOrder(){
       break;
     //down up
     case 4:
+      {
       //copy order into up
       vector<uint8_t> up = order;
       //clear order
@@ -316,10 +327,14 @@ void Arp::setOrder(){
       vector<uint8_t> down = up;
       reverse(down.begin(),down.end());
       //push a value from down, then up, into order
-      for(uint8_t i = 0; i<up.size()-1; i++){
+      for(uint8_t i = 0; i<up.size()-1; i+=2){
         order.push_back(down[i]);
         order.push_back(up[i+1]);
       }
+      }
+      break;
+    case 5:
+      sort(order.begin(),order.end(),randomSort);
       break;
   }
 }

@@ -636,11 +636,19 @@ void drawSideLabel(bool side, int8_t y1, String titleText, String bodyText){
   }
 }
 
-void drawLabel(uint8_t x1, uint8_t y1, String text, bool wOrB){
-  display.fillRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-1,text.length()*4-countSpaces(text)*2+5,7,3,wOrB == true ? 1:0 );
-  if(!wOrB)
-    display.drawRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-1,text.length()*4-countSpaces(text)*2+5,7,3,1);
+void drawLabel_outline(uint8_t x1, uint8_t y1, String text){
+  display.fillRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-2,text.length()*4-countSpaces(text)*2+5,9,3,0);
+  display.drawRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-2,text.length()*4-countSpaces(text)*2+5,9,3,1);
   printSmall(x1-text.length()*2+countSpaces(text),y1,text,2);
+}
+void drawLabel(uint8_t x1, uint8_t y1, String text, bool wOrB){
+  if(wOrB){
+    display.fillRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-1,text.length()*4-countSpaces(text)*2+5,7,3,wOrB == true ? 1:0 );
+    printSmall(x1-text.length()*2+countSpaces(text),y1,text,2);
+  }
+  else{
+    drawLabel_outline(x1,y1,text);
+  }
 }
 
 void drawSlider(uint8_t x1, uint8_t y1, uint8_t w, uint8_t h, bool state){

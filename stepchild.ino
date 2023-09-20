@@ -302,6 +302,37 @@ void noBitches(){
 #include "menus/randomMenu.cpp"
 #include "menus/reverseMenu.cpp"
 
+//returns a list of pitches that are present in the playlist
+vector<uint8_t> getUniquePitchesFromPlaylist(){
+  //move thru each note and get its 'true' pitch.
+  //then, check to see if that pitch is in the new list.
+  //if it is, continue with the next note. if not, add 
+  //this note and then continue;
+  vector<uint8_t> uniquePitches;
+  for(uint8_t note = 0; note<playlist.size(); note++){
+    //getting the pitch relative to C
+    uint8_t uniquePitch = playlist[note][0]%12;
+    //if it's the first note, add it automatically
+    if(uniquePitches.size() == 0){
+      uniquePitches.push_back(uniquePitch);
+    }
+    //if it's not, check to see if it's unique
+    else{
+      bool unique = true;
+      for(uint8_t uniqueP = 0; uniqueP < uniquePitches.size(); uniqueP++){
+        if(uniqueP == uniquePitch){
+          unique = false;
+          break;
+        }
+      }
+      if(unique){
+        uniquePitches.push_back(uniquePitch);
+      }
+    }
+  }
+  return uniquePitches;
+}
+
 void addNoteToPlaylist(uint8_t note, uint8_t vel, uint8_t channel){
   vector<uint8_t> temp = {note,vel,channel};
   playlist.push_back(temp);
