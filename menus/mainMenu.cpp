@@ -185,14 +185,11 @@ bool mainMenuControls(){
           break;
         //keys
         case 2:
-          // toggleKeys();
           selectInstrumentMenu();
           break;
         //settings
         case 3:
-          // slideMenuOut(0,20);
-          // constructMenu("SYS");  
-          constructMenu("SETTINGS");  
+          settingsMenu();
           break;
         //quicksave
         case 4:
@@ -342,8 +339,9 @@ void Menu::displayMainMenu(){
   display.drawRect(coords.x1,coords.y1+12, coords.x2-coords.x1, coords.y2-coords.y1-12, SSD1306_WHITE);
 
   //if the title will be on screen
-  if(coords.x1+coords.y1-2<screenWidth){
-    display.setCursor(coords.x1+coords.y1-2,5);
+  if(coords.x1+coords.y1-1<screenWidth){
+    display.fillRect(coords.x1+coords.y1-1,0,32,5,0);
+    display.setCursor(coords.x1+coords.y1-1,5);
     display.setFont(&FreeSerifItalic9pt7b);
     display.print("Menu");
     display.setFont();

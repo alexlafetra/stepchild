@@ -171,8 +171,6 @@ void MIDItoCV(){
 }
 
 void testCVPitches(){
-    Serial.println("hello?");
-    Serial.flush();
     lastTime = millis();
     uint8_t pitch = 24;
     bool gate = false;

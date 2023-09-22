@@ -16,6 +16,8 @@
         "utility": "cpp",
         "istream": "cpp",
         "__bit_reference": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "__tuple": "cpp",
+        "locale": "cpp"
     }
 }

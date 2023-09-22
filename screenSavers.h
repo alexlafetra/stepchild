@@ -1,8 +1,3 @@
-//60000/1000 = 60 seconds
-const uint16_t sleepTime = 60000;
-//120,000ms = 2min
-const uint32_t deepSleepTime = 120000;
-
 //turns off screen and LEDs, sends pico to deep sleep (Not done yet!)
 #ifndef HEADLESS
 void deepSleep(){
@@ -162,7 +157,7 @@ void screenSaver(){
   vector<void (*)()> screenSaverList = {screenSaver_droplets,screenSaver_cassette,screenSaver_moon};
   uint8_t which = random(0,screenSaverList.size());
   //running the screen saver
-  lastTime = millis();
+  // lastTime = millis();
   screenSaverList[which]();
 }
 

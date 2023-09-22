@@ -23,7 +23,9 @@ void setup() {
   if(!display.begin(SSD1306_SWITCHCAPVCC, i2c_Address)) {
     Serial.println("Error starting the display!");
   }
+  //Set the display rotation (which is ~technically~ upside down)
   display.setRotation(UPRIGHT);
+  //turn text wrapping off, so our menus look ok
   display.setTextWrap(false);
 
   // these two string must be exactly 32 chars long
@@ -31,8 +33,10 @@ void setup() {
   USBDevice.setManufacturerDescriptor("Silent Instruments Inc.         ");
   USBDevice.setProductDescriptor     ("Stepchild V0.4                  ");
 
+  //setting up the pinout
   setupPins();
 
+  //wait for tinyUSB to connect, if the USB port is connected (not sure if this is necessary, need to test)
   if(tud_connected()){
     while (!TinyUSBDevice.mounted()) {
       delay(1);

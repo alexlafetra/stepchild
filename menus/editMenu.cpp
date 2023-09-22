@@ -21,37 +21,35 @@ void triggerFXMenu(uint8_t which){
 }
 
 void triggerFXEffect(uint8_t which){
-    switch(which){
-    //warp -- allow warping
-    case 0:
-      slideMenuOut(1,20);
-
-      warp();
-
-      activeMenu.coords.x1 = trackDisplay-5;
-      activeMenu.coords.y1 = 0;
-      activeMenu.coords.x2 = screenWidth;
-      activeMenu.coords.y2 = debugHeight;
-      slideMenuIn(1,48);
-      lastTime = millis();
-      break;
-    //reverse
-    case 1:
-      reverseNotes();
-      break;
-    //echo
-    case 2:
-      if(lookupData[activeTrack][cursorPos] != 0){
-        echoNote(activeTrack,lookupData[activeTrack][cursorPos]);
-        lastTime = millis();
-      }
-      break;
-    //random
-    case 3:
-      break;
-    case 4:
-      break;
-  }
+  //   switch(which){
+  //   //warp -- allow warping
+  //   case 0:
+  //     slideMenuOut(1,20);
+  //     warp();
+  //     activeMenu.coords.x1 = trackDisplay-5;
+  //     activeMenu.coords.y1 = 0;
+  //     activeMenu.coords.x2 = screenWidth;
+  //     activeMenu.coords.y2 = debugHeight;
+  //     slideMenuIn(1,48);
+  //     lastTime = millis();
+  //     break;
+  //   //reverse
+  //   case 1:
+  //     reverseNotes();
+  //     break;
+  //   //echo
+  //   case 2:
+  //     if(lookupData[activeTrack][cursorPos] != 0){
+  //       echoNote(activeTrack,lookupData[activeTrack][cursorPos]);
+  //       lastTime = millis();
+  //     }
+  //     break;
+  //   //random
+  //   case 3:
+  //     break;
+  //   case 4:
+  //     break;
+  // }
 }
 
 void fxListControls(){
@@ -87,12 +85,248 @@ void fxListControls(){
     }
   }
 }
-void editMenuControls(uint8_t* stencil){
-  //if fnction list is open
-  if(activeMenu.page != 0){
-    fxListControls();
-    return;
+
+void editMenuControls_editing(){
+  while(counterB != 0){
+    //changing vel
+    if(activeMenu.highlight == 2){
+      if(counterB<0)
+        changeVel(-1);
+      else{
+        changeVel(1);
+      }
+    }
+    //changing chance
+    else if(activeMenu.highlight == 3){
+      if(counterB<0)
+        changeChance(-1);
+      else{
+        changeChance(1);
+      }
+    }
+    counterB += counterB<0?1:-1;;
   }
+
+  //joystick
+  if(itsbeen(100)){
+    if (y == 1){
+      //highlight = 0 ==> moving notes, 1==> changing vel, 2==> changing chance, 3==> changing length
+      if(activeMenu.highlight == 0){
+        if(moveNotes(0,1)){
+          setActiveTrack(activeTrack + 1, true);
+        }
+      }
+      //vel
+      else if(activeMenu.highlight == 2){
+        if(shift)
+          changeVel(-8);
+        else
+          moveToNextNote_inTrack(true);
+      }
+      //chance
+      else if(activeMenu.highlight == 3){
+        if(shift)
+          changeChance(-5);
+        else
+          moveToNextNote_inTrack(true);
+      }
+      //quant
+      else if(activeMenu.highlight == 4){
+        if(shift && quantizeAmount>0){
+          quantizeAmount--;
+        }
+        else{
+          moveToNextNote_inTrack(true);
+        }
+      }
+      //humanize
+      else if(activeMenu.highlight == 5){
+        moveToNextNote_inTrack(true);
+      }
+      drawingNote = false;
+      lastTime = millis();
+    }
+    if (y == -1){
+      if(activeMenu.highlight == 0){
+        if(moveNotes(0,-1))
+          setActiveTrack(activeTrack - 1, true);
+      }
+      else if(activeMenu.highlight == 2){
+        if(shift)
+          changeVel(8);
+        else
+          moveToNextNote_inTrack(false);
+      }
+      else if(activeMenu.highlight == 3){
+        if(shift)
+          changeChance(5);
+        else
+          moveToNextNote_inTrack(false);
+      }
+      //quant
+      else if(activeMenu.highlight == 4){
+        if(shift && quantizeAmount<100){
+          quantizeAmount++;
+        }
+        else{
+          moveToNextNote_inTrack(false);
+        }
+      }
+      //humanize
+      else if(activeMenu.highlight == 5){
+        moveToNextNote_inTrack(false);
+      }
+      drawingNote = false;
+      lastTime = millis();
+    }
+  }
+  if(itsbeen(100)){
+    if (x == 1){
+      if(!shift){
+        if(activeMenu.highlight == 1){
+          //if it's not on a subDiv
+          if(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos%subDivInt)
+            changeNoteLength_jumpToEnds(-(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos%subDivInt));
+          //if it is
+          else
+            changeNoteLength_jumpToEnds(-subDivInt);
+          lastTime = millis();
+        }
+        else if(activeMenu.highlight == 0){
+          //if it's not on a subDiv
+          if(seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos%subDivInt){
+            if(moveNotes(-(seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos%subDivInt),0)){
+              moveCursor(seqData[activeTrack][seqData[activeTrack].size()-1].startPos-cursorPos);
+              lastTime = millis();
+            }
+          }
+          else{
+            if(moveNotes(-subDivInt,0)){
+              moveCursor(-subDivInt);
+              lastTime = millis();
+            }
+          }
+        }
+        else{
+          moveToNextNote(false,false);
+          lastTime = millis();
+        }
+      }
+      else{
+        if(activeMenu.highlight == 0){
+          if(moveNotes(-1,0)){
+            moveCursor(-1);
+            lastTime = millis();
+          }
+        }
+        else if(activeMenu.highlight == 1){
+          changeNoteLength_jumpToEnds(-1);
+          lastTime = millis();
+        }
+        else{
+          moveToNextNote(false,false);
+          lastTime = millis();
+        }
+      }
+    }
+    if (x == -1){
+      if(!shift){  
+        //special moves (while editing notes) 
+        //if it's not on a subDiv
+        if(activeMenu.highlight == 1){
+          if(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos%subDivInt){     
+            changeNoteLength_jumpToEnds(subDivInt-(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos%subDivInt));
+            lastTime = millis();
+          }
+          else{
+            changeNoteLength_jumpToEnds(subDivInt);
+            lastTime = millis();
+          }
+        }
+        else if(activeMenu.highlight == 0){
+          if(seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos%subDivInt){     
+            if(moveNotes(subDivInt-seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos%subDivInt,0)){
+              moveCursor(seqData[activeTrack][seqData[activeTrack].size()-1].startPos-cursorPos);
+              lastTime = millis();
+            }
+          }
+          else{
+            if(moveNotes(subDivInt,0)){
+              moveCursor(subDivInt);
+              lastTime = millis();
+            }
+          }
+        }
+        else{
+          moveToNextNote(true,false);
+          lastTime = millis();
+        }
+      }
+      else{
+        if(activeMenu.highlight == 0){
+          if(moveNotes(1,0)){
+            moveCursor(1);
+            lastTime = millis();
+          }
+        }
+        else if(activeMenu.highlight == 1){
+          changeNoteLength_jumpToEnds(1);
+          lastTime = millis();
+        }
+        else{
+          moveToNextNote(true,false);
+          lastTime = millis();
+        }
+      }
+    }
+  }
+  if(itsbeen(200)){
+    if(menu_Press || note_Press){
+      editingNote = false;
+      activeMenu.coords.x1 = trackDisplay-5;
+      activeMenu.coords.y1 = 0;
+      activeMenu.coords.x2 = screenWidth;
+      activeMenu.coords.y2 = debugHeight;
+      slideMenuIn(1,48);
+      lastTime = millis();
+      return;
+    }
+    if(loop_Press){
+      switch(activeMenu.highlight){
+        //in move/length/vel/chance mode, "loop" just toggles editing
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+          activeMenu.coords.x1 = trackDisplay-5;
+          activeMenu.coords.y1 = 0;
+          activeMenu.coords.x2 = screenWidth;
+          activeMenu.coords.y2 = debugHeight;
+          slideMenuIn(1,48);
+          editingNote = false;
+          lastTime = millis();
+          return;
+        //quantize
+        case 4:
+          quantize(true);
+          lastTime = millis();
+          break;
+        //humanize
+        case 5:
+          humanize(true);
+          lastTime = millis();
+          break;
+        case 6:
+          lastTime = millis();
+          loop_Press = false;
+          triggerFXEffect(currentQuickFunction);
+          break;
+      }
+    }
+  }
+}
+
+void editMenuControls_normal(uint8_t* stencil, bool editing){
   //selectionBox
   //when sel is pressed and stick is moved, and there's no selection box
   if(sel && !selBox.begun && (x != 0 || y != 0)){
@@ -105,14 +339,6 @@ void editMenuControls(uint8_t* stencil){
     selBox.x2 = cursorPos;
     selBox.y2 = activeTrack;
     selectBox();
-    //for special FX that want to use the selection box
-    if(activeMenu.highlight == 6 && editingNote){
-      //for randomize, fill box with random notes
-      // if(currentQuickFunction = 3){
-      //   for(uint8_t i = selBox.y1; i<=selBox.y2; i++){
-      //   }
-      // }
-    }
     selBox.begun = false;
   }
   if(!n){
@@ -159,86 +385,24 @@ void editMenuControls(uint8_t* stencil){
   //joystick
   if(itsbeen(100)){
     if (y == 1){
-      if(editingNote){
-        //highlight = 0 ==> moving notes, 1==> changing vel, 2==> changing chance, 3==> changing length
-        if(activeMenu.highlight == 0){
-          if(moveNotes(0,1)){
-            setActiveTrack(activeTrack + 1, true);
-          }
-        }
-        //vel
-        else if(activeMenu.highlight == 2){
-          if(shift)
-            changeVel(-8);
-          else
-            moveToNextNote_inTrack(true);
-        }
-        //chance
-        else if(activeMenu.highlight == 3){
-          if(shift)
-            changeChance(-5);
-          else
-            moveToNextNote_inTrack(true);
-        }
-        //quant
-        else if(activeMenu.highlight == 4){
-          if(shift && quantizeAmount>0){
-            quantizeAmount--;
-          }
-          else{
-            moveToNextNote_inTrack(true);
-          }
-        }
-        //humanize
-        else if(activeMenu.highlight == 5){
-          moveToNextNote_inTrack(true);
-        }
+      if(shift){
+        moveToNextNote_inTrack(true);
         drawingNote = false;
         lastTime = millis();
       }
-      else if(!shift){
-        setActiveTrack(activeTrack + 1, true);
-        drawingNote = false;
+      else{
+        setActiveTrack(activeTrack+1,false);
         lastTime = millis();
       }
     }
     if (y == -1){
-      if(editingNote){
-        if(activeMenu.highlight == 0){
-          if(moveNotes(0,-1))
-            setActiveTrack(activeTrack - 1, true);
-        }
-        else if(activeMenu.highlight == 2){
-          if(shift)
-            changeVel(8);
-          else
-            moveToNextNote_inTrack(false);
-        }
-        else if(activeMenu.highlight == 3){
-          if(shift)
-            changeChance(5);
-          else
-            moveToNextNote_inTrack(false);
-        }
-        //quant
-        else if(activeMenu.highlight == 4){
-          if(shift && quantizeAmount<100){
-            quantizeAmount++;
-          }
-          else{
-            moveToNextNote_inTrack(false);
-          }
-        }
-        //humanize
-        else if(activeMenu.highlight == 5){
-          moveToNextNote_inTrack(false);
-        }
+      if(shift){
+        moveToNextNote_inTrack(false);
         drawingNote = false;
         lastTime = millis();
       }
-      else if(!shift){
-        setActiveTrack(activeTrack - 1, true);
-        drawingNote = false;
+      else{
+        setActiveTrack(activeTrack-1,false);
         lastTime = millis();
       }
     }
@@ -246,178 +410,42 @@ void editMenuControls(uint8_t* stencil){
   if(itsbeen(100)){
     if (x == 1){
       if(!shift){
-        if(editingNote){
-          if(activeMenu.highlight == 1){
-            //if it's not on a subDiv
-            if(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos%subDivInt)
-              changeNoteLength_jumpToEnds(-(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos%subDivInt));
-            //if it is
-            else
-              changeNoteLength_jumpToEnds(-subDivInt);
-            lastTime = millis();
-          }
-          else if(activeMenu.highlight == 0){
-            //if it's not on a subDiv
-            if(seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos%subDivInt){
-              if(moveNotes(-(seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos%subDivInt),0)){
-                moveCursor(seqData[activeTrack][seqData[activeTrack].size()-1].startPos-cursorPos);
-                lastTime = millis();
-              }
-            }
-            else{
-              if(moveNotes(-subDivInt,0)){
-                moveCursor(-subDivInt);
-                lastTime = millis();
-              }
-            }
-          }
-          else{
-            moveToNextNote(false,false);
-            lastTime = millis();
-          }
-        }
-        //if cursor isn't on a measure marker, move it to the nearest one
-        else if(cursorPos%subDivInt){
-          moveCursor(-cursorPos%subDivInt);
-          lastTime = millis();
-        }
-        else{
-          moveCursor(-subDivInt);
-          lastTime = millis();
-        }
+        moveToNextNote(false,false);
+        lastTime = millis();
       }
       //shift
-      else{
-        if(editingNote){
-          if(activeMenu.highlight == 0){
-            if(moveNotes(-1,0)){
-              moveCursor(-1);
-              lastTime = millis();
-            }
-          }
-          else if(activeMenu.highlight == 1){
-            // moveCursor(changeNoteLength(-1));
-            changeNoteLength_jumpToEnds(-1);
-            lastTime = millis();
-          }
-          else{
-            moveToNextNote(false,false);
-            lastTime = millis();
-          }
-        }
-        else{
-          moveCursor(-1);
-          lastTime = millis();
-        }
+      else if(activeMenu.highlight>0){
+        activeMenu.highlight--;
+        lastTime = millis();
       }
     }
     if (x == -1){
       if(!shift){  
-        //special moves (while editing notes) 
-        if(editingNote){
-          //if it's not on a subDiv
-          if(activeMenu.highlight == 1){
-            if(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos%subDivInt){     
-              changeNoteLength_jumpToEnds(subDivInt-(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos%subDivInt));
-              lastTime = millis();
-            }
-            else{
-              changeNoteLength_jumpToEnds(subDivInt);
-              lastTime = millis();
-            }
-          }
-          else if(activeMenu.highlight == 0){
-            if(seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos%subDivInt){     
-              if(moveNotes(subDivInt-seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos%subDivInt,0)){
-                moveCursor(seqData[activeTrack][seqData[activeTrack].size()-1].startPos-cursorPos);
-                lastTime = millis();
-              }
-            }
-            else{
-              if(moveNotes(subDivInt,0)){
-                moveCursor(subDivInt);
-                lastTime = millis();
-              }
-            }
-          }
-          else{
-            moveToNextNote(true,false);
-            lastTime = millis();
-          }
-        }
-        //normal move (not editing)
-        else if(cursorPos%subDivInt){
-          moveCursor(subDivInt-cursorPos%subDivInt);
-          lastTime = millis();
-        }
-        else{
-          moveCursor(subDivInt);
-          lastTime = millis();
-        }
+        // moveCursor(subDivInt);
+        moveToNextNote(true,false);
+        lastTime = millis();
       }
-      else{
-        if(editingNote){
-          if(activeMenu.highlight == 0){
-            if(moveNotes(1,0)){
-              moveCursor(1);
-              lastTime = millis();
-            }
-          }
-          else if(activeMenu.highlight == 1){
-            changeNoteLength_jumpToEnds(1);
-            lastTime = millis();
-          }
-          else{
-            moveToNextNote(true,false);
-            lastTime = millis();
-          }
-        }
-        else{
-          moveCursor(1);
-          lastTime = millis();
-        }
+      else if(activeMenu.highlight<6){
+        activeMenu.highlight++;
+        lastTime = millis();
       }
     }
   }
   if(itsbeen(200)){
     //this is the 'move and place' key (might make sense to have it be a diff key)
     if(menu_Press){
-      if(editingNote){
-        editingNote = false;
-        activeMenu.coords.x1 = trackDisplay-5;
-        activeMenu.coords.y1 = 0;
-        activeMenu.coords.x2 = screenWidth;
-        activeMenu.coords.y2 = debugHeight;
-        slideMenuIn(1,48);
-        lastTime = millis();
-      }
-      else{
-        slideMenuOut(1,20);
-        editingNote = false;
-        menuIsActive = false;
-        lastTime = millis();
-        constructMenu("MENU");
-      }
+      slideMenuOut(1,20);
+      editingNote = false;
+      menuIsActive = false;
+      lastTime = millis();
+      constructMenu("MENU");
     }
     if(note_Press){
-      //if you're in edit mode, pop back to edit menu
-      if(editingNote){
-        editingNote = false;
-        activeMenu.coords.x1 = trackDisplay-5;
-        activeMenu.coords.y1 = 0;
-        activeMenu.coords.x2 = screenWidth;
-        activeMenu.coords.y2 = debugHeight;
-        slideMenuIn(1,48);
-        lastTime = millis();
-      }
-      //if not, go into note menu
-      else{
-        slideMenuOut(1,20);
-        menuIsActive = false;
-        lastTime = millis();
-        note_Press = false;
-        constructMenu("MENU");
-      }
+      slideMenuOut(1,20);
+      menuIsActive = false;
+      lastTime = millis();
+      note_Press = false;
+      constructMenu("MENU");
     }
     if(track_Press){
       slideMenuOut(1,20);
@@ -426,7 +454,7 @@ void editMenuControls(uint8_t* stencil){
       constructMenu("TRK");
     }
     //moving menu cursor
-    if(y != 0 && shift && !editingNote){
+    if(y != 0 && shift){
       if(y == 1){
         if(activeMenu.highlight>0){
           activeMenu.highlight--;
@@ -468,39 +496,7 @@ void editMenuControls(uint8_t* stencil){
             break;
         }
       }
-      else if(editingNote){
-        switch(activeMenu.highlight){
-          //in move/length/vel/chance mode, "loop" just toggles editing
-          case 0:
-          case 1:
-          case 2:
-          case 3:
-            activeMenu.coords.x1 = trackDisplay-5;
-            activeMenu.coords.y1 = 0;
-            activeMenu.coords.x2 = screenWidth;
-            activeMenu.coords.y2 = debugHeight;
-            slideMenuIn(1,48);
-            editingNote = false;
-            lastTime = millis();
-            break;
-          //quantize
-          case 4:
-            quantize(true);
-            lastTime = millis();
-            break;
-          //humanize
-          case 5:
-            humanize(true);
-            lastTime = millis();
-            break;
-          case 6:
-            lastTime = millis();
-            loop_Press = false;
-            triggerFXEffect(currentQuickFunction);
-            break;
-        }
-      }
-      else if(!editingNote){
+      else{
         //if it's a quickFX
         if(activeMenu.highlight == 6){
           //trigger fx
@@ -524,12 +520,12 @@ void editMenuControls(uint8_t* stencil){
         lastTime = millis();
         stencilNotes(*stencil);
       }
-      if(lookupData[activeTrack][cursorPos] == 0 || cursorPos != seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos){
-        makeNote(activeTrack,cursorPos,subDivInt,true);
-        drawingNote = true;
-        lastTime = millis();
-        moveCursor(subDivInt);
-      }
+      // if(lookupData[activeTrack][cursorPos] == 0 || cursorPos != seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos){
+      //   makeNote(activeTrack,cursorPos,subDivInt,true);
+      //   drawingNote = true;
+      //   lastTime = millis();
+      //   moveCursor(subDivInt);
+      // }
     }
     if(sel && !selBox.begun){
       unsigned short int id;
@@ -560,22 +556,6 @@ void editMenuControls(uint8_t* stencil){
         }
         deleteNote();
       }
-      //if you're editing notes and you delete a note
-      //you need to either move to the next note
-      if(editingNote){
-        //if there are no more notes on this track
-        //jump back to normal mode
-        //(in the future, you might want to make this jump to nearest note)
-        if(seqData[activeTrack].size() <= 1){
-          editingNote = false;
-          activeMenu.coords.x1 = trackDisplay-5;
-          activeMenu.coords.y1 = 0;
-          activeMenu.coords.x2 = screenWidth;
-          activeMenu.coords.y2 = debugHeight;
-          slideMenuIn(1,48);
-        }
-      }
-      // debugPrintLookup();
       lastTime = millis();
     }
     if(play){
@@ -764,21 +744,6 @@ void drawRandomIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
 
 void drawQuickFunctionIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
   drawFxIcon(x1,y1,w,anim);
-  // switch(currentQuickFunction){
-  //   //warp
-  //   case 0:
-  //     drawWarpIcon(x1,y1,w,anim);
-  //     break;
-  //   case 1:
-  //     drawReverseIcon(x1,y1,w,anim);
-  //     break;
-  //   case 2:
-  //     drawEchoIcon(x1,y1,w,anim);
-  //     break;
-  //   case 3:
-  //     drawRandomIcon(x1,y1,w,anim);
-  //     break;
-  // }
 }
 
 void drawQuantBrackets(uint8_t x1, uint8_t y1){
@@ -805,6 +770,7 @@ void editMenu(){
   uint8_t fnWindowStart = 0;
   //value determining how many subDivs are skipped when stencilling notes
   uint8_t stencil = 1;
+  bool editing = false;
   while(menuIsActive){
     display.clearDisplay();
     //draw seq without top info, side info, or menus
@@ -813,7 +779,10 @@ void editMenu(){
     display.display();
     joyRead();
     readButtons();
-    editMenuControls(&stencil);
+    if(editingNote)
+      editMenuControls_editing();
+    else
+      editMenuControls_normal(&stencil,editing);
     //sliding the window in and out
     if(activeMenu.page>0 && fnWindowStart<40){
       fnWindowStart+=8;
@@ -1018,8 +987,6 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart){
       case 1:
         drawLengthIcon(4,6,16,6,true);
         if(lookupData[activeTrack][cursorPos] != 0){
-          // Serial.println(stepsToMeasures(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos-seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos));
-          // Serial.flush();
           printFraction(66,3,stepsToMeasures(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos-seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos));
           // printSmall(1,42,stepsToPosition(seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos,true),SSD1306_WHITE);
           // printSmall(19,42,stepsToPosition(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos,true),SSD1306_WHITE);

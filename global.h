@@ -1,7 +1,7 @@
 unsigned const char screenWidth = 128;
 unsigned const char screenHeight = 64;
 
-const uint8_t brightness = 0;
+uint8_t screenBrightness = 255;
 
 //sequence note editor help text
 const String helptext[2][23] = {{"n   : draw note","+sh : create track","sel : add note to selection","+sh : select single note",
@@ -43,7 +43,6 @@ bool playing = false;
 bool recording = false;
 bool gotClock = false;
 bool hasStarted = false;
-bool helloChild = false;
 bool isArping = false;
 bool menuIsActive = false;
 bool displayingVel = true;
@@ -65,8 +64,6 @@ bool waitForNote = true;
 bool waiting = true;//wait to receive note to begin recording
 bool swung = false;
 
-bool ledState = false;
-
 bool isShrunk = false;
 
 //controls whether or not fragmenting is on
@@ -74,7 +71,7 @@ bool isFragmenting = false;
 
 bool editingNote = false;
 
-unsigned short int cursorPos; //cursor position (before playing)
+uint16_t cursorPos; //cursor position (before playing)
 uint8_t activeLoop;//loop that's currently active
 uint8_t activeTrack; //sets which track you're editing, you'll only be able to edit one at a time
 uint8_t subDivInt;//sets where the divider bars are in the console output
@@ -91,6 +88,8 @@ int8_t movingLoop = 0;
 
 unsigned short int viewStart;//where the view ends, usually moves by measures but shift lets it move one at a time
 unsigned short int viewEnd;//where the view ends
+
+//you could get rid of these! just use lookupData[0].size()
 unsigned short int seqStart;
 unsigned short int seqEnd;
 
@@ -100,7 +99,7 @@ float scale = 0.5;//HEY this needs to match the initial viewEnd call, otherwise 
 unsigned short int playheadPos;
 unsigned short int recheadPos;
 
-unsigned int selectionCount = 0;
+uint16_t selectionCount = 0;
 
 const unsigned char debugHeight = 16;
 const unsigned char trackDisplay = 32;
@@ -123,11 +122,6 @@ bool makeNewTracks = true;
 
 uint8_t currentQuickFunction = 0;
 
-//random vars
-uint8_t randomChance;
-uint16_t randomInterval;
-uint8_t randomSpacing;
-
 //could probably get rid of these! put them in drawSeq
 uint8_t trackHeight;
 uint8_t maxTracksShown = 5;
@@ -139,6 +133,11 @@ unsigned long timeLastStepPlayed,MicroSperTimeStep,startTime;
 long offBy,timeElapsed;
 bool core0ready = false;
 bool core1ready = false;
+
+//60000/1000 = 60 seconds
+const uint16_t sleepTime = 60000;
+//120,000ms = 2min
+const uint32_t deepSleepTime = 120000;
 
 //swing vars
 //holds the amount that the notes swing

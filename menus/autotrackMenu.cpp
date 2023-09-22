@@ -361,9 +361,7 @@ void randomInterp(uint16_t start, uint16_t end, uint8_t which){
   //phase should be set so that it always lines up! how do we do this
   //phase = start, yPos = dataTrack[start]
   uint8_t randomFunction = random(0,7);
-  Serial.println("made it here");
-  Serial.println("function is: "+stringify(randomFunction));
-  Serial.flush();
+
   uint16_t oldPhase = dataTrackData[which].phase;
   uint8_t oldYPos = dataTrackData[which].yPos;
   uint8_t oldAmp = dataTrackData[which].amplitude;

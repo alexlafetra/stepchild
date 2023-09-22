@@ -90,16 +90,13 @@ void readButtons_MPX(){
   digitalWrite(buttons_clockEnable,LOW);
   unsigned char bits_buttons = shiftIn(buttons_dataIn, buttons_clockIn, LSBFIRST);
   digitalWrite(buttons_clockEnable, HIGH);
-  Serial.println(bits_buttons);
-  Serial.flush();
+  // Serial.println(bits_buttons);
+  // Serial.flush();
 
-  String test;
   //grabbing values from the byte
   for(int digit = 0; digit<8; digit++){
     buttons[digit] = (bits_buttons>>digit)&1;
-    test+=" "+String((bits_buttons>>digit)&1);
   }
-  Serial.println(test);
 
   if(stepButtonsAreActive){
     digitalWrite(buttons_load,LOW);

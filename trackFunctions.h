@@ -145,12 +145,93 @@ void swapTracks(unsigned short int track1, unsigned short int track2){
   }
 }
 
+bool sortTracksByPitch(Track t1, Track t2){
+  return t1.pitch>t2.pitch;
+}
+bool sortTracksByChannel(Track t1, Track t2){
+  return t1.channel>t2.channel;
+}
+
+void sortTrackData(uint8_t type,uint8_t target){
+  //type is either 0 (ascending) or 1 (descending)
+  //target is either pitch, channel, or the number of notes
+  vector<Track> tempData = trackData;
+  switch(target){
+    case 0:
+      sort(tempData.begin(),tempData.end(),sortTracksByPitch);
+      break;
+    case 1:
+      sort(tempData.begin(),tempData.end(),sortTracksByChannel);
+      break;
+    case 2:
+      break;
+  }
+  if(type)
+    reverse(tempData.begin(),tempData.end());
+  trackData = tempData;
+}
+
+void sortTracks(){
+  //0 = ascending, 1 = descending
+  uint8_t sortType = 0;
+  //0 = track pitch, 1 = track channel, 2 =  number of notes (wip)
+  uint8_t sortTarget = 0;
+  const uint8_t x1 = 28;
+  const uint8_t y1 = 16;
+  while(true){
+    readButtons();
+    joyRead();
+    if(itsbeen(200)){
+      if(menu_Press){
+        lastTime = millis();
+        break;
+      }
+      if(n || sel){
+        sortTrackData(sortType,sortTarget);
+        lastTime = millis();
+        break;
+      }
+    }
+    while(counterA != 0){
+      sortType = !sortType;
+      counterA+=counterA<0?1:-1;
+    }
+    while(counterB != 0){
+      sortTarget = !sortTarget;
+      counterB+=counterB<0?1:-1;
+    }
+    display.clearDisplay();
+    drawSeq(true, false, false, true, false, false, viewStart, viewEnd);
+    display.fillRoundRect(x1,y1,85,37,3,0);
+    display.drawRoundRect(x1,y1,85,37,3,1);
+    printSmall(x1+2,y1+2,"sort by ",1);
+    if(true){
+      String target;
+      switch(sortTarget){
+        case 0:
+          target = "pitch";
+          break;
+        case 1:
+          target = "channel";
+          break;
+        // case 2:
+        //   target = "# of notes";
+        //   break;
+      }
+      printItalic(x1+2,y1+8,target,1);
+    }
+    printSmall(x1+2,y1+16,"in ",1);
+    printItalic(x1+2,y1+22,sortType?"descending":"ascending",1);
+    printSmall(x1+2,y1+30,"order",1);
+    display.display();
+  }
+}
 void swapTracks(){
-  slideMenuOut(1,7);
+  // slideMenuOut(1,7);
   unsigned short int track1 = activeTrack;
   sel = false;
   while(true){
-    if(itsbeen(60)){
+    if(itsbeen(100)){
       if(y == 1){
         swapTracks(track1,activeTrack+1);
         setActiveTrack(activeTrack+1,true);
@@ -165,6 +246,10 @@ void swapTracks(){
       }
     }
     if(itsbeen(200)){
+      if(n){
+        lastTime = millis();
+        sortTracks();
+      }
       if(sel || menu_Press){
         sel = false;
         menu_Press = false;
@@ -175,16 +260,19 @@ void swapTracks(){
     joyRead();
     readButtons();
     display.clearDisplay();
-    drawSeq();
+    drawSeq(true, false, false, true, false, false, viewStart, viewEnd);
+    display.fillRect(70,0,16,16,0);
     if(millis()%1000 >= 500){
-      display.drawBitmap(6,0,arrow_1_bmp,16,16,SSD1306_WHITE);
+      display.drawBitmap(70,0,arrow_1_bmp,16,16,SSD1306_WHITE);
     }
     else{
-      display.drawBitmap(6,0,arrow_3_bmp,16,16,SSD1306_WHITE);
+      display.drawBitmap(70,0,arrow_3_bmp,16,16,SSD1306_WHITE);
     }
+    display.fillRoundRect(86,-2,44,9,3,0);
+    display.drawRoundRect(86,-2,44,9,3,1);
+    printSmall(89,0,"[n] to sort",1);
     display.display();
   }
-  slideMenuIn(1,7);
 }
 
 void deleteEmptyTracks(){

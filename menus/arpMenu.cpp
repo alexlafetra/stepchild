@@ -483,6 +483,10 @@ void arpMenu(){
     if(activeArp.holding && millis()%800>400){
       printSmall(106,9,"[HOLD]",1);
     }
+    else if(!activeArp.holding){
+      printSmall(110,9,"cpy 2",1);
+        printSmall(112,15,"hold",1);
+    }
     const uint8_t y1 = 15;
     //on/off
     drawSlider(0,y1,"on","off",!isArping);
