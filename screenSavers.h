@@ -28,6 +28,14 @@ void deepSleep(){
 }
 #endif
 
+//cycles one LED on, moving it from left to right. delayTimeMS sets the speed of the cycle in milliseconds.
+void cycleLEDs(uint8_t delayTimeMs){
+  uint8_t which = (millis()/delayTimeMs)%8;
+  bool leds[8] = {false,false,false,false,false,false,false,false};
+  leds[which] = true;
+  writeLEDs(leds);
+}
+
 //screenSavers
 void screenSaver_cassette(){
   WireFrame cassette = makeCassette();
@@ -38,6 +46,7 @@ void screenSaver_cassette(){
     display.clearDisplay();
     cassette.render();
     display.display();
+    cycleLEDs(150);
     cassette.rotate(1,1);
     rotationAmount++;
     if(rotationAmount>360){
@@ -65,6 +74,7 @@ void screenSaver_droplets(){
   animOffset = 0;
   bool done = false;
   while(true){
+    cycleLEDs(150);
     display.clearDisplay();
     if(animOffset<=32){
       if(animOffset>8){//drops and reflection
@@ -90,7 +100,7 @@ void screenSaver_droplets(){
     }
     else
       animOffset+=6;
-    if(animOffset>=8*spacing*maxReps/3+8*32+20){
+    if(animOffset>=8*spacing*maxReps/3+8*32+28){
       animOffset = 0;
       done = true;
     }
@@ -112,6 +122,7 @@ void screenSaver_moon(){
   bool done = false;
   int16_t counter = 0;
   while(true){
+    cycleLEDs(150);
     float phase = counter;
     if(phase >= 86){
       waxing =! waxing;
@@ -154,7 +165,7 @@ void screenSaver_template(){
 
 void screenSaver(){
   //vector that holds all the screen savers
-  vector<void (*)()> screenSaverList = {screenSaver_droplets,screenSaver_cassette,screenSaver_moon};
+  vector<void (*)()> screenSaverList = {screenSaver_cassette,screenSaver_droplets};
   uint8_t which = random(0,screenSaverList.size());
   //running the screen saver
   // lastTime = millis();

@@ -134,8 +134,8 @@ long offBy,timeElapsed;
 bool core0ready = false;
 bool core1ready = false;
 
-//60000/1000 = 60 seconds
-const uint16_t sleepTime = 60000;
+//30000/1000 = 30 seconds
+const uint16_t sleepTime = 30000;
 //120,000ms = 2min
 const uint32_t deepSleepTime = 120000;
 

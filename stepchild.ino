@@ -75,7 +75,7 @@ using namespace std;
 //button defs and reading functions
 #include "buttons.h"
 //wireframe stuff
-#include "WireFrame.h"
+#include "classes/WireFrame.h"
 
 //Stores two (x,y) coordinate pairs as x1, y1, x2, y2
 struct CoordinatePair{
@@ -85,14 +85,14 @@ struct CoordinatePair{
   int8_t y2;
 };
 
-#include "Menu.h"
+#include "classes/Menu.h"
 
 vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames);
 bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String> filenames);
 WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float scale);
 
 //classes
-#include "Note.h"
+#include "classes/Note.h"
 
 void makeNote(Note newNoteOn, int track, bool loudly);
 void makeNote(Note newNoteOn, int track);
@@ -100,8 +100,8 @@ void loadNote(Note newNote, uint8_t track);
 bool checkNoteMove(Note targetNote, int track, int newTrack, int newStart);
 vector<vector<Note>> grabAndDeleteSelectedNotes();
 
-#include "Track.h"
-#include "AutomationTrack.h"
+#include "classes/Track.h"
+#include "classes/AutomationTrack.h"
 
 #ifndef HEADLESS
   String stringify(int a){
@@ -179,7 +179,7 @@ vector<Loop> loopData;
 //holds all the datatracks
 vector<dataTrack> dataTrackData;
 
-#include "Arp.h"
+#include "classes/Arp.h"
 #include "instruments/planets.cpp"
 
 unsigned short int animOffset = 0;//for animating curves
@@ -2725,7 +2725,7 @@ int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String t
   return false;
 }
 
-//returns the number of digits in a byte-sized (8bit) number
+//returns the number of digits (eg. 100 = 3, 1 = 1) in a byte-sized (8bit) number
 uint8_t countDigits_byte(uint8_t number){
   uint8_t count = 1;//it's ~always~ at least 1 digit
   while(number>=10){
@@ -12427,16 +12427,12 @@ void bootscreen(){
     pram.render();
     //CHILD
     for(uint8_t letter = 0; letter<5; letter++){
-      // xCoord = xOffset+letter*12;
-      // xCoord = xOffset+letter*5;
       xCoord = 20+letter*8;
       yCoord = screenHeight-frameCount*10+letter*10;
       if(yCoord<0)
         yCoord = 0;
       yCoord+=yOffset;
       display.setCursor(xCoord,yCoord);
-      // display.print(stringify(child[letter]));
-      // printCursive(xCoord,yCoord,stringify(child[letter]),SSD1306_WHITE);
       printItalic(xCoord,yCoord,child[letter],1);
     }
     //OS
@@ -12447,20 +12443,15 @@ void bootscreen(){
       display.print("OS");
       display.setFont();
 
-      // drawStar(xOffset+68,yOffset-8+sin(millis()/100),3,7,5);
       drawStar(xOffset+68,yOffset-8,3,7,5);
-      // drawStar(xOffset+76,yOffset-15,1,3,5);
-
-      // printSmall(xOffset+35,yOffset+10,OSversionNumber,SSD1306_WHITE);
-      // display.drawFastHLine(xOffset-1,yOffset+7,27,SSD1306_WHITE);
     }
-    // if(frameCount>50)
-      // printSmall(xOffset+35,yOffset+10,OSversionNumber,SSD1306_WHITE);
-    printSmall_centered(64,58,"v0.1",1);
+    printSmall(0,58,"v0.1",1);
     display.display();
     pram.rotate(5,1);
+    writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
     frameCount++;
   }
+  turnOffLEDs();
 }
 
 void helloChild_1(){

@@ -82,7 +82,7 @@ void drawInstrumentPanel(uint8_t x1, uint8_t y1){
   }
 }
 
-void instrumentIconAnimation(bool in){
+void instrumentPanelAnimation(bool in){
   int16_t animFrame = 100;
   if(in){
     while(animFrame>0){
@@ -100,7 +100,8 @@ void instrumentIconAnimation(bool in){
         }
       }
       display.display();
-      animFrame-=10;
+      animFrame-=1;
+      // delay(100);
     }
   }
   else{
@@ -120,13 +121,14 @@ void instrumentIconAnimation(bool in){
         }
       }
       display.display();
-      animFrame+=10;
+      animFrame+=1;
+      // delay(100);
     }
   }
 }
 
 void selectInstrumentMenu(){
-  instrumentIconAnimation(true);
+  instrumentPanelAnimation(true);
   lastTime = millis();
   uint8_t cursor = 0;
   while(true){
@@ -158,7 +160,7 @@ void selectInstrumentMenu(){
       if(menu_Press){
         lastTime = millis();
         menu_Press = false;
-        instrumentIconAnimation(false);
+        instrumentPanelAnimation(false);
         return;
       }
       if(sel){
