@@ -1,4 +1,4 @@
-void fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
+vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
   //scrolling
   if(itsbeen(100)){
     if(y == 1 && activeMenu.highlight<5){
@@ -47,7 +47,7 @@ void fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
         {
           String filename = filenames[activeMenu.page];
           renameSeqFile(filename);
-          loadFiles();
+          filenames = loadFiles();
           break;
         }
         //export
@@ -75,6 +75,7 @@ void fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
       }
     }
   }
+  return filenames;
 }
 
 bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String> filenames){
@@ -192,7 +193,7 @@ void filesMenu(){
       }
     }
     else{
-      fileMenuControls_miniMenu(&folder,filenames);
+      filenames = fileMenuControls_miniMenu(&folder,filenames);
     }
   }
 }

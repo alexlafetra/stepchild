@@ -146,6 +146,7 @@ void rain(){
 
   bool isPlaying = true;
   while(true){
+    Serial.println("hey from cpu0:"+stringify(millis()));
     //controls
     //--------------------
     readButtons();
@@ -330,8 +331,14 @@ void rain(){
             }
           }
           if(menu_Press){
-            lastTime = millis();
-            menuState = !menuState;
+            if(menuState && cursor != 5){
+              cursor = 5;
+              lastTime = millis();
+            }
+            else{
+              lastTime = millis();
+              menuState = !menuState;
+            }
           }
         }
         break;

@@ -213,18 +213,23 @@ void fxMenu(){
                     angle2X,angle2Y,angle2Z);
   }
   constructMenu("MENU");
-  activeMenu.highlight = 5;//so the 3d icon doesn't flash
+  // activeMenu.highlight = 5;//so the 3d icon doesn't flash
   // mainMenu();
 }
 
 void Menu::displayFxMenu(){
+  //drawing menu box (+16 so the title is transparent)
   display.fillRect(coords.x1,coords.y1+13, coords.x2-coords.x1, coords.y2-coords.y1, SSD1306_BLACK);
   display.drawRect(coords.x1,coords.y1+12, coords.x2-coords.x1, coords.y2-coords.y1-12, SSD1306_WHITE);
 
-  display.setFont(&FreeSerifItalic9pt7b);
-  display.setCursor(coords.x1+coords.y1-2,11);
-  display.print("Fx");
-  display.setFont();
+  //if the title will be on screen
+  if(coords.x1+coords.y1-1<screenWidth){
+    display.fillRect(coords.x1+coords.y1-1,0,16,5,0);
+    display.setCursor(coords.x1+coords.y1-1,5);
+    display.setFont(&FreeSerifItalic9pt7b);
+    display.print("Fx");
+    display.setFont();
+  }
   
   drawFxLabel();
   //printing page number/arrows

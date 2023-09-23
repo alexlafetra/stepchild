@@ -55,8 +55,16 @@
   void duplicateSeqFile(String filename){
     return;
   }
+  void writeCurrentSettingsToFile(){
+  }
+
+  void loadSavedSettingsFromFile(){
+  }
+  void loadSettings(){
+  }
 #endif
 #ifndef HEADLESS
+
 //flash mem
 void flashTest(){
   char totalNotes;
@@ -122,7 +130,7 @@ void writeSeqFile(String filename){
     for(int note = 1; note < seqData[track].size(); note++){
       //notes are stored start, end,
       //and then vel, chance, selected, muted
-      //                              first 8 bits                          last 8 bites
+      //                              first 8 bits                          last 8 bits
       uint8_t notePosData[4] = {uint8_t(seqData[track][note].startPos>>8),uint8_t(seqData[track][note].startPos),uint8_t(seqData[track][note].endPos>>8),uint8_t(seqData[track][note].endPos)};
       uint8_t noteData[4] = {uint8_t(seqData[track][note].velocity), uint8_t(seqData[track][note].chance), uint8_t(seqData[track][note].isSelected), uint8_t(seqData[track][note].muted)};
       seqFile.write(notePosData,4);
@@ -195,18 +203,14 @@ void writeSeqFile(String filename){
   }
   seqFile.write(midiThruBytes,5);
 
-  Serial.println("done");
-  Serial.flush();
+  // Serial.println("done");
+  // Serial.flush();
   seqFile.close();
   LittleFS.end();
 }
 
 //helper function for writing bytes to the serial buffer
 void writeBytes(uint8_t* byteArray, uint16_t number){
-  // for(uint16_t byte = 0; byte<number; byte++){
-  //   Serial.write(byteArray[byte]);
-  //   Serial.flush();//idk if you need this
-  // }
   Serial.write(byteArray,number);
 }
 
@@ -301,7 +305,6 @@ void writeCurrentSeqToSerial(bool waitForResponse){
     midiThruBytes[port] = isThru(port);
   }
   writeBytes(midiThruBytes,5);
-
 }
 
 //sends the number of bytes in the file
@@ -628,8 +631,6 @@ void loadSeqFile(String filename){
       noteCount.push_back((uint16_t(trackDat[0])<<8)+trackDat[1]);
     }
 
-    // Serial.println("loading notes");
-    // Serial.flush();
     //loading notes
     for(int track = 0; track<trackData.size(); track++){
       for(int note = 0; note<noteCount[track]; note++){
@@ -644,8 +645,6 @@ void loadSeqFile(String filename){
       }
     }
     
-    // Serial.println("loading dt's");
-    // Serial.flush();
     //loading DT's
     uint8_t numberOfDts[1];
     seqFile.read(numberOfDts,1);
@@ -673,8 +672,6 @@ void loadSeqFile(String filename){
       }
     }
 
-    // Serial.println("loading loops");
-    // Serial.flush();
     //loading loops
     uint8_t numberOfLoops[1];
     seqFile.read(numberOfLoops,1);
@@ -722,12 +719,10 @@ void loadSeqFile(String filename){
 
     seqFile.close();
     LittleFS.end();
-    Serial.println("done.");
     updateLEDs();
     setActiveTrack(0,false);
   }
   else
-    
     Serial.println("failed! weird.");
 }
 //loads files into menu, for browsing
@@ -746,6 +741,7 @@ vector<String> loadFilesAndSizes(){
   LittleFS.end();
   return fileSizes;
 }
+
 vector<String> loadFiles(){
   vector<String> filenames = {"*new*"};
   LittleFS.begin();
@@ -798,4 +794,75 @@ void duplicateSeqFile(String filename){
   newFile.close();
   LittleFS.end();
 }
+
+//Settings ------
+/*
+display pitches/numbers for tracks
+leds on/off
+external/internal clock
+continue playing after recording y/n
+wait for note, or count in, for recording
+time before screensaver/sleep --> this needs to be a 16-bit number
+*/
+
+void writeCurrentSettingsToFile(){
+  LittleFS.begin();
+  File f = LittleFS.open("/settings","w");
+  uint8_t pOrN[1] = {pitchesOrNumbers};
+  uint8_t leds[1] = {LEDsOn};
+  uint8_t clock[1] = {externalClock};
+  uint8_t playAfterRec[1] = {0};
+  uint8_t countIn[1] = {waitForNote};
+  uint8_t idleTime[2] = {uint8_t(sleepTime>>8),uint8_t(sleepTime)};
+  f.write(pOrN,1);
+  f.write(leds,1);
+  f.write(clock,1);
+  f.write(playAfterRec,1);
+  f.write(countIn,1);
+  f.write(idleTime,2);
+  f.close();
+  LittleFS.end();
+}
+
+void loadSavedSettingsFromFile(){
+  LittleFS.begin();
+  File f = LittleFS.open("/settings","r");
+  uint8_t pOrN[1];
+  uint8_t leds[1];
+  uint8_t clock[1];
+  uint8_t playAfterRec[1];
+  uint8_t countIn[1];
+  uint8_t idleTime[2];
+  f.read(pOrN,1);
+  f.read(leds,1);
+  f.read(clock,1);
+  f.read(playAfterRec,1);
+  f.read(countIn,1);
+  f.read(idleTime,2);
+  f.close();
+  LittleFS.end();
+
+  pitchesOrNumbers = pOrN[0];
+  LEDsOn = leds[0];
+  externalClock = clock[0];
+  //playAfterRec
+  waitForNote = countIn[0];
+  //idleTime
+}
+
+//create the default settings file
+
+//loads settings from settings.txt
+void loadSettings(){
+  LittleFS.begin();
+  if(LittleFS.exists("/settings")){
+    loadSavedSettingsFromFile();
+  }
+  //if there isn't a file yet, create one with the current parameters
+  else{
+    writeCurrentSettingsToFile();
+  }
+  LittleFS.end();
+}
+
 #endif

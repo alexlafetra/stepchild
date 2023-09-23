@@ -75,7 +75,7 @@ using namespace std;
 //button defs and reading functions
 #include "buttons.h"
 //wireframe stuff
-#include "WireFrame.h"
+#include "classes/WireFrame.h"
 
 //Stores two (x,y) coordinate pairs as x1, y1, x2, y2
 struct CoordinatePair{
@@ -85,14 +85,14 @@ struct CoordinatePair{
   int8_t y2;
 };
 
-#include "Menu.h"
+#include "classes/Menu.h"
 
-void fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames);
+vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames);
 bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String> filenames);
 WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float scale);
 
 //classes
-#include "Note.h"
+#include "classes/Note.h"
 
 void makeNote(Note newNoteOn, int track, bool loudly);
 void makeNote(Note newNoteOn, int track);
@@ -100,8 +100,8 @@ void loadNote(Note newNote, uint8_t track);
 bool checkNoteMove(Note targetNote, int track, int newTrack, int newStart);
 vector<vector<Note>> grabAndDeleteSelectedNotes();
 
-#include "Track.h"
-#include "AutomationTrack.h"
+#include "classes/Track.h"
+#include "classes/AutomationTrack.h"
 
 #ifndef HEADLESS
   String stringify(int a){
@@ -179,7 +179,7 @@ vector<Loop> loopData;
 //holds all the datatracks
 vector<dataTrack> dataTrackData;
 
-#include "Arp.h"
+#include "classes/Arp.h"
 #include "instruments/planets.cpp"
 
 unsigned short int animOffset = 0;//for animating curves
@@ -519,9 +519,9 @@ void resetUSBInterface(){
 }
 //update mode
 void enterBootsel(){
-  display.clearDisplay();
-  display.drawBitmap(0,0,childOS,128,64,SSD1306_WHITE);
-  display.display();
+  // display.clearDisplay();
+  // display.drawBitmap(0,0,childOS,128,64,SSD1306_WHITE);
+  // display.display();
   reset_usb_boot(1<<PICO_DEFAULT_LED_PIN,0);
 }
 
@@ -599,8 +599,6 @@ void Chord::draw(uint8_t x1, uint8_t y1){
   int8_t y2 = y1-(chordHeight+1)*intervals.size();
   for(uint8_t i = 0; i<intervals.size(); i++){
     display.drawRoundRect(x1,y2+i*(chordHeight+1),length/4,chordHeight,3,SSD1306_WHITE);
-    // Serial.println(i);
-    // Serial.flush();
   }
 }
 class Progression{
@@ -699,9 +697,6 @@ void Progression::commit(){
   for(uint8_t i = 0; i<uniquePitches.size(); i++){
     // Serial.println(uniquePitches[i]);
   }
-  // Serial.println("made it here 1");
-  // Serial.println("found "+String(uniquePitches.size())+" unique notes");
-  // Serial.flush();
   // delay(10);
   //for knowing which tracks are 'new'
   //so we don't add a bunch of notes to old tracks
@@ -720,8 +715,6 @@ void Progression::commit(){
     for(uint8_t j = 0; j<chords[i].intervals.size(); j++){
       // Serial.println("j:"+String(j));
       uint8_t track = getTrackWithPitch_above(chords[i].intervals[j]+chords[i].root,trackOffset);
-      // Serial.println("making a note on track "+String(track));
-      // Serial.flush();
       // delay(10);
       Note newNote = Note(writeHead,writeHead+chords[i].length,127,100,false,false);
       makeNote(newNote,track,false);
@@ -2273,17 +2266,14 @@ void tuneTracksToScale(){
 }
 
 void keyboard(){
-  while(keys){
-    display.clearDisplay();
-    drawKeys(0,5,getOctave(keyboardPitch),14,true);//always start on a C, for simplicity
-    display.display();
+  keyboardAnimation(0,5,0,14,true);
+  while(true){
     readButtons();
     stepButtons();//handles notes, and toggling
     if(itsbeen(200)){
       if(menu_Press){
-        toggleKeys();
-        menuIsActive = false;
-        constructMenu("MENU");
+        lastTime = millis();
+        break;
       }
     }
     //midi messages from encoders when in keys/drumpads mode
@@ -2306,11 +2296,15 @@ void keyboard(){
         counterB += counterB<0?1:-1;;
       }
     }
-  }
-}
-void drums(){
-  while(drumPads){
     display.clearDisplay();
+    drawKeys(0,5,getOctave(keyboardPitch),14,true);//always start on a C, for simplicity
+    display.display();
+  }
+  keyboardAnimation(0,5,0,14,false);
+}
+void drumPad(){
+  drumPadAnimation(screenWidth-25,5,36,16, true);
+  while(true){
     readButtons();
     stepButtons();//handles notes, and toggling
     //midi messages from encoders when in keys/drumpads mode
@@ -2350,15 +2344,15 @@ void drums(){
         toggleRecordingMode(waitForNote);
       }
       if(menu_Press){
-        toggleDrumPads();
-        menuIsActive = false;
-        constructMenu("MENU");
+        lastTime = millis();
         break;
       }
     }
+    display.clearDisplay();
     drawDrumPads(screenWidth-25,5,keyboardPitch - keyboardPitch%12,16);
     display.display();
   }
+  drumPadAnimation(screenWidth-25,5,36,16, false);
 }
 
 
@@ -2731,7 +2725,7 @@ int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String t
   return false;
 }
 
-//returns the number of digits in a byte-sized (8bit) number
+//returns the number of digits (eg. 100 = 3, 1 = 1) in a byte-sized (8bit) number
 uint8_t countDigits_byte(uint8_t number){
   uint8_t count = 1;//it's ~always~ at least 1 digit
   while(number>=10){
@@ -5734,67 +5728,6 @@ void fileAnimation(bool in){
   }
 }
 
-void cassetteAnimation(){
-  int reps = 30;
-  int xOffset = 0;
-  int yOffset = 0;
-  //actual cassettes are 4:2.5:0.5
-  while(reps>0){
-    display.clearDisplay();
-    for(int i = 0; i<reps; i++){
-      xOffset = i;
-      yOffset = -15-i+(pow(i-10,2))/5;
-//      yOffset = -i;
-      display.drawRoundRect(xOffset+14,yOffset+0,100,62,4,SSD1306_WHITE);//outer box
-      display.drawRoundRect(xOffset+19,yOffset+5,90,38,4,SSD1306_WHITE);//inner label
-      display.drawRoundRect(xOffset+34,yOffset+20,60,15,3,SSD1306_WHITE);//spool box
-      display.drawCircle(xOffset+41,yOffset+28,4,SSD1306_WHITE);//spool1
-      display.drawCircle(xOffset+86,yOffset+28,4,SSD1306_WHITE);//spool2
-      display.setTextColor(SSD1306_WHITE);
-      display.setFont(&FreeSerifItalic9pt7b);
-      display.setCursor(xOffset+40,yOffset+18);
-      display.print("(Loop)");
-      // display.drawChar(41,14,0x3C,SSD1306_WHITE,SSD1306_BLACK,2);
-      // display.drawChar(50,14,0x3E,SSD1306_WHITE,SSD1306_BLACK,2);
-    }
-    reps-=4;
-    display.display();
-  }
-  // delay(15);
-  int div = 1;
-  while(div<120){
-    display.drawRoundRect(xOffset+14,yOffset+0,100,62,4,SSD1306_WHITE);//outer box
-    display.drawRoundRect(xOffset+19,yOffset+5,90,38,4,SSD1306_WHITE);//inner label
-    display.drawRoundRect(xOffset+34,yOffset+20,60,15,3,SSD1306_WHITE);//spool box
-    display.fillCircle(xOffset+41,yOffset+28,4+div,SSD1306_BLACK);//spool1
-    display.fillCircle(xOffset+86,yOffset+28,4+div,SSD1306_BLACK);//spool2
-    display.drawCircle(xOffset+41,yOffset+28,4+div,SSD1306_WHITE);//spool1
-    display.drawCircle(xOffset+86,yOffset+28,4+div,SSD1306_WHITE);//spool2
-    display.setTextColor(SSD1306_WHITE);
-    display.setFont(&FreeSerifItalic9pt7b);
-    display.setCursor(xOffset+40,yOffset+18);
-    display.print("(Loop)");
-    display.display();
-    div+=12;
-  }
-}
-void drawCassette(){
-  int reps = 25;
-  int xOffset = 0;
-  int yOffset = 0;
-  //actual cassettes are 4:2.5:0.5
-  display.drawRoundRect(xOffset+14,yOffset+0,100,62,4,SSD1306_WHITE);//outer box
-  display.drawRoundRect(xOffset+19,yOffset+5,90,38,4,SSD1306_WHITE);//inner label
-  display.drawRoundRect(xOffset+34,yOffset+20,60,15,3,SSD1306_WHITE);//spool box
-  display.drawCircle(xOffset+41,yOffset+28,4,SSD1306_WHITE);//spool1
-  display.drawCircle(xOffset+86,yOffset+28,4,SSD1306_WHITE);//spool2
-  display.setTextColor(SSD1306_WHITE);
-  display.setFont(&FreeSerifItalic9pt7b);
-  display.setCursor(xOffset+40,yOffset+18);
-  display.print("(Loop)");
-  display.display();
-}
-
 #ifdef HEADLESS
   void startMIDI(){
     return;
@@ -5851,8 +5784,6 @@ void sendMIDICC(uint8_t controller, uint8_t val, uint8_t channel){
     MIDI3.sendControlChange(controller, val, channel);
   if(isActiveChannel(channel, 4))
     MIDI4.sendControlChange(controller, val, channel);
-  // Serial.println(val);
-  // Serial.flush();
 }
 
 void sendMIDIallOff(){
@@ -6877,37 +6808,6 @@ void stencilNotes(uint8_t count){
   }
 }
 
-void toggleKeys(){
-  keys = !keys;
-  clearButtons();
-  clearPlaylist();
-  if(keys){
-    if(drumPads){
-      toggleDrumPads();
-    }
-    keyboardAnimation(0,5,0,14,keys);
-    keyboard();
-  }
-  else{
-    keyboardAnimation(0,5,0,14,keys);
-  }
-}
-
-void toggleDrumPads(){
-  drumPads = !drumPads;
-  clearButtons();
-  if(drumPads){
-    if(keys){
-      toggleKeys();
-    }
-    drumPadAnimation(screenWidth-25,5,36,16, drumPads);
-    drums();
-  }
-  else{
-    drumPadAnimation(screenWidth-25,5,36,16, drumPads);
-  }
-}
-
 void toggleNote(int track, int time, int length){
   if(lookupData[track][time] == 0 || (lookupData[track][time] != 0 && seqData[track][lookupData[track][time]].startPos != time)){
     if(!playing && !recording)
@@ -7531,57 +7431,8 @@ void initSeq(int tracks, int length) {
     trackData.push_back(newTrack);
     defaultPitch--;
   }
-}
-void initSeq_SP404(int tracks) {
-  defaultChannel = 1;
-  defaultPitch = 0;
 
-  bpm = 120;
-  seqStart = 0;
-  //default is 4 measures = 24*4*4=384
-  seqEnd = 768;
-
-  loopData[activeLoop].start = 0;
-  loopData[activeLoop].end = 192;
-  isLooping = 1;
-  loopData[activeLoop].reps = 1;
-  activeLoop = 0;
-
-  viewStart = 0;
-  viewEnd = 192;
-  // viewLength = viewEnd-viewStart;
-  subDivInt = subDivInt; //default note length
-
-  counterA = 0;
-  counterB = 0;
-
-  cursorPos = viewStart; //cursor position (before playing)
-  activeTrack = 0; //sets which track you're editing, you'll only be able to edit one at a time
-  subDivInt = 24;//sets where the divider bars are in the console output
-  //cursor jump is locked to this division
-  defaultVel = 127;
-
-  MicroSperTimeStep = round(2500000/(bpm));
-
-  Loop loop1;
-  loop1.start = 0;
-  loop1.end = 96;
-  loop1.reps = 0;
-  loop1.type = 0;
-  loopData.push_back(loop1);
-
-  seqData.resize(tracks);
-  lookupData.resize(tracks);
-
-  //this is so we can count down, instead of up
-
-  for(int i = 0; i < tracks; i++){
-    lookupData[i].resize(seqEnd+1, 0);
-    seqData[i] = defaultVec; //each new track is defaultVec, with 0 notes
-    Track newTrack((16-i%16),(i/16));
-    trackData.push_back(newTrack);
-    defaultPitch--;
-  }
+  loadSettings();
 }
 
 void initSeq(){
@@ -7608,48 +7459,19 @@ void newSeq(){
 
 #include "fileSystem.h"
 
-//Settings ------
-/*
-template (0 = 16 tracks, 1 = 4 tracks, 2 = 127 tracks)
-display pitches/numbers for tracks
-external/internal clock
-isLooping
-default channel
-load file on bootup
-*/
-//create the default settings file
-#ifndef HEADLESS
-void createNewSettingsFile(){
-  File newSettingsFile = LittleFS.open("/settings.txt","w");
-  // const uint8_t defaultSettings[20] = [];
-}
-
-//loads settings from settings.txt
-void loadSettings(){
-  LittleFS.begin();
-  if(LittleFS.exists("/settings.txt")){
-
-  }
-  else{
-    createNewSettingsFile();
-  }
-  LittleFS.end();
-}
-#endif
-
 //system functions------------------------------------
 void drawWebLink(){
   display.clearDisplay();
   display.drawBitmap(39,7,web_bmp,50,50,SSD1306_WHITE);
   display.display();
-  clearButtons();
-  while(true){
-    if(itsbeen(200)&&anyActiveInputs()){
-      clearButtons();
-      lastTime = millis();
-      return;
-    }
-  }
+  // clearButtons();
+  // while(true){
+  //   if(itsbeen(200)&&anyActiveInputs()){
+  //     clearButtons();
+  //     lastTime = millis();
+  //     return;
+  //   }
+  // }
 }
 
 //Sleep---------------------------
@@ -7689,8 +7511,8 @@ void enterSleepMode(){
     // Serial.flush();
   }
   //wake up
-  Serial.println("gooood morning");
-  Serial.flush();
+  // Serial.println("gooood morning");
+  // Serial.flush();
   leaveSleepMode();
 }
 
@@ -7702,11 +7524,11 @@ void leaveSleepMode(){
   rp2040.resumeOtherCore();
   // rp2040.restartCore1(); <-- this also breaks it
   while(!core1ready){//wait for core1
-    Serial.println("waiting");
-    Serial.flush();
+    // Serial.println("waiting");
+    // Serial.flush();
   }
-  Serial.println("ready");
-  Serial.flush();
+  // Serial.println("ready");
+  // Serial.flush();
   return;
 }
 #endif
@@ -8055,6 +7877,7 @@ void moveToNextNote_inTrack(bool up){
   }
   Serial.println("IDK man");
 }
+
 //moves thru each step, forward or backward, and moves the cursor to the first note it finds
 void moveToNextNote(bool forward,bool endSnap){
   //if there's a note on this track at all
@@ -8420,9 +8243,6 @@ void reverseNotes(){
   while(true){
     joyRead();
     readButtons();
-    Serial.println(selBox.x1);
-    Serial.println(selBox.x2);
-    Serial.flush();
     //creating selbox when cursor is moved and sel is held down
     if(sel && !selBox.begun && (x != 0 || y != 0)){
       selBox.begun = true;
@@ -8568,7 +8388,7 @@ void warpSeq(int amount){
     Serial.println("start:"+stringify(bounds[0]));
     Serial.println("end:"+stringify(bounds[2]));
     Serial.println("track:"+stringify(tracks[t]));
-    Serial.flush();
+    // Serial.flush();
     warpChunk(bounds[0],bounds[2],tracks[t],tracks[t],amount);
   }
 }
@@ -8960,8 +8780,6 @@ bool warpChunk(uint16_t start, uint16_t end, uint16_t trackStart, uint16_t track
       //scaling start, end
       notes[t][note].startPos = (notes[t][note].startPos-start)*sc + start;
       makeNote(notes[t][note],t+trackStart,false);
-      // Serial.println("t:"+stringify(t)+" note:"+stringify(note));
-      // Serial.flush();
     }
   }
   return true;
@@ -10172,11 +9990,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
     }
     //if the bottom is in view
     if(endTrack == trackData.size()){
-      // if(trackData.size()>maxTracksShown)
-        display.drawFastHLine(trackDisplay,startHeight+trackHeight*maxTracksShown,screenWidth,SSD1306_WHITE);
-      // else
-      //   display.drawFastHLine(trackDisplay,startHeight+trackHeight*trackData.size(),screenWidth,SSD1306_WHITE);
-
+      display.drawFastHLine(trackDisplay,startHeight+trackHeight*maxTracksShown,screenWidth,SSD1306_WHITE);
     }
     else if(endTrack<=trackData.size()-1)
         endTrack++;
@@ -10206,7 +10020,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
           }
           //just printing pitches
           else{
-            display.setCursor(xCoord,y1);
+            display.setCursor(xCoord,y1+2);
             display.print(trackData[track].pitch);
           }
           if(shift || (menuIsActive && activeMenu.menuTitle == "TRK")){
@@ -12068,12 +11882,12 @@ void stepButtons(){
     if(shift){
       if(step_buttons[0]){
         step_buttons[0] = 0;
-        toggleKeys();
         lastTime = millis();
+        keyboard();
       }
       if(step_buttons[1]){
         step_buttons[1] = 0;
-        toggleDrumPads();
+        drumPad();
         lastTime = millis();
       }
       if(step_buttons[2]){
@@ -12595,7 +12409,6 @@ void inputRead() {
 }
 
 void bootscreen(){
-  display.clearDisplay();
   uint16_t frameCount = 0;
   display.setTextColor(SSD1306_WHITE);
   char child[5] = {'c','h','i','l','d'};
@@ -12614,16 +12427,12 @@ void bootscreen(){
     pram.render();
     //CHILD
     for(uint8_t letter = 0; letter<5; letter++){
-      // xCoord = xOffset+letter*12;
-      // xCoord = xOffset+letter*5;
       xCoord = 20+letter*8;
       yCoord = screenHeight-frameCount*10+letter*10;
       if(yCoord<0)
         yCoord = 0;
       yCoord+=yOffset;
       display.setCursor(xCoord,yCoord);
-      // display.print(stringify(child[letter]));
-      // printCursive(xCoord,yCoord,stringify(child[letter]),SSD1306_WHITE);
       printItalic(xCoord,yCoord,child[letter],1);
     }
     //OS
@@ -12634,19 +12443,15 @@ void bootscreen(){
       display.print("OS");
       display.setFont();
 
-      // drawStar(xOffset+68,yOffset-8+sin(millis()/100),3,7,5);
       drawStar(xOffset+68,yOffset-8,3,7,5);
-      // drawStar(xOffset+76,yOffset-15,1,3,5);
-
-      // printSmall(xOffset+35,yOffset+10,OSversionNumber,SSD1306_WHITE);
-      // display.drawFastHLine(xOffset-1,yOffset+7,27,SSD1306_WHITE);
     }
-    // if(frameCount>50)
-      // printSmall(xOffset+35,yOffset+10,OSversionNumber,SSD1306_WHITE);
+    printSmall(0,58,"v0.1",1);
     display.display();
     pram.rotate(5,1);
+    writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
     frameCount++;
   }
+  turnOffLEDs();
 }
 
 void helloChild_1(){
@@ -13030,6 +12835,8 @@ void checkLoop(){
 
 //this cpu handles time-sensitive things
 void loop1(){
+  // Serial.println("hey from cpu1:"+stringify(millis()));
+  // Serial.flush();
   //play mode
   if(playing){
     //internal timing

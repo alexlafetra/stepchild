@@ -285,7 +285,7 @@ void constructMenu(uint8_t id){
     {
       Menu fileMenu(7,3,128,64,"FILES");
       activeMenu = fileMenu;
-      slideMenuIn(1,30);
+      // slideMenuIn(1,30);
       filesMenu();
       return;
     }

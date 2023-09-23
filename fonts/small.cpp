@@ -262,11 +262,14 @@ const unsigned char epd_bitmap_small_double_quotes []  = {
 const unsigned char epd_bitmap_small_divide []  = {
 	0x40, 0x00, 0xe0, 0x00, 0x40
 };
-
+// 'degree', 3x5px
+const unsigned char epd_bitmap_degree [] = {
+	0x40, 0x00, 0x00, 0x00, 0x00
+};
 
 
 // Array of all bitmaps for convenience. (Total bytes used to store images in  = 1312)
-const unsigned char* small_font[66] = {
+const unsigned char* small_font[67] = {
 	epd_bitmap_small_a,
 	epd_bitmap_small_b,
 	epd_bitmap_small_c,
@@ -332,7 +335,8 @@ const unsigned char* small_font[66] = {
   epd_bitmap_small_mult,
   epd_bitmap_small_delta,
   epd_bitmap_small_double_quotes,
-  epd_bitmap_small_divide
+  epd_bitmap_small_divide,
+  epd_bitmap_degree
 };
 
 //this one prints out one word at a time, with bounds
@@ -422,9 +426,9 @@ void printSmall(int x, int y, char text, uint16_t c){
     case 'P':
       display.drawBitmap(x,y,small_font[15],3,5,c);
       break;
-    case 'Q':
-      display.drawBitmap(x,y,small_font[16],3,5,c);
-      break;
+   case 'Q':
+     display.drawBitmap(x,y,small_font[16],3,5,c);
+     break;
     case 'R':
       display.drawBitmap(x,y,small_font[17],3,5,c);
       break;
@@ -655,6 +659,10 @@ void printSmall(int x, int y, char text, uint16_t c){
     case '~':
       display.drawBitmap(x,y,small_font[65],3,5,c);
       break;
+    //degree
+    case '}':
+      display.drawBitmap(x,y,small_font[66],3,5,c);
+      break;
   }
 }
 void printSmall(int x, int y, String text, uint16_t c){
@@ -712,9 +720,9 @@ void printSmall(int x, int y, String text, uint16_t c){
       case 'P':
         display.drawBitmap(x+4*letter,y,small_font[15],3,5,c);
         break;
-      case 'Q':
-        display.drawBitmap(x+4*letter,y,small_font[16],3,5,c);
-        break;
+     case 'Q':
+       display.drawBitmap(x+4*letter,y,small_font[16],3,5,c);
+       break;
       case 'R':
         display.drawBitmap(x+4*letter,y,small_font[17],3,5,c);
         break;
@@ -948,6 +956,10 @@ void printSmall(int x, int y, String text, uint16_t c){
       //divide
       case '~':
         display.drawBitmap(x+4*letter,y,small_font[65],3,5,c);
+        break;
+      //degree
+      case '}':
+        display.drawBitmap(x+4*letter,y,small_font[66],3,5,c);
         break;
     }
   }

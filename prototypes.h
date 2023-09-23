@@ -63,6 +63,7 @@ void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t nu
 void printParam_centered(uint8_t which, uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);
 void printParam(uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);
 void printChannel(uint8_t xPos, uint8_t yPos, uint8_t channel, bool withBox);
+void drumPadAnimation(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numberOfPads, bool into);
 
 //Menus
 void saveMenu();
@@ -236,6 +237,9 @@ void exportSeqFileToSerial(String filename);
 void exportSeqFileToSerial_standAlone(String filename);
 void dumpFilesToSerial();
 uint32_t getByteCount(String filename);
+void loadSettings();
+void loadSavedSettingsFromFile();
+void writeCurrentSettingsToFile();
 
 //Misc. helper functions
 vector<uint16_t> getSelectionBounds2();
@@ -255,8 +259,8 @@ String stepsToPosition(int steps,bool verby);
 int getOctave(int val);
 void changeFragmentSubDivInt(bool down);
 void toggleFragmentTriplets();
-void toggleKeys();
-void toggleDrumPads();
+void keyboard();
+void drumPad();
 String getMKIIParameterName(uint8_t param,  uint8_t channel);
 String getCCParameterName(uint8_t param);
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2);
@@ -281,6 +285,8 @@ String enterText(String title);
 void bootscreen();
 uint16_t getIDAtCursor();
 uint8_t countChar(String text,unsigned char c);
+void alert(String text, int time);
+void drawWebLink();
 
 //MIDI
 void sendMIDIallOff();
