@@ -184,7 +184,7 @@ void fxMenu(){
                   angle2X,angle2Y,angle2Z);
   while(menuIsActive && activeMenu.menuTitle == "FX"){
     display.clearDisplay();
-    drawSeq(true,false,false,false,false);
+    drawSeq(true,false,true,false,false);
     drawPram(5,0);
     display.fillCircle(111,13,23,0);
     display.drawCircle(111,13,23,1);
@@ -224,7 +224,7 @@ void Menu::displayFxMenu(){
 
   //if the title will be on screen
   if(coords.x1+coords.y1-1<screenWidth){
-    display.fillRect(coords.x1+coords.y1-1,0,16,5,0);
+    display.fillRect(coords.x1+coords.y1-1,0,18,13,0);
     display.setCursor(coords.x1+coords.y1-1,5);
     display.setFont(&FreeSerifItalic9pt7b);
     display.print("Fx");

@@ -232,7 +232,6 @@ bool mainMenuControls(){
         //arp
         case 11:
           arpMenu();
-          keyboardAnimation(38,14,0,14,false);
           break;
       }
     }
@@ -319,7 +318,7 @@ void mainMenu(){
 
     animateIcon(&icon);
     display.clearDisplay();
-    drawSeq(true,false,false,false,false);
+    drawSeq(true,false,true,false,false);
     drawPram(5,0);
     display.fillCircle(111,15,23,0);
     display.drawCircle(111,15,23,1);
@@ -335,12 +334,12 @@ void mainMenu(){
 
 void Menu::displayMainMenu(){
   //drawing menu box (+16 so the title is transparent)
-  display.fillRect(coords.x1,coords.y1+13, coords.x2-coords.x1, coords.y2-coords.y1, SSD1306_BLACK);
+  display.fillRect(coords.x1,coords.y1+12, coords.x2-coords.x1, coords.y2-coords.y1, SSD1306_BLACK);
   display.drawRect(coords.x1,coords.y1+12, coords.x2-coords.x1, coords.y2-coords.y1-12, SSD1306_WHITE);
 
   //if the title will be on screen
   if(coords.x1+coords.y1-1<screenWidth){
-    display.fillRect(coords.x1+coords.y1-1,0,32,5,0);
+    display.fillRect(coords.x1+coords.y1-1,0,40,13,0);
     display.setCursor(coords.x1+coords.y1-1,5);
     display.setFont(&FreeSerifItalic9pt7b);
     display.print("Menu");

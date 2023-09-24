@@ -506,7 +506,10 @@ void loopMenu(){
       if(sel){
         lastTime = millis();
         sel = false;
+        uint8_t tempType = loopData[targetL].type;
+        setLoopToInfinite(targetL);
         viewLoop(targetL);
+        loopData[targetL].type = tempType;
       }
       if(menu_Press){
         lastTime = millis();

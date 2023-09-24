@@ -10142,9 +10142,8 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
       }
     }
     //carriage bitmap/title
-    if(topLabels){
+    if(topLabels)
       drawTopIcons();
-    }
     //playhead/rechead
     if(playing && isInView(playheadPos))
       display.drawRoundRect(trackDisplay+(playheadPos-start)*scale,startHeight,3, screenHeight-startHeight, 3, SSD1306_WHITE);
@@ -11708,6 +11707,7 @@ void mainSequencerButtons(){
       }
     }
     defaultSelectControls();
+    defaultCopyControls();
     if(!shift){
       defaultLoopControls();
     }

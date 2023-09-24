@@ -466,7 +466,7 @@ void drawArpModeIcon(uint8_t x1, uint8_t y1, uint8_t which,uint16_t c){
 
 //"notes" option adds notes from the scale onto whatever notes are playing
 void arpMenu(){
-  // keyboardAnimation(38,14,0,14,true);
+  keyboardAnimation(38,14,0,14,true);
   int xStart = 10;
   int yStart = 32;
   int spacing = 4;
@@ -644,7 +644,7 @@ void arpMenu(){
       if(menu_Press){
         lastTime = millis();
         menu_Press = false;
-        return;
+        break;
       }
       while(counterA != 0){
         switch(cursor){
@@ -696,4 +696,5 @@ void arpMenu(){
       }
     }
   }
+  // keyboardAnimation();
 }
