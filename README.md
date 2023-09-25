@@ -1,4 +1,4 @@
-![Image of the stepchild](images/stepchild_assembly.jpg)
+![Gif of the Stepchild Rotating](images/testGif.gif)
 
 # The Stepchild
 
@@ -16,11 +16,21 @@ The Stepchild has the capability to record and playback sequences of MIDI data w
 
 <!-- capabilities -->
   
-# The What?
+
+# Hardware:
+
 The Stepchild has 4 hardware MIDI out ports and 1 hardware MIDI In port, supporting both 3.5mm TRS and the original MIDI standard. The Stepchild also has USB MIDI in/out using the Pi Pico's USB port. In total, up to 8 instruments and 1 computer can be connected to output channels from the Stepchild on 4 separate hardware ports.
 
 The firmware running on the Stepchild is called 'ChildOS' and is designed to be easy to use and to create new generative MIDI instruments and effects for. Everything is
 run by the two cores of the onboard Pi Pico.
+
+![Image of the stepchild](images/stepchild_assembly.jpg)
+
+
+The heart of the Stepchild is a Raspberry Pi Pico, which is a cheap, accessible microcontroller. The electronics of the Stepchild are split into two boards; on the top board, the Pico drives a monochrome 128x64 OLED screen, 8 main buttons, two rotary encoders, and an XY joystick. The Stepchild also exposes 3 extra pins for CV
+(although the MIDI-CV features still need to be tested) and one for accessing the Pico's ADC to read in data from a 3.3v analog sensor. The bottom board holds the 8 step-buttons and indicator LEDs.
+
+A basic map of the top controls:
 
 ```
                   In 1  Out 1 Out 2 Out 3 Out 4
@@ -53,6 +63,10 @@ USB In/Out <--|        |\ \00000\   \00|    _    | 	|  4  --  MIDI Output 4  |
 
 # Software Features:
 
+As of version 1.0, ChildOS has a powerful sequencer, looper, and Automation function generator, as well as 9 instruments and FX. There are a total of 16 Instrument slots and 24 FX slots that can be swapped with user-created code written in C++ (See documentation on [creating custom instruments]() for a tutorial).
+
+
+
 ### Main Features:
 1. A graphical interface
 2. A step sequencer
@@ -71,23 +85,21 @@ USB In/Out <--|        |\ \00000\   \00|    _    | 	|  4  --  MIDI Output 4  |
 2. Rain
 3. Rattlesnake
 4. Knobs
-1. Quantizer
-2. Humanizer
-3. Strum
-4. Echo
-5. Reverse
+5. Quantizer
+6. Humanizer
+7. Strum
+8. Echo
+9. Reverse
 
-
-# Hardware:
-
-The Stepchild has a monochrome 128x64 OLED screen, 8 main buttons, two rotary encoders, an XY joystick, and 8 step-buttons and indicator LEDs emulating older hardware sequencers. The Stepchild also exposes 3 extra pins for CV
-(although the MIDI-CV features still need to be tested) and one for accessing the Pico's ADC to read in data from a 3.3v analog sensor.
 
 # Filesystem:
 
 The Stepchild uses [LittleFS]() to set aside 1MB of the Pico's onboard flash memory to store settings and sequence files. [ChildOS Interface](https://github.com/alexlafetra/childOSInterface) is a standalone Java app that lets you download saved files from the Stepchild, or to <i>convert</i> .child files to .MIDI files that can be played back in a DAW. 
 
-# the how
+<!-- ![Exploded View](images/exploded.png) -->
+
+
+# Thank you
 <!-- libraries childOS relies on -->
 Special thanks to the creators and maintainers of the following projects:
 
