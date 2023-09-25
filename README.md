@@ -12,44 +12,80 @@ The Stepchild has the capability to record and playback sequences of MIDI data w
 
 <!-- links to social media, reddit, website -->
 
+![Image](images/stepchild_disassembled.jpg)
+
 <!-- capabilities -->
   
-# the what
-The Stepchild has 4 hardware MIDI out ports and 1 hardware MIDI In port, supporting both 3.5mm TRS and the original MIDI standard, ands USB MIDI in/out support.
-The Stepchild runs firmware called "ChildOS," designed to be easy to use and to integrate with custom applications for generative MIDI instruments and effects. The firmware is 
-run by a Pi Pico and displayed on a monochrome OLED.
+# The What?
+The Stepchild has 4 hardware MIDI out ports and 1 hardware MIDI In port, supporting both 3.5mm TRS and the original MIDI standard. The Stepchild also has USB MIDI in/out using the Pi Pico's USB port. In total, up to 8 instruments and 1 computer can be connected to output channels from the Stepchild on 4 separate hardware ports.
 
-The Stepchild has 8 main buttons, two rotary encoders, an XY joystick, and 8 step-buttons emulating other hardware sequencers. The stepchild also exposes 3 extra pins for CV,
-(although the MIDI-CV features are still being tested!) or for accessing the Pico's ADC to read in data from a 3.3v analog sensor.
+The firmware running on the Stepchild is called 'ChildOS' and is designed to be easy to use and to create new generative MIDI instruments and effects for. Everything is
+run by the two cores of the onboard Pi Pico.
 
-As of the latest release, the ChildOS contains...
+```
+                  In 1  Out 1 Out 2 Out 3 Out 4
+                   ^     ^     ^     ^     ^
+                   |     |     |     |     |		    .--------.	
+                   |     |     |     |     |           / Controls |
+                .-------------------------------.  	.========================.
+              +                                  +	|  In --  MIDI Input     |
+              .                             _    . 	|  1  --  MIDI Output 1  |
+              |        ._______________.  / A \  | 	|  2  --  MIDI Output 2  |
+              |        | \00000\   \000|  \ _ /  | 	|  3  --  MIDI Output 3  |
+USB In/Out <--|        |\ \00000\   \00|    _    | 	|  4  --  MIDI Output 4  |
+              |        |0\ \00000\   \0|  / B \  | 	|                        |
+              |        |00\ \00000\   \|  \ _ /  | 	|  A -- Rotary Encoder A |
+              |  (+)   *---------------*         | 	|  B -- Rotary Encoder B |
+              |  (s)                    _____    | 	|                        |
+              |  (#)                   /     \   | 	| (0) -- Joystick        |
+              .  (-)                   { (0) }   . 	|                        | 
+              +.    (L)(>)(^)(?)       \_____/  .+ 	| (+) -- New             |
+                ^------------------------------^	| (s) -- Shift           |
+                                |  |  |  |  |	    | (#) -- Select          |
+                                |  |  |  |  |	    | (-) -- Delete          |
+                                v  v  v  v  v	    | (L) -- Loop            |
+                                I1 O1 O2 O3 O4      | (>) -- Play            |
+					                                | (^) -- Copy            |
+					                                | (?) -- Menu            |
+					                                \========================/
+```
 
-## Features
+
+# Software Features:
+
+### Main Features:
 1. A graphical interface
-2. A step sequencer supporting up to 128 tracks and 65,000 steps for creating and recording MIDI notes
-3. A CC Automation ("Autotrack") sequencer, allowing up to 128 Autotracks with user-generated curves or LFO functions
-4. Up to 256 loops of any length, with a loop composer to chain or radnomly link loops together
-5. An onboard file system using the [LittleFS C++ Library](https://github.com/littlefs-project/littlefs)
-6. A randomizer
-7. A MIDI sniffer console, to view incoming MIDI data
-8. A flexible software-based clock, integrated with Autotracks for flexible timing functions and arbitrary swing-time
+2. A step sequencer
+3. A note editor
+4. A track editor
+5. A CC Automation ("Autotrack") sequencer
+6. A customizeable looper, with up to 256 loops of any length
+7. An onboard file system
+8. A randomizer
 9. An arpeggiator
+10. A MIDI sniffer console, to view incoming MIDI data
+11. A customizeable clock, integrated with Autotracks for weird timing
 
-As well as:
-### Instruments
-1. A joystick-to-CC application
+### Instruments & FX:
+1. Joystick-to-CC
 2. Rain
 3. Rattlesnake
-4. 16 Virtual CC Knobs
+4. Knobs
+1. Quantizer
+2. Humanizer
+3. Strum
+4. Echo
+5. Reverse
 
-And finally:
 
-### Fx
-1. A quantizer
-2. A humanizer
-3. A strum effect
-4. An echo effect
-5. A reverse effect
+# Hardware:
+
+The Stepchild has a monochrome 128x64 OLED screen, 8 main buttons, two rotary encoders, an XY joystick, and 8 step-buttons and indicator LEDs emulating older hardware sequencers. The Stepchild also exposes 3 extra pins for CV
+(although the MIDI-CV features still need to be tested) and one for accessing the Pico's ADC to read in data from a 3.3v analog sensor.
+
+# Filesystem:
+
+The Stepchild uses [LittleFS]() to set aside 1MB of the Pico's onboard flash memory to store settings and sequence files. [ChildOS Interface](https://github.com/alexlafetra/childOSInterface) is a standalone Java app that lets you download saved files from the Stepchild, or to <i>convert</i> .child files to .MIDI files that can be played back in a DAW. 
 
 # the how
 <!-- libraries childOS relies on -->
