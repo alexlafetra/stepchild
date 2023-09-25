@@ -25,8 +25,8 @@ run by the two cores of the onboard Pi Pico.
 ```
                   In 1  Out 1 Out 2 Out 3 Out 4
                    ^     ^     ^     ^     ^
-                   |     |     |     |     |		    .--------.	
-                   |     |     |     |     |           / Controls |
+                   |     |     |     |     |		  .--------.	
+                   |     |     |     |     |             / Controls |
                 .-------------------------------.  	.========================.
               +                                  +	|  In --  MIDI Input     |
               .                             _    . 	|  1  --  MIDI Output 1  |
