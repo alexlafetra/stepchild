@@ -1,0 +1,394 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		FA7578F82996CF8500378FA9 /* libglfw.3.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA7578F72996CF8500378FA9 /* libglfw.3.3.dylib */; };
+		FA7578FA2996F34000378FA9 /* bitmap in Resources */ = {isa = PBXBuildFile; fileRef = FA7578F92996F34000378FA9 /* bitmap */; };
+		FAA06AFE29942167004BEC01 /* headless.h in Sources */ = {isa = PBXBuildFile; fileRef = FAA06AFD29942167004BEC01 /* headless.h */; };
+		FAA06B06299423D4004BEC01 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA06B05299423D4004BEC01 /* OpenGL.framework */; };
+		FAA06B0829942479004BEC01 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA06B0729942479004BEC01 /* GLUT.framework */; };
+		FAA06B0A29943796004BEC01 /* gfxfont.h in Sources */ = {isa = PBXBuildFile; fileRef = FAA06B0929943796004BEC01 /* gfxfont.h */; };
+		FAA06B0E29943BC7004BEC01 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAA06B0D29943BC6004BEC01 /* main.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		FAA06AF829942167004BEC01 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		FA06C79B29958C4D0096C396 /* ASCII_font.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ASCII_font.h; sourceTree = "<group>"; };
+		FA5BEA412ABD9D1300598286 /* testingApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testingApp.swift; sourceTree = "<group>"; };
+		FA5BEA422ABD9D1300598286 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		FA5BEA432ABD9D1400598286 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FA5BEA4F2ABD9D1400598286 /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
+		FA5BEA582ABD9D1400598286 /* Tests_iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_iOS.swift; sourceTree = "<group>"; };
+		FA5BEA5A2ABD9D1400598286 /* Tests_iOSLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_iOSLaunchTests.swift; sourceTree = "<group>"; };
+		FA5BEA642ABD9D1400598286 /* Tests_macOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_macOS.swift; sourceTree = "<group>"; };
+		FA5BEA662ABD9D1400598286 /* Tests_macOSLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_macOSLaunchTests.swift; sourceTree = "<group>"; };
+		FA7578F32996CC0A00378FA9 /* GL */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GL; path = ../../../../../../usr/local/include/GL; sourceTree = "<group>"; };
+		FA7578F72996CF8500378FA9 /* libglfw.3.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.3.dylib; path = ../../../../../../usr/local/Cellar/glfw/3.3.8/lib/libglfw.3.3.dylib; sourceTree = "<group>"; };
+		FA7578F92996F34000378FA9 /* bitmap */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bitmap; sourceTree = "<group>"; };
+		FAA06AFA29942167004BEC01 /* childOS_headless */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = childOS_headless; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAA06AFD29942167004BEC01 /* headless.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headless.h; sourceTree = "<group>"; };
+		FAA06B05299423D4004BEC01 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		FAA06B0729942479004BEC01 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		FAA06B0929943796004BEC01 /* gfxfont.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gfxfont.h; sourceTree = "<group>"; };
+		FAA06B0B29943B71004BEC01 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fonts; sourceTree = "<group>"; };
+		FAA06B0D29943BC6004BEC01 /* main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = main.cpp; sourceTree = "<group>"; };
+		FAB6ECBA2AB2340500A32AD2 /* Display.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Display.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FAA06AF729942167004BEC01 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA7578F82996CF8500378FA9 /* libglfw.3.3.dylib in Frameworks */,
+				FAA06B0829942479004BEC01 /* GLUT.framework in Frameworks */,
+				FAA06B06299423D4004BEC01 /* OpenGL.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		FA5BEA402ABD9D1300598286 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				FA5BEA412ABD9D1300598286 /* testingApp.swift */,
+				FA5BEA422ABD9D1300598286 /* ContentView.swift */,
+				FA5BEA432ABD9D1400598286 /* Assets.xcassets */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		FA5BEA4E2ABD9D1400598286 /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				FA5BEA4F2ABD9D1400598286 /* macOS.entitlements */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
+		FA5BEA572ABD9D1400598286 /* Tests iOS */ = {
+			isa = PBXGroup;
+			children = (
+				FA5BEA582ABD9D1400598286 /* Tests_iOS.swift */,
+				FA5BEA5A2ABD9D1400598286 /* Tests_iOSLaunchTests.swift */,
+			);
+			path = "Tests iOS";
+			sourceTree = "<group>";
+		};
+		FA5BEA632ABD9D1400598286 /* Tests macOS */ = {
+			isa = PBXGroup;
+			children = (
+				FA5BEA642ABD9D1400598286 /* Tests_macOS.swift */,
+				FA5BEA662ABD9D1400598286 /* Tests_macOSLaunchTests.swift */,
+			);
+			path = "Tests macOS";
+			sourceTree = "<group>";
+		};
+		FAA06AF129942167004BEC01 = {
+			isa = PBXGroup;
+			children = (
+				FAA06AFC29942167004BEC01 /* childOS_headless */,
+				FA5BEA402ABD9D1300598286 /* Shared */,
+				FA5BEA4E2ABD9D1400598286 /* macOS */,
+				FA5BEA572ABD9D1400598286 /* Tests iOS */,
+				FA5BEA632ABD9D1400598286 /* Tests macOS */,
+				FAA06AFB29942167004BEC01 /* Products */,
+				FAA06B04299423D4004BEC01 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		FAA06AFB29942167004BEC01 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FAA06AFA29942167004BEC01 /* childOS_headless */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FAA06AFC29942167004BEC01 /* childOS_headless */ = {
+			isa = PBXGroup;
+			children = (
+				FAA06B0929943796004BEC01 /* gfxfont.h */,
+				FAA06B0B29943B71004BEC01 /* Fonts */,
+				FAA06AFD29942167004BEC01 /* headless.h */,
+				FAB6ECBA2AB2340500A32AD2 /* Display.h */,
+				FA7578F92996F34000378FA9 /* bitmap */,
+				FAA06B0D29943BC6004BEC01 /* main.cpp */,
+				FA06C79B29958C4D0096C396 /* ASCII_font.h */,
+			);
+			path = childOS_headless;
+			sourceTree = "<group>";
+		};
+		FAA06B04299423D4004BEC01 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FA7578F72996CF8500378FA9 /* libglfw.3.3.dylib */,
+				FA7578F32996CC0A00378FA9 /* GL */,
+				FAA06B0729942479004BEC01 /* GLUT.framework */,
+				FAA06B05299423D4004BEC01 /* OpenGL.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FAA06AF929942167004BEC01 /* childOS_headless */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FAA06B0129942167004BEC01 /* Build configuration list for PBXNativeTarget "childOS_headless" */;
+			buildPhases = (
+				FAA06AF629942167004BEC01 /* Sources */,
+				FAA06AF729942167004BEC01 /* Frameworks */,
+				FAA06AF829942167004BEC01 /* CopyFiles */,
+				FAB99E4E29959C340045ABA0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = childOS_headless;
+			productName = childOS_headless;
+			productReference = FAA06AFA29942167004BEC01 /* childOS_headless */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FAA06AF229942167004BEC01 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1320;
+				LastUpgradeCheck = 1320;
+				TargetAttributes = {
+					FAA06AF929942167004BEC01 = {
+						CreatedOnToolsVersion = 13.2.1;
+					};
+				};
+			};
+			buildConfigurationList = FAA06AF529942167004BEC01 /* Build configuration list for PBXProject "childOS_headless" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = FAA06AF129942167004BEC01;
+			productRefGroup = FAA06AFB29942167004BEC01 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FAA06AF929942167004BEC01 /* childOS_headless */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FAB99E4E29959C340045ABA0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA7578FA2996F34000378FA9 /* bitmap in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FAA06AF629942167004BEC01 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAA06B0E29943BC7004BEC01 /* main.cpp in Sources */,
+				FAA06B0A29943796004BEC01 /* gfxfont.h in Sources */,
+				FAA06AFE29942167004BEC01 /* headless.h in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		FAA06AFF29942167004BEC01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				MACOSX_DEPLOYMENT_TARGET = 11.6;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		FAA06B0029942167004BEC01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				MACOSX_DEPLOYMENT_TARGET = 11.6;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		FAA06B0229942167004BEC01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/glfw/3.3.8/include,
+					/usr/local/Cellar/glfw/3.3.8/lib,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		FAA06B0329942167004BEC01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/glfw/3.3.8/include,
+					/usr/local/Cellar/glfw/3.3.8/lib,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FAA06AF529942167004BEC01 /* Build configuration list for PBXProject "childOS_headless" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FAA06AFF29942167004BEC01 /* Debug */,
+				FAA06B0029942167004BEC01 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FAA06B0129942167004BEC01 /* Build configuration list for PBXNativeTarget "childOS_headless" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FAA06B0229942167004BEC01 /* Debug */,
+				FAA06B0329942167004BEC01 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FAA06AF229942167004BEC01 /* Project object */;
+}
