@@ -4,29 +4,25 @@
 //
 
 #include <iostream>
-
 #include <cstdlib>
-
+#include <vector>
+#include <string>
 #include <cmath>
-
-//for emulating millis() and micros()
-#include <chrono>
-
+#include <chrono>//for emulating millis() and micros()
 #include<unistd.h>
 
 #define GL_SILENCE_DEPRECATION
-
 #include <OpenGL/gl.h>
-
 #include <OpenGl/glu.h>
-
 #define GLFW_INCLUDE_NONE
-
 #include <GLFW/glfw3.h>
 
+//fonts
 #include "gfxfont.h"
-
 #include "ASCII_font.h"
+#include "Fonts/FreeSerifItalic9pt7b.h"
+#include "Fonts/FreeSerifItalic12pt7b.h"
+#include "Fonts/FreeSerifItalic24pt7b.h"
 
 //for writing bitmaps
 #include "bitmap/bitmap_image.hpp"

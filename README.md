@@ -1,11 +1,14 @@
-# Stepchild
+![Image of the stepchild](images/stepchild_assembly.jpg)
+
+# The Stepchild
 
 <!-- borrowing heavily from the europi page -->
 
 <!-- intro -->
   
-Welcome to the github page for the stepchild! The stepchild is an open source, generative MIDI instrument. It is part step-sequencer, part notebook, and part instrument,
-with the capability to record and playback sequences of MIDI data alongside generating its own explorative MIDI data to sequence other instruments.
+Welcome to the github page for the Stepchild! This is an open source, generative MIDI instrument, designed to be part step-sequencer, part notebook, and part utility.
+
+The Stepchild has the capability to record and playback sequences of MIDI data while generating its own explorative MIDI data to sequence other instruments. It can act as a tool for writing music and for interfacing between MIDI, CV, and USB protocols.
 
 <!-- links to social media, reddit, website -->
 
@@ -50,9 +53,12 @@ And finally:
 
 # the how
 <!-- libraries childOS relies on -->
-Special thanks to the creators and maintainers of the following libraries:
+Special thanks to the creators and maintainers of the following projects:
 
  * adafruit gfx library
  * adafruit ssd1309 library
+ * adafruit tinyusb
  * littleFS project
- * 
+ * earle philhowers pico core
+ * kicad <3
+

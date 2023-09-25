@@ -1,16 +1,12 @@
 #define HEADLESS
 
-#include <vector>
-#include <string>
-
-//for drawing
+//headless wrapper which provides substitute classes/functions
+//for the arduino library, and includes the openGL setup for emulating the
+//screen
 #include "headless.h"
 
-//for a nice font
-#include "Fonts/FreeSerifItalic9pt7b.h"
-#include "Fonts/FreeSerifItalic12pt7b.h"
-#include "Fonts/FreeSerifItalic24pt7b.h"
-
+//swapping the arduino "String" object for the C++ "string" object (kinda silly, but it works)
 #define String string
 
+//include the rest of the files like normal
 #include "../../stepchild/stepchild.ino"

@@ -100,7 +100,7 @@ void instrumentPanelAnimation(bool in){
         }
       }
       display.display();
-      animFrame-=1;
+      animFrame-=4;
       // delay(100);
     }
   }
@@ -121,7 +121,7 @@ void instrumentPanelAnimation(bool in){
         }
       }
       display.display();
-      animFrame+=1;
+      animFrame+=4;
       // delay(100);
     }
   }
