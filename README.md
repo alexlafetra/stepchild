@@ -33,8 +33,8 @@ run by the two cores of the onboard Pi Pico.
 ![Image of the stepchild](images/stepchild_assembly.jpg)
 
 
-The heart of the Stepchild is a Raspberry Pi Pico, which is a cheap, accessible microcontroller. The electronics of the Stepchild are split into two boards; on the top board, the Pico drives a monochrome 128x64 OLED screen, 8 main buttons, two rotary encoders, and an XY joystick. The Stepchild also exposes 3 extra pins for CV
-(although the MIDI-CV features still need to be tested) and one for accessing the Pico's ADC to read in data from a 3.3v analog sensor. The bottom board holds the 8 step-buttons and indicator LEDs.
+The heart of the Stepchild is a Raspberry Pi Pico, which is a cheap, accessible microcontroller. The electronics of the Stepchild are split into two boards; on the top board, the Pico drives a monochrome 128x64 OLED screen, 8 main buttons, two rotary encoders, and an XY joystick. The bottom board holds the 8 step-buttons and indicator LEDs. The Stepchild also exposes 3 extra pins for CV
+(although the MIDI-CV features still need to be tested) and one for accessing the Pico's ADC to read in data from a 3.3v analog sensor. Everything on the Stepchild uses 3.3V; The MIDI ports use the 3.3V MIDI standard, and the CV voltages range from ~0-3.3V.
 
 A basic map of the top controls:
 
