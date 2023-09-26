@@ -1,7 +1,7 @@
-# <i>The Stepchild</i>
-
 ![Gif of the Stepchild Rotating](images/stepchild.gif)
 
+
+# <i>The Stepchild</i>
 
 <!-- borrowing heavily from the europi page -->
 
