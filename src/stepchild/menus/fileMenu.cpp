@@ -176,7 +176,7 @@ void filesMenu(){
     display.display();
     folder.rotate(1,1);
     readButtons();
-    joyRead();
+    readJoystick();
     if(activeMenu.page == 0){
       if(!fileMenuControls(menuStart,menuEnd,&folder,filenames)){
         constructMenu("MENU");

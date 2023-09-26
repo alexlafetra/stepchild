@@ -169,7 +169,7 @@ void strumMenu(){
 
     vector<NoteID> ids;
     while(true){
-        joyRead();
+        readJoystick();
         readButtons();
         while(counterA != 0){
             switch(cursor){

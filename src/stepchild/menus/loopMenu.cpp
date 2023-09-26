@@ -356,7 +356,7 @@ void viewLoop(uint8_t which){
   setActiveLoop(which);
   String tempText;
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     if(!viewLoopControls(which))
       return;
@@ -387,7 +387,7 @@ void loopMenu(){
   w.yPos = 32;
   w.scale = 4.0;
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     //changing the loop iterations
     while(counterA != 0){

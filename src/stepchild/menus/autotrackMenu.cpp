@@ -138,7 +138,7 @@ void dataTrackEditor(){
   bool translation = false;
   while(true){
     readButtons();
-    joyRead();
+    readJoystick();
     //this is done just to pass the showingInfo param 
     if(dataTrackData[activeDataTrack].type == 0){
       if(!dataTrackEditingControls(&interpolatorType)){
@@ -170,7 +170,7 @@ void dataTrackViewer(){
   // pram.scale = 1;
   while(true){
     readButtons();
-    joyRead();
+    readJoystick();
     if(!dataTrackViewerControls()){
       return;
     }

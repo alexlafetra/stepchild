@@ -228,7 +228,7 @@ void trackMenu(){
     if(activeMenu.page == 0)
       activeMenu.displayTrackMenu();
     display.display();
-    joyRead();
+    readJoystick();
     readButtons();
     if(!trackMenuControls()){
       break;

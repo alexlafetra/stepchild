@@ -308,7 +308,7 @@ void quantizeMenu(){
 
     display.display();
 
-    joyRead();
+    readJoystick();
     readButtons();
     if(!quantizeMenuControls(&whichParam)){
       break;

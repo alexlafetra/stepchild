@@ -173,11 +173,11 @@ void setTrackChannel(int track, int channel, bool loud);
 //controls
 void clearButtons();
 void stepButtons();
-void joyRead();
+void readJoystick();
 void readButtons();
 void mainSequencerEncoders();
 bool fxMenuControls();
-bool echoMenuControls();
+bool echoMenuControls(uint8_t* cursor);
 void saveMenuControls();
 bool quantizeMenuControls(uint8_t* whichParam);
 bool humanizeMenuControls(uint8_t* cursor);

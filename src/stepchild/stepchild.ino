@@ -741,7 +741,7 @@ unsigned short int vertSelectionBox(vector <String> options, unsigned short int 
       display.setTextColor(SSD1306_WHITE);
     }
     display.display();
-    joyRead();
+    readJoystick();
     readButtons();
     if(itsbeen(200)){
       if(x != 0 || y != 0){
@@ -788,7 +788,7 @@ unsigned short int horzSelectionBox(String caption, vector<String> options, unsi
       printSmall(x1+i*20,y1+10,options[i],SSD1306_WHITE);
     }
     display.display();
-    joyRead();
+    readJoystick();
     readButtons();
     if(itsbeen(200)){
       if(x != 0 || y != 0){
@@ -993,7 +993,7 @@ void trackEditMenu(){
   String text2;
   vector<uint8_t> selectedTracks;
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     if(itsbeen(150)){
       //moving thru tracks
@@ -1494,7 +1494,7 @@ void playBackMenu(){
   uint8_t menuState = 0;
   while(true){
     readButtons();
-    joyRead();
+    readJoystick();
     while(counterA != 0){
       switch(menuState){
         //play
@@ -1692,7 +1692,7 @@ void recMenu(){
   // cassette.rotate(90,2);
   // cassette.xPos = 120;
   while(menuIsActive && activeMenu.menuTitle == "REC"){
-    joyRead();
+    readJoystick();
     readButtons();
     if(itsbeen(100)){
       if(y != 0){
@@ -2541,7 +2541,7 @@ void knobs(){
     drawKnobs(activeKnobA,activeKnobB,activeRow,16,selected,ccType,valA,valB,xyMode);
     display.display();
     readButtons();
-    joyRead();
+    readJoystick();
     //changing cc/channel
     if(selected){
       while(counterA != 0){
@@ -2696,7 +2696,7 @@ int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String t
       printSmall(x1-length2/2,y1-height2-4,title,SSD1306_WHITE);
     }
     display.display();
-    joyRead();
+    readJoystick();
     readButtons();
     if(itsbeen(200)){
       //x to select option
@@ -2755,6 +2755,14 @@ uint8_t countChar(String text,unsigned char c){
   return count;
 }
 
+//including custom users apps
+#include "custom/userApplications.h"
+//including the default childOS instrumentApps
+#include "instrumentApps.h"
+//including the default childOS fx apps
+#include "fxApps.h"
+
+
 #include "menus/InstrumentMenu.cpp"
 #include "menus/fxMenu.cpp"
 #include "menus/arpMenu.cpp"
@@ -2786,23 +2794,23 @@ void drawEcho(unsigned short int xStart, unsigned short int yStart, short unsign
 
 void echoMenu(){
   animOffset = 0;
-  activeMenu.highlight = 0;
+  uint8_t cursor = 0;
   // echoAnimation();
   while(true){
     readButtons();
-    joyRead();
-    if(!echoMenuControls()){
+    readJoystick();
+    if(!echoMenuControls(&cursor)){
       return;
     }
     display.clearDisplay();
-    activeMenu.displayEchoMenu();
+    drawEchoMenu(cursor);
     display.display();
   }
 }
 
 bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)){
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     defaultEncoderControls();
     if(sel && !selBox.begun && (x != 0 || y != 0)){
@@ -2913,117 +2921,6 @@ void echoSelectedNotes(){
   clearSelection();
 }
 
-bool echoMenuControls_menuless(uint8_t* cursor){
-  if(itsbeen(200)){
-    if(x == 1 && (*cursor) > 0){
-      (*cursor)--;
-      lastTime = millis();
-    }
-    if(x == -1 && (*cursor) < 2){
-      (*cursor)++;
-      lastTime = millis();
-    }
-  }
-  if(itsbeen(200)){
-    if(menu_Press){
-      lastTime = millis();
-      menu_Press = false;
-      return false;
-    }
-    if(n){
-      n = false;
-      lastTime = millis();
-      int totalNotes = 0;
-      for(int track = 0; track<trackData.size(); track++){
-        totalNotes += seqData[track].size()-1;
-      }
-      if(totalNotes != 0){
-        lastTime = millis();
-        vector<String> ops = {"Specific Notes","Specific Tracks","Entire Sequence"};
-        int choice = vertSelectionBox(ops,10,16,100,38);
-        if(choice == 0){
-          vector<vector<uint8_t>> notes = selectMultipleNotes("[SEL] notes to echo","[N] To commit,[SH+N] to echo all");
-          int8_t choice = binarySelectionBox(64,32,"COMMIT?","DON'T");
-          for(int track = 0; track<notes.size(); track++){
-            for(int note = 0; note<notes[track].size(); note++){
-              echoNote(track, notes[track][note]);
-            }
-          }
-          return false;
-        }
-        else if(choice == 1){
-          menuIsActive = false;
-          vector<uint8_t> tracks = selectMultipleTracks("echo which?");
-          for(int i = 0; i<tracks.size(); i++){
-            if(seqData[i].size()-1>0)
-              echoTrack(tracks[i]);
-          }
-          return false;
-        }
-        else if(choice == 2){
-          for(int i = 0; i<trackData.size(); i++){
-            if(seqData[i].size()-1>0){
-              echoTrack(i);
-            }
-          }
-          return false;
-        }
-      }
-    }
-  }
-  while(counterA != 0){//if there's data for this option
-    if(counterA >= 1){
-      if((*cursor) == 0 && echoData[0]<96){
-        if(shift)
-          echoData[0]++;
-        else
-          echoData[0]*=2;
-        if(echoData[0]>96)
-          echoData[0] = 96;
-      }
-      else if((*cursor) == 1)
-        echoData[2]++;
-      else if((*cursor) == 2){
-        if(shift && echoData[1]<100)
-          echoData[1]++;
-        else if(echoData[1]<=90)
-          echoData[1]+=10;
-      }
-    }
-    else if(counterA <= -1){
-      if((*cursor) == 0){
-        if(shift && echoData[0]>0)
-          echoData[0]--;
-        else if(echoData[0]>=2)
-          echoData[0]/=2;
-      }
-      else if((*cursor) == 1 &&  echoData[2] > 1)
-        echoData[2]--;
-      else if((*cursor) == 2){
-        if(shift && echoData[1]>2)
-          echoData[1]--;
-        else if(echoData[1]>=11)
-          echoData[1]-=10;
-      }
-    }
-    counterA += counterA<0?1:-1;;
-  }
-  return true;
-}
-void echoMenu_menuless(){
-  animOffset = 0;
-  uint8_t cursor = 0;
-  while(true){
-    readButtons();
-    joyRead();
-    if(!echoMenuControls_menuless(&cursor)){
-      return;
-    }
-    display.clearDisplay();
-    drawEchoMenu(cursor);
-    display.display();
-  }
-}
 void drawEchoMenu(uint8_t cursor){
   int xCoord = 64;
   int yCoord = 32;
@@ -3066,86 +2963,6 @@ void drawEchoMenu(uint8_t cursor){
     case 2:{
       display.drawBitmap(49,17-triOffset,decay_bmp,30,12,SSD1306_WHITE);
       display.drawBitmap(49,41+triOffset,decay_inverse_bmp,30,12,SSD1306_WHITE);
-      display.drawFastHLine(49,42,30,SSD1306_BLACK);
-      display.drawFastHLine(49,44,30,SSD1306_BLACK);
-      display.drawFastHLine(49,46,30,SSD1306_BLACK);
-      printSmall(64-(stringify(echoData[1]).length()+1)*2,29,stringify(echoData[1])+"%",SSD1306_WHITE);
-      
-      drawArrow(50+sin(millis()/200),31,3,1,false);
-      }
-      break;
-  }
-
-  if(animOffset<=32){
-    if(animOffset>8){//drops and reflection
-      display.drawCircle(xCoord, animOffset-8, 1+sin(animOffset), SSD1306_WHITE);
-      display.drawCircle(xCoord, screenHeight-(animOffset-8), 1+sin(animOffset), SSD1306_WHITE);
-    }
-    display.drawCircle(xCoord, animOffset, 3+sin(animOffset), SSD1306_WHITE);
-    display.drawCircle(xCoord, screenHeight-animOffset, 3+sin(animOffset), SSD1306_WHITE);
-  }
-  else if(animOffset>yCoord){
-    int reps = (animOffset-yCoord)/spacing+1;
-    if(reps>maxReps){
-      reps = maxReps;
-    }
-    for(int i = 0; i<reps; i++){
-      if(animOffset/3-spacing*i+sin(animOffset)*(i%2)<(screenWidth+16))
-        drawEllipse(xCoord, yCoord, animOffset/3-spacing*i+sin(animOffset)*(i%2), animOffset/8-spacing*i/3,SSD1306_WHITE);
-    }
-  }
-  if(animOffset<yCoord){
-    animOffset+=5;
-  }
-  else
-    animOffset+=6;
-  if(animOffset>=8*spacing*maxReps/3+8*32+20){
-    animOffset = 0;
-  }
-}
-void Menu::displayEchoMenu(){
-  int xCoord = 64;
-  int yCoord = 32;
-  display.setTextColor(SSD1306_WHITE);
-  display.setFont();
-  // spacing  = float(echoData[0]*10)/float(24);
-  int spacing = echoData[0];
-  int maxReps = echoData[2];
-  display.clearDisplay();
-
-  int8_t triOffset = 2*sin(millis()/200);
-
-  switch(highlight){
-    case 0:{
-      display.drawBitmap(52,17-triOffset,time_bmp,25,6,SSD1306_WHITE);
-      display.drawBitmap(52,41+triOffset,time_inverse_bmp,25,6,SSD1306_WHITE);
-      display.drawFastHLine(52,42,24,SSD1306_BLACK);
-      display.drawFastHLine(52,44,24,SSD1306_BLACK);
-      display.drawFastHLine(52,46,24,SSD1306_BLACK);
-
-      //time
-      String text = stepsToMeasures(echoData[0]);
-      printFraction_small_centered(64,29,text);
-
-      //arrows
-      drawArrow(78-sin(millis()/200),31,3,0,false);
-      }
-      break;
-    case 1:{
-      display.drawBitmap(29,17-triOffset,repetitions_bmp,66,11,SSD1306_WHITE);
-      display.drawBitmap(29,36+triOffset,repetitions_inverse_bmp,66,11,SSD1306_WHITE);
-      display.drawFastHLine(29,42,66,SSD1306_BLACK);
-      display.drawFastHLine(29,44,66,SSD1306_BLACK);
-      display.drawFastHLine(29,46,66,SSD1306_BLACK);
-      printSmall(64-stringify(echoData[2]).length()*2,29,stringify(echoData[2]),SSD1306_WHITE);
-      
-      drawArrow(78-sin(millis()/200),31,3,0,false);
-      drawArrow(50+sin(millis()/200),31,3,1,false);
-      }
-      break;
-    case 2:{
-      display.drawBitmap(49,17-triOffset,decay_bmp,30,12,SSD1306_WHITE);
-      display.drawBitmap(49,35+triOffset,decay_inverse_bmp,30,12,SSD1306_WHITE);
       display.drawFastHLine(49,42,30,SSD1306_BLACK);
       display.drawFastHLine(49,44,30,SSD1306_BLACK);
       display.drawFastHLine(49,46,30,SSD1306_BLACK);
@@ -3896,7 +3713,7 @@ void portMenu(uint8_t which){
     lastVel = lastVel + (currentVel-lastVel)/5;
 
     readButtons();
-    joyRead();
+    readJoystick();
     if(itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
@@ -3922,7 +3739,7 @@ void portMenu(uint8_t which){
 void thruMenu(){ //controls which midi port you're editing
   uint8_t xCursor = 1;
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     if(itsbeen(200)){
       if(x != 0){
@@ -3991,7 +3808,7 @@ void midiMenu(){
   uint8_t xCursor = 0;
   uint8_t yCursor = 0;
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     if(itsbeen(200)){
       if(sel){
@@ -4446,7 +4263,7 @@ void inputMenu(){
     display.display();
 
     readButtons();
-    joyRead();
+    readJoystick();
     //controls
     if(itsbeen(200)){
       //moving xCursor
@@ -4541,7 +4358,7 @@ void routeMenu(){
   //controls where each of the five menus starts
   uint8_t menuStart[5] = {0,0,0,0,0};
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     if(itsbeen(80)){
       if(y != 0){
@@ -4940,7 +4757,7 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
   while (!done) {
     animOffset++;
     readButtons_MPX();
-    joyRead();
+    readJoystick();
     if (itsbeen(100)) {
       if (x == -1 && selected < 11) {
         selected++;
@@ -6203,7 +6020,7 @@ uint8_t selectCCParam_dataTrack(uint8_t which){
   if(which == 2)
     end = 5;
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     if(itsbeen(200)){
       if(x != 0){
@@ -6949,7 +6766,7 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
   bool movingBetweenNotes = false;
   while(true){
     readButtons();
-    joyRead();
+    readJoystick();
     //selectionBox
     //when sel is pressed and stick is moved, and there's no selection box
     if(sel && !selBox.begun && (x != 0 || y != 0)){
@@ -7241,7 +7058,7 @@ uint16_t countNotesInRange(uint16_t start, uint16_t end){
 void cutInsertTime(){
   while(true){
     readButtons();
-    joyRead();
+    readJoystick();
     if(itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
@@ -7715,7 +7532,7 @@ void tapBpm(){
       writeLEDs(leds);
     }
     readButtons_MPX();
-    joyRead();
+    readJoystick();
     if(menu_Press){
       lastTime = millis();
       return;
@@ -8241,7 +8058,7 @@ void reverseNotes(){
   bool selBoxFinished = false;
   selectAllTracks();
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     //creating selbox when cursor is moved and sel is held down
     if(sel && !selBox.begun && (x != 0 || y != 0)){
@@ -8580,7 +8397,7 @@ void warp(){
       printSmall(trackDisplay+48,7,"[sh+del] /2",1);
     }
     display.display();
-    joyRead();
+    readJoystick();
     readButtons();
     //sel box
     if(sel && !selBox.begun && (x != 0 || y != 0)){
@@ -9487,7 +9304,7 @@ void xyGrid(){
     }
 
     readButtons();
-    joyRead();
+    readJoystick();
 
     //sending CC vals for keybinding
     if(shift){
@@ -11849,7 +11666,7 @@ bool anyActiveInputs(){
     }
   }
 
-  joyRead();
+  readJoystick();
   if(x || y)
     return true;
   //encoder presses
@@ -12020,7 +11837,7 @@ String enterText_serial(String title){
   alphabet = alpha1;
   while(!done){
     readButtons();
-    joyRead();
+    readJoystick();
     text+=Serial.readString();
     if(itsbeen(200)){
       if(shift){
@@ -12119,7 +11936,7 @@ String enterText(String title){
   alphabet = alpha1;
   while(!done){
     readButtons();
-    joyRead();
+    readJoystick();
     if(itsbeen(200)){
       if(shift){
         if(alphabet[0] == "a")
@@ -12253,14 +12070,14 @@ void drawOSScreen(){
 void systemMenuControls(){
 }
 
-bool echoMenuControls(){
+bool echoMenuControls(uint8_t* cursor){
   if(itsbeen(200)){
-    if(x == 1 && activeMenu.highlight > 0){
-      activeMenu.highlight--;
+    if(x == 1 && (*cursor) > 0){
+      (*cursor)--;
       lastTime = millis();
     }
-    if(x == -1 && activeMenu.highlight < 2){
-      activeMenu.highlight++;
+    if(x == -1 && (*cursor) < 2){
+      (*cursor)++;
       lastTime = millis();
     }
   }
@@ -12286,7 +12103,7 @@ bool echoMenuControls(){
   }
   while(counterA != 0){//if there's data for this option
     if(counterA >= 1){
-      if(activeMenu.highlight == 0 && echoData[0]<96){
+      if((*cursor) == 0 && echoData[0]<96){
         if(shift)
           echoData[0]++;
         else
@@ -12294,9 +12111,9 @@ bool echoMenuControls(){
         if(echoData[0]>96)
           echoData[0] = 96;
       }
-      else if(activeMenu.highlight == 1)
+      else if((*cursor) == 1)
         echoData[2]++;
-      else if(activeMenu.highlight == 2){
+      else if((*cursor) == 2){
         if(shift && echoData[1]<100)
           echoData[1]++;
         else if(echoData[1]<=90)
@@ -12304,15 +12121,15 @@ bool echoMenuControls(){
       }
     }
     else if(counterA <= -1){
-      if(activeMenu.highlight == 0){
+      if((*cursor) == 0){
         if(shift && echoData[0]>0)
           echoData[0]--;
         else if(echoData[0]>=2)
           echoData[0]/=2;
       }
-      else if(activeMenu.highlight == 1 &&  echoData[2] > 1)
+      else if((*cursor) == 1 &&  echoData[2] > 1)
         echoData[2]--;
-      else if(activeMenu.highlight == 2){
+      else if((*cursor) == 2){
         if(shift && echoData[1]>2)
           echoData[1]--;
         else if(echoData[1]>=11)
@@ -12322,11 +12139,11 @@ bool echoMenuControls(){
     counterA += counterA<0?1:-1;;
   }
   while(counterB != 0){
-    if(counterB <= -1 && activeMenu.highlight>0){
-      activeMenu.highlight--;
+    if(counterB <= -1 && (*cursor)>0){
+      (*cursor)--;
     }
-    else if(counterB >= 1 && activeMenu.highlight<2){
-      activeMenu.highlight++;
+    else if(counterB >= 1 && (*cursor)<2){
+      (*cursor)++;
     }
     counterB += counterB<0?1:-1;;
   }
@@ -12386,7 +12203,7 @@ void loadBackup(){
 }
 
 void inputRead() {
-  joyRead();
+  readJoystick();
   readButtons();
   if(menuIsActive){
     if(activeMenu.menuTitle == "DEBUG")
@@ -12642,7 +12459,7 @@ void testLEDs(){
 }
 void testJoyStick(){
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     if(itsbeen(200) && menu_Press){
       lastTime = millis();

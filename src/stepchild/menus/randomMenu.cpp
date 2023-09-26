@@ -175,7 +175,7 @@ CoordinatePair selectArea(){
   coords.y2 = 0;
   WireFrame graphics = genRandMenuObjects(16,8,10,0.5);
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     defaultEncoderControls();
     if(sel && !selBox.begun && (x != 0 || y != 0)){
@@ -422,7 +422,7 @@ void drawRandMenu(uint8_t whichTab){
 }
 
 bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int8_t * maxChance, uint16_t * minLength, uint16_t * maxLength, uint8_t * minVel, uint8_t * maxVel, bool * gridBehavior, bool * target){
-    joyRead();
+    readJoystick();
     readButtons();
     if(itsbeen(200)){
         if(x != 0){

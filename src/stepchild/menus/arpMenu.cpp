@@ -31,7 +31,7 @@ void customLengthsMenu(){
   uint8_t startNote = 0;
   while(true){
     readButtons();
-    joyRead();
+    readJoystick();
     if(itsbeen(200)){
       if(sel){
         lastTime = millis();
@@ -230,7 +230,7 @@ void arpModMenu(){
   uint8_t cursor = 0;
   while(true){
     readButtons();
-    joyRead();
+    readJoystick();
     if(itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
@@ -552,7 +552,7 @@ void arpMenu(){
 
     //controls
     readButtons();
-    joyRead();
+    readJoystick();
     if(itsbeen(200)){
       if(y != 0){
         if(y == -1 && cursor>0){

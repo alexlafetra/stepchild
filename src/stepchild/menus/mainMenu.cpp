@@ -300,7 +300,7 @@ void mainMenu(){
   icon.yPos = 16;
   while(true){
     //controls
-    joyRead();
+    readJoystick();
     readButtons();
     if(!mainMenuControls())
       break;

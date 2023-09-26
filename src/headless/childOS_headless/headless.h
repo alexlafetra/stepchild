@@ -9,7 +9,7 @@
 #include <string>
 #include <cmath>
 #include <chrono>//for emulating millis() and micros()
-#include<unistd.h>
+#include <unistd.h>
 
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
@@ -131,7 +131,14 @@ float analogReadTemp(){
 
 #define MSBFIRST 0
 #define LSBFIRST 0
+
+bool leds[8] = {false,false,false,false,false,false,false,false};
+
 void shiftOut(int dataPin, int clockPin, int style, int data){
+    for(uint8_t i = 0; i<8; i++){
+        leds[i] = (data>>i)&0b00000001;
+    }
+
     return;
 }
 unsigned char shiftIn(int dataPin, int clockPin, int style){
@@ -483,6 +490,15 @@ GLFWwindow* initGlfw(){
     return window;
 }
 
+void glCircle(int x1, int y1, int r, int numberOfVertices){
+    float theta = 2.0*PI/float(numberOfVertices);
+    glBegin(GL_POLYGON);
+    for(int i = 0; i<numberOfVertices; i++){
+        glVertex2f(r*cos(i*theta)+x1,r*sin(i*theta)+y1);
+    }
+    glEnd();
+}
+
 void displayWindow(void)
 {
     //update the display if there's been an update
@@ -508,6 +524,18 @@ void displayWindow(void)
                 glVertex2f(sideBorder+x1*windowScale, topBorder+y1*windowScale+1*windowScale);
                 glEnd();
             }
+        }
+        //drawing leds
+        int w, h;
+        glfwGetWindowSize(window, &w, &h);
+        for(int i = 0; i<8; i++){
+            if(leds[i]){
+                glColor3f(1.0,0.0,0.0); //red
+            }
+            else{
+                glColor3f(0.0,0.0,0.0); //dark
+            }
+            glCircle(w/8*i+w/16,10,10,10);
         }        
         glFlush();
         glfwSwapBuffers(window);

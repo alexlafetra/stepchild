@@ -39,7 +39,7 @@ void settingsMenu(){
   gear.scale = 4;
   gear.rotate(-30,1);
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     if(itsbeen(200)){
       if(y != 0){

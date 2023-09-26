@@ -54,7 +54,7 @@ bool step_buttons[8] = {false,false,false,false,false,false,false,false};
 // #endif
 
 #ifndef HEADLESS
-void joyRead(){
+void readJoystick(){
   float yVal = analogRead(x_Pin);
   float xVal = analogRead(y_Pin);
   x = 0;
@@ -74,7 +74,7 @@ void joyRead(){
 }
 #endif
 #ifdef HEADLESS
-void joyRead(){
+void readJoystick(){
     glfwPollEvents();
     x = xKeyVal;
     y = yKeyVal;

@@ -150,7 +150,7 @@ void rain(){
     //controls
     //--------------------
     readButtons();
-    joyRead();
+    readJoystick();
     if(itsbeen(200)){
       if(play){
         lastTime = millis();

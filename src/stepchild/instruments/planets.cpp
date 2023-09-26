@@ -132,7 +132,7 @@ void testSolarSystem(){
   system.yOff = screenHeight/2;
   system.angle = -15;
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     if(x != 0){
       if(x == 1){

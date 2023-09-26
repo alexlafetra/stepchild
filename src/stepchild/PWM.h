@@ -128,7 +128,7 @@ void MIDItoCV(){
             writeCVGate(gate);
             writeCVPitch(pitch);
         }
-        joyRead();
+        readJoystick();
         readButtons();
         if(itsbeen(200)){
             if(menu_Press){

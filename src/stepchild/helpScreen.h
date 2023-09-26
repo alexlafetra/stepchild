@@ -29,7 +29,7 @@ void displayHelpText(uint8_t which){
   while(true){
     display.clearDisplay();
     readButtons();
-    joyRead();
+    readJoystick();
     if(itsbeen(200)){
       if(menu_Press){
         lastTime = millis();

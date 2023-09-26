@@ -1,70 +1,16 @@
-String getQuickFunctionText();
-String getQuickFunctionText(uint8_t);
-
-void triggerFXMenu(uint8_t which){
-  switch(which){
-    //warp -- do nothing
-    case 0:
-      break;
-    //reverse -- do nothing
-    case 1:
-      break;
-    case 2:
-      echoMenu();
-      break;
-    case 3:
-      randMenu();
-      break;
-    case 4:
-      break;
-  }
-}
-
-void triggerFXEffect(uint8_t which){
-  //   switch(which){
-  //   //warp -- allow warping
-  //   case 0:
-  //     slideMenuOut(1,20);
-  //     warp();
-  //     activeMenu.coords.x1 = trackDisplay-5;
-  //     activeMenu.coords.y1 = 0;
-  //     activeMenu.coords.x2 = screenWidth;
-  //     activeMenu.coords.y2 = debugHeight;
-  //     slideMenuIn(1,48);
-  //     lastTime = millis();
-  //     break;
-  //   //reverse
-  //   case 1:
-  //     reverseNotes();
-  //     break;
-  //   //echo
-  //   case 2:
-  //     if(lookupData[activeTrack][cursorPos] != 0){
-  //       echoNote(activeTrack,lookupData[activeTrack][cursorPos]);
-  //       lastTime = millis();
-  //     }
-  //     break;
-  //   //random
-  //   case 3:
-  //     break;
-  //   case 4:
-  //     break;
-  // }
-}
-
-void fxListControls(){
+void fxListControls(uint8_t* currentQuickFunction){
   if(itsbeen(200)){
     if(loop_Press || menu_Press){
       activeMenu.page = 0;
       lastTime = millis();
     }
     if(y != 0){
-      if(y == 1 && activeMenu.page<4){
-        activeMenu.page++;
+      if(y == 1 && (*currentQuickFunction)<4){
+        (*currentQuickFunction)++;
         lastTime = millis();
       }
-      else if(y == -1 && activeMenu.page>0){
-        activeMenu.page--;
+      else if(y == -1 && (*currentQuickFunction)>0){
+        (*currentQuickFunction)--;
         lastTime = millis();
       }
     }
@@ -72,21 +18,12 @@ void fxListControls(){
     if(sel){
       lastTime = millis();
       sel = false;
-      currentQuickFunction = activeMenu.page-1;
-      activeMenu.page = 0;
-      //if shifting, just return and DON'T go to the FX menu
-      if(shift){
-        return;
-      }
-      //if not, then enter the FX menu
-      else{
-        triggerFXMenu(currentQuickFunction);
-      }
+      fxApplicationFunctions[*currentQuickFunction]();
     }
   }
 }
 
-void editMenuControls_editing(){
+void editMenuControls_editing(uint8_t* currentQuickFunction){
   while(counterB != 0){
     //changing vel
     if(activeMenu.highlight == 2){
@@ -319,14 +256,14 @@ void editMenuControls_editing(){
         case 6:
           lastTime = millis();
           loop_Press = false;
-          triggerFXEffect(currentQuickFunction);
+          fxApplicationFunctions[*currentQuickFunction]();
           break;
       }
     }
   }
 }
 
-void editMenuControls_normal(uint8_t* stencil, bool editing){
+void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQuickFunction){
   //selectionBox
   //when sel is pressed and stick is moved, and there's no selection box
   if(sel && !selBox.begun && (x != 0 || y != 0)){
@@ -490,7 +427,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing){
           //quick fx
           case 6:
             //trigger fx selection
-            activeMenu.page = currentQuickFunction+1;
+            activeMenu.page = 1;
             lastTime = millis();
             loop_Press = false;
             break;
@@ -502,7 +439,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing){
           //trigger fx
           loop_Press = false;
           lastTime = millis();
-          triggerFXEffect(currentQuickFunction);
+          activeMenu.page = 1;
         }
         //if there are ANY notes jump into edit mode
         else if(areThereAnyNotes()){
@@ -771,18 +708,21 @@ void editMenu(){
   //value determining how many subDivs are skipped when stencilling notes
   uint8_t stencil = 1;
   bool editing = false;
+  uint8_t currentQuickFunction = 0;
   while(menuIsActive){
     display.clearDisplay();
     //draw seq without top info, side info, or menus
     drawSeq(editingNote,false,true,false,false);
-    activeMenu.displayEditMenu(&stencil,fnWindowStart);
+    activeMenu.displayEditMenu(&stencil,fnWindowStart,currentQuickFunction);
     display.display();
-    joyRead();
+    readJoystick();
     readButtons();
-    if(editingNote)
-      editMenuControls_editing();
+    if(activeMenu.page != 0)
+      fxListControls(&currentQuickFunction);
+    else if(editingNote)
+      editMenuControls_editing(&currentQuickFunction);
     else
-      editMenuControls_normal(&stencil,editing);
+      editMenuControls_normal(&stencil,editing,&currentQuickFunction);
     //sliding the window in and out
     if(activeMenu.page>0 && fnWindowStart<40){
       fnWindowStart+=8;
@@ -793,46 +733,12 @@ void editMenu(){
   }
 }
 
-String getQuickFunctionText(){
-  return getQuickFunctionText(currentQuickFunction);
-}
-String getQuickFunctionText(uint8_t which){
-  String text;
-  switch(which){
-    //WARP
-    case 0:
-      text = "warp";
-      break;
-    //reverse
-    case 1:
-      text = "reverse";
-      break;
-    case 2:
-      text = "echo";
-      break;
-    case 3:
-      text = "random";
-      break;
-    // case 4:
-    //   text = "scramble";
-    //   break;
-    // case 5:
-    //   text = "split";
-    //   break;
-    // case 6:
-    //   text = "strum";
-    //   break;
-    // case 7:
-    //   text = "chop";
-    //   break;
-  }
-  return text;
-}
+
 void Menu::displayEditMenu(){
   uint8_t temp = 1;
-  displayEditMenu(&temp,0);
+  displayEditMenu(&temp,0,0);
 }
-void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart){
+void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQuickFunction){
   unsigned short int menuHeight = abs(coords.y2-coords.y1);
 
   //back rect for stencil icon
@@ -909,7 +815,7 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart){
         break;
       //warp
       case 6:
-        txt = getQuickFunctionText();
+        txt = fxApplicationTexts[currentQuickFunction];
         drawArrow(coords.x1+95,13+sin(millis()/200),4,2,false);
         break;
     }
@@ -917,13 +823,13 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart){
     if(windowStart > 0){
       display.fillRect(screenWidth-windowStart,0,windowStart,screenHeight,0);
       display.drawRect(screenWidth-windowStart,-1,windowStart,screenHeight+2,1);
-      display.fillRect(screenWidth-windowStart,activeMenu.page == 0 ? 0:((activeMenu.page-1)*7+1),windowStart,7,1);
+      display.fillRect(screenWidth-windowStart,(currentQuickFunction)*7+1,windowStart,7,1);
       //printing labels
-      for(uint8_t i = 0; i<9; i++){
-        printSmall(screenWidth-windowStart+2,i*7+2,getQuickFunctionText(i),2);
+      for(uint8_t i = 0; i<25; i++){
+        printSmall(screenWidth-windowStart+2,i*7+2,fxApplicationTexts[i],2);
       }
-      display.drawBitmap(screenWidth-windowStart-7,(activeMenu.page-1)*7+6,mouse_cursor_fill_bmp,9,15,0);
-      display.drawBitmap(screenWidth-windowStart-7,(activeMenu.page-1)*7+6,mouse_cursor_outline_bmp,9,15,1);
+      display.drawBitmap(screenWidth-windowStart-7,(currentQuickFunction)*7+6,mouse_cursor_fill_bmp,9,15,0);
+      display.drawBitmap(screenWidth-windowStart-7,(currentQuickFunction)*7+6,mouse_cursor_outline_bmp,9,15,1);
     }
     //target parameter text (just shows what param you're gonna edit)
     display.fillRect(0,coords.x1-2,31,screenHeight-coords.x1,0);
@@ -988,8 +894,6 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart){
         drawLengthIcon(4,6,16,6,true);
         if(lookupData[activeTrack][cursorPos] != 0){
           printFraction(66,3,stepsToMeasures(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos-seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos));
-          // printSmall(1,42,stepsToPosition(seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos,true),SSD1306_WHITE);
-          // printSmall(19,42,stepsToPosition(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos,true),SSD1306_WHITE);
         }
         txt = "LENGTH";
         break;
@@ -1045,13 +949,6 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart){
         printSmall(sin(millis()/300),23,"tmng:"+stringify(humanizerParameters.timingAmount)+"%",1);
         printSmall(sin(millis()/300+1),30,"vel:"+stringify(humanizerParameters.velocityAmount)+"%",1);
         printSmall(sin(millis()/300+2),37,"chnc:"+stringify(humanizerParameters.chanceAmount)+"%",1);
-
-        //fraction
-        // printFraction(72,3,stepsToMeasures(subDivInt));
-        //^^ don't really need this since it's just the subDiv
-        //menu tooltip
-              //humanize title stuff
-        // drawHumanizeIcon(6,2,14,true);
         for(uint8_t i = 0; i<4; i++){
           if(i<(millis()/200)%4){
             display.drawRect(8+3*i,7-3*i,8,8,1);
@@ -1060,7 +957,7 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart){
         printSmall(104,0,"[sh]+L",1);
         break;
       case 6:
-        txt = getQuickFunctionText();
+        txt = fxApplicationTexts[currentQuickFunction];
         break;
     }
     //draw moving brackets

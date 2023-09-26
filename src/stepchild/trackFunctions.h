@@ -21,7 +21,7 @@ vector<uint8_t> selectMultipleTracks(String text){
 
     display.display();
     readButtons();
-    joyRead();
+    readJoystick();
     if(itsbeen(100)){
       if(y == 1){
         setActiveTrack(activeTrack+1,true);
@@ -180,7 +180,7 @@ void sortTracks(){
   const uint8_t y1 = 16;
   while(true){
     readButtons();
-    joyRead();
+    readJoystick();
     if(itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
@@ -257,7 +257,7 @@ void swapTracks(){
         break;
       }
     }
-    joyRead();
+    readJoystick();
     readButtons();
     display.clearDisplay();
     drawSeq(true, false, false, true, false, false, viewStart, viewEnd);

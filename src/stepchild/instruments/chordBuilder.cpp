@@ -39,7 +39,7 @@ void chordBuilder(){
   //2 = editing a chord
   uint8_t editorState = 0;
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     while(counterA != 0){
       uint16_t *lengthPointer;

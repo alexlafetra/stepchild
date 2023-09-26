@@ -191,7 +191,7 @@ void clockMenu(){
     // angle+=180/24;
 
     readButtons();
-    joyRead();
+    readJoystick();
     if(itsbeen(200)){
       if(menu_Press){
         lastTime = millis();

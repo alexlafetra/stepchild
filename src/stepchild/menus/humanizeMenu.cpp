@@ -139,7 +139,7 @@ void humanizeMenu(){
   HumanizeBlob blob = HumanizeBlob(20,30);
   while(true){
     //timing, vel, chance
-    joyRead();
+    readJoystick();
     readButtons();
     if(!humanizeMenuControls(&cursor)){
       break;

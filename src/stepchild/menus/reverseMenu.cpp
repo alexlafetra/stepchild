@@ -3,7 +3,7 @@ CoordinatePair selectNotesAndArea(String text, void (*iconFunction)(uint8_t,uint
     //storing a copy of the current loop, so we can edit the current loop to set our bounds
     //and then reset it back to the original loop
     while(true){
-        joyRead();
+        readJoystick();
         readButtons();
         defaultSelectBoxControls();
         defaultJoystickControls(false);
@@ -45,6 +45,9 @@ void drawRevIcon(uint8_t x1, uint8_t y1, uint8_t height, bool animated){
 //Reverses all selected notes within a start/stop bound
 //Notes must be totally within bound to be affected
 void reverse(){
+    //this is for making it transition nicely from the fx menu
+    //but it doesn't play well with the edit menu :(
+    // slideMenuOut(0,20);
     Loop tempLoop = loopData[activeLoop];
     while(true){
         clearSelection();
@@ -92,4 +95,9 @@ void reverse(){
         }
     }
     loopData[activeLoop] = tempLoop;
+    // activeMenu.coords.x1 = 25;
+    // activeMenu.coords.y1 = 1;
+    // activeMenu.coords.x2 = 93;
+    // activeMenu.coords.y2 = 64;
+    // slideMenuIn(0,30);
 }

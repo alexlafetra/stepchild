@@ -1,46 +1,3 @@
-//fx menu icons
-const unsigned char* fxMenu_icons[24] = {
-	epd_bitmap_quant,
-	epd_bitmap_humanize,
-	epd_bitmap_strum,
-	epd_bitmap_echo,
-
-//   epd_bitmap_warp,
-
-	// epd_bitmap_chord,
-	epd_bitmap_reverse,
-	epd_bitmap_empty,
-	epd_bitmap_empty,
-  epd_bitmap_empty,
-	// epd_bitmap_rnd,
-	// epd_bitmap_scramble,
-
-	// epd_bitmap_splinter,
-//   epd_bitmap_chop,
-//   epd_bitmap_mayhem,
-	epd_bitmap_empty,
-	epd_bitmap_empty,
-	epd_bitmap_empty,
-	epd_bitmap_empty,
-
-
-//page 2
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-  epd_bitmap_empty,
-  epd_bitmap_empty
-};
-
 bool fxMenuControls(){
   if(itsbeen(100)){
     if(x != 0){
@@ -81,93 +38,14 @@ bool fxMenuControls(){
     if(sel){
       sel = false;
       lastTime = millis();
-      switch(activeMenu.highlight){
-        //chord
-        case 0:
-          quantizeMenu();
-          break;
-        //echo
-        case 1:
-          humanizeMenu();
-          break;
-        //humanize
-        case 2:
-          strumMenu();
-          break;
-        case 3:
-          echoMenu();
-          break;
-        //reverse
-        case 4:
-          slideMenuOut(0,20);
-          reverse();
-          activeMenu.coords.x1 = 25;
-          activeMenu.coords.y1 = 1;
-          activeMenu.coords.x2 = 93;
-          activeMenu.coords.y2 = 64;
-          slideMenuIn(0,30);
-          break;
-        //chordbuilder
-        case 5:
-          // chordBuilder();
-          break;
-        case 6:
-          warp();
-          break;
-        //scramble
-        case 7:
-          break;
-        //split
-        case 8:
-          break;
-        //strum
-        case 9:
-          break;
-      }
+      fxApplicationFunctions[activeMenu.highlight]();
     }
   }
   return true;
 }
 
 void drawFxLabel(){
-  String text = "NAH";
-  switch(activeMenu.highlight){
-    case 0:
-      text = "QUANTIZE";
-      break;
-    case 1:
-      text = "HUMANIZE";
-      break;
-    case 2:
-      text = "STRUM";
-      break;
-    case 3:
-      text = "ECHO";
-      break;
-    case 4:
-      text = "REVERSE";
-      break;
-    case 5:
-      break;
-    case 6:
-      // text = "RANDOM";
-      break;
-    case 7:
-      // text = "SCRAMBLE";
-      break;
-    case 8:
-      // text = "SPLIT";
-      break;
-    case 9:
-      // text = "WARP";
-      break;
-    case 10:
-      // text = "CHOP";
-      break;
-    case 11:
-      // text = "MAYHEM";
-      break;
-  }
+  String text = fxApplicationTexts[activeMenu.highlight];
   printChunky(activeMenu.coords.x1+activeMenu.coords.y1+38,4,text,SSD1306_WHITE);
 }
 
@@ -192,7 +70,7 @@ void fxMenu(){
     icon.render();
     printItalic(103,13,"FX",1);
     display.display();
-    joyRead();
+    readJoystick();
     readButtons();
     if(!fxMenuControls()){
       break;
@@ -213,8 +91,6 @@ void fxMenu(){
                     angle2X,angle2Y,angle2Z);
   }
   constructMenu("MENU");
-  // activeMenu.highlight = 5;//so the 3d icon doesn't flash
-  // mainMenu();
 }
 
 void Menu::displayFxMenu(){
@@ -245,7 +121,7 @@ void Menu::displayFxMenu(){
   uint8_t count = 0;
   for(uint8_t j = 0; j<3; j++){
     for(uint8_t i = 0; i<4; i++){
-      display.drawBitmap(coords.x1+4+width*i,coords.y1+j*(width-1)+17+sin(millis()/200+count),fxMenu_icons[page*12+count],12,12,SSD1306_WHITE);
+      display.drawBitmap(coords.x1+4+width*i,coords.y1+j*(width-1)+17+sin(millis()/200+count),fxApplicationIcons[page*12+count],12,12,SSD1306_WHITE);
       if(i+4*j == highlight-12*page){
         display.drawRoundRect(coords.x1+2+width*i,coords.y1+j*(width-1)+15+sin(millis()/200+count),width,width,3,SSD1306_WHITE);
       }

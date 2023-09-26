@@ -337,7 +337,7 @@ void WireFrame::printVerts(){
 void WireFrame::view(){
   display.setTextColor(SSD1306_WHITE);
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     if(itsbeen(10)){
       if(x != 0){
@@ -1686,7 +1686,7 @@ void renderTest(){
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
   while(true){
-    joyRead();
+    readJoystick();
     readButtons();
     // angleX = sin(millis()/200)-20;
     // angleY = sin(millis()/200)+20;

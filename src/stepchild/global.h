@@ -120,8 +120,6 @@ int8_t onStop = 0;
 //making new tracks or nah
 bool makeNewTracks = true;
 
-uint8_t currentQuickFunction = 0;
-
 //could probably get rid of these! put them in drawSeq
 uint8_t trackHeight;
 uint8_t maxTracksShown = 5;

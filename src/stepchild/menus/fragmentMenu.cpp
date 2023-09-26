@@ -29,7 +29,7 @@ void fragmentMenu(){
     h = 80;
     k = 30;
     readButtons();
-    joyRead();
+    readJoystick();
     if(itsbeen(200)){
       if(menu_Press){
         menuIsActive = false;
