@@ -1,4 +1,8 @@
-![Gif of the Stepchild Rotating](images/stepchild.gif)
+<!-- ![Gif of the Stepchild Rotating](images/stepchild.gif) -->
+
+<p align="center">
+  <img src="images/stepchild.gif" />
+</p>
 
 
 # <i>The Stepchild</i>
