@@ -20,4 +20,4 @@ void exampleFunction(){
 
 #define FX_APP6_ICON default_bmp         //giving it an icon
 #define FX_APP6_TEXT "example"           //giving it title text
-#define FX_APP6_FUNCTION exampleFunction //linking it's main function
+#define FX_APP6_FUNCTION exampleFunction //linking the funciton to the FX menu
