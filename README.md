@@ -1,6 +1,7 @@
-![Gif of the Stepchild Rotating](images/testGif.gif)
+# <i>The Stepchild</i>
 
-# The Stepchild
+![Gif of the Stepchild Rotating](images/stepchild.gif)
+
 
 <!-- borrowing heavily from the europi page -->
 
@@ -8,7 +9,7 @@
   
 Welcome to the github page for the Stepchild! This is an open source, generative MIDI instrument, designed to be part step-sequencer, part notebook, and part utility.
 
-The Stepchild has the capability to record and playback sequences of MIDI data while generating its own explorative MIDI data to sequence other instruments. It can act as a tool for writing music and for interfacing between MIDI, CV, and USB protocols.
+The Stepchild has the capability to record and playback sequences of MIDI data while generating its own explorative MIDI data to sequence other instruments. It can act as a tool for writing music and for interfacing between MIDI, CV, and USB protocols. The Stepchild is designed to run on a Raspberry Pi Pico and is totally customizeable using the Arduino IDE.
 
 <!-- links to social media, reddit, website -->
 
@@ -91,12 +92,15 @@ As of version 1.0, ChildOS has a powerful sequencer, looper, and Automation func
 8. Echo
 9. Reverse
 
+# Feature List
 
-# Filesystem:
+#### V2.0
+
+# Filesystem & ChildOS Interface
 
 The Stepchild uses [LittleFS]() to set aside 1MB of the Pico's onboard flash memory to store settings and sequence files. [ChildOS Interface](https://github.com/alexlafetra/childOSInterface) is a standalone Java app that lets you download saved files from the Stepchild, or to <i>convert</i> .child files to .MIDI files that can be played back in a DAW. 
 
-<!-- ![Exploded View](images/exploded.png) -->
+![Exploded View](images/exploded.png)
 
 
 # Thank you

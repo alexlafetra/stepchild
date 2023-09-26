@@ -18,6 +18,7 @@
         "__bit_reference": "cpp",
         "algorithm": "cpp",
         "__tuple": "cpp",
-        "locale": "cpp"
+        "locale": "cpp",
+        "iosfwd": "cpp"
     }
 }
