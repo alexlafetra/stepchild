@@ -4,8 +4,9 @@
   <img src="images/stepchild.gif" />
 </p>
 
-
-# <i>The Stepchild</i>
+<h1 align="center">
+<i>The Stepchild</i>
+</h1>
 
 <!-- borrowing heavily from the europi page -->
 
