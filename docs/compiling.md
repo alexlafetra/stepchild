@@ -1,6 +1,6 @@
 # Compiling/building ChildOS
 
-ChildOS should be easy to compile and edit on your own. To compile a binary to run on the Stepchild, or to upload directly to the Stepchild itself, you should first download the [Arduino IDE](https://www.arduino.cc/en/software). If you're using a Mac, or a computer that runs Xcode, you can also run the headless version of ChildOS that emulates the screen and internal logic (which at the moment is only really useful for graphics testing, but MIDI functionality might come later!).
+ChildOS should be easy to compile and edit on your own. To compile a binary to run on the Stepchild, or to upload directly to the Stepchild itself, you should first download the [Arduino IDE](https://www.arduino.cc/en/software). If you're using a Mac, or a computer that runs Xcode, you can also run the headless version of ChildOS that emulates the screen and internal logic (which at the moment is only really useful for graphics testing, but MIDI functionality might come later!)
 
 ## Once you have the Arduino IDE...
  Open the file "stepchild.ino" using the Arduino IDE (File > Open). You'll need to download the following libraries, but all of them can be found in the Arduino Library Manager (Tools > Manage Libraries):
