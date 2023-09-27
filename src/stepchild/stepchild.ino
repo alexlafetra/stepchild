@@ -55,10 +55,6 @@
 
 // #define SSD1306_SETDISPLAYCLOCKDIV B0011000  ///< See datasheet
 
-#define UPRIGHT 2
-#define UPSIDEDOWN 0
-#define SIDEWAYS_R 3
-#define SIDEWAYS_L 1
 
 using namespace std;
 
@@ -67,11 +63,19 @@ using namespace std;
   // Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #endif
 
-//program booleans and global data, constants
-#include "global.h"
-#include "bitmaps.h"
 //function prototypes
 #include "prototypes.h"
+
+#ifndef HEADLESS
+  #include "classes/Knob.h"
+  Knob controlKnobs[16];
+#endif
+
+//program booleans and global data, constants
+#include "global.h"
+
+#include "bitmaps.h"
+
 //button defs and reading functions
 #include "buttons.h"
 //wireframe stuff
@@ -2354,48 +2358,6 @@ void drumPad(){
   }
   drumPadAnimation(screenWidth-25,5,36,16, false);
 }
-
-
-class Knob{
-  public:
-    Knob();
-    Knob(uint8_t,uint8_t,uint8_t);
-    uint8_t cc;
-    uint8_t val;
-    uint8_t channel;//0 is global
-    void increment(int8_t);
-    void send();
-};
-
-Knob::Knob(){
-  cc = 1;
-  val = 0;
-  channel = 1;
-}
-Knob::Knob(uint8_t c, uint8_t v, uint8_t ch){
-  cc = c;
-  val = v;
-  channel = ch;
-}
-void Knob::increment(int8_t amt){
-  if(amt>0){
-    val+=amt;
-    if(val>127){
-      val = 127;
-    }
-  }
-  else if(-amt<=val){
-    val+=amt;
-  }
-  else{
-    val = 0;
-  }
-}
-void Knob::send(){
-  sendMIDICC(cc,val,channel);
-}
-
-Knob controlKnobs[16];
 
 void drawKnobs(uint8_t activeA, uint8_t activeB, uint8_t activeRow, uint8_t howMany, bool selected, uint8_t ccType,uint8_t valA, uint8_t valB, bool xyMode){
   const uint8_t bigR = 12;
@@ -5545,35 +5507,6 @@ void fileAnimation(bool in){
   }
 }
 
-#ifdef HEADLESS
-  void startMIDI(){
-    return;
-  }
-  void sendMIDICC(uint8_t cc, uint8_t v, uint8_t c){
-    return;
-  }
-  void sendMIDIallOff(){
-    return;
-  }
-  void sendMIDInoteOn(uint8_t pitch, uint8_t vel, uint8_t channel){
-    return;
-  }
-  void sendMIDInoteOff(uint8_t pitch, uint8_t vel, uint8_t channel){
-    return;
-  }
-  void readMIDI(){
-    return;
-  }
-  void sendClock(){
-    return;
-  }
-  void sendMIDIStart(){
-    return;
-  }
-  void sendMIDIStop(){
-    return;
-  }
-#endif
 #ifndef HEADLESS
 void startMIDI(){
   MIDI0.begin(MIDI_CHANNEL_OMNI);
@@ -12438,7 +12371,9 @@ void checkSerial(){
   #endif
 }
 
+#ifndef HEADLESS
 #include "setup.h"
+#endif
 
 void sequenceLEDs(){
   int length = loopData[activeLoop].end-loopData[activeLoop].start;

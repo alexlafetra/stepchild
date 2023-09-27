@@ -129,7 +129,9 @@ uint8_t endTrack;
 //timing vars
 unsigned long timeLastStepPlayed,MicroSperTimeStep,startTime;
 long offBy,timeElapsed;
-bool core0ready = false;
+#ifndef HEADLESS
+    bool core0ready = false;
+#endif
 bool core1ready = false;
 
 //30000/1000 = 30 seconds

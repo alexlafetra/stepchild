@@ -90,7 +90,6 @@ void slideMenuIn(int fromWhere, int speed);
 void slideMenuOut(int fromWhere, int speed);
 void strumMenu();
 
-
 //Note editing
 void deleteSelected();
 vector<vector<uint8_t>> selectMultipleNotes(String,String);
@@ -193,6 +192,7 @@ int readEncoder(bool encoder);
 
 //sequence
 void zoom(bool);
+void initSeq(int tracks, int length);
 void initSeq();
 bool isInView(int);
 void updateLookupData_track(unsigned short int);
@@ -212,6 +212,7 @@ bool areThereAnyNotes();
 void setCursorToNearestNote();
 void setBpm(int newBpm);
 void checkView();
+void turnOffLEDs();
 
 //Loops
 void moveLoop(int16_t amount);

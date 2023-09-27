@@ -6,7 +6,6 @@
 #include <iostream>
 #include <cstdlib>
 #include <vector>
-#include <string>
 #include <cmath>
 #include <chrono>//for emulating millis() and micros()
 #include <unistd.h>
@@ -17,6 +16,16 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+
+
+//#include <CoreAudio/CoreAudio.h>
+//#include <CoreMIDI/CoreMIDI.h>
+//#include <CoreFoundation/CoreFoundation.h>
+
+//#define __MACOSX_CORE__
+//#include "/Users/alex/Desktop/rtmidi-6.0.0/RtMidi.h"
+#include "Midi.h"
+
 //fonts
 #include "gfxfont.h"
 #include "ASCII_font.h"
@@ -26,6 +35,11 @@
 
 //for writing bitmaps
 #include "bitmap/bitmap_image.hpp"
+
+#define UPRIGHT 2
+#define UPSIDEDOWN 0
+#define SIDEWAYS_R 3
+#define SIDEWAYS_L 1
 
 using namespace std;
 
@@ -66,18 +80,8 @@ using namespace std;
 
 int counterA, counterB;
 
-string stringify(int a){
-    return to_string(a);
-}
-string stringify(string s){
-    return s;
-}
-int toInt(string s){
-    if(s == "")
-        return 0;
-    else
-        return stoi(s);
-}
+bool core0ready;
+unsigned long lastTime = 0;
 
 //emulating micros and millis
 auto progStartTime = chrono::high_resolution_clock::now();
@@ -89,6 +93,9 @@ unsigned long millis(){
     auto rn = chrono::high_resolution_clock::now();
     return chrono::duration_cast<std::chrono::milliseconds>(rn-progStartTime).count();
 }
+
+#include "../../stepchild/classes/Knob.h"
+Knob controlKnobs[16];
 
 
 inline GFXglyph *pgm_read_glyph_ptr(const GFXfont *gfxFont, uint8_t c) {
@@ -560,13 +567,42 @@ void Display::display(void){
     displayWindow();
 }
 
+void setup(){
+  startMIDI();
+
+  //Set the display rotation (which is ~technically~ upside down)
+  display.setRotation(UPRIGHT);
+  //turn text wrapping off, so our menus look ok
+  display.setTextWrap(false);
+
+  //--------------------------------------------------------------------//
+  //                              Software                              //
+  //--------------------------------------------------------------------//
+  //seeding random number generator
+  srand(1);
+  //setting up sequence w/ 16 tracks, 768 steps
+  initSeq(16,768);
+  //turn off LEDs (since they might be in some random configuration)
+  turnOffLEDs();
+  //set the control knobs up w/ default values
+  for(uint8_t i = 0; i<16; i++){
+    controlKnobs[i].cc = i+1;
+  }
+  counterA = 0;
+  counterB = 0;
+  setNormalMode();
+
+  core0ready = true;
+  lastTime = millis();
+  bootscreen();
+}
+
 void headless(){
+    //setup graphics window
     window = initGlfw();
     while(!openGLready){
-        
     }
-    bootscreen();
-    delay(1000);
+    setup();
     //check if the window should close (this won't work within loops)
     while (!glfwWindowShouldClose(window)){
         //running logic

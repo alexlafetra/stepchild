@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA01CE662AC2F93D005BBB0F /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE652AC2F93D005BBB0F /* CoreAudio.framework */; platformFilter = maccatalyst; };
+		FA01CE682AC2F94C005BBB0F /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE672AC2F94C005BBB0F /* CoreMIDI.framework */; platformFilter = maccatalyst; };
+		FA01CE6A2AC2F955005BBB0F /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */; platformFilter = maccatalyst; };
 		FA7578F82996CF8500378FA9 /* libglfw.3.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA7578F72996CF8500378FA9 /* libglfw.3.3.dylib */; };
 		FA7578FA2996F34000378FA9 /* bitmap in Resources */ = {isa = PBXBuildFile; fileRef = FA7578F92996F34000378FA9 /* bitmap */; };
 		FAA06AFE29942167004BEC01 /* headless.h in Sources */ = {isa = PBXBuildFile; fileRef = FAA06AFD29942167004BEC01 /* headless.h */; };
@@ -29,15 +32,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		FA01CE652AC2F93D005BBB0F /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		FA01CE672AC2F94C005BBB0F /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
+		FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		FA01CE702AC35CBB005BBB0F /* Midi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Midi.h; sourceTree = "<group>"; };
 		FA06C79B29958C4D0096C396 /* ASCII_font.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ASCII_font.h; sourceTree = "<group>"; };
-		FA5BEA412ABD9D1300598286 /* testingApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testingApp.swift; sourceTree = "<group>"; };
-		FA5BEA422ABD9D1300598286 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		FA5BEA432ABD9D1400598286 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		FA5BEA4F2ABD9D1400598286 /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
-		FA5BEA582ABD9D1400598286 /* Tests_iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_iOS.swift; sourceTree = "<group>"; };
-		FA5BEA5A2ABD9D1400598286 /* Tests_iOSLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_iOSLaunchTests.swift; sourceTree = "<group>"; };
-		FA5BEA642ABD9D1400598286 /* Tests_macOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_macOS.swift; sourceTree = "<group>"; };
-		FA5BEA662ABD9D1400598286 /* Tests_macOSLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_macOSLaunchTests.swift; sourceTree = "<group>"; };
 		FA7578F32996CC0A00378FA9 /* GL */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GL; path = ../../../../../../usr/local/include/GL; sourceTree = "<group>"; };
 		FA7578F72996CF8500378FA9 /* libglfw.3.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.3.dylib; path = ../../../../../../usr/local/Cellar/glfw/3.3.8/lib/libglfw.3.3.dylib; sourceTree = "<group>"; };
 		FA7578F92996F34000378FA9 /* bitmap */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bitmap; sourceTree = "<group>"; };
@@ -58,57 +57,20 @@
 			files = (
 				FA7578F82996CF8500378FA9 /* libglfw.3.3.dylib in Frameworks */,
 				FAA06B0829942479004BEC01 /* GLUT.framework in Frameworks */,
+				FA01CE6A2AC2F955005BBB0F /* CoreFoundation.framework in Frameworks */,
+				FA01CE662AC2F93D005BBB0F /* CoreAudio.framework in Frameworks */,
 				FAA06B06299423D4004BEC01 /* OpenGL.framework in Frameworks */,
+				FA01CE682AC2F94C005BBB0F /* CoreMIDI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		FA5BEA402ABD9D1300598286 /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-				FA5BEA412ABD9D1300598286 /* testingApp.swift */,
-				FA5BEA422ABD9D1300598286 /* ContentView.swift */,
-				FA5BEA432ABD9D1400598286 /* Assets.xcassets */,
-			);
-			path = Shared;
-			sourceTree = "<group>";
-		};
-		FA5BEA4E2ABD9D1400598286 /* macOS */ = {
-			isa = PBXGroup;
-			children = (
-				FA5BEA4F2ABD9D1400598286 /* macOS.entitlements */,
-			);
-			path = macOS;
-			sourceTree = "<group>";
-		};
-		FA5BEA572ABD9D1400598286 /* Tests iOS */ = {
-			isa = PBXGroup;
-			children = (
-				FA5BEA582ABD9D1400598286 /* Tests_iOS.swift */,
-				FA5BEA5A2ABD9D1400598286 /* Tests_iOSLaunchTests.swift */,
-			);
-			path = "Tests iOS";
-			sourceTree = "<group>";
-		};
-		FA5BEA632ABD9D1400598286 /* Tests macOS */ = {
-			isa = PBXGroup;
-			children = (
-				FA5BEA642ABD9D1400598286 /* Tests_macOS.swift */,
-				FA5BEA662ABD9D1400598286 /* Tests_macOSLaunchTests.swift */,
-			);
-			path = "Tests macOS";
-			sourceTree = "<group>";
-		};
 		FAA06AF129942167004BEC01 = {
 			isa = PBXGroup;
 			children = (
 				FAA06AFC29942167004BEC01 /* childOS_headless */,
-				FA5BEA402ABD9D1300598286 /* Shared */,
-				FA5BEA4E2ABD9D1400598286 /* macOS */,
-				FA5BEA572ABD9D1400598286 /* Tests iOS */,
-				FA5BEA632ABD9D1400598286 /* Tests macOS */,
 				FAA06AFB29942167004BEC01 /* Products */,
 				FAA06B04299423D4004BEC01 /* Frameworks */,
 			);
@@ -128,6 +90,7 @@
 				FAA06B0929943796004BEC01 /* gfxfont.h */,
 				FAA06B0B29943B71004BEC01 /* Fonts */,
 				FAA06AFD29942167004BEC01 /* headless.h */,
+				FA01CE702AC35CBB005BBB0F /* Midi.h */,
 				FAB6ECBA2AB2340500A32AD2 /* Display.h */,
 				FA7578F92996F34000378FA9 /* bitmap */,
 				FAA06B0D29943BC6004BEC01 /* main.cpp */,
@@ -139,6 +102,9 @@
 		FAA06B04299423D4004BEC01 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */,
+				FA01CE672AC2F94C005BBB0F /* CoreMIDI.framework */,
+				FA01CE652AC2F93D005BBB0F /* CoreAudio.framework */,
 				FA7578F72996CF8500378FA9 /* libglfw.3.3.dylib */,
 				FA7578F32996CC0A00378FA9 /* GL */,
 				FAA06B0729942479004BEC01 /* GLUT.framework */,
@@ -343,11 +309,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					MACOSX_CORE,
+				);
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/Cellar/glfw/3.3.8/include,
 					/usr/local/Cellar/glfw/3.3.8/lib,
+				);
+				OTHER_CFLAGS = "";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-D__MACOSX_CORE__",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -362,6 +338,11 @@
 					"$(inherited)",
 					/usr/local/Cellar/glfw/3.3.8/include,
 					/usr/local/Cellar/glfw/3.3.8/lib,
+				);
+				OTHER_CFLAGS = "";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-D__MACOSX_CORE__",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

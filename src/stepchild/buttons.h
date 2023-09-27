@@ -44,7 +44,9 @@ const unsigned char ledPin = 6;
 const unsigned char onboard_ledPin = 25;
 
 //buttons/inputs
+#ifndef HEADLESS
 unsigned long lastTime;
+#endif
 int8_t x,y;
 bool joy_Press,n,sel,shift,del,play,track_Press,note_Press, track_clk, note_clk,loop_Press, copy_Press, menu_Press;
 bool step_buttons[8] = {false,false,false,false,false,false,false,false};
