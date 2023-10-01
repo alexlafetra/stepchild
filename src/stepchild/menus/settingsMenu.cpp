@@ -28,6 +28,11 @@ void printMemoryInfo(uint8_t x1, uint8_t y1){
   printSmall(x1+22,y1+26,"("+stringify(float(rp2040.getFreeHeap())/float(rp2040.getTotalHeap())*100)+"%)",1);
 }
 
+void printPowerInfo(uint8_t x1, uint8_t y1){
+  String s = stringify(getBattLevel());
+  drawLabel(x1,y1,"vsys: "+s+"v",true);
+}
+
 void settingsMenu(){
   //which 'tab' you're looking at
   uint8_t menuTab = 0;
@@ -368,6 +373,7 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
       const uint8_t x1 = 20;
       const uint8_t y1 = 6;
       printMemoryInfo(x1,y1);
+      printPowerInfo(105,1);
       printSmall(x1,y1+35,"temp: "+stringify(analogReadTemp())+"}C",1);
       printSmall(x1,y1+43,"cpu speed: "+stringify(float(rp2040.f_cpu())/float(1000000))+"MHZ",1);
       if(cursor == 0){

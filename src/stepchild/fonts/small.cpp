@@ -964,3 +964,7 @@ void printSmall(int x, int y, String text, uint16_t c){
     }
   }
 }
+
+void printSmall(int x1, int y1, float a, uint16_t c){
+  printSmall(x1,y1,stringify(a),c);
+}

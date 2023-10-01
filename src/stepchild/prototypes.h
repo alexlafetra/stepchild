@@ -1,4 +1,6 @@
-//Function prototypes ----------------------------->
+/*
+    This is the big list of function prototypes! Not all functions are here.
+*/
 
 //Debug
 void displaySeqSerial();
@@ -54,7 +56,7 @@ void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bo
 void drawQuantIcon(uint8_t,uint8_t,uint8_t,bool);
 void drawHumanizeIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim);
 void printTrackPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c);
-void printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c);
+uint8_t printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c);
 void printSmall_centered(int x, int y, String t, uint16_t c);
 void printSmall(int, int, String, uint16_t);
 void fillSquareVertically(uint8_t x0, uint8_t y0, uint8_t width, uint8_t fillAmount);

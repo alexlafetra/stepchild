@@ -107,9 +107,11 @@ bool Arp::hasItBeenEnoughTime() {
 void Arp::start() {
   grabNotesFromPlaylist();
   Arp::startTime = micros();
-  sendMIDInoteOn(notes[order[activeNote]], 100, Arp::channel);
-  lastPitchSent = notes[order[activeNote]];
-  Arp::timeLastStepPlayed = micros();
+    if(Arp::notes.size() != 0){
+        sendMIDInoteOn(notes[order[activeNote]], 100, Arp::channel);
+        lastPitchSent = notes[order[activeNote]];
+        Arp::timeLastStepPlayed = micros();
+    }
   Arp::playing = true;
   // Arp::playheadPos++;
 }

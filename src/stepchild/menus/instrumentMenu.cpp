@@ -24,8 +24,8 @@ void drawInstrumentPanel(uint8_t x1, uint8_t y1){
 }
 
 void instrumentPanelAnimation(bool in){
-  int16_t animFrame = 50;
   if(in){
+    int16_t animFrame = 50;
     while(animFrame>0){
       const uint8_t width = 14;
       const uint8_t height = 14;
@@ -41,12 +41,12 @@ void instrumentPanelAnimation(bool in){
         }
       }
       display.display();
-      animFrame-=4;
+      animFrame-=5;
       // delay(100);
     }
   }
   else{
-    animFrame = 0;
+    int16_t animFrame = 0;
     while(animFrame<50){
       const uint8_t width = 14;
       const uint8_t height = 14;
@@ -62,7 +62,7 @@ void instrumentPanelAnimation(bool in){
         }
       }
       display.display();
-      animFrame+=4;
+      animFrame+=5;
       // delay(100);
     }
   }

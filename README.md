@@ -87,14 +87,14 @@ As of version 1.0, ChildOS has a powerful sequencer, looper, and Automation func
 7. An onboard file system
 8. A randomizer
 9. An arpeggiator
-10. A MIDI sniffer console, to view incoming MIDI data
+10. A console to view incoming MIDI data
 11. A customizeable clock, integrated with Autotracks for weird timing
 
 ### Instruments & FX:
-1. Joystick-to-CC
-2. Rain
-3. Rattlesnake
-4. Knobs
+1. Joystick-to-CC -- <i>Use the Stepchild's joystick as a MIDI controller</i>
+2. Rain           -- <i>Generate ambient notes</i>
+3. Rattlesnake    -- <i>Output notes wth varying speed</i>
+4. Knobs          -- <i>Use the Stepchild's encoders as MIDI controllers</i>
 5. Quantizer
 6. Humanizer
 7. Strum

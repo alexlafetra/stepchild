@@ -76,18 +76,21 @@ const unsigned char warp_bmp []  = {
 #define FX_APP3_ICON strum_bmp
 #define FX_APP4_ICON echo_bmp
 #define FX_APP5_ICON reverse_bmp
+#define FX_APP6_ICON warp_bmp
 
 #define FX_APP1_FUNCTION quantizeMenu
 #define FX_APP2_FUNCTION humanizeMenu
 #define FX_APP3_FUNCTION strumMenu
 #define FX_APP4_FUNCTION echoMenu
 #define FX_APP5_FUNCTION reverse
+#define FX_APP6_FUNCTION selectAreasAndWarp
 
 #define FX_APP1_TEXT "quantize"
 #define FX_APP2_TEXT "humanize"
 #define FX_APP3_TEXT "strum"
 #define FX_APP4_TEXT "echo"
 #define FX_APP5_TEXT "reverse"
+#define FX_APP6_TEXT "warp"
 
 /*
     Check to see if the user has defined these in their code!

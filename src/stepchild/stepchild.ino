@@ -69,6 +69,10 @@ using namespace std;
 #ifndef HEADLESS
   #include "classes/Knob.h"
   Knob controlKnobs[16];
+  #define UPRIGHT 2
+  #define UPSIDEDOWN 0
+  #define SIDEWAYS_R 3
+  #define SIDEWAYS_L 1
 #endif
 
 //program booleans and global data, constants
@@ -109,6 +113,30 @@ vector<vector<Note>> grabAndDeleteSelectedNotes();
 
 #ifndef HEADLESS
   String stringify(int a){
+    return String(a);
+  }
+  String stringify(uint8_t a){
+    return String(a);
+  }
+  String stringify(int8_t a){
+    return String(a);
+  }
+  String stringify(uint16_t a){
+    return String(a);
+  }
+  String stringify(int16_t a){
+    return String(a);
+  }
+  String stringify(uint32_t a){
+    return String(a);
+  }
+  String stringify(int32_t a){
+    return String(a);
+  }
+  String stringify(std::vector<Note>::size_type a){
+    return String(a);
+  }
+  String stringify(float a){
     return String(a);
   }
   String stringify(const char * a){
@@ -157,6 +185,7 @@ vector<vector<uint16_t> > lookupData; //char map of notes; 0 = no note, 1-665,53
 vector<Track> trackData;//holds tracks
 vector<vector<Note>> seqData;//making a 2D vec, number of rows = tracks, number of columns = usable notes, and stores Note objects
 
+#include "classes/NoteID.h"
 
 //Stores loop data as start,end,reps,and type
 struct Loop{
@@ -304,6 +333,7 @@ void noBitches(){
 }
 
 #include "menus/randomMenu.cpp"
+#include "menus/warpMenu.cpp"
 #include "menus/reverseMenu.cpp"
 
 //returns a list of pitches that are present in the playlist
@@ -2719,8 +2749,11 @@ uint8_t countChar(String text,unsigned char c){
 
 //including custom users apps
 #include "custom/userApplications.h"
+
 //including the default childOS instrumentApps
+#include "instruments/rattle.cpp"
 #include "instrumentApps.h"
+
 //including the default childOS fx apps
 #include "fxApps.h"
 
@@ -2976,6 +3009,18 @@ uint16_t getLookupID(uint8_t track, uint16_t pos){
   return lookupData[track][pos];
 }
 
+#define BATTSCALE 0.00966796875
+//3.0*3.3/1024.0;
+//idk why ^^this isn't 4095.0, but it ain't
+
+float getBattLevel(){
+  //So when USB is in, VSYS is ~5.0
+  //When all 3AA's are in, if they're 1.5v batts VSYS is ~4.5
+  //But if they're 1.2v batts VSYS is ~3.6;
+  float val = float(analogRead(Vpin))*BATTSCALE;
+  return val;
+}
+
 #include "menus/trackMenu.cpp"
 #include "menus/settingsMenu.cpp"
 #include "menus/quantizeMenu.cpp"
@@ -3126,57 +3171,57 @@ vector<vector<uint16_t>> getSelectionBounds(){
 
 //prints pitch with a small # and either a large or small Octave number
 void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct, bool channel, uint16_t c){
-  printPitch(xCoord, yCoord, getTrackPitchOctave(trackID)+((trackData[trackID].noteLastSent != 255)?"$":""), bigOct, channel, c);
+  String s = getTrackPitchOctave(trackID)+stringify(trackData[trackID].channel)+((trackData[trackID].noteLastSent != 255)?"$":"");
+  uint8_t offset = printPitch(xCoord, yCoord, s, bigOct, channel, c);
+  String sx = "";
+  if(shift || (menuIsActive && activeMenu.menuTitle == "TRK")){
+    sx += stringify(trackData[trackID].channel);
+    if(trackData[trackID].isLatched){
+      sx += "<";
+    }
+  }
+  // printSmall(xCoord+offset,yCoord,sx,1);
+  //track prime icon
+  if(recording && trackData[trackID].isPrimed){
+    if((millis()+trackID*10)%1000>500){
+      display.fillCircle(xCoord+offset+sx.length()*4+3,yCoord+1,2,1);
+    }
+    else{
+      display.drawCircle(xCoord+offset+sx.length()*4+3,yCoord+1,2,1);
+    }
+  }
 }
 
-void printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c){
+//prints a formatted pitch and returns the pixel length of the printed pitch
+uint8_t printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c){
+  uint8_t offset = 0;
   display.setCursor(xCoord,yCoord);
   display.print(pitch.charAt(0));
-  xCoord+=6;
+  offset+=6;
   // printChunky(xCoord,yCoord,stringify(pitch.charAt(0)),c);
   //if it's a sharp
   if(pitch.charAt(1) == '#'){
-    printSmall(xCoord,yCoord,pitch.charAt(1),c);
-    if(bigOct){
-      xCoord+=6;
-      display.setCursor(xCoord,yCoord);
-      display.print(pitch.charAt(2));
-      // printChunky(xCoord+12,yCoord,stringify(pitch.charAt(2)),c);
-      if(pitch.charAt(2) == '-'){
-        display.print(pitch.charAt(3));
-      }
-    }
-    else{
-      xCoord+=6;
-      printSmall(xCoord,yCoord,pitch.charAt(2),c);
-      if(pitch.charAt(2) == '-'){
-        xCoord+=4;
-        printSmall(xCoord,yCoord,pitch.charAt(3),c);
-      }
+    printSmall(xCoord+offset,yCoord,pitch.charAt(1),c);
+    offset+=6;
+    printSmall(xCoord+offset,yCoord,pitch.charAt(2),c);
+    if(pitch.charAt(2) == '-'){
+      offset+=4;
+      printSmall(xCoord+offset,yCoord,pitch.charAt(3),c);
     }
   }
+  //if it's not a sharp
   else{
-    if(bigOct){
-      display.setCursor(xCoord,yCoord);
-      display.print(pitch.charAt(1));
-      // printChunky(xCoord+6,yCoord,stringify(pitch.charAt(1)),c);
-      if(pitch.charAt(1) == '-'){
-        // printChunky(xCoord+10,yCoord,stringify(pitch.charAt(2)),c);
-        display.print(pitch.charAt(2));
-      }
-    }
-    else{
-      xCoord+=6;
-      if(pitch.charAt(1) == '-'){
-        xCoord+=4;
-        printSmall(xCoord,yCoord,pitch.charAt(2),c);
-      }
+    printSmall(xCoord+offset,yCoord,pitch.charAt(1),c);
+    if(pitch.charAt(1) == '-'){
+      offset+=4;
+      printSmall(xCoord+offset,yCoord,pitch.charAt(2),c);
     }
   }
   if(pitch.charAt(pitch.length()-1) == '$'){
-    // xCoord;
-    printSmall(xCoord,1+yCoord+sin(millis()/50),"$",c);
+    offset+=4;
+    printSmall(xCoord+offset,1+yCoord+sin(millis()/50),"$",c);
   }
+  return offset;
 }
 
 void drawBox(uint8_t cornerX, uint8_t cornerY, uint8_t width, uint8_t height, uint8_t depth, int8_t xSlant, uint8_t fill){
@@ -6443,6 +6488,7 @@ void deleteSelected(){
             (note == 0) ? note = 0: note--;
           }
           if(selectionCount == 0)
+            updateLEDs();
             return;
         }
       }
@@ -7170,6 +7216,7 @@ void initSeq(int tracks, int length) {
 
   seqData.resize(tracks);
   lookupData.resize(tracks);
+  trackData = {};
 
   //this is so we can count down, instead of up
   defaultPitch += tracks-1;
@@ -7867,21 +7914,25 @@ void changeNoteLength_jumpToEnds(int16_t amount){
     if(amount>0)
       setCursor(bounds[2]);
     else
-      setCursor(bounds[0]);
+      // setCursor(bounds[0]);
+      setCursor(bounds[2]-subDivInt);//testing this
   }
   else{
     //if the note was changed
     if(changeNoteLength(amount, activeTrack, lookupData[activeTrack][cursorPos]) != 0){
       //if you're shrinking the note
       if(amount<0){
-        setCursor(seqData[activeTrack][seqData[activeTrack].size()-1].startPos);
+        setCursor(seqData[activeTrack][seqData[activeTrack].size()-1].endPos-subDivInt);//testing this
+        // setCursor(seqData[activeTrack][seqData[activeTrack].size()-1].startPos);
         //if it's out of view
         // else
           // setCursor(seqData[activeTrack][seqData[activeTrack].size()-1].endPos+amount);
       }
       //if you're growing it
       else
-        setCursor(seqData[activeTrack][seqData[activeTrack].size()-1].endPos-subDivInt);
+        // setCursor(seqData[activeTrack][seqData[activeTrack].size()-1].endPos-subDivInt);
+        setCursor(seqData[activeTrack][seqData[activeTrack].size()-1].endPos-1);//testing this
+
         // setCursor(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos - amount);
     }
   }
@@ -8937,6 +8988,7 @@ uint16_t toggleTriplets(uint16_t subDiv){
   menuText = stepsToMeasures(subDivInt);
   return subDiv;
 }
+
 void toggleTriplets(){
   //this breaks the pattern, but lets you swap from 2/1 to 3/1 (rare case probs)
   if(subDivInt == 192){
@@ -8988,7 +9040,7 @@ void zoom(bool in){
   updateCursor();
   updateLEDs();
 
-  menuText = stepsToMeasures(viewStart)+"<-->"+stepsToMeasures(viewEnd);
+  menuText = stepsToMeasures(viewStart)+"<-->"+stepsToMeasures(viewEnd)+"  (~"+stepsToMeasures(subDivInt)+")";
 }
 bool areThereAnyNotes(){
   for(uint8_t t = 0; t<seqData.size(); t++){
@@ -9318,45 +9370,43 @@ void drawPlayIcon(int8_t x1, int8_t y1){
   }
 }
 
-void drawPower(uint8_t x, uint8_t y){
+void drawPower(uint8_t x1, uint8_t y1){
+  //check if USB is plugged in
   bool usb = digitalRead(usbPin);
+  // usb = false;
   if(usb){
-    display.drawBitmap(x,y+1,tiny_usb,10,4,SSD1306_WHITE);
+    // display.drawBitmap(x1,y1,batt_bmp,10,7,SSD1306_WHITE);
+    display.drawBitmap(x1,y1+1,tiny_usb,10,4,SSD1306_WHITE);
   }
   else{
-    display.drawBitmap(x,y,batt_bmp,10,7,SSD1306_WHITE);
-    int batt = getBattLevel();
-    //pico input SHOULD range from 1.8 (lowest it can handle) to 4.8 (max w/3AA's)
-    //increments of 6 => 3/6 = 0.5
-    if(batt<=2.0){
+    display.drawBitmap(x1,y1,batt_bmp,10,7,SSD1306_WHITE);
+    float batt = getBattLevel();
+    //for printing batt level to the screen
+    // String lvl = stringify(batt);
+    // printSmall(x1-lvl.length()*4,y1+1,lvl,1);
+    //input ranges from ~1.8 (lowest the Pico can run on) to 3.6v (with 3AA's @ 1.2v)
+    //so the range is 1.8, thus u gotta do 6 increments of 0.3, 1.8 --> 
+    if(batt<=1.8){
     }
-    else if(batt<2.5){
-      display.fillRect(x+2,y+2,1,3,SSD1306_WHITE);
+    else if(batt<2.1){
+      display.fillRect(x1+2,y1+2,1,3,SSD1306_WHITE);
     }
-    else if(batt<3){
-      display.fillRect(x+2,y+2,2,3,SSD1306_WHITE);
+    else if(batt<2.4){
+      display.fillRect(x1+2,y1+2,2,3,SSD1306_WHITE);
     }
-    else if(batt<3.5){
-      display.fillRect(x+2,y+2,3,3,SSD1306_WHITE);
+    else if(batt<2.7){
+      display.fillRect(x1+2,y1+2,3,3,SSD1306_WHITE);
     }
-    else if(batt<4){
-      display.fillRect(x+2,y+2,4,3,SSD1306_WHITE);
+    else if(batt<3.0){
+      display.fillRect(x1+2,y1+2,4,3,SSD1306_WHITE);
     }
-    else if(batt<4.5){
-      display.fillRect(x+2,y+2,5,3,SSD1306_WHITE);
+    else if(batt<3.3){
+      display.fillRect(x1+2,y1+2,5,3,SSD1306_WHITE);
     }
     else{
-      display.fillRect(x+2,y+2,6,3,SSD1306_WHITE);
+      display.fillRect(x1+2,y1+2,6,3,SSD1306_WHITE);
     }
   }
-}
-
-#define BATTSCALE 0.009677419355
-//float(3.3*3)/float(1023);
-
-float getBattLevel(){
-  float val = float(analogRead(Vpin))*BATTSCALE;
-  return val;
 }
 
 //draws pram, other icons (not loop points tho)
@@ -9525,12 +9575,14 @@ void drawTopIcons(){
   if(shift){
     if(displayingVel){
       if(lookupData[activeTrack][cursorPos] == 0){
-        printSmall(x1,1,"v:"+stringify(defaultVel),SSD1306_WHITE);
-        x1+=20;
+        String vel = stringify(defaultVel);
+        printSmall(x1,1,"v:"+vel,SSD1306_WHITE);
+        x1+=vel.length()*4+8;;
       }
       else{
-        printSmall(x1,1,"v:"+stringify(seqData[activeTrack][lookupData[activeTrack][cursorPos]].velocity),SSD1306_WHITE);
-        x1+=20;
+        String vel = stringify(seqData[activeTrack][lookupData[activeTrack][cursorPos]].velocity);
+        printSmall(x1,1,"v:"+vel,SSD1306_WHITE);
+        x1+=vel.length()*4+8;
       }
     }
     else{
@@ -9548,7 +9600,10 @@ void drawTopIcons(){
     display.drawPixel(x1,3+2*sin(float(millis())/float(200)),1);
     display.drawPixel(x1+2,3+2*sin(float(millis())/float(200)+100),1);
     display.drawPixel(x1+4,3+2*sin(float(millis())/float(200)+200),1);
-    x1+=8;
+    // printSmall(x1+6,1,"a",1);
+    display.drawBitmap(x1+6,2,tiny_arp_bmp,9,3,1);
+    // x1+=8;
+    x1+=17;
   }
 
   //draw menu text
@@ -9573,6 +9628,111 @@ void displaySeq(){
 
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection){
   drawSeq(trackLabels,topLabels,loopPoints,menus,trackSelection,false,viewStart,viewEnd);
+}
+
+void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_t height, bool onlyWithinLoop, bool loopFlags, bool loopPoints){
+  //drawing the measure bars
+  for (uint16_t step = start; step < end; step++) {
+    unsigned short int x1 = trackDisplay+int((step-start)*scale);
+    unsigned short int x2 = x1 + (step-start)*scale;
+
+    //shade everything outside the loop
+    if(onlyWithinLoop){
+      if(step<loopData[activeLoop].start){
+        shadeArea(x1,startHeight,(loopData[activeLoop].start-step)*scale,screenHeight-startHeight,3);
+        step = loopData[activeLoop].start;
+        //ok, step shouldn't ever be zero in this case, since that would mean it was LESS than zero to begin
+        //with. But, just for thoroughnesses sake, make sure step doesn't overflow when you subtract from it
+        if(step != 0){
+          step--;
+        }
+        continue;
+      }
+      else if(step>loopData[activeLoop].end){
+        shadeArea(x1,startHeight,(viewEnd-loopData[activeLoop].end)*scale,screenHeight-startHeight,3);
+        break;
+      }
+    }
+
+    //if the last track is showing
+    if(endTrack == trackData.size()){
+      //measure bars
+      if (!(step % subDivInt) && (step%96) && (subDivInt*scale)>1) {
+        drawDottedLineV(x1,startHeight,height,2);
+      }
+      if(!(step%96)){
+        drawDottedLineV2(x1,startHeight,height,6);
+      }
+    }
+    else{
+      //measure bars
+      if (!(step % subDivInt) && (step%96) && (subDivInt*scale)>1) {
+        drawDottedLineV(x1,startHeight,height,2);
+      }
+      if(!(step%96)){
+        drawDottedLineV2(x1,startHeight,height,6);
+      }
+    }
+
+    //drawing loop points/flags
+    if(loopPoints){//check
+      if(step == loopData[activeLoop].start){
+        if(loopFlags){
+          if(movingLoop == -1 || movingLoop == 2){
+            display.fillTriangle(trackDisplay+(step-start)*scale, debugHeight-3-sin(millis()/50), trackDisplay+(step-start)*scale, debugHeight-7-sin(millis()/50), trackDisplay+(step-start)*scale+4, debugHeight-7-sin(millis()/50),SSD1306_WHITE);
+            display.drawFastVLine(trackDisplay+(step-start)*scale,debugHeight-3,3,SSD1306_WHITE);
+          }
+          else{
+            if(cursorPos == step){
+              display.fillTriangle(trackDisplay+(step-start)*scale, debugHeight-3, trackDisplay+(step-start)*scale, debugHeight-7, trackDisplay+(step-start)*scale+4, debugHeight-7,SSD1306_WHITE);
+              display.drawFastVLine(trackDisplay+(step-start)*scale,debugHeight-3,3,SSD1306_WHITE);
+            }
+            else{
+              display.fillTriangle(trackDisplay+(step-start)*scale, debugHeight-1, trackDisplay+(step-start)*scale, debugHeight-5, trackDisplay+(step-start)*scale+4, debugHeight-5,SSD1306_WHITE);
+            }
+          }
+        }
+        else{
+          display.drawPixel(trackDisplay+(loopData[activeLoop].start-start)*scale, startHeight-1,1);
+        }
+        if(!movingLoop || (movingLoop != 1 && (millis()/400)%2)){
+          display.drawFastVLine(trackDisplay+(step-start)*scale,startHeight,screenHeight-startHeight-(endTrack == trackData.size()),SSD1306_WHITE);
+          display.drawFastVLine(trackDisplay+(step-start)*scale-1,startHeight,screenHeight-startHeight-(endTrack == trackData.size()),SSD1306_WHITE);
+        }
+      }
+      if(step == loopData[activeLoop].end-1){
+        if(loopFlags){
+          if(movingLoop == 1 || movingLoop == 2){
+            display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-3-sin(millis()/50), trackDisplay+(loopData[activeLoop].end-start)*scale-4, debugHeight-7-sin(millis()/50), trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-7-sin(millis()/50),SSD1306_WHITE);
+            display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,debugHeight-3,3,SSD1306_WHITE);
+          }
+          else{
+            if(cursorPos == step+1){
+              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-3, trackDisplay+(loopData[activeLoop].end-start)*scale-4, debugHeight-7, trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-7,SSD1306_WHITE);
+              display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,debugHeight-3,3,SSD1306_WHITE);
+            }
+            else{
+              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale-1, debugHeight-1, trackDisplay+(loopData[activeLoop].end-start)*scale-5, debugHeight-5, trackDisplay+(loopData[activeLoop].end-start)*scale-1, debugHeight-5,SSD1306_WHITE);
+            }
+          }
+        }
+        else{
+          display.drawPixel(trackDisplay+(loopData[activeLoop].end-start)*scale, startHeight-1,1);
+        }
+        if(!movingLoop || (movingLoop != -1 && (millis()/400)%2)){
+          display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale+1,startHeight,screenHeight-startHeight-(endTrack == trackData.size()),SSD1306_WHITE);
+          display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale+2,startHeight,screenHeight-startHeight-(endTrack == trackData.size()),SSD1306_WHITE);
+        }
+      }
+      if(movingLoop == 2){
+        if(step>loopData[activeLoop].start && step<loopData[activeLoop].end && step%2){
+          display.drawPixel(trackDisplay+(step-start)*scale, startHeight-7-sin(millis()/50),SSD1306_WHITE);
+        }
+      }
+      if(loopFlags && (step == loopData[activeLoop].start+(loopData[activeLoop].end-loopData[activeLoop].start)/2))
+        printSmall(trackDisplay+(step-start)*scale-1,10,stringify(activeLoop),SSD1306_WHITE);
+    }
+  }
 }
 
 //this function is a mess!
@@ -9631,108 +9791,8 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
     else
       height = startHeight+trackHeight*trackData.size();
 
-    //drawing the measure bars
-    for (uint16_t step = start; step < end; step++) {
-      unsigned short int x1 = trackDisplay+int((step-start)*scale);
-      unsigned short int x2 = x1 + (step-start)*scale;
-
-      //shade everything outside the loop
-      if(shadeOutsideLoop){
-        if(step<loopData[activeLoop].start){
-          shadeArea(x1,startHeight,(loopData[activeLoop].start-step)*scale,screenHeight-startHeight,3);
-          step = loopData[activeLoop].start;
-          //ok, step shouldn't ever be zero in this case, since that would mean it was LESS than zero to begin
-          //with. But, just for thoroughnesses sake, make sure step doesn't overflow when you subtract from it
-          if(step != 0){
-            step--;
-          }
-          continue;
-        }
-        else if(step>loopData[activeLoop].end){
-          shadeArea(x1,startHeight,(viewEnd-loopData[activeLoop].end)*scale,screenHeight-startHeight,3);
-          break;
-        }
-      }
-
-      //if the last track is showing
-      if(endTrack == trackData.size()){
-        //measure bars
-        if (!(step % subDivInt) && (step%96) && (subDivInt*scale)>1) {
-          drawDottedLineV(x1,startHeight,height,2);
-        }
-        if(!(step%96)){
-          drawDottedLineV2(x1,startHeight,height,6);
-        }
-      }
-      else{
-        //measure bars
-        if (!(step % subDivInt) && (step%96) && (subDivInt*scale)>1) {
-          drawDottedLineV(x1,startHeight,height,2);
-        }
-        if(!(step%96)){
-          drawDottedLineV2(x1,startHeight,height,6);
-        }
-      }
-
-      //drawing loop points/flags
-      if(loopPoints){//check
-        if(step == loopData[activeLoop].start){
-          if(loopFlags){
-            if(movingLoop == -1 || movingLoop == 2){
-              display.fillTriangle(trackDisplay+(step-start)*scale, debugHeight-3-sin(millis()/50), trackDisplay+(step-start)*scale, debugHeight-7-sin(millis()/50), trackDisplay+(step-start)*scale+4, debugHeight-7-sin(millis()/50),SSD1306_WHITE);
-              display.drawFastVLine(trackDisplay+(step-start)*scale,debugHeight-3,3,SSD1306_WHITE);
-            }
-            else{
-              if(cursorPos == step){
-                display.fillTriangle(trackDisplay+(step-start)*scale, debugHeight-3, trackDisplay+(step-start)*scale, debugHeight-7, trackDisplay+(step-start)*scale+4, debugHeight-7,SSD1306_WHITE);
-                display.drawFastVLine(trackDisplay+(step-start)*scale,debugHeight-3,3,SSD1306_WHITE);
-              }
-              else{
-                display.fillTriangle(trackDisplay+(step-start)*scale, debugHeight-1, trackDisplay+(step-start)*scale, debugHeight-5, trackDisplay+(step-start)*scale+4, debugHeight-5,SSD1306_WHITE);
-              }
-            }
-          }
-          else{
-            display.drawPixel(trackDisplay+(loopData[activeLoop].start-start)*scale, startHeight-1,1);
-          }
-          if(!movingLoop || (movingLoop != 1 && (millis()/400)%2)){
-            display.drawFastVLine(trackDisplay+(step-start)*scale,startHeight,screenHeight-startHeight-(endTrack == trackData.size()),SSD1306_WHITE);
-            display.drawFastVLine(trackDisplay+(step-start)*scale-1,startHeight,screenHeight-startHeight-(endTrack == trackData.size()),SSD1306_WHITE);
-          }
-        }
-        if(step == loopData[activeLoop].end-1){
-          if(loopFlags){
-            if(movingLoop == 1 || movingLoop == 2){
-              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-3-sin(millis()/50), trackDisplay+(loopData[activeLoop].end-start)*scale-4, debugHeight-7-sin(millis()/50), trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-7-sin(millis()/50),SSD1306_WHITE);
-              display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,debugHeight-3,3,SSD1306_WHITE);
-            }
-            else{
-              if(cursorPos == step+1){
-                display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-3, trackDisplay+(loopData[activeLoop].end-start)*scale-4, debugHeight-7, trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-7,SSD1306_WHITE);
-                display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,debugHeight-3,3,SSD1306_WHITE);
-              }
-              else{
-                display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale-1, debugHeight-1, trackDisplay+(loopData[activeLoop].end-start)*scale-5, debugHeight-5, trackDisplay+(loopData[activeLoop].end-start)*scale-1, debugHeight-5,SSD1306_WHITE);
-              }
-            }
-          }
-          else{
-            display.drawPixel(trackDisplay+(loopData[activeLoop].end-start)*scale, startHeight-1,1);
-          }
-          if(!movingLoop || (movingLoop != -1 && (millis()/400)%2)){
-            display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale+1,startHeight,screenHeight-startHeight-(endTrack == trackData.size()),SSD1306_WHITE);
-            display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale+2,startHeight,screenHeight-startHeight-(endTrack == trackData.size()),SSD1306_WHITE);
-          }
-        }
-        if(movingLoop == 2){
-          if(step>loopData[activeLoop].start && step<loopData[activeLoop].end && step%2){
-            display.drawPixel(trackDisplay+(step-start)*scale, startHeight-7-sin(millis()/50),SSD1306_WHITE);
-          }
-        }
-        if(loopFlags && (step == loopData[activeLoop].start+(loopData[activeLoop].end-loopData[activeLoop].start)/2))
-          printSmall(trackDisplay+(step-start)*scale-1,10,stringify(activeLoop),SSD1306_WHITE);
-      }
-    }
+    //drawing measure bars, loop points
+    drawSeqBackground(start, end, startHeight, height, shadeOutsideLoop,loopFlags, loopPoints);
 
     //top and bottom bounds
     if(startTrack == 0){
@@ -9742,7 +9802,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
     if(endTrack == trackData.size()){
       display.drawFastHLine(trackDisplay,startHeight+trackHeight*maxTracksShown,screenWidth,SSD1306_WHITE);
     }
-    else if(endTrack<=trackData.size()-1)
+   else if(endTrack< trackData.size())
         endTrack++;
     //drawin all da steps
     //---------------------------------------------------
@@ -9765,47 +9825,24 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
         if(!isShrunk){
           //printing note names
           if(pitchesOrNumbers){
-            int8_t octave = (trackData[track].pitch/12)-2;//idk why this offset is needed
-            printTrackPitch(xCoord, y1+trackHeight/2-2,track,false,false,SSD1306_WHITE);
+            printTrackPitch(xCoord, y1+trackHeight/2-2,track,false,true,SSD1306_WHITE);
           }
-          //just printing pitches
+          //just printing pitch numbers
           else{
             display.setCursor(xCoord,y1+2);
             display.print(trackData[track].pitch);
           }
-          if(shift || (menuIsActive && activeMenu.menuTitle == "TRK")){
-            if(trackData[track].isLatched){
-              if(activeTrack == track)
-                printSmall(3,y1+3,"<",SSD1306_WHITE);
-              else
-                printSmall(0,y1+3,"<",SSD1306_WHITE);
-            }
-            printSmall(trackDisplay-stringify(trackData[track].channel).length()*4,y1+2,stringify(trackData[track].channel),SSD1306_WHITE);
-          }
-          else{
-            if(track == activeTrack && isModulated(trackData[track].channel)){
-              if(playing)
-                display.drawBitmap(trackDisplay-7,y1+3+sin(millis()/100),sine_small_bmp,6,4,SSD1306_WHITE);
-              else
-                display.drawBitmap(trackDisplay-7,y1+2,sine_small_bmp,6,4,SSD1306_WHITE);
-            }
-          }
-          // if(trackData[track].noteLastSent != 255){
-          //   printSmall(trackDisplay-5,y1+1+sin(millis()/50),"$",1);
+          // else{
+          //   if(track == activeTrack && isModulated(trackData[track].channel)){
+          //     if(playing)
+          //       display.drawBitmap(trackDisplay-7,y1+3+sin(millis()/100),sine_small_bmp,6,4,SSD1306_WHITE);
+          //     else
+          //       display.drawBitmap(trackDisplay-7,y1+2,sine_small_bmp,6,4,SSD1306_WHITE);
+          //   }
           // }
-          //track prime icon
-          if(recording && trackData[track].isPrimed){
-            if((millis()+track*10)%1000>500){
-              display.fillCircle(trackDisplay-5,y1+trackHeight/2+1,2,1);
-            }
-            else{
-              display.drawCircle(trackDisplay-5,y1+trackHeight/2+1,2,1);
-            }
-          }
         }
         //if it's shrunk, draw it small
         else{
-          int octave = (trackData[track].pitch/12)-2;//idk why this offset is needed
           String pitch = getTrackPitchOctave(track);
           if(track%2){
             printSmall(18, y1, pitchToString(trackData[track].pitch,true,true), SSD1306_WHITE);
@@ -11249,6 +11286,7 @@ void defaultJoystickControls(bool velocityEditingAllowed){
   }
 }
 
+//prints out each bit of the byte
 void printByte(uint8_t b){
   Serial.print("\n");
   uint8_t i = 0;
@@ -11258,6 +11296,7 @@ void printByte(uint8_t b){
     i++;
   }
 }
+
 //array to hold the LED states
 //displays notes on LEDs
 void updateLEDs(){
@@ -11266,6 +11305,7 @@ void updateLEDs(){
   uint8_t dat = 0;//00000000
   const uint16_t jump = viewLength/8;
   if(LEDsOn){
+    //if there are any notes, check
     if(seqData[activeTrack].size()>1){
       for(uint8_t i = 0; i<8; i++){
         uint16_t step = viewStart+i*jump;
@@ -11291,8 +11331,7 @@ void updateLEDs(){
   shiftOut(dataPin_LEDS, clockPin_LEDS, MSBFIRST, dat);
   digitalWrite(latchPin_LEDS, HIGH);
 
-  printByte(dat);
-
+  // printByte(dat);
 }
 
 void writeLEDs(uint8_t led, bool state){
@@ -11463,8 +11502,9 @@ void mainSequencerButtons(){
     }
     //special case for the main sequence; loop+shift jumps into the loop menu
     else if(loop_Press){
+      isLooping = !isLooping;
       lastTime = millis();
-      loopMenu();
+      menuText = isLooping?"loop on":"loop off";
     }
 
     if(del && shift){
@@ -11706,6 +11746,7 @@ void defaultEncoderControls(){
     //if shifting, toggle between 1/3 and 1/4 mode
     if(shift){
       toggleTriplets();
+      counterB = 0;
     }
     else if(counterB >= 1){
       changeSubDivInt(true);
@@ -11741,16 +11782,15 @@ void mainSequencerEncoders(){
     counterA += counterA<0?1:-1;;
   }
   while(counterB != 0){
-    if(counterB >= 1 && !shift){
+    if(shift){
+      toggleTriplets();
+    }
+    else if(counterB >= 1){
       changeSubDivInt(true,true);
     }
     //changing subdivint
-    if(counterB <= -1 && !shift){
+    else if(counterB <= -1){
       changeSubDivInt(false,true);
-    }
-    //if shifting, toggle between 1/3 and 1/4 mode
-    else while(counterB != 0 && shift){
-      toggleTriplets();
     }
     counterB += counterB<0?1:-1;;
   }
@@ -12684,13 +12724,12 @@ void loop1(){
 }
 
 #ifdef HEADLESS
-const int windowW = 128*windowScale;
-const int windowH = 64*windowScale;
+// const int windowW = 128*windowScale;
+// const int windowH = 64*windowScale;
 
 int main(int argc, char **argv)
 {
-    setup();
-    headless();
-    return 0;
+  headless();
+  return 0;
 }
 #endif

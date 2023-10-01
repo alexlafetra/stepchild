@@ -24,6 +24,7 @@
 
 //#define __MACOSX_CORE__
 //#include "/Users/alex/Desktop/rtmidi-6.0.0/RtMidi.h"
+
 #include "Midi.h"
 
 //fonts
@@ -205,15 +206,21 @@ DummySerial::DummySerial(){
     
 }
 void DummySerial::print(string s){
+    cout<<s;
     return;
 }
 void DummySerial::print(int a){
+    cout<<a;
     return;
 }
 void DummySerial::println(string s){
+    cout<<s;
+    cout<<endl;
     return;
 }
 void DummySerial::println(int a){
+    cout<<a;
+    cout<<endl;
     return;
 }
 void DummySerial::flush(){
@@ -229,6 +236,7 @@ int DummySerial::read(){
     return 0;
 }
 void DummySerial::write(int a){
+    cout<<a;
     return;
 }
 string DummySerial::readString(){
@@ -497,6 +505,7 @@ GLFWwindow* initGlfw(){
     return window;
 }
 
+//custom circle drawing
 void glCircle(int x1, int y1, int r, int numberOfVertices){
     float theta = 2.0*PI/float(numberOfVertices);
     glBegin(GL_POLYGON);
@@ -506,11 +515,12 @@ void glCircle(int x1, int y1, int r, int numberOfVertices){
     glEnd();
 }
 
+//checks for a window update, then draws pixels to the openGL window using the 'screenPixels' buffer
 void displayWindow(void)
 {
     //update the display if there's been an update
     if(display.displayUpdate && openGLready){
-        glClearColor( 0.0f, 0.0f, 0.2f, 0.1f ); //dark transparent blue
+        glClearColor( 0.0f, 0.0f, 0.2f, 0.8f ); //dark transparent blue
         glClear( GL_COLOR_BUFFER_BIT);
         for(int j = 0;j<64; j++){
             for(int i = 0; i<128; i++){
@@ -520,7 +530,7 @@ void displayWindow(void)
                     glColor3f(0.9,0.9,0.0); //bright yellow
                 }
                 else{
-                    glColor4f( 0.0f, 0.0f, 0.2f, 0.1f); //dark transparent blue
+                    glColor4f( 0.0f, 0.0f, 0.2f, 0.8f); //dark transparent blue
                 }
                 int x1 = i+1;
                 int y1 = 63 - j;

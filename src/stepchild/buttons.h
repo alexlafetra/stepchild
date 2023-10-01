@@ -5,6 +5,9 @@ const uint8_t txPin_2 = 4;
 const uint8_t txPin_3 = 3;
 const uint8_t txPin_4 = 2;
 
+const uint8_t Screen_SDA = 8;
+const uint8_t Screen_SCL = 9;
+
 //ENCODERS
 const unsigned char note_press_Pin = 17;
 const unsigned char note_clk_Pin = 18;
@@ -21,7 +24,8 @@ volatile int8_t counterB;
 #endif
 
 //SHIFT REGISTERS
-const unsigned char dataPin_LEDS = 9;
+// const unsigned char dataPin_LEDS = 9;//V0.4
+const unsigned char dataPin_LEDS = 7;
 const unsigned char latchPin_LEDS = 10;
 const unsigned char clockPin_LEDS = 11;
 
@@ -33,8 +37,8 @@ const unsigned char buttons_clockIn = 15;
 const unsigned char stepButtons_dataIn = 12;
 
 //JOYSTICK
-const unsigned char y_Pin = 27;
-const unsigned char x_Pin = 26;
+const unsigned char y_Pin = 26;
+const unsigned char x_Pin = 27;
 
 //MISC. HARDWARE
 const unsigned char Vpin = 29;

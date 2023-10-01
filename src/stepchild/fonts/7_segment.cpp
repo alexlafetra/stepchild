@@ -190,7 +190,6 @@ void print7SegItalic(uint8_t x1, uint8_t y1, char letter){
 
 void print7SegItalic(uint8_t x1, uint8_t y1, String num){
   for(uint8_t character = 0; character<num.length(); character++){
-    bool segments[7] = {false,false,false,false,false,false,false};
     char letter = num.charAt(character);
       print7SegItalic(x1+character*16,y1,letter);
   }
@@ -304,7 +303,7 @@ void print7SegNumber(uint8_t x1, uint8_t y1, int16_t number,bool withOutlines){
 //prints a small 7 seg number
 void print7SegSmall(int x, int y, String text, uint16_t c){
   for(uint8_t i = 0; i<text.length(); i++){
-    uint8_t a;
+    uint8_t a = 0;//init a with zero, just in case
     switch(text.charAt(i)){
       case '0':
         a = 0;
@@ -347,6 +346,7 @@ void print7SegSmall(int x, int y, String text, uint16_t c){
     x+=5;
   }
 }
+
 //fills string so there are always at least 3 digits
 void print007SegSmall(int x, int y, String text, uint16_t c){
 #ifndef HEADLESS

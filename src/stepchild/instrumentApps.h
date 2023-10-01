@@ -60,6 +60,7 @@ const unsigned char epd_bitmap_chord []  = {
 #define INSTRUMENT_APP4_ICON keys_bmp
 #define INSTRUMENT_APP5_ICON drum_bmp
 #define INSTRUMENT_APP6_ICON cv_icon_bmp
+#define INSTRUMENT_APP7_ICON cv_icon_bmp
 
 #define INSTRUMENT_APP1_FUNCTION xyGrid
 #define INSTRUMENT_APP2_FUNCTION rain
@@ -67,6 +68,7 @@ const unsigned char epd_bitmap_chord []  = {
 #define INSTRUMENT_APP4_FUNCTION keyboard
 #define INSTRUMENT_APP5_FUNCTION drumPad
 #define INSTRUMENT_APP6_FUNCTION MIDItoCV
+#define INSTRUMENT_APP7_FUNCTION rattle
 
 #define INSTRUMENT_APP1_TEXT "joystick"
 #define INSTRUMENT_APP2_TEXT "rain"
@@ -74,6 +76,7 @@ const unsigned char epd_bitmap_chord []  = {
 #define INSTRUMENT_APP4_TEXT "keys"
 #define INSTRUMENT_APP5_TEXT "drumpad"
 #define INSTRUMENT_APP6_TEXT "cv"
+#define INSTRUMENT_APP7_TEXT "rattle"
 
 /*
     Check to see if the user has defined these in their code!

@@ -11,7 +11,8 @@ void setup() {
   Serial1.setTX(txPin_1);
   Serial2.setTX(txPin_2);
   //doing the same to the screen twoWire connection
-  Wire.setSDA(8);
+  Wire.setSDA(Screen_SDA);
+  Wire.setSCL(Screen_SCL);
 
   startMIDI();
   
@@ -63,26 +64,6 @@ void setup() {
   core0ready = true;
   lastTime = millis();
   bootscreen();
-}
-#else
-void setup() {
-
-display.display();
-display.setRotation(UPRIGHT);
-
-//seeding random number generator
-srandom(1);
-
-initSeq(16,768);
-updateLEDs();
-
-bootscreen();
-
-setNormalMode();
-turnOffLEDs();
-core0ready = true;
-lastTime = millis();
-displaySeq();
 }
 #endif
 

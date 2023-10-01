@@ -11,6 +11,7 @@ WireFrame getMainMenuWireFrame(){
       w = makeMobius();
       w.rotate(90,0);
       w.rotate(30,2);
+      w.rotate(random(0,360),1);
       break;
     //cassette icon
     case 2:
@@ -67,7 +68,8 @@ void animateIcon(WireFrame* w){
     //loop
     case 1:
       // loopArrowAnimation(w);
-      w -> rotate(3,1);
+      if(isLooping)
+        w -> rotate(3,1);
       break;
     //keys
     case 2:

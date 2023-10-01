@@ -343,4 +343,5 @@ void clockMenu(){
   slideMenuOut(0,16);
   // menuIsActive = false;
   constructMenu("MENU");
+  activeMenu.highlight = 10;
 }
