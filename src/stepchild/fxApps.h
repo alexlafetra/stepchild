@@ -83,7 +83,7 @@ const unsigned char warp_bmp []  = {
 #define FX_APP3_FUNCTION strumMenu
 #define FX_APP4_FUNCTION echoMenu
 #define FX_APP5_FUNCTION reverse
-#define FX_APP6_FUNCTION selectAreasAndWarp
+#define FX_APP6_FUNCTION warp
 
 #define FX_APP1_TEXT "quantize"
 #define FX_APP2_TEXT "humanize"

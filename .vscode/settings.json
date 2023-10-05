@@ -23,6 +23,7 @@
         "cmath": "cpp",
         "ranges": "cpp",
         "ostream": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "chrono": "cpp"
     }
 }

@@ -3173,21 +3173,25 @@ vector<vector<uint16_t>> getSelectionBounds(){
 void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct, bool channel, uint16_t c){
   String s = getTrackPitchOctave(trackID)+stringify(trackData[trackID].channel)+((trackData[trackID].noteLastSent != 255)?"$":"");
   uint8_t offset = printPitch(xCoord, yCoord, s, bigOct, channel, c);
-  String sx = "";
+  offset+=4;
+  //if you want to show the track channel
   if(shift || (menuIsActive && activeMenu.menuTitle == "TRK")){
+    String sx = ":";
     sx += stringify(trackData[trackID].channel);
-    if(trackData[trackID].isLatched){
-      sx += "<";
-    }
+    // if(trackData[trackID].isLatched){
+    //   sx += "<";
+    // }
+    // display.drawBitmap(xCoord+offset+2,yCoord,ch_tiny,6,3,1);
+    printSmall(xCoord+offset,yCoord,sx,1);
+    offset+=sx.length()*4;
   }
-  // printSmall(xCoord+offset,yCoord,sx,1);
-  //track prime icon
+  //if you want to show the track "primed" status for recording
   if(recording && trackData[trackID].isPrimed){
     if((millis()+trackID*10)%1000>500){
-      display.fillCircle(xCoord+offset+sx.length()*4+3,yCoord+1,2,1);
+      display.fillCircle(trackDisplay-4,yCoord+1,2,1);
     }
     else{
-      display.drawCircle(xCoord+offset+sx.length()*4+3,yCoord+1,2,1);
+      display.drawCircle(trackDisplay-4,yCoord+1,2,1);
     }
   }
 }
@@ -3205,6 +3209,7 @@ uint8_t printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bo
     offset+=6;
     printSmall(xCoord+offset,yCoord,pitch.charAt(2),c);
     if(pitch.charAt(2) == '-'){
+      Serial.println("hey");
       offset+=4;
       printSmall(xCoord+offset,yCoord,pitch.charAt(3),c);
     }
@@ -3213,6 +3218,7 @@ uint8_t printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bo
   else{
     printSmall(xCoord+offset,yCoord,pitch.charAt(1),c);
     if(pitch.charAt(1) == '-'){
+      Serial.println("hey");
       offset+=4;
       printSmall(xCoord+offset,yCoord,pitch.charAt(2),c);
     }
@@ -6480,7 +6486,8 @@ void drawProgBar(String text, float progress){
 
 void deleteSelected(){
   if(selectionCount>0){
-    if(binarySelectionBox(64,32,"nah","yea","delete "+stringify(selectionCount)+" note(s)?")==1){
+    if(binarySelectionBox(64,32,"nah","yea","delete "+stringify(selectionCount)+((selectionCount == 1)?stringify(" note?"):stringify(" notes?")))){
+      // Serial.println("hey");
       for(uint8_t track = 0; track<trackData.size(); track++){
         for(uint16_t note = 0; note<seqData[track].size(); note++){
           if(seqData[track][note].isSelected){
@@ -6488,8 +6495,7 @@ void deleteSelected(){
             (note == 0) ? note = 0: note--;
           }
           if(selectionCount == 0)
-            updateLEDs();
-            return;
+            break;
         }
       }
     }
@@ -8352,9 +8358,10 @@ void setWarpPoint(uint16_t* start, uint16_t* end, bool which){
       *end = cursorPos;
   }
 }
+
 //runs while warping, lets you drag warp points around to warp sequence
 //"new" drops warp points
-void warp(){
+void warp_old(){
   //warp points start off as loop points
   uint16_t warpStart = loopData[activeLoop].start;
   uint16_t warpEnd = loopData[activeLoop].end;
@@ -8698,7 +8705,7 @@ String pitchToString(uint8_t input, bool oct, bool sharps){
     }
   }
   if(oct){
-    pitch+=octave;
+    pitch+=stringify(octave);
   }
   return pitch;
 }

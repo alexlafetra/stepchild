@@ -605,6 +605,7 @@ void setup(){
   core0ready = true;
   lastTime = millis();
   bootscreen();
+    updateLEDs();
 }
 
 void headless(){
@@ -613,6 +614,8 @@ void headless(){
     while(!openGLready){
     }
     setup();
+    
+    // viewPram();
     //check if the window should close (this won't work within loops)
     while (!glfwWindowShouldClose(window)){
         //running logic

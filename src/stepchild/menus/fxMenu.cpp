@@ -90,7 +90,8 @@ void fxMenu(){
     icon = makeGyro(angleX,angleY,angleZ,
                     angle2X,angle2Y,angle2Z);
   }
-  constructMenu("MENU");
+  if(menuIsActive)
+    constructMenu("MENU");
 }
 
 void Menu::displayFxMenu(){

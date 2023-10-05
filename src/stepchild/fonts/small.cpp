@@ -370,7 +370,7 @@ void printSmall_overflow(int x, int y, int margin, String text, uint16_t c){
   printSmall(xCoord, yCoord, word, c);
 }
 void printSmall_centered(int x, int y, String t, uint16_t c){
-  x -= t.length()*2;
+  x -= t.length()*2+countChar(t,' ');
   printSmall(x,y,t,c);
 }
 void printSmall(int x, int y, char text, uint16_t c){

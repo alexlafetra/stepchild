@@ -236,6 +236,10 @@ void trackMenu(){
   }
 }
 
+void drawTrackUtils(){
+  
+}
+
 //primed, pitch, latch, mute info
 void drawTrackMenuTopInfo(uint8_t topL){
   //track info

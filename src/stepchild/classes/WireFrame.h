@@ -1018,6 +1018,11 @@ WireFrame makePram(){
   pram.rotate(15,0);
   return pram;
 }
+void viewPram(){
+  WireFrame pram = makePram();
+  pram.scale = 3;
+  pram.view();
+}
 
 WireFrame makeGear(float r1, float r2, uint8_t teeth, uint8_t points, bool center, float zPos){
   float angleIncrement = float(2*PI)/(points);

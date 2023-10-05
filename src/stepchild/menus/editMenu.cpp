@@ -5,7 +5,7 @@ void fxListControls(uint8_t* currentQuickFunction){
       lastTime = millis();
     }
     if(y != 0){
-      if(y == 1 && (*currentQuickFunction)<4){
+      if(y == 1 && (*currentQuickFunction)<5){
         (*currentQuickFunction)++;
         lastTime = millis();
       }

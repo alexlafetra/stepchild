@@ -460,3 +460,12 @@ void printItalic(int x, int y, String text, uint16_t c){
     }
   }
 }
+
+void printItalic_wiggly(int x, int y, String text, uint16_t c){
+  for(uint8_t letter = 0; letter<text.length(); letter++){
+    unsigned char character = text.charAt(letter);
+    int8_t offset = 3*sin(float(millis())/float(200)+float(letter));
+    printItalic(x,y+offset,character,c);
+    x+=8;
+  }
+}

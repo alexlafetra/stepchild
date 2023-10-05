@@ -9,6 +9,9 @@ void debugNoteCount();
 void debugPrint();
 void debugPrintLookup();
 
+//WireFrame
+void viewPram();
+
 //Automation
 void moveDataTrackCursor(int moveAmount);
 void changeDataPoint(int8_t);
@@ -34,6 +37,7 @@ void drawPram(uint8_t x1, uint8_t y1);
 void drawVU(int8_t x1, int8_t y1, float val);
 void drawTetra(uint8_t h, uint8_t k, uint8_t height, uint8_t width, int xDepth, int yDepth, uint8_t style, uint16_t c);
 void drawBracket(uint8_t h, uint8_t k, uint8_t height, uint8_t width, uint8_t style, uint16_t c);
+void drawCenteredBracket(int x1, int y1, int length, int height);
 void drawKeys(uint8_t xStart,uint8_t yStart,uint8_t octave,uint8_t numberOfKeys, bool fromPlaylist);
 void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numberOfPads);
 void drawLabel(uint8_t x1, uint8_t y1, String text, bool wOrB);
@@ -42,6 +46,7 @@ void drawSlider(uint8_t x1, uint8_t y1, String a, String b, bool state);
 void drawBanner(int8_t x1, int8_t y1, String text);
 void drawArpStepLengths(uint8_t xStart, uint8_t yStart, uint8_t startNote, uint8_t xCursor, bool selected);
 void drawArpModeIcon(uint8_t x1, uint8_t y1, uint8_t which,uint16_t c);
+void drawWarpIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim);
 void drawSmallChannelIcon(uint8_t x1, uint8_t y1, uint8_t ch);
 void drawFullKeyBed(vector<uint8_t> pressList, vector<uint8_t> mask, uint8_t activeKey,uint8_t octave);
 void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask, uint8_t activeKey,uint8_t octave);

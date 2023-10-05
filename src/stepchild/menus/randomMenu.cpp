@@ -167,7 +167,7 @@ void drawCoordinateBox(CoordinatePair coords){
   }
 }
 
-CoordinatePair selectArea(){
+CoordinatePair selectArea_random(){
   CoordinatePair coords;
   coords.x1 = 0;
   coords.x2 = 0;
@@ -272,7 +272,7 @@ CoordinatePair selectArea(){
 
 void genRandom(int8_t odds, int8_t minChance, int8_t maxChance, uint16_t minLength, uint16_t maxLength, uint8_t minVel, uint8_t maxVel,bool onGrid,bool target){
   while(true){
-    CoordinatePair coords = selectArea();
+    CoordinatePair coords = selectArea_random();
     if(coords.x1 == coords.x2 && coords.y1 == coords.y2){
       break;
     }
