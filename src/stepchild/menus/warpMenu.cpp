@@ -14,7 +14,6 @@ public:
 };
 
 CoordinatePair selectArea_warp(){
-  uint16_t tempCursor = cursorPos;
   CoordinatePair coords;
   coords.x1 = 0;
   coords.x2 = 0;
@@ -42,7 +41,6 @@ CoordinatePair selectArea_warp(){
     if(itsbeen(200)){
       if(n){
         lastTime = millis();
-        cursorPos = tempCursor;
         return coords;
       }
       if(menu_Press){
@@ -51,7 +49,6 @@ CoordinatePair selectArea_warp(){
         coords.y1 = 0;
         coords.y2 = 0;
         lastTime = millis();
-        cursorPos = tempCursor;
         return coords;
       }
     }

@@ -1,3 +1,5 @@
+void trackUtils();
+
 bool trackMenuControls(){
   //moving menu cursor
   if(!shift){
@@ -61,7 +63,7 @@ bool trackMenuControls(){
           break;
         //edit
         case 4:
-          trackEditMenu();
+          trackUtils();
           break;
         //mute
         case 5:
@@ -236,8 +238,73 @@ void trackMenu(){
   }
 }
 
-void drawTrackUtils(){
-  
+void disarmTracksWithNotes(){
+  for(uint8_t t = 0; t<trackData.size(); t++){
+    if(seqData[t].size() != 1){
+      trackData[t].isPrimed = false;
+    }
+  }
+}
+
+//shows options for edit, tune tracks, delete empty tracks, and disarm tracks w/ notes
+void drawTrackUtils(uint8_t cursor,vector<String> options){
+  const uint8_t x1 = 0;
+  const uint8_t y1 = debugHeight;
+  const uint8_t length = 95;
+  display.fillRect(x1,y1,length,screenHeight-y1,0);
+  display.drawRect(x1,y1,length,screenHeight-y1,1);
+  for(uint8_t i = 0; i<options.size(); i++){
+    if(i == cursor){
+      display.fillRect(x1+1,y1+i*6+1,length-2,7,1);
+    }
+    printSmall(x1+2,y1+i*6+2,options[i],2);
+  }
+}
+
+void trackUtils(){
+  uint8_t cursor = 0;
+  vector<String> options = {"edit tracks","tune 2 scale","delete empty","disarm tracks w notes"};
+  while(true){
+    readJoystick();
+    readButtons();
+    if(itsbeen(100)){
+      if(y == -1 && cursor>0){
+        cursor--;
+        lastTime = millis();
+      }
+      else if(y == 1 && cursor<options.size()){
+        cursor++;
+        lastTime = millis();
+      }
+    }
+    if(itsbeen(200)){
+      if(menu_Press){
+        lastTime = millis();
+        break;
+      }
+      if(sel){
+        lastTime = millis();
+        switch(cursor){
+          case 0:
+            trackEditMenu();
+            break;
+          case 1:
+            tuneTracksToScale();
+            break;
+          case 2:
+            deleteEmptyTracks();
+            break;
+          case 3:
+            disarmTracksWithNotes();
+            break;
+        }
+      }
+    }
+    display.clearDisplay();
+    drawTrackUtils(cursor,options);
+    activeMenu.displayTrackMenu();
+    display.display();
+  }
 }
 
 //primed, pitch, latch, mute info
@@ -274,7 +341,6 @@ void drawTrackMenuTopInfo(uint8_t topL){
 
 
 void Menu::displayTrackMenu_trackEdit(uint8_t xCursor){
-  
   //title
   display.setCursor((screenWidth-coords.x1)-34,7);
   display.setFont(&FreeSerifItalic9pt7b);
@@ -287,13 +353,8 @@ void Menu::displayTrackMenu_trackEdit(uint8_t xCursor){
   display.fillRoundRect(coords.x1,coords.y1+12,coords.x2-coords.x1+1,coords.y2-coords.y1-11,3,SSD1306_BLACK);
   display.drawRoundRect(coords.x1,coords.y1+12,coords.x2-coords.x1+1,coords.y2-coords.y1-11,3,SSD1306_WHITE);
   //top labels 
-  const vector<String> texts = {"track","pitch","octave","channel","prime","latch","mute group"};
-  if(xCursor != 6)
-    printChunky(coords.x2-texts[xCursor].length()*6,coords.y1+5,texts[xCursor],1);
-  else{
-    printChunky(coords.x2-30,coords.y1,"mute",1);
-    printChunky(coords.x2-30,coords.y1+7,"group",1);
-  }
+  const vector<String> texts = {"track","pitch","octave","channel","prime","latch","mute"};
+  printChunky(coords.x2-texts[xCursor].length()*6,coords.y1+5,texts[xCursor],1);
   drawTrackMenuTopInfo(coords.x1);
 
   //drawing menu options, and the highlight
@@ -399,7 +460,7 @@ void Menu::displayTrackMenu(){
       s = "prime";
       break;
     case 4:
-      s = "edit";
+      s = "utils";
       break;
     case 5:
       s = "mute";

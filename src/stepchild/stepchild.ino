@@ -2292,6 +2292,9 @@ void tuneTracksToScale(){
   selectKeysAnimation(true);
   vector<uint8_t> pitches = selectKeys();
   selectKeysAnimation(false);
+  if(pitches.size() == 0){
+    return;
+  }
   vector<uint8_t> tracks = selectMultipleTracks("select tracks to tune");
   bool allowDuplicates = binarySelectionBox(64,32,"no","ye","allow duplicate pitches?");
   for(int track = tracks.size()-1; track >= 0; track--){
