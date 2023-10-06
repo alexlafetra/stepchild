@@ -200,6 +200,7 @@ void defaultSelectBoxControls();
 void defaultJoystickControls(bool);
 void defaultSelectControls();
 void defaultLoopControls();
+void defaultCopyControls();
 int readEncoder(bool encoder);
 
 //sequence

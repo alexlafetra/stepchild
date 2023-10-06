@@ -48,6 +48,11 @@ const unsigned char rattle_bmp [] = {
 	0x00, 0x00, 0x26, 0x40, 0x0d, 0x00, 0x52, 0xa0, 0x19, 0x80, 0x54, 0xa0, 0x0b, 0x00, 0x26, 0x40, 
 	0x06, 0x00, 0x06, 0x00, 0x06, 0x00, 0x00, 0x00
 };
+// 'live_loop', 12x12px
+const unsigned char live_loop_bmp [] = {
+	0x00, 0x00, 0x5e, 0x00, 0x2f, 0x80, 0x03, 0xc0, 0x01, 0xa0, 0x00, 0x60, 0x11, 0xe0, 0x3f, 0xc0, 
+	0x7f, 0x80, 0x3e, 0x00, 0x10, 0x00, 0x00, 0x00
+};
 
 //----------------TBD----------------
 
@@ -66,6 +71,7 @@ const unsigned char epd_bitmap_chord []  = {
 #define INSTRUMENT_APP5_ICON drum_bmp
 #define INSTRUMENT_APP6_ICON cv_icon_bmp
 #define INSTRUMENT_APP7_ICON rattle_bmp
+#define INSTRUMENT_APP8_ICON live_loop_bmp
 
 #define INSTRUMENT_APP1_FUNCTION xyGrid
 #define INSTRUMENT_APP2_FUNCTION rain
@@ -74,14 +80,17 @@ const unsigned char epd_bitmap_chord []  = {
 #define INSTRUMENT_APP5_FUNCTION drumPad
 #define INSTRUMENT_APP6_FUNCTION MIDItoCV
 #define INSTRUMENT_APP7_FUNCTION rattle
+#define INSTRUMENT_APP8_FUNCTION liveLoop
 
+//max 8 characters! otherwise it'll run off the screen
 #define INSTRUMENT_APP1_TEXT "joystick"
 #define INSTRUMENT_APP2_TEXT "rain"
 #define INSTRUMENT_APP3_TEXT "knobs"
 #define INSTRUMENT_APP4_TEXT "keys"
 #define INSTRUMENT_APP5_TEXT "drumpad"
-#define INSTRUMENT_APP6_TEXT "cv"
+#define INSTRUMENT_APP6_TEXT "midi cv"
 #define INSTRUMENT_APP7_TEXT "rattle"
+#define INSTRUMENT_APP8_TEXT "liveloop"
 
 /*
     Check to see if the user has defined these in their code!

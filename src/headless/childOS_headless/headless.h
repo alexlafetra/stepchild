@@ -267,6 +267,9 @@ int digitalRead(int pin){
 void digitalWrite(uint8_t pin, bool value){
     return;
 }
+void analogWrite(uint8_t pin, uint16_t val){
+    
+}
 
 //random
 int random(int lower, int upper){

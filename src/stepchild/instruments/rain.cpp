@@ -146,7 +146,6 @@ void rain(){
 
   bool isPlaying = true;
   while(true){
-    Serial.println("hey from cpu0:"+stringify(millis()));
     //controls
     //--------------------
     readButtons();
@@ -357,6 +356,7 @@ void rain(){
     }
     //loop for updating and playing sound from each raindrop
     if(isPlaying){
+      bool leds[8] = {false,false,false,false,false,false,false,false};
       for(uint8_t i = 0; i<drops.size(); i++){
         if(!drops[i].update()){
           drops.erase(drops.begin()+i,drops.begin()+i+1);
@@ -370,8 +370,11 @@ void rain(){
             printSmall(drops[i].x1,59,pitchToString(pitch,true,true),1);
           else
             display.drawBitmap(drops[i].x1-5,59,splash_bmp,11,5,1);
+
+          leds[drops[i].x1/16] = true;
         }
       }
+      writeLEDs(leds);
     }
 
     //info
@@ -455,4 +458,5 @@ void rain(){
       sort(pitchList.begin(),pitchList.end());
     }
   }
+  turnOffLEDs();
 }
