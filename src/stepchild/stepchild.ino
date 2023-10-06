@@ -91,7 +91,12 @@ struct CoordinatePair{
   int16_t x2;
   int8_t y1;
   int8_t y2;
+  bool isEmpty();
 };
+
+bool CoordinatePair::isEmpty(){
+  return x1 == x2;
+}
 
 #include "classes/Menu.h"
 
