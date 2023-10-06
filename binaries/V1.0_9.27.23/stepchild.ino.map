@@ -11799,9 +11799,9 @@ LOAD /Users/alex/Library/Arduino15/packages/rp2040/tools/pqt-gcc/1.4.0-c-0196c06
                 0x0000000020003b7d                editingNote
  .bss.endTrack  0x0000000020003b7e        0x1 /private/var/folders/1l/rytzh70141xgg88yzt_pm9940000gn/T/arduino/sketches/3DC620D44CEB8A8EB9610A644DFB6288/sketch/stepchild.ino.cpp.o
                 0x0000000020003b7e                endTrack
- .bss.externalClock
+ .bss.!internalClock
                 0x0000000020003b7f        0x1 /private/var/folders/1l/rytzh70141xgg88yzt_pm9940000gn/T/arduino/sketches/3DC620D44CEB8A8EB9610A644DFB6288/sketch/stepchild.ino.cpp.o
-                0x0000000020003b7f                externalClock
+                0x0000000020003b7f                !internalClock
  .bss.gotClock  0x0000000020003b80        0x1 /private/var/folders/1l/rytzh70141xgg88yzt_pm9940000gn/T/arduino/sketches/3DC620D44CEB8A8EB9610A644DFB6288/sketch/stepchild.ino.cpp.o
                 0x0000000020003b80                gotClock
  .bss.hasStarted
@@ -18054,7 +18054,7 @@ exception_set_exclusive_handler                   /Users/alex/Library/Arduino15/
 exit                                              /Users/alex/Library/Arduino15/packages/rp2040/hardware/rp2040/2.6.4/lib/libpico.a(runtime.c.obj)
                                                   /Users/alex/Library/Arduino15/packages/rp2040/hardware/rp2040/2.6.4/lib/libpico.a(crt0.S.obj)
                                                   /Users/alex/Library/Arduino15/packages/rp2040/tools/pqt-gcc/1.4.0-c-0196c06/bin/../lib/gcc/arm-none-eabi/10.3.0/../../../../arm-none-eabi/lib/thumb/crt0.o
-externalClock                                     /private/var/folders/1l/rytzh70141xgg88yzt_pm9940000gn/T/arduino/sketches/3DC620D44CEB8A8EB9610A644DFB6288/sketch/stepchild.ino.cpp.o
+!internalClock                                     /private/var/folders/1l/rytzh70141xgg88yzt_pm9940000gn/T/arduino/sketches/3DC620D44CEB8A8EB9610A644DFB6288/sketch/stepchild.ino.cpp.o
 fatan2_shim                                       /Users/alex/Library/Arduino15/packages/rp2040/hardware/rp2040/2.6.4/lib/libpico.a(float_v1_rom_shim.S.obj)
                                                   /Users/alex/Library/Arduino15/packages/rp2040/hardware/rp2040/2.6.4/lib/libpico.a(float_aeabi.S.obj)
 fclose                                            /Users/alex/Library/Arduino15/packages/rp2040/tools/pqt-gcc/1.4.0-c-0196c06/bin/../lib/gcc/arm-none-eabi/10.3.0/../../../../arm-none-eabi/lib/thumb/libc.a(lib_a-fclose.o)

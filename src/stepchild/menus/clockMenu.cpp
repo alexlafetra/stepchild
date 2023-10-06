@@ -108,7 +108,7 @@ void Menu::displayClockMenu(float tVal,uint8_t cursor){
       {
       x3 = 10+sin(millis()/100);
       drawArrow(66+coords.y1,13+31+x3+2,3,2,false);
-      if(externalClock){
+      if(!internalClock){
         drawBanner(84,52,"external");
         drawSmallStepchild(88,30+2*sin(millis()/200));
         display.drawBitmap(95,15+sin(millis()/200),down_arrow,9,12,SSD1306_WHITE);
@@ -154,7 +154,7 @@ void Menu::displayClockMenu(float tVal,uint8_t cursor){
   display.setFont();
 
     //clock animation
-    if(!externalClock){
+    if(internalClock){
         display.fillRect(0,activeMenu.coords.y1,32,screenHeight-activeMenu.coords.y1,SSD1306_BLACK);
         drawPendulum(16,activeMenu.coords.y1+23,26,tVal);
         display.fillRect(10,activeMenu.coords.y1+23,12,10,SSD1306_BLACK);
@@ -221,7 +221,7 @@ void clockMenu(){
           lastTime = millis();
         }
         else if(cursor == 3){
-          externalClock = !externalClock;
+          internalClock = internalClock;
           lastTime = millis();
         }
       }
@@ -262,7 +262,7 @@ void clockMenu(){
             break;
           //source
           case 3:
-            externalClock = !externalClock;
+            internalClock = !internalClock;
             break;
         }
       }
@@ -302,7 +302,7 @@ void clockMenu(){
             break;
           //source
           case 3:
-            externalClock = !externalClock;
+            internalClock = !internalClock;
             break;
         }
       }
@@ -343,5 +343,4 @@ void clockMenu(){
   slideMenuOut(0,16);
   // menuIsActive = false;
   constructMenu("MENU");
-  activeMenu.highlight = 10;
 }

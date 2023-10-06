@@ -53,7 +53,7 @@ bool pramOffset = 1;
 
 bool stepButtonsAreActive = true;
 
-bool externalClock = false;
+bool internalClock = true;
 bool overwriteRecording = true;
 bool recToPrimedTracks = true;
 bool screenSaving = false;

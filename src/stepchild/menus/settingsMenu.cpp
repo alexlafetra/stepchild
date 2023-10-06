@@ -197,7 +197,7 @@ void settingsMenu(){
                 break;
               //external clock
               case 3:
-                externalClock = !externalClock;
+                internalClock = !internalClock;
                 lastTime = millis();
                 break;
               //count-in
@@ -308,7 +308,7 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
       drawLabel(x1+22,y1+8,LEDsOn?"on":"off",LEDsOn);
 
       printSmall(x1-5,y1+16,"clock:",1);
-      drawLabel(x1+37,y1+16,externalClock?"external":"internal",!externalClock);
+      drawLabel(x1+37,y1+16,!internalClock?"external":"internal",internalClock);
 
       printSmall(x1-5,y1+24,"count-in:",1);
       drawLabel(x1+45,y1+24,waitForNote?"wait":"",waitForNote);
@@ -317,7 +317,7 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
       drawLabel(x1+50,y1+32,waitForNote?"loop end":"stop",waitForNote);
 
       printSmall(x1-5,y1+40,"after rec:",1);
-      drawLabel(x1+45,y1+40,externalClock?"stop":"play",!externalClock);
+      drawLabel(x1+45,y1+40,!internalClock?"stop":"play",internalClock);
       
       //length
       printSmall(x1+3,y1+48,"length -- "+stepsToMeasures(seqEnd),1);

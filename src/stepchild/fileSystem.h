@@ -810,7 +810,7 @@ void writeCurrentSettingsToFile(){
   File f = LittleFS.open("/settings","w");
   uint8_t pOrN[1] = {pitchesOrNumbers};
   uint8_t leds[1] = {LEDsOn};
-  uint8_t clock[1] = {externalClock};
+  uint8_t clock[1] = {internalClock};
   uint8_t playAfterRec[1] = {0};
   uint8_t countIn[1] = {waitForNote};
   uint8_t idleTime[2] = {uint8_t(sleepTime>>8),uint8_t(sleepTime)};
@@ -844,7 +844,7 @@ void loadSavedSettingsFromFile(){
 
   pitchesOrNumbers = pOrN[0];
   LEDsOn = leds[0];
-  externalClock = clock[0];
+  internalClock = clock[0];
   //playAfterRec
   waitForNote = countIn[0];
   //idleTime

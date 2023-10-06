@@ -156,7 +156,6 @@ vector<vector<Note>> grabAndDeleteSelectedNotes();
 #include "fonts/chunky.cpp"
 #include "scales.h"
 
-#include "PWM.h"
 
 #ifndef HEADLESS
   SoftwareSerial Serial3 = SoftwareSerial(SerialPIO::NOPIN,txPin_3);
@@ -186,6 +185,8 @@ vector<Track> trackData;//holds tracks
 vector<vector<Note>> seqData;//making a 2D vec, number of rows = tracks, number of columns = usable notes, and stores Note objects
 
 #include "classes/NoteID.h"
+#include "CV.h"
+
 
 //Stores loop data as start,end,reps,and type
 struct Loop{
@@ -1447,7 +1448,7 @@ void printPlaybackOptions(uint8_t which, uint8_t cursor, bool active){
       }
       printSmall(x1,y1+11,"clock source:",1);
       //external clock
-      if(externalClock){
+      if(!internalClock){
         printSmall(x1+56,y1+11,"external",1);
       }
       else{
@@ -1538,7 +1539,7 @@ void playBackMenu(){
               isLooping = !isLooping;
               break;
             case 1:
-              externalClock = !externalClock;
+              internalClock = !internalClock;
               break;
           }
           break;
@@ -1577,7 +1578,7 @@ void playBackMenu(){
                 lastTime = millis();
                 break;
               case 1:
-                externalClock = !externalClock;
+                internalClock = !internalClock;
                 lastTime = millis();
                 break;
             }
@@ -3816,9 +3817,6 @@ void thruMenu(){ //controls which midi port you're editing
   }
 }
 
-void cvMenu(){
-    
-}
 //this is a complex menu! it has two modes, and a very custom selection screen
 void midiMenu(){
   uint8_t xCursor = 0;
@@ -3838,7 +3836,7 @@ void midiMenu(){
               break;
             //CV
             case 1:
-              cvMenu();
+              CVMenu();
               break;
             case 2:
               thruMenu();
@@ -4135,7 +4133,7 @@ void midiMenu(){
     //bounding box
     //menu options
     printSmall(x1,y1,"Routing",SSD1306_WHITE);
-    printSmall(x1,y1+8,"CV - wip",SSD1306_WHITE);
+    printSmall(x1,y1+8,"CV",SSD1306_WHITE);
     printSmall(x1,y1+16,"Thru",SSD1306_WHITE);
       
     //center menu mode
@@ -9223,7 +9221,7 @@ void xyGrid(){
     display.clearDisplay();
     //rec/play icon
     if(recording){
-      if(externalClock && !gotClock){
+      if(!internalClock && !gotClock){
         if(waiting){
           if(millis()%1000>500){
             display.drawCircle(3,3,3,SSD1306_WHITE);
@@ -9232,7 +9230,7 @@ void xyGrid(){
         else
           display.drawCircle(3,3,3,SSD1306_WHITE);
       }
-      else if((externalClock && gotClock) || !externalClock){
+      else if((!internalClock && gotClock) || internalClock){
         if(waiting){
           if(millis()%1000>500){
             display.fillCircle(3,3,3,SSD1306_WHITE);
@@ -9243,7 +9241,7 @@ void xyGrid(){
       }
     }
     else if(playing){
-      if(externalClock && !gotClock){
+      if(!internalClock && !gotClock){
         display.drawTriangle(0,6,0,0,6,3,SSD1306_WHITE);
       }
       else{
@@ -9372,7 +9370,7 @@ void drawPram(uint8_t x1, uint8_t y1){
 }
 
 void drawPlayIcon(int8_t x1, int8_t y1){
-  if(externalClock && !gotClock){
+  if(!internalClock && !gotClock){
     display.drawTriangle(x1,y1+6,x1,y1,x1+6,y1+3,SSD1306_WHITE);
   }
   else{
@@ -9495,7 +9493,7 @@ void drawTopIcons(){
   }
   //rec/play icon
   if(recording){
-    if(externalClock && !gotClock){
+    if(!internalClock && !gotClock){
       if(waiting){
         if(millis()%1000>500){
           display.drawCircle(trackDisplay+3,3,3,SSD1306_WHITE);
@@ -9504,7 +9502,7 @@ void drawTopIcons(){
       else
         display.drawCircle(trackDisplay+3,3,3,SSD1306_WHITE);
     }
-    else if((externalClock && gotClock) || !externalClock){
+    else if((!internalClock && gotClock) || internalClock){
       if(waiting){
         if(millis()%1000>500){
           display.fillCircle(trackDisplay+3,3,3,SSD1306_WHITE);
@@ -10243,20 +10241,11 @@ void playTrack(uint8_t track, uint16_t timestep){
         }
         if(trackData[track].channel == velModifier[0] || velModifier[0] == 0){
           vel += velModifier[1];
-          // vel = vel*(float(velModifier[1])/float(127));
-          // Serial.println("modifier: "+String(chanceModifier[1]));
           if(vel<0)
             vel = 0;
           else if(vel>127)
             vel = 127;
-          // Serial.println("chance: "+String(chance));
-          // Serial.println("modifier: "+String(velModifier[1]));
-          // Serial.println("vel: "+String(vel));
         }
-        // Serial.println(pitch);
-        // Serial.println(vel);
-        // Serial.println(chance);
-        // Serial.flush();
         //if chance is 100%
         if(chance >= 100){
           //if it's part of a muteGroup
@@ -10309,6 +10298,7 @@ void playStep(uint16_t timestep) {
     if(!trackData[track].isMuted || trackData[track].isSolo)
       playTrack(track,timestep);
   }
+  checkCV();
 }
 
 //moves all selected notes (or doesn't)
@@ -10612,6 +10602,11 @@ void handleNoteOff_Recording(uint8_t channel, uint8_t note, uint8_t velocity){
   writeNoteOff(recheadPos, note, channel);
   waiting = false;
   noteOffReceived = true;
+
+  //is this a good idea? idk
+  recentNote[0] = note;
+  recentNote[1] = velocity;
+  recentNote[2] = channel;
   noteOffReceivedHandlerFunc(channel,note,velocity);
 }
 
@@ -10650,10 +10645,14 @@ void handleNoteOff_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
   }
   sendThruOff(channel, note);
   noteOffReceived = true;
+
+  recentNote[0] = note;
+  recentNote[1] = velocity;
+  recentNote[2] = channel;
 }
 
 void handleStart_Normal(){
-  if(externalClock){
+  if(!internalClock){
     if(!playing && !recording){
       togglePlayMode();
     }
@@ -10661,7 +10660,7 @@ void handleStart_Normal(){
 }
 
 void handleStop_Normal(){
-  if(externalClock){
+  if(!internalClock){
     if(playing){
       togglePlayMode();
     }
@@ -10750,6 +10749,8 @@ void togglePlayMode(){
     velModifier[1] = 0;
     chanceModifier[1] = 0;
     pitchModifier[1] = 0;
+    currentCVPitch = -1;
+    CVGate = false;
   }
 }
 
@@ -12635,102 +12636,111 @@ void checkLoop(){
   }
 }
 
-//this cpu handles time-sensitive things
-void loop1(){
-  // Serial.println("hey from cpu1:"+stringify(millis()));
-  // Serial.flush();
-  //play mode
-  if(playing){
-    //internal timing
-    if(!externalClock){
-      if(hasItBeenEnoughTime()){
-        // digitalWrite(onboard_ledPin,((passiveTimer/96)%2)?HIGH:LOW);
+//runs while "playing" is true
+void playingLoop(){
+  //internal timing
+  if(internalClock){
+    if(hasItBeenEnoughTime()){
+      // digitalWrite(onboard_ledPin,((passiveTimer/96)%2)?HIGH:LOW);
+      sendClock();
+      playStep(playheadPos);
+      playheadPos++;
+      passiveTimer++;
+      checkLoop();
+      checkFragment();
+      if(!(playheadPos%12)){
+        pramOffset = !pramOffset;
+      }
+    }
+  }
+  //external timing
+  else if(!internalClock){
+    readMIDI();
+    if(gotClock && hasStarted){
+      gotClock = false;
+      playStep(playheadPos);
+      playheadPos += 1;
+      passiveTimer+=1;
+      checkLoop();
+      checkFragment();
+    }
+  }
+}
+
+//runs while "recording" is true
+void recordingLoop(){
+  readMIDI();
+  if(internalClock){
+    if(hasItBeenEnoughTime()){
+      timeLastStepPlayed = micros();
+      //if it's not in wait mode, or if it is but a note has been received
+      if(!waitForNote || !waiting){
+        continueStep(recheadPos);
         sendClock();
-        playStep(playheadPos);
-        playheadPos++;
+        recheadPos++;
         passiveTimer++;
         checkLoop();
         checkFragment();
-        if(!(playheadPos%12)){
-          pramOffset = !pramOffset;
-        }
       }
     }
-    //external timing
-    else if(externalClock){
-      readMIDI();
-      if(gotClock && hasStarted){
-        gotClock = false;
-        playStep(playheadPos);
-        playheadPos += 1;
-        passiveTimer+=1;
-        checkLoop();
-        checkFragment();
-      }
+  }
+  else if(!internalClock){
+    if(gotClock && hasStarted){
+      gotClock = false;
+      continueStep(recheadPos);
+      recheadPos+=1;
+      passiveTimer+=1;
+      checkLoop();
+      checkFragment();
     }
+  }
+}
+
+void defaultLoop(){
+  playheadPos = loopData[activeLoop].start;
+  recheadPos = loopData[activeLoop].start;
+  fragmentStep = 0;
+  readMIDI();
+}
+
+void arpLoop(){
+  //if it was active, but hadn't started playing yet
+  if(!activeArp.playing){
+    if(playlist.size()>0){
+      activeArp.start();
+    }
+  }
+  if(activeArp.playing){
+    //if there are no notes,and it's not latched, just stop
+    if(playlist.size() == 0 && !activeArp.holding){
+      // activeArp.debugPrintArp();
+      activeArp.stop();
+      // sendMIDIallOff();
+    }
+    //if there are no notes, and it IS latched, then trigger the "waiting for more notes" var and continue
+    else if(activeArp.hasItBeenEnoughTime()){
+      activeArp.playstep();
+    }
+  }
+}
+
+//this cpu handles time-sensitive things
+void loop1(){
+  //play mode
+  if(playing){
+    playingLoop();
   }
   //record mode
   else if(recording){
-    readMIDI();
-    if(!externalClock){
-      if(hasItBeenEnoughTime()){
-        timeLastStepPlayed = micros();
-        //if it's not in wait mode, or if it is but a note has been received
-        if(!waitForNote || !waiting){
-          continueStep(recheadPos);
-          sendClock();
-          recheadPos++;
-          passiveTimer++;
-          checkLoop();
-          checkFragment();
-        }
-      }
-    }
-    else if(externalClock){
-      if(gotClock && hasStarted){
-        gotClock = false;
-        continueStep(recheadPos);
-        recheadPos+=1;
-        passiveTimer+=1;
-        checkLoop();
-        checkFragment();
-      }
-    }
+    recordingLoop();
   }
   //default state
   else{
-    playheadPos = loopData[activeLoop].start;
-    recheadPos = loopData[activeLoop].start;
-    fragmentStep = 0;
-    readMIDI();
+    defaultLoop();
   }
   if(isArping){
-    //if it was active, but hadn't started playing yet
-    if(!activeArp.playing){
-      if(playlist.size()>0){
-        activeArp.start();
-      }
-    }
-    if(activeArp.playing){
-     //if there are no notes,and it's not latched, just stop
-      if(playlist.size() == 0 && !activeArp.holding){
-        // activeArp.debugPrintArp();
-        activeArp.stop();
-        // sendMIDIallOff();
-      }
-      //if there are no notes, and it IS latched, then trigger the "waiting for more notes" var and continue
-      else if(activeArp.hasItBeenEnoughTime()){
-        activeArp.playstep();
-      }
-    }
+    arpLoop();
   }
-  //this is so that it chills out before going into sleep mode
-  //maybe not helpful/not fixing the problem
-  // while(sleeping){
-  //   core1ready = false;
-  // }
-  // core1ready = true;
-  //encoders
 }
 
 #ifdef HEADLESS

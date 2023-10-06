@@ -15,15 +15,43 @@ analogWriteResolution (int resolution) to set the resolution of the PWM signal â
 analogWrite(GPIO, duty cycle) to output a PWM signal to a specified pin with a defined duty cycle. It continuously outputs a PWM signal until a digitalWrite() or other digital output is performed.
 */
 
-// const uint8_t CV1_Pin = 5;
-// const uint8_t CV2_Pin = 6;
-// const uint8_t CV3_Pin = 28;
+//pitch
+const uint8_t CV1_Pin = 5;
+//gate
+const uint8_t CV2_Pin = 6;
+//clock
+const uint8_t CV3_Pin = 28;
 
-const uint8_t CV1_Pin = 7;//just for V0.4 testing
-const uint8_t CV2_Pin = 7;//just for V0.4 testing
-const uint8_t CV3_Pin = 7;//just for V0.4 testing
+// const uint8_t CV1_Pin = 7;//just for V0.4 testing
+// const uint8_t CV2_Pin = 7;//just for V0.4 testing
+// const uint8_t CV3_Pin = 7;//just for V0.4 testing
 
+//stores -1 if no pitch is being sent, or 0-127 for the current pitch
+int8_t currentCVPitch = -1;
+//on or off, set at the end of the "play all tracks" loop.
+//set to on if currentCVPitch != 0
+bool CVGate = false;
+bool usingCV = true;
 
+void checkCV(){
+    //if the CV functionality is turned off, just return immediately
+    if(!usingCV){
+        CVGate = false;
+        return;
+    }
+    CVGate = false;
+    //if a track is sending a pitch, 
+    for(uint8_t i = 0; i<trackData.size(); i++){
+        if(trackData[i].noteLastSent != 255){
+            CVGate = true;
+            currentCVPitch = trackData[i].noteLastSent;
+        }
+    }
+    //if the gate was off, and a pitch is on, write CVGate on
+    writeCVGate(CVGate);
+    writeCVPitch(currentCVPitch);
+    writeCVClock();
+}
 
 void initPWM(){
 #ifndef HEADLESS
@@ -41,11 +69,15 @@ void initPWM(){
 }
 
 //this converts a midi 8-bit pitch to a 12note/V CV voltage
-float pitchToVoltage(uint8_t pitch){
+float pitchToVoltage(int8_t pitch){
     //the CV scale is 12 tones/volt
     //so the first thing we need to do is crop the pitch to be within C1-C4 since we only have ~3V ==> 3 octaves
     //actually, the max pitch we could write would be 3.3*12semitones above the lowest, so 39.6 semitones is our range
     //C3 is 48
+
+    if(pitch == -1){
+        return -1;
+    }
 
     const uint8_t lowerBound = 24;
     const uint8_t upperBound = lowerBound+39;
@@ -74,12 +106,18 @@ uint16_t getDutyCycleFromVoltage(float voltage){
 void writeCVPitch(uint8_t pitch){
     float V = pitchToVoltage(pitch);
     uint16_t dCycle = getDutyCycleFromVoltage(V);
-//    analogWrite(CV1_Pin,dCycle);
+   analogWrite(CV1_Pin,dCycle);
 }
 
 void writeCVGate(bool on){
     uint16_t dCycle = on?65535:0;
-//    analogWrite(CV2_Pin,dCycle);
+   analogWrite(CV2_Pin,dCycle);
+}
+
+//writes a clock pulse
+void writeCVClock(){
+    analogWrite(CV3_Pin,65535);
+    analogWrite(CV3_Pin,0);
 }
 
 String CVtoPitch(float v){
@@ -88,12 +126,12 @@ String CVtoPitch(float v){
 }
 
 //Draws an aesthetic sinewave that gets shorter in period as pitch increases. Vel increases amplitude, and gate determines if it's flat or not;
-void drawCVOsc(uint8_t pitch, uint8_t vel, bool gate){
+void drawCVOsc(int8_t pitch, uint8_t vel, bool gate){
     if(gate){
-        float amp = float(vel)/127.0 * screenHeight/2;
+        float amp = float(vel)/127.0 * screenHeight/4;
         //0 should be a period of 64, and 127 should be a period of 3
         //map(pitch,0,127,64,3);
-        float period = float(pitch)/127.0 * 61+3;
+        float period = float(pitch)/127.0 * 100.0+3;
         int8_t lastVal = 0;
         float offset = millis()/10;
         for(uint8_t i = 0; i<screenWidth; i++){
@@ -113,18 +151,20 @@ void drawCVOsc(uint8_t pitch, uint8_t vel, bool gate){
 void MIDItoCV(){
     uint8_t pitch = 0;
     bool gate = false;
+    //0 is global, anything else is a filter
+    int8_t channel = 0;
     while(true){
-        if(noteOnReceived){
+        if(noteOnReceived && (channel == 0 || channel == recentNote[2])){
             noteOnReceived = false;
             gate = true;
             pitch = recentNote[0];
             writeCVGate(gate);
             writeCVPitch(pitch);
         }
-        if(noteOffReceived){
+        if(noteOffReceived && recentNote[0] == pitch && (channel == 0 || channel == recentNote[2])){
             noteOffReceived = false;
             gate = false;
-            pitch = 0;
+            pitch = recentNote[0];
             writeCVGate(gate);
             writeCVPitch(pitch);
         }
@@ -135,25 +175,27 @@ void MIDItoCV(){
                 lastTime = millis();
                 break;
             }
-
         }
-        if(x == -1){
-            lastTime = millis();
-            noteOnReceived = true;
-            recentNote[0] = 64;
-            recentNote[1] = 100;
+        while(counterA != 0){
+            if(counterA<0 && channel>0){
+                channel--;
+            }
+            else if(counterA>0 && channel<16){
+                channel++;
+            }
+            counterA += counterA<0?1:-1;
         }
-        if(x == 1){
-            lastTime = millis();
-            noteOnReceived = true;
-            recentNote[0] = 96;
-            recentNote[1] = 127;
+        while(counterB != 0){
+            if(counterB<0 && channel>0){
+                channel--;
+            }
+            else if(counterB>0 && channel<16){
+                channel++;
+            }
+            counterB += counterB<0?1:-1;
         }
-        if(x == 0 && gate){
-            noteOffReceived = true;
-        }
-
         display.clearDisplay();
+        printSmall(100,0,"ch:"+(channel?stringify(channel):"all"),1);
         drawCVOsc(pitch,recentNote[1],gate);
         printSmall(0,0,"$: "+stringify(pitch)+" ("+pitchToString(pitch,true,true)+")",1);
         printSmall(0,57,"CV: ",1);
@@ -196,5 +238,66 @@ void testCVPitches(){
         Serial.print(",");
         Serial.print("Variable_2:");
         Serial.println(readVoltage*3.3*12.0/1024.0);
+    }
+}
+
+void CVEncoders(uint8_t encoderVal, uint8_t cursor){
+    switch(cursor){
+        //turns CV on/off
+        case 0:
+            usingCV = !usingCV;
+            break;
+        case 1:
+            break;
+        case 2:
+            break;
+        case 3:
+            break;
+    }
+}
+
+void CVMenu(){
+    uint8_t cursor = 0;
+    while(true){
+        readJoystick();
+        readButtons();
+        while(counterA != 0){
+            CVEncoders(counterA,cursor);
+            counterA += counterA<0?1:-1;
+        }
+        while(counterB != 0){
+            CVEncoders(counterB,cursor);
+            counterB += counterB<0?1:-1;
+        }
+        if(itsbeen(200)){
+            if(menu_Press){
+                lastTime = millis();
+                menu_Press = false;
+                break;
+            }
+            if(play){
+                lastTime = millis();
+                togglePlayMode();
+            }
+        }
+        display.clearDisplay();
+        printSmall(0,1,"CV is ",1);
+        drawLabel(28,1,usingCV?"on":"off",true);
+        drawCVOsc(currentCVPitch,127,CVGate);
+        if(currentCVPitch == -1){
+            printSmall(0,57,"CV: 0V",1);
+            printSmall(0,50,"$0",1);
+        }
+        else{
+            float p = pitchToVoltage(currentCVPitch);
+            printSmall(0,57,"CV: "+stringify(p)+"V"+" ("+CVtoPitch(p)+")",1);
+            printSmall(0,50,"$"+pitchToString(currentCVPitch,true,true),1);
+        }
+        printSmall(0,43,"gate:",1);
+        if(CVGate)
+            display.fillRect(18,43,5,5,1);
+        else
+            display.drawRect(18,43,5,5,1);
+        display.display();
     }
 }

@@ -646,6 +646,11 @@ void drawLabel(uint8_t x1, uint8_t y1, String text, bool wOrB){
   }
 }
 
+void drawScaledBitmap(int x1, int y1, const unsigned char * bmp,int w, int h, uint8_t sc){
+
+}
+
+
 void drawSlider(uint8_t x1, uint8_t y1, uint8_t w, uint8_t h, bool state){
   display.fillRect(x1,y1,w,h,0);
   display.drawRect(x1,y1,w,h,SSD1306_WHITE);

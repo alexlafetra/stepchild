@@ -5,9 +5,9 @@ void rattle(){
     uint32_t maxLength = 500;
 
     //vel when x is min
-    uint16_t minVel = 0;
+    uint16_t minY = 0;
     //vel when x is max
-    uint16_t maxVel = 127;
+    uint16_t maxY = 127;
 
     uint32_t noteLength = 100;
 
@@ -16,11 +16,15 @@ void rattle(){
     float joyY = 0.5;
     float lastY = 0.5;
 
-    uint16_t pitch = 64;
-    uint16_t vel = 127;
+    uint8_t pitch = 64;
+    uint8_t vel = 127;
     uint8_t channel = 1;
 
     bool isPlaying = false;
+
+    //controls what the second param (y axis) is linked to
+    //0 is vel, 1 is pitch, 2 is both
+    uint8_t linkedTo = 1;
 
     uint32_t timeSinceLastNote  = millis();
     while(true){
@@ -30,9 +34,24 @@ void rattle(){
         joyX = ((1.0 - analogRead(x_Pin)/1024.0)+joyX)/2;
         joyY = ((1.0 - analogRead(y_Pin)/1024.0)+joyY)/2;
 
-        vel = (maxVel-minVel)*(joyY)+minVel;
-        if(vel>127)
+        if(linkedTo == 0){
+            vel = (maxY-minY)*(joyY)+minY;
+            if(vel>127)
+                vel = 127;
+            pitch = 64;
+        }
+        else if(linkedTo == 1){
+            pitch = (maxY-minY)*(joyY)+minY;
+            if(pitch>127)
+                pitch = 127;
             vel = 127;
+        }
+        else if(linkedTo == 2){
+            pitch = (maxY-minY)*(joyY)+minY;
+            if(pitch>127)
+                pitch = 127;
+            vel = pitch;
+        }
 
         noteLength = (maxLength-minLength)*(joyX)+minLength;
 
@@ -63,6 +82,7 @@ void rattle(){
         const uint8_t x1 = 20;
         const uint8_t y1 = 16;
         //note length
+        display.drawBitmap(61,y1-6,small_clock,5,5,1);
         display.drawFastVLine(x1,y1,8,1);
         display.drawFastVLine(screenWidth-x1,y1,8,1);
         display.drawFastVLine(x1+(screenWidth-2*x1)*(joyX),y1,8,1);
@@ -70,6 +90,22 @@ void rattle(){
         display.drawFastVLine(x1,screenHeight-y1-8,8,1);
         display.drawFastVLine(screenWidth-x1,screenHeight-y1-8,8,1);
         display.drawFastVLine(x1+(screenWidth-2*x1)*(joyY),screenHeight-y1-8,8,1);
+        String s;
+        switch(linkedTo){
+            //vel
+            case 0:
+                s = "velocity";
+                break;
+            //pitch
+            case 1:
+                s = "$";
+                break;
+            //both
+            case 2:
+                s = "vel+$";
+                break;
+        }
+        printSmall_centered(64,screenHeight-y1+1,s,1);
         display.display();
     }
 }

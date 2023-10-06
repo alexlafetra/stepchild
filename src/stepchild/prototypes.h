@@ -12,6 +12,11 @@ void debugPrintLookup();
 //WireFrame
 void viewPram();
 
+//CV
+void writeCVGate(bool state);
+void writeCVPitch(uint8_t pitch);
+void writeCVClock();
+
 //Automation
 void moveDataTrackCursor(int moveAmount);
 void changeDataPoint(int8_t);
