@@ -622,6 +622,7 @@ void headless(){
     //check if the window should close (this won't work within loops)
     while (!glfwWindowShouldClose(window)){
         //running logic
+        bootscreen();
         loop();
         loop1();
         glfwPollEvents();
