@@ -10,7 +10,7 @@
         1. Notes
         2. Tracks
         3. Internal clock
-2. [Main Sequence](#1.-main-sequencer)
+2. [Main Sequence](#1-main-sequencer)
     1. Moving the cursor
     2. Changing the view/Subdivision
     3. Creating and deleting notes
@@ -87,9 +87,9 @@
 # 1. Main Sequence
 The first thing you see after the Stepchild boots up will be the Main Sequencer. This is the “homepage” of the Stepchild where you can directly edit a sequence and access applications and menus, and always displays a baby carriage in the top left corner that bounces to the BPM of the sequence.
 
+![The Main Sequence homepage](images/MainSequence.jpg)
 
-
-Track pitches are shown on the left as either MIDI note numbers or western chromatic pitches, and the sequence is displayed on the right. If shift is held while viewing the main sequence, the track channel will also be displayed next to each track. At the top, the current loop points and status icons are shown.
+Track pitches are shown on the left as either MIDI note numbers or western chromatic pitches, and the sequence is displayed on the right. You can view the channel of each track by holding **shift**. At the top, the current **loop points** and **status icons** are shown.
 
 ### Moving the cursor
 
