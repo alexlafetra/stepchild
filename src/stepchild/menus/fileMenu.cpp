@@ -79,7 +79,7 @@ vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
 }
 
 bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String> filenames){
-  if(itsbeen(50)){
+  if(itsbeen(100)){
     if(y == -1 && activeMenu.highlight>0){
         activeMenu.highlight--;
         if(activeMenu.highlight<menuStart){

@@ -65,7 +65,7 @@ void drawCurlyBracket(int16_t x1, uint8_t y1, uint8_t length,uint8_t height,bool
 void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation);
 void drawQuantIcon(uint8_t,uint8_t,uint8_t,bool);
 void drawHumanizeIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim);
-void printTrackPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c);
+void drawTrackLabel(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c);
 uint8_t printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c);
 void printSmall_centered(int x, int y, String t, uint16_t c);
 void printSmall(int, int, String, uint16_t);

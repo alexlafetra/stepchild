@@ -63,6 +63,6 @@ dataTrack::dataTrack(uint8_t t){
 void dataTrack::play(uint16_t timestep){
   if(parameterType == 2)
     handleInternalCC(control,data[timestep],channel,yPos);
-  else
+  else if(data[timestep] != 255)
     sendMIDICC(control,data[timestep],channel);
 }

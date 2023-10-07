@@ -7,6 +7,7 @@ class Knob{
     uint8_t channel;//0 is global
     void increment(int8_t);
     void send();
+    void set(int16_t val);
 };
 
 Knob::Knob(){
@@ -32,6 +33,16 @@ void Knob::increment(int8_t amt){
   else{
     val = 0;
   }
+}
+//sets a knob value to a new value
+void Knob::set(int16_t newVal){
+  if(newVal<0 && newVal<127){
+    newVal = 0;
+  }
+  else if(newVal>127){
+    newVal = 127;
+  }
+  val = newVal;
 }
 void Knob::send(){
   sendMIDICC(cc,val,channel);

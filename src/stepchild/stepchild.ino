@@ -2780,7 +2780,7 @@ uint8_t countChar(String text,unsigned char c){
 }
 
 //including custom users apps
-#include "custom/userApplications.h"
+#include "user/userApplications.h"
 
 //including the default childOS instrumentApps
 #include "instruments/rattle.cpp"
@@ -5604,8 +5604,9 @@ void startMIDI(){
 
 
 void sendMIDICC(uint8_t controller, uint8_t val, uint8_t channel){
-  if(isActiveChannel(channel, 0))
+  if(isActiveChannel(channel, 0)){
     MIDI0.sendControlChange(controller, val, channel);
+  }
   if(isActiveChannel(channel, 1))
     MIDI1.sendControlChange(controller, val, channel);
   if(isActiveChannel(channel, 2))
@@ -10780,7 +10781,6 @@ void togglePlayMode(){
     CVGate = false;
   }
 }
-
 void setNormalMode(){
   stop();
   if(isArping){

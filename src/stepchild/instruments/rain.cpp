@@ -218,6 +218,12 @@ void rain(){
         break;
       //editing the rain parameters
       case 1:
+        if(itsbeen(100)){
+          if(x != 0){
+            lastTime = millis();
+            menuState = false;
+          }
+        }
         switch(cursor){
           //changing startPitch w/encoders
           case 0:
@@ -335,8 +341,9 @@ void rain(){
               lastTime = millis();
             }
             else{
+              menu_Press = false;
               lastTime = millis();
-              menuState = !menuState;
+              return;
             }
           }
         }

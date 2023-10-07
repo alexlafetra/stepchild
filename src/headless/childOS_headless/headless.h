@@ -255,7 +255,7 @@ void delay(unsigned long time){
 }
 
 float analogRead(uint8_t pin){
-    return 0;
+    return 65535;
 }
 
 int digitalRead(int pin){
