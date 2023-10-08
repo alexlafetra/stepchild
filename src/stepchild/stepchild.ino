@@ -3049,7 +3049,9 @@ float getBattLevel(){
   //So when USB is in, VSYS is ~5.0
   //When all 3AA's are in, if they're 1.5v batts VSYS is ~4.5
   //But if they're 1.2v batts VSYS is ~3.6;
-  float val = float(analogRead(Vpin))*BATTSCALE;
+  // float val = float(analogRead(Vpin))*BATTSCALE;
+  float val = 0.2*float((millis()/200)%20);
+  Serial.println(val);
   return val;
 }
 

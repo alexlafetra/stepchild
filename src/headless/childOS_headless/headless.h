@@ -523,17 +523,20 @@ void displayWindow(void)
 {
     //update the display if there's been an update
     if(display.displayUpdate && openGLready){
-        glClearColor( 0.0f, 0.0f, 0.2f, 0.8f ); //dark transparent blue
+//        glClearColor( 0.0f, 0.0f, 0.2f, 1.0f ); //dark transparent blue
+        glClearColor(0.0f,0.0f,0.0f,1.0f);
         glClear( GL_COLOR_BUFFER_BIT);
         for(int j = 0;j<64; j++){
             for(int i = 0; i<128; i++){
                 //draw white pixelsg
                 if(screenPixels[i][j] == 1){
 //                    glColor3f(0.6, 0.6, 0.0); //dark yellow
-                    glColor3f(0.9,0.9,0.0); //bright yellow
+//                    glColor3f(0.9,0.9,0.0); //bright yellow
+                    glColor4f(1.0,1.0,1.0,1.0);
                 }
                 else{
-                    glColor4f( 0.0f, 0.0f, 0.2f, 0.8f); //dark transparent blue
+//                    glColor4f( 0.0f, 0.0f, 0.2f, 0.8f); //dark transparent blue
+                    glColor4f(0.0,0.0,0.0,1.0);
                 }
                 int x1 = i+1;
                 int y1 = 63 - j;
@@ -622,7 +625,7 @@ void headless(){
     //check if the window should close (this won't work within loops)
     while (!glfwWindowShouldClose(window)){
         //running logic
-        bootscreen();
+//        bootscreen();
         loop();
         loop1();
         glfwPollEvents();
