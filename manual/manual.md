@@ -85,9 +85,13 @@
 
 # 0. Introduction
 
+*This is just for me, thinking out loud. This section should be something like:*
+
+Hello! Welcome to the Stepchild User Manual. This document begins in a lot of detail, but slowly gets a more loose and conceptual as it goes on. Hopefully, this makes it easy to read and less redundant, but it also means that jumping straight into a later section might be more confusing than helpful. Because of this, there are a lot of links to other sections. Ideally, if something is confusing to you, you should be able to click it and it will link you to its explanation.
+
 ## 0.1 Overview
 
-Hello! Welcome to the Stepchild User Manual. This document begins in a lot of detail, but slowly gets a more loose and conceptual as it goes on. Hopefully, this makes it easy to read and less redundant, but it also means that jumping straight into a later section might be more confusing than helpful. Because of this, there are a lot of links to other sections! Ideally, if something is confusing to you, you should be able to click it and it will link you to its explanation.
+*what is the stepchild*
 
 ## 0.2 Hardware
 
@@ -192,7 +196,7 @@ You can delete notes by hovering over them and pressing, you guessed it, ![Delet
 ###### Both muting and deleting will apply to *all* selected notes, so make sure to deselect notes you don't want to delete! When you attempt to delete multiple notes at once, you'll be asked to confirm as a way to safeguard against mass-deletions.
 
 ### 1.5 Selecting Notes
-Most operations that affect a single note will also apply to other notes that are **selected**. Notes can be selected and deselected by placing the cursor on them and pressing ![Select](images/buttons/select.svg), or by holding down ![Select](images/buttons/select.svg) while moving the **Joystick** to create a selection box. By default, selecting is *additive*, meaning each note you select gets added to the current selection. To reset your selection, you can press ![Select](images/buttons/select.svg) + ![Shift](images/buttons/shift.svg) over a note or a blank space.
+Most operations that affect a single note will also apply to other notes that are **selected**. Individual notes can be selected and deselected by placing the cursor on them and pressing ![Select](images/buttons/select.svg), and groups of notes can be selected  by holding down ![Select](images/buttons/select.svg) while moving the **Joystick** to create a selection box. By default, selecting is *additive*, meaning each note you select gets added to the current selection. To reset your selection, you can press ![Shift](images/buttons/shift.svg) + ![Select](images/buttons/select.svg) over a note or a blank space.
 
 ![Gif of the selection box in action](images/selecting.gif)
 
@@ -206,7 +210,9 @@ Pressing ![Loop](images/buttons/loop.svg) when hovering over a loop point will m
 
 ### 1.7 Copy/Paste
 
-You can copy currently selected notes by pressing ![Copy](images/buttons/copy.svg). When notes are copied, they are copied *relative to the cursor position*. This means that when they are pasted, they will be pasted into the sequence with the same relative location to the cursor, i.e. copying a note that is five tracks above the cursor will mean it will be pasted five tracks above the cursor. 
+You can copy currently selected notes by pressing ![Copy](images/buttons/copy.svg). When notes are copied, they are copied *relative to the cursor position at the time of copying*. This means that when they are pasted, they will be pasted into the sequence with the same relative location to the cursor they had when they were copied, i.e. copying a note that is five tracks above the cursor means it will be pasted five tracks above the cursor.*
+
+###### *(if it's possible; any note that *would* be pasted outside the sequence won't get pasted)
 
 ![Gif demonstrating copy/paste behavior](images/copypaste.gif)
 
@@ -221,9 +227,9 @@ To paste the notes on your clipboard to the sequence, hold ![Shift](images/butto
 
 ### 1.9 Status Icons
 
-The top of the Main Sequence displays the loop points, the current **Status Icons**, and a **tooltip** for the last action the user did (hopefully making it easier to understand the control scheme).
+The top of the Main Sequence displays the [loop points](#6-loops), the current **Status Icons**, and a **tooltip** for the last action the user did (hopefully, the tooltip makes it easier to learn the control scheme).
 
-Different status icons, each signifiying that a specific time-based event is taking place, will be displayed above the Main Sequence. Below is a list of all the status icons and what they signify:
+Different status icons, each signifiying that a specific time-based event is actively taking place, will be displayed above the Main Sequence. Below is a list of all the status icons and what they signify:
 
 ![1-Shot Recording](images/top_icons/1shot_rec.jpg) --> [One-shot recording](#b-recording) mode is on.
 
@@ -312,9 +318,19 @@ When the Stepchild is using its internal clock, it sends out clock messages ever
 ## 9.7 Rattle
 ## 9.8 Live Loop
 
+The **Live Loop** application lets you quickly record and overdub MIDI data the way you might use a loop pedal in a guitar setup. **Live Loop** records MIDI data to a loop which doesn't exist outside of the **Live Loop** app. This means you can freely set your start/end loop points without affecting any existing loops.
+
+#### If the sequence isn't playing yet: 
+Pressing ![Shift](images/buttons/shift.svg) and ![Play](images/buttons/play.svg) will prime the sequence for a recording and wait for incoming MIDI messages. When a MIDI message is received, the Stepchild will begin recording notes. When recording in **Live Loop**, the [Loop](#6-loops) is ignored and the Stepchild will continue recording until the end of the sequence is reached. When ![Play](images/buttons/play.svg) is pressed during a recording, the recording will stop, the recorded notes will be [Warped](#106-warp) to fit the active loop and the [BPM](#a-bpm) will be adjusted to maintain the timing of the recorded phrase. The sequence will automatically begin playing.
+
+#### If the sequence has already started playing: 
+You can start overdubbing another MIDI recording by pressing ![Shift](images/buttons/shift.svg) and ![Play](images/buttons/play.svg)  (like you would start recording normally), or by pressing ![New](images/buttons/new.svg) (which is easier to do with one hand). By default, newly recorded notes **won't** overwrite ones from a previous dub and will instead be placed on new tracks.
+
+You can toggle between creating new tracks and overwriting existing tracks by pressing ![B](images/buttons/B.svg).
+
 # 10. FX
 
-"FX" are used to alter and edit the notes of the main sequence, as opposed to [instruments](#9-instruments) which send MIDI data in real-time. Each FX application is accessible from the [FX Menu](#45-fx-menu) and from the dropdown in the [Note Editor](#3-note-editor).
+"FX" are used to alter and edit the notes of the main sequence, as opposed to [instruments](#9-instruments) which send MIDI data in real-time. Each FX application is accessible from the [FX Menu](#45-fx-menu) and from the dropdown in the [Note Editor](#3-note-editor). You can also [add your own custom FX](../src/stepchild/User/userApplications.h) to ChildOS.
 
 ## 10.1 Quantize
 
@@ -322,9 +338,9 @@ The Stepchild's quantizer is pretty standard. The "**amount**" parameter control
 
 The "grid" parameter dictates the grid each note will lock to. You can change the **grid** parameter by turning ![A](images/buttons/A.svg) or by moving the cursor to the **grid** parameter and then moving ![Side to side](images/buttons/left_right.svg). Additionally, changing the subdivision while in the note selection screen will change the subdivision the notes are quantized to.
 
-Finally, the "**delete colliding notes**" option lets you choose what happens when two notes are pushed onto the same subdivision. You can set it by navigating the cursor onto the grid parameter and twisting ![A](images/buttons/A.svg). and holding [Setting it to "**off**" leaves one of the notes where it is, and setting it to "**on**" will delete notes that can't find a nearby spot on the grid.
+Finally, the "**delete colliding notes**" option lets you choose what happens when two notes are pushed onto the same subdivision. You can set it by navigating the cursor onto the grid parameter and twisting ![A](images/buttons/A.svg) and holding ![Shift](images/buttons/shift.svg). Setting it to "**off**" leaves notes where they are if they're unable to find a nearby spot on the grid, and setting it to "**on**" will delete notes that can't find a nearby spot on the grid. By default, this is on.
 
-Pressing ![New](images/buttons/new.svg) will push you to the note selection screen where you can select notes to quantize. You can continuously quantize notes by selecting and then pressing ![New](images/buttons/new.svg), or you can back out of the selection screen by pressing ![Menu](images/buttons/menu.svg).
+Pressing ![New](images/buttons/new.svg) will push you to the note selection screen where you can [select notes](#15-selecting-notes) to quantize. You can continuously quantize notes by selecting and then pressing ![New](images/buttons/new.svg), or you can back out of the selection screen by pressing ![Menu](images/buttons/menu.svg).
 
 
 ## 10.2 Humanize
@@ -333,9 +349,9 @@ Pressing ![New](images/buttons/new.svg) will push you to the note selection scre
 ## 10.5 Reverse
 ## 10.6 Warp
 
-The **Warp** effect takes one section of sequence and deforms it to fit into another. This is useful for retiming sections of a sequence, and is automatically used in the [Live Loop](#98-live-loop) application to fit recorded notes into the loop.
+The **Warp** effect takes one section of sequence and deforms it to fit into another. This is useful for retiming sections of a sequence, and is automatically used in the [Live Loop](#98-live-loop) application to fit recorded notes into the active loop.
 
-Sections of a sequence can be **Warped** to be bigger or smaller, although warping a note to be smaller than a 1/48th will cause it to ~be deleted~ warp out of existence.
+Sections of a sequence can be **Warped** to be bigger or smaller, although warping a note to be smaller than a 1/48th note (two timesteps) will cause it to ~be deleted~ warp out of existence.
 
 # 11. Files
 

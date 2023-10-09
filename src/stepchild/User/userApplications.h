@@ -31,13 +31,15 @@
 
 */
 
-//the default app function. You can use this as a template, but copy it first because this one is the actual default function!
+//the default app function.
+//You can use this as a template, but only change this function after making a copy of it!
+// It's the actual default function.
 void defaultAppFunction(){
 
-    //set up your setup code here!
+    //put your setup code here!
 
-    //put your continuous code down here
     while(true){
+        //put your continuous code down here!
 
         //reading in controls
         readButtons();
