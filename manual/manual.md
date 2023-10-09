@@ -307,7 +307,7 @@ Different status icons, each signifiying that a specific time-based event is act
 ## a. Editing Multiple Tracks
 ## b. Tuning Tracks to a Scale
 ## c. Deleting Empty Tracks
-## d. Disarming Tracks WIth Notes
+## d. Disarming Tracks With Notes
 
 
 ## 2.6 Erasing Tracks
