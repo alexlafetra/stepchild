@@ -77,7 +77,10 @@
     4. Echo
     5. Reverse
     6. Warp
-11. [Quicksave](#11-quicksave)
+11. [Files](#11-files)
+    1. [Quicksaving](#111-quicksaving)
+    2. File Browsing
+    3. Uploading to a computer
 12. [Console](#12-console)
 
 # 0. Introduction
@@ -147,7 +150,7 @@ Notes can be created and deleted in the [Main Sequence](#13-creating-notes), but
 
 Tracks hold the pitch and channel information that is usually associated with individual notes. This lets the pitch and routing of different notes change fluidly by changing the pitch of each track (if it's helpful, you can think about it like changing instruments or an FX stack on a track in a DAW without changing the MIDI notes).
 
-Track pitch can be edited directly in the [Main Sequence](#1-main-sequence) by holding ![Shift](images/buttons/shift.svg) and turning ![B](images/buttons/B.svg), and tracks can be more deeply edited by pressing ![B](images/buttons/B.svg) to bring up the [Track Editor](#2-track-editor).
+Track pitch can be edited directly in the [Main Sequence](#1-main-sequence) by holding ![Shift](images/buttons/shift.svg) and turning ![B](images/buttons/B.svg). Tracks can be more deeply edited in the [Track Editor](#2-track-editor) which can be accessed by pressing ![B](images/buttons/B.svg) in the Main Sequence.
 
 # 1. Main Sequence
 The first thing you see after the Stepchild boots up will be the Main Sequence screen. This is the “homepage” of the Stepchild where you can directly edit a sequence and access applications and menus. The Main Sequence screen *always* displays a baby carriage in the top left corner that bounces to the BPM of the sequence.
@@ -251,17 +254,26 @@ Different status icons, each signifiying that a specific time-based event is tak
 ### c. Thru
 
 ## 4.8 File Menu
-The Stepchild can store
+The Stepchild stores sequences on its internal flash storage with the '.child' extension. There is also a settings file that can't be browsed directly from the File Menu but *can* be updated in the [Settings Menu](#46-settings).
 
 ## 4.9 Clock Menu
 ![Clock Menu](images/ClockMenu.jpg)
 The Stepchild's **Clock Menu** has 3 parameters that can be experimented with to affect the timing of the sequence. 
+
 ### a. BPM 
-The first, BPM, represents the Beats-per-minute (technically, 1/4 notes/minute or 24 timesteps/minute) of the sequence. Twisting ![**A**](images/buttons/A.svg)will increase or decrease the BPM by 10, while twisting ![**B**](images/buttons/B.svg) or holding shift while turning ![**A**](images/buttons/A.svg)will increase or decrease the BPM by 1.
+The first, BPM, represents the Beats-per-minute (technically, 1/4 notes/minute or 24 timesteps/minute) of the sequence. Twisting ![**A**](images/buttons/A.svg) will increase or decrease the BPM by 10, while twisting ![**B**](images/buttons/B.svg) or holding shift while turning ![**A**](images/buttons/A.svg) will increase or decrease the BPM by 1.
+
 ### b. Swing
+The Stepchild has a pretty capable Swing feature which generates offsets for its internal clock based on a Swing function. As of now, the swing function is a pure sine wave that can have its period and amplitude edited on the second tab of the clock menu. Pressing ![Select](images/buttons/select.svg) will toggle Swing on or off, turning ![**A**](images/buttons/A.svg) will change the period of the Swing curve, and turning ![**B**](images/buttons/B.svg) will change the amplitude of the curve.
+
+###### Note: you can invert the swing curve! Experiment with it, I think the flexible clock is the best feature of the Stepchild.
 
 ### c. Clock Source
-The Stepchild can either use its internal clock, or wait for an external clock to tell it time has passed with a **MIDI Clock** message. Pressing ![**Select**](images/buttons/select.svg) will swap between using an internal or external clock.
+The Stepchild can either use its internal clock, or wait for an external clock to tell it time has passed with a **MIDI Clock** message. When you're on the third tab of the Clock Menu, pressing ![**Select**](images/buttons/select.svg) will swap between using the internal or external clock.
+
+MIDI clock signals are different from MIDI timecode signals, and only MIDI clock signals will be processed by the Stepchild. Each clock signal denotes 1/24th of a 1/4 note, which is exactly one timestep in the Stepchild's sequence. When hooked up to an external clock source, this means the Stepchild will advance 1 timestep (when playing or recording) for each MIDI clock message it receives. Using more flexible timing features like Swing and the internal BPM CC messages won't work when you're in external clock mode!
+
+When the Stepchild is using its internal clock, it sends out clock messages every timestep. It also sends MIDI start and stop messages when the sequence is stopped and started, and can be used to control a DAW or another sequencer like Ableton Live (or... another Stepchild) if the DAW or sequencer is configured for remote control.
 
 # 5. Autotracks
 ## 5.1 Autotrack Editor
@@ -299,9 +311,15 @@ The Stepchild can either use its internal clock, or wait for an external clock t
 ## 10.5 Reverse
 ## 10.6 Warp
 
-# 11. Quicksave
+# 11. Files
+
+## 11.1 Quicksaving
 Selecting the quicksave icon in the [Main Menu](#23-main-menu) allows you to quicksave your sequence without going into the File Menu. If an older version of the current sequence has already been written to the Stepchild’s flash, quicksaving overwrites the old file with the current version. Holding ![**Shift**](images/buttons/shift.svg) while quicksaving restores the previously saved version of the sequence. The quicksave feature is designed to be used like a save state for making backups! I highly recommend quicksaving every once in a while and before doing something drastic to your sequence.
 
 If the current sequence hasn’t been saved before, quicksaving will prompt you to enter a filename and save the sequence.
+
+## 11.2 File Browsing
+
+## 11.3 Uploading to a Computer
 
 # 12. Console
