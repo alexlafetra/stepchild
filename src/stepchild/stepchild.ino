@@ -2926,7 +2926,7 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
       printSmall(trackDisplay,0,"select notes to "+text+"!",1);
     }
     else{
-      printSmall(trackDisplay,0,stringify(selectionCount)+" selected - [n] to "+text,1);
+      printSmall(trackDisplay,0,"[n] to "+text+" "+stringify(selectionCount)+(selectionCount == 1?" note":" notes"),1);
     }
     iconFunction(7,1,14,true);
     display.display();
@@ -6224,7 +6224,7 @@ void copy(){
     copyBuffer[activeTrack].push_back(seqData[activeTrack][lookupData[activeTrack][cursorPos]]);
     numberOfNotes = 1;
   }
-  menuText = "copied "+stringify(numberOfNotes)+stringify(numberOfNotes)=="1"?"note":"notes";
+  menuText = "copied "+stringify(numberOfNotes)+((stringify(numberOfNotes)=="1")?" note":" notes");
 }
 
 void copyLoop(){
@@ -6305,7 +6305,7 @@ void paste(){
         }
       }
     }
-    menuText = "pasted "+stringify(pastedNotes)+stringify(pastedNotes)=="1"?"note":"notes";
+  menuText = "pasted "+stringify(pastedNotes)+((stringify(pastedNotes)=="1")?" note":" notes");
   }
 }
 

@@ -71,7 +71,7 @@
     7. Rattle
     8. Live Loop
 10. [FX](#10-fx)
-    1. Quantize
+    1. [Quantize](#101-quantize)
     2. Humanize
     3. Strum
     4. Echo
@@ -111,28 +111,30 @@ Alongside the 8 face buttons and two encoders, there are 8 stepbuttons along the
 
 ### b. MIDI Layout
 
-The Stepchild has 5 MIDI out ports and 2 MIDI in ports, 1 pair of which uses the Stepchilds MicroUSB port. The 5 non-USB hardware ports are each exposed as both a **TRS Type-A** 3.5mm headphone jack (like you'd use with an aux cable) *and* the traditional 5-Pin-DIN MIDI connector. Each pair of jacks are hardwired together, and will always transmit the same signals. It's designed this way to work
+The Stepchild has 5 MIDI out ports and 2 MIDI in ports, 1 pair of which uses the Stepchilds MicroUSB port. The 5 non-USB hardware ports are each exposed as both a **TRS Type-A** 3.5mm headphone jack (like you'd use with an aux cable) *and* the traditional 5-Pin-DIN MIDI connector. Each pair of jacks are hardwired together, and will always transmit the same signals.
 
 ![MIDI Layout Diagram](images/MIDI%20Layout.svg)
 
 EX: "Output 1" on the back of the Stepchild will send the same signals that "Output 1" on the front of the Stepchild will.
 
-Because of this, the Stepchild has 4 unique hardware and 1 unique software outputs, *but* you can connect up to **9** instruments directly to the Stepchild. 
+Because of this, the Stepchild has 4 unique hardware and 1 unique software outputs, meaning you can connect up to **9** instruments directly to the Stepchild but the front 4 instruments will receive the same notes as the back 4. 
 
-The Stepchild will expose itself as a MIDI device when it's connected to a computer, and should hopefully be easy to select from the MIDI input settings of a DAW. 
+The Stepchild will expose itself as a MIDI device when it's connected to a computer, and MIDI messages can be routed to it from a DAW or other virtual MIDI program. Because of this, the Stepchild can act as a bridge between TRS MIDI, DIN MIDI, and USB MIDI platforms and can be used to sequence hardware instruments from a software program via USB MIDI.
 
 ## 0.3 Software
 ![ChildOS Bootscreen](images/childOS.png)
 
-The Stepchild is the hardware system that the ChildOS firmware uses to make music. The ChildOS firmware contains a bunch of MIDI editing tools, live generative applications, a sequencer, and a sequencer that uses the Stepchild's hardware to exchange MIDI messages with other instruments.
+The Stepchild comes preloaded with ChildOS firmware, which contains MIDI editing tools, live MIDI generative applications, and a sequencer that uses the Stepchild's hardware to exchange MIDI messages with other instruments.
 
-###### (ChildOS isn't really an operating system, it uses the 'OS' suffix because it looks cool)
+###### (ChildOS isn't really an operating system, it just uses the 'OS' suffix because it looks cool)
 
-This manual is written about using ChildOS with the Stepchild, the software that I created to use it as a MIDI instrument, but it totally does not need to exclusively run ChildOS. Going into flashing your own firmware for the Stepchild is a little outside the scope of this user manual, but see the **Stepchild Documentation** for a tutorial.
+This manual is written about using ChildOS with the Stepchild, the software that I created to use it as a MIDI instrument, but it's possible to use the Stepchild with other firmware. Going into flashing your own firmware for the Stepchild is a little outside the scope of this user manual, so see the **Stepchild Documentation** for a tutorial.
+
+This section of the manual goes over the two basic elements of songs in ChildOS; notes and tracks.
 
 ### a. Notes
 
-ChildOS's concept of notes is a little different than the way traditional MIDI software and written music treats them. Because the Stepchild is designed with a focus on rhythm *and* harmony/melody, Notes are stored as start-stop signals at certain velocities and don't contain any information about pitch or channel. By keeping the pitch/channel data stored on the note's [Track](#b-tracks), you can flexibly play around with where the note is sent and what it sounds like without editing the notes themselves.
+ChildOS's concept of notes is a little different than the way traditional MIDI software and written music treats them. Because the Stepchild is designed with a focus on interchangeably writing rhythm and melody, Notes are stored as start-stop signals at certain velocities and don't contain any information about pitch or channel. By keeping the pitch/channel data stored on a note's respective [Track](#b-tracks), you can flexibly play around with where the note is sent and what it sounds like without editing the notes themselves.
 
 ```
            + ---------------- +
@@ -140,15 +142,15 @@ Start -->  | / / Velocity / / | <-- End
            + ---------------- +
 ```
 
-When the sequence is playing and the playhead reaches the start position, a MIDI 'Note On' message is sent at the note's velocity, with the pitch and channel of the track the note is on. If the playhead reaches the end of the note, then a MIDI 'Note Off' message is sent.
+When the sequence is playing and the playhead reaches the start position, a MIDI 'Note On' message is sent at the note's velocity, with the pitch and channel of the respective track. If the playhead reaches the end of the note, a MIDI 'Note Off' message is sent.
 
 By default, notes are shaded by their velocity, with quieter notes being more opaque. Note sprites can also be [configured](#45-settings) to be shaded by their probability.
 
-Notes can be created and deleted in the [Main Sequence](#13-creating-notes), but can be more extensively edited and messed with by pressing ![B](images/buttons/B.svg) to bring up the [Note Editor](#3-note-editor), or by using the [FX Applications](#8-fx).
+Notes can be created and deleted in the [Main Sequence](#13-creating-notes), but can be more extensively edited by pressing ![B](images/buttons/B.svg) to bring up the [Note Editor](#3-note-editor), or by using the [FX Applications](#8-fx).
 
 ### b. Tracks
 
-Tracks hold the pitch and channel information that is usually associated with individual notes. This lets the pitch and routing of different notes change fluidly by changing the pitch of each track (if it's helpful, you can think about it like changing instruments or an FX stack on a track in a DAW without changing the MIDI notes).
+Tracks hold the pitch and channel information that is usually associated with individual notes. This lets the pitch and routing of different notes change fluidly by changing the pitch of each track (if it's helpful, you can think about it like changing instruments in a DAW without changing the MIDI notes).
 
 Track pitch can be edited directly in the [Main Sequence](#1-main-sequence) by holding ![Shift](images/buttons/shift.svg) and turning ![B](images/buttons/B.svg). Tracks can be more deeply edited in the [Track Editor](#2-track-editor) which can be accessed by pressing ![B](images/buttons/B.svg) in the Main Sequence.
 
@@ -169,14 +171,14 @@ The cursor can be moved through time by moving the Joystick ![side-to-side](imag
 
 ### 1.2 Changing the View & Subdivision
 
-The sequence display will automatically adjust depending on where the cursor is and how zoomed in the view is. Turning ![**B**](images/buttons/B.svg) will multiply or divide the view subdivision by 2, and holding shift while turning ![**B**](images/buttons/B.svg) will switch between triplet and base-2 subdivisions. Turning ![**A**](images/buttons/A.svg) will zoom the sequence in or out by 2x and also increase or decrease the subdivision, allowing for smoothly zooming in and out to place notes with more precision.
+The sequence display will automatically adjust depending on where the cursor is and how zoomed in the view is. Turning ![**A**](images/buttons/A.svg) will multiply or divide the view subdivision by 2, and holding shift while turning ![**A**](images/buttons/A.svg) will switch between triplet and base-2 subdivisions. Turning ![**B**](images/buttons/B.svg) will zoom the sequence in or out by 2x and also increase or decrease the subdivision, allowing for smoothly zooming in and out to place notes with more precision.
 
-At a certain level, when the sequence is zoomed out far enough, notes won't be able to render individually due to the low resolution of the Stepchild's screen. Instead, many adjacent notes will render as a block of notes and you'll need to zoom in to see the details.
+At a certain level, when the sequence is zoomed out far enough, notes won't be able to render individually due to the low resolution of the Stepchild's screen. Instead, adjacent notes will render as a solid block and you'll need to zoom in to see individual notes again.
 
 Clicking instead of turning ![**A**](images/buttons/A.svg) will open the [Note Editor](#3-note-editor), and clicking instead of turning ![**B**](images/buttons/B.svg) will open the [Track Editor](#2-track-editor).
 
 ### 1.3 Creating Notes
-Pressing ![**New**](images/buttons/new.svg) will create a note 1 subdivision long at the cursor's position and active track, and move the cursor to the end of the new note. Alternatively, if ![**New**](images/buttons/new.svg) is held and the cursor is moved, a note will be created and extended by the cursor movement until ![**New**](images/buttons/new.svg) is released. If ![shift](images/buttons/shift.svg) is held while the cursor is moved, you can draw notes of any length!
+Pressing ![**New**](images/buttons/new.svg) will create a note 1 subdivision long at the cursor's position and active track, and move the cursor to the end of the new note. Alternatively, if ![**New**](images/buttons/new.svg) is held and the cursor is moved, a note will be created and extended by the cursor movement until ![**New**](images/buttons/new.svg) is released.
 
 ![Gif of notes being placed](images/makingnotes.gif)
 
@@ -187,7 +189,7 @@ By default, new notes are placed with a velocity of 127, but the default velocit
 ### 1.4 Deleting & Muting Notes
 You can delete notes by hovering over them and pressing, you guessed it, ![Delete](images/buttons/delete.svg). To mute a note, you can hold ![Shift](images/buttons/shift.svg) while pressing ![Delete](images/buttons/delete.svg). Muted notes won't be sent as MIDI data, but can still be edited and used as the target of [**FX applications**](#10-fx) and can be unmuted by pressing ![Shift](images/buttons/shift.svg) + ![Delete](images/buttons/delete.svg).
 
-###### Both muting and deleting will apply to *all* selected notes, so make sure to deselect notes you don't want to delete! When you attempt to delete multiple notes at once, you'll be asked to confirm as a way to safeguard against mass-deletions (it's happened... a lot).
+###### Both muting and deleting will apply to *all* selected notes, so make sure to deselect notes you don't want to delete! When you attempt to delete multiple notes at once, you'll be asked to confirm as a way to safeguard against mass-deletions.
 
 ### 1.5 Selecting Notes
 Most operations that affect a single note will also apply to other notes that are **selected**. Notes can be selected and deselected by placing the cursor on them and pressing ![Select](images/buttons/select.svg), or by holding down ![Select](images/buttons/select.svg) while moving the **Joystick** to create a selection box. By default, selecting is *additive*, meaning each note you select gets added to the current selection. To reset your selection, you can press ![Select](images/buttons/select.svg) + ![Shift](images/buttons/shift.svg) over a note or a blank space.
@@ -204,7 +206,11 @@ Pressing ![Loop](images/buttons/loop.svg) when hovering over a loop point will m
 
 ### 1.7 Copy/Paste
 
-You can copy currently selected notes by pressing ![Copy](images/buttons/copy.svg). When
+You can copy currently selected notes by pressing ![Copy](images/buttons/copy.svg). When notes are copied, they are copied *relative to the cursor position*. This means that when they are pasted, they will be pasted into the sequence with the same relative location to the cursor, i.e. copying a note that is five tracks above the cursor will mean it will be pasted five tracks above the cursor. 
+
+![Gif demonstrating copy/paste behavior](images/copypaste.gif)
+
+To paste the notes on your clipboard to the sequence, hold ![Shift](images/buttons/shift.svg) and press ![Copy](images/buttons/copy.svg). Pasted notes will be automatically selected, allowing you to easily [delete](#14-deleting--muting-notes) them if you want to undo your paste. 
 
 
 ### 1.8 Playback
@@ -294,6 +300,9 @@ When the Stepchild is using its internal clock, it sends out clock messages ever
 ## 8.2 Randomizing an Area
 
 # 9. Instruments
+
+"Instruments" are a category of applications which involve using the Stepchild as a controller to send MIDI messages in real time. This ranges from utility applications like [XY](#91-xy), where the Stepchild is used as a MIDI controller to send CC information, to more generative applications like [Storm](#92-storm) which uses the Stepchild more like an instrument.
+
 ## 9.1 XY
 ## 9.2 Storm
 ## 9.3 Knobs
@@ -304,21 +313,43 @@ When the Stepchild is using its internal clock, it sends out clock messages ever
 ## 9.8 Live Loop
 
 # 10. FX
+
+"FX" are used to alter and edit the notes of the main sequence, as opposed to [instruments](#9-instruments) which send MIDI data in real-time. Each FX application is accessible from the [FX Menu](#45-fx-menu) and from the dropdown in the [Note Editor](#3-note-editor).
+
 ## 10.1 Quantize
+
+The Stepchild's quantizer is pretty standard. The "**amount**" parameter controls how strongly selected notes will obey the quantize effect; setting **amount** to "100%" makes all notes snap to where they need to go, whereas setting **amount** to "50%" makes all notes travel *halfway* towards where they need to go. This allows you to have more subtle quantization, where rigid time might not be necessary. You can change the **amount** parameter by turning ![B](images/buttons/B.svg) or by moving the cursor to the **amount** parameter by moving the Jostick ![Joystick](images/buttons/joystick.svg) ~and then moving ![Side to side](images/buttons/left_right.svg) while holding ![shift](images/buttons/shift.svg) to set the amount.~ (TBD)
+
+The "grid" parameter dictates the grid each note will lock to. You can change the **grid** parameter by turning ![A](images/buttons/A.svg) or by moving the cursor to the **grid** parameter and then moving ![Side to side](images/buttons/left_right.svg). Additionally, changing the subdivision while in the note selection screen will change the subdivision the notes are quantized to.
+
+Finally, the "**delete colliding notes**" option lets you choose what happens when two notes are pushed onto the same subdivision. You can set it by navigating the cursor onto the grid parameter and twisting ![A](images/buttons/A.svg). and holding [Setting it to "**off**" leaves one of the notes where it is, and setting it to "**on**" will delete notes that can't find a nearby spot on the grid.
+
+Pressing ![New](images/buttons/new.svg) will push you to the note selection screen where you can select notes to quantize. You can continuously quantize notes by selecting and then pressing ![New](images/buttons/new.svg), or you can back out of the selection screen by pressing ![Menu](images/buttons/menu.svg).
+
+
 ## 10.2 Humanize
 ## 10.3 Strum
 ## 10.4 Echo
 ## 10.5 Reverse
 ## 10.6 Warp
 
+The **Warp** effect takes one section of sequence and deforms it to fit into another. This is useful for retiming sections of a sequence, and is automatically used in the [Live Loop](#98-live-loop) application to fit recorded notes into the loop.
+
+Sections of a sequence can be **Warped** to be bigger or smaller, although warping a note to be smaller than a 1/48th will cause it to ~be deleted~ warp out of existence.
+
 # 11. Files
 
-## 11.1 Quicksaving
-Selecting the quicksave icon in the [Main Menu](#23-main-menu) allows you to quicksave your sequence without going into the File Menu. If an older version of the current sequence has already been written to the Stepchild’s flash, quicksaving overwrites the old file with the current version. Holding ![**Shift**](images/buttons/shift.svg) while quicksaving restores the previously saved version of the sequence. The quicksave feature is designed to be used like a save state for making backups! I highly recommend quicksaving every once in a while and before doing something drastic to your sequence.
+## 11.1 Saving
 
-If the current sequence hasn’t been saved before, quicksaving will prompt you to enter a filename and save the sequence.
+## 11.2 Quicksaving
+Selecting the quicksave icon in the [Main Menu](#23-main-menu) allows you to quicksave your sequence without going into the File Menu. If an older version of the current sequence has already been written to the Stepchild’s flash, quicksaving overwrites the old file with the current version. Holding ![**Shift**](images/buttons/shift.svg) while quicksaving restores the previously saved version of the sequence. Because the Stepchild lacks an undo ability, The quicksave feature is designed to be used for making backups before doing something iffy. Quicksave regularly because ChildOS *will occiasionally* crash and *does not autosave*.
 
-## 11.2 File Browsing
+###### *Why no autosave?* The Stepchild writes sequence data to the  Pico's onboard flash. Flash memory degrades every time its written, meaning you have a finite number of saves! Thus,the Stepchild isn't constantly autosaving to save its flash memory. 
+
+###### I couldn't find a good source for how many write cycles the Pico's flash is rated for, but most flash storage falls in the range of 10k--100k cycles, which means you may get as few as 10k "saves" before the onboard flash is significantly degraded. So don't go crazy, but for reference saving a sequence 5x a day would give you at least 5 years worth of Stepchilding. You can be pretty liberal with it.
+
+
+If the current sequence hasn’t been saved yet, quicksaving will prompt you to enter a filename and save the sequence like you would when [creating a new save](#111-saving).
 
 ## 11.3 Uploading to a Computer
 
