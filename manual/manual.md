@@ -1,12 +1,15 @@
-# Index
+# The Manual
+## Index
 0. [Introduction](#0-introduction)
     1. [Overview](#01-overview)
     2. [Hardware](#02-hardware)
         1. [Buttons](#a-buttons)
         2. [MIDI Layout](#b-midi-layout)
     3. [Software](#03-software)
-        1. [Notes](#a-notes)
-        2. [Tracks](#b-tracks)
+        1. [A Brief Intro to MIDI](#a-a-brief-intro-to-midi)
+        2. [Notes](#b-notes)
+        3. [Tracks](#c-tracks)
+        4. [Timesteps](#d-timesteps)
 1. [Main Sequence](#1-main-sequence)
     1. [Moving the cursor](#11-moving-the-cursor)
     2. [Changing the view/Subdivision](#12-changing-the-view--subdivision)
@@ -22,13 +25,13 @@
 2. [Track Editor](#2-trackeditor)
     1. Utilities
 3. [Note Editor](#3-note-editor)
-    1. Moving Notes
-    2. Changing Note Length
-    3. Changing Note Velocity
-    4. Changing Note Probability
-    5. Quantizing Notes
-    6. Humanizing Notes
-    7. QuickFX
+    1. [Pattern Stamping](#31-pattern-stamping)
+    2. [Moving Notes](#32-moving-notes)
+    3. [Changing Note Length](#33-changing-note-length)
+    4. [Changing Note Velocity & Probability](#34-changing-note-velocity--probability)
+    5. [Quantizing Notes](#35-quantizing-notes)
+    6. [Humanizing Notes](#36-humanizing-notes)
+    7. [The FX Dropdown](#37-the-fx-dropdown)
 4. [Menus](#4-menus)
     1. Main Menu
     2. Autotrack Menu
@@ -47,6 +50,9 @@
         1. [BPM](#a-bpm)
         2. [Swing](#b-swing)
         3. [Clock Source](#c-clock-source)
+    10. Arpeggiator Menu
+    11. Randomizer Menu
+    12. Console Menu
 5. [Autotracks](#5-autotracks)
     1. Editor Controls
     2. CC List
@@ -69,7 +75,7 @@
     5. Drumpads
     6. MIDI to CV
     7. Rattle
-    8. Live Loop
+    8. [Live Loop](#98-live-loop)
 10. [FX](#10-fx)
     1. [Quantize](#101-quantize)
     2. Humanize
@@ -82,14 +88,29 @@
     2. File Browsing
     3. Uploading to a computer
 12. [Console](#12-console)
+13. [Using the ChildOS Desktop Interface](#13-using-the-childos-desktop-interface)
 
 # 0. Introduction
 
-*This is just for me, thinking out loud. This section should be something like:*
+Hello! Welcome to the user manual for the Stepchild. I started this project a little over a year ago with the goal of creating a sequencer that I could use to experiment with my SP404MKII and MicroKorg. Needless to say, since then this project has gotten out of hand and the Stepchild is now a lot more than just an accessory to the SP404.
 
-Hello! Welcome to the Stepchild User Manual. This document begins in a lot of detail, but slowly gets a more loose and conceptual as it goes on. Hopefully, this makes it easy to read and less redundant, but it also means that jumping straight into a later section might be more confusing than helpful. Because of this, there are a lot of links to other sections. Ideally, if something is confusing to you, you should be able to click it and it will link you to its explanation.
+![Birthplace of the Stepchild](images/middletown_snow.jpeg)
+###### *The house I was living in that winter, aka the birthplace of the Stepchild*
+
+My final year of college, in the dead of winter, in Middletown Connecticut, I was wracked with nostalgia. My first experience with any kind of music creation was an app on my first phone, the timeless *FL Studio Mobile*. Yeah, that's right. ***Mobile***. I miss the simplicity and toy-ness of this application; the accessible step sequencer and piano roll editor that focused on *note* editing made it engaging and simplistic and unique among modern DAWs.
+
+![FL Studio Mobile](images/flstudio_mobile_piano.jpg)
+###### *2011 FL Studio Mobile, the first music making app I used and, in retrospect, a big influence on the design of the Stepchild*
+
+I was feeling especially nostalgic for FL Studio Mobile because my instrument of choice, the SP404, had at the time a seriously defficient sequencer. Since then, Roland has added a step sequencer and streamlined the pattern building process a little, but I still think for such an awesome instrument it deserves a better sequencer.
+
+That winter, I began coding what would become the first version of ChildOS on an Arduino Mega. The goal was simple: create a sequencer that was easy to use, fun to engage with, but also complex enough that in theory and given enough time almost any song could be programmed into it.
+
+I didn't set out to recreate FL Studio Mobile, but I think it's influence over the way I think about songs is evident from the design of the Stepchild's UI, and I'm proud of that. At the end of the day, FL Studio Mobile was a highly unserious program with all the potential for creating serious things and that's a legacy I think the Stepchild should build from.
 
 ## 0.1 Overview
+
+So, what is the Stepchild? In short, the Stepchild is a hardware sequencer and generative MIDI instrument.
 
 *what is the stepchild*
 
@@ -134,11 +155,28 @@ The Stepchild comes preloaded with ChildOS firmware, which contains MIDI editing
 
 This manual is written about using ChildOS with the Stepchild, the software that I created to use it as a MIDI instrument, but it's possible to use the Stepchild with other firmware. Going into flashing your own firmware for the Stepchild is a little outside the scope of this user manual, so see the **Stepchild Documentation** for a tutorial.
 
-This section of the manual goes over the two basic elements of songs in ChildOS; notes and tracks.
+This section of the manual gives a brief introduction to MIDI and then goes over the two basic elements of songs in ChildOS; notes and tracks. There are a few other important concepts in ChildOS, such as [Loops](#6-loops) and [Instruments](#9-instruments), but those get their own sections later on!
 
-### a. Notes
+### a. A Brief Intro to MIDI
 
-ChildOS's concept of notes is a little different than the way traditional MIDI software and written music treats them. Because the Stepchild is designed with a focus on interchangeably writing rhythm and melody, Notes are stored as start-stop signals at certain velocities and don't contain any information about pitch or channel. By keeping the pitch/channel data stored on a note's respective [Track](#b-tracks), you can flexibly play around with where the note is sent and what it sounds like without editing the notes themselves.
+In case this is your first time encountering it, "MIDI" stands for ***Musical Instrument Digital Interface*** and is like a language that electronic instruments are able to speak to one another. There are a *lot* of different things that can be done with MIDI, but the primary MIDI concept that the Stepchild works with is MIDI Notes.
+
+MIDI note messages are transmitted as "Note On" and "Note Off" messages, typically telling synthesizers and other instruments to start and stop playing a specific note. Note messages are sent as three bytes:
+
+```
+{'Pitch' | 'Velocity' | 'Channel'}
+``` 
+
+MIDI channels are numbered 1-16, with '0' sometimes denoting a global channel. Instruments will only respond to notes they receive that are sent on their channel, like an address that lets you send different messages to up to 16 instruments on the same MIDI cable.
+
+The 'Pitch' value of a note is somewhere between 0 and 127 and corresponds to a pitch in the 12-tone western scale (although not all instruments implement this the same way). A lookup table of common pitch-note pairs can be found [here](https://computermusicresource.com/midikeys.html). Samplers and drum machines might respond to pitch information differently than a keyboard synethesizer would!
+
+Finally, the 'Velocity' value sent with a note represents how loud or hard a note is played. How this is interpreted by a specific instrument, though, is up to that instrument. Samples can play different samples based on velocity data, and keyboards can modulate the waveform or envelope of a sound based on the velocity of the keypress.
+
+
+### b. Notes
+
+ChildOS's concept of notes is a little different than the way traditional MIDI software and written music treats them. Because the Stepchild is designed with a focus on interchangeably writing rhythm and melody, Notes are stored as start-stop signals at certain velocities and don't contain any information about pitch or channel. By keeping the pitch/channel data stored on a note's respective [Track](#c-tracks), you can flexibly play around with where the note is sent and what it sounds like without editing the notes themselves.
 
 ```
            + ---------------- +
@@ -146,24 +184,30 @@ Start -->  | / / Velocity / / | <-- End
            + ---------------- +
 ```
 
-When the sequence is playing and the playhead reaches the start position, a MIDI 'Note On' message is sent at the note's velocity, with the pitch and channel of the respective track. If the playhead reaches the end of the note, a MIDI 'Note Off' message is sent.
+Alongside storing velocity, notes also store a value for their probability. When the sequence is playing and the playhead reaches the start position of a note, a die is rolled to determine if the note should play based on its probability. If it does play, a MIDI 'Note On' message is sent at the note's velocity, with the pitch and channel of the respective track. If the playhead reaches the end of the note, and that note was successfully played, a MIDI 'Note Off' message is sent.
 
 By default, notes are shaded by their velocity, with quieter notes being more opaque. Note sprites can also be [configured](#45-settings) to be shaded by their probability.
 
-Notes can be created and deleted in the [Main Sequence](#13-creating-notes), but can be more extensively edited by pressing ![B](images/buttons/B.svg) to bring up the [Note Editor](#3-note-editor), or by using the [FX Applications](#8-fx).
+###### An animation showing the different shade levels for different velocities and probabilities:
 
-### b. Tracks
+![Note Velocities](images/note_velocity.gif)
+
+Notes can be created and deleted in the [Main Sequence](#13-creating-notes), and can be more extensively edited by pressing ![B](images/buttons/B.svg) to bring up the [Note Editor](#3-note-editor) or by using an [FX Application](#8-fx).
+
+### c. Tracks
 
 Tracks hold the pitch and channel information that is usually associated with individual notes. This lets the pitch and routing of different notes change fluidly by changing the pitch of each track (if it's helpful, you can think about it like changing instruments in a DAW without changing the MIDI notes).
 
 Track pitch can be edited directly in the [Main Sequence](#1-main-sequence) by holding ![Shift](images/buttons/shift.svg) and turning ![B](images/buttons/B.svg). Tracks can be more deeply edited in the [Track Editor](#2-track-editor) which can be accessed by pressing ![B](images/buttons/B.svg) in the Main Sequence.
+
+### d. Timesteps
 
 # 1. Main Sequence
 The first thing you see after the Stepchild boots up will be the Main Sequence screen. This is the “homepage” of the Stepchild where you can directly edit a sequence and access applications and menus. The Main Sequence screen *always* displays a baby carriage in the top left corner that bounces to the BPM of the sequence.
 
 ![The Main Sequence homepage](images/mainsequence.gif)
 
-The main sequence is displayed like the piano roll editor found in traditional DAWs, with time on the X axis and separate [tracks](#b-tracks) on the Y axis. Track pitches are shown on the left as either MIDI note numbers or western chromatic pitches, and the sequence grid is displayed on the right. You can view the channel of each track by holding ![**Shift**](images/buttons/shift.svg). 
+The main sequence is displayed like the piano roll editor found in traditional DAWs, with time on the X axis and separate [tracks](#c-tracks) on the Y axis. Track pitches are shown on the left as either MIDI note numbers or western chromatic pitches, and the sequence grid is displayed on the right. You can view the channel of each track by holding ![**Shift**](images/buttons/shift.svg). 
 
 The current [**loop points**](#15-moving-loops) and [**status icons**](#18-status-icons), like battery life,  are shown at the top of the Main Sequnce screen.
 
@@ -179,7 +223,7 @@ The sequence display will automatically adjust depending on where the cursor is 
 
 At a certain level, when the sequence is zoomed out far enough, notes won't be able to render individually due to the low resolution of the Stepchild's screen. Instead, adjacent notes will render as a solid block and you'll need to zoom in to see individual notes again.
 
-Clicking instead of turning ![**A**](images/buttons/A.svg) will open the [Note Editor](#3-note-editor), and clicking instead of turning ![**B**](images/buttons/B.svg) will open the [Track Editor](#2-track-editor).
+Clicking, instead of turning, ![**A**](images/buttons/A.svg) will open the [Note Editor](#3-note-editor), and clicking instead of turning ![**B**](images/buttons/B.svg) will open the [Track Editor](#2-track-editor).
 
 ### 1.3 Creating Notes
 Pressing ![**New**](images/buttons/new.svg) will create a note 1 subdivision long at the cursor's position and active track, and move the cursor to the end of the new note. Alternatively, if ![**New**](images/buttons/new.svg) is held and the cursor is moved, a note will be created and extended by the cursor movement until ![**New**](images/buttons/new.svg) is released.
@@ -243,10 +287,50 @@ Different status icons, each signifiying that a specific time-based event is act
 ![Track Editor](images/trackedit.gif)
 
 # 3. Note Editor
+
+The Note Editor screen has a special set of controls and functions dedicated to editing existing notes in a sequence, as well as a few oddball functions. The main feature of the Note Editor is the **Toolbar**, which can be navigated by holding ![Shift](images/buttons/shift.svg) and moving ![Side to side](images/buttons/left_right.svg).
+
 ![Note Editor](images/noteedit.gif)
 
+From left to right, the tools on the Toolbar are: [Move](#32-moving-notes), [Length](#33-changing-note-length), [Velocity](#34-changing-note-velocity--probability),[ Probability](#34-changing-note-velocity--probability), [Quantize](#35-quantizing-notes), [Humanize](#36-humanizing-notes), and the [FX Dropdown](#36-the-fx-dropdown).
+
+Instead of moving the cursor by [timesteps](#d-timesteps) as you would in the [Main Sequence](#11-moving-the-cursor), while in the Note Editor your cursor jumps directly between notes.
+
+Pressing ![Select](images/buttons/select.svg) will select the note the cursor has snapped to. Although it's a little clunky, you can also drag to create a selection box as you jump from note to note.
+
+## 3.1 Pattern Stamping
+
+One feature that is currently accessible in the Note Editor, but that might move to a different effect in the future, is the ability to ***stamp*** patterns of notes.
+
+Stamping a pattern places a note every 'N' subdivisions, letting you quickly create rythym sequences. You can set the stamp multiplier by holding ![Shift](images/buttons/shift.svg) and turning ![B](images/buttons/B.svg). The stamp multiplier is shown as the small number underneath the Edit icon.
+
+You can stamp a track with a pattern by holding ![Shift](images/buttons/shift.svg) and pressing ![New](images/buttons/new.svg). The stamp will affect the track from the beginning to the end of the view.
+
+## 3.2 Moving Notes
+
+Pressing ![Loop](images/buttons/loop.svg) while the Toolbar cursor is over the "Move" icon will let you move the note currently targeted by the cursor and well as all selected notes. Notes are "stuck" to the cursor relative to their distance when ![Loop](images/buttons/loop.svg) was pressed.
+
+If something is blocking a note you're trying to move, the cursor and all other moving notes will be blocked too. In cases where there are many notes in a dense pattern, it's usually quicker just to [select](#15-selecting-notes) the notes you want to move, [copy](#17-copypaste) them, [delete](#14-deleting--muting-notes) them, then paste new notes where you'd like them to go.
+
+## 3.3 Changing Note Length
+
+Pressing ![Loop](images/buttons/loop.svg) while the Toolbar cursor is over the "Move" icon will let you change the length of the targeted note and all selected notes. The end of each selected note will be stuck to the cursor as it moves, letting you drag the cursor to extend or shrink notes.
+
+## 3.4 Changing Note Velocity & Probability
+## 3.5 Quantizing Notes
+## 3.6 Humanizing Notes
+
+## 3.7 The FX Dropdown
+
+You are able to launch any of the [FX](#10-fx) applications directly from the note menu. Pressing ![Loop](images/buttons/loop.svg) while the toolbar cursor is over the "FX" icon will bring up the FX selection menu. With this menu open, you can navigate to an effect and press ![Select](images/buttons/select.svg) to launch it. All FX will launch and function the same way they do when run from the [FX Menu](#45-fx-menu).
+
+![Opening the 'Reverse' effect from the FX Dropdown](images/fx_dropdown.gif)
+
+You can close the FX dropdown by pressing ![Menu](images/buttons/menu.svg) or ![Loop](images/buttons/loop.svg).
 
 # 4. Menus
+
+The Stepchild's wide range of functionality is broken up between 9 menus.
 
 ## 4.1 Main Menu
 
@@ -269,16 +353,25 @@ Different status icons, each signifiying that a specific time-based event is act
 The Stepchild stores sequences on its internal flash storage with the '.child' extension. There is also a settings file that can't be browsed directly from the File Menu but *can* be updated in the [Settings Menu](#46-settings).
 
 ## 4.9 Clock Menu
-![Clock Menu](images/ClockMenu.jpg)
+The Stepchild has a flexible clock that runs on its own core of the Pi Pico. Rather than using timer interrupts, the clock on the second core keeps track of how **late** or **early** it was each time it fires and dynamically delays or advances itself to come back in time.
+
 The Stepchild's **Clock Menu** has 3 parameters that can be experimented with to affect the timing of the sequence. 
 
 ### a. BPM 
-The first, BPM, represents the Beats-per-minute (technically, 1/4 notes/minute or 24 timesteps/minute) of the sequence. Twisting ![**A**](images/buttons/A.svg) will increase or decrease the BPM by 10, while twisting ![**B**](images/buttons/B.svg) or holding shift while turning ![**A**](images/buttons/A.svg) will increase or decrease the BPM by 1.
+BPM represents the Beats-Per-Minute (or 1/4 notes/minute, or 24 [timesteps](#d-timesteps)/minute) of the sequence. The BPM of the sequence determines when the Stepchild's clock can move to the next timestep as it's playing or recording. The pendulum of the Clock Menu's icon will keep time according to the BPM.
+
+![Gif of the Clock Pendulum Swinging in Time](images/clock_bpm.gif)
+
+Twisting ![**A**](images/buttons/A.svg) will increase or decrease the BPM by 10, while twisting ![**B**](images/buttons/B.svg) or holding shift while turning ![**A**](images/buttons/A.svg) will increase or decrease the BPM by 1.
+
+When the Stepchild is set to use an [external clock](#c-clock-source) the BPM of the sequence has no effect on the playback.
 
 ### b. Swing
-The Stepchild has a pretty capable Swing feature which generates offsets for its internal clock based on a Swing function. As of now, the swing function is a pure sine wave that can have its period and amplitude edited on the second tab of the clock menu. Pressing ![Select](images/buttons/select.svg) will toggle Swing on or off, turning ![**A**](images/buttons/A.svg) will change the period of the Swing curve, and turning ![**B**](images/buttons/B.svg) will change the amplitude of the curve.
+The Stepchild has a Swing feature which generates offsets for its internal clock based on a Swing function. In short, the Swing function generates a "timing offset" based on where the playhead or recording head is in the sequence. This timing offset then delays or advances the internal clock and causes the speed of the sequence to speed up and slow down in a sinusoidal pattern.
 
-###### Note: you can invert the swing curve! Experiment with it, I think the flexible clock is the best feature of the Stepchild.
+###### Note: you can invert the swing curve! Experiment with it, the flexible clock might be the best feature of the Stepchild.
+
+As of now, the swing function is always a pure sine wave that can have its period and amplitude edited on the second tab of the clock menu. Pressing ![Select](images/buttons/select.svg) will toggle Swing on or off, turning ![**A**](images/buttons/A.svg) will change the period of the Swing curve, and turning ![**B**](images/buttons/B.svg) will change the amplitude of the curve.
 
 ### c. Clock Source
 The Stepchild can either use its internal clock, or wait for an external clock to tell it time has passed with a **MIDI Clock** message. When you're on the third tab of the Clock Menu, pressing ![**Select**](images/buttons/select.svg) will swap between using the internal or external clock.
@@ -302,12 +395,15 @@ When the Stepchild is using its internal clock, it sends out clock messages ever
 ## 7.2 Modifiers
 
 # 8. Randomizer
+
+Originally, the Randomizer was one of the [FX](#10-fx), but it became such a key part of the Stepchild that it's included on the main menu.
+
 ## 8.1 Randomizer Parameters
 ## 8.2 Randomizing an Area
 
 # 9. Instruments
 
-"Instruments" are a category of applications which involve using the Stepchild as a controller to send MIDI messages in real time. This ranges from utility applications like [XY](#91-xy), where the Stepchild is used as a MIDI controller to send CC information, to more generative applications like [Storm](#92-storm) which uses the Stepchild more like an instrument.
+"Instruments" are a category of applications which involve using the Stepchild as a controller to send MIDI messages in real time. This ranges from utility applications like [XY](#91-xy), where the Stepchild is used as a MIDI controller to send CC information, to more generative applications like [Storm](#92-storm) which uses the Stepchild like an instrument.
 
 ## 9.1 XY
 ## 9.2 Storm
@@ -370,3 +466,5 @@ If the current sequence hasn’t been saved yet, quicksaving will prompt you to 
 ## 11.3 Uploading to a Computer
 
 # 12. Console
+
+# 13. Using the ChildOS Desktop Interface
