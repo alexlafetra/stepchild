@@ -23,7 +23,19 @@
         2. Recording
     9. Status Icons
 2. [Track Editor](#2-trackeditor)
-    1. Utilities
+    1. Changing Track Pitch
+    2. Changing Track Octave
+    3. Changing Track Channel
+    4. Arming Tracks
+    5. [Utilities](#25-track-utilities)
+        1. [Editing Multiple Tracks](#a-editing-multiple-tracks)
+        2. [Tuning Tracks to a Scale](#b-tuning-tracks-to-a-scale)
+        3. [Delete Empty Tracks](#c-deleting-empty-tracks)
+        4. [Disarming Tracks with Notes](#d-disarming-tracks-with-notes)
+    6. Erasing Tracks
+    7. Muting Tracks
+    8. Moving Tracks
+    9. Latching Tracks
 3. [Note Editor](#3-note-editor)
     1. [Pattern Stamping](#31-pattern-stamping)
     2. [Moving Notes](#32-moving-notes)
@@ -211,13 +223,13 @@ The main sequence is displayed like the piano roll editor found in traditional D
 
 The current [**loop points**](#15-moving-loops) and [**status icons**](#18-status-icons), like battery life,  are shown at the top of the Main Sequnce screen.
 
-### 1.1 Moving the cursor
+## 1.1 Moving the cursor
 
 The **cursor** is positioned at a specific timestep (its horizontal location) and track (its vertical location). You can change which track the cursor is on by moving the [**Joystick**](#hardware) ![up-and-down](images/buttons/up_down.svg), which will automatically send a MIDI note at the new active track’s pitch to the Stepchild’s MIDI ports.
 
 The cursor can be moved through time by moving the Joystick ![side-to-side](images/buttons/left_right.svg), which will move the cursor to the left or right to the next closest subdivision. Holding shift will move the cursor exactly 1 timestep in that direction.
 
-### 1.2 Changing the View & Subdivision
+## 1.2 Changing the View & Subdivision
 
 The sequence display will automatically adjust depending on where the cursor is and how zoomed in the view is. Turning ![**A**](images/buttons/A.svg) will multiply or divide the view subdivision by 2, and holding shift while turning ![**A**](images/buttons/A.svg) will switch between triplet and base-2 subdivisions. Turning ![**B**](images/buttons/B.svg) will zoom the sequence in or out by 2x and also increase or decrease the subdivision, allowing for smoothly zooming in and out to place notes with more precision.
 
@@ -225,7 +237,7 @@ At a certain level, when the sequence is zoomed out far enough, notes won't be a
 
 Clicking, instead of turning, ![**A**](images/buttons/A.svg) will open the [Note Editor](#3-note-editor), and clicking instead of turning ![**B**](images/buttons/B.svg) will open the [Track Editor](#2-track-editor).
 
-### 1.3 Creating Notes
+## 1.3 Creating Notes
 Pressing ![**New**](images/buttons/new.svg) will create a note 1 subdivision long at the cursor's position and active track, and move the cursor to the end of the new note. Alternatively, if ![**New**](images/buttons/new.svg) is held and the cursor is moved, a note will be created and extended by the cursor movement until ![**New**](images/buttons/new.svg) is released.
 
 ![Gif of notes being placed](images/makingnotes.gif)
@@ -234,17 +246,17 @@ If a note is created on top of another note, it will truncate the blocking note 
 
 By default, new notes are placed with a velocity of 127, but the default velocity of notes can be quickly changed by holding ![**Shift**](images/buttons/shift.svg) and moving the **Joystick** ![up or down](images/buttons/up_down.svg) while the cursor is over an empty part of the sequence. If the cursor is over a note, or if any notes are selected, the velocity of that note and all selected notes will be changed, allowing you to tweak note velocities without going into the edit menu.
 
-### 1.4 Deleting & Muting Notes
+## 1.4 Deleting & Muting Notes
 You can delete notes by hovering over them and pressing, you guessed it, ![Delete](images/buttons/delete.svg). To mute a note, you can hold ![Shift](images/buttons/shift.svg) while pressing ![Delete](images/buttons/delete.svg). Muted notes won't be sent as MIDI data, but can still be edited and used as the target of [**FX applications**](#10-fx) and can be unmuted by pressing ![Shift](images/buttons/shift.svg) + ![Delete](images/buttons/delete.svg).
 
 ###### Both muting and deleting will apply to *all* selected notes, so make sure to deselect notes you don't want to delete! When you attempt to delete multiple notes at once, you'll be asked to confirm as a way to safeguard against mass-deletions.
 
-### 1.5 Selecting Notes
+## 1.5 Selecting Notes
 Most operations that affect a single note will also apply to other notes that are **selected**. Individual notes can be selected and deselected by placing the cursor on them and pressing ![Select](images/buttons/select.svg), and groups of notes can be selected  by holding down ![Select](images/buttons/select.svg) while moving the **Joystick** to create a selection box. By default, selecting is *additive*, meaning each note you select gets added to the current selection. To reset your selection, you can press ![Shift](images/buttons/shift.svg) + ![Select](images/buttons/select.svg) over a note or a blank space.
 
 ![Gif of the selection box in action](images/selecting.gif)
 
-### 1.6 Moving Loops
+## 1.6 Moving Loops
 
 The currently active [Loop](#6-loops) is always shown as two flags or lines, showing the start and end of the loop, and a number representing which loop is currently active from the loop chain. When the cursor is on one of these two loop points, they'll 'pop up' to let you know that you can move them.
 
@@ -252,7 +264,7 @@ The currently active [Loop](#6-loops) is always shown as two flags or lines, sho
 
 Pressing ![Loop](images/buttons/loop.svg) when hovering over a loop point will make the loop point get "stuck" to the cursor. While stuck, the loop point will move with the cursor until ![Loop](images/buttons/loop.svg) is pressed again, which will set it wherever the cursor is. If the cursor is within the two loop points, rather than on one of them, both points will "stick" to the cursor and the loop can be moved in it's entirety.
 
-### 1.7 Copy/Paste
+## 1.7 Copy/Paste
 
 You can copy currently selected notes by pressing ![Copy](images/buttons/copy.svg). When notes are copied, they are copied *relative to the cursor position at the time of copying*. This means that when they are pasted, they will be pasted into the sequence with the same relative location to the cursor they had when they were copied, i.e. copying a note that is five tracks above the cursor means it will be pasted five tracks above the cursor.*
 
@@ -263,13 +275,13 @@ You can copy currently selected notes by pressing ![Copy](images/buttons/copy.sv
 To paste the notes on your clipboard to the sequence, hold ![Shift](images/buttons/shift.svg) and press ![Copy](images/buttons/copy.svg). Pasted notes will be automatically selected, allowing you to easily [delete](#14-deleting--muting-notes) them if you want to undo your paste. 
 
 
-### 1.8 Playback
+## 1.8 Playback
 
-#### a. Playing
+### a. Playing
 
-#### b. Recording
+### b. Recording
 
-### 1.9 Status Icons
+## 1.9 Status Icons
 
 The top of the Main Sequence displays the [loop points](#6-loops), the current **Status Icons**, and a **tooltip** for the last action the user did (hopefully, the tooltip makes it easier to learn the control scheme).
 
@@ -284,7 +296,22 @@ Different status icons, each signifiying that a specific time-based event is act
 
 
 # 2. Track Editor
+
 ![Track Editor](images/trackedit.gif)
+
+## 2.1 Changing Track Pitch
+## 2.2 Changing Track Octave
+## 2.3 Changing Track Channel
+## 2.4 Arming Tracks
+## 2.5 Track Utilities
+## a. Editing Multiple Tracks
+## b. Tuning Tracks to a Scale
+## c. Deleting Empty Tracks
+## d. Disarming Tracks WIth Notes
+
+
+## 2.6 Erasing Tracks
+
 
 # 3. Note Editor
 
@@ -458,7 +485,7 @@ Selecting the quicksave icon in the [Main Menu](#23-main-menu) allows you to qui
 
 ###### *Why no autosave?* The Stepchild writes sequence data to the  Pico's onboard flash. Flash memory degrades every time its written, meaning you have a finite number of saves! Thus,the Stepchild isn't constantly autosaving to save its flash memory. 
 
-###### I couldn't find a good source for how many write cycles the Pico's flash is rated for, but most flash storage falls in the range of 10k--100k cycles, which means you may get as few as 10k "saves" before the onboard flash is significantly degraded. So don't go crazy, but for reference saving a sequence 5x a day would give you at least 5 years worth of Stepchilding. You can be pretty liberal with it.
+###### I couldn't find a good source for how many write cycles the Pico's flash is rated for, but most flash storage falls in the range of 10k--100k cycles, which means you may get as few as 10k "saves" before the onboard flash is significantly degraded. So don't go crazy, but the good news is that saving a sequence 5x a day would give you at least 5 years worth of Stepchilding. You can be pretty liberal with it.
 
 
 If the current sequence hasn’t been saved yet, quicksaving will prompt you to enter a filename and save the sequence like you would when [creating a new save](#111-saving).
