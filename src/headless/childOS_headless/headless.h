@@ -247,7 +247,6 @@ DummySerial Serial;
 
 void bootscreen();
 
-#include "Display.h"
 
 //emulating delay
 void delay(unsigned long time){
@@ -297,6 +296,7 @@ void sleep_ms(int num){
     delay(num);
 }
 
+#include "Display.h"
 Display display;
 
 //key states that the GLUT callback sets

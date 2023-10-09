@@ -113,6 +113,7 @@ void slideMenuIn(int fromWhere, int speed){
         activeMenu.coords.x2=originalCoords.x2;
       }
       displaySeq();
+      // delay(20);
     }
     activeMenu.coords.x1 = originalCoords.x1;
     activeMenu.coords.x2 = originalCoords.x2;
@@ -134,6 +135,7 @@ void slideMenuIn(int fromWhere, int speed){
         activeMenu.coords.y2=originalCoords.y2;
       }
       displaySeq();
+      // delay(20);
     }
     activeMenu.coords.y1 = originalCoords.y1;
     activeMenu.coords.y2 = originalCoords.y2;
@@ -152,6 +154,7 @@ void slideMenuOut(int toWhere, int speed){
       }
       displaySeq();
       drawPram(5,0);
+      // delay(20);
     }
   }
   //to the bottom
@@ -165,6 +168,7 @@ void slideMenuOut(int toWhere, int speed){
       }
       displaySeq();
       drawPram(5,0);
+      // delay(20);
     }
   }
 }

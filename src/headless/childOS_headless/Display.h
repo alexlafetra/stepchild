@@ -91,6 +91,7 @@ void Display::fillScreen(int c){
 }
 void Display::clearDisplay(){
     fillScreen(0);
+    delay(20);
 }
 void Display::invertDisplay(bool i){
     //if the inversion state is changed

@@ -152,9 +152,11 @@ Track pitch can be edited directly in the [Main Sequence](#1-main-sequence) by h
 # 1. Main Sequence
 The first thing you see after the Stepchild boots up will be the Main Sequence screen. This is the “homepage” of the Stepchild where you can directly edit a sequence and access applications and menus. The Main Sequence screen *always* displays a baby carriage in the top left corner that bounces to the BPM of the sequence.
 
-![The Main Sequence homepage](images/MainSequence.jpg)
+![The Main Sequence homepage](images/mainsequence.gif)
 
-The main sequence is displayed like a piano roll found in traditional DAWs and instruments, with time on the X axis and separate [tracks](#b-tracks) on the Y axis. Track pitches are shown on the left as either MIDI note numbers or western chromatic pitches, and the sequence is displayed on the right. You can view the channel of each track by holding ![**Shift**](images/buttons/shift.svg). The current [**loop points**](#15-moving-loops) and [**status icons**](#18-status-icons), like battery life,  are shown at the top of the Main Sequnce screen.
+The main sequence is displayed like the piano roll editor found in traditional DAWs, with time on the X axis and separate [tracks](#b-tracks) on the Y axis. Track pitches are shown on the left as either MIDI note numbers or western chromatic pitches, and the sequence grid is displayed on the right. You can view the channel of each track by holding ![**Shift**](images/buttons/shift.svg). 
+
+The current [**loop points**](#15-moving-loops) and [**status icons**](#18-status-icons), like battery life,  are shown at the top of the Main Sequnce screen.
 
 ### 1.1 Moving the cursor
 
@@ -191,10 +193,15 @@ Most operations that affect a single note will also apply to other notes that ar
 
 ### 1.6 Moving Loops
 
-The currently active [Loop](#6-loops) is always shown as two flags or lines, showing the start and end of the loop, and a number representing which loop is currently active from the loop chain. When the cursor is on one of these two loop points and ![Loop](images/buttons/loop.svg) is pressed, that loop point will become "stuck" to the cursor and move with it until ![Loop](images/buttons/loop.svg) is pressed again. If the cursor is within the two loop points instead of on one of them and ![Loop](images/buttons/loop.svg) is pressed, both points will "stick" to the cursor and the loop can be moved in it's entirety.
+The currently active [Loop](#6-loops) is always shown as two flags or lines, showing the start and end of the loop, and a number representing which loop is currently active from the loop chain. When the cursor is on one of these two loop points, they'll 'pop up' to let you know that you can move them.
+
+![Gif demonstrating how to move loops](images/movingloops.gif)
+
+Pressing ![Loop](images/buttons/loop.svg) when hovering over a loop point will make the loop point get "stuck" to the cursor. While stuck, the loop point will move with the cursor until ![Loop](images/buttons/loop.svg) is pressed again, which will set it wherever the cursor is. If the cursor is within the two loop points, rather than on one of them, both points will "stick" to the cursor and the loop can be moved in it's entirety.
 
 ### 1.7 Copy/Paste
 
+You can copy currently selected notes by pressing ![Copy](images/buttons/copy.svg). When
 
 
 ### 1.8 Playback
@@ -218,10 +225,10 @@ Different status icons, each signifiying that a specific time-based event is tak
 
 
 # 2. Track Editor
-![Track Editor](images/TrackMenu.jpg)
+![Track Editor](images/trackedit.gif)
 
 # 3. Note Editor
-![Note Editor](images/EditMenu.jpg)
+![Note Editor](images/noteedit.gif)
 
 
 # 4. Menus
