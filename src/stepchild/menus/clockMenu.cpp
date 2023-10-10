@@ -56,39 +56,46 @@ void drawSwingCurve_old(int8_t xPos, int8_t yPos){
 }
 
 void drawSwingCurve(int8_t xPos, int8_t yPos){
-  display.fillRect(xPos,-1,64,66,SSD1306_BLACK);
-  display.drawRect(xPos,-1,64,66,SSD1306_WHITE);
+  display.fillRect(xPos,16,96,48,SSD1306_BLACK);
+  // display.drawRect(xPos,16,96,48,SSD1306_WHITE);
   if(!swung){
-    printSmall(xPos+(screenWidth-xPos)/2-6,40,"off",1);
+    printSmall(xPos+(screenWidth-xPos)/2-6,42,"off",1);
     if(millis()%1000>500){
-      printSmall(xPos+(screenWidth-xPos)/2-10,50,"[sel]",1);
+      printSmall(xPos+(screenWidth-xPos)/2-10,54,"[sel]",1);
     }
     display.drawFastVLine(xPos,16,48,1);
+    display.drawFastHLine(xPos,16,screenWidth-xPos,1);
     return;
   }
-  //starting point is zero, end point is 96
-  float sc = 96/32;
+  //starting point is the viewstart, end point is viewend
   float oldPoint = 0;
   uint16_t mid = (yPos);
-  for(float i = 0; i<32; i+=0.5){
-    float y1 = swingOffset(i*sc)/float(1000);
+  for(float i = viewStart; i<viewEnd; i+=0.5){
+    float y1 = swingOffset(i*scale)/float(1000);
     if(y1<0)
-      shadeLineV(xPos+i*2,mid+ceil(y1),-ceil(y1),2);
+      shadeLineV(xPos+(i-viewStart)*scale,mid+ceil(y1),-ceil(y1),2);
     else
-      shadeLineV(xPos+i*2,mid,ceil(y1),2);
-    if(i == 0)
-        display.drawLine(xPos,oldPoint+yPos+1,xPos+i*2,y1+yPos+1,SSD1306_WHITE);
+      shadeLineV(xPos+(i-viewStart)*scale,mid,ceil(y1),2);
+    if(i == viewStart)
+        display.drawLine(xPos,oldPoint+yPos+1,xPos,y1+yPos+1,SSD1306_WHITE);
     else
-      display.drawLine(xPos+(i-0.5)*2,oldPoint+yPos+1,xPos+i*2,y1+yPos+1,SSD1306_WHITE);
+      display.drawLine(xPos+(i-0.5-viewStart)*scale,oldPoint+yPos+1,xPos+(i-viewStart)*scale,y1+yPos+1,SSD1306_WHITE);
     oldPoint = y1;
   }
-  printSmall(screenWidth-8,18,"wv",1);
-  printSmall(screenWidth-6,24,"%",1);
+
+  //loop points
+  if(isInView(loopData[activeLoop].start)){
+    display.drawFastVLine(trackDisplay + (loopData[activeLoop].start)*scale,16,screenHeight-16,SSD1306_WHITE);
+  }
+  if(isInView(loopData[activeLoop].end)){
+    display.drawFastVLine(trackDisplay + (loopData[activeLoop].end)*scale,16,screenHeight-16,SSD1306_WHITE);
+  }
   //playhead
   if(playing || recording){
-    display.drawFastVLine(xPos + ((playing ? playheadPos:recheadPos)%32)*sc,16,screenHeight-16,SSD1306_WHITE);
+    display.drawFastVLine(trackDisplay + ((playing ? playheadPos:recheadPos)-viewStart)*scale,16,screenHeight-16,SSD1306_WHITE);
   }
-  display.fillRect(activeMenu.coords.y1+70,0,58,16,SSD1306_BLACK);
+  display.drawFastHLine(xPos,16,screenWidth-xPos,1);
+  // display.fillRect(activeMenu.coords.y1+70,0,58,16,SSD1306_BLACK);
 }
 
 
@@ -123,10 +130,12 @@ void Menu::displayClockMenu(float tVal,uint8_t cursor){
       {
       x2 = 10+sin(millis()/100);
       drawArrow(54+coords.y1,13+27+x2+2,3,2,false);
-      drawSwingCurve(coords.y1+66,40);
+      drawSwingCurve(coords.y1+32,40);
       display.drawFastHLine(coords.y1+70,16,58,SSD1306_WHITE);
-      printSmall(109,4,stringify(swingVal/400)+"%",SSD1306_WHITE);
       printCursive(coords.y1+76,3,"swing",SSD1306_WHITE);
+      if(!swung)
+        break;
+      printSmall(109,4,stringify(swingVal/250)+"%",SSD1306_WHITE);
       }
       break;
     //swing sub div
@@ -134,10 +143,12 @@ void Menu::displayClockMenu(float tVal,uint8_t cursor){
       {
       x2 = 10+sin(millis()/100);
       drawArrow(54+coords.y1,13+27+x2+2,3,2,false);
-      drawSwingCurve(coords.y1+66,40);
+      drawSwingCurve(coords.y1+32,40);
       display.drawFastHLine(coords.y1+70,16,58,SSD1306_WHITE);
-      printFraction_small(109,4,stepsToMeasures(swingSubDiv));
       printCursive(coords.y1+76,3,"swing",SSD1306_WHITE);
+      if(!swung)
+        break;
+      printFraction_small(109,4,stepsToMeasures(swingSubDiv));
       }
       break;
     //internal/external
@@ -215,7 +226,9 @@ void clockMenu(){
   uint8_t cursor = 0;
   while(true){
     display.clearDisplay();
-    drawSeq(false,false,false,false,false);
+    //if you're on the swing menu, no need to draw the seq
+    if(cursor != 2)
+      drawSeq(false,false,false,false,false);
     activeMenu.displayClockMenu(angle,cursor);
     display.display();
 
@@ -281,9 +294,11 @@ void clockMenu(){
           // and it needs to switch between division and mult. when
           //if goes from + to -)
           case 1:
+            if(!swung)
+              break;
             if(!shift){
               if(swingVal>0){
-                if(swingVal<43690)
+                if(swingVal<21845)
                   swingVal *= 1.5;
               }
               else{
@@ -294,7 +309,7 @@ void clockMenu(){
                 }
               }
             }
-            else if(abs(swingVal)<=65435)
+            else if(swingVal<=21745)
               swingVal += 100;
             break;
           //source
@@ -321,9 +336,11 @@ void clockMenu(){
           // and it needs to switch between division and mult. when
           //if goes from + to -)
           case 1:
+            if(!swung)
+              break;
             if(!shift){
               if(swingVal<0){
-                if(abs(swingVal)<43690)
+                if(abs(swingVal)<21845)
                   swingVal *= 1.5;
               }
               else{
@@ -334,7 +351,7 @@ void clockMenu(){
                 }
               }
             }
-            else if(abs(swingVal)<=65435)
+            else if(swingVal>=-21745)
               swingVal -= 100;
             break;
           //source
@@ -353,6 +370,8 @@ void clockMenu(){
             break;
           //swing subdiv
           case 2:
+            if(!swung)
+              break;
             if(shift && swingSubDiv<768)
               swingSubDiv++;
             else if(swingSubDiv<=384)
@@ -367,6 +386,8 @@ void clockMenu(){
             break;
           //swing subdiv
           case 2:
+            if(!swung)
+              break;
             if(shift && swingSubDiv>1)
               swingSubDiv--;
             else if(swingSubDiv >= 2)

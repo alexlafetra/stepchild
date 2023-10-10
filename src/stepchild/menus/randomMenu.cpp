@@ -1,3 +1,6 @@
+WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float scale);
+
+
 //Random Menu
 void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxChance, uint16_t minLength, uint16_t maxLength, uint8_t minVel, uint8_t maxVel, uint8_t gridBehavior, bool target){
   switch(which){

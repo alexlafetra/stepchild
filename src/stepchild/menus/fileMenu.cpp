@@ -1,3 +1,7 @@
+
+vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames);
+bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String> filenames);
+
 vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
   //scrolling
   if(itsbeen(100)){

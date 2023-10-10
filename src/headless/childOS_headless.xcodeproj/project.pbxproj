@@ -10,6 +10,7 @@
 		FA01CE662AC2F93D005BBB0F /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE652AC2F93D005BBB0F /* CoreAudio.framework */; };
 		FA01CE682AC2F94C005BBB0F /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE672AC2F94C005BBB0F /* CoreMIDI.framework */; };
 		FA01CE6A2AC2F955005BBB0F /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */; };
+		FA0A413E2AD5252500013622 /* FileSystem.h in Sources */ = {isa = PBXBuildFile; fileRef = FA0A413D2AD5252500013622 /* FileSystem.h */; };
 		FA3C22AE2AD4E00A004634E6 /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA3C21932AD4E009004634E6 /* RtMidi.cpp */; };
 		FA7578F82996CF8500378FA9 /* libglfw.3.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA7578F72996CF8500378FA9 /* libglfw.3.3.dylib */; };
 		FAA06B06299423D4004BEC01 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA06B05299423D4004BEC01 /* OpenGL.framework */; };
@@ -34,6 +35,7 @@
 		FA01CE672AC2F94C005BBB0F /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		FA01CE702AC35CBB005BBB0F /* Midi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Midi.h; sourceTree = "<group>"; };
+		FA0A413D2AD5252500013622 /* FileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		FA3C21892AD4DBB8004634E6 /* RtMidi.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = "childOS_headless/rtmidi-6.0.0/RtMidi.cpp"; sourceTree = "<group>"; };
 		FA3C218B2AD4DBC8004634E6 /* RtMidi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = "childOS_headless/rtmidi-6.0.0/RtMidi.h"; sourceTree = "<group>"; };
 		FA3C21922AD4E009004634E6 /* libtool */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = libtool; sourceTree = "<group>"; };
@@ -987,6 +989,7 @@
 			children = (
 				FAA06B0B29943B71004BEC01 /* Fonts */,
 				FAA06AFD29942167004BEC01 /* headless.h */,
+				FA0A413D2AD5252500013622 /* FileSystem.h */,
 				FA01CE702AC35CBB005BBB0F /* Midi.h */,
 				FAB6ECBA2AB2340500A32AD2 /* Display.h */,
 				FA7578F92996F34000378FA9 /* bitmap */,
@@ -1079,6 +1082,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA3C22AE2AD4E00A004634E6 /* RtMidi.cpp in Sources */,
+				FA0A413E2AD5252500013622 /* FileSystem.h in Sources */,
 				FAA06B0E29943BC7004BEC01 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

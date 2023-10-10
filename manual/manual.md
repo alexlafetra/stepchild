@@ -37,7 +37,7 @@
     8. Moving Tracks
     9. Latching Tracks
 3. [Note Editor](#3-note-editor)
-    1. [Pattern Stamping](#31-pattern-stamping)
+    1. [Pattern Stencils](#31-pattern-stencils)
     2. [Moving Notes](#32-moving-notes)
     3. [Changing Note Length](#33-changing-note-length)
     4. [Changing Note Velocity & Probability](#34-changing-note-velocity--probability)
@@ -325,13 +325,13 @@ Instead of moving the cursor by [timesteps](#d-timesteps) as you would in the [M
 
 Pressing ![Select](images/buttons/select.svg) will select the note the cursor has snapped to. Although it's a little clunky, you can also drag to create a selection box as you jump from note to note.
 
-## 3.1 Pattern Stamping
+## 3.1 Pattern Stencils
 
-One feature that is currently accessible in the Note Editor, but that might move to a different effect in the future, is the ability to ***stamp*** patterns of notes.
+One feature that is currently accessible in the Note Editor, but that might move to a different effect in the future, is the ability to ***stencil*** patterns of notes onto the sequence.
 
-Stamping a pattern places a note every 'N' subdivisions, letting you quickly create rythym sequences. You can set the stamp multiplier by holding ![Shift](images/buttons/shift.svg) and turning ![B](images/buttons/B.svg). The stamp multiplier is shown as the small number underneath the Edit icon.
+Stencilling a pattern places a note every 'N' subdivisions, letting you quickly create rythym sequences. You can set the stencil multiplier by holding ![Shift](images/buttons/shift.svg) and turning ![B](images/buttons/B.svg). The stencil multiplier is shown as the small number underneath the Edit icon and determines how many subdivisions are skipped before a note is placed.
 
-You can stamp a track with a pattern by holding ![Shift](images/buttons/shift.svg) and pressing ![New](images/buttons/new.svg). The stamp will affect the track from the beginning to the end of the view.
+You can stencil a track with a pattern by holding ![Shift](images/buttons/shift.svg) and pressing ![New](images/buttons/new.svg). The stencil will affect the track from the beginning to the end of the view.
 
 ## 3.2 Moving Notes
 

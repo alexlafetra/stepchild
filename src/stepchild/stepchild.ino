@@ -1,229 +1,8 @@
 //code for sequencer: step child
-//'board' setting needs to be the RP2040 raspberry pi pico, not the arduino one
+//'board' setting needs to be the RP2040 raspberry pi pico
 //will overclock at 250MH!!
 
-//library changes:
-//- added customo graphic to SSD1306 driver
-//- switched out the adafruit GFX library for the pico optimized one
-//- turned off Sysex in the MIDI library
-#ifndef HEADLESS
-  #include <vector>
-  #include <Arduino.h>
-  #include <Adafruit_TinyUSB.h>
-  #include <MIDI.h>
-
-  //for communicating w screen
-  #include <Wire.h>
-
-  //for drawing
-  #include <Adafruit_GFX.h>//using one optimized for the pico
-  #include <Adafruit_SSD1306.h>
-
-  //for a nice font
-  #include <Fonts/FreeSerifItalic9pt7b.h>
-  #include <Fonts/FreeSerifItalic12pt7b.h>
-  #include <Fonts/FreeSerifItalic24pt7b.h>
-
-  //for flash storage
-  #include <LittleFS.h> // LittleFS is declared
-  #include "pico/stdlib.h"
-  #include <SoftwareSerial.h>
-  extern "C" {
-  #include "pico.h"
-  #include "pico/time.h"
-  #include "pico/bootrom.h"
-  }
-  //=========================================================PINS===============================================
-  //setting up screen
-  #define i2c_Address 0x3c //initialize with the I2C addr 0x3C Typically eBay OLED's
-  // #define i2c_Address 0x3D //initialize with the I2C addr 0x3C Typically eBay OLED's
-
-  #define SCREEN_WIDTH 128 // OLED display width, in pixels
-  #define SCREEN_HEIGHT 64 // OLED display height, in pixels
-  #define OLED_RESET -1   //   QT-PY / XIAO
-  // #define OLED_RESET 7   //   QT-PY / XIAO
-
-  #undef SSD1306_NO_SPLASH
-  #define SSD1306_NO_SPLASH 1
-
-  #undef CFG_TUH_RPI_PIO_USB
-  #define CFG_TUH_RPI_PIO_USB 1
-
-#endif
-
-#include <algorithm>
-
-// #define SSD1306_SETDISPLAYCLOCKDIV B0011000  ///< See datasheet
-
-
-using namespace std;
-
-#ifndef HEADLESS
-  Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-  // Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-#endif
-
-//function prototypes
-#include "prototypes.h"
-
-#include "classes/Knob.h"
-Knob controlKnobs[16];
-
-#ifndef HEADLESS
-  #define UPRIGHT 2
-  #define UPSIDEDOWN 0
-  #define SIDEWAYS_R 3
-  #define SIDEWAYS_L 1
-#endif
-
-//program booleans and global data, constants
-#include "global.h"
-
-#include "bitmaps.h"
-
-//button defs and reading functions
-#include "buttons.h"
-//wireframe stuff
-#include "classes/WireFrame.h"
-
-//Stores two (x,y) coordinate pairs as x1, y1, x2, y2
-struct CoordinatePair{
-  int16_t x1;
-  int16_t x2;
-  int8_t y1;
-  int8_t y2;
-  CoordinatePair();
-  CoordinatePair(uint16_t xStart, uint16_t xEnd);
-  CoordinatePair(uint16_t xStart, uint16_t xEnd, uint8_t yStart, uint8_t yEnd);
-  bool isEmpty();
-};
-
-CoordinatePair::CoordinatePair(){
-  x1 = 0;
-  x2 = 0;
-  y1 = 0;
-  y2 = 0;
-}
-CoordinatePair::CoordinatePair(uint16_t xStart, uint16_t xEnd){
-  x1 = xStart;
-  x2 = xEnd;
-  y1 = 0;
-  y2 = 0;
-}
-CoordinatePair::CoordinatePair(uint16_t xStart, uint16_t xEnd, uint8_t yStart, uint8_t yEnd){
-  x1 = xStart;
-  x2 = xEnd;
-  y1 = yStart;
-  y2 = yEnd;
-}
-
-bool CoordinatePair::isEmpty(){
-  return x1 == x2;
-}
-
-#include "classes/Menu.h"
-
-vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames);
-bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String> filenames);
-WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float scale);
-
-//classes
-#include "classes/Note.h"
-
-void makeNote(Note newNoteOn, int track, bool loudly);
-void makeNote(Note newNoteOn, int track);
-void loadNote(Note newNote, uint8_t track);
-bool checkNoteMove(Note targetNote, int track, int newTrack, int newStart);
-vector<vector<Note>> grabAndDeleteSelectedNotes();
-
-#include "classes/Track.h"
-#include "classes/AutomationTrack.h"
-
-#ifndef HEADLESS
-  String stringify(int a){
-    return String(a);
-  }
-  String stringify(uint8_t a){
-    return String(a);
-  }
-  String stringify(int8_t a){
-    return String(a);
-  }
-  String stringify(uint16_t a){
-    return String(a);
-  }
-  String stringify(int16_t a){
-    return String(a);
-  }
-  String stringify(uint32_t a){
-    return String(a);
-  }
-  String stringify(int32_t a){
-    return String(a);
-  }
-  String stringify(std::vector<Note>::size_type a){
-    return String(a);
-  }
-  String stringify(float a){
-    return String(a);
-  }
-  String stringify(const char * a){
-    return String(a);
-  }
-  int toInt(String s){
-    return s.toInt();
-  }
-#endif
-
-#include "drawingFunctions.h"
-#include "fonts/7_segment.cpp"
-#include "fonts/cursive.cpp"
-#include "fonts/small.cpp"
-#include "fonts/arp.cpp"
-#include "fonts/italic.cpp"
-#include "fonts/chunky.cpp"
-#include "scales.h"
-
-#ifndef HEADLESS
-  SoftwareSerial Serial3 = SoftwareSerial(SerialPIO::NOPIN,txPin_3);
-  SoftwareSerial Serial4 = SoftwareSerial(SerialPIO::NOPIN,txPin_4);
-
-  //USB MIDI object
-  Adafruit_USBD_MIDI usb_midi;
-
-  //1 and 2 are I/0, 3&4 are just O
-  MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, MIDI0);
-  MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
-  MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, MIDI2);
-  MIDI_CREATE_INSTANCE(SoftwareSerial, Serial3, MIDI3);
-  MIDI_CREATE_INSTANCE(SoftwareSerial, Serial4, MIDI4);
-#endif
-
-//Data variables -------------------------------------------
-const Note offNote; //default note, always goes in element 0 of seqData for each track
-const vector<Note> defaultVec = {offNote};//default vector for a track, holds offNote at 0
-
-vector<vector<Note>> copyBuffer;//stores copied notes
-unsigned short int copyPos[2];
-
-//stores cursor position in copy pos, makes a copy of all selected notes (or the target note)
-vector<vector<uint16_t> > lookupData; //char map of notes; 0 = no note, 1-665,535 = noteID
-vector<Track> trackData;//holds tracks
-vector<vector<Note>> seqData;//making a 2D vec, number of rows = tracks, number of columns = usable notes, and stores Note objects
-
-#include "classes/NoteID.h"
-#include "CV.h"
-
-#include "classes/Loop.h"
-
-//holds all the datatracks
-vector<dataTrack> dataTrackData;
-
-#include "classes/Arp.h"
-#include "instruments/planets.cpp"
-#include "classes/SelectionBox.h"
-unsigned short int animOffset = 0;//for animating curves
-
+#include "ChildOS.h"
 
 void zella(){
   WireFrame w = makeBox(10,10,10);
@@ -261,67 +40,7 @@ void noBitches(){
 #include "menus/warpMenu.cpp"
 #include "menus/reverseMenu.cpp"
 
-//returns a list of pitches that are present in the playlist
-vector<uint8_t> getUniquePitchesFromPlaylist(){
-  //move thru each note and get its 'true' pitch.
-  //then, check to see if that pitch is in the new list.
-  //if it is, continue with the next note. if not, add 
-  //this note and then continue;
-  vector<uint8_t> uniquePitches;
-  for(uint8_t note = 0; note<playlist.size(); note++){
-    //getting the pitch relative to C
-    uint8_t uniquePitch = playlist[note][0]%12;
-    //if it's the first note, add it automatically
-    if(uniquePitches.size() == 0){
-      uniquePitches.push_back(uniquePitch);
-    }
-    //if it's not, check to see if it's unique
-    else{
-      bool unique = true;
-      for(uint8_t uniqueP = 0; uniqueP < uniquePitches.size(); uniqueP++){
-        if(uniqueP == uniquePitch){
-          unique = false;
-          break;
-        }
-      }
-      if(unique){
-        uniquePitches.push_back(uniquePitch);
-      }
-    }
-  }
-  return uniquePitches;
-}
-
-void addNoteToPlaylist(uint8_t note, uint8_t vel, uint8_t channel){
-  vector<uint8_t> temp = {note,vel,channel};
-  playlist.push_back(temp);
-}
-
-void subNoteFromPlaylist(uint8_t note){
-  vector<vector<uint8_t>> tempList;
-  //keep all the notes, EXCEPT for the one you're kicking out
-  for(int i = 0; i<playlist.size(); i++){
-    if(note != playlist[i][0]){
-      tempList.push_back(playlist[i]);
-    }
-  }
-  playlist.swap(tempList);
-}
-
-void clearPlaylist(){
-  vector<vector<uint8_t>> tempList;
-  playlist.swap(tempList);
-}
-
-void debugPrintPlaylist(){
-  Serial.print("{");
-  for(int i = 0; i<playlist.size(); i++){
-    Serial.print(playlist[i][0]);
-    Serial.print(",");
-  }
-  Serial.println("}");
-  Serial.flush();
-}
+#include "playlist.h"
 
 #include "helpScreen.h"
 
@@ -346,7 +65,6 @@ void enterBootsel(){
   reset_usb_boot(1<<PICO_DEFAULT_LED_PIN,0);
 }
 
-#include "classes/Progression.h"
 
 unsigned short int horzSelectionBox(String caption, vector<String> options, unsigned short int x1, unsigned short int y1, unsigned short int width, unsigned short int height){
   long int time = millis();
@@ -421,9 +139,6 @@ String decimalToNumeral(int dec){
   }
   return numeral;
 }
-
-#include "menus/loopMenu.cpp"
-#include "menus/consoleMenu.cpp"
 
 //cassette-vibe buttons for the playBack menu
 void drawCassetteButton(uint8_t x1, uint8_t y1, uint8_t which, bool state){
@@ -1014,7 +729,7 @@ void recMenu(){
 void Menu::displayRecMenu(uint8_t menuCursor,uint8_t start, uint8_t active){
   //title
   display.setRotation(1);
-  display.setFont(&FreeSerifItalic12pt7b);
+  // display.setFont(&FreeSerifItalic12pt7b);
   display.setCursor(16,16);
   display.print("Rec");
   display.setFont();
@@ -11094,11 +10809,14 @@ void quickSave(){
   }
 }
 
+void fileMenuDisplayWrapper(){
+  activeMenu.displayFilesMenu();
+}
 void loadBackup(){
   //if there's an active filename
   if(currentFile != ""){
     vector<String> ops = {"NAUR","YEA"};
-    int8_t choice = binarySelectionBox(59,32,"NO","YEA","LOAD BACKUP?",drawSeq);//FIX THIS
+    int8_t choice = binarySelectionBox(59,32,"NO","YEA","LOAD BACKUP?",fileMenuDisplayWrapper);
     if(choice){
       loadSeqFile(currentFile);
       slideMenuOut(1,30);

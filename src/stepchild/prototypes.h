@@ -104,9 +104,6 @@ void slideMenuOut(int fromWhere, int speed);
 void strumMenu();
 
 //Note editing
-void deleteSelected();
-vector<vector<uint8_t>> selectMultipleNotes(String,String);
-vector<uint8_t> selectSeqArea(String);
 void eraseSeq();
 void makeNote(int, bool);
 void makeNote(int, int, int, bool);
@@ -115,18 +112,12 @@ void deleteNote();
 void deleteNote_byID(int track, int targetNoteID);
 bool moveNote(int, int, int, int);
 bool moveNotes(int xAmount, int yAmount);
-void clearSelection();
-void clearSelection(int, int);
-void selectNote(uint8_t track, uint16_t id);
-bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool));
-void selectAll(bool, bool, bool);
-void selectAll();
-void toggleSelectNote(uint8_t, uint16_t, bool); 
+
 unsigned short int getRecentNoteID();
 unsigned short int getRecentNoteID(int, int);
 void changeVel(int amount);
 void deleteNote(int track, int time);
-void selectAll(bool);
+
 void muteNote(unsigned short int track, unsigned short int id, bool toggle);
 void echoNote(int track, int id);
 void echoTrack(int track);
@@ -151,7 +142,23 @@ bool checkNoteMove(int id, int track, int newTrack, int newStart);
 void quantizeNote(uint8_t track, uint8_t id, uint8_t amount, uint8_t deleteIfNoValidLocation);
 bool quantizeNote(uint8_t track, uint16_t id);
 bool quantizeNote(uint8_t track, uint16_t id,bool move);
+void makeNote(Note newNoteOn, int track, bool loudly);
+void makeNote(Note newNoteOn, int track);
+void loadNote(Note newNote, uint8_t track);
+bool checkNoteMove(Note targetNote, int track, int newTrack, int newStart);
+vector<vector<Note>> grabAndDeleteSelectedNotes();
+void deleteSelected();
+void selectAll(bool, bool, bool);
+void selectAll();
+void selectAll(bool);
 void selectNote(int track, int time, bool additive);
+void clearSelection();
+void clearSelection(int, int);
+void selectNote(uint8_t track, uint16_t id);
+bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool));
+void toggleSelectNote(uint8_t, uint16_t, bool); 
+vector<vector<uint8_t>> selectMultipleNotes(String,String);
+vector<uint8_t> selectSeqArea(String);
 
 //Track editing
 void deleteAllTracks();
@@ -302,6 +309,7 @@ uint16_t getIDAtCursor();
 uint8_t countChar(String text,unsigned char c);
 void alert(String text, int time);
 void drawWebLink();
+void displayHelpText(uint8_t);
 
 //MIDI
 void sendMIDIallOff();

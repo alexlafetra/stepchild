@@ -138,7 +138,12 @@ void readButtons_MPX(){
     play = playKeyVal;
     copy_Press = copyKeyVal;
     menu_Press = menuKeyVal;
-    glfwPollEvents();
+    try{
+        glfwPollEvents();
+    }
+    catch(...){
+        cout<<"oh shit";
+    }
 }
 #endif
 

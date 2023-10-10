@@ -10,6 +10,7 @@
 #include <chrono>//for emulating millis() and micros()
 #include <unistd.h>
 #include <thread>//for multithreading
+#include <algorithm>
 
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
@@ -32,11 +33,14 @@
 #define SIDEWAYS_R 3
 #define SIDEWAYS_L 1
 
-using namespace std;
-
 #define SCREENWIDTH 128
 #define SCREENHEIGHT 64
 # define PI           3.14159265358979323846  /* pi */
+
+#define SSD1306_WHITE 1
+#define SSD1306_BLACK 0
+
+#define PICO_DEFAULT_LED_PIN 0
 
 #ifndef _swap_int16_t
 #define _swap_int16_t(a, b)                                                    \
@@ -64,10 +68,8 @@ using namespace std;
 #define charAt at
 #define substring substr
 
-
 //swapping the arduino "String" object for the C++ "string" object (kinda silly, but it works)
 #define String string
-
 
 using namespace std;
 
@@ -84,11 +86,6 @@ int toInt(string s){
         return stoi(s);
 }
 
-#define SSD1306_WHITE 1
-#define SSD1306_BLACK 0
-
-#define PICO_DEFAULT_LED_PIN 0
-
 int counterA, counterB;
 
 bool core0ready;
@@ -97,6 +94,7 @@ bool playing = false;
 bool recording = false;
 
 #include "Midi.h"
+#include "FileSystem.h"
 
 //emulating micros and millis
 auto progStartTime = chrono::high_resolution_clock::now();
