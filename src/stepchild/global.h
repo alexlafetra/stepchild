@@ -39,8 +39,11 @@ const vector<String> stepChildCCParameters = {"Velocty","Probability","Pitch","B
 
 uint16_t bpm = 120;
 
+#ifndef HEADLESS
 bool playing = false;
 bool recording = false;
+#endif
+
 bool gotClock = false;
 bool hasStarted = false;
 bool isArping = false;

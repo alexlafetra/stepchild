@@ -304,6 +304,10 @@ void genRandom(int8_t odds, int8_t minChance, int8_t maxChance, uint16_t minLeng
               Note newNote = Note(step,step+length,vel,chance,false,false);
               makeNote(newNote, t);
               step = newNote.endPos-1;
+              //if it's not on grid, move a random amount forward
+            }
+            if(!onGrid){
+              step+=random(0,maxLength*(100-odds)/100);
             }
           }
         }

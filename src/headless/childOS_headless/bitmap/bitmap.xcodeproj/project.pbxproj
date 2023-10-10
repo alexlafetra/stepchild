@@ -1,0 +1,142 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXFileReference section */
+		FA2701742AD4B30A007B8E1A /* bitmap_image.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = bitmap_image.hpp; sourceTree = "<group>"; };
+		FA2701752AD4B30A007B8E1A /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		FA2701762AD4B30A007B8E1A /* bitmap_test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bitmap_test.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		FA27016E2AD4B30A007B8E1A = {
+			isa = PBXGroup;
+			children = (
+				FA2701742AD4B30A007B8E1A /* bitmap_image.hpp */,
+				FA2701752AD4B30A007B8E1A /* Makefile */,
+				FA2701762AD4B30A007B8E1A /* bitmap_test.cpp */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		FA2701732AD4B30A007B8E1A /* bitmap */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = FA2701772AD4B30A007B8E1A /* Build configuration list for PBXLegacyTarget "bitmap" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = /Users/alex/Documents/Arduino/stepchild/src/headless/childOS_headless/bitmap;
+			dependencies = (
+			);
+			name = bitmap;
+			passBuildSettingsInEnvironment = 1;
+			productName = bitmap;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXProject section */
+		FA27016F2AD4B30A007B8E1A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+			};
+			buildConfigurationList = FA2701722AD4B30A007B8E1A /* Build configuration list for PBXProject "bitmap" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = FA27016E2AD4B30A007B8E1A;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FA2701732AD4B30A007B8E1A /* bitmap */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		FA2701702AD4B30A007B8E1A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx10.6;
+			};
+			name = Debug;
+		};
+		FA2701712AD4B30A007B8E1A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COPY_PHASE_STRIP = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				SDKROOT = macosx10.6;
+			};
+			name = Release;
+		};
+		FA2701782AD4B30A007B8E1A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEBUGGING_SYMBOLS = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = bitmap;
+			};
+			name = Debug;
+		};
+		FA2701792AD4B30A007B8E1A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = bitmap;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FA2701722AD4B30A007B8E1A /* Build configuration list for PBXProject "bitmap" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA2701702AD4B30A007B8E1A /* Debug */,
+				FA2701712AD4B30A007B8E1A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FA2701772AD4B30A007B8E1A /* Build configuration list for PBXLegacyTarget "bitmap" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA2701782AD4B30A007B8E1A /* Debug */,
+				FA2701792AD4B30A007B8E1A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FA27016F2AD4B30A007B8E1A /* Project object */;
+}

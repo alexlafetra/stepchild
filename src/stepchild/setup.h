@@ -1,5 +1,4 @@
 #ifndef HEADLESS
-
 //CPU 0 setup
 void setup() {
   //--------------------------------------------------------------------
@@ -64,6 +63,38 @@ void setup() {
   core0ready = true;
   lastTime = millis();
   bootscreen();
+}
+#endif
+#ifdef HEADLESS
+void setup(){
+  startMIDI();
+
+  //Set the display rotation (which is ~technically~ upside down)
+  display.setRotation(UPRIGHT);
+  //turn text wrapping off, so our menus look ok
+  display.setTextWrap(false);
+
+  //--------------------------------------------------------------------//
+  //                              Software                              //
+  //--------------------------------------------------------------------//
+  //seeding random number generator
+  srand(1);
+  //setting up sequence w/ 16 tracks, 768 steps
+  initSeq(16,768);
+  //turn off LEDs (since they might be in some random configuration)
+  turnOffLEDs();
+  //set the control knobs up w/ default values
+  for(uint8_t i = 0; i<16; i++){
+    controlKnobs[i].cc = i+1;
+  }
+  counterA = 0;
+  counterB = 0;
+  setNormalMode();
+
+  core0ready = true;
+  lastTime = millis();
+  bootscreen();
+  updateLEDs();
 }
 #endif
 

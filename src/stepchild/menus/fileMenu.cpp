@@ -26,7 +26,7 @@ vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
         case 1:
         {
           String fileName = filenames[activeMenu.page];
-          int8_t choice = binarySelectionBox(64,32,"NO","YEA");
+          int8_t choice = binarySelectionBox(64,32,"NO","YEA",displayMiniMenu);
           if(choice == 1){
             writeSeqFile(fileName);
           }

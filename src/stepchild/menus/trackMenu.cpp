@@ -637,3 +637,473 @@ void drawDrumIcon(uint8_t x1, uint8_t y1, uint8_t note){
     display.drawBitmap(x1,y1,drum_icons[which],16,8,1,0);
   }
 }
+
+void drawTrackInfo(uint8_t xCursor){
+  const uint8_t sideWidth = 18;
+  //track scrolling
+  endTrack = startTrack + trackData.size();
+  trackHeight = (screenHeight - debugHeight) / trackData.size();
+  if(trackData.size()>5){
+    endTrack = startTrack + 5;
+    trackHeight = (screenHeight-debugHeight)/5;
+  }
+  while(activeTrack>endTrack-1 && trackData.size()>5){
+    startTrack++;
+    endTrack++;
+  }
+  while(activeTrack<startTrack && trackData.size()>5){
+    startTrack--;
+    endTrack--;
+  }
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+
+  //sideWidth border
+  drawDottedLineV2(sideWidth,debugHeight+1,64,6);
+
+  //top and bottom bounds
+  display.drawFastHLine(0,debugHeight-1,screenWidth,SSD1306_WHITE);
+
+  //tracks
+  for(uint8_t track = startTrack; track<startTrack+5; track++){
+    unsigned short int y1 = (track-startTrack) * trackHeight + debugHeight-1;
+    unsigned short int y2 = y1 + trackHeight;
+    if(trackData[track].isSelected){
+      //double digit
+      if((track+1)>=10){
+        display.setCursor(1-sin(millis()/100), y1+4);
+        display.print("{");
+        display.setCursor(13+sin(millis()/100), y1+4);
+        display.print("}");
+      }
+      else{
+        display.setCursor(3-sin(millis()/100), y1+4);
+        display.print("{");
+        display.setCursor(13+sin(millis()/100), y1+4);
+        display.print("}");
+      }
+    }
+    //track info display
+    //single digit
+    if((track+1)<10){
+      printSmall(9,y1+5,stringify(track+1),SSD1306_WHITE);
+    }
+    else{
+      printSmall(17-stringify(track+1).length()*6,y1+5,stringify(track+1),SSD1306_WHITE);
+    }
+    //track cursor
+    if(track == activeTrack){
+      //track
+      if(xCursor == 0)
+        drawArrow(3+sin(millis()/100),y1+7,2,0,true);
+      //note
+      else if(xCursor == 1){
+        if(getTrackPitch(track).length()>1)
+          display.drawRoundRect(sideWidth+(xCursor-1)*10+3, y1+2, 15, trackHeight+2, 3, SSD1306_WHITE);
+        else
+          display.drawRoundRect(sideWidth+(xCursor-1)*10+3, y1+2, 10, trackHeight+2, 3, SSD1306_WHITE);
+      }
+      //oct
+      else if(xCursor == 2){
+        if(trackData[track].pitch>=120){
+          display.drawRoundRect(sideWidth+(xCursor-1)*10+3, y1+2, 13, trackHeight+2, 3, SSD1306_WHITE);
+        }
+        else
+          display.drawRoundRect(sideWidth+(xCursor-1)*10+6, y1+2, 10, trackHeight+2, 3, SSD1306_WHITE);
+      }
+      //channel
+      else if(xCursor == 3){
+        if(trackData[track].channel>=10)
+          display.drawRoundRect(sideWidth+(xCursor-1)*10+3, y1+2, 13, trackHeight+2, 3, SSD1306_WHITE);
+        else
+          display.drawRoundRect(sideWidth+(xCursor-1)*10+6, y1+2, 10, trackHeight+2, 3, SSD1306_WHITE);
+      }
+      //rec
+      else if(xCursor == 4){
+        display.drawCircle(sideWidth+(xCursor-1)*10+10, y1+7, 5, SSD1306_WHITE);
+      }
+      //mute group
+      else if(xCursor == 6){
+        if(trackData[track].muteGroup == 0)
+          display.drawRoundRect(sideWidth+56, y1+2, 19, trackHeight+2, 3, SSD1306_WHITE);
+        else
+          display.drawRoundRect(sideWidth+56, y1+2, 5+4*stringify(trackData[track].muteGroup).length(), trackHeight+2, 3, SSD1306_WHITE);
+      }
+      else if(xCursor != 5)
+        display.drawRoundRect(sideWidth+(xCursor-1)*10+6, y1+1, 10, trackHeight+2, 3, SSD1306_WHITE);
+    }
+
+    //all the track info...
+    //pitch, oct, and channel
+    printSmall(sideWidth+6,  y1+5, getTrackPitch(track), SSD1306_WHITE);//pitch
+
+    if(getOctave(trackData[track].pitch)>=10)
+      printSmall(sideWidth+16, y1+5, stringify(getOctave(trackData[track].pitch)), SSD1306_WHITE);//octave
+    else
+      printSmall(sideWidth+20, y1+5, stringify(getOctave(trackData[track].pitch)), SSD1306_WHITE);//octave
+
+    if(trackData[track].channel>=10)
+        printSmall(sideWidth+26, y1+5, stringify(trackData[track].channel), SSD1306_WHITE);//channel
+    else
+      printSmall(sideWidth+30, y1+5, stringify(trackData[track].channel), SSD1306_WHITE);//channel
+    
+    //primed rec symbol
+    if(trackData[track].isPrimed){
+      if(millis()%1000>500){
+        display.drawCircle(sideWidth+40, y1+7, 3, SSD1306_WHITE);
+      }
+      else{
+        display.fillCircle(sideWidth+40, y1+7, 3, SSD1306_WHITE);
+      }
+    }
+
+    //latch
+    drawCheckbox(sideWidth+48,y1+4,trackData[track].isLatched,xCursor == 5 && activeTrack == track);
+
+    //mute group
+    if(trackData[track].muteGroup == 0){
+      printSmall(sideWidth+58, y1+5, "none",SSD1306_WHITE);
+    }
+    else{
+      printSmall(sideWidth+59, y1+5, stringify(trackData[track].muteGroup),SSD1306_WHITE);
+    }
+  }
+}
+
+void trackEditMenu(){
+  //deselecting all the tracks
+  for(uint8_t track = 0; track<trackData.size(); track++){
+    trackData[track].isSelected = false;
+  }
+  //for which param to edit
+  uint8_t xCursor = 0;
+  //params are: track select, note, oct, channel, prime, latch, mute group
+  //for which track to edit
+  uint8_t yCursor = 0;
+  String text1;
+  String text2;
+  vector<uint8_t> selectedTracks;
+  while(true){
+    readJoystick();
+    readButtons();
+    if(itsbeen(150)){
+      //moving thru tracks
+      if(y != 0){
+        if (y == 1) {
+          setActiveTrack(activeTrack + 1, true);
+          lastTime = millis();
+        }
+        if (y == -1) {
+          setActiveTrack(activeTrack - 1, true);
+          lastTime = millis();
+        }
+      }
+    }
+    if(itsbeen(200)){
+      //moving thru params
+      if(x != 0){
+        //changing params
+        if(shift){
+          if(x == 1){
+            switch(xCursor){
+              //note
+              case 1:
+                if(trackData[activeTrack].pitch>0){
+                  trackData[activeTrack].pitch--;
+                  lastTime = millis();
+                  //checking all selected tracks
+                  for(uint8_t track = 0; track<trackData.size(); track++){
+                    if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch>0)
+                      trackData[track].pitch--;
+                  }
+                }
+                break;
+              //octave
+              case 2:
+                if(trackData[activeTrack].pitch>11){
+                  trackData[activeTrack].pitch-=12;
+                  lastTime = millis();
+                  //checking all selected tracks
+                  for(uint8_t track = 0; track<trackData.size(); track++){
+                    if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch>11)
+                      trackData[track].pitch-=12;
+                  }
+                }
+                break;
+              //channel
+              case 3:
+                if(trackData[activeTrack].channel>1){
+                  trackData[activeTrack].channel--;
+                  lastTime = millis();
+                  //checking all selected tracks
+                  for(uint8_t track = 0; track<trackData.size(); track++){
+                    if(track != activeTrack && trackData[track].isSelected && trackData[track].channel>0)
+                      trackData[track].channel--;
+                  }
+                }
+                break;
+              //mute group
+              case 6:
+                if(trackData[activeTrack].muteGroup>0){
+                  trackData[activeTrack].muteGroup--;
+                  lastTime = millis();
+                  //checking all selected tracks
+                  for(uint8_t track = 0; track<trackData.size(); track++){
+                    if(track != activeTrack && trackData[track].isSelected && trackData[track].muteGroup>0)
+                      trackData[track].muteGroup--;
+                  }
+                }
+                break;
+            }
+          }
+          else if(x == -1){
+            switch(xCursor){
+              //note
+              case 1:
+                if(trackData[activeTrack].pitch<127){
+                  trackData[activeTrack].pitch++;
+                  lastTime = millis();
+                  //checking all selected tracks
+                  for(uint8_t track = 0; track<trackData.size(); track++){
+                    if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch<127)
+                      trackData[track].pitch++;
+                  }
+                }
+                break;
+              //octave
+              case 2:
+                if(trackData[activeTrack].pitch<=115){
+                  trackData[activeTrack].pitch+=12;
+                  lastTime = millis();
+                  //checking all selected tracks
+                  for(uint8_t track = 0; track<trackData.size(); track++){
+                    if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch<=115)
+                      trackData[track].pitch+=12;
+                  }
+                }
+                break;
+              //channel
+              case 3:
+                if(trackData[activeTrack].channel<16){
+                  trackData[activeTrack].channel++;
+                  lastTime = millis();
+                  //checking all selected tracks
+                  for(uint8_t track = 0; track<trackData.size(); track++){
+                    if(track != activeTrack && trackData[track].isSelected && trackData[track].channel<16)
+                      trackData[track].channel++;
+                  }
+                }
+                break;
+              //mute group
+              case 6:
+                if(trackData[activeTrack].muteGroup<127){
+                  trackData[activeTrack].muteGroup++;
+                  lastTime = millis();
+                  //checking all selected tracks
+                  for(uint8_t track = 0; track<trackData.size(); track++){
+                    if(track != activeTrack && trackData[track].isSelected && trackData[track].muteGroup<127)
+                      trackData[track].muteGroup++;
+                  }
+                }
+                break;
+            }
+          }
+        }
+        else{
+          if(x == 1 && xCursor > 0){
+            xCursor--;
+            lastTime = millis();
+          }
+          else if(x == -1 && xCursor<6){
+            xCursor++;
+            lastTime = millis();
+          }
+        }
+      }
+      if(n){
+        addTrack(trackData[activeTrack].pitch);
+        setActiveTrack(trackData.size()-1,false);
+        lastTime = millis();
+      }
+      while(counterA != 0){
+        if(counterA >= 1){
+          switch(xCursor){
+            //note
+            case 1:
+              if(trackData[activeTrack].pitch<127){
+                trackData[activeTrack].pitch++;
+                lastTime = millis();
+                //checking all selected tracks
+                for(uint8_t track = 0; track<trackData.size(); track++){
+                  if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch<127)
+                    trackData[track].pitch++;
+                }
+              }
+              break;
+            //octave
+            case 2:
+              if(trackData[activeTrack].pitch<=115){
+                trackData[activeTrack].pitch+=12;
+                lastTime = millis();
+                //checking all selected tracks
+                for(uint8_t track = 0; track<trackData.size(); track++){
+                  if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch<=115)
+                    trackData[track].pitch+=12;
+                }
+              }
+              break;
+            //channel
+            case 3:
+              if(trackData[activeTrack].channel<16){
+                trackData[activeTrack].channel++;
+                lastTime = millis();
+                //checking all selected tracks
+                for(uint8_t track = 0; track<trackData.size(); track++){
+                  if(track != activeTrack && trackData[track].isSelected && trackData[track].channel<16)
+                    trackData[track].channel++;
+                }
+              }
+              break;
+            //mute group
+            case 6:
+              if(trackData[activeTrack].muteGroup<127){
+                trackData[activeTrack].muteGroup++;
+                lastTime = millis();
+                //checking all selected tracks
+                for(uint8_t track = 0; track<trackData.size(); track++){
+                  if(track != activeTrack && trackData[track].isSelected && trackData[track].muteGroup<127)
+                    trackData[track].muteGroup++;
+                }
+              }
+              break;
+          }
+        }
+        else{
+          switch(xCursor){
+            //note
+            case 1:
+              if(trackData[activeTrack].pitch>0){
+                trackData[activeTrack].pitch--;
+                lastTime = millis();
+                //checking all selected tracks
+                for(uint8_t track = 0; track<trackData.size(); track++){
+                  if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch>0)
+                    trackData[track].pitch--;
+                }
+              }
+              break;
+            //octave
+            case 2:
+              if(trackData[activeTrack].pitch>11){
+                trackData[activeTrack].pitch-=12;
+                lastTime = millis();
+                //checking all selected tracks
+                for(uint8_t track = 0; track<trackData.size(); track++){
+                  if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch>11)
+                    trackData[track].pitch-=12;
+                }
+              }
+              break;
+            //channel
+            case 3:
+              if(trackData[activeTrack].channel>1){
+                trackData[activeTrack].channel--;
+                lastTime = millis();
+                //checking all selected tracks
+                for(uint8_t track = 0; track<trackData.size(); track++){
+                  if(track != activeTrack && trackData[track].isSelected && trackData[track].channel>0)
+                    trackData[track].channel--;
+                }
+              }
+              break;
+            //mute group
+            case 6:
+              if(trackData[activeTrack].muteGroup>0){
+                trackData[activeTrack].muteGroup--;
+                lastTime = millis();
+                //checking all selected tracks
+                for(uint8_t track = 0; track<trackData.size(); track++){
+                  if(track != activeTrack && trackData[track].isSelected && trackData[track].muteGroup>0)
+                    trackData[track].muteGroup--;
+                }
+              }
+              break;
+          }
+        }
+        counterA += counterA<0?1:-1;
+      }
+      if(sel){
+        switch(xCursor){
+          //if it's on track, select
+          case 0:
+            //toggles selection on all
+            if(shift){
+              trackData[activeTrack].isSelected = !trackData[activeTrack].isSelected;
+              for(uint8_t track = 0; track<trackData.size(); track++){
+                trackData[track].isSelected = trackData[activeTrack].isSelected;
+              }
+            }
+            //normal selection toggle
+            else
+              trackData[activeTrack].isSelected = !trackData[activeTrack].isSelected;
+            
+            lastTime = millis();
+            break;
+          //if it's on primed
+          case 4:
+            //toggles prime on all
+            if(shift){
+              trackData[activeTrack].isPrimed = !trackData[activeTrack].isPrimed;
+              for(uint8_t track = 0; track<trackData.size(); track++){
+                trackData[track].isPrimed = trackData[activeTrack].isPrimed;
+              }
+            }
+            //normal selection toggle
+            else{
+              trackData[activeTrack].isPrimed = !trackData[activeTrack].isPrimed;
+              for(uint8_t track = 0; track<trackData.size(); track++){
+                if(track != activeTrack && trackData[track].isSelected)
+                  trackData[track].isPrimed = trackData[activeTrack].isPrimed;
+              }
+            }
+            lastTime = millis();
+            break;
+          //if it's on latch
+          case 5:
+            //toggles prime on all
+            if(shift){
+              trackData[activeTrack].isLatched = !trackData[activeTrack].isLatched;
+              for(uint8_t track = 0; track<trackData.size(); track++){
+                trackData[track].isLatched = trackData[activeTrack].isLatched;
+              }
+            }
+            //normal selection toggle
+            else{
+              trackData[activeTrack].isLatched = !trackData[activeTrack].isLatched;
+              for(uint8_t track = 0; track<trackData.size(); track++){
+                if(track != activeTrack && trackData[track].isSelected)
+                  trackData[track].isLatched = trackData[activeTrack].isLatched;
+              }
+            }
+            lastTime = millis();
+            break;
+        }
+      }
+      if(menu_Press || track_Press){
+        // menuIsActive = false;
+        // constructMenu("MENU");
+        for(uint8_t track = 0; track<trackData.size(); track++){
+          trackData[track].isSelected = false;
+        }
+        lastTime = millis();
+        menu_Press = false;
+        track_Press = false;
+        return;
+      }
+    }
+    display.clearDisplay();
+    drawTrackInfo(xCursor);
+    activeMenu.displayTrackMenu_trackEdit(xCursor);
+    display.display();
+  }
+}

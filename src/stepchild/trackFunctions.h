@@ -296,8 +296,8 @@ void deleteTrack(unsigned short int track){
 void deleteTrack(unsigned short int track, bool hard, bool askFirst){
   int choice = 1;
   if(askFirst && seqData[track].size()-1>0){
-    vector<String> ops = {"nay","yeah"};
-    choice = binarySelectionBox(64,32,"nay","yeah","delete track w/"+stringify(seqData[track].size()-1)+" note(s)?");
+    vector<String> ops = {"nay","yeah"};                                                                                    //this is == 2 instead of 1 because seqData[track] always has the default note
+    choice = binarySelectionBox(64,32,"nay","yeah","delete track w/"+stringify(seqData[track].size()-1)+(seqData[track].size() == 2?" note?":" notes?"),drawSeq);
   }
   if(choice == 1){
     if(trackData.size() == 1 && !hard){

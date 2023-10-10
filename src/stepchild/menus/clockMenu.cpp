@@ -17,7 +17,7 @@ void drawSmallStepchild(uint8_t x1, uint8_t y1){
   display.fillCircle(x1+19,y1+9,1,SSD1306_BLACK);
 }
 
-void drawSwingCurve(int8_t xPos, int8_t yPos){
+void drawSwingCurve_old(int8_t xPos, int8_t yPos){
   display.fillRect(xPos,-1,64,66,SSD1306_BLACK);
   display.drawRect(xPos,-1,64,66,SSD1306_WHITE);
   if(!swung){
@@ -54,6 +54,43 @@ void drawSwingCurve(int8_t xPos, int8_t yPos){
   }
   display.fillRect(activeMenu.coords.y1+70,0,58,16,SSD1306_BLACK);
 }
+
+void drawSwingCurve(int8_t xPos, int8_t yPos){
+  display.fillRect(xPos,-1,64,66,SSD1306_BLACK);
+  display.drawRect(xPos,-1,64,66,SSD1306_WHITE);
+  if(!swung){
+    printSmall(xPos+(screenWidth-xPos)/2-6,40,"off",1);
+    if(millis()%1000>500){
+      printSmall(xPos+(screenWidth-xPos)/2-10,50,"[sel]",1);
+    }
+    display.drawFastVLine(xPos,16,48,1);
+    return;
+  }
+  //starting point is zero, end point is 96
+  float sc = 96/32;
+  float oldPoint = 0;
+  uint16_t mid = (yPos);
+  for(float i = 0; i<32; i+=0.5){
+    float y1 = swingOffset(i*sc)/float(1000);
+    if(y1<0)
+      shadeLineV(xPos+i*2,mid+ceil(y1),-ceil(y1),2);
+    else
+      shadeLineV(xPos+i*2,mid,ceil(y1),2);
+    if(i == 0)
+        display.drawLine(xPos,oldPoint+yPos+1,xPos+i*2,y1+yPos+1,SSD1306_WHITE);
+    else
+      display.drawLine(xPos+(i-0.5)*2,oldPoint+yPos+1,xPos+i*2,y1+yPos+1,SSD1306_WHITE);
+    oldPoint = y1;
+  }
+  printSmall(screenWidth-8,18,"wv",1);
+  printSmall(screenWidth-6,24,"%",1);
+  //playhead
+  if(playing || recording){
+    display.drawFastVLine(xPos + ((playing ? playheadPos:recheadPos)%32)*sc,16,screenHeight-16,SSD1306_WHITE);
+  }
+  display.fillRect(activeMenu.coords.y1+70,0,58,16,SSD1306_BLACK);
+}
+
 
 void Menu::displayClockMenu(float tVal,uint8_t cursor){
   //lines

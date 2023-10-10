@@ -33,6 +33,10 @@ void printPowerInfo(uint8_t x1, uint8_t y1){
   drawLabel(x1,y1,"vsys: "+s+"v",true);
 }
 
+void displaySettingsMenu_selectionBox(){
+    activeMenu.displaySettingsMenu(0,7,0,0);
+}
+
 void settingsMenu(){
   //which 'tab' you're looking at
   uint8_t menuTab = 0;
@@ -218,7 +222,7 @@ void settingsMenu(){
                 //if there are notes that will be deleted
                 uint16_t countedNotes = countNotesInRange(seqEnd-96,seqEnd);
                 if(countedNotes)
-                  choice = binarySelectionBox(64,32,"naur","sure","this will delete "+stringify(countedNotes)+" note(s), ok?");
+                  choice = binarySelectionBox(64,32,"naur","sure","this will delete "+stringify(countedNotes)+" note(s), ok?",displaySettingsMenu_selectionBox);
                 if(choice == 1){
                   removeTimeFromSeq(96,seqEnd-96);
                 }

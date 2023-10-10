@@ -66,9 +66,10 @@ using namespace std;
 //function prototypes
 #include "prototypes.h"
 
+#include "classes/Knob.h"
+Knob controlKnobs[16];
+
 #ifndef HEADLESS
-  #include "classes/Knob.h"
-  Knob controlKnobs[16];
   #define UPRIGHT 2
   #define UPSIDEDOWN 0
   #define SIDEWAYS_R 3
@@ -183,7 +184,6 @@ vector<vector<Note>> grabAndDeleteSelectedNotes();
 #include "fonts/chunky.cpp"
 #include "scales.h"
 
-
 #ifndef HEADLESS
   SoftwareSerial Serial3 = SoftwareSerial(SerialPIO::NOPIN,txPin_3);
   SoftwareSerial Serial4 = SoftwareSerial(SerialPIO::NOPIN,txPin_4);
@@ -214,119 +214,16 @@ vector<vector<Note>> seqData;//making a 2D vec, number of rows = tracks, number 
 #include "classes/NoteID.h"
 #include "CV.h"
 
-
-//Stores loop data as start,end,reps,and type
-struct Loop{
-  //The start of the Loop (in steps)
-  uint16_t start;
-  //The end of the Loop (in steps)
-  uint16_t end;
-  //the number of times-1 the loop will play before linking to the next loop. 0 sets the Loop to play once.
-  uint8_t reps;
-  //how the Loop links to the next Loop
-  uint8_t type;
-  /*
-  Type:
-  0 = go to next Loop
-  1 = go to a random Loop
-  2 = go to a random Loop of the same length
-  3 = return to the first Loop
-  4 = repeat this loop again (infinite repeat)
-  */
-};
-
-vector<Loop> loopData;
+#include "classes/Loop.h"
 
 //holds all the datatracks
 vector<dataTrack> dataTrackData;
 
 #include "classes/Arp.h"
 #include "instruments/planets.cpp"
-
+#include "classes/SelectionBox.h"
 unsigned short int animOffset = 0;//for animating curves
 
-//Holds coordinates and a flag set when the SelectionBox has been started
-class SelectionBox{
-  public:
-  uint16_t x1;
-  uint16_t y1;
-  uint16_t x2;
-  uint16_t y2;
-  bool begun;
-  SelectionBox();
-  void displaySelBox();
-};
-
-SelectionBox::SelectionBox(){
-  x1 = 0;
-  y1 = 0;
-  x2 = 0;
-  y2 = 0;
-  begun = false;
-}
-
-void SelectionBox::displaySelBox(){
-  x2 = cursorPos;
-  y2 = activeTrack;
-
-  unsigned short int startX;
-  unsigned short int startY;
-  unsigned short int len;
-  unsigned short int height;
-
-  unsigned short int X1;
-  unsigned short int X2;
-  unsigned short int Y1;
-  unsigned short int Y2;
-
-  if(x1>x2){
-    X1 = x2;
-    X2 = x1;
-  }
-  else{
-    X1 = x1;
-    X2 = x2;
-  }
-  if(y1>y2){
-    Y1 = y2;
-    Y2 = y1;
-  }
-  else{
-    Y1 = y1;
-    Y2 = y2;
-  }
-
-  startX = trackDisplay+(X1-viewStart)*scale;
-  len = (X2-X1)*scale;
-
-  //if box starts before view
-  if(X1<viewStart){
-    startX = trackDisplay;//box is drawn from beggining, to x2
-    len = (X2-viewStart)*scale;
-  }
-  //if box ends past view
-  if(X2>viewEnd){
-    len = (viewEnd-X1)*scale;
-  }
-
-  //same, but for tracks
-  uint8_t startHeight = (menuIsActive||maxTracksShown==5)?debugHeight:8;
-  startY = (Y1-startTrack)*trackHeight+startHeight;
-  height = ((Y2+1-startTrack)*trackHeight)+startHeight - startY;
-  if(Y1<startTrack){
-    startY = startHeight;
-    height = ((Y2 - startTrack + 1)*trackHeight - startY)%(screenHeight-startHeight) + startHeight;
-  }
-  display.drawRect(startX, startY, len, height, SSD1306_WHITE);
-  display.drawRect(startX+1, startY+1, len-2, height-2, SSD1306_WHITE);
-
-  if(len>5 && height>=trackHeight){
-    display.fillRect(startX+2,startY+2, len-4, height-4, SSD1306_BLACK);
-    shadeArea(startX+2,startY+2, len-4, height-4,10);
-  }
-}
-
-SelectionBox selBox;
 
 void zella(){
   WireFrame w = makeBox(10,10,10);
@@ -399,6 +296,7 @@ void addNoteToPlaylist(uint8_t note, uint8_t vel, uint8_t channel){
   vector<uint8_t> temp = {note,vel,channel};
   playlist.push_back(temp);
 }
+
 void subNoteFromPlaylist(uint8_t note){
   vector<vector<uint8_t>> tempList;
   //keep all the notes, EXCEPT for the one you're kicking out
@@ -409,10 +307,12 @@ void subNoteFromPlaylist(uint8_t note){
   }
   playlist.swap(tempList);
 }
+
 void clearPlaylist(){
   vector<vector<uint8_t>> tempList;
   playlist.swap(tempList);
 }
+
 void debugPrintPlaylist(){
   Serial.print("{");
   for(int i = 0; i<playlist.size(); i++){
@@ -421,148 +321,6 @@ void debugPrintPlaylist(){
   }
   Serial.println("}");
   Serial.flush();
-}
-
-//draws an animated icon representing the type of interpolation algorithm being used
-//0 = linear, 1 = elliptical up, 2 = elliptical down
-void drawNodeEditingIcon(uint8_t xPos, uint8_t yPos, uint8_t type, uint8_t frame, bool text){
-  const uint8_t width = 19;
-  const uint8_t height = 10;
-  display.fillRect(xPos,yPos,width,height,SSD1306_BLACK);
-  display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
-
-  //in this context, type means the kind of interpolation algorithm you're using
-  switch(type){
-    //linear
-    case 0:
-      {
-      uint8_t p1[2] = {3,(uint8_t)(5+sin(millis()/100))};
-      uint8_t p2[2] = {15,(uint8_t)(5+cos(millis()/100))};
-      display.drawLine(xPos+p1[0]+2,yPos+p1[1],xPos+p2[0]-2,yPos+p2[1],SSD1306_WHITE);
-      display.drawCircle(xPos+p1[0],yPos+p1[1],1,SSD1306_WHITE);
-      display.drawCircle(xPos+p2[0],yPos+p2[1],1,SSD1306_WHITE);
-      if(text)
-        printSmall(xPos+width/2-6,yPos+height+2,"lin",SSD1306_WHITE);
-      break;
-      }
-    //elliptical UP
-    case 1:
-      {
-      uint8_t lastPoint;
-      for(uint8_t point = 0; point<width; point++){
-        uint8_t pt = sin(millis()/100+point)+yPos+sqrt(1-pow(point-width/2,2)/pow(width/2,2))*(height/2+2)+1;
-        if(point == 0){
-          display.drawPixel(point+xPos,pt,SSD1306_WHITE);
-        }
-        else{
-          display.drawLine(point+xPos,pt,point-1+xPos,lastPoint,SSD1306_WHITE);
-        }
-        lastPoint = pt;
-      }
-      if(text)
-        printSmall(xPos+width/2-4,yPos+height+2,"up",SSD1306_WHITE);
-      break;
-      }
-    //elliptical DOWN
-    case 2:
-      {
-      uint8_t lastPoint;
-      for(uint8_t point = 0; point<width; point++){
-        uint8_t pt = sin(millis()/100+point)+yPos-sqrt(1-pow(point-width/2,2)/pow(width/2,2))*(height/2+2)+height-1;
-        if(point == 0)
-          display.drawPixel(point+xPos,pt,SSD1306_WHITE);
-        else
-          display.drawLine(point+xPos,pt,point-1+xPos,lastPoint,SSD1306_WHITE);
-        lastPoint = pt;
-      }
-      if(text)
-        printSmall(xPos+width/2-8,yPos+height+2,"down",SSD1306_WHITE);
-      break;
-      }
-  }
-}
-
-//draws a curve. Frame is to animated it! basically, sets x-offset. Pass a constant to it for no animation.
-//Type: 0 = custom, 1 = sinewave, 2 = square wave, 3 = saw, 4 = triangle, , 5 = random
-void drawCurveIcon(uint8_t xPos, uint8_t yPos, uint8_t type, uint8_t frame){
-  //width
-  const uint8_t width = 19;
-  const uint8_t height = 10;
-  display.fillRect(xPos,yPos,width,height,SSD1306_BLACK);
-  switch(type){
-    //custom curve (default)
-    case 0:
-      drawNodeEditingIcon(xPos,yPos,0,frame,false);
-      break;
-    //sin curve
-    case 1:
-      display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
-      uint8_t lastPoint;
-      //drawing each sinPoint
-      for(uint8_t point = 0; point<width; point++){
-        if(point == 0){
-          display.drawPixel(point+xPos,yPos+height/2+(height/2-3)*sin(PI*float(point+frame)/float(width/2)),SSD1306_WHITE);
-        }
-        else
-          display.drawLine(point+xPos,yPos+height/2+(height/2-3)*sin(PI*float(point+frame)/float(width/2)),point-1+xPos,lastPoint,SSD1306_WHITE);
-        lastPoint = yPos+height/2+(height/2-3)*sin(PI*(point+frame)/(width/2));
-      }
-      break;
-    //square
-    case 2:
-      display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
-      for(uint8_t point = 0; point<width; point++){
-        //if it's less than, it's low
-        if((point+frame)%width<width/2)
-          display.drawPixel(point+xPos,yPos+height-3,SSD1306_WHITE);
-        //if it's greater than half a period, it's high
-        else if((point+frame)%width>width/2 && (point+frame)%width<width-1)
-          display.drawPixel(point+xPos,yPos+2,SSD1306_WHITE);
-        //if it's equal to half a period, then it's a vert line
-        else
-          display.drawFastVLine(point+xPos,yPos+2,height-4,SSD1306_WHITE);
-      }
-      break;
-    //saw
-    case 3:
-      {
-        display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
-        //slope is just 1/1
-        for(uint8_t point = 0; point<width; point++){
-          uint8_t pt = (point+frame)%int(width/3);
-          if(pt == 0)
-            display.drawFastVLine(point+xPos,yPos+2,height-4,SSD1306_WHITE);
-          else
-            display.drawPixel(point+xPos,yPos+pt+2,SSD1306_WHITE);
-        }
-      }
-      break;
-    //triangle
-    case 4:
-      {
-        display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
-        //slope is just 1/1
-        int8_t coef = 1;
-        uint8_t pt;
-        for(uint8_t point = 0; point<width; point++){
-          if((point+frame)%(width/2)>=width/4)
-            pt = -(point+frame)%(width/2)+2*height/2;
-          else
-            pt = (point+frame)%(width/2)+3;
-          display.drawPixel(xPos+point,yPos+pt+height/8,SSD1306_WHITE);
-        }
-      }
-      break;
-    //random
-    case 5:
-      {
-        display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
-        printSmall(xPos+4,yPos+3+sin(millis()/100),"R",SSD1306_WHITE);
-        printSmall(xPos+8,yPos+3+sin(millis()/100+1),"N",SSD1306_WHITE);
-        printSmall(xPos+12,yPos+3+sin(millis()/100+2),"D",SSD1306_WHITE);
-      }
-      break;
-  }
 }
 
 #include "helpScreen.h"
@@ -579,6 +337,7 @@ void hardReset(){
 
 void resetUSBInterface(){
 }
+
 //update mode
 void enterBootsel(){
   // display.clearDisplay();
@@ -587,249 +346,7 @@ void enterBootsel(){
   reset_usb_boot(1<<PICO_DEFAULT_LED_PIN,0);
 }
 
-//chord object
-class Chord{
-  public:
-  //intervals represented as half steps from root note
-  vector<uint8_t> intervals;
-  //root note
-  uint8_t root;
-  //stores the inversion of the chord
-  //basically how to finger it
-  uint8_t inversion;
-  uint16_t length;
-  Chord();
-  Chord(uint8_t, vector<uint8_t>, uint16_t);
-  void play();
-  void stop();
-  void draw(uint8_t, uint8_t);
-  void printPitchList(uint8_t, uint8_t);
-  String getPitchList(uint8_t, uint8_t);
-};
-Chord::Chord(){
-  root = 0;
-  intervals = {0};
-  length = 24;
-}
-
-Chord::Chord(uint8_t r, vector<uint8_t> i, uint16_t l){
-  root = r;
-  intervals = i;
-  length = l;
-}
-
-//sends a midi on for each of the notes in the chord
-void Chord::play(){
-  for(uint8_t i = 0; i<intervals.size(); i++){
-    sendMIDInoteOn(intervals[i]+root,127,0);
-  }
-}
-
-//sends a midi off for each of the notes in the chord
-void Chord::stop(){
-  for(uint8_t i = 0; i<intervals.size(); i++){
-    sendMIDInoteOff(intervals[i]+root,0,0);
-  }
-}
-
-void Chord::printPitchList(uint8_t x1, uint8_t y1){
-  String text = "(";
-  for(uint8_t i = 0; i<intervals.size();i++){
-    text+=pitchToString(intervals[i]+root,false,true);
-    if(i != intervals.size()-1)
-      text+=",";
-    else
-      text+=")";
-  }
-  printSmall(x1-(text.length()-1)*2,y1,text,SSD1306_WHITE);
-}
-String Chord::getPitchList(uint8_t x1, uint8_t y1){
-  String text;
-  for(uint8_t i = 0; i<intervals.size();i++){
-    text+=pitchToString(intervals[i]+root,false,true);
-    if(i != intervals.size()-1)
-      text+=",";
-  }
-  return text;
-}
-
-const uint8_t chordHeight = 2;
-//draws a chord
-void Chord::draw(uint8_t x1, uint8_t y1){
-  if(intervals.size() == 0)
-    return;
-  int8_t y2 = y1-(chordHeight+1)*intervals.size();
-  for(uint8_t i = 0; i<intervals.size(); i++){
-    display.drawRoundRect(x1,y2+i*(chordHeight+1),length/4,chordHeight,3,SSD1306_WHITE);
-  }
-}
-class Progression{
-  public:
-  vector<Chord> chords;
-  Progression();
-  Progression(vector<Chord>);
-  void drawProg(uint8_t, uint8_t, int8_t);
-  void add(Chord);
-  void duplicate(uint8_t);
-  void remove(uint8_t);
-  uint8_t getLargestChordSize();
-  void commit();
-};
-
-Progression::Progression(){
-}
-Progression::Progression(vector<Chord> c){
-  chords = c;
-}
-void Progression::add(Chord c){
-  chords.push_back(c);
-}
-
-void Progression::remove(uint8_t chord){
-  vector<Chord> newChords;
-  for(uint8_t i = 0; i<chords.size(); i++){
-    if(i != chord)
-      newChords.push_back(chords[i]);
-  }
-  chords.swap(newChords);
-}
-
-void Progression::duplicate(uint8_t chord){
-  vector<Chord> newChords;
-  for(uint8_t i = 0; i<chords.size(); i++){
-    newChords.push_back(chords[i]);
-    if(i == chord)
-      newChords.push_back(chords[i]);
-  }
-  chords.swap(newChords);
-}
-
-uint8_t Progression::getLargestChordSize(){
-  uint8_t largestIndex = 0;
-  uint8_t largest = 0;
-  for(uint8_t i = 0; i<chords.size(); i++){
-    if(chords[i].intervals.size()>largest){
-      largest = chords[i].intervals.size();
-      largestIndex = i;
-    }
-  }
-  return largest;
-}
-
-void Progression::drawProg(uint8_t x1, uint8_t y1,int8_t activeChord){
-  if(chords.size()==0)
-    return;
-  uint16_t x2 = x1;
-  uint8_t height = getLargestChordSize()*(chordHeight+1);
-  String pitches = "(";
-  //go thru each chord
-  for(uint8_t i = 0; i<chords.size(); i++){
-    chords[i].draw(x2,y1);
-    if(activeChord != -1){
-      if(i == activeChord){
-        drawCurlyBracket(x2+chords[i].length/4,y1+1,chords[i].length/4,0,true,true,1);
-        // display.drawFastHLine(x2,y1+3,chords[i].length/4,SSD1306_WHITE);
-        chords[i].printPitchList(x2,y1+6);
-      }
-    }
-    x2+=chords[i].length/4+1;
-  }
-  // display.drawRoundRect(x1-2,y1-height,screenWidth-x1,height+2,3,SSD1306_WHITE);
-}
-
-//makes tracks and notes and places them in the sequence
-void Progression::commit(){
-  // Serial.println("made it here 0");
-  // Serial.flush();
-  //get unique pitches
-  vector<uint8_t> uniquePitches;
-  for(uint8_t i = 0; i<chords.size(); i++){
-    // Serial.println("chord "+String(i)+"---------");
-    // Serial.println("root: "+String(chords[i].root));
-    // Serial.println("i:"+String(i));
-    for(uint8_t j = 0; j<chords[i].intervals.size(); j++){
-      // Serial.println(String(chords[i].intervals[j]));
-      // Serial.println("j:"+String(j));
-      //if a pitch isn't in the vector, add it
-      if(!isInVector(chords[i].intervals[j]+chords[i].root,uniquePitches)){
-        uniquePitches.push_back(chords[i].intervals[j]+chords[i].root);
-      }
-    }
-  }
-  for(uint8_t i = 0; i<uniquePitches.size(); i++){
-    // Serial.println(uniquePitches[i]);
-  }
-  // delay(10);
-  //for knowing which tracks are 'new'
-  //so we don't add a bunch of notes to old tracks
-  uint8_t trackOffset = trackData.size();
-  //make a new track for each unique pitch
-  for(uint8_t i = 0; i<uniquePitches.size(); i++){
-    addTrack_noMove(Track(uniquePitches[i],1), false);
-  }
-  // Serial.println("made it here 2");
-  // Serial.println("created "+String(uniquePitches.size())+" new tracks");
-  // Serial.flush();
-  //get the corresponding track for each note and make it
-  uint16_t writeHead = 0;//records the start of each chord
-  for(uint8_t i = 0; i<chords.size(); i++){
-    // Serial.println("i:"+String(i));
-    for(uint8_t j = 0; j<chords[i].intervals.size(); j++){
-      // Serial.println("j:"+String(j));
-      uint8_t track = getTrackWithPitch_above(chords[i].intervals[j]+chords[i].root,trackOffset);
-      // delay(10);
-      Note newNote = Note(writeHead,writeHead+chords[i].length,127,100,false,false);
-      makeNote(newNote,track,false);
-      // activeTrack = track;
-      if(writeHead>=seqEnd)
-        return;
-    }
-    writeHead+=chords[i].length;
-  }
-}
-
-//draws and handles a vertical selection box
-unsigned short int vertSelectionBox(vector <String> options, unsigned short int x1, unsigned short int y1, unsigned short int width, unsigned short int height){
-  unsigned short int select = 0;
-  bool selected = false;
-  while(!selected){
-    display.fillRect(x1,y1,width,height,SSD1306_BLACK);
-    display.drawRoundRect(x1,y1,width,height,4,SSD1306_WHITE);
-    for(int i = 0; i<options.size(); i++){
-      display.setCursor(x1+3,y1+4+i*10);
-      if(i == select)
-        display.setTextColor(SSD1306_BLACK,SSD1306_WHITE);
-      display.print(options[i]);
-      display.setTextColor(SSD1306_WHITE);
-    }
-    display.display();
-    readJoystick();
-    readButtons();
-    if(itsbeen(200)){
-      if(x != 0 || y != 0){
-        if(y>0 && select<options.size()-1){
-          select++;
-          lastTime = millis();
-        }
-        if(y<0 && select>0){
-          select--;
-          lastTime = millis();
-        }
-        if(select<0)
-          select = 0;
-        if(select>options.size()-1)
-          select = options.size()-1;
-      }
-      if(sel){
-        selected = true;
-        lastTime = millis();
-      }
-    }
-  }
-  sel = false;
-  lastTime = millis();
-  return select;
-}
+#include "classes/Progression.h"
 
 unsigned short int horzSelectionBox(String caption, vector<String> options, unsigned short int x1, unsigned short int y1, unsigned short int width, unsigned short int height){
   long int time = millis();
@@ -839,9 +356,6 @@ unsigned short int horzSelectionBox(String caption, vector<String> options, unsi
     display.fillRect(x1,y1,width,height,SSD1306_BLACK);
     display.drawRect(x1,y1,width,height,SSD1306_WHITE);
     display.setCursor(x1+20, y1+10);
-    // display.setFont(&FreeSerifItalic9pt7b);
-    // display.print(caption);
-    // display.setFont();
     printSmall(x1+2,y1+2,caption,SSD1306_WHITE);
     for(int i = 0; i<options.size(); i++){
       display.setCursor(x1+40+i*20,y1+30);
@@ -879,6 +393,9 @@ unsigned short int horzSelectionBox(String caption, vector<String> options, unsi
   return select;
 }
 
+//Formats a number 1-13 into its Roman Numeral equivalent
+//This is really only used for printing intervals in Roman Numeral notation
+//eg. printing the 3rd degree of a scale as "III"
 String decimalToNumeral(int dec){
   String numeral = "";
   if(dec < 4){
@@ -907,477 +424,6 @@ String decimalToNumeral(int dec){
 
 #include "menus/loopMenu.cpp"
 #include "menus/consoleMenu.cpp"
-
-void drawTrackInfo(uint8_t xCursor){
-  const uint8_t sideWidth = 18;
-  //track scrolling
-  endTrack = startTrack + trackData.size();
-  trackHeight = (screenHeight - debugHeight) / trackData.size();
-  if(trackData.size()>5){
-    endTrack = startTrack + 5;
-    trackHeight = (screenHeight-debugHeight)/5;
-  }
-  while(activeTrack>endTrack-1 && trackData.size()>5){
-    startTrack++;
-    endTrack++;
-  }
-  while(activeTrack<startTrack && trackData.size()>5){
-    startTrack--;
-    endTrack--;
-  }
-  display.setTextSize(1);
-  display.setTextColor(SSD1306_WHITE);
-  // display.setTextWrap(false);
-
-  //sideWidth border
-  drawDottedLineV2(sideWidth,debugHeight+1,64,6);
-
-  //top and bottom bounds
-  display.drawFastHLine(0,debugHeight-1,screenWidth,SSD1306_WHITE);
-
-  //tracks
-  for(uint8_t track = startTrack; track<startTrack+5; track++){
-    unsigned short int y1 = (track-startTrack) * trackHeight + debugHeight-1;
-    unsigned short int y2 = y1 + trackHeight;
-    if(trackData[track].isSelected){
-      //double digit
-      if((track+1)>=10){
-        display.setCursor(1-sin(millis()/100), y1+4);
-        display.print("{");
-        display.setCursor(13+sin(millis()/100), y1+4);
-        display.print("}");
-      }
-      else{
-        display.setCursor(3-sin(millis()/100), y1+4);
-        display.print("{");
-        display.setCursor(13+sin(millis()/100), y1+4);
-        display.print("}");
-      }
-    }
-    //track info display
-    //single digit
-    if((track+1)<10){
-      printSmall(9,y1+5,stringify(track+1),SSD1306_WHITE);
-    }
-    else{
-      printSmall(17-stringify(track+1).length()*6,y1+5,stringify(track+1),SSD1306_WHITE);
-    }
-    //track cursor
-    if(track == activeTrack){
-      //track
-      if(xCursor == 0)
-        drawArrow(3+sin(millis()/100),y1+7,2,0,true);
-      //note
-      else if(xCursor == 1){
-        if(getTrackPitch(track).length()>1)
-          display.drawRoundRect(sideWidth+(xCursor-1)*10+3, y1+2, 15, trackHeight+2, 3, SSD1306_WHITE);
-        else
-          display.drawRoundRect(sideWidth+(xCursor-1)*10+3, y1+2, 10, trackHeight+2, 3, SSD1306_WHITE);
-      }
-      //oct
-      else if(xCursor == 2){
-        if(trackData[track].pitch>=120){
-          display.drawRoundRect(sideWidth+(xCursor-1)*10+3, y1+2, 13, trackHeight+2, 3, SSD1306_WHITE);
-        }
-        else
-          display.drawRoundRect(sideWidth+(xCursor-1)*10+6, y1+2, 10, trackHeight+2, 3, SSD1306_WHITE);
-      }
-      //channel
-      else if(xCursor == 3){
-        if(trackData[track].channel>=10)
-          display.drawRoundRect(sideWidth+(xCursor-1)*10+3, y1+2, 13, trackHeight+2, 3, SSD1306_WHITE);
-        else
-          display.drawRoundRect(sideWidth+(xCursor-1)*10+6, y1+2, 10, trackHeight+2, 3, SSD1306_WHITE);
-      }
-      //rec
-      else if(xCursor == 4){
-        display.drawCircle(sideWidth+(xCursor-1)*10+10, y1+7, 5, SSD1306_WHITE);
-      }
-      //mute group
-      else if(xCursor == 6){
-        if(trackData[track].muteGroup == 0)
-          display.drawRoundRect(sideWidth+56, y1+2, 19, trackHeight+2, 3, SSD1306_WHITE);
-        else
-          display.drawRoundRect(sideWidth+56, y1+2, 5+4*stringify(trackData[track].muteGroup).length(), trackHeight+2, 3, SSD1306_WHITE);
-      }
-      else if(xCursor != 5)
-        display.drawRoundRect(sideWidth+(xCursor-1)*10+6, y1+1, 10, trackHeight+2, 3, SSD1306_WHITE);
-    }
-
-    //all the track info...
-    //pitch, oct, and channel
-    printSmall(sideWidth+6,  y1+5, getTrackPitch(track), SSD1306_WHITE);//pitch
-
-    if(getOctave(trackData[track].pitch)>=10)
-      printSmall(sideWidth+16, y1+5, stringify(getOctave(trackData[track].pitch)), SSD1306_WHITE);//octave
-    else
-      printSmall(sideWidth+20, y1+5, stringify(getOctave(trackData[track].pitch)), SSD1306_WHITE);//octave
-
-    if(trackData[track].channel>=10)
-        printSmall(sideWidth+26, y1+5, stringify(trackData[track].channel), SSD1306_WHITE);//channel
-    else
-      printSmall(sideWidth+30, y1+5, stringify(trackData[track].channel), SSD1306_WHITE);//channel
-    
-    //primed rec symbol
-    if(trackData[track].isPrimed){
-      if(millis()%1000>500){
-        display.drawCircle(sideWidth+40, y1+7, 3, SSD1306_WHITE);
-      }
-      else{
-        display.fillCircle(sideWidth+40, y1+7, 3, SSD1306_WHITE);
-      }
-    }
-
-    //latch
-    drawCheckbox(sideWidth+48,y1+4,trackData[track].isLatched,xCursor == 5 && activeTrack == track);
-
-    //mute group
-    if(trackData[track].muteGroup == 0){
-      printSmall(sideWidth+58, y1+5, "none",SSD1306_WHITE);
-    }
-    else{
-      printSmall(sideWidth+59, y1+5, stringify(trackData[track].muteGroup),SSD1306_WHITE);
-    }
-  }
-}
-
-void trackEditMenu(){
-  //deselecting all the tracks
-  for(uint8_t track = 0; track<trackData.size(); track++){
-    trackData[track].isSelected = false;
-  }
-  //for which param to edit
-  uint8_t xCursor = 0;
-  //params are: track select, note, oct, channel, prime, latch, mute group
-  //for which track to edit
-  uint8_t yCursor = 0;
-  String text1;
-  String text2;
-  vector<uint8_t> selectedTracks;
-  while(true){
-    readJoystick();
-    readButtons();
-    if(itsbeen(150)){
-      //moving thru tracks
-      if(y != 0){
-        if (y == 1) {
-          setActiveTrack(activeTrack + 1, true);
-          lastTime = millis();
-        }
-        if (y == -1) {
-          setActiveTrack(activeTrack - 1, true);
-          lastTime = millis();
-        }
-      }
-    }
-    if(itsbeen(200)){
-      //moving thru params
-      if(x != 0){
-        //changing params
-        if(shift){
-          if(x == 1){
-            switch(xCursor){
-              //note
-              case 1:
-                if(trackData[activeTrack].pitch>0){
-                  trackData[activeTrack].pitch--;
-                  lastTime = millis();
-                  //checking all selected tracks
-                  for(uint8_t track = 0; track<trackData.size(); track++){
-                    if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch>0)
-                      trackData[track].pitch--;
-                  }
-                }
-                break;
-              //octave
-              case 2:
-                if(trackData[activeTrack].pitch>11){
-                  trackData[activeTrack].pitch-=12;
-                  lastTime = millis();
-                  //checking all selected tracks
-                  for(uint8_t track = 0; track<trackData.size(); track++){
-                    if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch>11)
-                      trackData[track].pitch-=12;
-                  }
-                }
-                break;
-              //channel
-              case 3:
-                if(trackData[activeTrack].channel>1){
-                  trackData[activeTrack].channel--;
-                  lastTime = millis();
-                  //checking all selected tracks
-                  for(uint8_t track = 0; track<trackData.size(); track++){
-                    if(track != activeTrack && trackData[track].isSelected && trackData[track].channel>0)
-                      trackData[track].channel--;
-                  }
-                }
-                break;
-              //mute group
-              case 6:
-                if(trackData[activeTrack].muteGroup>0){
-                  trackData[activeTrack].muteGroup--;
-                  lastTime = millis();
-                  //checking all selected tracks
-                  for(uint8_t track = 0; track<trackData.size(); track++){
-                    if(track != activeTrack && trackData[track].isSelected && trackData[track].muteGroup>0)
-                      trackData[track].muteGroup--;
-                  }
-                }
-                break;
-            }
-          }
-          else if(x == -1){
-            switch(xCursor){
-              //note
-              case 1:
-                if(trackData[activeTrack].pitch<127){
-                  trackData[activeTrack].pitch++;
-                  lastTime = millis();
-                  //checking all selected tracks
-                  for(uint8_t track = 0; track<trackData.size(); track++){
-                    if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch<127)
-                      trackData[track].pitch++;
-                  }
-                }
-                break;
-              //octave
-              case 2:
-                if(trackData[activeTrack].pitch<=115){
-                  trackData[activeTrack].pitch+=12;
-                  lastTime = millis();
-                  //checking all selected tracks
-                  for(uint8_t track = 0; track<trackData.size(); track++){
-                    if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch<=115)
-                      trackData[track].pitch+=12;
-                  }
-                }
-                break;
-              //channel
-              case 3:
-                if(trackData[activeTrack].channel<16){
-                  trackData[activeTrack].channel++;
-                  lastTime = millis();
-                  //checking all selected tracks
-                  for(uint8_t track = 0; track<trackData.size(); track++){
-                    if(track != activeTrack && trackData[track].isSelected && trackData[track].channel<16)
-                      trackData[track].channel++;
-                  }
-                }
-                break;
-              //mute group
-              case 6:
-                if(trackData[activeTrack].muteGroup<127){
-                  trackData[activeTrack].muteGroup++;
-                  lastTime = millis();
-                  //checking all selected tracks
-                  for(uint8_t track = 0; track<trackData.size(); track++){
-                    if(track != activeTrack && trackData[track].isSelected && trackData[track].muteGroup<127)
-                      trackData[track].muteGroup++;
-                  }
-                }
-                break;
-            }
-          }
-        }
-        else{
-          if(x == 1 && xCursor > 0){
-            xCursor--;
-            lastTime = millis();
-          }
-          else if(x == -1 && xCursor<6){
-            xCursor++;
-            lastTime = millis();
-          }
-        }
-      }
-      if(n){
-        addTrack(trackData[activeTrack].pitch);
-        setActiveTrack(trackData.size()-1,false);
-        lastTime = millis();
-      }
-      while(counterA != 0){
-        if(counterA >= 1){
-          switch(xCursor){
-            //note
-            case 1:
-              if(trackData[activeTrack].pitch<127){
-                trackData[activeTrack].pitch++;
-                lastTime = millis();
-                //checking all selected tracks
-                for(uint8_t track = 0; track<trackData.size(); track++){
-                  if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch<127)
-                    trackData[track].pitch++;
-                }
-              }
-              break;
-            //octave
-            case 2:
-              if(trackData[activeTrack].pitch<=115){
-                trackData[activeTrack].pitch+=12;
-                lastTime = millis();
-                //checking all selected tracks
-                for(uint8_t track = 0; track<trackData.size(); track++){
-                  if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch<=115)
-                    trackData[track].pitch+=12;
-                }
-              }
-              break;
-            //channel
-            case 3:
-              if(trackData[activeTrack].channel<16){
-                trackData[activeTrack].channel++;
-                lastTime = millis();
-                //checking all selected tracks
-                for(uint8_t track = 0; track<trackData.size(); track++){
-                  if(track != activeTrack && trackData[track].isSelected && trackData[track].channel<16)
-                    trackData[track].channel++;
-                }
-              }
-              break;
-            //mute group
-            case 6:
-              if(trackData[activeTrack].muteGroup<127){
-                trackData[activeTrack].muteGroup++;
-                lastTime = millis();
-                //checking all selected tracks
-                for(uint8_t track = 0; track<trackData.size(); track++){
-                  if(track != activeTrack && trackData[track].isSelected && trackData[track].muteGroup<127)
-                    trackData[track].muteGroup++;
-                }
-              }
-              break;
-          }
-        }
-        else{
-          switch(xCursor){
-            //note
-            case 1:
-              if(trackData[activeTrack].pitch>0){
-                trackData[activeTrack].pitch--;
-                lastTime = millis();
-                //checking all selected tracks
-                for(uint8_t track = 0; track<trackData.size(); track++){
-                  if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch>0)
-                    trackData[track].pitch--;
-                }
-              }
-              break;
-            //octave
-            case 2:
-              if(trackData[activeTrack].pitch>11){
-                trackData[activeTrack].pitch-=12;
-                lastTime = millis();
-                //checking all selected tracks
-                for(uint8_t track = 0; track<trackData.size(); track++){
-                  if(track != activeTrack && trackData[track].isSelected && trackData[track].pitch>11)
-                    trackData[track].pitch-=12;
-                }
-              }
-              break;
-            //channel
-            case 3:
-              if(trackData[activeTrack].channel>1){
-                trackData[activeTrack].channel--;
-                lastTime = millis();
-                //checking all selected tracks
-                for(uint8_t track = 0; track<trackData.size(); track++){
-                  if(track != activeTrack && trackData[track].isSelected && trackData[track].channel>0)
-                    trackData[track].channel--;
-                }
-              }
-              break;
-            //mute group
-            case 6:
-              if(trackData[activeTrack].muteGroup>0){
-                trackData[activeTrack].muteGroup--;
-                lastTime = millis();
-                //checking all selected tracks
-                for(uint8_t track = 0; track<trackData.size(); track++){
-                  if(track != activeTrack && trackData[track].isSelected && trackData[track].muteGroup>0)
-                    trackData[track].muteGroup--;
-                }
-              }
-              break;
-          }
-        }
-        counterA += counterA<0?1:-1;
-      }
-      if(sel){
-        switch(xCursor){
-          //if it's on track, select
-          case 0:
-            //toggles selection on all
-            if(shift){
-              trackData[activeTrack].isSelected = !trackData[activeTrack].isSelected;
-              for(uint8_t track = 0; track<trackData.size(); track++){
-                trackData[track].isSelected = trackData[activeTrack].isSelected;
-              }
-            }
-            //normal selection toggle
-            else
-              trackData[activeTrack].isSelected = !trackData[activeTrack].isSelected;
-            
-            lastTime = millis();
-            break;
-          //if it's on primed
-          case 4:
-            //toggles prime on all
-            if(shift){
-              trackData[activeTrack].isPrimed = !trackData[activeTrack].isPrimed;
-              for(uint8_t track = 0; track<trackData.size(); track++){
-                trackData[track].isPrimed = trackData[activeTrack].isPrimed;
-              }
-            }
-            //normal selection toggle
-            else{
-              trackData[activeTrack].isPrimed = !trackData[activeTrack].isPrimed;
-              for(uint8_t track = 0; track<trackData.size(); track++){
-                if(track != activeTrack && trackData[track].isSelected)
-                  trackData[track].isPrimed = trackData[activeTrack].isPrimed;
-              }
-            }
-            lastTime = millis();
-            break;
-          //if it's on latch
-          case 5:
-            //toggles prime on all
-            if(shift){
-              trackData[activeTrack].isLatched = !trackData[activeTrack].isLatched;
-              for(uint8_t track = 0; track<trackData.size(); track++){
-                trackData[track].isLatched = trackData[activeTrack].isLatched;
-              }
-            }
-            //normal selection toggle
-            else{
-              trackData[activeTrack].isLatched = !trackData[activeTrack].isLatched;
-              for(uint8_t track = 0; track<trackData.size(); track++){
-                if(track != activeTrack && trackData[track].isSelected)
-                  trackData[track].isLatched = trackData[activeTrack].isLatched;
-              }
-            }
-            lastTime = millis();
-            break;
-        }
-      }
-      if(menu_Press || track_Press){
-        // menuIsActive = false;
-        // constructMenu("MENU");
-        for(uint8_t track = 0; track<trackData.size(); track++){
-          trackData[track].isSelected = false;
-        }
-        lastTime = millis();
-        menu_Press = false;
-        track_Press = false;
-        return;
-      }
-    }
-    display.clearDisplay();
-    drawTrackInfo(xCursor);
-    activeMenu.displayTrackMenu_trackEdit(xCursor);
-    display.display();
-  }
-}
 
 //cassette-vibe buttons for the playBack menu
 void drawCassetteButton(uint8_t x1, uint8_t y1, uint8_t which, bool state){
@@ -2154,6 +1200,7 @@ void checkFragment(){
     }
   }
 }
+
 uint16_t getNoteCount(){
   uint16_t count = 0;
   for(uint8_t track = 0; track<seqData.size(); track++){
@@ -2324,7 +1371,7 @@ void tuneTracksToScale(){
     return;
   }
   vector<uint8_t> tracks = selectMultipleTracks("select tracks to tune");
-  bool allowDuplicates = binarySelectionBox(64,32,"no","ye","allow duplicate pitches?");
+  bool allowDuplicates = binarySelectionBox(64,32,"no","ye","allow duplicate pitches?",drawSeq);
   for(int track = tracks.size()-1; track >= 0; track--){
     setTrackToNearestPitch(pitches, tracks[track], allowDuplicates);
   }
@@ -2684,13 +1731,13 @@ void knobs(){
 #include "instruments/liveLoop.cpp"
 
 //for no title
-int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2){
-  return binarySelectionBox(x1,y1,op1,op2,"");
+int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, void (*drawingFunction)()){
+  return binarySelectionBox(x1,y1,op1,op2,"",drawingFunction);
 }
 
 //centered on x1 and y1
 //returns -1 (no answer/exit), 0 (no) or 1 (yes)
-int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title){
+int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, void (*drawingFunction)()){
   //bool for breaking from the loop
   bool notChosenYet = true;
   //storing the state
@@ -2708,6 +1755,8 @@ int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String t
   uint8_t length = (maxLength*4+3)*2;
   lastTime = millis();
   while(true){
+    display.clearDisplay();
+    drawingFunction();
     display.fillRect(x1-length/2,y1-height/2,length,height,SSD1306_BLACK);
     drawSlider(x1-length/2,y1-height/2,length,height,state);
     printSmall(x1-length/4-op1.length()*2+1,y1-2,op1,2);
@@ -3243,7 +2292,6 @@ uint8_t printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bo
     offset+=6;
     printSmall(xCoord+offset,yCoord,pitch.charAt(2),c);
     if(pitch.charAt(2) == '-'){
-      Serial.println("hey");
       offset+=4;
       printSmall(xCoord+offset,yCoord,pitch.charAt(3),c);
     }
@@ -3252,7 +2300,6 @@ uint8_t printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bo
   else{
     printSmall(xCoord+offset,yCoord,pitch.charAt(1),c);
     if(pitch.charAt(1) == '-'){
-      Serial.println("hey");
       offset+=4;
       printSmall(xCoord+offset,yCoord,pitch.charAt(2),c);
     }
@@ -6518,8 +5565,7 @@ void drawProgBar(String text, float progress){
 
 void deleteSelected(){
   if(selectionCount>0){
-    if(binarySelectionBox(64,32,"nah","yea","delete "+stringify(selectionCount)+((selectionCount == 1)?stringify(" note?"):stringify(" notes?")))){
-      // Serial.println("hey");
+    if(binarySelectionBox(64,32,"nah","yea","delete "+stringify(selectionCount)+((selectionCount == 1)?stringify(" note?"):stringify(" notes?")),drawSeq)){
       for(uint8_t track = 0; track<trackData.size(); track++){
         for(uint16_t note = 0; note<seqData[track].size(); note++){
           if(seqData[track][note].isSelected){
@@ -7658,7 +6704,6 @@ void moveToNextNote_inTrack(bool up){
     while(track<trackData.size()-1){
       track++;
       if(seqData[track].size()>1){
-        Serial.println("found a note on track "+stringify(track));
         foundTrack = true;
         break;
       }
@@ -7668,7 +6713,6 @@ void moveToNextNote_inTrack(bool up){
     while(track>0){
       track--;
       if(seqData[track].size()>1){
-        Serial.println("found a note on track "+stringify(track));
         foundTrack = true;
         break;
       }
@@ -7676,10 +6720,8 @@ void moveToNextNote_inTrack(bool up){
   }
   //if you couldn't find a track with a note on it, just return
   if(!foundTrack){
-    Serial.println("couldn't find a track");
     return;
   }
-  Serial.println("moving to track "+stringify(track));
   for(uint16_t dist = 0; dist<seqEnd; dist++){
     bool stillValid = false;
     //if the new position is in bounds
@@ -7690,7 +6732,6 @@ void moveToNextNote_inTrack(bool up){
         //move to it
         moveCursor(dist);
         setActiveTrack(track,false);
-        Serial.println("HEY moved "+stringify(dist)+" on track "+stringify(track));
         return;
       }
     }
@@ -7699,18 +6740,14 @@ void moveToNextNote_inTrack(bool up){
       if(lookupData[track][cursorPos-dist] != 0){
         moveCursor(-dist);
         setActiveTrack(track,false);
-        Serial.println("HEY moved "+stringify(dist)+" on track "+stringify(track));
         return;
       }
     }
     //if it's reached the bounds
     if(!stillValid){
-      Serial.println("HEY couldn't find a note on either side");
-      Serial.println("checked "+stringify(dist)+" steps");
       return;
     }
   }
-  Serial.println("IDK man");
 }
 
 //moves thru each step, forward or backward, and moves the cursor to the first note it finds
@@ -8074,147 +7111,6 @@ void selectAllTracks(){
 void deselectAllTracks(){
   for(uint8_t i = 0; i<trackData.size(); i++){
     trackData[i].isSelected = false;
-  }
-}
-void reverseNotes(){
-  bool selBoxFinished = false;
-  selectAllTracks();
-  while(true){
-    readJoystick();
-    readButtons();
-    //creating selbox when cursor is moved and sel is held down
-    if(sel && !selBox.begun && (x != 0 || y != 0)){
-      selBox.begun = true;
-      selBox.x1 = cursorPos;
-      selBox.y1 = activeTrack;
-      selBoxFinished = false;
-    }
-    //if sel is released, and there's a selection box
-    //then set those coords to the selbox! It's that simple
-    if(!sel && selBox.begun){
-      selBox.x2 = cursorPos;
-      selBox.y2 = activeTrack;
-      if(selBox.x1>selBox.x2){
-        unsigned short int x1_old = selBox.x1;
-        selBox.x1 = selBox.x2;
-        selBox.x2 = x1_old;
-      }
-      if(selBox.y1>selBox.y2){
-        unsigned short int y1_old = selBox.y1;
-        selBox.y1 = selBox.y2;
-        selBox.y2 = y1_old;
-      }
-      selBoxFinished = true;
-      selBox.begun = false;
-    }
-    while(counterA != 0){
-      if(counterA >= 1 && !track_Press){
-        zoom(true);
-      }
-      if(counterA <= -1 && !track_Press){
-        zoom(false);
-      }
-      counterA += counterA<0?1:-1;
-    }
-    while(counterB != 0){
-      if(counterB >= 1 && !shift){
-        changeSubDivInt(true);
-      }
-      //changing subdivint
-      if(counterB <= -1 && !shift){
-        changeSubDivInt(false);
-      }
-      //if shifting, toggle between 1/3 and 1/4 mode
-      else while(counterB != 0 && shift){
-        toggleTriplets();
-      }
-      counterB += counterB<0?1:-1;;
-    }
-    if(itsbeen(200)){
-      //exit
-      if(menu_Press || loop_Press){
-        lastTime = millis();
-        menu_Press = false;
-        loop_Press = false;
-        deselectAllTracks();
-        return;
-      }
-      //select/deselect track
-      if(track_Press){
-        lastTime = millis();
-        trackData[activeTrack].isSelected = !trackData[activeTrack].isSelected;
-        //if shift, select/deselect all tracks
-        if(shift){
-          for(uint8_t i = 0; i<trackData.size(); i++){
-            trackData[i].isSelected = trackData[activeTrack].isSelected;
-          }
-        }
-      }
-      //committing reverse
-      if(n){
-        lastTime = millis();
-        n = false;
-        //reverse a specific area
-        if(selBoxFinished){
-          reverse(selBox.x1,selBox.x2);
-        }
-        //reverse the whole seq
-        else{
-          uint8_t choice = binarySelectionBox(64,32,"NAH","YEH","Reverse entire seq?");
-          if(choice == 1){
-            reverse(seqStart,seqEnd);
-          }
-        }
-      }
-    }
-    //moving cursor
-    if (itsbeen(100)) {
-      if (x == 1 && !shift) {
-        //if cursor isn't on a measure marker, move it to the nearest one
-        if(cursorPos%subDivInt){
-          moveCursor(-cursorPos%subDivInt);
-          lastTime = millis();
-        }
-        else{
-          moveCursor(-subDivInt);
-          lastTime = millis();
-        }
-      }
-      if (x == -1 && !shift) {
-        if(cursorPos%subDivInt){
-          moveCursor(subDivInt-cursorPos%subDivInt);
-          lastTime = millis();
-        }
-        else{
-          moveCursor(subDivInt);
-          lastTime = millis();
-        }
-      }
-    }
-    //moving active track
-    if(itsbeen(100)){
-      if (y == 1 && !shift && !loop_Press) {
-        if(recording)//if you're not in normal mode, you don't want it to be loud
-          setActiveTrack(activeTrack + 1, false);
-        else
-          setActiveTrack(activeTrack + 1, true);
-        drawingNote = false;
-        lastTime = millis();
-      }
-      if (y == -1 && !shift && !loop_Press) {
-        if(recording)//if you're not in normal mode, you don't want it to be loud
-          setActiveTrack(activeTrack - 1, false);
-        else
-          setActiveTrack(activeTrack - 1, true);
-        drawingNote = false;
-        lastTime = millis();
-      }
-    }
-    display.clearDisplay();
-    drawSeq(true,true,true,false,true);//no menus! but track selection
-    if(selBoxFinished)
-      drawSelectionBracket();
-    display.display();
   }
 }
 
@@ -8878,6 +7774,7 @@ void drawNote_orig(unsigned short int x1, unsigned short int y1, unsigned short 
     display.fillRect(x1, y1+1, len+2, height-2, SSD1306_WHITE);
   }
 }
+
 void drawNote_vel(uint16_t id, uint8_t track, unsigned short int xStart, unsigned short int yStart, unsigned short int length, unsigned short int height, unsigned short int vel, bool isSelected, bool isMuted){
   if(vel>125)
     drawNote(id, track, xStart,yStart,length,height,1,isSelected,isMuted);
@@ -9013,8 +7910,9 @@ void changeFragmentSubDivInt(bool down){
     }
   }
 }
+
 uint16_t toggleTriplets(uint16_t subDiv){
-    //this breaks the pattern, but lets you swap from 2/1 to 3/1 (rare case probs)
+  //this breaks the pattern, but lets you swap from 2/1 to 3/1 (rare case probs)
   if(subDiv == 192){
     subDiv = 32;
   }
@@ -12200,7 +11098,7 @@ void loadBackup(){
   //if there's an active filename
   if(currentFile != ""){
     vector<String> ops = {"NAUR","YEA"};
-    int8_t choice = binarySelectionBox(59,32,"NO","YEA","LOAD BACKUP?");
+    int8_t choice = binarySelectionBox(59,32,"NO","YEA","LOAD BACKUP?",drawSeq);//FIX THIS
     if(choice){
       loadSeqFile(currentFile);
       slideMenuOut(1,30);
@@ -12430,10 +11328,6 @@ void setupPins(){
   #endif
 }
 
-//startsMIDI and Serial
-void startSerial(){
-  startMIDI();
-}
 void restartDisplay(){
   #ifndef HEADLESS
   Wire.end();
@@ -12451,9 +11345,7 @@ void checkSerial(){
   #endif
 }
 
-#ifndef HEADLESS
 #include "setup.h"
-#endif
 
 void sequenceLEDs(){
   int length = loopData[activeLoop].end-loopData[activeLoop].start;
@@ -12771,14 +11663,3 @@ void loop1(){
     arpLoop();
   }
 }
-
-#ifdef HEADLESS
-// const int windowW = 128*windowScale;
-// const int windowH = 64*windowScale;
-
-int main(int argc, char **argv)
-{
-  headless();
-  return 0;
-}
-#endif

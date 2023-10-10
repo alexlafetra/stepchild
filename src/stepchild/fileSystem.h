@@ -767,7 +767,7 @@ void renameSeqFile(String filename){
 }
 
 bool deleteSeqFile(String filename){
-  int  choice = binarySelectionBox(64,32,"NO","YEA");
+  int  choice = binarySelectionBox(64,32,"NO","YEA",activeMenu.displayFilesMenu);
   if(choice == 1){
     filename = "/SAVES/"+filename;
     LittleFS.begin();

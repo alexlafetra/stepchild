@@ -7,26 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FA01CE662AC2F93D005BBB0F /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE652AC2F93D005BBB0F /* CoreAudio.framework */; platformFilter = maccatalyst; };
-		FA01CE682AC2F94C005BBB0F /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE672AC2F94C005BBB0F /* CoreMIDI.framework */; platformFilter = maccatalyst; };
-		FA01CE6A2AC2F955005BBB0F /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */; platformFilter = maccatalyst; };
+		FA01CE662AC2F93D005BBB0F /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE652AC2F93D005BBB0F /* CoreAudio.framework */; };
+		FA01CE682AC2F94C005BBB0F /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE672AC2F94C005BBB0F /* CoreMIDI.framework */; };
+		FA01CE6A2AC2F955005BBB0F /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */; };
+		FA3C22AE2AD4E00A004634E6 /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA3C21932AD4E009004634E6 /* RtMidi.cpp */; };
 		FA7578F82996CF8500378FA9 /* libglfw.3.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA7578F72996CF8500378FA9 /* libglfw.3.3.dylib */; };
-		FA7578FA2996F34000378FA9 /* bitmap in Resources */ = {isa = PBXBuildFile; fileRef = FA7578F92996F34000378FA9 /* bitmap */; };
-		FAA06AFE29942167004BEC01 /* headless.h in Sources */ = {isa = PBXBuildFile; fileRef = FAA06AFD29942167004BEC01 /* headless.h */; };
 		FAA06B06299423D4004BEC01 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA06B05299423D4004BEC01 /* OpenGL.framework */; };
-		FAA06B0829942479004BEC01 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA06B0729942479004BEC01 /* GLUT.framework */; };
-		FAA06B0A29943796004BEC01 /* gfxfont.h in Sources */ = {isa = PBXBuildFile; fileRef = FAA06B0929943796004BEC01 /* gfxfont.h */; };
 		FAA06B0E29943BC7004BEC01 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAA06B0D29943BC6004BEC01 /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		FAA06AF829942167004BEC01 /* CopyFiles */ = {
+		FAA06AF829942167004BEC01 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
 			);
+			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -36,7 +34,237 @@
 		FA01CE672AC2F94C005BBB0F /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		FA01CE702AC35CBB005BBB0F /* Midi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Midi.h; sourceTree = "<group>"; };
-		FA06C79B29958C4D0096C396 /* ASCII_font.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ASCII_font.h; sourceTree = "<group>"; };
+		FA3C21892AD4DBB8004634E6 /* RtMidi.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = "childOS_headless/rtmidi-6.0.0/RtMidi.cpp"; sourceTree = "<group>"; };
+		FA3C218B2AD4DBC8004634E6 /* RtMidi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = "childOS_headless/rtmidi-6.0.0/RtMidi.h"; sourceTree = "<group>"; };
+		FA3C21922AD4E009004634E6 /* libtool */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = libtool; sourceTree = "<group>"; };
+		FA3C21932AD4E009004634E6 /* RtMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RtMidi.cpp; sourceTree = "<group>"; };
+		FA3C21942AD4E009004634E6 /* configure.ac */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = configure.ac; sourceTree = "<group>"; };
+		FA3C21952AD4E009004634E6 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		FA3C21962AD4E009004634E6 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		FA3C21982AD4E009004634E6 /* rtmidi-config.cmake.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "rtmidi-config.cmake.in"; sourceTree = "<group>"; };
+		FA3C21992AD4E009004634E6 /* RtMidiConfigUninstall.cmake.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = RtMidiConfigUninstall.cmake.in; sourceTree = "<group>"; };
+		FA3C219A2AD4E009004634E6 /* configure */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = configure; sourceTree = "<group>"; };
+		FA3C219C2AD4E009004634E6 /* install-sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "install-sh"; sourceTree = "<group>"; };
+		FA3C219D2AD4E009004634E6 /* ltmain.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ltmain.sh; sourceTree = "<group>"; };
+		FA3C219E2AD4E009004634E6 /* ar-lib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "ar-lib"; sourceTree = "<group>"; };
+		FA3C219F2AD4E009004634E6 /* config.guess */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = config.guess; sourceTree = "<group>"; };
+		FA3C21A02AD4E009004634E6 /* depcomp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = depcomp; sourceTree = "<group>"; };
+		FA3C21A12AD4E009004634E6 /* missing */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = missing; sourceTree = "<group>"; };
+		FA3C21A22AD4E009004634E6 /* config.sub */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = config.sub; sourceTree = "<group>"; };
+		FA3C21A32AD4E009004634E6 /* compile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = compile; sourceTree = "<group>"; };
+		FA3C21A42AD4E009004634E6 /* test-driver */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "test-driver"; sourceTree = "<group>"; };
+		FA3C21A52AD4E009004634E6 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		FA3C21A62AD4E009004634E6 /* rtmidi-config.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "rtmidi-config.in"; sourceTree = "<group>"; };
+		FA3C21A72AD4E009004634E6 /* rtmidi.pc.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rtmidi.pc.in; sourceTree = "<group>"; };
+		FA3C21A82AD4E009004634E6 /* rtmidi.pc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rtmidi.pc; sourceTree = "<group>"; };
+		FA3C21AA2AD4E009004634E6 /* sysextest.vcxproj.user */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = sysextest.vcxproj.user; sourceTree = "<group>"; };
+		FA3C21AB2AD4E009004634E6 /* testcapi.vcxproj.user */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = testcapi.vcxproj.user; sourceTree = "<group>"; };
+		FA3C21AC2AD4E009004634E6 /* testcapi.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = testcapi.vcxproj; sourceTree = "<group>"; };
+		FA3C21AD2AD4E009004634E6 /* apinames.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = apinames.vcxproj.filters; sourceTree = "<group>"; };
+		FA3C21AE2AD4E009004634E6 /* cmidiin.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = cmidiin.vcxproj.filters; sourceTree = "<group>"; };
+		FA3C21AF2AD4E009004634E6 /* sysextest.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = sysextest.vcxproj.filters; sourceTree = "<group>"; };
+		FA3C21B02AD4E009004634E6 /* midiclock.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = midiclock.vcxproj; sourceTree = "<group>"; };
+		FA3C21B12AD4E009004634E6 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		FA3C21B22AD4E009004634E6 /* midiprobe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = midiprobe.cpp; sourceTree = "<group>"; };
+		FA3C21B32AD4E009004634E6 /* midiout.vcxproj.user */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = midiout.vcxproj.user; sourceTree = "<group>"; };
+		FA3C21B42AD4E009004634E6 /* testcapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = testcapi.c; sourceTree = "<group>"; };
+		FA3C21B52AD4E009004634E6 /* sysextest.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = sysextest.vcxproj; sourceTree = "<group>"; };
+		FA3C21B62AD4E009004634E6 /* midiprobe.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = midiprobe.vcxproj.filters; sourceTree = "<group>"; };
+		FA3C21B72AD4E009004634E6 /* RtMidi.sln */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = RtMidi.sln; sourceTree = "<group>"; };
+		FA3C21B82AD4E009004634E6 /* midiclock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = midiclock.cpp; sourceTree = "<group>"; };
+		FA3C21B92AD4E009004634E6 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA3C21BA2AD4E009004634E6 /* midiprobe.vcxproj.user */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = midiprobe.vcxproj.user; sourceTree = "<group>"; };
+		FA3C21BB2AD4E009004634E6 /* cmidiin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cmidiin.cpp; sourceTree = "<group>"; };
+		FA3C21BC2AD4E009004634E6 /* qmidiin.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = qmidiin.vcxproj.filters; sourceTree = "<group>"; };
+		FA3C21BD2AD4E009004634E6 /* apinames.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = apinames.cpp; sourceTree = "<group>"; };
+		FA3C21BE2AD4E009004634E6 /* midiclock.vcxproj.user */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = midiclock.vcxproj.user; sourceTree = "<group>"; };
+		FA3C21BF2AD4E009004634E6 /* apinames.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = apinames.vcxproj; sourceTree = "<group>"; };
+		FA3C21C02AD4E009004634E6 /* midiout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = midiout.cpp; sourceTree = "<group>"; };
+		FA3C21C12AD4E009004634E6 /* cmidiin.vcxproj.user */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = cmidiin.vcxproj.user; sourceTree = "<group>"; };
+		FA3C21C22AD4E009004634E6 /* apinames.vcxproj.user */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = apinames.vcxproj.user; sourceTree = "<group>"; };
+		FA3C21C32AD4E009004634E6 /* midiout.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = midiout.vcxproj.filters; sourceTree = "<group>"; };
+		FA3C21C42AD4E009004634E6 /* qmidiin.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = qmidiin.vcxproj; sourceTree = "<group>"; };
+		FA3C21C52AD4E009004634E6 /* midiout.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = midiout.vcxproj; sourceTree = "<group>"; };
+		FA3C21C72AD4E009004634E6 /* testcapi.Po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = testcapi.Po; sourceTree = "<group>"; };
+		FA3C21C82AD4E009004634E6 /* apinames.Po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = apinames.Po; sourceTree = "<group>"; };
+		FA3C21C92AD4E009004634E6 /* midiprobe.Po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = midiprobe.Po; sourceTree = "<group>"; };
+		FA3C21CA2AD4E009004634E6 /* sysextest.Po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sysextest.Po; sourceTree = "<group>"; };
+		FA3C21CB2AD4E009004634E6 /* qmidiin.Po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = qmidiin.Po; sourceTree = "<group>"; };
+		FA3C21CC2AD4E009004634E6 /* midiclock.Po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = midiclock.Po; sourceTree = "<group>"; };
+		FA3C21CD2AD4E009004634E6 /* midiout.Po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = midiout.Po; sourceTree = "<group>"; };
+		FA3C21CE2AD4E009004634E6 /* cmidiin.Po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cmidiin.Po; sourceTree = "<group>"; };
+		FA3C21CF2AD4E009004634E6 /* Makefile.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.in; sourceTree = "<group>"; };
+		FA3C21D02AD4E009004634E6 /* cmidiin.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = cmidiin.vcxproj; sourceTree = "<group>"; };
+		FA3C21D12AD4E009004634E6 /* midiprobe.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = midiprobe.vcxproj; sourceTree = "<group>"; };
+		FA3C21D22AD4E009004634E6 /* sysextest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sysextest.cpp; sourceTree = "<group>"; };
+		FA3C21D32AD4E009004634E6 /* testcapi.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = testcapi.vcxproj.filters; sourceTree = "<group>"; };
+		FA3C21D42AD4E009004634E6 /* qmidiin.vcxproj.user */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = qmidiin.vcxproj.user; sourceTree = "<group>"; };
+		FA3C21D52AD4E009004634E6 /* qmidiin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = qmidiin.cpp; sourceTree = "<group>"; };
+		FA3C21D62AD4E009004634E6 /* midiclock.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = midiclock.vcxproj.filters; sourceTree = "<group>"; };
+		FA3C21D72AD4E009004634E6 /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RtMidi.h; sourceTree = "<group>"; };
+		FA3C21DB2AD4E009004634E6 /* go.mod */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = go.mod; sourceTree = "<group>"; };
+		FA3C21DC2AD4E009004634E6 /* rtmidi_stub.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rtmidi_stub.cpp; sourceTree = "<group>"; };
+		FA3C21DD2AD4E009004634E6 /* rtmidi_test.go */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rtmidi_test.go; sourceTree = "<group>"; };
+		FA3C21DE2AD4E009004634E6 /* rtmidi.go */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rtmidi.go; sourceTree = "<group>"; };
+		FA3C21DF2AD4E009004634E6 /* rtmidi_stub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rtmidi_stub.h; sourceTree = "<group>"; };
+		FA3C21E12AD4E009004634E6 /* MidiDeviceOpenedListener.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = MidiDeviceOpenedListener.java; sourceTree = "<group>"; };
+		FA3C21E22AD4E009004634E6 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA3C21E32AD4E009004634E6 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		FA3C21E42AD4E009004634E6 /* rtmidi_c.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rtmidi_c.cpp; sourceTree = "<group>"; };
+		FA3C21E52AD4E009004634E6 /* config.status */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = config.status; sourceTree = "<group>"; };
+		FA3C21E82AD4E009004634E6 /* proguard-rules.pro */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "proguard-rules.pro"; sourceTree = "<group>"; };
+		FA3C21E92AD4E009004634E6 /* build.gradle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = build.gradle; sourceTree = "<group>"; };
+		FA3C21F12AD4E009004634E6 /* ExampleInstrumentedTest.kt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ExampleInstrumentedTest.kt; sourceTree = "<group>"; };
+		FA3C21F82AD4E009004634E6 /* ExampleUnitTest.kt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ExampleUnitTest.kt; sourceTree = "<group>"; };
+		FA3C21FC2AD4E009004634E6 /* ic_launcher.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = ic_launcher.webp; sourceTree = "<group>"; };
+		FA3C21FD2AD4E009004634E6 /* ic_launcher_round.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = ic_launcher_round.webp; sourceTree = "<group>"; };
+		FA3C21FF2AD4E009004634E6 /* ic_launcher_foreground.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = ic_launcher_foreground.xml; sourceTree = "<group>"; };
+		FA3C22012AD4E009004634E6 /* ic_launcher.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = ic_launcher.webp; sourceTree = "<group>"; };
+		FA3C22022AD4E009004634E6 /* ic_launcher_round.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = ic_launcher_round.webp; sourceTree = "<group>"; };
+		FA3C22042AD4E009004634E6 /* ic_launcher_background.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = ic_launcher_background.xml; sourceTree = "<group>"; };
+		FA3C22062AD4E009004634E6 /* ic_launcher.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = ic_launcher.webp; sourceTree = "<group>"; };
+		FA3C22072AD4E009004634E6 /* ic_launcher_round.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = ic_launcher_round.webp; sourceTree = "<group>"; };
+		FA3C22092AD4E009004634E6 /* ic_launcher.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = ic_launcher.webp; sourceTree = "<group>"; };
+		FA3C220A2AD4E009004634E6 /* ic_launcher_round.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = ic_launcher_round.webp; sourceTree = "<group>"; };
+		FA3C220C2AD4E009004634E6 /* colors.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = colors.xml; sourceTree = "<group>"; };
+		FA3C220D2AD4E009004634E6 /* themes.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = themes.xml; sourceTree = "<group>"; };
+		FA3C220E2AD4E009004634E6 /* strings.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = strings.xml; sourceTree = "<group>"; };
+		FA3C22102AD4E009004634E6 /* ic_launcher.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = ic_launcher.webp; sourceTree = "<group>"; };
+		FA3C22112AD4E009004634E6 /* ic_launcher_round.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = ic_launcher_round.webp; sourceTree = "<group>"; };
+		FA3C22132AD4E009004634E6 /* ic_launcher.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = ic_launcher.xml; sourceTree = "<group>"; };
+		FA3C22142AD4E009004634E6 /* ic_launcher_round.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = ic_launcher_round.xml; sourceTree = "<group>"; };
+		FA3C22152AD4E009004634E6 /* AndroidManifest.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = AndroidManifest.xml; sourceTree = "<group>"; };
+		FA3C221B2AD4E009004634E6 /* MainActivity.kt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MainActivity.kt; sourceTree = "<group>"; };
+		FA3C221C2AD4E009004634E6 /* MidiViewModel.kt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MidiViewModel.kt; sourceTree = "<group>"; };
+		FA3C221E2AD4E009004634E6 /* Color.kt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Color.kt; sourceTree = "<group>"; };
+		FA3C221F2AD4E009004634E6 /* Theme.kt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Theme.kt; sourceTree = "<group>"; };
+		FA3C22202AD4E009004634E6 /* Type.kt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Type.kt; sourceTree = "<group>"; };
+		FA3C22232AD4E009004634E6 /* MidiDeviceOpenedListener.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = MidiDeviceOpenedListener.java; sourceTree = "<group>"; };
+		FA3C22252AD4E009004634E6 /* RtMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RtMidi.cpp; sourceTree = "<group>"; };
+		FA3C22262AD4E009004634E6 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		FA3C22272AD4E009004634E6 /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RtMidi.h; sourceTree = "<group>"; };
+		FA3C22282AD4E009004634E6 /* app-jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "app-jni.cpp"; sourceTree = "<group>"; };
+		FA3C222A2AD4E009004634E6 /* midi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midi.png; sourceTree = "<group>"; };
+		FA3C222B2AD4E009004634E6 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		FA3C222E2AD4E009004634E6 /* gradle-wrapper.jar */ = {isa = PBXFileReference; lastKnownFileType = archive.jar; path = "gradle-wrapper.jar"; sourceTree = "<group>"; };
+		FA3C222F2AD4E009004634E6 /* gradle-wrapper.properties */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "gradle-wrapper.properties"; sourceTree = "<group>"; };
+		FA3C22302AD4E009004634E6 /* gradlew */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gradlew; sourceTree = "<group>"; };
+		FA3C22312AD4E009004634E6 /* build.gradle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = build.gradle; sourceTree = "<group>"; };
+		FA3C22322AD4E009004634E6 /* gradle.properties */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gradle.properties; sourceTree = "<group>"; };
+		FA3C22332AD4E009004634E6 /* gradlew.bat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gradlew.bat; sourceTree = "<group>"; };
+		FA3C22342AD4E009004634E6 /* settings.gradle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = settings.gradle; sourceTree = "<group>"; };
+		FA3C22362AD4E009004634E6 /* rtmidilib.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = rtmidilib.vcxproj; sourceTree = "<group>"; };
+		FA3C22372AD4E009004634E6 /* rtmidilib.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = rtmidilib.vcxproj.filters; sourceTree = "<group>"; };
+		FA3C22382AD4E009004634E6 /* readme */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme; sourceTree = "<group>"; };
+		FA3C22392AD4E009004634E6 /* rtmidilib.vcxproj.user */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = rtmidilib.vcxproj.user; sourceTree = "<group>"; };
+		FA3C223A2AD4E009004634E6 /* rtmidilib.sln */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rtmidilib.sln; sourceTree = "<group>"; };
+		FA3C223C2AD4E009004634E6 /* ltversion.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ltversion.m4; sourceTree = "<group>"; };
+		FA3C223D2AD4E009004634E6 /* libtool.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = libtool.m4; sourceTree = "<group>"; };
+		FA3C223E2AD4E009004634E6 /* ltoptions.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ltoptions.m4; sourceTree = "<group>"; };
+		FA3C223F2AD4E009004634E6 /* ltsugar.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ltsugar.m4; sourceTree = "<group>"; };
+		FA3C22402AD4E009004634E6 /* ax_cxx_compile_stdcxx.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ax_cxx_compile_stdcxx.m4; sourceTree = "<group>"; };
+		FA3C22412AD4E009004634E6 /* lt~obsolete.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "lt~obsolete.m4"; sourceTree = "<group>"; };
+		FA3C22422AD4E009004634E6 /* rtmidi-config */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "rtmidi-config"; sourceTree = "<group>"; };
+		FA3C22452AD4E009004634E6 /* ccrma.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = ccrma.gif; sourceTree = "<group>"; };
+		FA3C22462AD4E009004634E6 /* mcgill.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = mcgill.gif; sourceTree = "<group>"; };
+		FA3C22472AD4E009004634E6 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		FA3C22492AD4E009004634E6 /* tab_bd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab_bd.png; sourceTree = "<group>"; };
+		FA3C224A2AD4E009004634E6 /* classRtMidiError.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = classRtMidiError.png; sourceTree = "<group>"; };
+		FA3C224B2AD4E009004634E6 /* globals_type.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = globals_type.html; sourceTree = "<group>"; };
+		FA3C224C2AD4E009004634E6 /* splitbar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splitbar.png; sourceTree = "<group>"; };
+		FA3C224D2AD4E009004634E6 /* structMidiInApi_1_1MidiMessage.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = structMidiInApi_1_1MidiMessage.html; sourceTree = "<group>"; };
+		FA3C224E2AD4E009004634E6 /* globals_eval.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = globals_eval.html; sourceTree = "<group>"; };
+		FA3C224F2AD4E009004634E6 /* doxygen.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = doxygen.css; sourceTree = "<group>"; };
+		FA3C22502AD4E009004634E6 /* structMidiInApi_1_1MidiQueue.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = structMidiInApi_1_1MidiQueue.html; sourceTree = "<group>"; };
+		FA3C22512AD4E009004634E6 /* RtMidi_8h_source.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = RtMidi_8h_source.html; sourceTree = "<group>"; };
+		FA3C22522AD4E00A004634E6 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
+		FA3C22532AD4E00A004634E6 /* functions.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = functions.html; sourceTree = "<group>"; };
+		FA3C22542AD4E00A004634E6 /* sync_off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sync_off.png; sourceTree = "<group>"; };
+		FA3C22552AD4E00A004634E6 /* doxygen.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = doxygen.svg; sourceTree = "<group>"; };
+		FA3C22562AD4E00A004634E6 /* classMidiInApi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = classMidiInApi.png; sourceTree = "<group>"; };
+		FA3C22572AD4E00A004634E6 /* modules.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = modules.html; sourceTree = "<group>"; };
+		FA3C22582AD4E00A004634E6 /* sync_on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sync_on.png; sourceTree = "<group>"; };
+		FA3C22592AD4E00A004634E6 /* structMidiInApi_1_1RtMidiInData-members.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "structMidiInApi_1_1RtMidiInData-members.html"; sourceTree = "<group>"; };
+		FA3C225A2AD4E00A004634E6 /* rtmidi__c_8h.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = rtmidi__c_8h.html; sourceTree = "<group>"; };
+		FA3C225B2AD4E00A004634E6 /* annotated.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = annotated.html; sourceTree = "<group>"; };
+		FA3C225C2AD4E00A004634E6 /* classMidiApi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = classMidiApi.png; sourceTree = "<group>"; };
+		FA3C225D2AD4E00A004634E6 /* tab_hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab_hd.png; sourceTree = "<group>"; };
+		FA3C225E2AD4E00A004634E6 /* doc.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = doc.svg; sourceTree = "<group>"; };
+		FA3C225F2AD4E00A004634E6 /* hierarchy.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = hierarchy.html; sourceTree = "<group>"; };
+		FA3C22602AD4E00A004634E6 /* bc_s.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bc_s.png; sourceTree = "<group>"; };
+		FA3C22612AD4E00A004634E6 /* nav_g.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nav_g.png; sourceTree = "<group>"; };
+		FA3C22622AD4E00A004634E6 /* nav_f.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nav_f.png; sourceTree = "<group>"; };
+		FA3C22632AD4E00A004634E6 /* tabs.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = tabs.css; sourceTree = "<group>"; };
+		FA3C22642AD4E00A004634E6 /* closed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = closed.png; sourceTree = "<group>"; };
+		FA3C22652AD4E00A004634E6 /* splitbard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splitbard.png; sourceTree = "<group>"; };
+		FA3C22662AD4E00A004634E6 /* folderopend.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = folderopend.svg; sourceTree = "<group>"; };
+		FA3C22672AD4E00A004634E6 /* functions_vars.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = functions_vars.html; sourceTree = "<group>"; };
+		FA3C22682AD4E00A004634E6 /* classRtMidiIn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = classRtMidiIn.png; sourceTree = "<group>"; };
+		FA3C22692AD4E00A004634E6 /* functions_enum.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = functions_enum.html; sourceTree = "<group>"; };
+		FA3C226A2AD4E00A004634E6 /* classMidiOutApi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = classMidiOutApi.png; sourceTree = "<group>"; };
+		FA3C226B2AD4E00A004634E6 /* classRtMidiError.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = classRtMidiError.html; sourceTree = "<group>"; };
+		FA3C226C2AD4E00A004634E6 /* tab_s.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab_s.png; sourceTree = "<group>"; };
+		FA3C226D2AD4E00A004634E6 /* files.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = files.html; sourceTree = "<group>"; };
+		FA3C226E2AD4E00A004634E6 /* tab_a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab_a.png; sourceTree = "<group>"; };
+		FA3C226F2AD4E00A004634E6 /* functions_func.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = functions_func.html; sourceTree = "<group>"; };
+		FA3C22702AD4E00A004634E6 /* structMidiInApi_1_1RtMidiInData.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = structMidiInApi_1_1RtMidiInData.html; sourceTree = "<group>"; };
+		FA3C22712AD4E00A004634E6 /* classMidiApi.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = classMidiApi.html; sourceTree = "<group>"; };
+		FA3C22722AD4E00A004634E6 /* tab_b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab_b.png; sourceTree = "<group>"; };
+		FA3C22732AD4E00A004634E6 /* nav_fd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nav_fd.png; sourceTree = "<group>"; };
+		FA3C22742AD4E00A004634E6 /* classRtMidiIn-members.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "classRtMidiIn-members.html"; sourceTree = "<group>"; };
+		FA3C22752AD4E00A004634E6 /* globals_enum.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = globals_enum.html; sourceTree = "<group>"; };
+		FA3C22762AD4E00A004634E6 /* tab_sd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab_sd.png; sourceTree = "<group>"; };
+		FA3C22772AD4E00A004634E6 /* classRtMidiOut.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = classRtMidiOut.html; sourceTree = "<group>"; };
+		FA3C22782AD4E00A004634E6 /* folderopen.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = folderopen.svg; sourceTree = "<group>"; };
+		FA3C22792AD4E00A004634E6 /* classMidiOutApi.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = classMidiOutApi.html; sourceTree = "<group>"; };
+		FA3C227A2AD4E00A004634E6 /* folderclosed.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = folderclosed.svg; sourceTree = "<group>"; };
+		FA3C227B2AD4E00A004634E6 /* structMidiInApi_1_1MidiMessage-members.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "structMidiInApi_1_1MidiMessage-members.html"; sourceTree = "<group>"; };
+		FA3C227C2AD4E00A004634E6 /* nav_hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nav_hd.png; sourceTree = "<group>"; };
+		FA3C227D2AD4E00A004634E6 /* globals_func.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = globals_func.html; sourceTree = "<group>"; };
+		FA3C227E2AD4E00A004634E6 /* nav_h.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nav_h.png; sourceTree = "<group>"; };
+		FA3C227F2AD4E00A004634E6 /* classRtMidi-members.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "classRtMidi-members.html"; sourceTree = "<group>"; };
+		FA3C22802AD4E00A004634E6 /* tab_h.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab_h.png; sourceTree = "<group>"; };
+		FA3C22812AD4E00A004634E6 /* classRtMidiError-members.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "classRtMidiError-members.html"; sourceTree = "<group>"; };
+		FA3C22822AD4E00A004634E6 /* classRtMidi.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = classRtMidi.html; sourceTree = "<group>"; };
+		FA3C22832AD4E00A004634E6 /* classes.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = classes.html; sourceTree = "<group>"; };
+		FA3C22842AD4E00A004634E6 /* classMidiApi-members.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "classMidiApi-members.html"; sourceTree = "<group>"; };
+		FA3C22852AD4E00A004634E6 /* classRtMidiOut-members.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "classRtMidiOut-members.html"; sourceTree = "<group>"; };
+		FA3C22862AD4E00A004634E6 /* classMidiOutApi-members.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "classMidiOutApi-members.html"; sourceTree = "<group>"; };
+		FA3C22872AD4E00A004634E6 /* folderclosedd.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = folderclosedd.svg; sourceTree = "<group>"; };
+		FA3C22882AD4E00A004634E6 /* docd.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = docd.svg; sourceTree = "<group>"; };
+		FA3C22892AD4E00A004634E6 /* classRtMidiIn.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = classRtMidiIn.html; sourceTree = "<group>"; };
+		FA3C228A2AD4E00A004634E6 /* open.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = open.png; sourceTree = "<group>"; };
+		FA3C228B2AD4E00A004634E6 /* classMidiInApi-members.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "classMidiInApi-members.html"; sourceTree = "<group>"; };
+		FA3C228C2AD4E00A004634E6 /* functions_type.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = functions_type.html; sourceTree = "<group>"; };
+		FA3C228D2AD4E00A004634E6 /* structMidiInApi_1_1MidiQueue-members.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "structMidiInApi_1_1MidiQueue-members.html"; sourceTree = "<group>"; };
+		FA3C228E2AD4E00A004634E6 /* functions_eval.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = functions_eval.html; sourceTree = "<group>"; };
+		FA3C228F2AD4E00A004634E6 /* rtmidi__c_8h_source.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = rtmidi__c_8h_source.html; sourceTree = "<group>"; };
+		FA3C22902AD4E00A004634E6 /* dynsections.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = dynsections.js; sourceTree = "<group>"; };
+		FA3C22912AD4E00A004634E6 /* classRtMidi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = classRtMidi.png; sourceTree = "<group>"; };
+		FA3C22922AD4E00A004634E6 /* RtMidi_8h.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = RtMidi_8h.html; sourceTree = "<group>"; };
+		FA3C22932AD4E00A004634E6 /* globals.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = globals.html; sourceTree = "<group>"; };
+		FA3C22942AD4E00A004634E6 /* group__C-interface.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "group__C-interface.html"; sourceTree = "<group>"; };
+		FA3C22952AD4E00A004634E6 /* tab_ad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab_ad.png; sourceTree = "<group>"; };
+		FA3C22962AD4E00A004634E6 /* classMidiInApi.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = classMidiInApi.html; sourceTree = "<group>"; };
+		FA3C22972AD4E00A004634E6 /* classRtMidiOut.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = classRtMidiOut.png; sourceTree = "<group>"; };
+		FA3C22982AD4E00A004634E6 /* bc_sd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bc_sd.png; sourceTree = "<group>"; };
+		FA3C22992AD4E00A004634E6 /* jquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.js; sourceTree = "<group>"; };
+		FA3C229A2AD4E00A004634E6 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA3C229B2AD4E00A004634E6 /* release.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = release.txt; sourceTree = "<group>"; };
+		FA3C229D2AD4E00A004634E6 /* tutorial.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tutorial.txt; sourceTree = "<group>"; };
+		FA3C229E2AD4E00A004634E6 /* Doxyfile.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Doxyfile.in; sourceTree = "<group>"; };
+		FA3C22A02AD4E00A004634E6 /* getting_started.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = getting_started.cpp; sourceTree = "<group>"; };
+		FA3C22A12AD4E00A004634E6 /* footer.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = footer.html; sourceTree = "<group>"; };
+		FA3C22A22AD4E00A004634E6 /* Doxyfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Doxyfile; sourceTree = "<group>"; };
+		FA3C22A32AD4E00A004634E6 /* header.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = header.html; sourceTree = "<group>"; };
+		FA3C22A42AD4E00A004634E6 /* Makefile.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.in; sourceTree = "<group>"; };
+		FA3C22A52AD4E00A004634E6 /* config.log */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = config.log; sourceTree = "<group>"; };
+		FA3C22A62AD4E00A004634E6 /* rtmidi_c.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rtmidi_c.h; sourceTree = "<group>"; };
+		FA3C22A82AD4E00A004634E6 /* librtmidi_la-rtmidi_c.Plo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "librtmidi_la-rtmidi_c.Plo"; sourceTree = "<group>"; };
+		FA3C22A92AD4E00A004634E6 /* librtmidi_la-RtMidi.Plo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "librtmidi_la-RtMidi.Plo"; sourceTree = "<group>"; };
+		FA3C22AA2AD4E00A004634E6 /* Makefile.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.in; sourceTree = "<group>"; };
+		FA3C22AB2AD4E00A004634E6 /* aclocal.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = aclocal.m4; sourceTree = "<group>"; };
+		FA3C22AC2AD4E00A004634E6 /* autogen.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = autogen.sh; sourceTree = "<group>"; };
 		FA7578F32996CC0A00378FA9 /* GL */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GL; path = ../../../../../../usr/local/include/GL; sourceTree = "<group>"; };
 		FA7578F72996CF8500378FA9 /* libglfw.3.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.3.dylib; path = ../../../../../../usr/local/Cellar/glfw/3.3.8/lib/libglfw.3.3.dylib; sourceTree = "<group>"; };
 		FA7578F92996F34000378FA9 /* bitmap */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bitmap; sourceTree = "<group>"; };
@@ -44,7 +272,6 @@
 		FAA06AFD29942167004BEC01 /* headless.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headless.h; sourceTree = "<group>"; };
 		FAA06B05299423D4004BEC01 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		FAA06B0729942479004BEC01 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
-		FAA06B0929943796004BEC01 /* gfxfont.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gfxfont.h; sourceTree = "<group>"; };
 		FAA06B0B29943B71004BEC01 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fonts; sourceTree = "<group>"; };
 		FAA06B0D29943BC6004BEC01 /* main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = main.cpp; sourceTree = "<group>"; };
 		FAB6ECBA2AB2340500A32AD2 /* Display.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Display.h; sourceTree = "<group>"; };
@@ -55,21 +282,692 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA7578F82996CF8500378FA9 /* libglfw.3.3.dylib in Frameworks */,
-				FAA06B0829942479004BEC01 /* GLUT.framework in Frameworks */,
-				FA01CE6A2AC2F955005BBB0F /* CoreFoundation.framework in Frameworks */,
-				FA01CE662AC2F93D005BBB0F /* CoreAudio.framework in Frameworks */,
-				FAA06B06299423D4004BEC01 /* OpenGL.framework in Frameworks */,
 				FA01CE682AC2F94C005BBB0F /* CoreMIDI.framework in Frameworks */,
+				FA01CE662AC2F93D005BBB0F /* CoreAudio.framework in Frameworks */,
+				FA01CE6A2AC2F955005BBB0F /* CoreFoundation.framework in Frameworks */,
+				FAA06B06299423D4004BEC01 /* OpenGL.framework in Frameworks */,
+				FA7578F82996CF8500378FA9 /* libglfw.3.3.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FA3C21912AD4E009004634E6 /* rtmidi-6.0.0 */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21922AD4E009004634E6 /* libtool */,
+				FA3C21932AD4E009004634E6 /* RtMidi.cpp */,
+				FA3C21942AD4E009004634E6 /* configure.ac */,
+				FA3C21952AD4E009004634E6 /* CMakeLists.txt */,
+				FA3C21962AD4E009004634E6 /* LICENSE */,
+				FA3C21972AD4E009004634E6 /* cmake */,
+				FA3C219A2AD4E009004634E6 /* configure */,
+				FA3C219B2AD4E009004634E6 /* config */,
+				FA3C21A52AD4E009004634E6 /* Makefile */,
+				FA3C21A62AD4E009004634E6 /* rtmidi-config.in */,
+				FA3C21A72AD4E009004634E6 /* rtmidi.pc.in */,
+				FA3C21A82AD4E009004634E6 /* rtmidi.pc */,
+				FA3C21A92AD4E009004634E6 /* tests */,
+				FA3C21D72AD4E009004634E6 /* RtMidi.h */,
+				FA3C21D82AD4E009004634E6 /* contrib */,
+				FA3C21E22AD4E009004634E6 /* Makefile.am */,
+				FA3C21E32AD4E009004634E6 /* README.md */,
+				FA3C21E42AD4E009004634E6 /* rtmidi_c.cpp */,
+				FA3C21E52AD4E009004634E6 /* config.status */,
+				FA3C21E62AD4E009004634E6 /* android */,
+				FA3C22352AD4E009004634E6 /* msw */,
+				FA3C223B2AD4E009004634E6 /* m4 */,
+				FA3C22422AD4E009004634E6 /* rtmidi-config */,
+				FA3C22432AD4E009004634E6 /* doc */,
+				FA3C22A52AD4E00A004634E6 /* config.log */,
+				FA3C22A62AD4E00A004634E6 /* rtmidi_c.h */,
+				FA3C22A72AD4E00A004634E6 /* .deps */,
+				FA3C22AA2AD4E00A004634E6 /* Makefile.in */,
+				FA3C22AB2AD4E00A004634E6 /* aclocal.m4 */,
+				FA3C22AC2AD4E00A004634E6 /* autogen.sh */,
+			);
+			name = "rtmidi-6.0.0";
+			path = "childOS_headless/rtmidi-6.0.0";
+			sourceTree = "<group>";
+		};
+		FA3C21972AD4E009004634E6 /* cmake */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21982AD4E009004634E6 /* rtmidi-config.cmake.in */,
+				FA3C21992AD4E009004634E6 /* RtMidiConfigUninstall.cmake.in */,
+			);
+			path = cmake;
+			sourceTree = "<group>";
+		};
+		FA3C219B2AD4E009004634E6 /* config */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C219C2AD4E009004634E6 /* install-sh */,
+				FA3C219D2AD4E009004634E6 /* ltmain.sh */,
+				FA3C219E2AD4E009004634E6 /* ar-lib */,
+				FA3C219F2AD4E009004634E6 /* config.guess */,
+				FA3C21A02AD4E009004634E6 /* depcomp */,
+				FA3C21A12AD4E009004634E6 /* missing */,
+				FA3C21A22AD4E009004634E6 /* config.sub */,
+				FA3C21A32AD4E009004634E6 /* compile */,
+				FA3C21A42AD4E009004634E6 /* test-driver */,
+			);
+			path = config;
+			sourceTree = "<group>";
+		};
+		FA3C21A92AD4E009004634E6 /* tests */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21AA2AD4E009004634E6 /* sysextest.vcxproj.user */,
+				FA3C21AB2AD4E009004634E6 /* testcapi.vcxproj.user */,
+				FA3C21AC2AD4E009004634E6 /* testcapi.vcxproj */,
+				FA3C21AD2AD4E009004634E6 /* apinames.vcxproj.filters */,
+				FA3C21AE2AD4E009004634E6 /* cmidiin.vcxproj.filters */,
+				FA3C21AF2AD4E009004634E6 /* sysextest.vcxproj.filters */,
+				FA3C21B02AD4E009004634E6 /* midiclock.vcxproj */,
+				FA3C21B12AD4E009004634E6 /* Makefile */,
+				FA3C21B22AD4E009004634E6 /* midiprobe.cpp */,
+				FA3C21B32AD4E009004634E6 /* midiout.vcxproj.user */,
+				FA3C21B42AD4E009004634E6 /* testcapi.c */,
+				FA3C21B52AD4E009004634E6 /* sysextest.vcxproj */,
+				FA3C21B62AD4E009004634E6 /* midiprobe.vcxproj.filters */,
+				FA3C21B72AD4E009004634E6 /* RtMidi.sln */,
+				FA3C21B82AD4E009004634E6 /* midiclock.cpp */,
+				FA3C21B92AD4E009004634E6 /* Makefile.am */,
+				FA3C21BA2AD4E009004634E6 /* midiprobe.vcxproj.user */,
+				FA3C21BB2AD4E009004634E6 /* cmidiin.cpp */,
+				FA3C21BC2AD4E009004634E6 /* qmidiin.vcxproj.filters */,
+				FA3C21BD2AD4E009004634E6 /* apinames.cpp */,
+				FA3C21BE2AD4E009004634E6 /* midiclock.vcxproj.user */,
+				FA3C21BF2AD4E009004634E6 /* apinames.vcxproj */,
+				FA3C21C02AD4E009004634E6 /* midiout.cpp */,
+				FA3C21C12AD4E009004634E6 /* cmidiin.vcxproj.user */,
+				FA3C21C22AD4E009004634E6 /* apinames.vcxproj.user */,
+				FA3C21C32AD4E009004634E6 /* midiout.vcxproj.filters */,
+				FA3C21C42AD4E009004634E6 /* qmidiin.vcxproj */,
+				FA3C21C52AD4E009004634E6 /* midiout.vcxproj */,
+				FA3C21C62AD4E009004634E6 /* .deps */,
+				FA3C21CF2AD4E009004634E6 /* Makefile.in */,
+				FA3C21D02AD4E009004634E6 /* cmidiin.vcxproj */,
+				FA3C21D12AD4E009004634E6 /* midiprobe.vcxproj */,
+				FA3C21D22AD4E009004634E6 /* sysextest.cpp */,
+				FA3C21D32AD4E009004634E6 /* testcapi.vcxproj.filters */,
+				FA3C21D42AD4E009004634E6 /* qmidiin.vcxproj.user */,
+				FA3C21D52AD4E009004634E6 /* qmidiin.cpp */,
+				FA3C21D62AD4E009004634E6 /* midiclock.vcxproj.filters */,
+			);
+			path = tests;
+			sourceTree = "<group>";
+		};
+		FA3C21C62AD4E009004634E6 /* .deps */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21C72AD4E009004634E6 /* testcapi.Po */,
+				FA3C21C82AD4E009004634E6 /* apinames.Po */,
+				FA3C21C92AD4E009004634E6 /* midiprobe.Po */,
+				FA3C21CA2AD4E009004634E6 /* sysextest.Po */,
+				FA3C21CB2AD4E009004634E6 /* qmidiin.Po */,
+				FA3C21CC2AD4E009004634E6 /* midiclock.Po */,
+				FA3C21CD2AD4E009004634E6 /* midiout.Po */,
+				FA3C21CE2AD4E009004634E6 /* cmidiin.Po */,
+			);
+			path = .deps;
+			sourceTree = "<group>";
+		};
+		FA3C21D82AD4E009004634E6 /* contrib */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21D92AD4E009004634E6 /* go */,
+				FA3C21E02AD4E009004634E6 /* java */,
+			);
+			path = contrib;
+			sourceTree = "<group>";
+		};
+		FA3C21D92AD4E009004634E6 /* go */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21DA2AD4E009004634E6 /* rtmidi */,
+			);
+			path = go;
+			sourceTree = "<group>";
+		};
+		FA3C21DA2AD4E009004634E6 /* rtmidi */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21DB2AD4E009004634E6 /* go.mod */,
+				FA3C21DC2AD4E009004634E6 /* rtmidi_stub.cpp */,
+				FA3C21DD2AD4E009004634E6 /* rtmidi_test.go */,
+				FA3C21DE2AD4E009004634E6 /* rtmidi.go */,
+				FA3C21DF2AD4E009004634E6 /* rtmidi_stub.h */,
+			);
+			path = rtmidi;
+			sourceTree = "<group>";
+		};
+		FA3C21E02AD4E009004634E6 /* java */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21E12AD4E009004634E6 /* MidiDeviceOpenedListener.java */,
+			);
+			path = java;
+			sourceTree = "<group>";
+		};
+		FA3C21E62AD4E009004634E6 /* android */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21E72AD4E009004634E6 /* app */,
+				FA3C22292AD4E009004634E6 /* images */,
+				FA3C222B2AD4E009004634E6 /* README.md */,
+				FA3C222C2AD4E009004634E6 /* gradle */,
+				FA3C22302AD4E009004634E6 /* gradlew */,
+				FA3C22312AD4E009004634E6 /* build.gradle */,
+				FA3C22322AD4E009004634E6 /* gradle.properties */,
+				FA3C22332AD4E009004634E6 /* gradlew.bat */,
+				FA3C22342AD4E009004634E6 /* settings.gradle */,
+			);
+			path = android;
+			sourceTree = "<group>";
+		};
+		FA3C21E72AD4E009004634E6 /* app */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21E82AD4E009004634E6 /* proguard-rules.pro */,
+				FA3C21E92AD4E009004634E6 /* build.gradle */,
+				FA3C21EA2AD4E009004634E6 /* src */,
+			);
+			path = app;
+			sourceTree = "<group>";
+		};
+		FA3C21EA2AD4E009004634E6 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21EB2AD4E009004634E6 /* androidTest */,
+				FA3C21F22AD4E009004634E6 /* test */,
+				FA3C21F92AD4E009004634E6 /* main */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		FA3C21EB2AD4E009004634E6 /* androidTest */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21EC2AD4E009004634E6 /* java */,
+			);
+			path = androidTest;
+			sourceTree = "<group>";
+		};
+		FA3C21EC2AD4E009004634E6 /* java */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21ED2AD4E009004634E6 /* com */,
+			);
+			path = java;
+			sourceTree = "<group>";
+		};
+		FA3C21ED2AD4E009004634E6 /* com */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21EE2AD4E009004634E6 /* rtmidi */,
+			);
+			path = com;
+			sourceTree = "<group>";
+		};
+		FA3C21EE2AD4E009004634E6 /* rtmidi */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21EF2AD4E009004634E6 /* yellowlab */,
+			);
+			path = rtmidi;
+			sourceTree = "<group>";
+		};
+		FA3C21EF2AD4E009004634E6 /* yellowlab */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21F02AD4E009004634E6 /* midireader */,
+			);
+			path = yellowlab;
+			sourceTree = "<group>";
+		};
+		FA3C21F02AD4E009004634E6 /* midireader */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21F12AD4E009004634E6 /* ExampleInstrumentedTest.kt */,
+			);
+			path = midireader;
+			sourceTree = "<group>";
+		};
+		FA3C21F22AD4E009004634E6 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21F32AD4E009004634E6 /* java */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		FA3C21F32AD4E009004634E6 /* java */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21F42AD4E009004634E6 /* com */,
+			);
+			path = java;
+			sourceTree = "<group>";
+		};
+		FA3C21F42AD4E009004634E6 /* com */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21F52AD4E009004634E6 /* rtmidi */,
+			);
+			path = com;
+			sourceTree = "<group>";
+		};
+		FA3C21F52AD4E009004634E6 /* rtmidi */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21F62AD4E009004634E6 /* yellowlab */,
+			);
+			path = rtmidi;
+			sourceTree = "<group>";
+		};
+		FA3C21F62AD4E009004634E6 /* yellowlab */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21F72AD4E009004634E6 /* midireader */,
+			);
+			path = yellowlab;
+			sourceTree = "<group>";
+		};
+		FA3C21F72AD4E009004634E6 /* midireader */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21F82AD4E009004634E6 /* ExampleUnitTest.kt */,
+			);
+			path = midireader;
+			sourceTree = "<group>";
+		};
+		FA3C21F92AD4E009004634E6 /* main */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21FA2AD4E009004634E6 /* res */,
+				FA3C22152AD4E009004634E6 /* AndroidManifest.xml */,
+				FA3C22162AD4E009004634E6 /* java */,
+				FA3C22242AD4E009004634E6 /* cpp */,
+			);
+			path = main;
+			sourceTree = "<group>";
+		};
+		FA3C21FA2AD4E009004634E6 /* res */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21FB2AD4E009004634E6 /* mipmap-mdpi */,
+				FA3C21FE2AD4E009004634E6 /* drawable-v24 */,
+				FA3C22002AD4E009004634E6 /* mipmap-hdpi */,
+				FA3C22032AD4E009004634E6 /* drawable */,
+				FA3C22052AD4E009004634E6 /* mipmap-xxxhdpi */,
+				FA3C22082AD4E009004634E6 /* mipmap-xxhdpi */,
+				FA3C220B2AD4E009004634E6 /* values */,
+				FA3C220F2AD4E009004634E6 /* mipmap-xhdpi */,
+				FA3C22122AD4E009004634E6 /* mipmap-anydpi-v26 */,
+			);
+			path = res;
+			sourceTree = "<group>";
+		};
+		FA3C21FB2AD4E009004634E6 /* mipmap-mdpi */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21FC2AD4E009004634E6 /* ic_launcher.webp */,
+				FA3C21FD2AD4E009004634E6 /* ic_launcher_round.webp */,
+			);
+			path = "mipmap-mdpi";
+			sourceTree = "<group>";
+		};
+		FA3C21FE2AD4E009004634E6 /* drawable-v24 */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C21FF2AD4E009004634E6 /* ic_launcher_foreground.xml */,
+			);
+			path = "drawable-v24";
+			sourceTree = "<group>";
+		};
+		FA3C22002AD4E009004634E6 /* mipmap-hdpi */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22012AD4E009004634E6 /* ic_launcher.webp */,
+				FA3C22022AD4E009004634E6 /* ic_launcher_round.webp */,
+			);
+			path = "mipmap-hdpi";
+			sourceTree = "<group>";
+		};
+		FA3C22032AD4E009004634E6 /* drawable */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22042AD4E009004634E6 /* ic_launcher_background.xml */,
+			);
+			path = drawable;
+			sourceTree = "<group>";
+		};
+		FA3C22052AD4E009004634E6 /* mipmap-xxxhdpi */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22062AD4E009004634E6 /* ic_launcher.webp */,
+				FA3C22072AD4E009004634E6 /* ic_launcher_round.webp */,
+			);
+			path = "mipmap-xxxhdpi";
+			sourceTree = "<group>";
+		};
+		FA3C22082AD4E009004634E6 /* mipmap-xxhdpi */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22092AD4E009004634E6 /* ic_launcher.webp */,
+				FA3C220A2AD4E009004634E6 /* ic_launcher_round.webp */,
+			);
+			path = "mipmap-xxhdpi";
+			sourceTree = "<group>";
+		};
+		FA3C220B2AD4E009004634E6 /* values */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C220C2AD4E009004634E6 /* colors.xml */,
+				FA3C220D2AD4E009004634E6 /* themes.xml */,
+				FA3C220E2AD4E009004634E6 /* strings.xml */,
+			);
+			path = values;
+			sourceTree = "<group>";
+		};
+		FA3C220F2AD4E009004634E6 /* mipmap-xhdpi */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22102AD4E009004634E6 /* ic_launcher.webp */,
+				FA3C22112AD4E009004634E6 /* ic_launcher_round.webp */,
+			);
+			path = "mipmap-xhdpi";
+			sourceTree = "<group>";
+		};
+		FA3C22122AD4E009004634E6 /* mipmap-anydpi-v26 */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22132AD4E009004634E6 /* ic_launcher.xml */,
+				FA3C22142AD4E009004634E6 /* ic_launcher_round.xml */,
+			);
+			path = "mipmap-anydpi-v26";
+			sourceTree = "<group>";
+		};
+		FA3C22162AD4E009004634E6 /* java */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22172AD4E009004634E6 /* com */,
+			);
+			path = java;
+			sourceTree = "<group>";
+		};
+		FA3C22172AD4E009004634E6 /* com */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22182AD4E009004634E6 /* rtmidi */,
+				FA3C22212AD4E009004634E6 /* yellowlab */,
+			);
+			path = com;
+			sourceTree = "<group>";
+		};
+		FA3C22182AD4E009004634E6 /* rtmidi */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22192AD4E009004634E6 /* yellowlab */,
+			);
+			path = rtmidi;
+			sourceTree = "<group>";
+		};
+		FA3C22192AD4E009004634E6 /* yellowlab */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C221A2AD4E009004634E6 /* midireader */,
+			);
+			path = yellowlab;
+			sourceTree = "<group>";
+		};
+		FA3C221A2AD4E009004634E6 /* midireader */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C221B2AD4E009004634E6 /* MainActivity.kt */,
+				FA3C221C2AD4E009004634E6 /* MidiViewModel.kt */,
+				FA3C221D2AD4E009004634E6 /* ui.theme */,
+			);
+			path = midireader;
+			sourceTree = "<group>";
+		};
+		FA3C221D2AD4E009004634E6 /* ui.theme */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C221E2AD4E009004634E6 /* Color.kt */,
+				FA3C221F2AD4E009004634E6 /* Theme.kt */,
+				FA3C22202AD4E009004634E6 /* Type.kt */,
+			);
+			path = ui.theme;
+			sourceTree = "<group>";
+		};
+		FA3C22212AD4E009004634E6 /* yellowlab */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22222AD4E009004634E6 /* rtmidi */,
+			);
+			path = yellowlab;
+			sourceTree = "<group>";
+		};
+		FA3C22222AD4E009004634E6 /* rtmidi */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22232AD4E009004634E6 /* MidiDeviceOpenedListener.java */,
+			);
+			path = rtmidi;
+			sourceTree = "<group>";
+		};
+		FA3C22242AD4E009004634E6 /* cpp */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22252AD4E009004634E6 /* RtMidi.cpp */,
+				FA3C22262AD4E009004634E6 /* CMakeLists.txt */,
+				FA3C22272AD4E009004634E6 /* RtMidi.h */,
+				FA3C22282AD4E009004634E6 /* app-jni.cpp */,
+			);
+			path = cpp;
+			sourceTree = "<group>";
+		};
+		FA3C22292AD4E009004634E6 /* images */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C222A2AD4E009004634E6 /* midi.png */,
+			);
+			path = images;
+			sourceTree = "<group>";
+		};
+		FA3C222C2AD4E009004634E6 /* gradle */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C222D2AD4E009004634E6 /* wrapper */,
+			);
+			path = gradle;
+			sourceTree = "<group>";
+		};
+		FA3C222D2AD4E009004634E6 /* wrapper */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C222E2AD4E009004634E6 /* gradle-wrapper.jar */,
+				FA3C222F2AD4E009004634E6 /* gradle-wrapper.properties */,
+			);
+			path = wrapper;
+			sourceTree = "<group>";
+		};
+		FA3C22352AD4E009004634E6 /* msw */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22362AD4E009004634E6 /* rtmidilib.vcxproj */,
+				FA3C22372AD4E009004634E6 /* rtmidilib.vcxproj.filters */,
+				FA3C22382AD4E009004634E6 /* readme */,
+				FA3C22392AD4E009004634E6 /* rtmidilib.vcxproj.user */,
+				FA3C223A2AD4E009004634E6 /* rtmidilib.sln */,
+			);
+			path = msw;
+			sourceTree = "<group>";
+		};
+		FA3C223B2AD4E009004634E6 /* m4 */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C223C2AD4E009004634E6 /* ltversion.m4 */,
+				FA3C223D2AD4E009004634E6 /* libtool.m4 */,
+				FA3C223E2AD4E009004634E6 /* ltoptions.m4 */,
+				FA3C223F2AD4E009004634E6 /* ltsugar.m4 */,
+				FA3C22402AD4E009004634E6 /* ax_cxx_compile_stdcxx.m4 */,
+				FA3C22412AD4E009004634E6 /* lt~obsolete.m4 */,
+			);
+			path = m4;
+			sourceTree = "<group>";
+		};
+		FA3C22432AD4E009004634E6 /* doc */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22442AD4E009004634E6 /* images */,
+				FA3C22472AD4E009004634E6 /* Makefile */,
+				FA3C22482AD4E009004634E6 /* html */,
+				FA3C229A2AD4E00A004634E6 /* Makefile.am */,
+				FA3C229B2AD4E00A004634E6 /* release.txt */,
+				FA3C229C2AD4E00A004634E6 /* doxygen */,
+				FA3C22A42AD4E00A004634E6 /* Makefile.in */,
+			);
+			path = doc;
+			sourceTree = "<group>";
+		};
+		FA3C22442AD4E009004634E6 /* images */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22452AD4E009004634E6 /* ccrma.gif */,
+				FA3C22462AD4E009004634E6 /* mcgill.gif */,
+			);
+			path = images;
+			sourceTree = "<group>";
+		};
+		FA3C22482AD4E009004634E6 /* html */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22492AD4E009004634E6 /* tab_bd.png */,
+				FA3C224A2AD4E009004634E6 /* classRtMidiError.png */,
+				FA3C224B2AD4E009004634E6 /* globals_type.html */,
+				FA3C224C2AD4E009004634E6 /* splitbar.png */,
+				FA3C224D2AD4E009004634E6 /* structMidiInApi_1_1MidiMessage.html */,
+				FA3C224E2AD4E009004634E6 /* globals_eval.html */,
+				FA3C224F2AD4E009004634E6 /* doxygen.css */,
+				FA3C22502AD4E009004634E6 /* structMidiInApi_1_1MidiQueue.html */,
+				FA3C22512AD4E009004634E6 /* RtMidi_8h_source.html */,
+				FA3C22522AD4E00A004634E6 /* index.html */,
+				FA3C22532AD4E00A004634E6 /* functions.html */,
+				FA3C22542AD4E00A004634E6 /* sync_off.png */,
+				FA3C22552AD4E00A004634E6 /* doxygen.svg */,
+				FA3C22562AD4E00A004634E6 /* classMidiInApi.png */,
+				FA3C22572AD4E00A004634E6 /* modules.html */,
+				FA3C22582AD4E00A004634E6 /* sync_on.png */,
+				FA3C22592AD4E00A004634E6 /* structMidiInApi_1_1RtMidiInData-members.html */,
+				FA3C225A2AD4E00A004634E6 /* rtmidi__c_8h.html */,
+				FA3C225B2AD4E00A004634E6 /* annotated.html */,
+				FA3C225C2AD4E00A004634E6 /* classMidiApi.png */,
+				FA3C225D2AD4E00A004634E6 /* tab_hd.png */,
+				FA3C225E2AD4E00A004634E6 /* doc.svg */,
+				FA3C225F2AD4E00A004634E6 /* hierarchy.html */,
+				FA3C22602AD4E00A004634E6 /* bc_s.png */,
+				FA3C22612AD4E00A004634E6 /* nav_g.png */,
+				FA3C22622AD4E00A004634E6 /* nav_f.png */,
+				FA3C22632AD4E00A004634E6 /* tabs.css */,
+				FA3C22642AD4E00A004634E6 /* closed.png */,
+				FA3C22652AD4E00A004634E6 /* splitbard.png */,
+				FA3C22662AD4E00A004634E6 /* folderopend.svg */,
+				FA3C22672AD4E00A004634E6 /* functions_vars.html */,
+				FA3C22682AD4E00A004634E6 /* classRtMidiIn.png */,
+				FA3C22692AD4E00A004634E6 /* functions_enum.html */,
+				FA3C226A2AD4E00A004634E6 /* classMidiOutApi.png */,
+				FA3C226B2AD4E00A004634E6 /* classRtMidiError.html */,
+				FA3C226C2AD4E00A004634E6 /* tab_s.png */,
+				FA3C226D2AD4E00A004634E6 /* files.html */,
+				FA3C226E2AD4E00A004634E6 /* tab_a.png */,
+				FA3C226F2AD4E00A004634E6 /* functions_func.html */,
+				FA3C22702AD4E00A004634E6 /* structMidiInApi_1_1RtMidiInData.html */,
+				FA3C22712AD4E00A004634E6 /* classMidiApi.html */,
+				FA3C22722AD4E00A004634E6 /* tab_b.png */,
+				FA3C22732AD4E00A004634E6 /* nav_fd.png */,
+				FA3C22742AD4E00A004634E6 /* classRtMidiIn-members.html */,
+				FA3C22752AD4E00A004634E6 /* globals_enum.html */,
+				FA3C22762AD4E00A004634E6 /* tab_sd.png */,
+				FA3C22772AD4E00A004634E6 /* classRtMidiOut.html */,
+				FA3C22782AD4E00A004634E6 /* folderopen.svg */,
+				FA3C22792AD4E00A004634E6 /* classMidiOutApi.html */,
+				FA3C227A2AD4E00A004634E6 /* folderclosed.svg */,
+				FA3C227B2AD4E00A004634E6 /* structMidiInApi_1_1MidiMessage-members.html */,
+				FA3C227C2AD4E00A004634E6 /* nav_hd.png */,
+				FA3C227D2AD4E00A004634E6 /* globals_func.html */,
+				FA3C227E2AD4E00A004634E6 /* nav_h.png */,
+				FA3C227F2AD4E00A004634E6 /* classRtMidi-members.html */,
+				FA3C22802AD4E00A004634E6 /* tab_h.png */,
+				FA3C22812AD4E00A004634E6 /* classRtMidiError-members.html */,
+				FA3C22822AD4E00A004634E6 /* classRtMidi.html */,
+				FA3C22832AD4E00A004634E6 /* classes.html */,
+				FA3C22842AD4E00A004634E6 /* classMidiApi-members.html */,
+				FA3C22852AD4E00A004634E6 /* classRtMidiOut-members.html */,
+				FA3C22862AD4E00A004634E6 /* classMidiOutApi-members.html */,
+				FA3C22872AD4E00A004634E6 /* folderclosedd.svg */,
+				FA3C22882AD4E00A004634E6 /* docd.svg */,
+				FA3C22892AD4E00A004634E6 /* classRtMidiIn.html */,
+				FA3C228A2AD4E00A004634E6 /* open.png */,
+				FA3C228B2AD4E00A004634E6 /* classMidiInApi-members.html */,
+				FA3C228C2AD4E00A004634E6 /* functions_type.html */,
+				FA3C228D2AD4E00A004634E6 /* structMidiInApi_1_1MidiQueue-members.html */,
+				FA3C228E2AD4E00A004634E6 /* functions_eval.html */,
+				FA3C228F2AD4E00A004634E6 /* rtmidi__c_8h_source.html */,
+				FA3C22902AD4E00A004634E6 /* dynsections.js */,
+				FA3C22912AD4E00A004634E6 /* classRtMidi.png */,
+				FA3C22922AD4E00A004634E6 /* RtMidi_8h.html */,
+				FA3C22932AD4E00A004634E6 /* globals.html */,
+				FA3C22942AD4E00A004634E6 /* group__C-interface.html */,
+				FA3C22952AD4E00A004634E6 /* tab_ad.png */,
+				FA3C22962AD4E00A004634E6 /* classMidiInApi.html */,
+				FA3C22972AD4E00A004634E6 /* classRtMidiOut.png */,
+				FA3C22982AD4E00A004634E6 /* bc_sd.png */,
+				FA3C22992AD4E00A004634E6 /* jquery.js */,
+			);
+			path = html;
+			sourceTree = "<group>";
+		};
+		FA3C229C2AD4E00A004634E6 /* doxygen */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C229D2AD4E00A004634E6 /* tutorial.txt */,
+				FA3C229E2AD4E00A004634E6 /* Doxyfile.in */,
+				FA3C229F2AD4E00A004634E6 /* samples */,
+				FA3C22A12AD4E00A004634E6 /* footer.html */,
+				FA3C22A22AD4E00A004634E6 /* Doxyfile */,
+				FA3C22A32AD4E00A004634E6 /* header.html */,
+			);
+			path = doxygen;
+			sourceTree = "<group>";
+		};
+		FA3C229F2AD4E00A004634E6 /* samples */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22A02AD4E00A004634E6 /* getting_started.cpp */,
+			);
+			path = samples;
+			sourceTree = "<group>";
+		};
+		FA3C22A72AD4E00A004634E6 /* .deps */ = {
+			isa = PBXGroup;
+			children = (
+				FA3C22A82AD4E00A004634E6 /* librtmidi_la-rtmidi_c.Plo */,
+				FA3C22A92AD4E00A004634E6 /* librtmidi_la-RtMidi.Plo */,
+			);
+			path = .deps;
+			sourceTree = "<group>";
+		};
 		FAA06AF129942167004BEC01 = {
 			isa = PBXGroup;
 			children = (
+				FA3C21912AD4E009004634E6 /* rtmidi-6.0.0 */,
+				FA3C218B2AD4DBC8004634E6 /* RtMidi.h */,
+				FA3C21892AD4DBB8004634E6 /* RtMidi.cpp */,
 				FAA06AFC29942167004BEC01 /* childOS_headless */,
 				FAA06AFB29942167004BEC01 /* Products */,
 				FAA06B04299423D4004BEC01 /* Frameworks */,
@@ -87,14 +985,12 @@
 		FAA06AFC29942167004BEC01 /* childOS_headless */ = {
 			isa = PBXGroup;
 			children = (
-				FAA06B0929943796004BEC01 /* gfxfont.h */,
 				FAA06B0B29943B71004BEC01 /* Fonts */,
 				FAA06AFD29942167004BEC01 /* headless.h */,
 				FA01CE702AC35CBB005BBB0F /* Midi.h */,
 				FAB6ECBA2AB2340500A32AD2 /* Display.h */,
 				FA7578F92996F34000378FA9 /* bitmap */,
 				FAA06B0D29943BC6004BEC01 /* main.cpp */,
-				FA06C79B29958C4D0096C396 /* ASCII_font.h */,
 			);
 			path = childOS_headless;
 			sourceTree = "<group>";
@@ -122,7 +1018,7 @@
 			buildPhases = (
 				FAA06AF629942167004BEC01 /* Sources */,
 				FAA06AF729942167004BEC01 /* Frameworks */,
-				FAA06AF829942167004BEC01 /* CopyFiles */,
+				FAA06AF829942167004BEC01 /* Copy Files */,
 				FAB99E4E29959C340045ABA0 /* Resources */,
 			);
 			buildRules = (
@@ -172,7 +1068,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA7578FA2996F34000378FA9 /* bitmap in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -183,9 +1078,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA3C22AE2AD4E00A004634E6 /* RtMidi.cpp in Sources */,
 				FAA06B0E29943BC7004BEC01 /* main.cpp in Sources */,
-				FAA06B0A29943796004BEC01 /* gfxfont.h in Sources */,
-				FAA06AFE29942167004BEC01 /* headless.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +1130,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					RTMIDI_DEBUG,
+					__MACOSX_CORE__,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -311,20 +1207,20 @@
 				CODE_SIGN_STYLE = Automatic;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
-					"$(inherited)",
-					MACOSX_CORE,
+					__MACOSX_CORE__,
+					RTMIDI_DEBUG,
 				);
-				HEADER_SEARCH_PATHS = /usr/local/include;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					"/Users/alex/Documents/Arduino/stepchild/src/headless/childOS_headless/rtmidi-6.0.0",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/Cellar/glfw/3.3.8/include,
 					/usr/local/Cellar/glfw/3.3.8/lib,
 				);
 				OTHER_CFLAGS = "";
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"-D__MACOSX_CORE__",
-				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -333,17 +1229,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				HEADER_SEARCH_PATHS = /usr/local/include;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					"/Users/alex/Documents/Arduino/stepchild/src/headless/childOS_headless/rtmidi-6.0.0",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/Cellar/glfw/3.3.8/include,
 					/usr/local/Cellar/glfw/3.3.8/lib,
 				);
 				OTHER_CFLAGS = "";
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"-D__MACOSX_CORE__",
-				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

@@ -1,32 +1,41 @@
 #define HEADLESS
-#include <string>
 
 //headless wrapper which provides substitute classes/functions
 //for the arduino library, and includes the openGL setup for emulating the
 //screen
 
-//swapping the arduino "String" object for the C++ "string" object (kinda silly, but it works)
-
 using namespace std;
-
-string stringify(int a){
-    return to_string(a);
-}
-string stringify(string s){
-    return s;
-}
-int toInt(string s){
-    if(s == "")
-        return 0;
-    else
-        return stoi(s);
-}
-
-#define String string
-
-#include "../../stepchild/prototypes.h"
 
 #include "headless.h"
 
-//include the rest of the files like normal
-#include "../../stepchild/stepchild.ino"
+void cpu0(){
+    while (!glfwWindowShouldClose(window)){
+        loop();
+    }
+}
+void cpu1(){
+    while (!glfwWindowShouldClose(window)){
+        loop1();
+    }
+}
+int main(){
+    //setup graphics window
+    window = initGlfw();
+    while(!openGLready){
+    }
+    //setup sequence data
+    setup();
+    //launch the cpu1 thread to run the clock
+    thread core1(cpu1);
+    
+    //and then launch into the main thread
+    cpu0();
+    
+    //wait for the other thread to exit before killing the window
+    core1.join();
+    
+    //when you're ready to exit, close the window
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    return 0;
+}

@@ -131,6 +131,148 @@ void selectDataPoint(uint16_t index){
   }
 }
 
+//draws an animated icon representing the type of interpolation algorithm being used
+//0 = linear, 1 = elliptical up, 2 = elliptical down
+void drawNodeEditingIcon(uint8_t xPos, uint8_t yPos, uint8_t type, uint8_t frame, bool text){
+  const uint8_t width = 19;
+  const uint8_t height = 10;
+  display.fillRect(xPos,yPos,width,height,SSD1306_BLACK);
+  display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
+
+  //in this context, type means the kind of interpolation algorithm you're using
+  switch(type){
+    //linear
+    case 0:
+      {
+      uint8_t p1[2] = {3,(uint8_t)(5+sin(millis()/100))};
+      uint8_t p2[2] = {15,(uint8_t)(5+cos(millis()/100))};
+      display.drawLine(xPos+p1[0]+2,yPos+p1[1],xPos+p2[0]-2,yPos+p2[1],SSD1306_WHITE);
+      display.drawCircle(xPos+p1[0],yPos+p1[1],1,SSD1306_WHITE);
+      display.drawCircle(xPos+p2[0],yPos+p2[1],1,SSD1306_WHITE);
+      if(text)
+        printSmall(xPos+width/2-6,yPos+height+2,"lin",SSD1306_WHITE);
+      break;
+      }
+    //elliptical UP
+    case 1:
+      {
+      uint8_t lastPoint;
+      for(uint8_t point = 0; point<width; point++){
+        uint8_t pt = sin(millis()/100+point)+yPos+sqrt(1-pow(point-width/2,2)/pow(width/2,2))*(height/2+2)+1;
+        if(point == 0){
+          display.drawPixel(point+xPos,pt,SSD1306_WHITE);
+        }
+        else{
+          display.drawLine(point+xPos,pt,point-1+xPos,lastPoint,SSD1306_WHITE);
+        }
+        lastPoint = pt;
+      }
+      if(text)
+        printSmall(xPos+width/2-4,yPos+height+2,"up",SSD1306_WHITE);
+      break;
+      }
+    //elliptical DOWN
+    case 2:
+      {
+      uint8_t lastPoint;
+      for(uint8_t point = 0; point<width; point++){
+        uint8_t pt = sin(millis()/100+point)+yPos-sqrt(1-pow(point-width/2,2)/pow(width/2,2))*(height/2+2)+height-1;
+        if(point == 0)
+          display.drawPixel(point+xPos,pt,SSD1306_WHITE);
+        else
+          display.drawLine(point+xPos,pt,point-1+xPos,lastPoint,SSD1306_WHITE);
+        lastPoint = pt;
+      }
+      if(text)
+        printSmall(xPos+width/2-8,yPos+height+2,"down",SSD1306_WHITE);
+      break;
+      }
+  }
+}
+
+//draws a curve. Frame is to animated it! basically, sets x-offset. Pass a constant to it for no animation.
+//Type: 0 = custom, 1 = sinewave, 2 = square wave, 3 = saw, 4 = triangle, , 5 = random
+void drawCurveIcon(uint8_t xPos, uint8_t yPos, uint8_t type, uint8_t frame){
+  //width
+  const uint8_t width = 19;
+  const uint8_t height = 10;
+  display.fillRect(xPos,yPos,width,height,SSD1306_BLACK);
+  switch(type){
+    //custom curve (default)
+    case 0:
+      drawNodeEditingIcon(xPos,yPos,0,frame,false);
+      break;
+    //sin curve
+    case 1:
+      display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
+      uint8_t lastPoint;
+      //drawing each sinPoint
+      for(uint8_t point = 0; point<width; point++){
+        if(point == 0){
+          display.drawPixel(point+xPos,yPos+height/2+(height/2-3)*sin(PI*float(point+frame)/float(width/2)),SSD1306_WHITE);
+        }
+        else
+          display.drawLine(point+xPos,yPos+height/2+(height/2-3)*sin(PI*float(point+frame)/float(width/2)),point-1+xPos,lastPoint,SSD1306_WHITE);
+        lastPoint = yPos+height/2+(height/2-3)*sin(PI*(point+frame)/(width/2));
+      }
+      break;
+    //square
+    case 2:
+      display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
+      for(uint8_t point = 0; point<width; point++){
+        //if it's less than, it's low
+        if((point+frame)%width<width/2)
+          display.drawPixel(point+xPos,yPos+height-3,SSD1306_WHITE);
+        //if it's greater than half a period, it's high
+        else if((point+frame)%width>width/2 && (point+frame)%width<width-1)
+          display.drawPixel(point+xPos,yPos+2,SSD1306_WHITE);
+        //if it's equal to half a period, then it's a vert line
+        else
+          display.drawFastVLine(point+xPos,yPos+2,height-4,SSD1306_WHITE);
+      }
+      break;
+    //saw
+    case 3:
+      {
+        display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
+        //slope is just 1/1
+        for(uint8_t point = 0; point<width; point++){
+          uint8_t pt = (point+frame)%int(width/3);
+          if(pt == 0)
+            display.drawFastVLine(point+xPos,yPos+2,height-4,SSD1306_WHITE);
+          else
+            display.drawPixel(point+xPos,yPos+pt+2,SSD1306_WHITE);
+        }
+      }
+      break;
+    //triangle
+    case 4:
+      {
+        display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
+        //slope is just 1/1
+        int8_t coef = 1;
+        uint8_t pt;
+        for(uint8_t point = 0; point<width; point++){
+          if((point+frame)%(width/2)>=width/4)
+            pt = -(point+frame)%(width/2)+2*height/2;
+          else
+            pt = (point+frame)%(width/2)+3;
+          display.drawPixel(xPos+point,yPos+pt+height/8,SSD1306_WHITE);
+        }
+      }
+      break;
+    //random
+    case 5:
+      {
+        display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
+        printSmall(xPos+4,yPos+3+sin(millis()/100),"R",SSD1306_WHITE);
+        printSmall(xPos+8,yPos+3+sin(millis()/100+1),"N",SSD1306_WHITE);
+        printSmall(xPos+12,yPos+3+sin(millis()/100+2),"D",SSD1306_WHITE);
+      }
+      break;
+  }
+}
+
 //for editing a single dataTrack
 void dataTrackEditor(){
   //type of curve to draw! 0 is linear, 1 is x^2
