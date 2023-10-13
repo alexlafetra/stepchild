@@ -11,6 +11,7 @@ public:
   vector<unsigned char> extendedNotes;
 
   uint16_t arpSubDiv = 24;
+
   //activeNote is the index of the order list, we move through order to call notes
   uint8_t activeNote;
   uint8_t range;
@@ -41,6 +42,7 @@ public:
   bool addStepLength(uint16_t, uint8_t);
   bool addStepLength(uint16_t);
   bool addStepLength();
+  uint8_t getOrder();
   //vars for the timing function
   unsigned long startTime;
   unsigned int offBy;
@@ -82,7 +84,7 @@ Arp activeArp;
 
 bool Arp::hasItBeenEnoughTime() {
   if (swung) {
-    if (micros() - Arp::timeLastStepPlayed >= MicroSperTimeStep + swingOffset(stepCount)) {
+    if ((micros() - Arp::timeLastStepPlayed) >= (MicroSperTimeStep + swingOffset(stepCount))) {
       if (!(stepCount % swingSubDiv)) {
         Arp::offBy = (micros() - Arp::startTime) % MicroSperTimeStep;
       }
@@ -92,7 +94,8 @@ bool Arp::hasItBeenEnoughTime() {
       return true;
     } else
       return false;
-  } else {
+  }
+  else {
     if (micros() - Arp::timeLastStepPlayed + Arp::offBy >= MicroSperTimeStep) {
       Arp::offBy = (micros() - Arp::startTime) % MicroSperTimeStep;
       timeLastStepPlayed = micros();
@@ -104,13 +107,21 @@ bool Arp::hasItBeenEnoughTime() {
   }
 }
 
+//returns which note is playing based on the active note
+uint8_t Arp::getOrder(){
+  if(!order.size())
+    return 0;
+  else
+    return order[activeNote%order.size()-1];
+}
+
 void Arp::start() {
   grabNotesFromPlaylist();
   Arp::startTime = micros();
     if(order.size()>activeNote){
-        if(Arp::notes.size() >= order[activeNote]){
-            sendMIDInoteOn(notes[order[activeNote]], 100, Arp::channel);
-            lastPitchSent = notes[order[activeNote]];
+        if(Arp::notes.size() > getOrder()){
+            sendMIDInoteOn(notes[getOrder()], 100, Arp::channel);
+            lastPitchSent = notes[getOrder()];
             Arp::timeLastStepPlayed = micros();
         }
     }
@@ -143,19 +154,30 @@ void Arp::grabNotesFromPlaylist() {
   notes.swap(temp);
   //adds in notes from the playlist, one copy for each octave, in the order played
   for (int oct = 0; oct < range + 1; oct++) {
-    //if it's just external notes
-    if(source == 0){
-      for (int i = 0; i < receivedNotes.notes.size(); i++) {
-        notes.push_back(receivedNotes.notes[i].pitch + 12 * oct);
-      }
-    }
-    //if it's just internal notes
-    if(source == 1){
-      for (int i = 0; i < sentNotes.notes.size(); i++) {
-        notes.push_back(sentNotes.notes[i].pitch + 12 * oct);
-      }
+    switch(source){
+      //if it's just external notes
+      case 0:
+        for (int i = 0; i < receivedNotes.notes.size(); i++) {
+          notes.push_back(receivedNotes.notes[i].pitch + 12 * oct);
+        }
+      break;
+      //if it's just internal notes
+      case 1:
+        for (int i = 0; i < sentNotes.notes.size(); i++) {
+          notes.push_back(sentNotes.notes[i].pitch + 12 * oct);
+        }
+        break;
+      //grabbing from both
+      case 2:
+      //you don't need to do this every time! wasteful
+        notes = getUnionPitchList();
+        for(uint8_t i = 0; i<notes.size(); i++){
+          notes[i] = notes[i]+12*oct;
+        }
+        break;
     }
   }
+  setOrder();
 }
 
 //playheadPos wraps around after each note, it just counts up until the next note needs to be played
@@ -166,7 +188,7 @@ void Arp::playstep() {
       grabNotesFromPlaylist();
     }
     //if the playhead is past the current active note
-    if ((uniformLength && playheadPos > arpSubDiv) || (!uniformLength && playheadPos > lengths[order[activeNote]])) {
+    if ((uniformLength && playheadPos > arpSubDiv) || (!uniformLength && playheadPos > lengths[getOrder()])) {
       sendMIDInoteOff(lastPitchSent, 0, channel);
       uint8_t willItRep = random(0, 100);
       //if it's not repeating, then play it again
@@ -182,7 +204,7 @@ void Arp::playstep() {
       //if it plays
       if (willItPlay < chanceMod) {
         //add one to the random() bounds if maxPitchMod == 0, so that it doesn't always generate lower pitched notes by excluding 0 as an optino
-        int8_t randOctave = random(-minPitchMod / 16, maxPitchMod / 16 + (maxPitchMod == 0) ? 1 : 0);
+        int8_t randOctave = random(-minPitchMod / 16, maxPitchMod / 16 + ((maxPitchMod == 0) ? 1 : 0));
         //getting random modifiers
         int16_t randVel = random(64 - minVelMod / 2, 64 + maxVelMod / 2);
         if (randVel <= 0)
@@ -192,7 +214,7 @@ void Arp::playstep() {
 
         //if there's no velocity mod   (when min == max) just set vel to 100
         uint8_t vel = (maxVelMod == minVelMod) ? 100 : randVel;
-        int16_t pitch = notes[order[activeNote]];
+        int16_t pitch = notes[getOrder()];
         //same as vel, if min and max are diffferent then use the modifier
         if (maxPitchMod != minPitchMod)
           pitch += (12 * randOctave);
@@ -207,10 +229,6 @@ void Arp::playstep() {
   //if not, try to grab some notes
   else
     grabNotesFromPlaylist();
-
-  //set the order of the notes
-  setOrder();
-  // debugPrintArp();
 }
 
 //range

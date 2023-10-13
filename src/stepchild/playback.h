@@ -3,7 +3,7 @@ void playTrack(uint8_t track, uint16_t timestep){
   //if there's no note, skip to the next track
   if (lookupData[track][timestep] == 0){
     if(trackData[track].noteLastSent != 255){//if the track was sending, send a note off
-      if(!isArping || activeArp.source == 1 )
+      if(!isArping || activeArp.source == 0 )//if the arp is off, or if it's just listening to notes from outside the seq
         sendMIDInoteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
       sentNotes.subNote(trackData[track].noteLastSent);
       trackData[track].noteLastSent = 255;
@@ -18,7 +18,7 @@ void playTrack(uint8_t track, uint16_t timestep){
       if(!seqData[track][lookupData[track][timestep]].muted){
         //if the track was already sending a note, send note off
         if(trackData[track].noteLastSent != 255){
-          if(!isArping || activeArp.source == 1)
+          if(!isArping || activeArp.source == 0)
             sendMIDInoteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
           trackData[track].noteLastSent = 255;
         }
@@ -54,11 +54,11 @@ void playTrack(uint8_t track, uint16_t timestep){
           if(trackData[track].muteGroup!=0){
             muteGroups(track, trackData[track].muteGroup);
           }
-          if(!isArping || activeArp.source == 1)
+          if(!isArping || activeArp.source == 0)
             sendMIDInoteOn(pitch, vel, trackData[track].channel);
           trackData[track].noteLastSent = pitch;
           if(trackData[track].isLatched){
-            if(!isArping || activeArp.source == 1)
+            if(!isArping || activeArp.source == 0)
               sendMIDInoteOff(pitch, 0, trackData[track].channel);
           }
           sentNotes.addNote(pitch,vel,trackData[track].channel);

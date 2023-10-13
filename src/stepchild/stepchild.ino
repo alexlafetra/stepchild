@@ -8354,6 +8354,18 @@ bool isReceivingOrSending(){
 }
 
 
+void filterOutUnisonNotes(vector<uint8_t>& notes){
+  vector<uint8_t> uniqueNotes;
+  for(uint8_t i = 0; i<notes.size(); i++){
+    if(!uniqueNotes.size())
+      uniqueNotes.push_back(notes[i]%12);
+    else{
+      if(find(uniqueNotes.begin(),uniqueNotes.end(),notes[i]%12) == uniqueNotes.end()){
+        uniqueNotes.push_back(notes[i]%12);
+      }
+    }
+  }
+}
 
 //prints out lookupdata
 void debugPrintLookup(){

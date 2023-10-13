@@ -213,8 +213,8 @@ RtMidi::Api chooseMidiApi()
   RtMidi::getCompiledApi(apis);
 
   if (apis.size() <= 1){
-      cout<<"uh oh\n";
-    return RtMidi::Api::UNSPECIFIED;
+      cout<<"going w/"+RtMidi::getApiDisplayName(apis[0])+" MIDI api\n";
+      return apis[0];
   }
 
   std::cout << "\nAPIs\n  API #0: unspecified / default\n";

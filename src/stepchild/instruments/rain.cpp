@@ -370,7 +370,7 @@ void rain(){
           drops.erase(drops.begin()+i,drops.begin()+i+1);
           continue;
         }
-        if(drops[i].madeSound && !pitchList.size()){
+        if(drops[i].madeSound && pitchList.size()){
           uint8_t pitch = positionToPitch(pitchList,startPitch,minOct,maxOct,drops[i].x1);
           sendMIDInoteOn(pitch,dropVelToNoteVel(drops[i].vel/float(stormIntensity+intensityVariance),minVel,maxVel),channel);
           sendMIDInoteOff(pitch,0,channel);
@@ -463,6 +463,8 @@ void rain(){
     }
     if(grabNotesFromPlaylist){
       pitchList = getUnionPitchList();
+      //removes octave from each pitch
+      filterOutUnisonNotes(pitchList);
       sort(pitchList.begin(),pitchList.end());
     }
   }

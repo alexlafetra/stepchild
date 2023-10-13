@@ -312,6 +312,7 @@ uint8_t countChar(String text,unsigned char c);
 void alert(String text, int time);
 void drawWebLink();
 void displayHelpText(uint8_t);
+void filterOutUnisonNotes(vector<uint8_t>& notes);
 
 //MIDI
 void sendMIDIallOff();
