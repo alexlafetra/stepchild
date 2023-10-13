@@ -61,7 +61,7 @@ Menu::Menu(int16_t x1, int16_t y1, int16_t x2, int16_t y2, String title){
   coords.y1 = y1;
   coords.x2 = x2;
   coords.y2 = y2;
-  highlight = 0;
+  // highlight = 0;
   menuTitle = title;
   page = 0;
 }

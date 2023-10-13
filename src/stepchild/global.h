@@ -166,9 +166,6 @@ bool quantizeWithSwing = false;
 //holds all the data for the echo fx
 uint8_t echoData[3] = {24,75,2};//delay, decay, repeats, target (0 for note, 1 for track, 2 for selection, and 3 for seq)
 
-vector<vector<uint8_t>> playlist;//holds currently transmitting/active notes
-//stored as pitch, vel, channel
-
 String menuText;
 String currentFile = "";
 

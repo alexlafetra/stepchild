@@ -319,3 +319,4 @@ void handleInternalCC(uint8_t, uint8_t, uint8_t, uint8_t);
 void sendMIDICC(uint8_t,uint8_t,uint8_t);
 uint8_t moveToNextCCParam(uint8_t param, bool up, uint8_t whichList);
 uint8_t selectCCParam_dataTrack(uint8_t which);
+bool isActiveChannel(uint8_t channel, uint8_t output);

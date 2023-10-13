@@ -1,6 +1,7 @@
+//Draws a small graphic of the Stepchild with the top left corner at (x1, y1)
 void drawSmallStepchild(uint8_t x1, uint8_t y1){
   //aspect ratio is ~11:9
-  display.fillRoundRect(x1, y1, 22, 18, 4, SSD1306_WHITE);
+  display.fillRoundRect(x1, y1, 22, 18, 3, SSD1306_WHITE);
   //screen
   display.fillRect(x1+5,y1+3,12,8,SSD1306_BLACK);
   //buttons
@@ -17,47 +18,11 @@ void drawSmallStepchild(uint8_t x1, uint8_t y1){
   display.fillCircle(x1+19,y1+9,1,SSD1306_BLACK);
 }
 
-void drawSwingCurve_old(int8_t xPos, int8_t yPos){
-  display.fillRect(xPos,-1,64,66,SSD1306_BLACK);
-  display.drawRect(xPos,-1,64,66,SSD1306_WHITE);
-  if(!swung){
-    printSmall(xPos+(screenWidth-xPos)/2-6,40,"off",1);
-    if(millis()%1000>500){
-      printSmall(xPos+(screenWidth-xPos)/2-10,50,"[sel]",1);
-    }
-    display.drawFastVLine(xPos,16,48,1);
-    return;
-  }
-  //starting point is zero, end point is 96
-  float sc = 96/32;
-  float oldPoint = 0;
-  uint16_t mid = (yPos);
-  for(float i = 0; i<32; i+=0.5){
-    float y1 = swingOffset(i*sc)/float(1000);
-    // drawDottedLineDiagonal(xPos+i*2,yPos+1+y1,xPos+i*2,yPos+1,3);
-    if(y1<0)
-      shadeLineV(xPos+i*2,mid+ceil(y1),-ceil(y1),2);
-    else
-      shadeLineV(xPos+i*2,mid,ceil(y1),2);
-    // display.drawPixel(xPos+i*2,y+yPos+1,SSD1306_WHITE);
-    if(i == 0)
-        display.drawLine(xPos,oldPoint+yPos+1,xPos+i*2,y1+yPos+1,SSD1306_WHITE);
-    else
-      display.drawLine(xPos+(i-0.5)*2,oldPoint+yPos+1,xPos+i*2,y1+yPos+1,SSD1306_WHITE);
-    oldPoint = y1;
-  }
-  printSmall(screenWidth-8,18,"wv",1);
-  printSmall(screenWidth-6,24,"%",1);
-  //playhead
-  if(playing || recording){
-    display.drawFastVLine(xPos + ((playing ? playheadPos:recheadPos)%32)*sc,16,screenHeight-16,SSD1306_WHITE);
-  }
-  display.fillRect(activeMenu.coords.y1+70,0,58,16,SSD1306_BLACK);
-}
-
+//
 void drawSwingCurve(int8_t xPos, int8_t yPos){
   display.fillRect(xPos,16,96,48,SSD1306_BLACK);
-  // display.drawRect(xPos,16,96,48,SSD1306_WHITE);
+
+  //If swing is off, don't draw the curve
   if(!swung){
     printSmall(xPos+(screenWidth-xPos)/2-6,42,"off",1);
     if(millis()%1000>500){
@@ -67,11 +32,12 @@ void drawSwingCurve(int8_t xPos, int8_t yPos){
     display.drawFastHLine(xPos,16,screenWidth-xPos,1);
     return;
   }
+
   //starting point is the viewstart, end point is viewend
   float oldPoint = 0;
   uint16_t mid = (yPos);
   for(float i = viewStart; i<viewEnd; i+=0.5){
-    float y1 = swingOffset(i*scale)/float(1000);
+    float y1 = float(22.0*swingOffset(i))/MicroSperTimeStep;
     if(y1<0)
       shadeLineV(xPos+(i-viewStart)*scale,mid+ceil(y1),-ceil(y1),2);
     else
@@ -95,7 +61,6 @@ void drawSwingCurve(int8_t xPos, int8_t yPos){
     display.drawFastVLine(trackDisplay + ((playing ? playheadPos:recheadPos)-viewStart)*scale,16,screenHeight-16,SSD1306_WHITE);
   }
   display.drawFastHLine(xPos,16,screenWidth-xPos,1);
-  // display.fillRect(activeMenu.coords.y1+70,0,58,16,SSD1306_BLACK);
 }
 
 
@@ -135,7 +100,7 @@ void Menu::displayClockMenu(float tVal,uint8_t cursor){
       printCursive(coords.y1+76,3,"swing",SSD1306_WHITE);
       if(!swung)
         break;
-      printSmall(109,4,stringify(swingVal/250)+"%",SSD1306_WHITE);
+      printSmall(109,4,stringify(float(swingVal*100)/float(MicroSperTimeStep))+"%",SSD1306_WHITE);
       }
       break;
     //swing sub div
@@ -220,6 +185,11 @@ void Menu::displayClockMenu(float tVal,uint8_t cursor){
     }
 }
 
+//returns the most negative value the swing curve can add to the clock before the clock delay is 0
+float minimumwingOffset(){
+  return MicroSperTimeStep;
+}
+
 void clockMenu(){
   float tVal = micros();
   float angle = 1;
@@ -297,20 +267,13 @@ void clockMenu(){
             if(!swung)
               break;
             if(!shift){
-              if(swingVal>0){
-                if(swingVal<21845)
-                  swingVal *= 1.5;
-              }
-              else{
-                if(abs(swingVal)<=1000)
-                  swingVal = -swingVal;
-                else{
-                  swingVal /= 1.5;
-                }
-              }
+              swingVal+=MicroSperTimeStep/10;
             }
-            else if(swingVal<=21745)
-              swingVal += 100;
+            else{
+              swingVal+=MicroSperTimeStep/100;
+            }
+            if(abs(swingVal)>MicroSperTimeStep)
+              swingVal = swingVal<0?-MicroSperTimeStep:MicroSperTimeStep;
             break;
           //source
           case 3:
@@ -339,20 +302,13 @@ void clockMenu(){
             if(!swung)
               break;
             if(!shift){
-              if(swingVal<0){
-                if(abs(swingVal)<21845)
-                  swingVal *= 1.5;
-              }
-              else{
-                if(abs(swingVal)<=1000)
-                  swingVal = -swingVal;
-                else{
-                  swingVal /= 1.5;
-                }
-              }
+              swingVal-=MicroSperTimeStep/10;
             }
-            else if(swingVal>=-21745)
-              swingVal -= 100;
+            else{
+              swingVal-=MicroSperTimeStep/100;
+            }
+            if(abs(swingVal)>MicroSperTimeStep)
+              swingVal = swingVal<0?-MicroSperTimeStep:MicroSperTimeStep;
             break;
           //source
           case 3:
@@ -400,5 +356,6 @@ void clockMenu(){
   }
   slideMenuOut(0,16);
   // menuIsActive = false;
+  activeMenu.highlight = 10;
   constructMenu("MENU");
 }

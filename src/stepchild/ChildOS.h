@@ -128,6 +128,8 @@ vector<vector<Note>> copyBuffer;//stores copied notes
 #include "classes/Knob.h"
 #include "classes/Track.h"
 
+#include "playlist.h"
+
 vector<Track> trackData;//holds the tracks in the sequence
 
 #include "classes/AutomationTrack.h"

@@ -815,7 +815,8 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
         break;
       //warp
       case 6:
-        txt = fxApplicationTexts[currentQuickFunction];
+        // txt = fxApplicationTexts[currentQuickFunction];
+        txt = "FX";
         drawArrow(coords.x1+95,13+sin(millis()/200),4,2,false);
         break;
     }

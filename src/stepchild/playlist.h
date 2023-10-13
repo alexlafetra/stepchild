@@ -1,3 +1,26 @@
+enum origin {INTERNAL,EXTERNAL};
+
+//stores note data (pitch, vel, channel) and source (INTERNAL, EXTERNAL)
+struct NoteSourcePair{
+  origin source;
+  uint8_t pitch;
+  uint8_t vel;
+  uint8_t channel;
+
+  NoteSourcePair(uint8_t, uint8_t, uint8_t, origin);
+};
+
+NoteSourcePair::NoteSourcePair(uint8_t p, uint8_t v, uint8_t c, origin src){
+  pitch = p;
+  vel = v;
+  channel = c;
+  source = src;
+}
+
+
+vector<vector<uint8_t>> playlist;//holds currently transmitting/active notes
+//stored as pitch, vel, channel
+
 //returns a list of pitches that are present in the playlist
 vector<uint8_t> getUniquePitchesFromPlaylist(){
   //move thru each note and get its 'true' pitch.
