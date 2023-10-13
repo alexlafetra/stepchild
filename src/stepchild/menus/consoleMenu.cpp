@@ -77,9 +77,9 @@ void console(){
     if(noteOnReceived){
       noteOnReceived = false;
       // noteOffReceived = false;
-      String text = pitchToString(recentNote[0],true,true);
-      String text2 = stringify(recentNote[1]);
-      String text3 = stringify(recentNote[2]);
+      String text = pitchToString(recentNote.pitch,true,true);
+      String text2 = stringify(recentNote.vel);
+      String text3 = stringify(recentNote.channel);
       for(int8_t i = 0; i<(3-text2.length()); i++){
         text3 = "  "+text3;
       }
@@ -101,16 +101,16 @@ void console(){
       else{
         midiInMessages.push_back(text);
       }
-      lastPitchReceived = recentNote[0];
-      lastVelReceived = recentNote[1];
-      lastChannelReceived = recentNote[2];
+      lastPitchReceived = recentNote.pitch;
+      lastVelReceived = recentNote.vel;
+      lastChannelReceived = recentNote.channel;
     } 
 
     //CC
-    if(recentCC[0] != lastCCReceived || recentCC[1] != lastCCValReceived || recentCC[2] != lastCCChannelReceived){
-        String text = stringify(recentCC[0]);
-        String text2 = stringify(recentCC[1]);
-        String text3 = stringify(recentCC[2]);
+    if(recentCC.cc != lastCCReceived || recentCC.val != lastCCValReceived || recentCC.channel != lastCCChannelReceived){
+        String text = stringify(recentCC.cc);
+        String text2 = stringify(recentCC.val);
+        String text3 = stringify(recentCC.channel);
         for(int8_t i = 0; i<(3-text2.length()); i++){
           text3 = "  "+text3;
         }
@@ -129,9 +129,9 @@ void console(){
       else{
         CCInMessages.push_back(text);
       }
-      lastCCReceived = recentCC[0];
-      lastCCValReceived = recentCC[1];
-      lastCCChannelReceived = recentCC[2];
+      lastCCReceived = recentCC.cc;
+      lastCCValReceived = recentCC.val;
+      lastCCChannelReceived = recentCC.channel;
     }
 
     //Notes sent

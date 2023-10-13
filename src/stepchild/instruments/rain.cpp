@@ -61,7 +61,8 @@ bool Raindrop::update(){
 
 //takes the x-position of a raindrop and finds where in pitch list that occurs
 uint8_t positionToPitch(vector<uint8_t> pitchList, uint8_t startPitch, int8_t minOct, int8_t maxOct, uint8_t xCoord){
-
+  if(!pitchList.size())
+    return 0;
   float pxPerOctave = float(screenWidth)/float(abs(maxOct-minOct));
   float pxPerNote = pxPerOctave/float(pitchList.size());
                     
@@ -369,7 +370,7 @@ void rain(){
           drops.erase(drops.begin()+i,drops.begin()+i+1);
           continue;
         }
-        if(drops[i].madeSound){
+        if(drops[i].madeSound && !pitchList.size()){
           uint8_t pitch = positionToPitch(pitchList,startPitch,minOct,maxOct,drops[i].x1);
           sendMIDInoteOn(pitch,dropVelToNoteVel(drops[i].vel/float(stormIntensity+intensityVariance),minVel,maxVel),channel);
           sendMIDInoteOff(pitch,0,channel);
@@ -461,7 +462,7 @@ void rain(){
         // drops.push_back(Raindrop(random(highest(float(xCoord-xVariance),0),lowest(float(xCoord+xVariance),128)),1,1));
     }
     if(grabNotesFromPlaylist){
-      pitchList = getUniquePitchesFromPlaylist();
+      pitchList = getUnionPitchList();
       sort(pitchList.begin(),pitchList.end());
     }
   }

@@ -24,6 +24,10 @@
         "ranges": "cpp",
         "ostream": "cpp",
         "random": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "__tree": "cpp",
+        "deque": "cpp",
+        "map": "cpp",
+        "regex": "cpp"
     }
 }

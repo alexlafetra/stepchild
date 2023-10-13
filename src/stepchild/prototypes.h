@@ -296,6 +296,8 @@ uint16_t changeSubDiv(bool direction, uint8_t subDiv, bool allowZero);
 String getPitchList(vector<uint8_t> intervals);
 uint16_t countNotesInRange(uint16_t start, uint16_t end);
 bool isReceiving();
+bool isSending();
+bool isReceivingOrSending();
 String getInterval(int root, int pitch);
 void updateLEDs();
 void writeLEDs(uint8_t led, bool state);

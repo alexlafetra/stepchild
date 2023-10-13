@@ -170,7 +170,5 @@ String menuText;
 String currentFile = "";
 
 //stores recent received note as pitch, vel, channel
-volatile uint8_t recentNote[3];
-volatile uint8_t recentCC [3];
 volatile bool noteOnReceived = false;
 volatile bool noteOffReceived = false;

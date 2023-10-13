@@ -154,17 +154,17 @@ void MIDItoCV(){
     //0 is global, anything else is a filter
     int8_t channel = 0;
     while(true){
-        if(noteOnReceived && (channel == 0 || channel == recentNote[2])){
+        if(noteOnReceived && (channel == 0 || channel == recentNote.channel)){
             noteOnReceived = false;
             gate = true;
-            pitch = recentNote[0];
+            pitch = recentNote.pitch;
             writeCVGate(gate);
             writeCVPitch(pitch);
         }
-        if(noteOffReceived && recentNote[0] == pitch && (channel == 0 || channel == recentNote[2])){
+        if(noteOffReceived && recentNote.pitch == pitch && (channel == 0 || channel == recentNote.channel)){
             noteOffReceived = false;
             gate = false;
-            pitch = recentNote[0];
+            pitch = recentNote.pitch;
             writeCVGate(gate);
             writeCVPitch(pitch);
         }
@@ -196,7 +196,7 @@ void MIDItoCV(){
         }
         display.clearDisplay();
         printSmall(100,0,"ch:"+(channel?stringify(channel):"all"),1);
-        drawCVOsc(pitch,recentNote[1],gate);
+        drawCVOsc(pitch,recentNote.vel,gate);
         printSmall(0,0,"$: "+stringify(pitch)+" ("+pitchToString(pitch,true,true)+")",1);
         printSmall(0,57,"CV: ",1);
         printSmall(30,57,stringify(pitchToVoltage(pitch))+"V",1);
