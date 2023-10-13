@@ -536,7 +536,7 @@ void arpMenu(){
     //input icon
     // printSmall(50,1,"input:"+(activeArp.getNotesFromExternalInput?String("ex"):String("seq")),1);
     printSmall(50,1,"input:",1);
-    display.drawBitmap(76,0,activeArp.getNotesFromExternalInput?tiny_midi_bmp:tiny_stepchild_bmp,7,7,1);
+    display.drawBitmap(76,0,activeArp.source == 0?tiny_midi_bmp:tiny_stepchild_bmp,7,7,1);
 
     drawKeys(38,14,getOctave(keyboardPitch),14,false);//always start on a C, for simplicity
     //title
@@ -638,7 +638,7 @@ void arpMenu(){
       }
       //swap between external/internal input
       if(play){
-        activeArp.getNotesFromExternalInput = !activeArp.getNotesFromExternalInput;
+        activeArp.source = !activeArp.source;
         lastTime = millis();
       }
       if(menu_Press){

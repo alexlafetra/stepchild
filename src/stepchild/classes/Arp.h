@@ -27,7 +27,7 @@ public:
   bool playing;
   bool uniformLength;
   bool holding;
-  bool getNotesFromExternalInput;
+  uint8_t source; //can be 0 (external only) 1 (internal only) or 2 (both)
 
   void grabNotesFromTracks(bool);
   void grabNotesFromPlaylist();
@@ -66,7 +66,7 @@ Arp::Arp() {
   playing = false;
   uniformLength = true;
   holding = false;
-  getNotesFromExternalInput = true;
+  source = 0;
   channel = 1;
 
   maxVelMod = 0;
@@ -107,10 +107,12 @@ bool Arp::hasItBeenEnoughTime() {
 void Arp::start() {
   grabNotesFromPlaylist();
   Arp::startTime = micros();
-    if(Arp::notes.size() >= order[activeNote]){
-        sendMIDInoteOn(notes[order[activeNote]], 100, Arp::channel);
-        lastPitchSent = notes[order[activeNote]];
-        Arp::timeLastStepPlayed = micros();
+    if(order.size()>activeNote){
+        if(Arp::notes.size() >= order[activeNote]){
+            sendMIDInoteOn(notes[order[activeNote]], 100, Arp::channel);
+            lastPitchSent = notes[order[activeNote]];
+            Arp::timeLastStepPlayed = micros();
+        }
     }
   Arp::playing = true;
 }
@@ -141,8 +143,17 @@ void Arp::grabNotesFromPlaylist() {
   notes.swap(temp);
   //adds in notes from the playlist, one copy for each octave, in the order played
   for (int oct = 0; oct < range + 1; oct++) {
-    for (int i = 0; i < playlist.size(); i++) {
-      notes.push_back(playlist[i][0] + 12 * oct);
+    //if it's just external notes
+    if(source == 0){
+      for (int i = 0; i < receivedNotes.notes.size(); i++) {
+        notes.push_back(receivedNotes.notes[i].pitch + 12 * oct);
+      }
+    }
+    //if it's just internal notes
+    if(source == 1){
+      for (int i = 0; i < sentNotes.notes.size(); i++) {
+        notes.push_back(sentNotes.notes[i].pitch + 12 * oct);
+      }
     }
   }
 }
@@ -199,7 +210,7 @@ void Arp::playstep() {
 
   //set the order of the notes
   setOrder();
-  debugPrintArp();
+  // debugPrintArp();
 }
 
 //range

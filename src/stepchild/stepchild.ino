@@ -696,8 +696,8 @@ void recMenu(){
       }
     }
     //get current VU destination value
-    if(playlist.size()>0){
-      currentVel = recentNote[1];
+    if(receivedNotes.notes.size()>0){
+      currentVel = recentNote.vel;
     }
     else{
       currentVel = 0;
@@ -855,7 +855,7 @@ void muteGroups(int callingTrack, int group){
   for(int track = 0; track<trackData.size(); track++){
     if(track != callingTrack && trackData[track].muteGroup == group && trackData[track].noteLastSent != 255){
       sendMIDInoteOff(trackData[track].noteLastSent,0,trackData[track].channel);
-      subNoteFromPlaylist(trackData[track].noteLastSent);
+      sentNotes.subNote(trackData[track].noteLastSent);
       trackData[track].noteLastSent = 255;
     }
   }
@@ -2442,10 +2442,8 @@ void drawKeys(uint8_t xStart,uint8_t yStart,uint8_t octave,uint8_t numberOfKeys,
   for(int key = 0; key<numberOfKeys; key++){
     pressed = false;
     if(fromPlaylist){
-      for(int note = 0; note<playlist.size(); note++){
-        if(playlist[note][0] == key+octave*12){
-          pressed = true;
-        }
+      if(receivedNotes.containsPitch(key+octave*12)){
+        pressed = true;
       }
     }
     else{
@@ -2521,10 +2519,8 @@ void drawKeys_inverse(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t num
   //moves through every key. if it's a whitekey, it uses the whiteKeys variable to step through each white key
   for(int key = startKey; key<startKey+numberOfKeys; key++){
     pressed = false;
-    for(int note = 0; note<playlist.size(); note++){
-      if(playlist[note][0]%12 == key%12){
-        pressed = true;
-      }
+    if(receivedNotes.containsPitch(key%12)){
+      pressed = true;
     }
     //if it's a black key
     if((startKey+key)%12 == 1 || (startKey+key)%12 == 3 || (startKey+key)%12 == 6 || (startKey+key)%12 == 8 || (startKey+key)%12 == 10){
@@ -2614,10 +2610,8 @@ void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numbe
     for(int j = 0; j<columns; j++){
       if(pad>=startPad){
         pressed = false;
-        for(int note = 0; note<playlist.size(); note++){
-          if(playlist[note][0] == pad){
-            pressed = true;
-          }
+        if(receivedNotes.containsPitch(pad)){
+          pressed = true;
         }
         if(pressed){
           if(pad == keyboardPitch && shift){//so that you can see the keyboard pitch when shifting through
@@ -5624,8 +5618,7 @@ void stop(){
       sendMIDInoteOff(trackData[track].pitch, 0, trackData[track].channel);
     }
   }
-  vector<vector<uint8_t>> temp;
-  playlist.swap(temp);
+  sentNotes.clear();
 }
 
 //View ------------------------------------------------------------------
@@ -7212,7 +7205,7 @@ void drawTopIcons(){
   }
 
   //music symbol while receiving notes
-  if(isReceiving()){
+  if(isReceivingOrSending()){
     if(!((animOffset/10)%2)){
       display.drawChar(21,0,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
     }
@@ -7241,12 +7234,6 @@ void drawTopIcons(){
   }
 
   uint8_t x1 = 32;
-  //most recent note played or received
-  if(playlist.size()>0){
-    // String p = pitchTostringify(playlist[playlist.size()-1][0],true,true);
-    // printSmall(x1,1+sin(millis()/100),p,1);
-    // x1 += p.length()*4;
-  }
   //rec/play icon
   if(recording){
     if(!internalClock && !gotClock){
@@ -7955,107 +7942,7 @@ void selectBox(){
   }
 }
 
-void playTrack(uint8_t track, uint16_t timestep){
-  //if there's no note, skip to the next track
-  if (lookupData[track][timestep] == 0){
-    if(trackData[track].noteLastSent != 255){//if the track was sending, send a note off
-      sendMIDInoteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
-      subNoteFromPlaylist(trackData[track].noteLastSent);
-      trackData[track].noteLastSent = 255;
-    }
-    return;
-  }
-  //if there's a note there
-  else{
-    //if it's the start of the note, or if the track wasn't sending already
-    if(timestep == seqData[track][lookupData[track][timestep]].startPos || trackData[track].noteLastSent == 255){ //if it's the start
-      //if it's not muted
-      if(!seqData[track][lookupData[track][timestep]].muted){
-        //if the track was already sending a note, send note off
-        if(trackData[track].noteLastSent != 255){
-          sendMIDInoteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
-          trackData[track].noteLastSent = 255;
-        }
-        //modifying chance value and pitch value and vel
-        int16_t chance = seqData[track][lookupData[track][timestep]].chance;
-        int16_t pitch = trackData[track].pitch;
-        int16_t vel = seqData[track][lookupData[track][timestep]].velocity;
-        //if the channel matches, or if the modifier is global
-        if(trackData[track].channel == chanceModifier[0] || chanceModifier[0] == 0){
-          chance += chanceModifier[1];
-          if(chance<0)
-            chance = 0;
-          else if(chance>100)
-            chance = 100;
-        }
-        if(trackData[track].channel == pitchModifier[0] || pitchModifier[0] == 0){ 
-          pitch += pitchModifier[1];
-          if(pitch<0)
-            pitch = 0;
-          else if(pitch>127)
-            pitch = 127;
-        }
-        if(trackData[track].channel == velModifier[0] || velModifier[0] == 0){
-          vel += velModifier[1];
-          if(vel<0)
-            vel = 0;
-          else if(vel>127)
-            vel = 127;
-        }
-        //if chance is 100%
-        if(chance >= 100){
-          //if it's part of a muteGroup
-          if(trackData[track].muteGroup!=0){
-            muteGroups(track, trackData[track].muteGroup);
-          }
-          sendMIDInoteOn(pitch, vel, trackData[track].channel);
-          trackData[track].noteLastSent = pitch;
-          if(trackData[track].isLatched)
-            sendMIDInoteOff(pitch, 0, trackData[track].channel);
-          addNoteToPlaylist(pitch,vel,trackData[track].channel);
-          return;
-        }
-        else if(chance > 0){
-          uint8_t odds = random(100);
-          if(seqData[track][lookupData[track][timestep]].chance > odds){
-            if(trackData[track].muteGroup!=0){
-              muteGroups(track, trackData[track].muteGroup);
-            }
-            sendMIDInoteOn(pitch, vel, trackData[track].channel);
-            trackData[track].noteLastSent = pitch;
-            if(trackData[track].isLatched)
-              sendMIDInoteOff(pitch, 0, trackData[track].channel);
-            addNoteToPlaylist(pitch,vel,trackData[track].channel);
-            return;
-          }
-        }
-      }
-    }
-  }
-}
-
-void playDT(uint8_t dt, uint16_t timestep){
-  if(dataTrackData[dt].isActive){
-    if(timestep<dataTrackData[dt].data.size()){
-      if(dataTrackData[dt].data[timestep] != 255)
-        dataTrackData[dt].play(timestep);
-    }
-  }
-}
-
-void playStep(uint16_t timestep) {
-    //playing dataTracks too
-  for(uint8_t dT = 0; dT < dataTrackData.size(); dT++){
-    playDT(dT,timestep);
-  }
-  //playing each track
-  for (int track = 0; track < trackData.size(); track++) {
-    //if it's unmuted or solo'd, play it
-    if(!trackData[track].isMuted || trackData[track].isSolo)
-      playTrack(track,timestep);
-  }
-  checkCV();
-}
+#include "playback.h"
 
 //moves all selected notes (or doesn't)
 bool moveSelectedNotes(int xOffset,int yOffset){
@@ -8248,11 +8135,6 @@ void writeNoteOff(unsigned short int step, uint8_t pitch, uint8_t channel){
     if(trackData[track].noteLastSent != 255 && track != -1){
       seqData[track][note].endPos = step;
       trackData[track].noteLastSent = 255;
-
-      // if(lookupData[track][step] == note){
-      //   lookupData[track][step] = 0;
-      // }
-      // lookupData[track][step] = note;
     }
   }
 }
@@ -8297,7 +8179,7 @@ void continueStep(unsigned short int step){
     }
     //if the track isn't primed, play it normally
     else if(!trackData[track].isPrimed){
-      // playTrack(track,step);
+      playTrack(track,step);
     }
   }
 }
@@ -8346,55 +8228,62 @@ void handleStop_recording(){
 
 void handleNoteOn_Recording(uint8_t channel, uint8_t note, uint8_t velocity){
   writeNoteOn(recheadPos, note, velocity, channel);
+  sendThruOn(channel, note, velocity);
   waiting = false;
-  recentNote[0] = note;
-  recentNote[1] = velocity;
-  recentNote[2] = channel;
+  recentNote.pitch = note;
+  recentNote.vel = velocity;
+  recentNote.channel = channel;
   noteOnReceived = true;
   noteOnReceivedHandlerFunc(channel,note,velocity);
+
+  receivedNotes.addNote(note,velocity,channel);
 }
 
 void handleNoteOff_Recording(uint8_t channel, uint8_t note, uint8_t velocity){
   writeNoteOff(recheadPos, note, channel);
+  sendThruOff(channel, note);
   waiting = false;
   noteOffReceived = true;
 
   //is this a good idea? idk
-  recentNote[0] = note;
-  recentNote[1] = velocity;
-  recentNote[2] = channel;
+  recentNote.pitch = note;
+  recentNote.vel = velocity;
+  recentNote.channel = channel;
+
   noteOffReceivedHandlerFunc(channel,note,velocity);
+  
+  receivedNotes.subNote(note);
 }
 
 void handleCC_Recording(uint8_t channel, uint8_t cc, uint8_t value){
   writeCC(recheadPos,channel,cc,value);
-  recentCC[0] = cc;
-  recentCC[1] = value;
-  recentCC[2] = channel;
+  recentCC.cc = cc;
+  recentCC.val = value;
+  recentCC.channel = channel;
   waiting = false;
 }
 
 void handleCC_Normal(uint8_t channel, uint8_t cc, uint8_t value){
-  recentCC[0] = cc;
-  recentCC[1] = value;
-  recentCC[2] = channel;
+  recentCC.cc = cc;
+  recentCC.val = value;
+  recentCC.channel = channel;
 }
 
 void handleNoteOn_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
-  addNoteToPlaylist(note,velocity,channel);  
   int track = getTrackWithPitch(note);
   if(track != -1){
     trackData[track].noteLastSent = note;
   }
   sendThruOn(channel, note, velocity);
-  recentNote[0] = note;
-  recentNote[1] = velocity;
-  recentNote[2] = channel;
+  recentNote.pitch = note;
+  recentNote.vel = velocity;
+  recentNote.channel = channel;
   noteOnReceived = true;
+
+  receivedNotes.addNote(note,velocity,channel);  
 }
 
 void handleNoteOff_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
-  subNoteFromPlaylist(note);
   int track = getTrackWithPitch(note);
   if(track != -1){
     trackData[track].noteLastSent = 255;
@@ -8402,9 +8291,10 @@ void handleNoteOff_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
   sendThruOff(channel, note);
   noteOffReceived = true;
 
-  recentNote[0] = note;
-  recentNote[1] = velocity;
-  recentNote[2] = channel;
+  recentNote.pitch = note;
+  recentNote.vel = velocity;
+  recentNote.channel = channel;
+  receivedNotes.subNote(note);
 }
 
 void handleStart_Normal(){
@@ -8444,16 +8334,26 @@ void cleanupRecording(uint16_t stopTime){
   updateLookupData();
 }
 
+//true if Stepchild is sending or receiving notes
 bool isReceiving(){
-  for(int track = 0; track<trackData.size(); track++){
-    if(trackData[track].noteLastSent != 255)
+  for(uint8_t i = 0; i<trackData.size(); i++){
+    if(trackData[i].noteLastSent != 255)
       return true;
   }
-  if(playlist.size()>0){
-    return true;
-  }
-  return false;
+  return receivedNotes.notes.size();
 }
+bool isSending(){
+  for(uint8_t i = 0; i<trackData.size(); i++){
+    if(trackData[i].noteLastSent != 255)
+      return true;
+  }
+  return sentNotes.notes.size();
+}
+bool isReceivingOrSending(){
+  return (isReceiving() || isSending());
+}
+
+
 
 //prints out lookupdata
 void debugPrintLookup(){
@@ -9425,14 +9325,13 @@ bool anyActiveInputs(){
   return false;
 }
 
+//CHECK
+//true if pitch is being sent or received
 bool isBeingPlayed(uint8_t pitch){
-  if(playlist.size()>0){
-    for(int i = 0; i<playlist.size(); i++){
-      if(playlist[i][0] == pitch)
-        return true;
-    }
+  if(sentNotes.containsPitch(pitch) || receivedNotes.containsPitch(pitch)){
+    return true;
   }
-  return 0;
+  return false;
 }
 
 void stepButtons(){
@@ -10460,18 +10359,23 @@ void defaultLoop(){
 void arpLoop(){
   //if it was active, but hadn't started playing yet
   if(!activeArp.playing){
-    if(playlist.size()>0){
-      activeArp.start();
+    switch(activeArp.source){
+      case 0:
+        if(receivedNotes.notes.size()>0)
+          activeArp.start();
+        break;
+      case 1:
+        if(sentNotes.notes.size()>0)
+          activeArp.start();
+        break;
     }
   }
   if(activeArp.playing){
-    //if there are no notes,and it's not latched, just stop
-    if(playlist.size() == 0 && !activeArp.holding){
-      // activeArp.debugPrintArp();
+    //if the arp isn't latched and there are no notes for it
+    if(!activeArp.holding  && ((activeArp.source == 0 && !receivedNotes.notes.size()) || (activeArp.source == 1 && !sentNotes.notes.size()))){
       activeArp.stop();
-      // sendMIDIallOff();
     }
-    //if there are no notes, and it IS latched, then trigger the "waiting for more notes" var and continue
+    //if it IS latched or there are notes for it, then continue
     else if(activeArp.hasItBeenEnoughTime()){
       activeArp.playstep();
     }

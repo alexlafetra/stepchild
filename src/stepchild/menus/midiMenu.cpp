@@ -129,9 +129,9 @@ void portMenu(uint8_t which){
     display.display();
     //if something is being sent/received on this port
     bool something;
-    for(uint8_t i = 0; i<playlist.size(); i++){
-      if(isActiveChannel(playlist[i][2],which)){
-        currentVel = playlist[i][1];
+    for(uint8_t i = 0; i<receivedNotes.notes.size(); i++){
+      if(isActiveChannel(receivedNotes.notes[i].channel,which)){
+        currentVel = receivedNotes.notes[i].vel;
         something = true;
       }
     }
@@ -670,7 +670,7 @@ void inputMenu(){
       }
     }
     int8_t bigOffset;
-    if(isReceiving())
+    if(isReceivingOrSending())
       bigOffset = 2*sin(millis()/100);
     else
       bigOffset = 2*sin(millis()/300);
