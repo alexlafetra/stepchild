@@ -276,7 +276,9 @@ void quantizeMenu(){
     printSmall(28,6,q,1);
 
     //draw swing indicator
-    printSmall(90,6,deleteNote?"delete":"leave",1);
+    // printSmall(90,6,deleteNote?"delete":"leave",1);
+    drawLabel(100,1,deleteNote?"delete":"leave",1);
+    printSmall_centered(100,8,"collisions",1);
     printSmall(0,53,"quantize",1);
 
     if(whichParam == 0){

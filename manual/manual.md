@@ -274,7 +274,7 @@ Pressing ![Loop](images/buttons/loop.svg) when hovering over a loop point will m
 
 You can copy currently selected notes by pressing ![Copy](images/buttons/copy.svg). When notes are copied, they are copied *relative to the cursor position at the time of copying*. This means that when they are pasted, they will be pasted into the sequence with the same relative location to the cursor they had when they were copied, i.e. copying a note that is five tracks above the cursor means it will be pasted five tracks above the cursor.*
 
-###### *(if it's possible; any note that *would* be pasted outside the sequence won't get pasted)
+###### *(only if it's possible, notes that *would* be pasted outside the sequence won't be pasted at all)
 
 ![Gif demonstrating copy/paste behavior](images/copypaste.gif)
 
