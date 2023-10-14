@@ -123,7 +123,7 @@ void echoNote(int track, int id);
 void echoTrack(int track);
 void changeChance(int amount);
 void changeNoteLength_jumpToEnds(int16_t amount);
-void quantize(bool move_the_cursor);
+void quantize(bool move_the_cursor,bool deleteNote);
 void humanize(bool move);
 void stencilNotes(uint8_t count);
 int16_t changeNoteLength(int val, unsigned short int track, unsigned short int id);
@@ -139,9 +139,9 @@ void changeChanceSelected(int amount);
 void reverseTrack(uint8_t track, uint16_t start, uint16_t end);
 bool warpChunk(uint16_t start, uint16_t end, uint16_t trackStart, uint16_t trackEnd, int16_t amount);
 bool checkNoteMove(int id, int track, int newTrack, int newStart);
-void quantizeNote(uint8_t track, uint8_t id, uint8_t amount, uint8_t deleteIfNoValidLocation);
-bool quantizeNote(uint8_t track, uint16_t id);
-bool quantizeNote(uint8_t track, uint16_t id,bool move);
+void quantizeSelectedNotes(bool deleteNote);
+bool quantizeNote(uint8_t track, uint16_t id, bool deleteNote);
+bool quantizeNote(uint8_t track, uint16_t id,bool move,bool deleteNote);
 void makeNote(Note newNoteOn, int track, bool loudly);
 void makeNote(Note newNoteOn, int track);
 void loadNote(Note newNote, uint8_t track);
@@ -159,6 +159,7 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
 void toggleSelectNote(uint8_t, uint16_t, bool); 
 vector<vector<uint8_t>> selectMultipleNotes(String,String);
 vector<uint8_t> selectSeqArea(String);
+bool warpAintoB(CoordinatePair A, CoordinatePair B, bool onlySelected);
 
 //Track editing
 void deleteAllTracks();
@@ -198,7 +199,7 @@ void mainSequencerEncoders();
 bool fxMenuControls();
 bool echoMenuControls(uint8_t* cursor);
 void saveMenuControls();
-bool quantizeMenuControls(uint8_t* whichParam);
+bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote);
 bool humanizeMenuControls(uint8_t* cursor);
 bool mainMenuControls();
 bool anyActiveInputs();
@@ -313,6 +314,7 @@ void alert(String text, int time);
 void drawWebLink();
 void displayHelpText(uint8_t);
 void filterOutUnisonNotes(vector<uint8_t>& notes);
+bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote);
 
 //MIDI
 void sendMIDIallOff();

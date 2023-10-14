@@ -162,7 +162,6 @@ unsigned int passiveTimer;
 //i very well might go back to using this array instead of the humanizer object
 // int8_t humanizeParameters[3] = {0,0,0};
 int8_t quantizeAmount = 100;
-bool quantizeWithSwing = false;
 //holds all the data for the echo fx
 uint8_t echoData[3] = {24,75,2};//delay, decay, repeats, target (0 for note, 1 for track, 2 for selection, and 3 for seq)
 

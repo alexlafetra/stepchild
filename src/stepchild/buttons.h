@@ -1,63 +1,14 @@
-//MIDI PINS
-const uint8_t rxPin = 1;
-const uint8_t txPin_1 = 0;
-const uint8_t txPin_2 = 4;
-const uint8_t txPin_3 = 3;
-const uint8_t txPin_4 = 2;
-
-const uint8_t Screen_SDA = 8;
-const uint8_t Screen_SCL = 9;
-
-//ENCODERS
-const unsigned char note_press_Pin = 17;
-const unsigned char note_clk_Pin = 18;
-const unsigned char note_data_Pin = 19;
-
-const unsigned char track_press_Pin = 20;
-const unsigned char track_clk_Pin = 21;
-const unsigned char track_data_Pin = 22;
-
-//incremented from an interrupt when rotary encoders are moved
-#ifndef HEADLESS
-volatile int8_t counterA;
-volatile int8_t counterB;
-#endif
-
-//SHIFT REGISTERS
-// const unsigned char dataPin_LEDS = 9;//V0.4
-const unsigned char dataPin_LEDS = 7;
-const unsigned char latchPin_LEDS = 10;
-const unsigned char clockPin_LEDS = 11;
-
-const unsigned char buttons_clockEnable = 16;
-const unsigned char buttons_dataIn = 13;
-const unsigned char buttons_load = 14;
-const unsigned char buttons_clockIn = 15;
-//doubling up on load, clockin, and clockenable (since i'll read from them simultaneously)
-const unsigned char stepButtons_dataIn = 12;
-
-//JOYSTICK
-const unsigned char y_Pin = 26;
-const unsigned char x_Pin = 27;
-
-//MISC. HARDWARE
-const unsigned char Vpin = 29;
-const unsigned char usbPin = 24;
-
-const unsigned char ledPin = 6;
-const unsigned char onboard_ledPin = 25;
-
 //buttons/inputs
 #ifndef HEADLESS
-unsigned long lastTime;
+  unsigned long lastTime;
+  //incremented from an interrupt when rotary encoders are moved
+  volatile int8_t counterA;
+  volatile int8_t counterB;
 #endif
 int8_t x,y;
 bool joy_Press,n,sel,shift,del,play,track_Press,note_Press, track_clk, note_clk,loop_Press, copy_Press, menu_Press;
 bool step_buttons[8] = {false,false,false,false,false,false,false,false};
 
-// #ifndef HEADLESS
-// int8_t encoderA = 0,encoderB = 0;
-// #endif
 
 #ifndef HEADLESS
 void readJoystick(){
@@ -78,8 +29,7 @@ void readJoystick(){
     x = 1;
   }
 }
-#endif
-#ifdef HEADLESS
+#else
 void readJoystick(){
     glfwPollEvents();
     x = xKeyVal;
@@ -126,9 +76,7 @@ void readButtons_MPX(){
   copy_Press = !buttons[1];
   menu_Press = !buttons[0];
 }
-
-#endif
-#ifdef HEADLESS
+#else
 void readButtons_MPX(){
     n = newKeyVal;
     shift = shiftKeyVal;
@@ -154,8 +102,7 @@ void readButtons(){
   note_Press = digitalRead(note_press_Pin);
   readButtons_MPX();
 }
-#endif
-#ifdef HEADLESS
+#else
 void readButtons(){
   note_Press = encAPRESS;
   track_Press = encBPRESS;
@@ -170,9 +117,10 @@ void resetEncoders(){
   counterA = 0;
   counterB = 0;
 }
-#endif
-#ifdef HEADLESS
+#else
 void resetEncoders(){
+  counterA = 0;
+  counterB = 0;
   return;
 }
 #endif

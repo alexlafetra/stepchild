@@ -245,7 +245,7 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
           return;
         //quantize
         case 4:
-          quantize(true);
+          quantize(true,false);
           lastTime = millis();
           break;
         //humanize

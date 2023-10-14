@@ -34,6 +34,8 @@
     #include "pico/bootrom.h"
   }
 
+  #include "pins.h"
+
   //setting up screen
   #define i2c_Address 0x3c //initialize with the I2C addr 0x3C Typically eBay OLED's
   // #define i2c_Address 0x3D //initialize with the I2C addr 0x3C Typically eBay OLED's
@@ -54,6 +56,18 @@
   #define UPSIDEDOWN 0
   #define SIDEWAYS_R 3
   #define SIDEWAYS_L 1
+  SoftwareSerial Serial3 = SoftwareSerial(SerialPIO::NOPIN,txPin_3);
+  SoftwareSerial Serial4 = SoftwareSerial(SerialPIO::NOPIN,txPin_4);
+
+  //USB MIDI object
+  Adafruit_USBD_MIDI usb_midi;
+
+  //1 and 2 are I/0, 3&4 are just O
+  MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, MIDI0);
+  MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
+  MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, MIDI2);
+  MIDI_CREATE_INSTANCE(SoftwareSerial, Serial3, MIDI3);
+  MIDI_CREATE_INSTANCE(SoftwareSerial, Serial4, MIDI4);
 #endif
 
 using namespace std;
@@ -63,6 +77,7 @@ class Knob;
 class WireFrame;
 class Note;
 class Track;
+class CoordinatePair;
 
 //Overloaded stringify function to create strings
 #ifndef HEADLESS
@@ -153,21 +168,6 @@ Knob controlKnobs[16];
 #include "drawingFunctions.h"
 #include "scales.h"
 
-#ifndef HEADLESS
-  SoftwareSerial Serial3 = SoftwareSerial(SerialPIO::NOPIN,txPin_3);
-  SoftwareSerial Serial4 = SoftwareSerial(SerialPIO::NOPIN,txPin_4);
-
-  //USB MIDI object
-  Adafruit_USBD_MIDI usb_midi;
-
-  //1 and 2 are I/0, 3&4 are just O
-  MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, MIDI0);
-  MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
-  MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, MIDI2);
-  MIDI_CREATE_INSTANCE(SoftwareSerial, Serial3, MIDI3);
-  MIDI_CREATE_INSTANCE(SoftwareSerial, Serial4, MIDI4);
-#endif
-
 //Data variables -------------------------------------------
 
 unsigned short int copyPos[2];//stores the coordinates of the cursor when copying
@@ -177,6 +177,11 @@ vector<vector<uint16_t> > lookupData; //char map of notes; 0 = no note, 1-665,53
 
 #include "CV.h"
 #include "instruments/planets.cpp"
+#include "instruments/rain.cpp"
+#include "instruments/liveLoop.cpp"
+#include "instruments/knobs.cpp"
+#include "instruments/drumPads.cpp"
+
 
 //holds all the datatracks
 vector<dataTrack> dataTrackData;

@@ -1,10 +1,10 @@
-void quantizeSelectedNotes(){
+void quantizeSelectedNotes(bool deleteNote){
   if(selectionCount>0){
     for(uint8_t track = 0; track<seqData.size(); track++){
       for(uint16_t note = 1; note<seqData[track].size(); note++){
         if(seqData[track][note].isSelected){
           //if a note was deleted (when quantize fails)
-          if(!quantizeNote(track,note)){
+          if(!quantizeNote(track,note,deleteNote)){
             note = 1;
           }
         }
@@ -12,17 +12,17 @@ void quantizeSelectedNotes(){
     }
   }
 }
-void quantize(bool move_the_cursor){
+void quantize(bool move_the_cursor,bool deleteNote){
   //quantizing selected notes
   if(selectionCount>0){
     if(!seqData[activeTrack][lookupData[activeTrack][cursorPos]].isSelected){
-      quantizeNote(activeTrack,lookupData[activeTrack][cursorPos]);
+      quantizeNote(activeTrack,lookupData[activeTrack][cursorPos],deleteNote);
     }
     for(uint8_t track = 0; track<seqData.size(); track++){
       for(uint16_t note = 1; note<seqData[track].size(); note++){
         if(seqData[track][note].isSelected){
           //if a note was deleted (when quantize fails)
-          if(!quantizeNote(track,note)){
+          if(!quantizeNote(track,note,deleteNote)){
             note = 1;
           }
         }
@@ -32,36 +32,29 @@ void quantize(bool move_the_cursor){
   //quantizing the note at the cursor
   else if(lookupData[activeTrack][cursorPos] != 0){
     uint16_t id = lookupData[activeTrack][cursorPos];
-    quantizeNote(activeTrack,lookupData[activeTrack][cursorPos],move_the_cursor);
+    quantizeNote(activeTrack,lookupData[activeTrack][cursorPos],move_the_cursor,deleteNote);
   }
 }
 
-bool quantizeNote(uint8_t track, uint16_t id){
-  return quantizeNote(track,id, false);
+bool quantizeNote(uint8_t track, uint16_t id, bool deleteNote){
+  return quantizeNote(track,id, false, deleteNote);
 }
 
 //will attempt to quantize a note, or delete it if it can't be quantized
-bool quantizeNote(uint8_t track, uint16_t id,bool move){
+bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote){
   if(id == 0){
     return false;
   }
   uint32_t d1 = seqData[track][id].startPos%subDivInt;
   uint32_t d2 = subDivInt-d1;
-  if(quantizeWithSwing){
-    //get value of closest swung subdiv
-    uint16_t closest = (subDivInt)*sin(2*PI/swingSubDiv * (seqData[track][id].startPos-swingSubDiv/4));
-    uint16_t amount1 = (subDivInt)*sin(2*PI/swingSubDiv * (seqData[track][id].startPos-swingSubDiv/4));
-    uint16_t amount2 = (subDivInt)*sin(2*PI/swingSubDiv * (seqData[track][id].startPos-swingSubDiv/4));
-    d1 += amount1;
-    d2 += amount2;
-  }
   uint16_t distance;
   //move to the left
   if(d1<=d2){
     distance = d1*(float(quantizeAmount)/float(100));
     if(!moveNote(id,track,track,seqData[track][id].startPos-distance)){
       //if you can't move it, delete it
-      deleteNote_byID(track,id);
+      if(deleteNote)
+        deleteNote_byID(track,id);
       return false;
     }
     else if(move){
@@ -73,7 +66,8 @@ bool quantizeNote(uint8_t track, uint16_t id,bool move){
     distance = d2*(float(quantizeAmount)/float(100));
     if(!moveNote(id,track,track,seqData[track][id].startPos+distance)){
       //if you can't move it, delete it
-      deleteNote_byID(track,id);
+      if(deleteNote)
+        deleteNote_byID(track,id);
       // Serial.println("deleting note: "+stringify(id));
       return false;
     }
@@ -84,14 +78,8 @@ bool quantizeNote(uint8_t track, uint16_t id,bool move){
   return true;
 }
 
-void drawSubDivBackground(bool swinging){
+void drawSubDivBackground(){
   for(int16_t i = 0; i<96; i+=subDivInt){
-    if(swinging){
-      float offset = sin(2*PI/swingSubDiv * (i-swingSubDiv/4));
-      if(!(offset+i<i && subDivInt == 1)){
-        i+= offset;
-      }
-    }
     display.drawFastVLine(float(i)/float(96)*screenWidth,16,32,1);
   }
 }
@@ -129,7 +117,7 @@ void drawLittleQuantCubes(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
   drawBox(6+(millis()/500)%4,5-(millis()/500)%4,8,8,3,3,0);
 }
 
-bool quantizeMenuControls(uint8_t* whichParam){
+bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
   if(itsbeen(200)){
     if(menu_Press){
       lastTime = millis();
@@ -139,12 +127,16 @@ bool quantizeMenuControls(uint8_t* whichParam){
       lastTime = millis();
       while(true){
         if(selectNotes("quantize",drawLittleQuantCubes)){
-          quantizeSelectedNotes();
+          quantizeSelectedNotes(*deleteNote);
         }
         else{
           break;
         }
       }
+    }
+    if(sel){
+      lastTime = millis();
+      (*deleteNote) = !(*deleteNote);
     }
   }
   //changing subDivInt
@@ -264,17 +256,12 @@ bool quantizeMenuControls(uint8_t* whichParam){
       }
     }
   }
-  if(itsbeen(200)){
-    if(sel){
-      quantizeWithSwing = !quantizeWithSwing;
-      lastTime = millis();
-    }
-  }
   return true;
 }
 
 void quantizeMenu(){
   uint8_t whichParam = 0;
+  bool deleteNote = true;
   while(true){
     display.clearDisplay();
 
@@ -289,7 +276,7 @@ void quantizeMenu(){
     printSmall(28,6,q,1);
 
     //draw swing indicator
-    printSmall(90,6,quantizeWithSwing?"swung":"unswung",1);
+    printSmall(90,6,deleteNote?"delete":"leave",1);
     printSmall(0,53,"quantize",1);
 
     if(whichParam == 0){
@@ -300,7 +287,7 @@ void quantizeMenu(){
       drawArrow(24+2*sin(millis()/200),8,2,0,true);
       printSmall(0,6," grid",1);
       //bracket
-      drawSubDivBackground(quantizeWithSwing);
+      drawSubDivBackground();
     }
 
     //graphic
@@ -310,7 +297,7 @@ void quantizeMenu(){
 
     readJoystick();
     readButtons();
-    if(!quantizeMenuControls(&whichParam)){
+    if(!quantizeMenuControls(&whichParam,&deleteNote)){
       break;
     }
   }

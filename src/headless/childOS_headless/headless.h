@@ -28,6 +28,9 @@
 //for writing bitmaps
 #include "bitmap/bitmap_image.hpp"
 
+//including this for continuity
+#include "../../stepchild/pins.h"
+
 #define UPRIGHT 2
 #define UPSIDEDOWN 0
 #define SIDEWAYS_R 3
