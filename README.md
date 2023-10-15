@@ -1,7 +1,8 @@
 <!-- ![Gif of the Stepchild Rotating](images/stepchild.gif) -->
 
 <p align="center">
-  <img src="images/stepchild.gif" />
+  <img src="manual/images/stepchild.gif" />
+
 </p>
 
 <h1 align="center">
@@ -22,7 +23,7 @@ The Stepchild has the capability to record and playback sequences of MIDI data w
 
 <!-- capabilities -->
 ### Overview:
-This page gives a brief overview of the hardware and software capabilities of the Stepchild. For more information on specific controls and applications please take a look at the [Stepchild Manual](). If you're looking to make your own, please also take a look at the [Build Guide]() which gives an overview of the materials and process for building assembling a Stepchild.
+This page gives a brief overview of the hardware and software capabilities of the Stepchild. For more information on specific controls and applications please take a look at the [Stepchild Manual](manual/manual.md). If you're looking to make your own, please also take a look at the [Build Guide]() which gives an overview of the materials and process for building assembling a Stepchild.
 
 I currently sell the Stepchild over at the [official site](https://alexlafetra.github.io/stepchild.html), where you can also buy kits if you'd like to DIY one. Right now, the hardware and software for this project is a solo project but not by choice, so please get in touch if you'd like to contribute!
   

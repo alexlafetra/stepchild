@@ -315,6 +315,7 @@ void drawWebLink();
 void displayHelpText(uint8_t);
 void filterOutUnisonNotes(vector<uint8_t>& notes);
 bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote);
+void disarmTracksWithNotes();
 
 //MIDI
 void sendMIDIallOff();

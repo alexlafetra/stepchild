@@ -11,7 +11,13 @@ struct NoteTrackPair{
 public:
     Note note;
     uint8_t trackID;
+    NoteTrackPair(Note n, uint8_t t);
 };
+NoteTrackPair::NoteTrackPair(Note n, uint8_t t){
+  note = n;
+  trackID = t;
+}
+
 
 CoordinatePair selectArea_warp(bool AorB){
   CoordinatePair coords;
@@ -162,26 +168,29 @@ bool warpAintoB(CoordinatePair A, CoordinatePair B, bool onlySelected){
               uint16_t oldLength = targetNote.getLength();
               uint16_t distanceFromStartOfA = targetNote.startPos - A.x1;
 
+              Note newNote = targetNote;
+              newNote.startPos = distanceFromStartOfA*scaleFactor+B.x1;
+              newNote.endPos = newNote.startPos+(oldLength-1)*scaleFactor;
+              //if the note will be less than 1 timestep long, don't warp it
+              if(newNote.endPos<=newNote.startPos+1){
+                continue;
+              }
+
               //deleting old note
               deleteNote_byID(track,noteID);
               //make sure to decrement noteID! so you don't warp the same note twice or skip a note
               noteID--;
 
-              Note newNote = targetNote;
-              newNote.startPos = distanceFromStartOfA*scaleFactor+B.x1;
-              newNote.endPos = newNote.startPos+(oldLength-1)*scaleFactor;
               // makeNote(newNote,track,false);
               // newNote.push_back(newNote);
-              NoteTrackPair newNT;
-              newNT.note = newNote;
-              newNT.trackID = track;
+              NoteTrackPair newNT(newNote,track);
               newNotes.push_back(newNT);
           }
       }
   }
   //iterating over the newNotes vector and making each note
   for(uint8_t note = 0; note<newNotes.size(); note++){
-      makeNote(newNotes[note].note,newNotes[note].trackID,false);
+    makeNote(newNotes[note].note,newNotes[note].trackID,false);
   }
   return true;
 }

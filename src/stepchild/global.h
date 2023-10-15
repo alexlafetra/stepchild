@@ -60,14 +60,17 @@ bool internalClock = true;
 bool overwriteRecording = true;
 bool recToPrimedTracks = true;
 bool screenSaving = false;
-bool keys = false;
-bool drumPads = false;
+// bool keys = false;
+// bool drumPads = false;
 bool LEDsOn = true;
 bool waitForNote = true;
 bool waiting = true;//wait to receive note to begin recording
 bool swung = false;
 
 bool isShrunk = false;
+
+//when true, new notes that are recorded will start off selected
+bool recordedNotesAreSelected = false;
 
 //controls whether or not fragmenting is on
 bool isFragmenting = false;

@@ -1,4 +1,8 @@
-# The Manual
+# Stepchild V1.0 - *User Manual*
+###### V1.0 10.15.23
+
+![Render of the Stepchild](images/stepchild_optimized.gif)
+
 ## Index
 0. [Introduction](#0-introduction)
     1. [Overview](#01-overview)
@@ -104,10 +108,10 @@
 
 # 0. Introduction
 
-Hello! Welcome to the user manual for the Stepchild. I started this project a little over a year ago with the goal of creating a sequencer that I could use to experiment with my SP404MKII and MicroKorg. Needless to say, since then this project has gotten out of hand and the Stepchild is now a lot more than just an accessory to the SP404.
+Hello! Welcome to the user manual for the Stepchild. I started this project a little over a year ago with the goal of creating a sequencer that I could use to experiment with my SP404MKII, but since then the Stepchild has become a fully-fledged instrument. 
 
 ![Birthplace of the Stepchild](images/middletown_snow.jpeg)
-###### *The house I was living in that winter, aka the birthplace of the Stepchild*
+###### *My house, winter 2021*
 
 My final year of college, in the dead of winter, in Middletown Connecticut, I was wracked with nostalgia. My first experience with any kind of music creation was an app on my first phone, the timeless *FL Studio Mobile*. Yeah, that's right. ***Mobile***. I miss the simplicity and toy-ness of this application; the accessible step sequencer and piano roll editor that focused on *note* editing made it engaging and simplistic and unique among modern DAWs.
 
@@ -282,6 +286,8 @@ To paste the notes on your clipboard to the sequence, hold ![Shift](images/butto
 
 
 ## 1.8 Playback
+
+The Stepchild can record and play back sequences of [Notes](#b-notes) and [CC Data](#e-control-change-messages).
 
 ### a. Playing
 

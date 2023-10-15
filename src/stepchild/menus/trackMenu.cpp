@@ -238,14 +238,6 @@ void trackMenu(){
   }
 }
 
-void disarmTracksWithNotes(){
-  for(uint8_t t = 0; t<trackData.size(); t++){
-    if(seqData[t].size() != 1){
-      trackData[t].isPrimed = false;
-    }
-  }
-}
-
 //shows options for edit, tune tracks, delete empty tracks, and disarm tracks w/ notes
 void drawTrackUtils(uint8_t cursor,vector<String> options){
   const uint8_t x1 = 0;

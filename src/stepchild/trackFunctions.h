@@ -1,3 +1,12 @@
+//unarms any tracks with notes on them
+void disarmTracksWithNotes(){
+  for(uint8_t i = 0; i<trackData.size(); i++){
+    if(seqData[i].size()>1){
+      trackData[i].isPrimed = false;
+    }
+  }
+}
+
 vector<uint8_t> selectMultipleTracks(String text){
   //clearing out the selected tracks
   for(int i = 0; i<trackData.size(); i++){
@@ -543,18 +552,14 @@ void dupeTrack(unsigned short int track){
   }
 }
 
-//erases notes, but doesn't delete track
-void eraseTrack() {
-  seqData[activeTrack].resize(1);//truncating note data to just the first, blank note
-  for (int i = 0; i < seqEnd; i++) {
-    clearSelection(activeTrack, i);
-    lookupData[activeTrack][i] = 0;
-  }
-}
 void eraseTrack(int track) {
   seqData[track].resize(1);
   for (int i = 0; i < seqEnd; i++) {
     clearSelection(track, i);
     lookupData[track][i] = 0;
   }
+}
+//erases notes, but doesn't delete track
+void eraseTrack() {
+  eraseTrack(activeTrack);
 }

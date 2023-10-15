@@ -36,6 +36,8 @@ void noBitches(){
   }
 }
 
+
+
 #include "menus/randomMenu.cpp"
 #include "menus/warpMenu.cpp"
 #include "menus/reverseMenu.cpp"
@@ -7780,6 +7782,7 @@ void writeNoteOn(unsigned short int step, uint8_t pitch, uint8_t vel, uint8_t ch
   int track = makeTrackWithPitch(pitch,channel);
   if(trackData[track].isPrimed){
     Note newNote(step, step, vel);//this constuctor sets the endPos of the note at the same position
+    newNote.isSelected = recordedNotesAreSelected;
     if(lookupData[track][step] != 0){
       deleteNote(track,step);
     }
@@ -9034,31 +9037,29 @@ void stepButtons(){
       }
     }
     else{
-      if(!keys && !drumPads){
-        bool atLeastOne = false;
-        //if it's in 1/4 mode
-        if(!(subDivInt%3)){
-          for(int i = 0; i<8; i++){
-            if(step_buttons[i]){
-              uint16_t viewLength = viewEnd-viewStart;
-              toggleNote(activeTrack, viewStart+i*viewLength/8, viewLength/8);
-              atLeastOne = true;
-            }
+      bool atLeastOne = false;
+      //if it's in 1/4 mode
+      if(!(subDivInt%3)){
+        for(int i = 0; i<8; i++){
+          if(step_buttons[i]){
+            uint16_t viewLength = viewEnd-viewStart;
+            toggleNote(activeTrack, viewStart+i*viewLength/8, viewLength/8);
+            atLeastOne = true;
           }
         }
-        //if it's in 1/3 mode, last two buttons do nothing
-        else if(!(subDivInt%2)){
-          for(int i = 0; i<6; i++){
-            if(step_buttons[i]){
-              uint16_t viewLength = viewEnd-viewStart;
-              toggleNote(activeTrack,viewStart+i*viewLength/6,viewLength/6);
-              atLeastOne = true;
-            }
+      }
+      //if it's in 1/3 mode, last two buttons do nothing
+      else if(!(subDivInt%2)){
+        for(int i = 0; i<6; i++){
+          if(step_buttons[i]){
+            uint16_t viewLength = viewEnd-viewStart;
+            toggleNote(activeTrack,viewStart+i*viewLength/6,viewLength/6);
+            atLeastOne = true;
           }
         }
-        if(atLeastOne){
-          lastTime = millis();
-        }
+      }
+      if(atLeastOne){
+        lastTime = millis();
       }
     }
   }

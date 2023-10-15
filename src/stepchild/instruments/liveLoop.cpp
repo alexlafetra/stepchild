@@ -12,6 +12,8 @@ void liveLoop(){
     recMode = 2;
     Knob knobA;
     Knob knobB;
+    recordedNotesAreSelected = true;
+    clearSelection();
     while(true){
         readButtons();
         readJoystick();
@@ -56,13 +58,18 @@ void liveLoop(){
                     CoordinatePair B = CoordinatePair(loopData[activeLoop].start,loopData[activeLoop].end);
                     //make sure to call this first, so that the recording is cleaned up
                     togglePlayMode();
-                    warpAintoB(A,B,false);
+                    //only warp selected notes
+                    warpAintoB(A,B,true);
                     isLooping = true;
                     lastTime = millis();
                     //adjust the bpm so that it feels like it's playing at the same speed
                     float timeScale = float(B.x2-B.x1)/float(A.x2-A.x1);
                     uint16_t newBPM = bpm*timeScale;
                     setBpm(newBPM);
+                    //disarm all the tracks that were just written to
+                    disarmTracksWithNotes();
+                    //clear selection, so you don't re-warp the previously recorded notes
+                    clearSelection();
                 }
                 //toggle play/pause if it's just playing
                 else if(!shift){
