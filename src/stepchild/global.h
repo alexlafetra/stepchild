@@ -124,7 +124,7 @@ int8_t postRec = 0;
 //stop playing behavior. 0 is reset to start of current loop, 1 is reset to first loop, 2 is leave in place
 int8_t onStop = 0;
 //making new tracks or nah
-bool makeNewTracks = true;
+bool alwaysMakeNewTracks = true;
 
 //could probably get rid of these! put them in drawSeq
 uint8_t trackHeight;

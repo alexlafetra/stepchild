@@ -13,6 +13,7 @@ void liveLoop(){
     Knob knobA;
     Knob knobB;
     recordedNotesAreSelected = true;
+    overwriteRecording = false;
     clearSelection();
     while(true){
         readButtons();
@@ -80,14 +81,39 @@ void liveLoop(){
         }
         display.clearDisplay();
         drawSeq(true,false,true,false,false,false,viewStart,viewEnd);
-        if(playing){
-
+        if(!recording){
+            int8_t offset = 0;
+            if(playing)
+                offset = 2*sin(millis()/100);
+            uint8_t x0 = 6+offset;
+            const uint8_t y0 = 0;
+            const uint8_t len = 16;
+            uint8_t len2 = len-(16-(millis()/100)%16);
+            uint8_t height;
+            if(maxTracksShown == 6 && !menuIsActive){
+                height = 6;
+            }
+            else{
+                height = 12;
+            }
+            if(playing){
+                display.fillTriangle(x0,y0,x0,y0+height,x0+len,y0+height/2,1);
+                display.fillRect(x0+len2,y0,len-len2,height,0);
+            }
+            display.drawTriangle(x0,y0,x0,y0+height,x0+len,y0+height/2,1);
         }
         else if(recording){
+            uint8_t radius = 7;
+            uint8_t y0 = 7;
+            const uint8_t x0 = 15;
+            if(maxTracksShown == 6 && !menuIsActive){
+                y0 = 4;
+                radius = 4;
+            }
             if(millis()%1000>500)
-                display.fillCircle(15,7,7,1);
+                display.fillCircle(x0,y0,radius,1);
             else
-                display.drawCircle(15,7,7,1);
+                display.drawCircle(x0,y0,radius,1);
         }
         printCursive(trackDisplay,0,"live looper",1);
         display.display();

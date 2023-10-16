@@ -566,7 +566,7 @@ void recMenu(){
               break;
             //new tracks
             case 2:
-              makeNewTracks = !makeNewTracks;
+              alwaysMakeNewTracks = !alwaysMakeNewTracks;
               lastTime = millis();
               break;
             //count-in
@@ -787,7 +787,7 @@ void Menu::displayRecMenu(uint8_t menuCursor,uint8_t start, uint8_t active){
   //text
   printSmall(22,2,"prime tracks -->",2);
   printSmall(22,11,"overwrite: "+ (overwriteRecording?stringify("yes"):stringify("no")),2);
-  printSmall(22,21,"new tracks: "+ (makeNewTracks?stringify("yes"):stringify("no")),2);
+  printSmall(22,21,"new tracks: "+ (alwaysMakeNewTracks?stringify("yes"):stringify("no")),2);
   printSmall(22,30,"count-in: "+ (waitForNote?stringify("listen 4 note"):stepsToMeasures(recCountIn)),2);
   printSmall(22,39,"rec for: "+ (recForNSteps == 0?stringify("ever"):stepsToMeasures(recForNSteps)),2);
   switch(recLoopBehavior){
@@ -1672,10 +1672,10 @@ void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct
   //if you want to show the track "primed" status for recording
   if(recording && trackData[trackID].isPrimed){
     if((millis()+trackID*10)%1000>500){
-      display.fillCircle(trackDisplay-4,yCoord+1,2,1);
+      display.fillCircle(trackDisplay-5,yCoord+1,2,1);
     }
     else{
-      display.drawCircle(trackDisplay-4,yCoord+1,2,1);
+      display.drawCircle(trackDisplay-5,yCoord+1,2,1);
     }
   }
 }
@@ -7482,7 +7482,6 @@ uint16_t getIDAtCursor(){
 
 //Selection------------------------------------------------------------------------------------------
 
-//this searches thru the buffer and deletes a target note, resets its tag
 void clearSelection(int track, int time) {
   if(lookupData[track][time] != 0 && seqData[track][lookupData[track][time]].isSelected){
     selectionCount--;
@@ -7493,7 +7492,11 @@ void clearSelection(int track, int time) {
 void clearSelection(){
   if(selectionCount>0){
     for(int track = 0; track<trackData.size(); track++){
+      if(selectionCount<=0)
+          return;
       for(int note = seqData[track].size()-1; note>0; note--){
+        if(selectionCount<=0)
+          return;
         if(seqData[track][note].isSelected){
           seqData[track][note].isSelected = false;
           selectionCount--;
@@ -7793,7 +7796,9 @@ void writeNoteOn(unsigned short int step, uint8_t pitch, uint8_t vel, uint8_t ch
 }
 
 void writeNoteOff(unsigned short int step, uint8_t pitch, uint8_t channel){
-  short int track = getTrackWithPitch(pitch,channel);
+  int8_t track = getTrackWithPitch(pitch,channel);
+  if(track == -1)
+    return;
   if(trackData[track].isPrimed && trackData[track].noteLastSent != 255){
     unsigned short int note = seqData[track].size()-1;
     //if the track actually was sending, and exists
@@ -8132,6 +8137,8 @@ void toggleRecordingMode(bool butWait){
   //if it's recording to the loop
   if(recMode == 0 || recMode == 1)
     recheadPos = loopData[activeLoop].start;
+  else
+    recheadPos = 0;
   if(butWait){
     waiting = true;
   }
