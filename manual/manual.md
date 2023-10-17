@@ -1,7 +1,7 @@
 # Stepchild V1.0 - *User Manual*
 ###### V1.0 10.15.23
 
-![Render of the Stepchild](images/stepchild_optimized.gif)
+![Render of the Stepchild](https://github.com/alexlafetra/stepchild/blob/3e419b47a936287b8121964d3bf3a3aed4f7fd8a/manual/images/stepchild.gif)
 
 ## Index
 0. [Introduction](#0-introduction)
