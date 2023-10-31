@@ -198,6 +198,8 @@ void constructMenu(uint8_t id){
     case(MENU):
     {
       Menu debugMenu(25,1,93,64,"MENU");
+      if(activeMenu.menuTitle == "FILES")
+        debugMenu.highlight = 9;
       activeMenu = debugMenu;
       if(menuIsActive){
         slideMenuIn(0,30);
@@ -288,7 +290,7 @@ void constructMenu(uint8_t id){
     {
       Menu fileMenu(7,3,128,64,"FILES");
       activeMenu = fileMenu;
-      // slideMenuIn(1,30);
+      slideMenuIn(1,30);
       filesMenu();
       return;
     }

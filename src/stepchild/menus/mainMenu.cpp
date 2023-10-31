@@ -216,7 +216,8 @@ bool mainMenuControls(){
           break;
         //console
         case 7:
-          console();
+          // console();
+          PCEditor();
           break;
         //midi
         case 8:
@@ -224,6 +225,7 @@ bool mainMenuControls(){
           break;
         //files
         case 9:
+          slideMenuOut(0,20);
           constructMenu("FILES");
           break;
         //clock
@@ -274,7 +276,7 @@ void drawMainMenuLabel(){
       break;
     //heart
     case 7:
-      text = "CONSOLE";
+      text = "PRGCHG";
       break;
     //midi
     case 8:

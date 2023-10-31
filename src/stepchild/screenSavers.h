@@ -163,8 +163,29 @@ void screenSaver_template(){
   }
 }
 
+void screenSaver_keys(){
+  bool done = true;
+  //loop that runs while the screensaver is active
+  while(true){
+    display.clearDisplay();
+    drawKeys(0,5,getOctave(keyboardPitch),14,true);//always start on a C, for simplicity
+    display.display();
+    //checking if any buttons are pressed and breaking out of the loop if so
+    if(anyActiveInputs()){
+      lastTime = millis();
+      return;
+    }
+    else if(itsbeen(sleepTime) && done){
+      return;
+    }
+  }
+}
+
 void screenSaver(){
   //vector that holds all the screen savers
+  if(playing || recording){
+    screenSaver_keys();
+  }
   vector<void (*)()> screenSaverList = {screenSaver_cassette,screenSaver_droplets};
   uint8_t which = random(0,screenSaverList.size());
   //running the screen saver

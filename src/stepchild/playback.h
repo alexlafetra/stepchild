@@ -89,5 +89,7 @@ void playStep(uint16_t timestep) {
     if(!trackData[track].isMuted || trackData[track].isSolo)
       playTrack(track,timestep);
   }
+  playPCData(timestep);
+  // updateLEDs();
   checkCV();
 }

@@ -208,3 +208,8 @@ void printCursive(int x, int y, String text, uint16_t c){
     }
   }
 }
+
+void printCursive_centered(int x, int y, String t, uint16_t c){
+  printCursive(x-t.length()*3,y,t,c);
+}
+

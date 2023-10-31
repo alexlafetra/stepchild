@@ -44,6 +44,8 @@ void noBitches(){
 
 #include "helpScreen.h"
 
+#include "programChange.h"
+
 void restartSerial(unsigned int baud){
   Serial.end();
   delay(1000);
@@ -1500,8 +1502,6 @@ float getBattLevel(){
   //When all 3AA's are in, if they're 1.5v batts VSYS is ~4.5
   //But if they're 1.2v batts VSYS is ~3.6;
   float val = float(analogRead(Vpin))*BATTSCALE;
-  // float val = 0.2*float((millis()/200)%20);
-  // Serial.println(val);
   return val;
 }
 
@@ -2473,7 +2473,6 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
       }
     }
     //-----------------------------------
-    display.clearDisplay();
     uint8_t xStart = 4;
     uint8_t yStart = 11;
     uint8_t keyHeight = 28;
@@ -2481,6 +2480,7 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
     uint8_t offset = 3;
     uint8_t blackKeys = 0;
     uint8_t whiteKeys = 0;
+    display.clearDisplay();
     //moves through every key. if it's a whitekey, it uses the whiteKeys variable to step through each white key
     for (int i = 0; i < 12; i++) {
       if (i % 12 == 0 || i % 12 == 2 || i % 12 == 4 || i % 12 == 5 || i % 12 == 7 || i % 12 == 9 || i % 12 == 11) {
@@ -2531,10 +2531,10 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
       }
     }
     if(showingScale){
-      printCursive(28, 1, getScaleName(scaleOptions[activeScale]),SSD1306_WHITE);
+      printCursive_centered(64, 1, getScaleName(scaleOptions[activeScale]),SSD1306_WHITE);
     }
     else{
-      printCursive(49, 1, "scale",SSD1306_WHITE);
+      printCursive_centered(64, 1, "scale",SSD1306_WHITE);
     }
     printCursive(40, screenHeight-7,"root",SSD1306_WHITE);
     display.setCursor(69,screenHeight-7);
@@ -3235,6 +3235,26 @@ void sendMIDIStop(){
   MIDI2.sendRealTime(midi::Stop);
   MIDI3.sendRealTime(midi::Stop);
   MIDI4.sendRealTime(midi::Stop);
+}
+
+void sendMIDIProgramChange(uint8_t port, uint8_t val, uint8_t channel){
+  switch(port){
+    case 0:
+        MIDI0.sendProgramChange(val,channel);
+        break;
+    case 1:
+        MIDI1.sendProgramChange(val,channel);
+        break;
+    case 2:
+        MIDI2.sendProgramChange(val,channel);
+        break;
+    case 3:
+        MIDI3.sendProgramChange(val,channel);
+        break;
+    case 4:
+        MIDI4.sendProgramChange(val,channel);
+        break;
+  }
 }
 #endif
 
@@ -6794,7 +6814,6 @@ void drawPlayIcon(int8_t x1, int8_t y1){
 void drawPower(uint8_t x1, uint8_t y1){
   //check if USB is plugged in
   bool usb = digitalRead(usbPin);
-  // usb = false;
   if(usb){
     // display.drawBitmap(x1,y1,batt_bmp,10,7,SSD1306_WHITE);
     display.drawBitmap(x1,y1+1,tiny_usb,10,4,SSD1306_WHITE);
@@ -6918,13 +6937,26 @@ void drawTopIcons(){
       else
         display.fillCircle(trackDisplay+3,3,3,SSD1306_WHITE);
     }
-    x1+=8;
+    x1+=9;
     switch(recMode){
       //if one-shot rec
       case 0:
-        display.drawBitmap(x1+sin(millis()/100),0,oneShot_rec,7,7,SSD1306_WHITE);
-        x1+=8;
+        // display.drawBitmap(x1+sin(millis()/100),0,oneShot_rec,7,7,SSD1306_WHITE);
+        printSmall(x1,1,"1",1);
+        x1+=4;
+        if((millis()/10)%100>50)
+          display.drawBitmap(x1,1,oneshot_bmp,3,5,SSD1306_WHITE);
+        x1+=4;
         break;
+      //if continuous recording
+      case 1:
+        display.drawBitmap(x1,1,continuous_bmp,9,5,SSD1306_WHITE);
+        x1+=10;
+        break;
+    }
+    if(overwriteRecording){
+      display.drawBitmap(x1,0,((millis()/10)%100>50)?overwrite_1:overwrite_2,7,7,SSD1306_WHITE);
+      x1+=8;
     }
   }
   else if(playing){
@@ -6933,15 +6965,9 @@ void drawTopIcons(){
     switch(isLooping){
       //if not looping
       case 0:
-        if(millis()%900>600){
-          display.drawBitmap(x1,0,oneshot3,8,7,SSD1306_WHITE);
-        }
-        else if(millis()%900>300){
-          display.drawBitmap(x1,0,oneshot2,8,7,SSD1306_WHITE);
-        }
-        else{
-          display.drawBitmap(x1,0,oneshot1,8,7,SSD1306_WHITE);
-        }
+        if((millis()/10)%100>50)
+          display.drawFastVLine(x1,0,7,1);
+        printSmall(x1+3,1,"1",1);
         x1+=10;
         break;
       //if looping
@@ -6960,11 +6986,13 @@ void drawTopIcons(){
   //Data track icon
   if(dataTrackData.size()>0){
     if(millis()%1600>800)
-      display.drawBitmap(x1,1,sine_small_bmp,6,4,SSD1306_WHITE);
+      // display.drawBitmap(x1,1,sine_small_bmp,6,4,SSD1306_WHITE);
+      display.drawBitmap(x1,1,autotrack1,10,7,SSD1306_WHITE);
     else{
-      display.drawBitmap(x1,1,sine_small_reverse_bmp,6,4,SSD1306_WHITE);
+      // display.drawBitmap(x1,1,sine_small_reverse_bmp,6,4,SSD1306_WHITE);
+      display.drawBitmap(x1,1,autotrack2,10,7,SSD1306_WHITE);
     }
-    x1+=8;
+    x1+=12;
   }
 
   //swing icon
@@ -7127,7 +7155,7 @@ void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_
               display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,debugHeight-3,3,SSD1306_WHITE);
             }
             else{
-              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale-1, debugHeight-1, trackDisplay+(loopData[activeLoop].end-start)*scale-5, debugHeight-5, trackDisplay+(loopData[activeLoop].end-start)*scale-1, debugHeight-5,SSD1306_WHITE);
+              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-1, trackDisplay+(loopData[activeLoop].end-start)*scale-4, debugHeight-5, trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-5,SSD1306_WHITE);
             }
           }
         }
@@ -8653,20 +8681,22 @@ void printByte(uint8_t b){
 //array to hold the LED states
 //displays notes on LEDs
 void updateLEDs(){
-  uint16_t viewLength = viewEnd-viewStart;
-  //move through the view, check every subDivInt
   uint8_t dat = 0;//00000000
-  const uint16_t jump = viewLength/8;
-  if(LEDsOn){
+  if(LEDsOn && !screenSaving){
+    uint16_t viewLength = viewEnd-viewStart;
+    //move through the view, check every subDivInt
+    const uint16_t jump = viewLength/8;
     //if there are any notes, check
     if(seqData[activeTrack].size()>1){
       for(uint8_t i = 0; i<8; i++){
         uint16_t step = viewStart+i*jump;
         if(lookupData[activeTrack][step] != 0){
           if(seqData[activeTrack][lookupData[activeTrack][step]].startPos == step){
-            //if playing or recording, and the head is on that step, then it should be off (so it blinks)
-            // if((playing && (playheadPos != step)) || (recording && (recheadPos != step)) || (!playing && !recording))
+            //if playing or recording, and the head isn't on that step, it should be on
+            //if it is on that step, then the step should blink
+            if((playing && (playheadPos <  seqData[activeTrack][lookupData[activeTrack][step]].startPos || playheadPos > seqData[activeTrack][lookupData[activeTrack][step]].endPos)) || !playing){
               dat = dat|(1<<i);
+            }
           }
         }
       }
@@ -8830,6 +8860,7 @@ void mainSequencerButtons(){
       }
       else if(getIDAtCursor() != 0){
         deleteNote(activeTrack,cursorPos);
+        updateLEDs();
         lastTime = millis();
       }
     }
@@ -9096,7 +9127,7 @@ void defaultEncoderControls(){
     //if shifting, toggle between 1/3 and 1/4 mode
     if(shift){
       toggleTriplets();
-      counterB = 0;
+      break;
     }
     else if(counterB >= 1){
       changeSubDivInt(true);

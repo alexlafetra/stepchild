@@ -539,7 +539,7 @@ void displayWindow(void)
 {
     //update the display if there's been an update
     if(display.displayUpdate && openGLready){
-//        glClearColor( 0.0f, 0.0f, 0.2f, 1.0f ); //dark transparent blue
+//        glClearColor( 0.0f, 0.0f, 0.2f, 0.0f ); //dark transparent blue
         glClearColor(0.0f,0.0f,0.0f,1.0f);
         glClear( GL_COLOR_BUFFER_BIT);
         for(int j = 0;j<64; j++){

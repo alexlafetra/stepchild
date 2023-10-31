@@ -255,7 +255,7 @@ void drawTrackUtils(uint8_t cursor,vector<String> options){
 
 void trackUtils(){
   uint8_t cursor = 0;
-  vector<String> options = {"edit tracks","tune 2 scale","delete empty","disarm tracks w notes"};
+  vector<String> options = {"edit tracks","tune 2 scale","delete empty tracks","disarm tracks w notes","sort tracks"};
   while(true){
     readJoystick();
     readButtons();
@@ -264,7 +264,7 @@ void trackUtils(){
         cursor--;
         lastTime = millis();
       }
-      else if(y == 1 && cursor<options.size()){
+      else if(y == 1 && cursor<(options.size()-1)){
         cursor++;
         lastTime = millis();
       }
@@ -288,6 +288,9 @@ void trackUtils(){
             break;
           case 3:
             disarmTracksWithNotes();
+            break;
+          case 4:
+            sortTracks();
             break;
         }
       }

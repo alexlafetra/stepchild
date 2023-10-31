@@ -7,11 +7,10 @@
    viewBox="0 0 6.6368895 6.5718284"
    version="1.1"
    id="svg969"
-   sodipodi:docname="menu_icon.svg"
+   sodipodi:docname="menu.svg"
    inkscape:version="1.2.2 (b0a8486, 2022-12-01)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <sodipodi:namedview
@@ -26,7 +25,7 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="18.114983"
-     inkscape:cx="6.7071549"
+     inkscape:cx="-2.1805154"
      inkscape:cy="10.847374"
      inkscape:window-width="1792"
      inkscape:window-height="849"
@@ -62,14 +61,28 @@
          d="m -127776230,73950836 c 143710,16268 284230,53693 416990,111061 132760,57369 256320,134050 366650,227557 110340,93506 206240,202812 284610,324370 78360,121559 138320,254035 177940,393132 39620,139097 58450,283287 55890,427893 -2560,144606 -26480,288040 -71000,425648"
          inkscape:label="path36652"
          sodipodi:nodetypes="csssssc" />
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:608646px;line-height:0.5;font-family:'.SF Soft Numeric';-inkscape-font-specification:'.SF Soft Numeric';fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.248032;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0;paint-order:stroke fill markers"
+      <g
+         aria-label="menu"
+         transform="translate(141569.42,-7171.1575)"
          id="text24972"
-         transform="translate(141569.42,-7171.1575)"><textPath
-           xlink:href="#path36652"
-           id="textPath37515"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:608646px;font-family:'.SF Compact Rounded';-inkscape-font-specification:'.SF Compact Rounded';letter-spacing:36518.8px;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.248031;stroke-opacity:0">menu</textPath></text>
+         style="font-size:608646px;line-height:0.5;font-family:'.SF Soft Numeric';-inkscape-font-specification:'.SF Soft Numeric';fill:#000000;stroke:#000000;stroke-width:0.248032;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0;paint-order:stroke fill markers">
+        <path
+           d="m -127341330,74028152 52300,-189660 q 12250,-44407 -7110,-75949 -19280,-31828 -66840,-44943 -21480,-5926 -41350,-4314 -19870,1612 -36520,10584 -16660,8972 -29370,24888 l -2000,-553 q -260,-19185 -8820,-35109 -8270,-15845 -23640,-27175 -15010,-11537 -35920,-17305 -20060,-5530 -38130,-3731 -17990,1513 -32690,10100 -14620,8299 -24930,23336 l -2290,-632 6870,-24925 q 3240,-11747 -960,-19995 -3830,-8456 -14430,-11379 -10600,-2924 -18510,2293 -7840,4930 -11080,16677 l -70550,255841 q -6950,25212 15400,31374 22630,6242 29580,-18970 l 47410,-171898 q 5840,-21201 19070,-34509 13300,-13594 31220,-18209 18000,-4902 37770,549 30370,8375 43730,31481 13360,23105 4900,53760 l -48590,176196 q -6950,25211 15400,31374 22630,6241 29580,-18970 l 47250,-171325 q 5770,-20914 19360,-34430 13590,-13516 31880,-18338 18360,-5109 38420,421 30650,8454 43470,30176 12810,21723 4360,52378 l -49220,178487 q -6960,25212 15390,31375 22630,6241 29590,-18971 z"
+           style="font-family:'.SF Compact Rounded';-inkscape-font-specification:'.SF Compact Rounded';letter-spacing:36518.8px;stroke-width:0.248031"
+           id="path292" />
+        <path
+           d="m -127226490,73974636 q -32300,53747 -20410,103194 11890,49448 64880,81291 27250,16381 54920,22262 27830,5627 48730,-881 8610,-2797 15500,-7328 7030,-4786 10250,-10135 4590,-7642 3070,-15492 -1520,-7850 -8400,-11984 -5100,-3061 -10700,-2964 -5350,251 -21770,3909 -8820,1981 -17380,2382 -8560,402 -17120,-930 -8410,-1586 -16820,-4905 -8410,-3319 -17070,-8524 -35150,-21127 -42870,-53854 -7570,-32982 14010,-68898 l 8730,-14519 154620,92926 q 13500,8114 22270,3330 9180,-4886 22190,-26538 19750,-32860 20990,-66090 1410,-33485 -14220,-62293 -15370,-28655 -46960,-47639 -32350,-19442 -66190,-19671 -33840,-229 -63620,17588 -29780,17817 -50450,52205 z m 68220,-21764 460,-764 q 20970,-34898 53190,-44660 32370,-10017 63700,8814 30570,18371 35950,50382 5380,32012 -16060,67674 l -460,764 z"
+           style="font-family:'.SF Compact Rounded';-inkscape-font-specification:'.SF Compact Rounded';letter-spacing:36518.8px;stroke-width:0.248031"
+           id="path294" />
+        <path
+           d="m -126827890,74409744 130640,-139056 q 33370,-35522 31530,-74361 -1840,-38838 -38670,-73431 -17540,-16482 -36490,-24090 -18750,-7825 -38060,-6802 -18890,1010 -37290,11046 l -1730,-1628 23200,-24693 q 17900,-19060 1010,-34932 -8010,-7529 -17450,-6604 -9230,708 -17570,9589 l -181710,193423 q -8350,8880 -8900,18148 -130,9255 7890,16784 17110,16076 35010,-2985 l 103780,-110465 q 21570,-22960 44410,-32083 23270,-9136 45490,-4573 22630,4550 41910,22660 24910,23401 24900,49893 -20,26491 -25450,53566 l -120670,128444 q -17910,19060 -800,35136 17110,16075 35020,-2986 z"
+           style="font-family:'.SF Compact Rounded';-inkscape-font-specification:'.SF Compact Rounded';letter-spacing:36518.8px;stroke-width:0.248031"
+           id="path296" />
+        <path
+           d="m -126644670,74614126 1510,2211 -24570,16724 q -10810,7358 -11870,16354 -1070,8995 4450,17102 5520,8107 14030,10580 8760,2305 19820,-5220 l 221590,-150849 q 11060,-7526 11880,-16353 1060,-8996 -4460,-17103 -5510,-8107 -14270,-10412 -8520,-2473 -19570,5052 l -147410,100343 q -16700,11372 -37140,11982 -20430,610 -40070,-9751 -19220,-10282 -33940,-31901 -10200,-14986 -13910,-31518 -3530,-16287 3480,-32923 7170,-16391 29040,-31275 l 152310,-103688 q 11060,-7525 11880,-16353 1070,-8995 -4450,-17103 -5520,-8107 -14280,-10412 -8510,-2473 -19570,5053 l -162140,110377 q -29730,20235 -39800,43990 -9910,24001 -4800,48927 5100,24927 21160,48512 17390,25549 35630,36501 18410,11197 35240,12682 17240,1564 30230,-1529 z"
+           style="font-family:'.SF Compact Rounded';-inkscape-font-specification:'.SF Compact Rounded';letter-spacing:36518.8px;stroke-width:0.248031"
+           id="path298" />
+      </g>
     </g>
   </g>
 </svg>

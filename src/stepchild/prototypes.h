@@ -189,6 +189,7 @@ void dupeTrack(unsigned short int track);
 void transposeAllPitches(int increment);
 void transposeAllChannels(int increment);
 void setTrackChannel(int track, int channel, bool loud);
+void sortTracks();
 
 //controls
 void clearButtons();

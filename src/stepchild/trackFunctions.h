@@ -161,6 +161,19 @@ bool sortTracksByChannel(Track t1, Track t2){
   return t1.channel>t2.channel;
 }
 
+bool compareNoteCount(Track a, Track b){
+  // uint8_t trackIndexA;
+  // uint8_t trackIndexB;
+  // for(uint8_t i = 0; i<trackData.size(); i++){
+  //   if(trackData[i] == a)
+  //     trackIndexA = i;
+  //   if(trackData[i] == b)
+  //     trackIndexB = i;
+  // }
+  // return (seqData[trackIndexA].size()>seqData[trackIndexB].size())
+  return true;
+}
+
 void sortTrackData(uint8_t type,uint8_t target){
   //type is either 0 (ascending) or 1 (descending)
   //target is either pitch, channel, or the number of notes
@@ -173,6 +186,7 @@ void sortTrackData(uint8_t type,uint8_t target){
       sort(tempData.begin(),tempData.end(),sortTracksByChannel);
       break;
     case 2:
+      sort(tempData.begin(),tempData.end(),compareNoteCount);
       break;
   }
   if(type)
@@ -184,7 +198,7 @@ void sortTracks(){
   //0 = ascending, 1 = descending
   uint8_t sortType = 0;
   //0 = track pitch, 1 = track channel, 2 =  number of notes (wip)
-  uint8_t sortTarget = 0;
+  int8_t sortTarget = 0;
   const uint8_t x1 = 28;
   const uint8_t y1 = 16;
   while(true){
@@ -201,13 +215,17 @@ void sortTracks(){
         break;
       }
     }
-    while(counterA != 0){
-      sortType = !sortType;
-      counterA+=counterA<0?1:-1;
-    }
     while(counterB != 0){
-      sortTarget = !sortTarget;
+      sortType = !sortType;
       counterB+=counterB<0?1:-1;
+    }
+    while(counterA != 0){
+      sortTarget+=counterA<0?-1:1;
+      if(sortTarget<0)
+        sortTarget = 2;
+      if(sortTarget == 3)
+        sortTarget = 0;
+      counterA+=counterA<0?1:-1;
     }
     display.clearDisplay();
     drawSeq(true, false, false, true, false, false, viewStart, viewEnd);
@@ -223,9 +241,9 @@ void sortTracks(){
         case 1:
           target = "channel";
           break;
-        // case 2:
-        //   target = "# of notes";
-        //   break;
+        case 2:
+          target = "note count";
+          break;
       }
       printItalic(x1+2,y1+8,target,1);
     }

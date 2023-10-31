@@ -53,7 +53,7 @@ void settingsMenu(){
     if(itsbeen(200)){
       if(y != 0){
         if(xCursor == 0){
-            if(y == 1 && menuTab<1){
+            if(y == 1 && menuTab<2){
               menuTab++;
               lastTime = millis();
             }
@@ -66,14 +66,14 @@ void settingsMenu(){
           switch(menuTab){
             case 0:
               if(y == 1){
-                if(xCursor<7){
+                if(xCursor<6){
                   xCursor++;
                   lastTime = millis();
                 } 
               }
               else if(y == -1){
-                if(xCursor >  6){
-                  xCursor = 6;
+                if(xCursor >  5){
+                  xCursor = 5;
                   lastTime = millis();
                 }
                 else if(xCursor > 0){
@@ -98,17 +98,17 @@ void settingsMenu(){
                 xCursor++;
                 lastTime = millis();
               }
-              else if(xCursor<7){
-                xCursor = 9;
+              else if(xCursor<6){
+                xCursor = 8;
                 lastTime = millis();
               }
-              else if(xCursor<10){
+              else if(xCursor<9){
                 xCursor++;
                 lastTime = millis();
               }
             }
             else if(x == 1){
-              if( xCursor<7){
+              if( xCursor<6){
                 xCursor = 0;
                 lastTime = millis();
               }
@@ -200,23 +200,27 @@ void settingsMenu(){
                 lastTime = millis();
                 break;
               //external clock
-              case 3:
-                internalClock = !internalClock;
-                lastTime = millis();
-                break;
+              // case 3:
+              //   internalClock = !internalClock;
+              //   lastTime = millis();
+              //   break;
               //count-in
-              case 4:
+              case 3:
                 waitForNote = !waitForNote;
                 lastTime = millis();
                 break;
-              //rec until
-              case 5:
+              //overwrite
+              case 4:
+                overwriteRecording = !overwriteRecording;
+                lastTime = millis();
                 break;
-              //after rec
-              case 6:
+              //rec mode
+              case 5:
+                recMode = !recMode;
+                lastTime = millis();
                 break;
               //remove time
-              case 7:{
+              case 6:{
                 lastTime = millis();
                 int8_t choice = 1;
                 //if there are notes that will be deleted
@@ -230,15 +234,15 @@ void settingsMenu(){
                 }
                 break;
               //add time
-              case 8:
+              case 7:
                 addTimeToSeq(96,seqEnd);
                 lastTime = millis();
                 break;
               //brightness
-              case 9:
+              case 8:
                 break;
               //load/write to flash
-              case 10:
+              case 9:
                 if(shift){
                   loadSettings();
                   lastTime = millis();
@@ -265,6 +269,7 @@ void settingsMenu(){
                 break;
             }
             break;
+          //
           case 2:
             break;
         }
@@ -305,29 +310,29 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
       const uint8_t x1 = 30;
       const uint8_t y1 = 2;
 
-      printSmall(x1-5,y1,"tracks show:",1);
-      drawLabel(x1+58,y1,pitchesOrNumbers?"pitches":"numbers",pitchesOrNumbers);
+      printSmall(x1-5,y1,"track labels:",1);
+      drawLabel(x1+62,y1,pitchesOrNumbers?"pitches":"numbers",true);
       
       printSmall(x1-5,y1+8,"leds:",1);
       drawLabel(x1+22,y1+8,LEDsOn?"on":"off",LEDsOn);
 
-      printSmall(x1-5,y1+16,"clock:",1);
-      drawLabel(x1+37,y1+16,!internalClock?"external":"internal",internalClock);
+      display.drawFastHLine(x1-7,y1+16,53,1);
+      printSmall(x1+47,y1+14,"rec",1);
 
-      printSmall(x1-5,y1+24,"count-in:",1);
-      drawLabel(x1+45,y1+24,waitForNote?"wait":"",waitForNote);
+      printSmall(x1-5,y1+20,"wait:",1);
+      drawLabel(x1+22,y1+20,waitForNote?"on":"off",waitForNote);
 
-      printSmall(x1-5,y1+32,"rec until:",1);
-      drawLabel(x1+50,y1+32,waitForNote?"loop end":"stop",waitForNote);
+      printSmall(x1-5,y1+28,"overwrite:",1);
+      drawLabel(x1+42,y1+28,overwriteRecording?"on":"off",overwriteRecording);
 
-      printSmall(x1-5,y1+40,"after rec:",1);
-      drawLabel(x1+45,y1+40,!internalClock?"stop":"play",internalClock);
+      printSmall(x1-5,y1+36,"rec mode:",1);
+      drawLabel(x1+50,y1+36,recMode?"continuous":"1-shot",true);
       
       //length
       printSmall(x1+3,y1+48,"length -- "+stepsToMeasures(seqEnd),1);
       printSmall(x1+2,y1+56,"("+stringify(seqEnd)+" steps)",1);
-      drawArrow(x1-12,y1+54,6,1,cursor == 7);
-      drawArrow(x1+56,y1+54,6,0,cursor == 8);
+      drawArrow(x1-12,y1+54,6,1,cursor == 6);
+      drawArrow(x1+56,y1+54,6,0,cursor == 7);
 
       //lightbulb
       display.drawBitmap(94,52,lightbulb_bmp,12,12,2);
@@ -341,22 +346,23 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
           break;
         case 1:
         case 2:
+          drawArrow(23+sin(millis()/200),(cursor-1)*8+y1+2,2,0,false);
+          break;
         case 3:
         case 4:
         case 5:
-        case 6:
-          drawArrow(23+sin(millis()/200),(cursor-1)*8+y1+2,2,0,false);
+          drawArrow(23+sin(millis()/200),(cursor-1)*8+y1+6,2,0,false);
           break;
         //remove time
-        case 7:
+        case 6:
           drawLabel(x1+24,y1+40,"remove time",false);
           break;
         //add time
-        case 8:
+        case 7:
           drawLabel(x1+24,y1+40,"add time",false);
           break;
         //brightness
-        case 9:{
+        case 8:{
           drawArrow(99,50+sin(millis()/200),2,3,true);
           String s = "light: "+stringify(screenBrightness);
           display.fillRoundRect(88,41,s.length()*4+2,7,3,1);
@@ -364,7 +370,7 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
           }
           break;
         //save
-        case 10:
+        case 9:
           drawArrow(116,50+sin(millis()/200),2,3,true);
           drawLabel(116,43,shift?"load":"save",true);
           break;

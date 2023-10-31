@@ -15,7 +15,7 @@
   
 Welcome to the github page for the Stepchild! The Stepchild is an open source, generative MIDI instrument designed to be part step-sequencer, part notebook, and part utility.
 
-The Stepchild has the capability to record and playback sequences of MIDI data while generating its own explorative MIDI data to sequence other instruments. It can act as a tool for writing music and for interfacing between MIDI, CV, and USB protocols. The Stepchild is designed to run on a Raspberry Pi Pico and can have custom firmware or additional applications loaded onto it using the Arduino IDE.
+The Stepchild has the capability to record and playback sequences of MIDI data while generating its own explorative MIDI data to sequence other instruments. It can act as a tool for writing music and for interfacing between MIDI, CV, and USB protocols. The Stepchild is runs its firmware, "ChildOS", from a Raspberry Pi Pico but can also have custom firmware or additional applications loaded onto it using the Arduino IDE.
 
 <!-- links to social media, reddit, website -->
 

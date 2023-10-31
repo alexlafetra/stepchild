@@ -257,17 +257,21 @@ void readMIDI(){
 }
 
 void sendClock(){
-    //only one byte -- 11111000
-    vector<uint8_t> message = {250};
+    //only one byte -- 11111010
+    vector<uint8_t> message = {248};
     virtualMidiOut->sendMessage( &message );
 }
 void sendMIDIStart(){
-    //only one byte -- 11111010
-    vector<uint8_t> message = {248};
+    //only one byte -- 11111000
+    vector<uint8_t> message = {250};
     virtualMidiOut->sendMessage( &message );
 }
 void sendMIDIStop(){
     //only one byte -- 11111100
     vector<uint8_t> message = {252};
+    virtualMidiOut->sendMessage( &message );
+}
+void sendMIDIProgramChange(uint8_t port, uint8_t val, uint8_t channel){
+    vector<uint8_t> message = {static_cast<unsigned char>((12<<4)|(channel&15)),val};
     virtualMidiOut->sendMessage( &message );
 }

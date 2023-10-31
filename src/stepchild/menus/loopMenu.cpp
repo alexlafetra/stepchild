@@ -327,7 +327,6 @@ bool viewLoopControls(uint8_t which){
     //menu press
     if(menu_Press){
       if(shift){
-        debugPrintLookup();
         lastTime = millis();
         displayHelpText(0);
         return false;
@@ -363,7 +362,9 @@ void viewLoop(uint8_t which){
     tempText = menuText;
     menuText = "loop-"+stringify(which)+" "+menuText;
     display.clearDisplay();
-    drawSeq(true,true,true,false,false,false,loopData[which].start>viewStart?loopData[which].start:viewStart,loopData[which].end<viewEnd?loopData[which].end:viewEnd);
+    // drawSeq(true,true,true,false,false,true,loopData[which].start,loopData[which].end*scale);
+    drawSeq(true,true,true,false,false,true,viewStart,viewEnd);
+    // drawSeq(true,true,true,false,false,true,loopData[which].start>viewStart?loopData[which].start:viewStart,loopData[which].end<viewEnd?loopData[which].end:viewEnd);
     display.display();
     menuText = tempText;
   }

@@ -203,6 +203,19 @@ void writeSeqFile(String filename){
   }
   seqFile.write(midiThruBytes,5);
 
+  //writing PC Sequence data
+  uint8_t PCSeqData[2];
+  for(uint8_t port = 0; port<5; port++){
+    PCSeqData[0] = uint8_t(PCData[port].size()>>8);
+    PCSeqData[1] = uint8_t(PCData[port].size());
+    seqFile.write(PCSeqData,2);
+    for(uint16_t message = 0; message<PCData[port].size(); message++){
+      //channel, bank, subbank, val, timestep(2)
+      uint8_t messageData[6] = {PCData[port][message].channel,PCData[port][message].bank,PCData[port][message].subBank,PCData[port][message].val,uint8_t(PCData[port][message].timestep>>8),uint8_t(PCData[port][message].timestep)};
+      seqFile.write(messageData,6);
+    }
+  }
+
   // Serial.println("done");
   // Serial.flush();
   seqFile.close();
@@ -715,6 +728,19 @@ void loadSeqFile(String filename){
     for(uint8_t port = 0; port<5; port++){
       midiChannels[port] = uint16_t(midiChannelBytes[port*2]<<8)+uint16_t(midiChannelBytes[port*2+1]);
       setThru(port,bool(midiThruBytes[port]));
+    }
+
+    //loading PC sequence data
+    uint8_t PCSeqData[2];
+    for(uint8_t port = 0; port<5; port++){
+      seqFile.read(PCSeqData,2);
+      uint16_t messageCount = (PCSeqData[0]<<8)+PCSeqData[1];
+      for(uint16_t message = 0; message<messageCount; message++){
+        //channel, bank, subbank, val, timestep(2)
+        uint8_t messageData[6];
+        seqFile.read(messageData,6);
+        PCData[port].push_back(ProgramChange(messageData[0],messageData[1],messageData[2],messageData[3],(messageData[4]<<8)+messageData[5]));
+      }
     }
 
     seqFile.close();
