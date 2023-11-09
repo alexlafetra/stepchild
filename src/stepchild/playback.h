@@ -79,7 +79,8 @@ void playDT(uint8_t dt, uint16_t timestep){
 }
 
 void playStep(uint16_t timestep) {
-    //playing dataTracks too
+  playPCData(timestep);
+  //playing dataTracks too
   for(uint8_t dT = 0; dT < dataTrackData.size(); dT++){
     playDT(dT,timestep);
   }
@@ -89,7 +90,5 @@ void playStep(uint16_t timestep) {
     if(!trackData[track].isMuted || trackData[track].isSolo)
       playTrack(track,timestep);
   }
-  playPCData(timestep);
-  // updateLEDs();
   checkCV();
 }

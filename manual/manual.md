@@ -1,8 +1,3 @@
-# Stepchild V1.0 - *User Manual*
-###### V1.0 10.15.23
-
-![Render of the Stepchild](images/gifs/stepchild_optimized.gif)
-
 ## Index
 0. [Introduction](#0-introduction)
     1. [Overview](#01-overview)
@@ -112,6 +107,14 @@
     1. Creating a Scale
     2. Yes/No Box
 15. [Background -- Take this out!](#15-background)
+
+
+<!-- END OF TABLE OF CONTENTS -->
+
+# Stepchild V1.0 - *User Manual*
+<!-- ###### V1.0 10.15.23 -->
+
+![Render of the Stepchild](images/gifs/stepchild_optimized.gif)
 
 # 0. Introduction
 

@@ -433,6 +433,14 @@ void loopMenu(){
       }
     }
     if(itsbeen(200)){
+      // step buttons loop selecting
+      for(uint8_t i = 0; i<loopData.size(); i++){
+        if(step_buttons[i]){
+          setActiveLoop(i);
+          lastTime = millis();
+          break;
+        }
+      }
       //changing loop type and iterations
       if(x != 0){
         //iterations

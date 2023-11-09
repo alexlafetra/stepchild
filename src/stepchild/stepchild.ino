@@ -1351,14 +1351,14 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
         if(recording)
           setActiveTrack(activeTrack + 1, false);
         else
-          setActiveTrack(activeTrack + 1, true);
+          setActiveTrack(activeTrack + 1, false);
         lastTime = millis();
       }
       if (y == -1) {
         if(recording)
           setActiveTrack(activeTrack - 1, false);
         else
-          setActiveTrack(activeTrack - 1, true);
+          setActiveTrack(activeTrack - 1, false);
         lastTime = millis();
       }
     }
@@ -3983,9 +3983,14 @@ unsigned short int getRecentNoteID() {
 //truncates any note in this position
 void truncateNote(int track, int time) {
   int id = lookupData[track][time];
-  if(id == 0)
+  if(id == 0 || id >= seqData[track].size())
     return;
-  for(int i = seqData[track][id].endPos-1; i>time; i--){//check this [CHECK]
+  //if the note is only 1 step long, j delete it
+  if(seqData[track][id].endPos == seqData[track][id].startPos+1){
+    deleteNote_byID(track,id);
+    return;
+  }
+  for(uint16_t i = time; i<seqData[track][id].endPos; i++){
     lookupData[track][i] = 0;
   }
   seqData[track][id].endPos = time;
@@ -4369,11 +4374,11 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
     if(itsbeen(100)){
       if(!movingBetweenNotes){
         if(y == 1){
-          setActiveTrack(activeTrack+1,true);
+          setActiveTrack(activeTrack+1,false);
           lastTime = millis();
         }
         if(y == -1){
-          setActiveTrack(activeTrack-1,true);
+          setActiveTrack(activeTrack-1,false);
           lastTime = millis();
         }
       }
@@ -6481,7 +6486,7 @@ void zoom(bool in){
   updateCursor();
   updateLEDs();
 
-  menuText = stepsToMeasures(viewStart)+"<-->"+stepsToMeasures(viewEnd)+"  (~"+stepsToMeasures(subDivInt)+")";
+  menuText = stepsToMeasures(viewStart)+"<-->"+stepsToMeasures(viewEnd)+"(~"+stepsToMeasures(subDivInt)+")";
 }
 bool areThereAnyNotes(){
   for(uint8_t t = 0; t<seqData.size(); t++){
@@ -6626,13 +6631,21 @@ void gridAnimation(bool in){
     }
   }
 }
+
+//range is (5-1023) aka 0-1018
+const float joystickScaleFactor = float(128)/float(1018);
+
+int8_t getJoyX(){
+  return abs(128 - (analogRead(x_Pin) - 5) * joystickScaleFactor);
+}
+
+int8_t getJoyY(){
+  return abs(128 - (analogRead(y_Pin) - 5) * joystickScaleFactor);
+}
+
 void xyGrid(){
-  //range is (5-1023) aka 0-1018
-  const float scaleF = float(128)/float(1018);
-  // int8_t xCoord = abs(128 - (analogRead(x_Pin) - 5) * scaleF);
-  // int8_t yCoord = abs(128 - (analogRead(y_Pin) - 5) * scaleF);
-  int8_t xCoord = abs(128 - (analogRead(x_Pin) - 5) * scaleF);
-  int8_t yCoord = abs(128 - (analogRead(y_Pin) - 5) * scaleF);
+  int8_t xCoord = getJoyX();
+  int8_t yCoord = getJoyY();
   uint8_t controlX = 1;
   uint8_t controlY = 2;
 
@@ -6645,11 +6658,11 @@ void xyGrid(){
   while(true){
     //a little averaging for smoother motion
     if(!pauseY)
-      yCoord = (yCoord+abs(128 - (analogRead(y_Pin) - 5) * scaleF))/2;
+      yCoord = (yCoord+getJoyY())/2;
       // yCoord = (yCoord+abs((analogRead(y_Pin) - 5) * scaleF))/2;
     if(!pauseX)
       // xCoord = (xCoord+abs(128 - (analogRead(y_Pin) - 5) * scaleF))/2;
-      xCoord = (xCoord+abs((analogRead(x_Pin) - 5) * scaleF))/2;
+      xCoord = (xCoord+getJoyX())/2;
 
     display.clearDisplay();
     //rec/play icon
@@ -6961,7 +6974,7 @@ void drawTopIcons(){
   }
   else if(playing){
     drawPlayIcon(trackDisplay+sin(millis()/100)+1,0);
-    x1 += 10;
+    x1 += 9;
     switch(isLooping){
       //if not looping
       case 0:
@@ -6987,25 +7000,17 @@ void drawTopIcons(){
   if(dataTrackData.size()>0){
     if(millis()%1600>800)
       // display.drawBitmap(x1,1,sine_small_bmp,6,4,SSD1306_WHITE);
-      display.drawBitmap(x1,1,autotrack1,10,7,SSD1306_WHITE);
+      display.drawBitmap(x1,0,autotrack1,10,7,SSD1306_WHITE);
     else{
       // display.drawBitmap(x1,1,sine_small_reverse_bmp,6,4,SSD1306_WHITE);
-      display.drawBitmap(x1,1,autotrack2,10,7,SSD1306_WHITE);
+      display.drawBitmap(x1,0,autotrack2,10,7,SSD1306_WHITE);
     }
     x1+=12;
   }
 
   //swing icon
   if(swung){
-    uint16_t a = millis()%800;
-    if(a>600)
-      display.drawBitmap(x1,0,swing_1,7,8,SSD1306_WHITE);
-    else if(a>400)
-      display.drawBitmap(x1,0,swing_2,7,8,SSD1306_WHITE);
-    else if(a>200)
-      display.drawBitmap(x1,0,swing_1,7,8,SSD1306_WHITE);
-    else if(a>=0)
-      display.drawBitmap(x1,0,swing_3,7,8,SSD1306_WHITE);
+    drawPendulum(x1+2,0,7,millis()/2,1);
     x1+=10;
   }
   //fragment gem
@@ -7323,7 +7328,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
               step = loopData[activeLoop].start;
             }
             //if you're past the loop end, break out of the for loop
-            else if(step>loopData[activeLoop].end){
+            else if(step>=loopData[activeLoop].end){
               break;
             }
           }
@@ -7396,9 +7401,6 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
     // display.drawRect(x1, y1, screenWidth, trackHeight, SSD1306_WHITE);
     display.drawFastHLine(x1,y1,screenWidth-x1,1);
     display.drawFastHLine(x1,y1+trackHeight-1,screenWidth-x1,1);
-
-    //CursorPos
-    // printSmall(screenWidth-stepsToPosition(cursorPos,true).length()*4-12,2,stepsToPosition(cursorPos,true),SSD1306_WHITE);
   }
   if(menus && menuIsActive){
     activeMenu.displayMenu(true,true);
@@ -7410,6 +7412,9 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
     if(animOffset>100)
       animOffset = 0;
   }
+
+  if(playing || recording)
+    updateLEDs();
 }
 
 
@@ -7753,6 +7758,36 @@ bool moveNote(int id,int track,int newTrack,int newStart){
   }
 }
 
+void muteSelectedNotes(){
+  uint16_t count = 0;
+  for(uint8_t track = 0; track<seqData.size(); track++){
+    for(uint16_t note = 1; note<seqData[track].size(); note++){
+      if(seqData[track][note].isSelected){
+        seqData[track][note].muted = true;
+        count++;
+      }
+      if(count>=selectionCount){
+        return;
+      }
+    }
+  }
+}
+
+void unmuteSelectedNotes(){
+  uint16_t count = 0;
+  for(uint8_t track = 0; track<seqData.size(); track++){
+    for(uint16_t note = 1; note<seqData[track].size(); note++){
+      if(seqData[track][note].isSelected){
+        seqData[track][note].muted = false;
+        count++;
+      }
+      if(count>=selectionCount){
+        return;
+      }
+    }
+  }
+}
+
 void muteNote(unsigned short int track, unsigned short int id, bool toggle){
   if(id != 0){
     if(toggle){
@@ -7799,8 +7834,8 @@ void updateLookupData(){
 
 void writeCC(uint16_t step, uint8_t channel, uint8_t controller, uint8_t value){
   for(uint8_t dt = 0; dt < dataTrackData.size(); dt++){
-    //if the track is primed
-    if(dataTrackData[dt].isPrimed){
+    //if the track is primed and is recording externally
+    if(dataTrackData[dt].isPrimed && dataTrackData[dt].recordFrom == 0){
       //if the channel and control number match
       if(channel == dataTrackData[dt].channel && controller == dataTrackData[dt].control){
         dataTrackData[dt].data[step] = value;
@@ -7814,6 +7849,8 @@ void writeNoteOn(unsigned short int step, uint8_t pitch, uint8_t vel, uint8_t ch
   if(trackData[track].isPrimed){
     Note newNote(step, step, vel);//this constuctor sets the endPos of the note at the same position
     newNote.isSelected = recordedNotesAreSelected;
+    if(newNote.isSelected)
+      selectionCount++;
     if(lookupData[track][step] != 0){
       deleteNote(track,step);
     }
@@ -8127,6 +8164,11 @@ void setNormalMode(){
   if(isArping){
     activeArp.stop();
   }
+  if(recordingToAutotrack){
+    recordingToAutotrack = false;
+    counterA = 0;
+    counterB = 0;
+  }
   #ifndef HEADLESS
   MIDI1.disconnectCallbackFromType(midi::Clock);
   MIDI1.disconnectCallbackFromType(midi::Start);
@@ -8167,9 +8209,10 @@ void toggleRecordingMode(bool butWait){
     recheadPos = loopData[activeLoop].start;
   else
     recheadPos = 0;
-  if(butWait){
+  if(butWait)
     waiting = true;
-  }
+  else
+    waiting = false;
   if(recording){
     if(playing){
       togglePlayMode();
@@ -8307,11 +8350,11 @@ void keyListen() {
       displaySeqSerial();
       break;
     case ']':
-      setActiveTrack(activeTrack - 1, 1);
+      setActiveTrack(activeTrack - 1, false);
         displaySeqSerial();
       break;
     case '[':
-      setActiveTrack(activeTrack + 1, 1);
+      setActiveTrack(activeTrack + 1, false);
         displaySeqSerial();
       break;
     case 's'://select a note
@@ -8433,15 +8476,19 @@ bool just(bool button){
 
 void rotaryActionA_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  counterA += readEncoder(0);
+  counterA += (recordingToAutotrack && dataTrackData[activeDataTrack].recordFrom == 1)?readEncoder(0)*4:readEncoder(0);
+  if(recordingToAutotrack && dataTrackData[activeDataTrack].recordFrom == 1)
+    waiting = false;
 }
 
 void rotaryActionB_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  counterB += readEncoder(1);
+  counterB += (recordingToAutotrack && dataTrackData[activeDataTrack].recordFrom == 2)?readEncoder(1)*4:readEncoder(1);
+  if(recordingToAutotrack && dataTrackData[activeDataTrack].recordFrom == 2)
+    waiting = false;
 }
 
-int readEncoder(bool encoder){
+int8_t readEncoder(bool encoder){
     int8_t r;
     int8_t l;
     
@@ -8603,7 +8650,7 @@ void defaultJoystickControls(bool velocityEditingAllowed){
       if(recording)//if you're not in normal mode, you don't want it to be loud
         setActiveTrack(activeTrack + 1, false);
       else
-        setActiveTrack(activeTrack + 1, true);
+        setActiveTrack(activeTrack + 1, false);
       drawingNote = false;
       lastTime = millis();
     }
@@ -8611,7 +8658,7 @@ void defaultJoystickControls(bool velocityEditingAllowed){
       if(recording)//if you're not in normal mode, you don't want it to be loud
         setActiveTrack(activeTrack - 1, false);
       else
-        setActiveTrack(activeTrack - 1, true);
+        setActiveTrack(activeTrack - 1, false);
       drawingNote = false;
       lastTime = millis();
     }
@@ -8875,8 +8922,17 @@ void mainSequencerButtons(){
         lastTime = millis();
       }
       if(shift){
-        addTrack(defaultPitch, defaultChannel);
-        lastTime = millis();
+        //if notes are selected, bring up the fx menu
+        if(selectionCount){
+          lastTime = millis();
+          menuIsActive = true;
+          constructMenu("FX");
+          fxMenu();
+        }
+        else{
+          addTrack(defaultPitch, defaultChannel);
+          lastTime = millis();
+        }
       }
     }
     defaultSelectControls();
@@ -8893,6 +8949,9 @@ void mainSequencerButtons(){
 
     if(del && shift){
       muteNote(activeTrack, getIDAtCursor(), true);
+      if(selectionCount>0){
+        muteSelectedNotes();
+      }
       lastTime = millis();
     }
 
@@ -9009,7 +9068,7 @@ bool anyActiveInputs(){
   }
 
   //stepButtons
-  if(stepButtonsAreActive){
+  if(LEDsOn){
     digitalWrite(buttons_load,LOW);
     digitalWrite(buttons_load,HIGH);
     digitalWrite(buttons_clockIn, HIGH);
@@ -9051,27 +9110,14 @@ bool isBeingPlayed(uint8_t pitch){
 
 void stepButtons(){
   if(itsbeen(200)){
-    //special functions
+    //DJ loop selector
     if(shift){
-      if(step_buttons[0]){
-        step_buttons[0] = 0;
-        lastTime = millis();
-        keyboard();
-      }
-      if(step_buttons[1]){
-        step_buttons[1] = 0;
-        drumPad();
-        lastTime = millis();
-      }
-      if(step_buttons[2]){
-        step_buttons[2] = 0;
-        lastTime = millis();
-      }
-      if(step_buttons[3]){
-        step_buttons[3] = 0;
-        constructMenu("FRAGMENT");
-        menuIsActive = true;
-        lastTime = millis();
+      for(uint8_t i = 0; i<loopData.size(); i++){
+        if(step_buttons[i]){
+          setActiveLoop(i);
+          lastTime = millis();
+          break;
+        }
       }
     }
     else{
@@ -9623,7 +9669,7 @@ void bootscreen(){
     display.display();
     pram.rotate(5,1);
     writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
-    frameCount++;
+    frameCount+=4;
   }
   turnOffLEDs();
 }
@@ -9734,6 +9780,44 @@ void helloChild_5(){
   delay(500);
 }
 
+void bootscreen_2(){
+  uint16_t frameCount = 0;
+  display.setTextColor(SSD1306_WHITE);
+  int16_t xCoord;
+  int16_t yCoord;
+
+  uint8_t xOffset = 30;
+  uint8_t yOffset = 15;
+  //each letter pops in and swings into place with a x^2 parabolic motion
+  while(frameCount<50){
+    display.clearDisplay();
+    display.setTextSize(2);
+    xCoord = 20;
+    yCoord = 20;
+    printItalic(xCoord,yCoord,"child",1);
+    xCoord = 52;
+    display.setTextSize(1);
+    display.setFont(&FreeSerifItalic12pt7b);
+    display.setCursor(xCoord+10,yCoord+5);
+    display.print("OS");
+    display.setFont();
+    // printCursive(xCoord,yCoord,"child",1);
+    //OS
+    if(frameCount>20){
+      drawStar(xOffset+68,yOffset-8,3,7,5);
+      uint8_t i = frameCount-21;
+      display.drawBitmap(48-i/3*i/3,32+i/3*i/3-i/3,carriage_bmp,14,15,SSD1306_WHITE);
+    }
+    else{
+      display.drawBitmap(48,32,carriage_bmp,14,15,SSD1306_WHITE);
+    }
+    display.display();
+    writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
+    frameCount+=2;
+  }
+  turnOffLEDs();
+}
+
 
 void setupPins(){
   #ifndef HEADLESS
@@ -9835,6 +9919,7 @@ void loop() {
   displaySeq();
   readButtons();
   screenSaverCheck();
+  analogWrite(PICO_DEFAULT_LED_PIN,millis()%65536);
 }
 
 //the closer the step is to the subDiv (both forward and backward), the shorter the time val
@@ -10033,12 +10118,66 @@ void playingLoop(){
   }
 }
 
+//this records CC to the activeDT (when you're in the )
+void checkAutotracks(){
+  if(recordingToAutotrack){
+    int newVal = 64;
+    switch(dataTrackData[activeDataTrack].recordFrom){
+      //recording externally, so get outta this loop!
+      case 0:
+        return;
+      //rec from encoder A
+      case 1:
+        if(counterA>127){
+          counterA = 127;
+        }
+        if(counterA<0)
+          counterA = 0;
+        newVal = counterA;
+        break;
+      //rec from encoder B
+      case 2:
+        if(counterB>127)
+          counterB = 127;
+        if(counterB<0)
+          counterB = 0;
+        newVal = counterB;
+        break;
+      //rec from joystick X
+      case 3:
+        newVal = getJoyX();
+        if(newVal < 58 || newVal>68)
+          waiting = false;
+        break;
+      //rec from joystick Y
+      case 4:
+        newVal = getJoyY();
+        if(newVal < 58 || newVal>68)
+          waiting = false;
+        break;
+    }
+    //bounds checking the new value before we write it to the DT
+    if(newVal>127)
+      newVal = 127;
+    else if(newVal<0)
+      newVal = 0;
+    if(waiting){
+      return;
+    }
+    recentCC.val = newVal;
+    recentCC.cc = dataTrackData[activeDataTrack].control;
+    recentCC.channel = dataTrackData[activeDataTrack].channel;
+    dataTrackData[activeDataTrack].data[recheadPos] = newVal;
+  }
+}
+
 //runs while "recording" is true
 void recordingLoop(){
   readMIDI();
   if(internalClock){
     if(hasItBeenEnoughTime()){
       timeLastStepPlayed = micros();
+      checkAutotracks();
       //if it's not in wait mode, or if it is but a note has been received
       if(!waitForNote || !waiting){
         continueStep(recheadPos);
@@ -10054,10 +10193,11 @@ void recordingLoop(){
     if(gotClock && hasStarted){
       gotClock = false;
       continueStep(recheadPos);
-      recheadPos+=1;
-      passiveTimer+=1;
+      recheadPos++;
+      passiveTimer++;
       checkLoop();
       checkFragment();
+      checkAutotracks();
     }
   }
 }

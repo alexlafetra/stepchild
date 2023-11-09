@@ -466,26 +466,24 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
       switch(*whichTab){
         //length
         case 0:
-        {
           if(counterA >= 1){
             if(shift)
-              (*maxLength)++;
+              (*minLength)++;
             else{
-              *maxLength = changeSubDiv(true,*maxLength,false);
+              *minLength = changeSubDiv(true,*minLength,false);
             }
-            if(*maxLength>96)
-              *maxLength = 96;
+            if(*minLength>96)
+              *minLength = 96;
           }
           else if(counterA <= -1){
-            if(shift && *maxLength>1)
-              (*maxLength)--;
+            if(shift && *minLength>1)
+              (*minLength)--;
             else
-              *maxLength = changeSubDiv(false,*maxLength,false);
+              *minLength = changeSubDiv(false,*minLength,false);
           }
-          if((*maxLength)<(*minLength))
-            *minLength = *maxLength;
+          if(*minLength>*maxLength)
+            *maxLength=*minLength;
           counterA += counterA<0?1:-1;
-        }
           break;
         //odds
         case 1:
@@ -507,30 +505,30 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
           }
           counterA += counterA<0?1:-1;
           break;
-        //chance
+      //chance
         case 2:
           if(counterA >= 1){
             if(shift)
-              (*maxChance)++;
+              (*minChance)++;
             else{
-              if(*maxChance == 1)
-                *maxChance = 10;
-              else{
-                (*maxChance) += 10;
-              }
+              if(*minChance == 1)
+                *minChance = 10;
+              else
+                (*minChance) += 10;
             }
-            if(*maxChance>100)
-              *maxChance = 100;
+            if(*minChance>100)
+              *minChance = 100;
           }
           else if(counterA <= -1){
-            if(shift && *maxChance>1)
-              (*maxChance)--;
-            else if(*maxChance>10)
-              (*maxChance) -= 10;
+            if(shift && *minChance>1)
+              (*minChance)--;
+            else if(*minChance>16)
+              (*minChance) -= 16;
             else
-              *maxChance = 1;
-            if(*maxChance<*minChance)
-              *minChance = *maxChance;
+              (*minChance) = 1;
+            
+            if(*minChance>*maxChance)
+              *maxChance = *minChance;
           }
           counterA += counterA<0?1:-1;
           break;
@@ -539,30 +537,30 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
           *target = !*target;
           counterA += counterA<0?1:-1;
           break;
-        //velocity
+        //vel
         case 4:
           if(counterA >= 1){
             if(shift)
-              maxVel++;
+              (*minVel)++;
             else{
-              if(*maxVel == 1)
-                *maxVel = 16;
+              if(*minVel == 1)
+                *minVel = 16;
               else
-                (*maxVel) += 16;
+                (*minVel) += 16;
             }
-            if(*maxVel>127)
-              *maxVel = 127;
+            if(*minVel>127)
+              *minVel = 127;
           }
           else if(counterA <= -1){
-            if(shift && *maxVel>1)
-             (*maxVel)--;
-            else if(*maxVel>16)
-              (*maxVel) -= 16;
+            if(shift && *minVel>1)
+              (*minVel)--;
+            else if(*minVel>16)
+             (*minVel) -= 16;
             else
-              *maxVel = 1;
+              (*minVel) = 1;
             
-            if(*maxVel<*minVel)
-              *minVel = *maxVel;
+            if(*minVel>*maxVel)
+              *maxVel = *minVel;
           }
           counterA += counterA<0?1:-1;
           break;
@@ -578,25 +576,27 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
       switch(*whichTab){
         //length
         case 0:
+        {
           if(counterB >= 1){
             if(shift)
-              (*minLength)++;
+              (*maxLength)++;
             else{
-              *minLength = changeSubDiv(true,*minLength,false);
+              *maxLength = changeSubDiv(true,*maxLength,false);
             }
-            if(*minLength>96)
-              *minLength = 96;
+            if(*maxLength>96)
+              *maxLength = 96;
           }
           else if(counterB <= -1){
-            if(shift && *minLength>1)
-              (*minLength)--;
+            if(shift && *maxLength>1)
+              (*maxLength)--;
             else
-              *minLength = changeSubDiv(false,*minLength,false);
+              *maxLength = changeSubDiv(false,*maxLength,false);
           }
-          if(*minLength>*maxLength)
-            *maxLength=*minLength;
+          if((*maxLength)<(*minLength))
+            *minLength = *maxLength;
           counterB += counterB<0?1:-1;
-          break;
+        }
+        break;
         //odds
         case 1:
           if(counterB >= 1){
@@ -621,26 +621,26 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
         case 2:
           if(counterB >= 1){
             if(shift)
-              (*minChance)++;
+              (*maxChance)++;
             else{
-              if(*minChance == 1)
-                *minChance = 10;
-              else
-                (*minChance) += 10;
+              if(*maxChance == 1)
+                *maxChance = 10;
+              else{
+                (*maxChance) += 10;
+              }
             }
-            if(*minChance>100)
-              *minChance = 100;
+            if(*maxChance>100)
+              *maxChance = 100;
           }
           else if(counterB <= -1){
-            if(shift && *minChance>1)
-              (*minChance)--;
-            else if(*minChance>16)
-              (*minChance) -= 16;
+            if(shift && *maxChance>1)
+              (*maxChance)--;
+            else if(*maxChance>10)
+              (*maxChance) -= 10;
             else
-              (*minChance) = 1;
-            
-            if(*minChance>*maxChance)
-              *maxChance = *minChance;
+              *maxChance = 1;
+            if(*maxChance<*minChance)
+              *minChance = *maxChance;
           }
           counterB += counterB<0?1:-1;
           break;
@@ -649,30 +649,30 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
           *target = !*target;
           counterB += counterB<0?1:-1;
           break;
-                //velocity
+        //velocity
         case 4:
           if(counterB >= 1){
             if(shift)
-              (*minVel)++;
+              maxVel++;
             else{
-              if(*minVel == 1)
-                *minVel = 16;
+              if(*maxVel == 1)
+                *maxVel = 16;
               else
-                (*minVel) += 16;
+                (*maxVel) += 16;
             }
-            if(*minVel>127)
-              *minVel = 127;
+            if(*maxVel>127)
+              *maxVel = 127;
           }
           else if(counterB <= -1){
-            if(shift && *minVel>1)
-              (*minVel)--;
-            else if(*minVel>16)
-             (*minVel) -= 16;
+            if(shift && *maxVel>1)
+             (*maxVel)--;
+            else if(*maxVel>16)
+              (*maxVel) -= 16;
             else
-              (*minVel) = 1;
+              *maxVel = 1;
             
-            if(*minVel>*maxVel)
-              *maxVel = *minVel;
+            if(*maxVel<*minVel)
+              *minVel = *maxVel;
           }
           counterB += counterB<0?1:-1;
           break;

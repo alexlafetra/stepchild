@@ -2,8 +2,8 @@
 #ifndef HEADLESS
   unsigned long lastTime;
   //incremented from an interrupt when rotary encoders are moved
-  volatile int8_t counterA;
-  volatile int8_t counterB;
+  volatile int16_t counterA;
+  volatile int16_t counterB;
 #endif
 int8_t x,y;
 bool joy_Press,n,sel,shift,del,play,track_Press,note_Press, track_clk, note_clk,loop_Press, copy_Press, menu_Press;
@@ -46,15 +46,13 @@ void readButtons_MPX(){
   digitalWrite(buttons_clockEnable,LOW);
   unsigned char bits_buttons = shiftIn(buttons_dataIn, buttons_clockIn, LSBFIRST);
   digitalWrite(buttons_clockEnable, HIGH);
-  // Serial.println(bits_buttons);
-  // Serial.flush();
 
   //grabbing values from the byte
   for(int digit = 0; digit<8; digit++){
     buttons[digit] = (bits_buttons>>digit)&1;
   }
 
-  if(stepButtonsAreActive){
+  if(LEDsOn){
     digitalWrite(buttons_load,LOW);
     digitalWrite(buttons_load,HIGH);
     digitalWrite(buttons_clockIn, HIGH);
@@ -76,6 +74,7 @@ void readButtons_MPX(){
   copy_Press = !buttons[1];
   menu_Press = !buttons[0];
 }
+
 #else
 void readButtons_MPX(){
     n = newKeyVal;

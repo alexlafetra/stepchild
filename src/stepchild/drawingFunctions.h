@@ -597,8 +597,11 @@ void drawVU(int8_t x1, int8_t y1, float val){
   display.drawRect(x1,y1,19,14,SSD1306_WHITE);
 }
 
-//draws a swinging pendulum, for the clock menu
 void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val){
+  drawPendulum(x2,y2,length,val,3);
+}
+//draws a swinging pendulum, for the clock menu
+void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val,uint8_t r){
   //pendulum
   int a = length;
   int h = x2;
@@ -613,8 +616,8 @@ void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val){
     y1 = k + a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
   // }
   display.drawLine(x1,y1,h,k,SSD1306_WHITE);
-  display.fillCircle(x1,y1,2,SSD1306_BLACK);
-  display.drawCircle(x1,y1,2,SSD1306_WHITE);
+  display.fillCircle(x1,y1,r,SSD1306_BLACK);
+  display.drawCircle(x1,y1,r,SSD1306_WHITE);
 }
 
 void drawSideLabel(bool side, int8_t y1, String titleText, String bodyText){

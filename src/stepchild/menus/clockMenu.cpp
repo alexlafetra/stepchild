@@ -18,7 +18,6 @@ void drawSmallStepchild(uint8_t x1, uint8_t y1){
   display.fillCircle(x1+19,y1+9,1,SSD1306_BLACK);
 }
 
-//
 void drawSwingCurve(int8_t xPos, int8_t yPos){
   display.fillRect(xPos,16,96,48,SSD1306_BLACK);
 
@@ -330,6 +329,8 @@ void clockMenu(){
               break;
             if(shift && swingSubDiv<768)
               swingSubDiv++;
+            else if(swingSubDiv%24)
+              swingSubDiv+=24-swingSubDiv%24;
             else if(swingSubDiv<=384)
               swingSubDiv *= 2;
             break;
@@ -346,6 +347,11 @@ void clockMenu(){
               break;
             if(shift && swingSubDiv>1)
               swingSubDiv--;
+            else if(swingSubDiv%24){
+              swingSubDiv-=swingSubDiv%24;
+              if(swingSubDiv == 0)
+                swingSubDiv = 1;
+            }
             else if(swingSubDiv >= 2)
               swingSubDiv /= 2;
             break;

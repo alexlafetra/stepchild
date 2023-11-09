@@ -71,8 +71,8 @@ void reverse(){
         for(uint8_t track = 0; track<seqData.size(); track++){
             for(uint16_t n = 1; n<seqData[track].size(); n++){
                 Note note = seqData[track][n];
-                //if the note is selected & is at least PARTIALLY within the reverse bounds
-                if(note.isSelected && (note.startPos>=bounds.x1 || note.endPos<=bounds.x2)){
+                //if the note is selected & is TOTALLY within reverse bounds
+                if(note.isSelected && (note.startPos>=bounds.x1 && note.endPos<=bounds.x2)){
 
                     //get its distances from the center point
                     int16_t startDist = note.startPos - center;
@@ -94,10 +94,7 @@ void reverse(){
             }
         }
     }
+    
+    //reset the loop points to the loop we stored in the beginning
     loopData[activeLoop] = tempLoop;
-    // activeMenu.coords.x1 = 25;
-    // activeMenu.coords.y1 = 1;
-    // activeMenu.coords.x2 = 93;
-    // activeMenu.coords.y2 = 64;
-    // slideMenuIn(0,30);
 }

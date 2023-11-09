@@ -4,9 +4,6 @@
  |  We use RTMidi to read in and send out midi messages.
  |  Got the MIDI Messages byte values from:
  |  https://www.midi.org/specifications-old/item/table-1-summary-of-midi-message
- |
- |
- |
  + -------------------
  */
 

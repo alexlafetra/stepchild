@@ -50,6 +50,7 @@ void liveLoop(){
                     uint16_t temp = recheadPos;
                     //if you were already playing, just begin recording! don't wait for a note
                     //but if you haven't been playing/recording anything, wait for a note
+                    clearSelection();
                     toggleRecordingMode(waitForNote);
                 }
                 //if you are already recording

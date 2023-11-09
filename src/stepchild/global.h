@@ -54,8 +54,6 @@ bool pitchesOrNumbers = true;
 
 bool pramOffset = 1;
 
-bool stepButtonsAreActive = true;
-
 bool internalClock = true;
 bool overwriteRecording = true;
 bool recToPrimedTracks = true;
@@ -71,6 +69,9 @@ bool isShrunk = false;
 
 //when true, new notes that are recorded will start off selected
 bool recordedNotesAreSelected = false;
+
+//true when recording in the autotrack editor
+bool recordingToAutotrack = false;
 
 //controls whether or not fragmenting is on
 bool isFragmenting = false;

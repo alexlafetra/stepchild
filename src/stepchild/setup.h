@@ -62,7 +62,7 @@ void setup() {
 
   core0ready = true;
   lastTime = millis();
-  bootscreen();
+  bootscreen_2();
 }
 #endif
 #ifdef HEADLESS
@@ -93,7 +93,7 @@ void setup(){
 
   core0ready = true;
   lastTime = millis();
-  bootscreen();
+  bootscreen_2();
   updateLEDs();
 }
 #endif

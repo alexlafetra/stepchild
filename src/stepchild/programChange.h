@@ -288,13 +288,6 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
                 if(cursorPos == PCData[port][event].timestep && activePort == port){
                     display.drawBitmap((PCData[port][event].timestep-viewStart)*scale+trackDisplay-2,port*portHeight+6,PCIcon_full,15,14,1);
                     printSmall((PCData[port][event].timestep-viewStart)*scale+trackDisplay,port*portHeight+12,stringify(PCData[port][event].val),0);
-                    // String info;
-                    // if(!editingMessage){
-                    //     info = stringify(PCData[port][event].val)+":"+stringify(PCData[port][event].channel+1);
-                    //     display.fillRoundRect(-2,-2,info.length()*4-2,9,3,1);
-                    //     printSmall(1,1,info,0);
-                    //     one = true;
-                    // }
                 }
                 else{
                     display.drawBitmap((PCData[port][event].timestep-viewStart)*scale+trackDisplay-2,port*portHeight+6,PCIcon_full,15,14,0);

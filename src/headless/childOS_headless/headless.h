@@ -1,7 +1,5 @@
-//  childOS_headless
-//
-//  Created by Alex LaFetra Thompson on 2/8/23.
-//
+//This file mainly replaces/supplements RP2040/Hardware functions and arduino core library functions
+
 #include <string>
 #include <iostream>
 #include <cstdlib>

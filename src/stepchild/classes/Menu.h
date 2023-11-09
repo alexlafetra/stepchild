@@ -48,6 +48,7 @@ Menu::Menu(){
 }
 
 Menu::Menu(int16_t x1, int16_t y1, int16_t x2, int16_t y2){
+  highlight = 0;
   menuTitle = "MENU";
   page = 0;
   coords.x1 = x1;
@@ -61,7 +62,7 @@ Menu::Menu(int16_t x1, int16_t y1, int16_t x2, int16_t y2, String title){
   coords.y1 = y1;
   coords.x2 = x2;
   coords.y2 = y2;
-  // highlight = 0;
+  highlight = 0;
   menuTitle = title;
   page = 0;
 }
@@ -290,6 +291,7 @@ void constructMenu(uint8_t id){
     {
       Menu fileMenu(7,3,128,64,"FILES");
       activeMenu = fileMenu;
+      activeMenu.highlight = 0;
       slideMenuIn(1,30);
       filesMenu();
       return;

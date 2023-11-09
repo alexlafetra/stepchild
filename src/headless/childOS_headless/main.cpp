@@ -25,6 +25,7 @@ int main(){
     }
     //setup sequence data
     setup();
+    
     //launch the cpu1 thread to run the clock
     thread core1(cpu1);
     

@@ -1,10 +1,10 @@
 bool isDataPointSelected(uint16_t);
-bool dataTrackEditingControls(uint8_t *interpType);
-bool dataTrackCurveEditingControls(bool* translation);
+bool dataTrackEditingControls(uint8_t *interpType, bool* settingRecInput);
+bool dataTrackCurveEditingControls(bool* translation, bool* settingRecInput);
 bool dataTrackViewerControls();
 void drawDataTrackViewer(uint8_t firstTrack);
 void drawMiniDT(uint8_t x1, uint8_t y1, uint8_t height, uint8_t which);
-void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation);
+void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool settingRecInput);
 
 //these could all be refactored into methods of the autotrack type... jus sayin
 //OR you could pass a pointer to the DT as an arg, it would make it easier to use for other people
@@ -278,25 +278,62 @@ void dataTrackEditor(){
   //type of curve to draw! 0 is linear, 1 is x^2
   uint8_t interpolatorType = 0;
   bool translation = false;
+  //flag that gets set while "copy" is held, so the controls
+  //know to listen for x, y, A, and B 
+  bool settingRecInput = false;
+  bool recInputSet = false;
+
   while(true){
     readButtons();
     readJoystick();
-    //this is done just to pass the showingInfo param 
-    if(dataTrackData[activeDataTrack].type == 0){
-      if(!dataTrackEditingControls(&interpolatorType)){
-        return;
+    if(settingRecInput){   
+      //once copy press is released, after at least one param has been selected
+      if(!copy_Press){
+        recInputSet = false;
+        settingRecInput = false;
+      }   
+      //if any of these controls are pressed, then set the current data track param to it
+      if(counterA != 0){
+        counterA = 0;
+        dataTrackData[activeDataTrack].recordFrom = 1;
+        recInputSet = true;
+        lastTime = millis();
+      }
+      else if(counterB != 0){
+        counterB = 0;
+        dataTrackData[activeDataTrack].recordFrom = 2;
+        recInputSet = true;
+        lastTime = millis();
+      }
+      else if(x != 0){
+        dataTrackData[activeDataTrack].recordFrom = 3;
+        recInputSet = true;
+        lastTime = millis();
+      }
+      else if(y != 0){
+        dataTrackData[activeDataTrack].recordFrom = 4;
+        recInputSet = true;
+        lastTime = millis();
       }
     }
     else{
-      if(!dataTrackCurveEditingControls(&translation)){
-        return;
+      //this is done just to pass the showingInfo param 
+      if(dataTrackData[activeDataTrack].type == 0){
+        if(!dataTrackEditingControls(&interpolatorType,&settingRecInput)){
+          return;
+        }
+      }
+      else{
+        if(!dataTrackCurveEditingControls(&translation,&settingRecInput)){
+          return;
+        }
+      }
+      if(shift){
+        sendMIDICC(dataTrackData[activeDataTrack].control,127,dataTrackData[activeDataTrack].channel);      
       }
     }
-    if(shift){
-      sendMIDICC(dataTrackData[activeDataTrack].control,127,dataTrackData[activeDataTrack].channel);      
-    }
     display.clearDisplay();
-    drawDataTrackEditor(0,interpolatorType,translation);
+    drawDataTrackEditor(0,interpolatorType,translation,settingRecInput);
     display.display();
   }
 }
@@ -557,9 +594,9 @@ void randomInterp(uint16_t start, uint16_t end, uint8_t which){
   dataTrackData[which].amplitude = oldAmp;
 }
 
-bool dataTrackEditingControls(uint8_t *interpType){
+bool dataTrackEditingControls(uint8_t *interpType, bool *settingRecInput){
   //zoom/subdiv zoom
-  while(counterA != 0){
+  while(counterA != 0 && !recordingToAutotrack){
     //changing zoom
     if(!shift){
       if(counterA >= 1){
@@ -583,7 +620,7 @@ bool dataTrackEditingControls(uint8_t *interpType){
     }
     counterA += counterA<0?1:-1;
   }
-  while(counterB != 0){
+  while(counterB != 0 && !recordingToAutotrack){
     if(!shift){   
       if(counterB >= 1){
         changeSubDivInt(true);
@@ -603,60 +640,65 @@ bool dataTrackEditingControls(uint8_t *interpType){
     }
     counterB += counterB<0?1:-1;
   }
-  if (itsbeen(50)) {
-    //moving
-    if (x == 1 && shift) {
-      moveDataTrackCursor(-1);
-      lastTime = millis();
-    }
-    if (x == -1 && shift) {
-      moveDataTrackCursor(1);
-      lastTime = millis();
-    }
-  }
-  if (itsbeen(100)) {
-    if (x == 1 && !shift) {
-      //if cursor isn't on a measure marker, move it to the nearest one
-      if(cursorPos%subDivInt){
-        moveDataTrackCursor(-cursorPos%subDivInt);
+
+  if(!recordingToAutotrack || dataTrackData[activeDataTrack].recordFrom != 3){
+    if (itsbeen(50)) {
+      //moving
+      if (x == 1 && shift) {
+        moveDataTrackCursor(-1);
         lastTime = millis();
       }
-      else{
-        moveDataTrackCursor(-subDivInt);
+      if (x == -1 && shift) {
+        moveDataTrackCursor(1);
         lastTime = millis();
       }
     }
-    if (x == -1 && !shift) {
-      if(cursorPos%subDivInt){
-        moveDataTrackCursor(subDivInt-cursorPos%subDivInt);
-        lastTime = millis();
-      }
-      else{
-        moveDataTrackCursor(subDivInt);
-        lastTime = millis();
-      }
-    }
-  }
-  if(itsbeen(50)){
-    if(y != 0 && !n){
-      if(y == -1){
-        if(shift){
-          changeDataPoint(1);
+    if (itsbeen(100)) {
+      if (x == 1 && !shift) {
+        //if cursor isn't on a measure marker, move it to the nearest one
+        if(cursorPos%subDivInt){
+          moveDataTrackCursor(-cursorPos%subDivInt);
           lastTime = millis();
         }
         else{
-          changeDataPoint(8);
+          moveDataTrackCursor(-subDivInt);
           lastTime = millis();
         }
       }
-      if(y == 1){
-        if(shift){
-          changeDataPoint(-1);
+      if (x == -1 && !shift) {
+        if(cursorPos%subDivInt){
+          moveDataTrackCursor(subDivInt-cursorPos%subDivInt);
           lastTime = millis();
         }
         else{
-          changeDataPoint(-8);
+          moveDataTrackCursor(subDivInt);
           lastTime = millis();
+        }
+      }
+    }
+  }
+  if(!recordingToAutotrack || dataTrackData[activeDataTrack].recordFrom != 4){
+    if(itsbeen(50)){
+      if(y != 0 && !n){
+        if(y == -1){
+          if(shift){
+            changeDataPoint(1);
+            lastTime = millis();
+          }
+          else{
+            changeDataPoint(8);
+            lastTime = millis();
+          }
+        }
+        if(y == 1){
+          if(shift){
+            changeDataPoint(-1);
+            lastTime = millis();
+          }
+          else{
+            changeDataPoint(-8);
+            lastTime = millis();
+          }
         }
       }
     }
@@ -675,8 +717,18 @@ bool dataTrackEditingControls(uint8_t *interpType){
         deleteDataPoint(cursorPos,activeDataTrack);
     }
     if(play){
-      togglePlayMode();
-      lastTime = millis();
+      if(shift || recording){
+        lastTime = millis();
+        recordingToAutotrack = true;
+        recentCC.val = 0;
+        counterA = 64;
+        counterB = 64;
+        toggleRecordingMode(true);
+      }
+      else{
+        togglePlayMode();
+        lastTime = millis();
+      }
     }
     if(n){
       //set data track type back to 0
@@ -737,12 +789,20 @@ bool dataTrackEditingControls(uint8_t *interpType){
       menu_Press = false;
       return false;
     }
+    if(copy_Press){
+      *settingRecInput = true;
+      //by default, set it to midi input
+      dataTrackData[activeDataTrack].recordFrom = 0;
+    }
+    else{
+      *settingRecInput = false;
+    }
   }
   return true;
 }
 
 //x is change period, y is change amplitude, shift x is change phase, shift y is vertically translate
-bool dataTrackCurveEditingControls(bool* translation){
+bool dataTrackCurveEditingControls(bool* translation, bool* settingRecInput){
   //zoom/subdiv zoom (this is the same to the normal DT editor)
   while(counterA != 0){
     //changing zoom
@@ -826,6 +886,13 @@ bool dataTrackCurveEditingControls(bool* translation){
     if(loop_Press){
       (*translation) = !(*translation);
       lastTime = millis();
+    }
+    //Toggling to 'listen for controls' mode
+    if(copy_Press){
+      *settingRecInput = true;
+    }
+    else{
+      *settingRecInput = false;
     }
   }
   //translations (and changing Amp)
@@ -1113,7 +1180,32 @@ uint8_t getLastDTVal(uint16_t point, uint8_t id){
   return 64;
 }
 
-void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation){
+void drawAutotrackInputIcon(uint8_t x1, uint8_t y1, uint8_t id){
+  switch(dataTrackData[id].recordFrom){
+    //external midi
+    case 0:
+      display.drawBitmap(x1,y1,tiny_midi_bmp,7,7,1);
+      break;
+    //encoder A
+    case 1:
+      printItalic(x1,y1,'A',1);
+      break;
+    //encoder B
+    case 2:
+      printItalic(x1,y1,'B',1);
+      break;
+    //joy X
+    case 3:
+      printItalic(x1,y1,'X',1);
+      break;
+    //joy Y
+    case 4:
+      printItalic(x1,y1,'Y',1);
+      break;
+  }
+}
+
+void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool settingRecInput){
   //bounding box and 3D-effect
   display.drawRect(32,y,112,64,SSD1306_WHITE);
   display.drawLine(32,y,29,y+3,SSD1306_WHITE);
@@ -1168,12 +1260,16 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation){
         if(playing && playheadPos == step)
           display.drawRoundRect(32+(step-viewStart)*scale,0,3,screenHeight,3,SSD1306_WHITE);
         
+        //rechead
+        if(recording && recheadPos == step)
+          display.drawRoundRect(32+(step-viewStart)*scale,0,3,screenHeight,3,SSD1306_WHITE);
+
         //loop points
         if(step == loopData[activeLoop].start){
           drawArrow(32+(step-viewStart)*scale-1+sin(millis()/100),59,4,0,true);
         }
         else if(step == loopData[activeLoop].end){
-          drawArrow(32+(step-viewStart)*scale+2+sin(millis()/100),59,4,1,false);
+          drawArrow(32+(step-viewStart)*scale+2-sin(millis()/100),59,4,1,false);
         }
       }
     }
@@ -1183,11 +1279,6 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation){
       drawDottedLineH(32,128,32,3);
     else{
       drawDottedLineH(32,128,64-(dataTrackData[activeDataTrack].yPos-32),3);
-    }
-    //title
-    if(!playing){
-      printSmall(0,0,"trk",SSD1306_WHITE);
-      printSmall(6-stringify(activeDataTrack+1).length()*2,7,stringify(activeDataTrack+1),SSD1306_WHITE);
     }
     //drawing curve icon
     if(dataTrackData[activeDataTrack].type == 0)
@@ -1201,9 +1292,14 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation){
     if(shift){
       printParam(16,2,dataTrackData[activeDataTrack].control,true,dataTrackData[activeDataTrack].parameterType,true);
       printChannel(16,12,dataTrackData[activeDataTrack].channel,true);
-      display.drawChar(17,40+sin(millis()/50),0x0E,1,0,1);
+      display.drawChar(3,2+sin(millis()/50),0x0E,1,0,1);
     }
     else{
+      //title
+      if(!playing){
+        printSmall(0,0,"trk",SSD1306_WHITE);
+        printSmall(6-stringify(activeDataTrack+1).length()*2,7,stringify(activeDataTrack+1),SSD1306_WHITE);
+      }
       printSmall(15,0,"CC"+stringify(dataTrackData[activeDataTrack].control),SSD1306_WHITE);
       printSmall(15,7,"CH"+stringify(dataTrackData[activeDataTrack].channel),SSD1306_WHITE);
     }
@@ -1222,8 +1318,14 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation){
     //play icon
     if(playing)
       display.fillTriangle(120+sin(millis()/100),9,120+sin(millis()/100),3,120+6+sin(millis()/100),6,SSD1306_WHITE);
-    if(recording)
-      display.fillCircle(124,6,3,SSD1306_WHITE);
+    if(recording){
+      //flash it while waiting
+      if(waiting && (millis()%1000>500))
+        display.drawCircle(124,6,3,SSD1306_WHITE);
+      //draw it solid if the rec has started
+      else if(!waiting)
+        display.fillCircle(124,6,3,SSD1306_WHITE);
+    }
     
     //drawing the bargraph
     uint8_t barHeight;
@@ -1260,10 +1362,17 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation){
       printSmall(barHeight/2-stringify(getLastDTVal(cursorPos,activeDataTrack)).length()*2,3,stringify(getLastDTVal(cursorPos,activeDataTrack)),2);
     }
     display.setRotation(UPRIGHT);
+
+    //drawing source icon
+    printSmall(15,42,"src",1);
+    drawArrow(20,52+sin(millis()/400),2,3,false);
+    if(!settingRecInput || (millis()%40>20))
+      drawAutotrackInputIcon(16,55,activeDataTrack);
   }
   else{
     printSmall(50,29,"no data, kid",SSD1306_WHITE);
   }
+
 }
 
 bool dataTrackViewerControls(){

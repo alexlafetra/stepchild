@@ -22,10 +22,6 @@ const uint8_t CV2_Pin = 6;
 //clock
 const uint8_t CV3_Pin = 28;
 
-// const uint8_t CV1_Pin = 7;//just for V0.4 testing
-// const uint8_t CV2_Pin = 7;//just for V0.4 testing
-// const uint8_t CV3_Pin = 7;//just for V0.4 testing
-
 //stores -1 if no pitch is being sent, or 0-127 for the current pitch
 int8_t currentCVPitch = -1;
 //on or off, set at the end of the "play all tracks" loop.

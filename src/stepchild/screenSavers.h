@@ -30,6 +30,8 @@ void deepSleep(){
 
 //cycles one LED on, moving it from left to right. delayTimeMS sets the speed of the cycle in milliseconds.
 void cycleLEDs(uint8_t delayTimeMs){
+  if(playing || recording)
+    return;
   uint8_t which = (millis()/delayTimeMs)%8;
   bool leds[8] = {false,false,false,false,false,false,false,false};
   leds[which] = true;

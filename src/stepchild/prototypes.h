@@ -76,6 +76,7 @@ void printParam_centered(uint8_t which, uint8_t xPos, uint8_t yPos, uint8_t para
 void printParam(uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);
 void printChannel(uint8_t xPos, uint8_t yPos, uint8_t channel, bool withBox);
 void drumPadAnimation(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numberOfPads, bool into);
+void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val,uint8_t r);
 
 //Menus
 void saveMenu();
@@ -211,7 +212,7 @@ void defaultJoystickControls(bool);
 void defaultSelectControls();
 void defaultLoopControls();
 void defaultCopyControls();
-int readEncoder(bool encoder);
+int8_t readEncoder(bool encoder);
 
 //sequence
 void zoom(bool);

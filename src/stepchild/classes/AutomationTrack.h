@@ -22,6 +22,9 @@ class dataTrack{
     //for recording to it
     bool isPrimed = true;
 
+    // 0 is from external, 1 is encoder A, 2 is encoder B, 3 is X, 4 is Y
+    uint8_t recordFrom = 1;
+
     //for muting/unmuting it
     bool isActive = true;
     vector<uint16_t> selectedPoints;
