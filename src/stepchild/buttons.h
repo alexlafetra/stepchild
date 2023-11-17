@@ -31,7 +31,12 @@ void readJoystick(){
 }
 #else
 void readJoystick(){
-    glfwPollEvents();
+    try{
+        glfwPollEvents();
+    }
+    catch(...){
+        cout<<"oh shit";
+    }
     x = xKeyVal;
     y = yKeyVal;
 }
@@ -77,6 +82,12 @@ void readButtons_MPX(){
 
 #else
 void readButtons_MPX(){
+    try{
+        glfwPollEvents();
+    }
+    catch(...){
+        cout<<"oh shit";
+    }
     n = newKeyVal;
     shift = shiftKeyVal;
     sel = selectKeyVal;
@@ -85,12 +96,8 @@ void readButtons_MPX(){
     play = playKeyVal;
     copy_Press = copyKeyVal;
     menu_Press = menuKeyVal;
-    try{
-        glfwPollEvents();
-    }
-    catch(...){
-        cout<<"oh shit";
-    }
+    x = xKeyVal;
+    y = yKeyVal;
 }
 #endif
 

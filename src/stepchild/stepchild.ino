@@ -9827,8 +9827,8 @@ void setupPins(){
 
   //onboard pins for LED and reading internal VCC
   pinMode(Vpin, INPUT);
-  pinMode(onboard_ledPin, OUTPUT);
-  digitalWrite(onboard_ledPin,HIGH);
+
+  // pinMode(onboard_ledPin, OUTPUT);
 
   //encoders
   pinMode(track_press_Pin, INPUT_PULLUP);
@@ -9914,12 +9914,20 @@ void testJoyStick(){
 
 #include "screenSavers.h"
 
+//counter that gets used by the ledPulse() function
+int8_t ledPulseCounter = 0;
+
+//pulses the onboard LED
+void ledPulse(uint8_t speed){
+  //use abs() so that it counts DOWN when millis() overflows into the negatives
+  //Multiply by 4 so that it's 'saturated' for a while --> goes on, waits, then pulses
+  analogWrite(onboard_ledPin,4*abs(int8_t(millis()/speed)));
+}
+
 void loop() {
   inputRead();
   displaySeq();
   readButtons();
-  screenSaverCheck();
-  analogWrite(PICO_DEFAULT_LED_PIN,millis()%65536);
 }
 
 //the closer the step is to the subDiv (both forward and backward), the shorter the time val
@@ -10252,4 +10260,5 @@ void loop1(){
   if(isArping){
     arpLoop();
   }
+  ledPulse(16);
 }

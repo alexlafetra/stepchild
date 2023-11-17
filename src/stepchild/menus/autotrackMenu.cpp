@@ -1257,7 +1257,7 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
         }
 
         //playhead
-        if(playing && playheadPos == step)
+        if(playing && ((dataTrackData[activeDataTrack].triggerSource<0 && step == playheadPos) || (dataTrackData[activeDataTrack].triggerSource>=0 && step == dataTrackData[activeDataTrack].playheadPos)))
           display.drawRoundRect(32+(step-viewStart)*scale,0,3,screenHeight,3,SSD1306_WHITE);
         
         //rechead
@@ -1337,10 +1337,10 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     uint8_t height;
     uint8_t val;
     if(playing){
-      if(dataTrackData[activeDataTrack].data[playheadPos] == 255)
-        val = getLastDTVal(playheadPos,activeDataTrack);
+      if(dataTrackData[activeDataTrack].data[dataTrackData[activeDataTrack].triggerSource<0?playheadPos:dataTrackData[activeDataTrack].playheadPos] == 255)
+        val = getLastDTVal(dataTrackData[activeDataTrack].triggerSource<0?playheadPos:dataTrackData[activeDataTrack].playheadPos,activeDataTrack);
       else
-        val = dataTrackData[activeDataTrack].data[playheadPos];
+        val = dataTrackData[activeDataTrack].data[dataTrackData[activeDataTrack].triggerSource<0?playheadPos:dataTrackData[activeDataTrack].playheadPos];
     }
     else{
       if(dataTrackData[activeDataTrack].data[cursorPos] == 255)
@@ -1356,7 +1356,7 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     //drawing sent data
     display.setRotation(1);
     if(playing){
-      printSmall(barHeight/2-stringify(getLastDTVal(playheadPos,activeDataTrack)).length()*2,3,stringify(getLastDTVal(playheadPos,activeDataTrack)),2);
+      printSmall(barHeight/2-stringify(getLastDTVal(dataTrackData[activeDataTrack].triggerSource<0?playheadPos:dataTrackData[activeDataTrack].playheadPos,activeDataTrack)).length()*2,3,stringify(getLastDTVal(playheadPos,activeDataTrack)),2);
     }
     else{
       printSmall(barHeight/2-stringify(getLastDTVal(cursorPos,activeDataTrack)).length()*2,3,stringify(getLastDTVal(cursorPos,activeDataTrack)),2);
@@ -1367,7 +1367,7 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     printSmall(15,42,"src",1);
     drawArrow(20,52+sin(millis()/400),2,3,false);
     if(!settingRecInput || (millis()%40>20))
-      drawAutotrackInputIcon(16,55,activeDataTrack);
+      drawAutotrackInputIcon(17,55,activeDataTrack);
   }
   else{
     printSmall(50,29,"no data, kid",SSD1306_WHITE);
@@ -1397,7 +1397,7 @@ bool dataTrackViewerControls(){
     counterA += counterA<0?1:-1;
   }
   //sending CC message when shift is held
-  if(shift){
+  if(shift && dataTrackData.size()>activeDataTrack){
     dataTrackData[activeDataTrack].play(0);
   }
   //scrolling up and down
@@ -1485,6 +1485,10 @@ bool dataTrackViewerControls(){
         dataTrackData[activeDataTrack].control = param;
       lastTime = millis();
     }
+    if(note_Press){
+      dataTrackData[activeDataTrack].setTrigger(0);
+      lastTime = millis();
+    }
   }
   return true;
 }
@@ -1536,6 +1540,16 @@ void drawDataTrackViewer(uint8_t firstTrack){
           //if not, print track number        
           else
             print7SegSmall(screenWidth-countDigits_byte(activeDataTrack)*4-(firstTrack?8:1),0,stringify(activeDataTrack),1);
+
+          //if it's a trigger autotrack
+          if(dataTrackData[activeDataTrack].triggerSource>=0){
+            drawLabel(112,currentHeight+2,"trig: "+stringify(dataTrackData[activeDataTrack].triggerSource),false);
+          }
+          //if it's a global autotrack
+          else{
+            drawLabel(112,currentHeight+2,"global",true);
+          }
+
           //arrow highlight
           drawArrow(110,currentHeight+2+cos(millis()/100),4,3,false);
 
@@ -1552,7 +1566,6 @@ void drawDataTrackViewer(uint8_t firstTrack){
           
           display.fillRect(sideMenu,currentHeight,screenWidth-sideMenu,height,SSD1306_BLACK);
           display.drawRect(sideMenu,currentHeight,screenWidth-sideMenu,height,SSD1306_WHITE);
-          // drawMiniDT(sideMenu,currentHeight,height,track+firstTrack);
           if(dataTrackData[track+firstTrack].isActive)
             printParam_centered(track+firstTrack,sideMenu+(screenWidth-sideMenu)/2,currentHeight+2,dataTrackData[track+firstTrack].control,false,dataTrackData[track+firstTrack].parameterType,false);
           else
@@ -1591,24 +1604,26 @@ void drawMiniDT(uint8_t x1, uint8_t y1, uint8_t height, uint8_t which){
     //ends at viewEnd-1 because it draws lines 2 points at a time
     for(uint16_t i = loopData[activeLoop].start; i<loopData[activeLoop].end; i++){
       if(i<dataTrackData[which].data.size()){
-        if(i == viewEnd - 1)
-          display.drawLine(x1+(i-viewStart)*sc, y1+yScale*(127-getLastDTVal(i,which)),x1+(viewEnd-viewStart)*sc-1, y1+yScale*(127-getLastDTVal(i,which)),SSD1306_WHITE);
+        if(i >= loopData[activeLoop].end - 1){
+          display.drawLine(x1+(i-loopData[activeLoop].start)*sc-1, y1+yScale*(127-getLastDTVal(i,which)),x1+(loopData[activeLoop].end-loopData[activeLoop].start)*sc-1, y1+yScale*(127-getLastDTVal(i,which)),SSD1306_WHITE);
+          break;
+        }
         else
-          display.drawLine(x1+(i-viewStart)*sc, y1+yScale*(127-getLastDTVal(i,which)),x1+(i+1-viewStart)*sc, y1+yScale*(127-getLastDTVal(i+1,which)),SSD1306_WHITE);
+          display.drawLine(x1+(i-loopData[activeLoop].start)*sc, y1+yScale*(127-getLastDTVal(i,which)),x1+(i+1-loopData[activeLoop].start)*sc-1, y1+yScale*(127-getLastDTVal(i+1,which)),SSD1306_WHITE);
         if(playing){
-          if(i == playheadPos){
-            display.drawFastVLine(x1+(i-viewStart)*sc,y1,height,SSD1306_WHITE);
+          if((dataTrackData[which].triggerSource<0 && i == playheadPos) || (dataTrackData[which].triggerSource>=0 && i == dataTrackData[which].playheadPos)){
+            display.drawFastVLine(x1+(i-loopData[activeLoop].start)*sc,y1,height,SSD1306_WHITE);
           }
         }
-        drawDottedLineH(x1,x1+(viewEnd-viewStart)*sc-1,y1+height/2,3);
       }
       else
         break;
     }
+    drawDottedLineH(x1,x1+94,y1+height/2,3);
   }
   //if it's muted
   else{
-    shadeRect(x1,y1,screenWidth-x1,height,5);
+    shadeRect(x1,y1,screenWidth-x1-3,height,5);
     display.fillRoundRect(x1+(screenWidth-x1)/2-13,y1+height/2-3,25,7,3,SSD1306_BLACK);
     printSmall(x1+(screenWidth-x1)/2-14,y1+height/2-2,"[muted]",SSD1306_WHITE);
   }

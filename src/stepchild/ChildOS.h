@@ -182,10 +182,6 @@ vector<vector<uint16_t> > lookupData; //char map of notes; 0 = no note, 1-665,53
 #include "instruments/knobs.cpp"
 #include "instruments/drumPads.cpp"
 
-
-//holds all the datatracks
-vector<dataTrack> dataTrackData;
-
 unsigned short int animOffset = 0;//for animating curves
 
 //Menus

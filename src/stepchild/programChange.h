@@ -28,7 +28,6 @@ class ProgramChange{
         //vals, and they need to be sent as CC messages
         //(not implemented yet)
 
-
         //timestep the PC occurs on
         uint16_t timestep;
         ProgramChange(){
@@ -401,71 +400,33 @@ uint16_t getPCIndexAtCursor(uint8_t port){
     return 65535;
 }
 
-void PCEditingEncoderControls(uint8_t activePort,uint8_t editingCursor){
+void PCEditingEncoderControls(uint8_t activePort,uint8_t* editingCursor){
     uint16_t targetPC = getPCIndexAtCursor(activePort);
     if(targetPC == 65535)
         return;
     while(counterA != 0){
+        if(*editingCursor == 0)
+            (*editingCursor) = 1;
         if(counterA<0){
-            switch(editingCursor){
-                //value
-                case 0:
-                    if(PCData[activePort][targetPC].val>0)
-                        PCData[activePort][targetPC].val--;
-                    break;
-                //channel
-                case 1:
-                    if(PCData[activePort][targetPC].channel>0)
-                        PCData[activePort][targetPC].channel--;
-                    break;
-
-            }
+            if(PCData[activePort][targetPC].channel>0)
+                PCData[activePort][targetPC].channel--;
         }
         if(counterA>0){
-            switch(editingCursor){
-                //value
-                case 0:
-                    if(PCData[activePort][targetPC].val<127)
-                        PCData[activePort][targetPC].val++;
-                    break;
-                //channel
-                case 1:
-                    if(PCData[activePort][targetPC].channel<15)
-                        PCData[activePort][targetPC].channel++;
-                    break;
-            }
+            if(PCData[activePort][targetPC].channel<15)
+                PCData[activePort][targetPC].channel++;
         }
         counterA += counterA<0?1:-1;
     }
     while(counterB != 0){
+        if(*editingCursor == 1)
+            (*editingCursor) = 0;
         if(counterB<0){
-            switch(editingCursor){
-                //value
-                case 0:
-                    if(PCData[activePort][targetPC].val>0)
-                        PCData[activePort][targetPC].val--;
-                    break;
-                //channel
-                case 1:
-                    if(PCData[activePort][targetPC].channel>0)
-                        PCData[activePort][targetPC].channel--;
-                    break;
-
-            }
+            if(PCData[activePort][targetPC].val>0)
+                PCData[activePort][targetPC].val--;
         }
         if(counterB>0){
-            switch(editingCursor){
-                //value
-                case 0:
-                    if(PCData[activePort][targetPC].val<127)
-                        PCData[activePort][targetPC].val++;
-                    break;
-                //channel
-                case 1:
-                    if(PCData[activePort][targetPC].channel<15)
-                        PCData[activePort][targetPC].channel++;
-                    break;
-            }
+            if(PCData[activePort][targetPC].channel<15)
+                PCData[activePort][targetPC].channel++;
         }
         counterB += counterB<0?1:-1;
     }
@@ -480,7 +441,7 @@ void PCEditor(){
         readJoystick();
         PCEditor_joystick(activePort,editingMessage,editingCursor);
         if(editingMessage)
-            PCEditingEncoderControls(activePort,editingCursor);
+            PCEditingEncoderControls(activePort,&editingCursor);
         else
             defaultEncoderControls();
         if(itsbeen(200)){
@@ -500,6 +461,7 @@ void PCEditor(){
             }
             if(del){
                 deletePCEvent(activePort,cursorPos);
+                editingMessage = false;
                 lastTime = millis();
             }
             if(sel){

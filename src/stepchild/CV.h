@@ -54,6 +54,7 @@ void initPWM(){
   pinMode(CV1_Pin, OUTPUT);
   pinMode(CV2_Pin, OUTPUT);
   pinMode(CV3_Pin, OUTPUT);
+  pinMode(onboard_ledPin, OUTPUT);
 
   //frequency of the oscillation
   analogWriteFreq(1000000);

@@ -7,6 +7,7 @@ void playTrack(uint8_t track, uint16_t timestep){
         sendMIDInoteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
       sentNotes.subNote(trackData[track].noteLastSent);
       trackData[track].noteLastSent = 255;
+      triggerAutotracks(track,false);
     }
     return;
   }
@@ -21,6 +22,7 @@ void playTrack(uint8_t track, uint16_t timestep){
           if(!isArping || activeArp.source == 0)
             sendMIDInoteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
           trackData[track].noteLastSent = 255;
+          triggerAutotracks(track,false);
         }
         //modifying chance value and pitch value and vel
         int16_t chance = seqData[track][lookupData[track][timestep]].chance;
@@ -62,33 +64,44 @@ void playTrack(uint8_t track, uint16_t timestep){
               sendMIDInoteOff(pitch, 0, trackData[track].channel);
           }
           sentNotes.addNote(pitch,vel,trackData[track].channel);
+          triggerAutotracks(track,true);
           return;
         }
       }
     }
   }
-}
+ }
 
 void playDT(uint8_t dt, uint16_t timestep){
-  if(dataTrackData[dt].isActive){
-    if(timestep<dataTrackData[dt].data.size()){
-      if(dataTrackData[dt].data[timestep] != 255)
-        dataTrackData[dt].play(timestep);
+  //normal Autotracks that use the global timestep
+  if(dataTrackData[dt].triggerSource<0){
+    if(dataTrackData[dt].isActive){
+      dataTrackData[dt].play(timestep);
+    }
+  }
+  //trigger autotracks that use internal playheads
+  else{
+    if(dataTrackData[dt].isActive){
+      dataTrackData[dt].play(dataTrackData[dt].playheadPos);
+      dataTrackData[dt].playheadPos++;
+    }
+    else{
+      dataTrackData[dt].playheadPos = 0;
     }
   }
 }
 
 void playStep(uint16_t timestep) {
   playPCData(timestep);
-  //playing dataTracks too
-  for(uint8_t dT = 0; dT < dataTrackData.size(); dT++){
-    playDT(dT,timestep);
-  }
   //playing each track
   for (int track = 0; track < trackData.size(); track++) {
     //if it's unmuted or solo'd, play it
     if(!trackData[track].isMuted || trackData[track].isSolo)
       playTrack(track,timestep);
+  }
+  //playing dataTracks too
+  for(uint8_t dT = 0; dT < dataTrackData.size(); dT++){
+    playDT(dT,timestep);
   }
   checkCV();
 }
