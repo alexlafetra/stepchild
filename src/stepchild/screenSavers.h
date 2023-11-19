@@ -55,9 +55,9 @@ void screenSaver_cassette(){
       done = true;
       rotationAmount = 0;
     }
-    else{
-      done = false;
-    }
+    // else{
+    //   done = false;
+    // }
     if(anyActiveInputs()){
       lastTime = millis();
       return;
@@ -68,7 +68,7 @@ void screenSaver_cassette(){
   }
 }
 
-void screenSaver_droplets(){
+void screenSaver_ripples(){
   const uint8_t maxReps = 5;//for how many rings
   const uint8_t spacing = 10;//for the spacing
   const uint8_t xCoord = 64;
@@ -106,9 +106,9 @@ void screenSaver_droplets(){
       animOffset = 0;
       done = true;
     }
-    else{
-      done = false;
-    }
+    // else{
+    //   done = false;
+    // }
     if(anyActiveInputs()){
       lastTime = millis();
       return;
@@ -165,6 +165,73 @@ void screenSaver_template(){
   }
 }
 
+void screenSaver_prams(){
+  vector<Raindrop> prams;
+  const uint8_t maxPrams = 8;
+  //loop that runs while the screensaver is active
+  while(true){
+    //generate a random number of prams each frame (but making sure there are never more than 'maxPrams')
+    for(int8_t i = random(0,maxPrams-prams.size()); i>0; i--){
+      prams.push_back(Raindrop(random(0,screenWidth),5,1));
+    }
+    display.clearDisplay();
+    display.drawBitmap(29,0,stepchild_fullscreen,76,64,1);
+    vector<Raindrop> temp;
+    for(uint8_t i = 0; i<prams.size(); i++){
+      prams[i].render(carriage_bmp,14,15);
+      prams[i].update();
+      //only keeping the prams that aren't offscreen
+      if(prams[i].y1<screenWidth)
+        temp.push_back(prams[i]);
+    }
+    display.display();
+    prams.swap(temp);
+    Serial.println(prams.size());
+
+    //checking if any buttons are pressed and breaking out of the loop if so
+    if(anyActiveInputs()){
+      lastTime = millis();
+      return;
+    }
+    else if(itsbeen(sleepTime)){
+      return;
+    }
+  }
+}
+
+void screenSaver_droplets(){
+  vector<Raindrop> drops;
+  uint8_t maxDrops = 20;
+  //loop that runs while the screensaver is active
+  while(true){
+    //generate a random number of prams each frame (but making sure there are never more than 'maxPrams')
+    for(int8_t i = random(0,maxDrops-drops.size()); i>0; i--){
+      drops.push_back(Raindrop(random(0,screenWidth),10,1));
+    }
+//    double u;
+//    maxDrops = abs(ceil(30.0*modf(sin(float(millis())/100.0),&u)));
+    display.clearDisplay();
+    vector<Raindrop> temp;
+    for(uint8_t i = 0; i<drops.size(); i++){
+      drops[i].render(false);
+      drops[i].update();
+      //only keeping the prams that aren't offscreen
+      if(drops[i].y1<screenWidth)
+        temp.push_back(drops[i]);
+    }
+    display.display();
+    drops.swap(temp);
+    //checking if any buttons are pressed and breaking out of the loop if so
+    if(anyActiveInputs()){
+      lastTime = millis();
+      return;
+    }
+    else if(itsbeen(sleepTime)){
+      return;
+    }
+  }
+}
+
 void screenSaver_keys(){
   bool done = true;
   //loop that runs while the screensaver is active
@@ -183,21 +250,51 @@ void screenSaver_keys(){
   }
 }
 
+void screenSaver_text(){
+  bool done = true;
+  int16_t textStart = 0;
+  const String text = "midi sequencer music computer silent instrument pocket composer compact beat machine quiet thing note book track editor music haiku live looper midi generator midi sequencer music computer silent instrument pocket composer compact beat machine quiet thing note book track editor music haiku live looper midi generator";
+  const int16_t textLength = text.length()*2-45;
+  while(true){
+    display.clearDisplay();
+    printSmall(textStart,1,text,1);    
+    printSmall(textStart+16,9,text,1);
+    printSmall(textStart-13,17,text,1);
+    printSmall(textStart+6,25,text,1);
+    printSmall(textStart+3,33,text,1);
+    printSmall(textStart+7,41,text,1);
+    printSmall(textStart+1,49,text,1);
+    printSmall(textStart-9,57,text,1);
+    display.display();
+    textStart--;
+    if(textStart == -textLength){
+      done = true;
+      textStart = 0;
+    }
+    //checking if any buttons are pressed and breaking out of the loop if so
+    if(anyActiveInputs()){
+      lastTime = millis();
+      return;
+    }
+    else if(itsbeen(sleepTime) && done){
+      return;
+    }
+  }
+}
+
 void screenSaver(){
   //vector that holds all the screen savers
   if(playing || recording){
     screenSaver_keys();
   }
-  vector<void (*)()> screenSaverList = {screenSaver_cassette,screenSaver_droplets};
+  vector<void (*)()> screenSaverList = {screenSaver_prams,screenSaver_droplets,screenSaver_cassette,screenSaver_ripples,screenSaver_text};
   uint8_t which = random(0,screenSaverList.size());
   //running the screen saver
-  // lastTime = millis();
   screenSaverList[which]();
 }
 
 void screenSaverCheck(){
   while(itsbeen(sleepTime)){
-    // screenSaver_cassette();
     screenSaver();
     if(itsbeen(deepSleepTime)){
       deepSleep();

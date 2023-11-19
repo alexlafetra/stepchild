@@ -273,6 +273,204 @@ void drawCurveIcon(uint8_t xPos, uint8_t yPos, uint8_t type, uint8_t frame){
   }
 }
 
+//Sets the target track or channel for a trigger, and the track's gate status
+void setAutotrackTrigger(uint8_t whichAT){
+  //0 for global, 1 for tracks, 2 for channels
+  uint8_t trigSource = dataTrackData[whichAT].triggerSource;
+  //track number
+  int8_t trackNumber = 0;
+  //channel number
+  int8_t channelNumber = 1;
+  uint8_t trackViewStart = 0;
+  uint8_t channelViewStart = 1;
+
+  const uint8_t numberOfTracks = 6;
+  const uint8_t x0 = 16;
+  const uint8_t x1 = 48;
+  const uint8_t x2 = 82;
+  const uint8_t colWidth = 30;
+  const uint8_t colHeight = 9;
+  const uint8_t y1 = 10;
+
+  bool togglingGate = false;
+
+  while(true){
+    display.clearDisplay();
+    
+    //drawing title
+    printSmall(0,0,"set autotrack trigger:",1);
+
+    //drawing global label
+    (trigSource ||togglingGate)?display.drawRect(8,22,27,9,1):display.fillRect(8,22,27,9,1);
+    printSmall(10,24,"global",2);
+    if(!trigSource && !togglingGate)
+      drawArrow(22,20+sin(millis()/200),3,3,false);
+
+
+    //drawing gate label
+    drawBinarySelectionBox(22, 52, "on", "off", "", !dataTrackData[whichAT].gated);
+    printSmall_centered(22,40,"gate",1);
+
+    if(togglingGate){
+      drawArrow(22,60+sin(millis()/200),3,2,false);
+    }
+
+    //drawing tracks
+    for(uint8_t i = 0; i<=numberOfTracks; i++){
+      if(i+trackViewStart>=trackData.size())
+        break;
+      if(trigSource == 1 && trackNumber == i+trackViewStart){
+        display.fillRect(x1,y1+i*colHeight,colWidth,colHeight,1);
+        drawArrow(x1+colWidth-6+sin(millis()/200),y1+i*colHeight+colHeight/2,4,1,false);
+      }
+      else
+        display.drawRect(x1,y1+i*colHeight,colWidth,colHeight,1);
+      printSmall(x1+2,y1+i*colHeight+2,stringify(i+trackViewStart),2);
+    }
+    //arrow indicators
+    if(trackViewStart+numberOfTracks<trackData.size()){
+      drawArrow(x1-5,60+sin(millis()/200),3,3,false);
+    }
+    if(trackViewStart>0){
+      drawArrow(x1-5,50-sin(millis()/200),3,2,false);
+    }
+    //drawing channels
+    for(uint8_t i = 0; i<=numberOfTracks; i++){
+      if(i+channelViewStart>16)
+        break;
+      if(trigSource == 2 && channelNumber == i+channelViewStart){
+        display.fillRect(x2,y1+i*colHeight,colWidth,colHeight,1);
+        drawArrow(x2+6+sin(millis()/200),y1+i*colHeight+colHeight/2,4,0,false);
+      }
+      else
+        display.drawRect(x2,y1+i*colHeight,colWidth,colHeight,1);
+      printSmall(x2+colWidth-((i+channelViewStart)/10+1)*4-1,y1+i*colHeight+2,stringify(i+channelViewStart),2);
+    }
+    //arrow indicators
+    if(channelViewStart+numberOfTracks<=16){
+      drawArrow(x2+colWidth+5,60+sin(millis()/200),3,3,false);
+    }
+    if(channelViewStart>1){
+      drawArrow(x2+colWidth+5,50-sin(millis()/200),3,2,false);
+    }
+    display.setRotation(SIDEWAYS_L);
+    printSmall(48-y1,x1-6,"trck",1);
+    display.setRotation(SIDEWAYS_R);
+    printSmall(y1,screenWidth-x2-colWidth-6,"chnl",1);
+    display.setRotation(UPRIGHT);
+
+    display.display();
+    readJoystick();
+    readButtons();
+    if(itsbeen(200)){
+      if(shift || loop_Press){
+        dataTrackData[whichAT].gated = !dataTrackData[whichAT].gated;
+        lastTime = millis();
+      }
+      if(x != 0){
+        if(x == -1 && trigSource<2){
+          if(togglingGate)
+            togglingGate = false;
+          lastTime = millis();
+          trigSource++;
+        }
+        else if(x == 1 && trigSource>0){
+          lastTime = millis();
+          trigSource--;
+        }
+      }
+      if(sel){
+        lastTime = millis();  
+        if(togglingGate){
+          dataTrackData[whichAT].gated = !dataTrackData[whichAT].gated;
+        }
+        else{
+          switch(trigSource){
+            //global
+            case 0:
+              dataTrackData[whichAT].setTrigger(global,0);
+              break;
+            //track
+            case 1:
+              dataTrackData[whichAT].setTrigger(track,trackNumber);
+              break;
+            //channel
+            case 2:
+              dataTrackData[whichAT].setTrigger(channel,channelNumber);
+              break;
+          }
+          return;
+        }
+      }
+      if(menu_Press){
+        lastTime = millis();
+        return;
+      }
+    }
+    if(itsbeen(100)){
+      if(y != 0){
+        if(togglingGate && y == -1){
+          togglingGate = false;
+          trigSource = 0;
+          lastTime = millis();
+        }
+        else if(y == 1){
+          switch(trigSource){
+            //global
+            case 0:
+              togglingGate = true;
+              lastTime = millis();
+              break;
+            //track
+            case 1:
+              if(trackNumber<trackData.size()-1){
+                trackNumber++;
+                if(trackViewStart<=trackNumber - numberOfTracks)
+                  trackViewStart++;
+                lastTime = millis();
+              }
+              break;
+            //channel
+            case 2:
+              if(channelNumber<16){
+                channelNumber++;
+                if(channelViewStart<=channelNumber - numberOfTracks)
+                  channelViewStart++;
+                lastTime = millis();
+              }
+              break;
+          }
+        }
+        else if(y == -1){
+          switch(trigSource){
+            //global
+            case 0:
+              break;
+            //track
+            case 1:
+              if(trackNumber>0){
+                trackNumber--;
+                if(trackNumber<trackViewStart)
+                  trackViewStart--;
+                lastTime = millis();
+              }
+              break;
+            //channel
+            case 2:
+              if(channelNumber>1){
+                channelNumber--;
+                if(channelViewStart>channelNumber)
+                  channelViewStart--;
+                lastTime = millis();
+              }
+              break;
+          }
+        }
+      }
+    }
+  }
+}
+
 //for editing a single dataTrack
 void dataTrackEditor(){
   //type of curve to draw! 0 is linear, 1 is x^2
@@ -1257,7 +1455,7 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
         }
 
         //playhead
-        if(playing && ((dataTrackData[activeDataTrack].triggerSource<0 && step == playheadPos) || (dataTrackData[activeDataTrack].triggerSource>=0 && step == dataTrackData[activeDataTrack].playheadPos)))
+        if(playing && ((dataTrackData[activeDataTrack].triggerSource == global && step == playheadPos) || (dataTrackData[activeDataTrack].triggerSource != global && step == dataTrackData[activeDataTrack].playheadPos)))
           display.drawRoundRect(32+(step-viewStart)*scale,0,3,screenHeight,3,SSD1306_WHITE);
         
         //rechead
@@ -1337,10 +1535,10 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     uint8_t height;
     uint8_t val;
     if(playing){
-      if(dataTrackData[activeDataTrack].data[dataTrackData[activeDataTrack].triggerSource<0?playheadPos:dataTrackData[activeDataTrack].playheadPos] == 255)
-        val = getLastDTVal(dataTrackData[activeDataTrack].triggerSource<0?playheadPos:dataTrackData[activeDataTrack].playheadPos,activeDataTrack);
+      if(dataTrackData[activeDataTrack].data[dataTrackData[activeDataTrack].triggerSource==global?playheadPos:dataTrackData[activeDataTrack].playheadPos] == 255)
+        val = getLastDTVal(dataTrackData[activeDataTrack].triggerSource==global?playheadPos:dataTrackData[activeDataTrack].playheadPos,activeDataTrack);
       else
-        val = dataTrackData[activeDataTrack].data[dataTrackData[activeDataTrack].triggerSource<0?playheadPos:dataTrackData[activeDataTrack].playheadPos];
+        val = dataTrackData[activeDataTrack].data[dataTrackData[activeDataTrack].triggerSource==global?playheadPos:dataTrackData[activeDataTrack].playheadPos];
     }
     else{
       if(dataTrackData[activeDataTrack].data[cursorPos] == 255)
@@ -1356,7 +1554,7 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     //drawing sent data
     display.setRotation(1);
     if(playing){
-      printSmall(barHeight/2-stringify(getLastDTVal(dataTrackData[activeDataTrack].triggerSource<0?playheadPos:dataTrackData[activeDataTrack].playheadPos,activeDataTrack)).length()*2,3,stringify(getLastDTVal(playheadPos,activeDataTrack)),2);
+      printSmall(barHeight/2-stringify(getLastDTVal(dataTrackData[activeDataTrack].triggerSource==global?playheadPos:dataTrackData[activeDataTrack].playheadPos,activeDataTrack)).length()*2,3,stringify(getLastDTVal(dataTrackData[activeDataTrack].triggerSource==global?playheadPos:dataTrackData[activeDataTrack].playheadPos,activeDataTrack)),2);
     }
     else{
       printSmall(barHeight/2-stringify(getLastDTVal(cursorPos,activeDataTrack)).length()*2,3,stringify(getLastDTVal(cursorPos,activeDataTrack)),2);
@@ -1457,7 +1655,7 @@ bool dataTrackViewerControls(){
       lastTime = millis();
     }
     if(del){
-      if(shift){
+      if(shift && activeDataTrack<dataTrackData.size()){
         dataTrackData[activeDataTrack].isActive = !dataTrackData[activeDataTrack].isActive;
         lastTime = millis();
       }
@@ -1471,8 +1669,14 @@ bool dataTrackViewerControls(){
       return false;
     }
     if(play){
-      togglePlayMode();
-      lastTime = millis();
+      if(shift && activeDataTrack<dataTrackData.size()){
+        dataTrackData[activeDataTrack].isPrimed = !dataTrackData[activeDataTrack].isPrimed;
+        lastTime = millis();
+      }
+      else{
+        togglePlayMode();
+        lastTime = millis();
+      }
     }
     if(copy_Press){
       dupeDataTrack(activeDataTrack);
@@ -1485,12 +1689,20 @@ bool dataTrackViewerControls(){
         dataTrackData[activeDataTrack].control = param;
       lastTime = millis();
     }
-    if(note_Press){
-      dataTrackData[activeDataTrack].setTrigger(0);
+    if(loop_Press && activeDataTrack<dataTrackData.size()){
       lastTime = millis();
+      setAutotrackTrigger(activeDataTrack);
     }
   }
   return true;
+}
+
+bool atLeastOneActiveAutotrack(){
+  for(uint8_t i = 0; i<dataTrackData.size(); i++){
+    if(dataTrackData[i].isActive)
+      return true;
+  }
+  return false;
 }
 
 void drawDataTrackViewer(uint8_t firstTrack){
@@ -1504,16 +1716,11 @@ void drawDataTrackViewer(uint8_t firstTrack){
   display.setRotation(1);
   printArp(2,0,"AUTOTRACKS",1);
   display.setRotation(UPRIGHT);
-
   //drawing tracks
   if(dataTrackData.size()>0){
     animOffset++;
     animOffset%=18;
 
-    //play/rec
-    if(playing){
-      drawPlayIcon(64+sin(millis()/200),10);
-    }
     for(uint8_t track = 0; track<5; track++){
       //if there's data for this track (if it exists)
       if(track+firstTrack<dataTrackData.size()){
@@ -1541,14 +1748,19 @@ void drawDataTrackViewer(uint8_t firstTrack){
           else
             print7SegSmall(screenWidth-countDigits_byte(activeDataTrack)*4-(firstTrack?8:1),0,stringify(activeDataTrack),1);
 
-          //if it's a trigger autotrack
-          if(dataTrackData[activeDataTrack].triggerSource>=0){
-            drawLabel(112,currentHeight+2,"trig: "+stringify(dataTrackData[activeDataTrack].triggerSource),false);
+          String trigger;
+          switch(dataTrackData[activeDataTrack].triggerSource){
+            case global:
+              trigger = "global";
+              break;
+            case TriggerSource::track:
+              trigger = "trck: "+stringify(dataTrackData[activeDataTrack].triggerTarget);
+              break;
+              case channel:
+              trigger = "chnl: "+stringify(dataTrackData[activeDataTrack].triggerTarget);
+              break;
           }
-          //if it's a global autotrack
-          else{
-            drawLabel(112,currentHeight+2,"global",true);
-          }
+          drawLabel(112,currentHeight+2,trigger,false);
 
           //arrow highlight
           drawArrow(110,currentHeight+2+cos(millis()/100),4,3,false);
@@ -1569,7 +1781,7 @@ void drawDataTrackViewer(uint8_t firstTrack){
           if(dataTrackData[track+firstTrack].isActive)
             printParam_centered(track+firstTrack,sideMenu+(screenWidth-sideMenu)/2,currentHeight+2,dataTrackData[track+firstTrack].control,false,dataTrackData[track+firstTrack].parameterType,false);
           else
-            printSmall_centered(sideMenu+(screenWidth-sideMenu)/2,currentHeight+2,"[muted]",1);
+            printSmall_centered(sideMenu+(screenWidth-sideMenu)/2,currentHeight+2,"[inactive]",1);
           currentHeight+=height-1;
         }
       }
@@ -1589,9 +1801,42 @@ void drawDataTrackViewer(uint8_t firstTrack){
   }
   else{
     printSmall(11,3,"No tracks, kid",1);
-    printSmall(10,12,"[n] to create",1);
+    printSmall(11,12,"press [n] to create",1);
     printSmall(11,21,"a new automation track",1);
-    display.drawBitmap(110,16,robo[(millis()/25)%100>50],13,24,1);
+    display.drawLine(93,27,105,39,1);
+    display.drawFastHLine(9,27,84,1);
+    display.drawFastVLine(9,1,26,1);
+    display.drawLine(94,17,105,39,1);
+    display.drawFastVLine(94,1,16,1);
+    display.drawFastHLine(9,1,85,1);
+  }
+
+  const uint8_t x1 = 101;
+  const uint8_t y1 = 38;
+  //Drawing our robot bud
+  if((playing || recording) && atLeastOneActiveAutotrack())
+    // switch(millis()/500%4){
+    switch((playing?playheadPos:recheadPos)/24%4){
+      case 0:
+        display.drawBitmap(x1+1,y1+3,robo3_mask,18,17,0);
+        display.drawBitmap(x1,y1,robo3,21,24,1);
+        break;
+      case 1:
+        display.drawBitmap(x1+9,y1+2,robo1_mask,12,17,0);
+        display.drawBitmap(x1+3,y1,robo4,18,24,1);
+        break;
+      case 2:
+        display.drawBitmap(x1+9,y1+2,robo5_mask,12,17,0);
+        display.drawBitmap(x1+9,y1,robo5,18,24,1);
+        break;
+      case 3:
+        display.drawBitmap(x1+9,y1+2,robo5_mask,12,17,0);
+        display.drawBitmap(x1+9,y1,robo6,18,24,1);
+        break;
+  }
+  else{
+    display.drawBitmap(x1+9,y1+2,robo1_mask,12,17,0);
+    display.drawBitmap(x1+8,y1,robo[(millis()/500)%2],13,24,1);
   }
 }
 
@@ -1611,7 +1856,7 @@ void drawMiniDT(uint8_t x1, uint8_t y1, uint8_t height, uint8_t which){
         else
           display.drawLine(x1+(i-loopData[activeLoop].start)*sc, y1+yScale*(127-getLastDTVal(i,which)),x1+(i+1-loopData[activeLoop].start)*sc-1, y1+yScale*(127-getLastDTVal(i+1,which)),SSD1306_WHITE);
         if(playing){
-          if((dataTrackData[which].triggerSource<0 && i == playheadPos) || (dataTrackData[which].triggerSource>=0 && i == dataTrackData[which].playheadPos)){
+          if((dataTrackData[which].triggerSource == global && i == playheadPos) || (dataTrackData[which].triggerSource != global && i == dataTrackData[which].playheadPos)){
             display.drawFastVLine(x1+(i-loopData[activeLoop].start)*sc,y1,height,SSD1306_WHITE);
           }
         }
@@ -1621,10 +1866,22 @@ void drawMiniDT(uint8_t x1, uint8_t y1, uint8_t height, uint8_t which){
     }
     drawDottedLineH(x1,x1+94,y1+height/2,3);
   }
-  //if it's muted
+  //if it's muted/inactive
   else{
     shadeRect(x1,y1,screenWidth-x1-3,height,5);
     display.fillRoundRect(x1+(screenWidth-x1)/2-13,y1+height/2-3,25,7,3,SSD1306_BLACK);
     printSmall(x1+(screenWidth-x1)/2-14,y1+height/2-2,"[muted]",SSD1306_WHITE);
+  }
+  if(dataTrackData[which].isPrimed){
+    if(millis()/700%2)
+      display.fillCircle(x1,y1,2,1);
+    else{
+      display.fillCircle(x1,y1,2,0);
+      display.drawCircle(x1,y1,2,1);
+    }
+  }
+  else{
+    display.drawLine(x1-2,y1-2,x1+2,y1+2,1);
+    display.drawLine(x1+2,y1-2,x1-2,y1+2,1);
   }
 }

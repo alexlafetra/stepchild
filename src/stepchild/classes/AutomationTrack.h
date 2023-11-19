@@ -1,3 +1,5 @@
+enum TriggerSource:uint8_t{global,track,channel};
+
 class dataTrack{
   public:
     //holds values in the range 0-127, 255 ==> NO value and a control number should not be sent
@@ -25,10 +27,12 @@ class dataTrack{
     // 0 is from external, 1 is encoder A, 2 is encoder B, 3 is X, 4 is Y
     uint8_t recordFrom = 0;
 
-    //Controls whether or not the track is triggered by another track
-    //0-127 are trackID's of the trigger track
-    //-1 means it's a normal AT
-    int8_t triggerSource = -1;
+
+    //can be global, track, or channel
+    TriggerSource triggerSource = global;
+    //ID of the track, or channel, that the AT will trigger on
+    uint8_t triggerTarget = 0;
+
     //gated means the track turns on/off with it's trigger (if it's a trigger track)
     //if not gated, the track will play continuously
     bool gated = true;
@@ -36,11 +40,12 @@ class dataTrack{
 
     //for muting/unmuting it
     bool isActive = true;
+
     vector<uint16_t> selectedPoints;
     dataTrack();
     dataTrack(uint8_t);
     void play(uint16_t);
-    void setTrigger(int8_t trigSource);
+    void setTrigger(TriggerSource trigSource, uint8_t trigTarget);
 };
 
 dataTrack::dataTrack(){
@@ -91,28 +96,63 @@ vector<dataTrack> dataTrackData;
 //looks for autotracks to trigger and triggers them
 void triggerAutotracks(uint8_t trackID, bool state){
   for(uint8_t i = 0; i<dataTrackData.size(); i++){
-    //if it's a targeted autotrack
-    if(dataTrackData[i].triggerSource == trackID){
-      //triggering it on
-      if(state){
-        dataTrackData[i].isActive = true;
-        dataTrackData[i].playheadPos = 0;
-      }
-      //triggering it off
-      else if(dataTrackData[i].gated){
-        dataTrackData[i].isActive = false;
-        dataTrackData[i].playheadPos = 0;
-      }
+    switch(dataTrackData[i].triggerSource){
+      case global:
+        break;
+      case track:
+        //if it's a targeted autotrack
+        if(dataTrackData[i].triggerTarget == trackID){
+          //triggering it on
+          if(state){
+            dataTrackData[i].isActive = true;
+            dataTrackData[i].playheadPos = 0;
+          }
+          //triggering it off
+          else if(dataTrackData[i].gated){
+            dataTrackData[i].isActive = false;
+            dataTrackData[i].playheadPos = 0;
+          }
+        }
+        break;
+      case channel:
+        //if it's a targeted autotrack
+        if(dataTrackData[i].triggerTarget == trackData[trackID].channel){
+          //triggering it on
+          if(state){
+            dataTrackData[i].isActive = true;
+            dataTrackData[i].playheadPos = 0;
+          }
+          //triggering it off
+          else if(dataTrackData[i].gated){
+            dataTrackData[i].isActive = false;
+            dataTrackData[i].playheadPos = 0;
+          }
+        }
+        break;
     }
   }
 }
-void dataTrack::setTrigger(int8_t trigSource){
+void dataTrack::setTrigger(TriggerSource trigSource, uint8_t trigTarget){
   triggerSource = trigSource;
   playheadPos = 0;
-  if(triggerSource<0){
-    isActive = true;
-  }
-  else{
-    isActive = false;
+  switch(triggerSource){
+    case global:
+      triggerTarget = 0;
+      isActive = true;
+      break;
+    case track:
+      isActive = false;
+      if(trigTarget<trackData.size())
+        triggerTarget = trigTarget;
+      else
+        triggerTarget = 0;
+      break;
+    case TriggerSource::channel:
+      isActive = false;
+      if(trigTarget<=16 && trigTarget>=1)
+        triggerTarget = trigTarget;
+      else
+        triggerTarget = 1;
+      break;
   }
 }

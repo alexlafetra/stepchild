@@ -74,7 +74,7 @@ void playTrack(uint8_t track, uint16_t timestep){
 
 void playDT(uint8_t dt, uint16_t timestep){
   //normal Autotracks that use the global timestep
-  if(dataTrackData[dt].triggerSource<0){
+  if(dataTrackData[dt].triggerSource == global){
     if(dataTrackData[dt].isActive){
       dataTrackData[dt].play(timestep);
     }

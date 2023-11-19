@@ -288,6 +288,7 @@ void keyboard();
 void drumPad();
 String getMKIIParameterName(uint8_t param,  uint8_t channel);
 String getCCParameterName(uint8_t param);
+void drawBinarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, bool state);
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, void (*displayFunction)());
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, void (*displayFunction)());
 uint8_t countSpaces(String text);

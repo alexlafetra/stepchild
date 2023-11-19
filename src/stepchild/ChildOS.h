@@ -135,18 +135,20 @@ class CoordinatePair;
 #include "classes/CoordinatePair.h"
 #include "classes/Menu.h"
 #include "classes/Note.h"
-#include "classes/Track.h"
-#include "classes/Knob.h"
-#include "classes/AutomationTrack.h"
-#include "classes/Loop.h"
-#include "classes/SelectionBox.h"
 
 const Note offNote; //default note, always goes in element 0 of seqData for each track
 const vector<Note> defaultVec = {offNote};//default vector for a track, holds offNote at 0
 vector<vector<Note>> seqData;//making a 2D vec, number of rows = tracks, number of columns = usable notes, and stores Note objects
 vector<vector<Note>> copyBuffer;//stores copied notes
+
+#include "classes/Track.h"
+
 vector<Track> trackData;//holds the tracks in the sequence
 
+#include "classes/Knob.h"
+#include "classes/AutomationTrack.h"
+#include "classes/Loop.h"
+#include "classes/SelectionBox.h"
 
 //These classes need to talk to seqData or trackData
 #include "classes/Arp.h"

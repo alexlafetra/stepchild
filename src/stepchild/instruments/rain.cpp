@@ -17,6 +17,8 @@ class Raindrop{
     Raindrop();
     Raindrop(uint8_t,uint8_t,uint8_t);
     void render(bool);
+    //draws a bitmap instead of the droplet
+    void render(const unsigned char * bmp,uint8_t w, uint8_t h);
     bool update();
 };
 
@@ -39,6 +41,10 @@ void Raindrop::render(bool text){
   if(text)
     printSmall(x1+2,y1,stringify(vel),1);
 }
+void Raindrop::render(const unsigned char * bmp,uint8_t w, uint8_t h){
+  display.drawBitmap(x1,y1,bmp,w,h,1);
+}
+
 bool Raindrop::update(){
   bool  hasNotCrossedYet = false;
   if(y1<64){

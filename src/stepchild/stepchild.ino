@@ -1132,6 +1132,28 @@ void keyboard(){
   keyboardAnimation(0,5,0,14,false);
 }
 
+void drawBinarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, bool state){
+  const uint8_t height = 11;
+  //getting the longest string so we know how long to make the box
+  uint8_t maxLength;
+  if(op1.length()>op2.length())
+    maxLength = op1.length();
+  else
+    maxLength = op2.length();
+  uint8_t length = (maxLength*4+3)*2;
+
+  display.fillRect(x1-length/2,y1-height/2,length,height,SSD1306_BLACK);
+  drawSlider(x1-length/2,y1-height/2,length,height,state);
+  printSmall(x1-length/4-op1.length()*2+1,y1-2,op1,2);
+  printSmall(x1+length/4-op2.length()*2,y1-2,op2,2);
+  if(title.length()>0){
+    const uint8_t height2 = 9;
+    uint8_t length2 = title.length()*4-countSpaces(title)*2;
+    display.fillRect(x1-length2/2-2,y1-15,length2+4,height2,SSD1306_BLACK);
+    display.drawRect(x1-length2/2-2,y1-15,length2+4,height2,SSD1306_WHITE);
+    printSmall(x1-length2/2,y1-height2-4,title,SSD1306_WHITE);
+  }
+}
 //for no title
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, void (*drawingFunction)()){
   return binarySelectionBox(x1,y1,op1,op2,"",drawingFunction);
@@ -1144,32 +1166,12 @@ int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String t
   bool notChosenYet = true;
   //storing the state
   bool state = false;
-
-  const uint8_t height = 11;
-
-  //getting the longest string so we know how long to make the box
-  uint8_t maxLength;
-  if(op1.length()>op2.length())
-    maxLength = op1.length();
-  else
-    maxLength = op2.length();
-
-  uint8_t length = (maxLength*4+3)*2;
   lastTime = millis();
+  
   while(true){
     display.clearDisplay();
     drawingFunction();
-    display.fillRect(x1-length/2,y1-height/2,length,height,SSD1306_BLACK);
-    drawSlider(x1-length/2,y1-height/2,length,height,state);
-    printSmall(x1-length/4-op1.length()*2+1,y1-2,op1,2);
-    printSmall(x1+length/4-op2.length()*2,y1-2,op2,2);
-    if(title.length()>0){
-      const uint8_t height2 = 9;
-      uint8_t length2 = title.length()*4-countSpaces(title)*2;
-      display.fillRect(x1-length2/2-2,y1-15,length2+4,height2,SSD1306_BLACK);
-      display.drawRect(x1-length2/2-2,y1-15,length2+4,height2,SSD1306_WHITE);
-      printSmall(x1-length2/2,y1-height2-4,title,SSD1306_WHITE);
-    }
+    drawBinarySelectionBox(x1,y1,op1,op2,title,state);
     display.display();
     readJoystick();
     readButtons();
@@ -8922,17 +8924,8 @@ void mainSequencerButtons(){
         lastTime = millis();
       }
       if(shift){
-        //if notes are selected, bring up the fx menu
-        if(selectionCount){
-          lastTime = millis();
-          menuIsActive = true;
-          constructMenu("FX");
-          fxMenu();
-        }
-        else{
-          addTrack(defaultPitch, defaultChannel);
-          lastTime = millis();
-        }
+        addTrack(defaultPitch, defaultChannel);
+        lastTime = millis();
       }
     }
     defaultSelectControls();
@@ -9052,6 +9045,7 @@ void clearButtons(){
   menu_Press = false;
 }
 
+#ifndef HEADLESS
 //checks all inputs
 bool anyActiveInputs(){
   //normal buttons
@@ -9098,6 +9092,15 @@ bool anyActiveInputs(){
 
   return false;
 }
+#else
+bool anyActiveInputs(){
+  glfwPollEvents();
+  if(x || y || n || shift || sel || del || loop_Press || play || copy_Press || menu_Press || counterA || counterB || note_Press || track_Press)
+    return true;
+  else
+    return false;
+}
+#endif
 
 //CHECK
 //true if pitch is being sent or received
