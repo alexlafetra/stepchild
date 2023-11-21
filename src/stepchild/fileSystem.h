@@ -43,7 +43,7 @@
     return fileSizes;
   }
   vector<String> loadFiles(){
-    vector<String> filenames = {"*new*"};
+    vector<String> filenames = {"*new*","test","beebebebbe","idk","i love you","sp404","microKORG"};
     return filenames;
   }
   void renameSeqFile(String filename){

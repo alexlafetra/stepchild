@@ -159,7 +159,7 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
   return true;
 }
 
-void filesMenu(){
+void fileMenu(){
   uint8_t menuStart = 0;
   uint8_t menuEnd = 4;
   clearButtons();
@@ -171,7 +171,7 @@ void filesMenu(){
   while(menuIsActive){
     display.clearDisplay();
     //draw menu
-    activeMenu.displayFilesMenu(0,false,menuStart,menuEnd,filenames);
+    activeMenu.displayFileMenu(0,false,menuStart,menuEnd,filenames);
     //render wireframe
     folder.render();
     //draw mini menu
@@ -231,14 +231,22 @@ void displayMiniMenu(){
     printSmall(x1+4,y1+8*i+3,options[i],2);
   }
   printChunky(87-options[activeMenu.highlight].length()*3,y1-7,options[activeMenu.highlight],SSD1306_WHITE);
+
+  //drawing icon
+  if(activeMenu.highlight<5){
+    display.fillRoundRect(100,29,16,16,3,0);
+    display.drawRoundRect(100,29,16,16,3,1);
+
+    display.drawBitmap(102,31,file_menu_icons[activeMenu.highlight],12,12,1);
+  }
 }
 
-void Menu::displayFilesMenu(){
+void Menu::displayFileMenu(){
   vector<String> filenames = {"*new*"};
-  displayFilesMenu(0,false,0,1,filenames);
+  displayFileMenu(0,false,0,1,filenames);
 }
 
-void Menu::displayFilesMenu(int16_t textOffset, bool open, uint8_t menuStart, uint8_t menuEnd,vector<String> filenames){
+void Menu::displayFileMenu(int16_t textOffset, bool open, uint8_t menuStart, uint8_t menuEnd,vector<String> filenames){
   unsigned short int menuHeight = abs(coords.y2-coords.y1);
   display.setCursor(coords.x1+9,coords.y1+3);
   display.setFont(&FreeSerifItalic9pt7b);

@@ -87,7 +87,7 @@ void trackEditMenu();
 void clockMenu();
 void loopMenu();
 void fragmentMenu();
-void filesMenu();
+void fileMenu();
 void recMenu();
 void xyGrid();
 void displayMiniMenu();

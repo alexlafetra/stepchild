@@ -1816,7 +1816,7 @@ void drawDataTrackViewer(uint8_t firstTrack){
   //Drawing our robot bud
   if((playing || recording) && atLeastOneActiveAutotrack())
     // switch(millis()/500%4){
-    switch((playing?playheadPos:recheadPos)/24%4){
+    switch((playing?dataTrackData[activeDataTrack].playheadPos:recheadPos)/24%4){
       case 0:
         display.drawBitmap(x1+1,y1+3,robo3_mask,18,17,0);
         display.drawBitmap(x1,y1,robo3,21,24,1);

@@ -23,8 +23,8 @@ class Menu{
     void displayMenu(bool,bool);
     void displayMenu(bool, bool, bool);
     void displayMainMenu();
-    void displayFilesMenu();
-    void displayFilesMenu(int16_t, bool, uint8_t, uint8_t,vector<String>);
+    void displayFileMenu();
+    void displayFileMenu(int16_t, bool, uint8_t, uint8_t,vector<String>);
     void displayTrackMenu();
     void displayTrackMenu_trackEdit(uint8_t);
     void displayEditMenu(uint8_t*, uint8_t, uint8_t);
@@ -83,7 +83,7 @@ void Menu::displayMenu(bool bounded, bool underlined, bool separateWindow){
   else if(menuTitle == "EDIT")
       activeMenu.displayMenu(false, true, false);
   else if(menuTitle == "FILES")
-      activeMenu.displayFilesMenu();
+      activeMenu.displayFileMenu();
   else if(menuTitle == "MENU")
     activeMenu.displayMainMenu();
 }
@@ -289,11 +289,11 @@ void constructMenu(uint8_t id){
     }
     case FILES:
     {
-      Menu fileMenu(7,3,128,64,"FILES");
-      activeMenu = fileMenu;
+      Menu filesMenu(7,3,128,64,"FILES");
+      activeMenu = filesMenu;
       activeMenu.highlight = 0;
       slideMenuIn(1,30);
-      filesMenu();
+      fileMenu();
       return;
     }
   }

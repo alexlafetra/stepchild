@@ -3121,7 +3121,7 @@ void fileAnimation(bool in){
       activeMenu.coords.x1 = screenWidth-i;
       activeMenu.coords.x2 = activeMenu.coords.x1 + width;
       display.clearDisplay();
-      activeMenu.displayFilesMenu(20-i/10,0,0,3,filenames);
+      activeMenu.displayFileMenu(20-i/10,0,0,3,filenames);
       // display.drawBitmap(screenWidth-i,0,folder_closed_bmp,14,26,SSD1306_WHITE);
       display.display();
     }
@@ -3137,7 +3137,7 @@ void fileAnimation(bool in){
       activeMenu.coords.x1 = screenWidth-i;
       activeMenu.coords.x2 = activeMenu.coords.x1 + width;
       display.clearDisplay();
-      activeMenu.displayFilesMenu(30-i/10,0,0,3,filenames);
+      activeMenu.displayFileMenu(30-i/10,0,0,3,filenames);
       // display.drawBitmap(xDistance-i,0,folder_closed_bmp,14,26,SSD1306_WHITE);
       display.display();
     }
@@ -9587,7 +9587,7 @@ void quickSave(){
 }
 
 void fileMenuDisplayWrapper(){
-  activeMenu.displayFilesMenu();
+  activeMenu.displayFileMenu();
 }
 void loadBackup(){
   //if there's an active filename
