@@ -84,7 +84,7 @@ uint8_t activeTrack; //sets which track you're editing, you'll only be able to e
 uint8_t subDivInt;//sets where the divider bars are in the console output
 //cursor jump is locked to this division
 
-uint8_t activeDataTrack;
+uint8_t activeAutotrack;
 
 //counts up for each iteration of a loop
 uint8_t loopCount;//controls how many times sequence has looped

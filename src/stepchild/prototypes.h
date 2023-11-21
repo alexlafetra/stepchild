@@ -18,11 +18,11 @@ void writeCVPitch(uint8_t pitch);
 void writeCVClock();
 
 //Automation
-void moveDataTrackCursor(int moveAmount);
+void moveAutotrackCursor(int moveAmount);
 void changeDataPoint(int8_t);
-void smoothDataTrack(uint16_t, uint16_t, uint8_t);
+void smoothAutotrack(uint16_t, uint16_t, uint8_t);
 bool isModulated(uint8_t ch);
-void dataTrackViewer();
+void autotrackViewer();
 String getCCParam(uint8_t param, uint8_t channel, uint8_t type);
 
 //Drawing functions
@@ -327,5 +327,5 @@ void sendMIDInoteOff(uint8_t,uint8_t,uint8_t);
 void handleInternalCC(uint8_t, uint8_t, uint8_t, uint8_t);
 void sendMIDICC(uint8_t,uint8_t,uint8_t);
 uint8_t moveToNextCCParam(uint8_t param, bool up, uint8_t whichList);
-uint8_t selectCCParam_dataTrack(uint8_t which);
+uint8_t selectCCParam_autotrack(uint8_t which);
 bool isActiveChannel(uint8_t channel, uint8_t output);

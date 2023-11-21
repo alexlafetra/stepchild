@@ -1,7 +1,7 @@
 WireFrame getMainMenuWireFrame(){
   WireFrame w;
   switch(activeMenu.highlight){
-    //dataTracks
+    //autotracks
     case 0:
       w = makeGraphBox(5);
       break;
@@ -60,7 +60,7 @@ WireFrame getMainMenuWireFrame(){
 
 void animateIcon(WireFrame* w){
   switch(activeMenu.highlight){
-    //datatracks
+    //autotracks
     case 0:
       graphAnimation(w);
       w -> rotate(3,1);
@@ -177,9 +177,9 @@ bool mainMenuControls(){
       sel = false;
       lastTime = millis();
       switch(activeMenu.highlight){
-        //datatracks
+        //autotracks
         case 0:
-          dataTrackViewer();
+          autotrackViewer();
           break;
         //loop
         case 1:

@@ -74,19 +74,19 @@ void playTrack(uint8_t track, uint16_t timestep){
 
 void playDT(uint8_t dt, uint16_t timestep){
   //normal Autotracks that use the global timestep
-  if(dataTrackData[dt].triggerSource == global){
-    if(dataTrackData[dt].isActive){
-      dataTrackData[dt].play(timestep);
+  if(autotrackData[dt].triggerSource == global){
+    if(autotrackData[dt].isActive){
+      autotrackData[dt].play(timestep);
     }
   }
   //trigger autotracks that use internal playheads
   else{
-    if(dataTrackData[dt].isActive){
-      dataTrackData[dt].play(dataTrackData[dt].playheadPos);
-      dataTrackData[dt].playheadPos++;
+    if(autotrackData[dt].isActive){
+      autotrackData[dt].play(autotrackData[dt].playheadPos);
+      autotrackData[dt].playheadPos++;
     }
     else{
-      dataTrackData[dt].playheadPos = 0;
+      autotrackData[dt].playheadPos = 0;
     }
   }
 }
@@ -99,8 +99,8 @@ void playStep(uint16_t timestep) {
     if(!trackData[track].isMuted || trackData[track].isSolo)
       playTrack(track,timestep);
   }
-  //playing dataTracks too
-  for(uint8_t dT = 0; dT < dataTrackData.size(); dT++){
+  //playing autotracks too
+  for(uint8_t dT = 0; dT < autotrackData.size(); dT++){
     playDT(dT,timestep);
   }
   checkCV();

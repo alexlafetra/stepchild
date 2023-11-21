@@ -3449,10 +3449,10 @@ void printParam_centered(uint8_t which, uint8_t xPos, uint8_t yPos, uint8_t para
       p = getCCParameterName(param);
       break;
     case 1:
-      p = getMKIIParameterName(param,dataTrackData[which].channel);
+      p = getMKIIParameterName(param,autotrackData[which].channel);
       break;
     case 2:
-      p = getStepChildCCParameterName(param,dataTrackData[which].channel);
+      p = getStepChildCCParameterName(param,autotrackData[which].channel);
       break;
   }
   if(withBox){
@@ -3474,10 +3474,10 @@ void printParam(uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t
       p += getCCParameterName(param);
       break;
     case 1:
-      p += getMKIIParameterName(param,dataTrackData[activeDataTrack].channel);
+      p += getMKIIParameterName(param,autotrackData[activeAutotrack].channel);
       break;
     case 2:
-      p += getStepChildCCParameterName(param,dataTrackData[activeDataTrack].channel);
+      p += getStepChildCCParameterName(param,autotrackData[activeAutotrack].channel);
       break;
   }
   if(withBox){
@@ -3603,7 +3603,7 @@ vector<uint8_t> switchBetweenCCLists(uint8_t start, uint8_t end, uint8_t targetP
 }
 
 //menu for selecting a CC parameter
-uint8_t selectCCParam_dataTrack(uint8_t which){
+uint8_t selectCCParam_autotrack(uint8_t which){
   //which "list" you choose from
   //can be 0 -- "all" or 1 -- "SP404mkII"
   int8_t targetParam = 0;
@@ -3637,9 +3637,9 @@ uint8_t selectCCParam_dataTrack(uint8_t which){
         sel = false;
         lastTime = millis();
         //if it's no longer an internal track, 
-        dataTrackData[activeDataTrack].parameterType = which;
-        if(dataTrackData[activeDataTrack].parameterType != 2 && dataTrackData[activeDataTrack].channel == 0)
-          dataTrackData[activeDataTrack].channel = 1; 
+        autotrackData[activeAutotrack].parameterType = which;
+        if(autotrackData[activeAutotrack].parameterType != 2 && autotrackData[activeAutotrack].channel == 0)
+          autotrackData[activeAutotrack].channel = 1; 
         if(which == 1)
           return MKIIParamToCC(targetParam);
         else if(which == 2)
@@ -3650,7 +3650,7 @@ uint8_t selectCCParam_dataTrack(uint8_t which){
       if(menu_Press){
         menu_Press = false;
         lastTime = millis();
-        return dataTrackData[activeDataTrack].control;
+        return autotrackData[activeAutotrack].control;
       }
       if(note_Press && which != 2){
         start-= 6;
@@ -3750,7 +3750,7 @@ uint8_t selectCCParam_dataTrack(uint8_t which){
     printSmall(20,20,"name",SSD1306_WHITE);
 
     //parameter values
-    printParamList(which,targetParam,start,end,dataTrackData[activeDataTrack].channel);
+    printParamList(which,targetParam,start,end,autotrackData[activeAutotrack].channel);
 
     display.display();
   }
@@ -5332,9 +5332,9 @@ void moveView(int val) {
   }
 }
 
-//moving cursor around while in dataTrack mode
-void moveDataTrackCursor(int moveAmount){
-  uint8_t originalDataPoint = dataTrackData[activeDataTrack].data[cursorPos];
+//moving cursor around while in autotrack mode
+void moveAutotrackCursor(int moveAmount){
+  uint8_t originalDataPoint = autotrackData[activeAutotrack].data[cursorPos];
 //if you're trying to move back at the start
   if(cursorPos==0 && moveAmount < 0){
     return;
@@ -6999,7 +6999,7 @@ void drawTopIcons(){
 
   }
   //Data track icon
-  if(dataTrackData.size()>0){
+  if(autotrackData.size()>0){
     if(millis()%1600>800)
       // display.drawBitmap(x1,1,sine_small_bmp,6,4,SSD1306_WHITE);
       display.drawBitmap(x1,0,autotrack1,10,7,SSD1306_WHITE);
@@ -7422,9 +7422,9 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
 
 //checks to see if a channel is currently being modulated
 bool isModulated(uint8_t ch){
-  for(uint8_t dt = 0; dt<dataTrackData.size(); dt++){
-    if(dataTrackData[dt].parameterType == 2){
-      if(dataTrackData[dt].channel == ch && dataTrackData[dt].isActive)
+  for(uint8_t dt = 0; dt<autotrackData.size(); dt++){
+    if(autotrackData[dt].parameterType == 2){
+      if(autotrackData[dt].channel == ch && autotrackData[dt].isActive)
         return true;
     }
   }
@@ -7835,12 +7835,12 @@ void updateLookupData(){
 }
 
 void writeCC(uint16_t step, uint8_t channel, uint8_t controller, uint8_t value){
-  for(uint8_t dt = 0; dt < dataTrackData.size(); dt++){
+  for(uint8_t dt = 0; dt < autotrackData.size(); dt++){
     //if the track is primed and is recording externally
-    if(dataTrackData[dt].isPrimed && dataTrackData[dt].recordFrom == 0){
+    if(autotrackData[dt].isPrimed && autotrackData[dt].recordFrom == 0){
       //if the channel and control number match
-      if(channel == dataTrackData[dt].channel && controller == dataTrackData[dt].control){
-        dataTrackData[dt].data[step] = value;
+      if(channel == autotrackData[dt].channel && controller == autotrackData[dt].control){
+        autotrackData[dt].data[step] = value;
       }
     }
   }
@@ -8478,15 +8478,15 @@ bool just(bool button){
 
 void rotaryActionA_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  counterA += (recordingToAutotrack && dataTrackData[activeDataTrack].recordFrom == 1)?readEncoder(0)*4:readEncoder(0);
-  if(recordingToAutotrack && dataTrackData[activeDataTrack].recordFrom == 1)
+  counterA += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)?readEncoder(0)*4:readEncoder(0);
+  if(recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)
     waiting = false;
 }
 
 void rotaryActionB_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  counterB += (recordingToAutotrack && dataTrackData[activeDataTrack].recordFrom == 2)?readEncoder(1)*4:readEncoder(1);
-  if(recordingToAutotrack && dataTrackData[activeDataTrack].recordFrom == 2)
+  counterB += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)?readEncoder(1)*4:readEncoder(1);
+  if(recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)
     waiting = false;
 }
 
@@ -10133,7 +10133,7 @@ void playingLoop(){
 void checkAutotracks(){
   if(recordingToAutotrack){
     int newVal = 64;
-    switch(dataTrackData[activeDataTrack].recordFrom){
+    switch(autotrackData[activeAutotrack].recordFrom){
       //recording externally, so get outta this loop!
       case 0:
         return;
@@ -10176,9 +10176,9 @@ void checkAutotracks(){
       return;
     }
     recentCC.val = newVal;
-    recentCC.cc = dataTrackData[activeDataTrack].control;
-    recentCC.channel = dataTrackData[activeDataTrack].channel;
-    dataTrackData[activeDataTrack].data[recheadPos] = newVal;
+    recentCC.cc = autotrackData[activeAutotrack].control;
+    recentCC.channel = autotrackData[activeAutotrack].channel;
+    autotrackData[activeAutotrack].data[recheadPos] = newVal;
   }
 }
 

@@ -1,10 +1,10 @@
 bool isDataPointSelected(uint16_t);
-bool dataTrackEditingControls(uint8_t *interpType, bool* settingRecInput);
-bool dataTrackCurveEditingControls(bool* translation, bool* settingRecInput);
-bool dataTrackViewerControls();
-void drawDataTrackViewer(uint8_t firstTrack);
+bool autotrackEditingControls(uint8_t *interpType, bool* settingRecInput);
+bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput);
+bool autotrackViewerControls();
+void drawAutotrackViewer(uint8_t firstTrack);
 void drawMiniDT(uint8_t x1, uint8_t y1, uint8_t height, uint8_t which);
-void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool settingRecInput);
+void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool settingRecInput);
 
 //these could all be refactored into methods of the autotrack type... jus sayin
 //OR you could pass a pointer to the DT as an arg, it would make it easier to use for other people
@@ -16,81 +16,81 @@ void ellipticalInterpolate(uint16_t start, uint16_t end, uint8_t id, bool up);
 void smoothSelectedPoints(uint8_t type);
 
 void createDataPoint(){
-  dataTrackData[activeDataTrack].data[cursorPos] = 64;
+  autotrackData[activeAutotrack].data[cursorPos] = 64;
 }
 
 void changeDataPoint(int8_t amount){
-  if(dataTrackData[activeDataTrack].data[cursorPos] == 255){
+  if(autotrackData[activeAutotrack].data[cursorPos] == 255){
     //if it's a blank point, go back until you hit a real point
     for(uint16_t point = cursorPos; point>=0; point--){
       //if there's a real point
-      if(dataTrackData[activeDataTrack].data[point] != 255){
-        dataTrackData[activeDataTrack].data[cursorPos] = dataTrackData[activeDataTrack].data[point];
+      if(autotrackData[activeAutotrack].data[point] != 255){
+        autotrackData[activeAutotrack].data[cursorPos] = autotrackData[activeAutotrack].data[point];
         break;
       }
       //if it never hit a real point, just make one
       if(point == 0){
-        dataTrackData[activeDataTrack].data[cursorPos] = 64;
+        autotrackData[activeAutotrack].data[cursorPos] = 64;
         break;
       }
     }
     
   }
-  int16_t newVal = dataTrackData[activeDataTrack].data[cursorPos]+amount;
+  int16_t newVal = autotrackData[activeAutotrack].data[cursorPos]+amount;
   if(newVal<0)
     newVal = 0;
   else if(newVal > 127)
     newVal = 127;
   
-  dataTrackData[activeDataTrack].data[cursorPos] = newVal;
+  autotrackData[activeAutotrack].data[cursorPos] = newVal;
 }
 
-void createDataTrack(uint8_t type){
-  dataTrack newData(type);
-  dataTrackData.push_back(newData);
+void createAutotrack(uint8_t type){
+  Autotrack newData(type);
+  autotrackData.push_back(newData);
 }
 
-void createDataTrack(uint8_t type, uint8_t cont){
-  dataTrack newData(type);
+void createAutotrack(uint8_t type, uint8_t cont){
+  Autotrack newData(type);
   newData.control = cont;
-  dataTrackData.push_back(newData);
+  autotrackData.push_back(newData);
 }
 
-void createDataTrack(uint8_t cont, uint8_t chan, uint8_t isOn, vector<uint8_t> points,uint8_t pType){
-  dataTrack newData(0);
+void createAutotrack(uint8_t cont, uint8_t chan, uint8_t isOn, vector<uint8_t> points,uint8_t pType){
+  Autotrack newData(0);
   newData.control = cont;
   newData.channel = chan;
   newData.isActive = isOn;
   newData.data.swap(points);
   newData.parameterType = pType;
-  dataTrackData.push_back(newData);
+  autotrackData.push_back(newData);
 }
 
-void dupeDataTrack(uint8_t which){
+void dupeAutotrack(uint8_t which){
   //if the track exists
-  if(which<dataTrackData.size()){
-    vector<dataTrack> temp;
-    for(uint8_t track = 0; track<dataTrackData.size(); track++){
-      temp.push_back(dataTrackData[track]);
+  if(which<autotrackData.size()){
+    vector<Autotrack> temp;
+    for(uint8_t track = 0; track<autotrackData.size(); track++){
+      temp.push_back(autotrackData[track]);
       if(track == which)
-        temp.push_back(dataTrackData[track]);
+        temp.push_back(autotrackData[track]);
     }
-    temp.swap(dataTrackData);
+    temp.swap(autotrackData);
   }
 }
 
-void deleteDataTrack(uint8_t track){
+void deleteAutotrack(uint8_t track){
   //only delete tracks if there'll be one left over
-  vector<dataTrack> temp;
-  for(uint8_t i = 0; i<dataTrackData.size(); i++){
+  vector<Autotrack> temp;
+  for(uint8_t i = 0; i<autotrackData.size(); i++){
     if(i != track)
-      temp.push_back(dataTrackData[i]);
+      temp.push_back(autotrackData[i]);
   }
-  temp.swap(dataTrackData);
-  if(activeDataTrack>=dataTrackData.size())
-    activeDataTrack = dataTrackData.size()-1;
-  if(dataTrackData.size() == 0){
-    activeDataTrack = 0;
+  temp.swap(autotrackData);
+  if(activeAutotrack>=autotrackData.size())
+    activeAutotrack = autotrackData.size()-1;
+  if(autotrackData.size() == 0){
+    activeAutotrack = 0;
   }
 }
 
@@ -100,33 +100,33 @@ void selectDataPoint(uint16_t index){
     //check to see if the point is already selected by looping thru all selected id's
     bool alreadySelected = false;
     vector<uint16_t> temp;
-    for(uint16_t i = 0; i<dataTrackData[activeDataTrack].selectedPoints.size();i++){
-      if(index == dataTrackData[activeDataTrack].selectedPoints[i]){
+    for(uint16_t i = 0; i<autotrackData[activeAutotrack].selectedPoints.size();i++){
+      if(index == autotrackData[activeAutotrack].selectedPoints[i]){
         alreadySelected = true;
       }
       //if that point hasn't been found, then add all the other points to the temp vector
       else{
-        temp.push_back(dataTrackData[activeDataTrack].selectedPoints[i]);
+        temp.push_back(autotrackData[activeAutotrack].selectedPoints[i]);
       }
     }
     //if it was already selected, swap vectors with temp to delete it from the selection
     if(alreadySelected){
-      dataTrackData[activeDataTrack].selectedPoints.swap(temp);
+      autotrackData[activeAutotrack].selectedPoints.swap(temp);
     }
     //if it wasn't, add it to the selection INSERTED SO IT'S IN ORDER
-    else if(dataTrackData[activeDataTrack].selectedPoints.size()>0){
-      for(uint16_t i = 0; i<dataTrackData[activeDataTrack].selectedPoints.size(); i++){
+    else if(autotrackData[activeAutotrack].selectedPoints.size()>0){
+      for(uint16_t i = 0; i<autotrackData[activeAutotrack].selectedPoints.size(); i++){
         //if you find a value bigger than index, insert index before that value (so the vector stays ordered)
-        if(dataTrackData[activeDataTrack].selectedPoints[i]>index){
-          dataTrackData[activeDataTrack].selectedPoints.insert(dataTrackData[activeDataTrack].selectedPoints.begin()+i,index);
+        if(autotrackData[activeAutotrack].selectedPoints[i]>index){
+          autotrackData[activeAutotrack].selectedPoints.insert(autotrackData[activeAutotrack].selectedPoints.begin()+i,index);
           return;
         }
       }
-      dataTrackData[activeDataTrack].selectedPoints.push_back(index);
+      autotrackData[activeAutotrack].selectedPoints.push_back(index);
     }
     //if it's the first vector
-    else if(dataTrackData[activeDataTrack].selectedPoints.size() == 0){
-      dataTrackData[activeDataTrack].selectedPoints.push_back(index);
+    else if(autotrackData[activeAutotrack].selectedPoints.size() == 0){
+      autotrackData[activeAutotrack].selectedPoints.push_back(index);
     }
   }
 }
@@ -276,7 +276,7 @@ void drawCurveIcon(uint8_t xPos, uint8_t yPos, uint8_t type, uint8_t frame){
 //Sets the target track or channel for a trigger, and the track's gate status
 void setAutotrackTrigger(uint8_t whichAT){
   //0 for global, 1 for tracks, 2 for channels
-  uint8_t trigSource = dataTrackData[whichAT].triggerSource;
+  uint8_t trigSource = autotrackData[whichAT].triggerSource;
   //track number
   int8_t trackNumber = 0;
   //channel number
@@ -308,7 +308,7 @@ void setAutotrackTrigger(uint8_t whichAT){
 
 
     //drawing gate label
-    drawBinarySelectionBox(22, 52, "on", "off", "", !dataTrackData[whichAT].gated);
+    drawBinarySelectionBox(22, 52, "on", "off", "", !autotrackData[whichAT].gated);
     printSmall_centered(22,40,"gate",1);
 
     if(togglingGate){
@@ -364,7 +364,7 @@ void setAutotrackTrigger(uint8_t whichAT){
     readButtons();
     if(itsbeen(200)){
       if(shift || loop_Press){
-        dataTrackData[whichAT].gated = !dataTrackData[whichAT].gated;
+        autotrackData[whichAT].gated = !autotrackData[whichAT].gated;
         lastTime = millis();
       }
       if(x != 0){
@@ -382,21 +382,21 @@ void setAutotrackTrigger(uint8_t whichAT){
       if(sel){
         lastTime = millis();  
         if(togglingGate){
-          dataTrackData[whichAT].gated = !dataTrackData[whichAT].gated;
+          autotrackData[whichAT].gated = !autotrackData[whichAT].gated;
         }
         else{
           switch(trigSource){
             //global
             case 0:
-              dataTrackData[whichAT].setTrigger(global,0);
+              autotrackData[whichAT].setTrigger(global,0);
               break;
             //track
             case 1:
-              dataTrackData[whichAT].setTrigger(track,trackNumber);
+              autotrackData[whichAT].setTrigger(track,trackNumber);
               break;
             //channel
             case 2:
-              dataTrackData[whichAT].setTrigger(channel,channelNumber);
+              autotrackData[whichAT].setTrigger(channel,channelNumber);
               break;
           }
           return;
@@ -471,8 +471,8 @@ void setAutotrackTrigger(uint8_t whichAT){
   }
 }
 
-//for editing a single dataTrack
-void dataTrackEditor(){
+//for editing a single Autotrack
+void autotrackEditor(){
   //type of curve to draw! 0 is linear, 1 is x^2
   uint8_t interpolatorType = 0;
   bool translation = false;
@@ -493,50 +493,50 @@ void dataTrackEditor(){
       //if any of these controls are pressed, then set the current data track param to it
       if(counterA != 0){
         counterA = 0;
-        dataTrackData[activeDataTrack].recordFrom = 1;
+        autotrackData[activeAutotrack].recordFrom = 1;
         recInputSet = true;
         lastTime = millis();
       }
       else if(counterB != 0){
         counterB = 0;
-        dataTrackData[activeDataTrack].recordFrom = 2;
+        autotrackData[activeAutotrack].recordFrom = 2;
         recInputSet = true;
         lastTime = millis();
       }
       else if(x != 0){
-        dataTrackData[activeDataTrack].recordFrom = 3;
+        autotrackData[activeAutotrack].recordFrom = 3;
         recInputSet = true;
         lastTime = millis();
       }
       else if(y != 0){
-        dataTrackData[activeDataTrack].recordFrom = 4;
+        autotrackData[activeAutotrack].recordFrom = 4;
         recInputSet = true;
         lastTime = millis();
       }
     }
     else{
       //this is done just to pass the showingInfo param 
-      if(dataTrackData[activeDataTrack].type == 0){
-        if(!dataTrackEditingControls(&interpolatorType,&settingRecInput)){
+      if(autotrackData[activeAutotrack].type == 0){
+        if(!autotrackEditingControls(&interpolatorType,&settingRecInput)){
           return;
         }
       }
       else{
-        if(!dataTrackCurveEditingControls(&translation,&settingRecInput)){
+        if(!autotrackCurveEditingControls(&translation,&settingRecInput)){
           return;
         }
       }
       if(shift){
-        sendMIDICC(dataTrackData[activeDataTrack].control,127,dataTrackData[activeDataTrack].channel);      
+        sendMIDICC(autotrackData[activeAutotrack].control,127,autotrackData[activeAutotrack].channel);      
       }
     }
     display.clearDisplay();
-    drawDataTrackEditor(0,interpolatorType,translation,settingRecInput);
+    drawAutotrackEditor(0,interpolatorType,translation,settingRecInput);
     display.display();
   }
 }
 
-void dataTrackViewer(){
+void autotrackViewer(){
   //display...4 tracks? idk
   uint8_t firstTrack = 0;
   //where the data displays from (the cursorPos)
@@ -548,17 +548,17 @@ void dataTrackViewer(){
   while(true){
     readButtons();
     readJoystick();
-    if(!dataTrackViewerControls()){
+    if(!autotrackViewerControls()){
       return;
     }
-    //handling menu bounds after activeDataTrack is changed
-    if(activeDataTrack<firstTrack)
-      firstTrack = activeDataTrack;
-    else if(activeDataTrack>firstTrack+4)
-      firstTrack = activeDataTrack-4;
+    //handling menu bounds after activeAutotrack is changed
+    if(activeAutotrack<firstTrack)
+      firstTrack = activeAutotrack;
+    else if(activeAutotrack>firstTrack+4)
+      firstTrack = activeAutotrack-4;
     
     display.clearDisplay();
-    drawDataTrackViewer(firstTrack);
+    drawAutotrackViewer(firstTrack);
     display.display();
   }
   resetEncoders();
@@ -570,8 +570,8 @@ void selectDataPoint(uint16_t index, bool state){
     //check to see if the point is already selected by looping thru all selected id's
     bool alreadySelected = false;
     vector<uint16_t> temp;
-    for(uint16_t i = 0; i<dataTrackData[activeDataTrack].selectedPoints.size();i++){
-      if(index == dataTrackData[activeDataTrack].selectedPoints[i]){
+    for(uint16_t i = 0; i<autotrackData[activeAutotrack].selectedPoints.size();i++){
+      if(index == autotrackData[activeAutotrack].selectedPoints[i]){
         alreadySelected = true;
         //if it's already selected, and you want it to be selected, return here
         if(state){
@@ -580,57 +580,57 @@ void selectDataPoint(uint16_t index, bool state){
       }
       //if that point hasn't been found, then add all the other points to the temp vector
       else{
-        temp.push_back(dataTrackData[activeDataTrack].selectedPoints[i]);
+        temp.push_back(autotrackData[activeAutotrack].selectedPoints[i]);
       }
     }
     //if it was already selected, and you don't want it to be, delete it
     if(!state){
-      dataTrackData[activeDataTrack].selectedPoints.swap(temp);
+      autotrackData[activeAutotrack].selectedPoints.swap(temp);
     }
     //if it wasn't, add it to the selection INSERTED SO IT'S IN ORDER
-    else if(dataTrackData[activeDataTrack].selectedPoints.size()>0){
-      for(uint16_t i = 0; i<dataTrackData[activeDataTrack].selectedPoints.size(); i++){
+    else if(autotrackData[activeAutotrack].selectedPoints.size()>0){
+      for(uint16_t i = 0; i<autotrackData[activeAutotrack].selectedPoints.size(); i++){
         //if you find a value bigger than index, insert index before that value (so the vector stays ordered)
-        if(dataTrackData[activeDataTrack].selectedPoints[i]>index){
-          dataTrackData[activeDataTrack].selectedPoints.insert(dataTrackData[activeDataTrack].selectedPoints.begin()+i,index);
+        if(autotrackData[activeAutotrack].selectedPoints[i]>index){
+          autotrackData[activeAutotrack].selectedPoints.insert(autotrackData[activeAutotrack].selectedPoints.begin()+i,index);
           return;
         }
       }
-      dataTrackData[activeDataTrack].selectedPoints.push_back(index);
+      autotrackData[activeAutotrack].selectedPoints.push_back(index);
     }
     //if it's the first in the vector, no need to sort it
-    else if(dataTrackData[activeDataTrack].selectedPoints.size() == 0){
-      dataTrackData[activeDataTrack].selectedPoints.push_back(index);
+    else if(autotrackData[activeAutotrack].selectedPoints.size() == 0){
+      autotrackData[activeAutotrack].selectedPoints.push_back(index);
     }
   }
 }
 
 void deleteDataPoint(uint16_t point, uint8_t track){
   //if the track and point are in bounds
-  if(track<dataTrackData.size() && point <= seqEnd){
+  if(track<autotrackData.size() && point <= seqEnd){
     //deleting data stored there
-    dataTrackData[track].data[point] = 255;
+    autotrackData[track].data[point] = 255;
     //deselecting it (maybe it's better to not deselect it? idk)
     selectDataPoint(point, false);
   }
 }
 void regenDT(uint8_t which){
   //if there are any selected points, ONLY regen between those points
-  if(dataTrackData[which].selectedPoints.size()>1){
-    regenDT(which,dataTrackData[which].selectedPoints[0],dataTrackData[which].selectedPoints.back());
+  if(autotrackData[which].selectedPoints.size()>1){
+    regenDT(which,autotrackData[which].selectedPoints[0],autotrackData[which].selectedPoints.back());
   }
   //regens entire DT
   else
     regenDT(which,0,seqEnd);
 }
 
-//"regenerates" datatrack from it's period, amplitude, phase, and yPosition, between start and end
+//"regenerates" autotrack from it's period, amplitude, phase, and yPosition, between start and end
 void regenDT(uint8_t which,uint16_t start, uint16_t end){
-  switch(dataTrackData[which].type){
+  switch(autotrackData[which].type){
     //default
     case 0:
       for(uint16_t point = start; point<=end; point++){
-        dataTrackData[which].data[point] = 64;
+        autotrackData[which].data[point] = 64;
       }
       break;
     //sinewave
@@ -638,14 +638,14 @@ void regenDT(uint8_t which,uint16_t start, uint16_t end){
       {
         for(uint16_t point = start; point <= end; point++){
           //this one is crazy, and cool, but busted and idk why
-          // int pt = dataTrackData[which].amplitude*sin( (dataTrackData[which].period/(2*PI)) * (point+dataTrackData[which].phase) ) + dataTrackData[which].yPos;
+          // int pt = autotrackData[which].amplitude*sin( (autotrackData[which].period/(2*PI)) * (point+autotrackData[which].phase) ) + autotrackData[which].yPos;
           //format is A * sin((2pi/Per)*(x+Phase))+yPos
-          int pt = dataTrackData[which].amplitude*sin(float(point+dataTrackData[which].phase)*float(2*PI)/float(dataTrackData[which].period)) + dataTrackData[which].yPos;
+          int pt = autotrackData[which].amplitude*sin(float(point+autotrackData[which].phase)*float(2*PI)/float(autotrackData[which].period)) + autotrackData[which].yPos;
           if(pt>127)
             pt=127;
           if(pt<0)
             pt=0;
-          dataTrackData[which].data[point] = pt;
+          autotrackData[which].data[point] = pt;
         }
       }
       break;
@@ -655,17 +655,17 @@ void regenDT(uint8_t which,uint16_t start, uint16_t end){
         for(uint16_t point = start; point <= end; point++){
           int pt;
           //if you're less than half a period, it's high. Else, it's low
-          if((point+dataTrackData[which].phase)%dataTrackData[which].period<dataTrackData[which].period/2)
-            pt = dataTrackData[which].yPos+dataTrackData[which].amplitude;
+          if((point+autotrackData[which].phase)%autotrackData[which].period<autotrackData[which].period/2)
+            pt = autotrackData[which].yPos+autotrackData[which].amplitude;
           else
-            pt = dataTrackData[which].yPos-dataTrackData[which].amplitude;
+            pt = autotrackData[which].yPos-autotrackData[which].amplitude;
           //bounds
           if(pt>127)
             pt=127;
           if(pt<0)
             pt=0;
           //load pt into data
-          dataTrackData[which].data[point] = pt;
+          autotrackData[which].data[point] = pt;
         }
       }
       break;
@@ -673,38 +673,38 @@ void regenDT(uint8_t which,uint16_t start, uint16_t end){
     case 3:
       {
         //the slope of each saw tooth is rise/run = amplitude/period
-        float slope = float(dataTrackData[which].amplitude*2)/float(dataTrackData[which].period);
+        float slope = float(autotrackData[which].amplitude*2)/float(autotrackData[which].period);
         for(uint16_t point = start; point < end; point++){
           // y = (x+offset)%period * m + yOffset
-          int pt = ((point+dataTrackData[which].phase)%dataTrackData[which].period)*slope+dataTrackData[which].yPos-dataTrackData[which].amplitude;
+          int pt = ((point+autotrackData[which].phase)%autotrackData[which].period)*slope+autotrackData[which].yPos-autotrackData[which].amplitude;
           //bounds
           if(pt>127)
             pt=127;
           if(pt<0)
             pt=0;
           //load pt into data
-          dataTrackData[which].data[point] = pt;
+          autotrackData[which].data[point] = pt;
         }
       }
       break;
     //triangle
     case 4:
       {
-        float slope = float(dataTrackData[which].amplitude*2)/float(dataTrackData[which].period/2);
+        float slope = float(autotrackData[which].amplitude*2)/float(autotrackData[which].period/2);
         int pt;
         for(uint16_t point = start; point < end; point++){
           //point gets % by period (gives position within period). If pos within period is greater than period/2, then the slope should be inverted and you should +amplitude
-          if((point+dataTrackData[which].phase)%dataTrackData[which].period>(dataTrackData[which].period/2))
-            pt = ((point+dataTrackData[which].phase)%dataTrackData[which].period) * (-slope) + dataTrackData[which].yPos + 3*dataTrackData[activeDataTrack].amplitude;
+          if((point+autotrackData[which].phase)%autotrackData[which].period>(autotrackData[which].period/2))
+            pt = ((point+autotrackData[which].phase)%autotrackData[which].period) * (-slope) + autotrackData[which].yPos + 3*autotrackData[activeAutotrack].amplitude;
           else
-            pt = ((point+dataTrackData[which].phase)%dataTrackData[which].period) * slope + dataTrackData[which].yPos - dataTrackData[activeDataTrack].amplitude;
+            pt = ((point+autotrackData[which].phase)%autotrackData[which].period) * slope + autotrackData[which].yPos - autotrackData[activeAutotrack].amplitude;
           //bounds
           if(pt>127)
             pt=127;
           if(pt<0)
             pt=0;
           //load pt into data
-          dataTrackData[which].data[point] = pt;
+          autotrackData[which].data[point] = pt;
         }
       }
       break;
@@ -712,13 +712,13 @@ void regenDT(uint8_t which,uint16_t start, uint16_t end){
     //random patterns
     case 5:
       uint16_t pt = start;
-      //always seed it with the dataTrack id
+      //always seed it with the autotrack id
       srand(which);
       while(pt<end){
         //get a random number to divide the period by (it'll always be a factor of the period)
         // int8_t randomDiv = random(1,5);
-        // uint16_t nextPoint = pt+dataTrackData[which].period/randomDiv;
-        uint16_t nextPoint = pt+dataTrackData[which].period;
+        // uint16_t nextPoint = pt+autotrackData[which].period/randomDiv;
+        uint16_t nextPoint = pt+autotrackData[which].period;
         if(nextPoint>end){
           nextPoint = end;
         }
@@ -730,25 +730,25 @@ void regenDT(uint8_t which,uint16_t start, uint16_t end){
 }
 
 void randomInterp(uint16_t start, uint16_t end, uint8_t which){
-  if(end>=dataTrackData[which].data.size())
-    end = dataTrackData[which].data.size()-1;
+  if(end>=autotrackData[which].data.size())
+    end = autotrackData[which].data.size()-1;
   //0 is linear interp, 1 is elliptical interp up, 2 is down, 3 is sin, 4 is sq, 5 is saw, 6 is triangle
   //for 0-2, generate random value for the second point
   //for 3-6, generate random amplitude
   //phase should be set so that it always lines up! how do we do this
-  //phase = start, yPos = dataTrack[start]
+  //phase = start, yPos = autotrack[start]
   uint8_t randomFunction = random(0,7);
 
-  uint16_t oldPhase = dataTrackData[which].phase;
-  uint8_t oldYPos = dataTrackData[which].yPos;
-  uint8_t oldAmp = dataTrackData[which].amplitude;
+  uint16_t oldPhase = autotrackData[which].phase;
+  uint8_t oldYPos = autotrackData[which].yPos;
+  uint8_t oldAmp = autotrackData[which].amplitude;
   if(randomFunction<=2){
-    dataTrackData[which].data[end] = random(0,dataTrackData[which].amplitude+1);
+    autotrackData[which].data[end] = random(0,autotrackData[which].amplitude+1);
   }
   else if(randomFunction>=3){
-    dataTrackData[which].phase = start;
-    dataTrackData[which].yPos = dataTrackData[which].data[start];
-    // dataTrackData[which].amplitude = random(-dataTrackData[which].amplitude,dataTrackData[which].amplitude+1);
+    autotrackData[which].phase = start;
+    autotrackData[which].yPos = autotrackData[which].data[start];
+    // autotrackData[which].amplitude = random(-autotrackData[which].amplitude,autotrackData[which].amplitude+1);
   }
   switch(randomFunction){
     //linear
@@ -765,34 +765,34 @@ void randomInterp(uint16_t start, uint16_t end, uint8_t which){
       break;
     //sine
     case 3:
-      dataTrackData[which].type = 1;
+      autotrackData[which].type = 1;
       regenDT(start,end,which);
       break;
     //sq
     case 4:
-      dataTrackData[which].type = 2;
+      autotrackData[which].type = 2;
       regenDT(start,end,which);
       break;
     //saw
     case 5:
-      dataTrackData[which].type = 3;
+      autotrackData[which].type = 3;
       regenDT(start,end,which);
       break;
     //triangle
     case 6:
-      dataTrackData[which].type = 4;
+      autotrackData[which].type = 4;
       regenDT(start,end,which);
       break;
   }
   //reset it back to "random" type
-  dataTrackData[which].type = 5;
+  autotrackData[which].type = 5;
   //reset the curve values
-  dataTrackData[which].phase = oldPhase;
-  dataTrackData[which].yPos = oldYPos;
-  dataTrackData[which].amplitude = oldAmp;
+  autotrackData[which].phase = oldPhase;
+  autotrackData[which].yPos = oldYPos;
+  autotrackData[which].amplitude = oldAmp;
 }
 
-bool dataTrackEditingControls(uint8_t *interpType, bool *settingRecInput){
+bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
   //zoom/subdiv zoom
   while(counterA != 0 && !recordingToAutotrack){
     //changing zoom
@@ -805,15 +805,15 @@ bool dataTrackEditingControls(uint8_t *interpType, bool *settingRecInput){
       }
     }
     else{
-      if(counterA >= 1 && dataTrackData[activeDataTrack].channel<16){
-        dataTrackData[activeDataTrack].channel++;
+      if(counterA >= 1 && autotrackData[activeAutotrack].channel<16){
+        autotrackData[activeAutotrack].channel++;
       }
       else if(counterA <= -1){
         //if it's an internal parameter type, then it can go to channel 0
-        if(dataTrackData[activeDataTrack].parameterType == 2 && dataTrackData[activeDataTrack].channel>0)
-          dataTrackData[activeDataTrack].channel--;
-        else if(dataTrackData[activeDataTrack].channel>1)
-          dataTrackData[activeDataTrack].channel--;
+        if(autotrackData[activeAutotrack].parameterType == 2 && autotrackData[activeAutotrack].channel>0)
+          autotrackData[activeAutotrack].channel--;
+        else if(autotrackData[activeAutotrack].channel>1)
+          autotrackData[activeAutotrack].channel--;
       }
     }
     counterA += counterA<0?1:-1;
@@ -830,24 +830,24 @@ bool dataTrackEditingControls(uint8_t *interpType, bool *settingRecInput){
     }
     else{
       if(counterB >= 1){
-        dataTrackData[activeDataTrack].control = moveToNextCCParam(dataTrackData[activeDataTrack].control,true,dataTrackData[activeDataTrack].parameterType);
+        autotrackData[activeAutotrack].control = moveToNextCCParam(autotrackData[activeAutotrack].control,true,autotrackData[activeAutotrack].parameterType);
       }
       else if(counterB <= -1){
-        dataTrackData[activeDataTrack].control = moveToNextCCParam(dataTrackData[activeDataTrack].control,false,dataTrackData[activeDataTrack].parameterType);
+        autotrackData[activeAutotrack].control = moveToNextCCParam(autotrackData[activeAutotrack].control,false,autotrackData[activeAutotrack].parameterType);
       }
     }
     counterB += counterB<0?1:-1;
   }
 
-  if(!recordingToAutotrack || dataTrackData[activeDataTrack].recordFrom != 3){
+  if(!recordingToAutotrack || autotrackData[activeAutotrack].recordFrom != 3){
     if (itsbeen(50)) {
       //moving
       if (x == 1 && shift) {
-        moveDataTrackCursor(-1);
+        moveAutotrackCursor(-1);
         lastTime = millis();
       }
       if (x == -1 && shift) {
-        moveDataTrackCursor(1);
+        moveAutotrackCursor(1);
         lastTime = millis();
       }
     }
@@ -855,27 +855,27 @@ bool dataTrackEditingControls(uint8_t *interpType, bool *settingRecInput){
       if (x == 1 && !shift) {
         //if cursor isn't on a measure marker, move it to the nearest one
         if(cursorPos%subDivInt){
-          moveDataTrackCursor(-cursorPos%subDivInt);
+          moveAutotrackCursor(-cursorPos%subDivInt);
           lastTime = millis();
         }
         else{
-          moveDataTrackCursor(-subDivInt);
+          moveAutotrackCursor(-subDivInt);
           lastTime = millis();
         }
       }
       if (x == -1 && !shift) {
         if(cursorPos%subDivInt){
-          moveDataTrackCursor(subDivInt-cursorPos%subDivInt);
+          moveAutotrackCursor(subDivInt-cursorPos%subDivInt);
           lastTime = millis();
         }
         else{
-          moveDataTrackCursor(subDivInt);
+          moveAutotrackCursor(subDivInt);
           lastTime = millis();
         }
       }
     }
   }
-  if(!recordingToAutotrack || dataTrackData[activeDataTrack].recordFrom != 4){
+  if(!recordingToAutotrack || autotrackData[activeAutotrack].recordFrom != 4){
     if(itsbeen(50)){
       if(y != 0 && !n){
         if(y == -1){
@@ -907,12 +907,12 @@ bool dataTrackEditingControls(uint8_t *interpType, bool *settingRecInput){
       lastTime = millis();
       //deleting all selected points
       if(shift){
-        while(dataTrackData[activeDataTrack].selectedPoints.size()>0){
-          deleteDataPoint(dataTrackData[activeDataTrack].selectedPoints[0],activeDataTrack);
+        while(autotrackData[activeAutotrack].selectedPoints.size()>0){
+          deleteDataPoint(autotrackData[activeAutotrack].selectedPoints[0],activeAutotrack);
         }
       }
       else
-        deleteDataPoint(cursorPos,activeDataTrack);
+        deleteDataPoint(cursorPos,activeAutotrack);
     }
     if(play){
       if(shift || recording){
@@ -931,15 +931,15 @@ bool dataTrackEditingControls(uint8_t *interpType, bool *settingRecInput){
     if(n){
       //set data track type back to 0
       if(shift){
-        dataTrackData[activeDataTrack].type = 0;
+        autotrackData[activeAutotrack].type = 0;
         lastTime = millis();
       }
-      //change type of dataTrack
+      //change type of autotrack
       else{
-        dataTrackData[activeDataTrack].type++;
-        if(dataTrackData[activeDataTrack].type>2)
-          dataTrackData[activeDataTrack].type = 0;
-        regenDT(activeDataTrack);
+        autotrackData[activeAutotrack].type++;
+        if(autotrackData[activeAutotrack].type>2)
+          autotrackData[activeAutotrack].type = 0;
+        regenDT(activeAutotrack);
         lastTime = millis();
       }
     }
@@ -956,27 +956,21 @@ bool dataTrackEditingControls(uint8_t *interpType, bool *settingRecInput){
       }
     }
     if(sel){
-      selectDataPoint(cursorPos);
-
       //deselect all data points
-      if(shift && !isDataPointSelected(cursorPos)){
+      if(shift){
         vector<uint16_t> temp;
-        dataTrackData[activeDataTrack].selectedPoints.swap(temp);
+        autotrackData[activeAutotrack].selectedPoints.swap(temp);
       }
-      //select all data points
-      else if(shift && isDataPointSelected(cursorPos)){
-        for(int i = 0; i<seqEnd; i++){
-          if(dataTrackData[activeDataTrack].data[i] != 255)
-            selectDataPoint(i,true);
-        }
-      }
+      //select a data point
+      else
+        selectDataPoint(cursorPos);
       lastTime = millis();
     }
     if(track_Press){
       lastTime = millis();
-      int8_t param = selectCCParam_dataTrack(dataTrackData[activeDataTrack].parameterType);
+      int8_t param = selectCCParam_autotrack(autotrackData[activeAutotrack].parameterType);
       if(param != 255)
-        dataTrackData[activeDataTrack].control = param;
+        autotrackData[activeAutotrack].control = param;
     }
     if(note_Press){
       lastTime = millis();
@@ -990,7 +984,7 @@ bool dataTrackEditingControls(uint8_t *interpType, bool *settingRecInput){
     if(copy_Press){
       *settingRecInput = true;
       //by default, set it to midi input
-      dataTrackData[activeDataTrack].recordFrom = 0;
+      autotrackData[activeAutotrack].recordFrom = 0;
     }
     else{
       *settingRecInput = false;
@@ -1000,7 +994,7 @@ bool dataTrackEditingControls(uint8_t *interpType, bool *settingRecInput){
 }
 
 //x is change period, y is change amplitude, shift x is change phase, shift y is vertically translate
-bool dataTrackCurveEditingControls(bool* translation, bool* settingRecInput){
+bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
   //zoom/subdiv zoom (this is the same to the normal DT editor)
   while(counterA != 0){
     //changing zoom
@@ -1013,15 +1007,15 @@ bool dataTrackCurveEditingControls(bool* translation, bool* settingRecInput){
       }
     }
     else{
-      if(counterA >= 1 && dataTrackData[activeDataTrack].channel<16){
-        dataTrackData[activeDataTrack].channel++;
+      if(counterA >= 1 && autotrackData[activeAutotrack].channel<16){
+        autotrackData[activeAutotrack].channel++;
       }
       else if(counterA <= -1){
         //if it's an internal parameter type, then it can go to channel 0
-        if(dataTrackData[activeDataTrack].parameterType == 2 && dataTrackData[activeDataTrack].channel>0)
-          dataTrackData[activeDataTrack].channel--;
-        else if(dataTrackData[activeDataTrack].channel>1)
-          dataTrackData[activeDataTrack].channel--;
+        if(autotrackData[activeAutotrack].parameterType == 2 && autotrackData[activeAutotrack].channel>0)
+          autotrackData[activeAutotrack].channel--;
+        else if(autotrackData[activeAutotrack].channel>1)
+          autotrackData[activeAutotrack].channel--;
       }
     }
     counterA += counterA<0?1:-1;
@@ -1038,10 +1032,10 @@ bool dataTrackCurveEditingControls(bool* translation, bool* settingRecInput){
     }
     else{
       if(counterB >= 1){
-        dataTrackData[activeDataTrack].control = moveToNextCCParam(dataTrackData[activeDataTrack].control,true,dataTrackData[activeDataTrack].parameterType);
+        autotrackData[activeAutotrack].control = moveToNextCCParam(autotrackData[activeAutotrack].control,true,autotrackData[activeAutotrack].parameterType);
       }
       else if(counterB <= -1){
-        dataTrackData[activeDataTrack].control = moveToNextCCParam(dataTrackData[activeDataTrack].control,false,dataTrackData[activeDataTrack].parameterType);
+        autotrackData[activeAutotrack].control = moveToNextCCParam(autotrackData[activeAutotrack].control,false,autotrackData[activeAutotrack].parameterType);
       }
     }
     counterB += counterB<0?1:-1;
@@ -1051,14 +1045,14 @@ bool dataTrackCurveEditingControls(bool* translation, bool* settingRecInput){
     if(n){
       if(shift){
         lastTime = millis();
-        dataTrackData[activeDataTrack].type = 0;
+        autotrackData[activeAutotrack].type = 0;
       }
       else{
         lastTime = millis();
-        dataTrackData[activeDataTrack].type++;
-        if(dataTrackData[activeDataTrack].type > 5)
-          dataTrackData[activeDataTrack].type = 0;
-        regenDT(activeDataTrack);
+        autotrackData[activeAutotrack].type++;
+        if(autotrackData[activeAutotrack].type > 5)
+          autotrackData[activeAutotrack].type = 0;
+        regenDT(activeAutotrack);
       }
     }
     if(play){
@@ -1072,9 +1066,9 @@ bool dataTrackCurveEditingControls(bool* translation, bool* settingRecInput){
     }
     if(track_Press){
       lastTime = millis();
-      uint8_t param = selectCCParam_dataTrack(dataTrackData[activeDataTrack].parameterType);
+      uint8_t param = selectCCParam_autotrack(autotrackData[activeAutotrack].parameterType);
       if(param != 255)
-        dataTrackData[activeDataTrack].control = param;
+        autotrackData[activeAutotrack].control = param;
     }
     if(note_Press){
       lastTime = millis();
@@ -1100,52 +1094,52 @@ bool dataTrackCurveEditingControls(bool* translation, bool* settingRecInput){
       //moving by 1
       if(shift && itsbeen(25)){
         if(x == -1){
-          if(dataTrackData[activeDataTrack].phase == 0)
-            dataTrackData[activeDataTrack].phase = dataTrackData[activeDataTrack].period;
-          dataTrackData[activeDataTrack].phase--;
-          regenDT(activeDataTrack);
+          if(autotrackData[activeAutotrack].phase == 0)
+            autotrackData[activeAutotrack].phase = autotrackData[activeAutotrack].period;
+          autotrackData[activeAutotrack].phase--;
+          regenDT(activeAutotrack);
           lastTime = millis();
         }
         else if(x == 1){
-          dataTrackData[activeDataTrack].phase++;
-          regenDT(activeDataTrack);
+          autotrackData[activeAutotrack].phase++;
+          regenDT(activeAutotrack);
           lastTime = millis();
         }
         //if the phase = period, then phase resets to 0
-        if(dataTrackData[activeDataTrack].phase == dataTrackData[activeDataTrack].period)
-          dataTrackData[activeDataTrack].phase = 0;
+        if(autotrackData[activeAutotrack].phase == autotrackData[activeAutotrack].period)
+          autotrackData[activeAutotrack].phase = 0;
       }
       //moving by subdivInt
       //phase will always be mod by period (so it can never be more/less than per)
       //storing it in "temp" here so it doesn't underflow/overflow
       else if(!shift && itsbeen(100)){
         if(x == -1){
-          int16_t temp = dataTrackData[activeDataTrack].phase;
+          int16_t temp = autotrackData[activeAutotrack].phase;
           if(temp<subDivInt)
-            temp = abs(dataTrackData[activeDataTrack].period-subDivInt);
+            temp = abs(autotrackData[activeAutotrack].period-subDivInt);
           else
             temp-=subDivInt;
-          dataTrackData[activeDataTrack].phase=temp%dataTrackData[activeDataTrack].period;
-          regenDT(activeDataTrack);
+          autotrackData[activeAutotrack].phase=temp%autotrackData[activeAutotrack].period;
+          regenDT(activeAutotrack);
           lastTime = millis();
         }
         else if(x == 1){
-          dataTrackData[activeDataTrack].phase = (dataTrackData[activeDataTrack].phase+subDivInt)%dataTrackData[activeDataTrack].period;
-          regenDT(activeDataTrack);
+          autotrackData[activeAutotrack].phase = (autotrackData[activeAutotrack].phase+subDivInt)%autotrackData[activeAutotrack].period;
+          regenDT(activeAutotrack);
           lastTime = millis();
         }
       }
     }
     //changing vertical translation
     if(y != 0 && itsbeen(25)){
-      if(y == -1 && dataTrackData[activeDataTrack].yPos<127){
-        dataTrackData[activeDataTrack].yPos++;
-        regenDT(activeDataTrack);
+      if(y == -1 && autotrackData[activeAutotrack].yPos<127){
+        autotrackData[activeAutotrack].yPos++;
+        regenDT(activeAutotrack);
         lastTime = millis();
       }
-      else if(y == 1 && dataTrackData[activeDataTrack].yPos>0){
-        dataTrackData[activeDataTrack].yPos--;
-        regenDT(activeDataTrack);
+      else if(y == 1 && autotrackData[activeAutotrack].yPos>0){
+        autotrackData[activeAutotrack].yPos--;
+        regenDT(activeAutotrack);
         lastTime = millis();
       }
     }
@@ -1154,14 +1148,14 @@ bool dataTrackCurveEditingControls(bool* translation, bool* settingRecInput){
   else{
     //changing amplitude
     if(y != 0 && itsbeen(25)){
-      if(y == -1 && dataTrackData[activeDataTrack].amplitude<127){
-        dataTrackData[activeDataTrack].amplitude++;
-        regenDT(activeDataTrack);
+      if(y == -1 && autotrackData[activeAutotrack].amplitude<127){
+        autotrackData[activeAutotrack].amplitude++;
+        regenDT(activeAutotrack);
         lastTime = millis();
       }
-      else if(y == 1 && dataTrackData[activeDataTrack].amplitude>-127){
-        dataTrackData[activeDataTrack].amplitude--;
-        regenDT(activeDataTrack);
+      else if(y == 1 && autotrackData[activeAutotrack].amplitude>-127){
+        autotrackData[activeAutotrack].amplitude--;
+        regenDT(activeAutotrack);
         lastTime = millis();
       }
     }
@@ -1170,13 +1164,13 @@ bool dataTrackCurveEditingControls(bool* translation, bool* settingRecInput){
       //changing period
       if(x != 0){
         if(x == -1){
-          dataTrackData[activeDataTrack].period++;
-          regenDT(activeDataTrack);
+          autotrackData[activeAutotrack].period++;
+          regenDT(activeAutotrack);
           lastTime = millis();
         }
-        else if(x == 1 && dataTrackData[activeDataTrack].period>1){
-          dataTrackData[activeDataTrack].period--;
-          regenDT(activeDataTrack);
+        else if(x == 1 && autotrackData[activeAutotrack].period>1){
+          autotrackData[activeAutotrack].period--;
+          regenDT(activeAutotrack);
           lastTime = millis();
         }
       }
@@ -1184,15 +1178,15 @@ bool dataTrackCurveEditingControls(bool* translation, bool* settingRecInput){
     else if(itsbeen(100)){
       if(x != 0){
         if(x == -1){
-          if(dataTrackData[activeDataTrack].period == 1)
-            dataTrackData[activeDataTrack].period = 0;
-          dataTrackData[activeDataTrack].period+=subDivInt;
-          regenDT(activeDataTrack);
+          if(autotrackData[activeAutotrack].period == 1)
+            autotrackData[activeAutotrack].period = 0;
+          autotrackData[activeAutotrack].period+=subDivInt;
+          regenDT(activeAutotrack);
           lastTime = millis();
         }
-        else if(x == 1 && dataTrackData[activeDataTrack].period>subDivInt){
-          dataTrackData[activeDataTrack].period-=subDivInt;
-          regenDT(activeDataTrack);
+        else if(x == 1 && autotrackData[activeAutotrack].period>subDivInt){
+          autotrackData[activeAutotrack].period-=subDivInt;
+          regenDT(activeAutotrack);
           lastTime = millis();
         }
       }
@@ -1204,37 +1198,37 @@ bool dataTrackCurveEditingControls(bool* translation, bool* settingRecInput){
 
 //using slope-intercept eq
 void linearInterpolate(uint16_t start, uint16_t end, uint8_t id){
-  if(start>=0 && end <= dataTrackData[id].data.size()){
+  if(start>=0 && end <= autotrackData[id].data.size()){
     //if it's a 255 unwritten val, set it to the most recent point
-    if(dataTrackData[id].data[start] == 255){
+    if(autotrackData[id].data[start] == 255){
       for(uint16_t i = start; i>=0; i--){
         if(i == 0){
-          dataTrackData[id].data[start] = 63;
+          autotrackData[id].data[start] = 63;
           break;
         }
-        else if(dataTrackData[id].data[i] != 255){
-          dataTrackData[id].data[start] = dataTrackData[id].data[i];
+        else if(autotrackData[id].data[i] != 255){
+          autotrackData[id].data[start] = autotrackData[id].data[i];
           break;
         }
       }
     }
-    if(dataTrackData[id].data[end] == 255){
+    if(autotrackData[id].data[end] == 255){
       for(uint16_t i = end; i>=0; i--){
         if(i == 0){
-          dataTrackData[id].data[end] = 63;
+          autotrackData[id].data[end] = 63;
           break;
         }
-        else if(dataTrackData[id].data[i] != 255){
-          dataTrackData[id].data[end] = dataTrackData[id].data[i];
+        else if(autotrackData[id].data[i] != 255){
+          autotrackData[id].data[end] = autotrackData[id].data[i];
           break;
         }
       }
     }
 
-    float m = float(dataTrackData[id].data[start] - dataTrackData[id].data[end])/float(start-end);
-    uint8_t b = dataTrackData[id].data[start];
+    float m = float(autotrackData[id].data[start] - autotrackData[id].data[end])/float(start-end);
+    uint8_t b = autotrackData[id].data[start];
     for(uint16_t i = start; i<=end; i++){
-      dataTrackData[id].data[i] = m*(i-start)+b;
+      autotrackData[id].data[i] = m*(i-start)+b;
     }
   }
 }
@@ -1242,32 +1236,32 @@ void linearInterpolate(uint16_t start, uint16_t end, uint8_t id){
 //using ellipse equation
 void ellipticalInterpolate(uint16_t start, uint16_t end, uint8_t id, bool up){
   //if they're the same point (which would be a bug) or the same value, return since you won't need to interpolate
-  if(start == end || dataTrackData[id].data[start] == dataTrackData[id].data[end])
+  if(start == end || autotrackData[id].data[start] == autotrackData[id].data[end])
     return;
-  //prepping dataTrack data
+  //prepping autotrack data
   //if it's in bounds
-  if(start>=0 && end <= dataTrackData[id].data.size()){
+  if(start>=0 && end <= autotrackData[id].data.size()){
     //if it's a 255 unwritten val, set it to the most recent point
-    if(dataTrackData[id].data[start] == 255){
+    if(autotrackData[id].data[start] == 255){
       for(uint16_t i = start; i>=0; i--){
         if(i == 0){
-          dataTrackData[id].data[start] = 63;
+          autotrackData[id].data[start] = 63;
           break;
         }
-        else if(dataTrackData[id].data[i] != 255){
-          dataTrackData[id].data[start] = dataTrackData[id].data[i];
+        else if(autotrackData[id].data[i] != 255){
+          autotrackData[id].data[start] = autotrackData[id].data[i];
           break;
         }
       }
     }
-    if(dataTrackData[id].data[end] == 255){
+    if(autotrackData[id].data[end] == 255){
       for(uint16_t i = end; i>=0; i--){
         if(i == 0){
-          dataTrackData[id].data[end] = 63;
+          autotrackData[id].data[end] = 63;
           break;
         }
-        else if(dataTrackData[id].data[i] != 255){
-          dataTrackData[id].data[end] = dataTrackData[id].data[i];
+        else if(autotrackData[id].data[i] != 255){
+          autotrackData[id].data[end] = autotrackData[id].data[i];
           break;
         }
       }
@@ -1282,7 +1276,7 @@ void ellipticalInterpolate(uint16_t start, uint16_t end, uint8_t id, bool up){
     //'a' is the horizontal distance
     uint16_t a = abs(end - start);
     //'b' is the vertical distance
-    uint8_t b = abs(dataTrackData[id].data[end]-dataTrackData[id].data[start]);
+    uint8_t b = abs(autotrackData[id].data[end]-autotrackData[id].data[start]);
 
     //to store where (0,0) is
     uint8_t yOffset;
@@ -1290,22 +1284,22 @@ void ellipticalInterpolate(uint16_t start, uint16_t end, uint8_t id, bool up){
 
     //if "up", the yOffset is the highest of the two points since y will always be negative
     if(up){
-      if(dataTrackData[id].data[end]<dataTrackData[id].data[start]){
-        yOffset = dataTrackData[id].data[start];
+      if(autotrackData[id].data[end]<autotrackData[id].data[start]){
+        yOffset = autotrackData[id].data[start];
         xOffset = end;
       }
       else{
-        yOffset = dataTrackData[id].data[end];
+        yOffset = autotrackData[id].data[end];
         xOffset = start;
       }
     }
     else{
-      if(dataTrackData[id].data[end]>dataTrackData[id].data[start]){
-        yOffset = dataTrackData[id].data[start];
+      if(autotrackData[id].data[end]>autotrackData[id].data[start]){
+        yOffset = autotrackData[id].data[start];
         xOffset = end;
       }
       else{
-        yOffset = dataTrackData[id].data[end];
+        yOffset = autotrackData[id].data[end];
         xOffset = start;
       }
     }
@@ -1317,34 +1311,34 @@ void ellipticalInterpolate(uint16_t start, uint16_t end, uint8_t id, bool up){
       //if it's an "up" arc, then y is negative and the yOffset is the higher coord
       if(up)
         pt = -pt;
-      dataTrackData[id].data[i] = pt + yOffset;
+      autotrackData[id].data[i] = pt + yOffset;
     }
   }
 }
 
 //this one smooths between selected points
 void smoothSelectedPoints(uint8_t type){
-  if(dataTrackData[activeDataTrack].selectedPoints.size()>=2){
+  if(autotrackData[activeAutotrack].selectedPoints.size()>=2){
     switch(type){
       //linear
       case 0:
         //move through each selected point
-        for(uint16_t i = 0; i<dataTrackData[activeDataTrack].selectedPoints.size()-1; i++){
-          linearInterpolate(dataTrackData[activeDataTrack].selectedPoints[i],dataTrackData[activeDataTrack].selectedPoints[i+1],activeDataTrack);
+        for(uint16_t i = 0; i<autotrackData[activeAutotrack].selectedPoints.size()-1; i++){
+          linearInterpolate(autotrackData[activeAutotrack].selectedPoints[i],autotrackData[activeAutotrack].selectedPoints[i+1],activeAutotrack);
         }
         return;
       //elliptical UP
       case 1:
         //move through each selected point
-        for(uint16_t i = 0; i<dataTrackData[activeDataTrack].selectedPoints.size()-1; i++){
-          ellipticalInterpolate(dataTrackData[activeDataTrack].selectedPoints[i],dataTrackData[activeDataTrack].selectedPoints[i+1],activeDataTrack,true);
+        for(uint16_t i = 0; i<autotrackData[activeAutotrack].selectedPoints.size()-1; i++){
+          ellipticalInterpolate(autotrackData[activeAutotrack].selectedPoints[i],autotrackData[activeAutotrack].selectedPoints[i+1],activeAutotrack,true);
         }
         return;
       //elliptical DOWN
       case 2:
         //move through each selected point
-        for(uint16_t i = 0; i<dataTrackData[activeDataTrack].selectedPoints.size()-1; i++){
-          ellipticalInterpolate(dataTrackData[activeDataTrack].selectedPoints[i],dataTrackData[activeDataTrack].selectedPoints[i+1],activeDataTrack,false);
+        for(uint16_t i = 0; i<autotrackData[activeAutotrack].selectedPoints.size()-1; i++){
+          ellipticalInterpolate(autotrackData[activeAutotrack].selectedPoints[i],autotrackData[activeAutotrack].selectedPoints[i+1],activeAutotrack,false);
         }
         return;
     }
@@ -1354,8 +1348,8 @@ void smoothSelectedPoints(uint8_t type){
 bool isDataPointSelected(uint16_t index){
   if(index>=0 && index<seqEnd){
     //check each point to see if it matches index
-    for(uint16_t i = 0; i<dataTrackData[activeDataTrack].selectedPoints.size(); i++){
-      if(index == dataTrackData[activeDataTrack].selectedPoints[i]){
+    for(uint16_t i = 0; i<autotrackData[activeAutotrack].selectedPoints.size(); i++){
+      if(index == autotrackData[activeAutotrack].selectedPoints[i]){
         return true;
       }
     }
@@ -1366,11 +1360,11 @@ bool isDataPointSelected(uint16_t index){
 
 uint8_t getLastDTVal(uint16_t point, uint8_t id){
   //if params are in bounds
-  if(id<dataTrackData.size() && point<=seqEnd){
+  if(id<autotrackData.size() && point<=seqEnd){
     //step back thru DT and look for a non-255 value
     for(uint16_t i = point; i>=0; i--){
-      if(dataTrackData[id].data[i] != 255){
-        return dataTrackData[id].data[i];
+      if(autotrackData[id].data[i] != 255){
+        return autotrackData[id].data[i];
       }
     }
   }
@@ -1379,7 +1373,7 @@ uint8_t getLastDTVal(uint16_t point, uint8_t id){
 }
 
 void drawAutotrackInputIcon(uint8_t x1, uint8_t y1, uint8_t id){
-  switch(dataTrackData[id].recordFrom){
+  switch(autotrackData[id].recordFrom){
     //external midi
     case 0:
       display.drawBitmap(x1,y1,tiny_midi_bmp,7,7,1);
@@ -1403,14 +1397,14 @@ void drawAutotrackInputIcon(uint8_t x1, uint8_t y1, uint8_t id){
   }
 }
 
-void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool settingRecInput){
+void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool settingRecInput){
   //bounding box and 3D-effect
   display.drawRect(32,y,112,64,SSD1306_WHITE);
   display.drawLine(32,y,29,y+3,SSD1306_WHITE);
   display.drawLine(29,y+3,29,64,SSD1306_WHITE);
 
   //drawing all the points
-  if(dataTrackData.size()>0){
+  if(autotrackData.size()>0){
     for(uint16_t step = viewStart; step<viewEnd; step++){
       if(step<seqEnd){
         //measure bars
@@ -1423,25 +1417,25 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
         //gets the on-screen position of each point
         uint8_t yPos;
         //if it's a 255, display the last val
-        if(dataTrackData[activeDataTrack].data[step] == 255){
-          yPos = (64-float(getLastDTVal(step,activeDataTrack))/float(127)*64);
+        if(autotrackData[activeAutotrack].data[step] == 255){
+          yPos = (64-float(getLastDTVal(step,activeAutotrack))/float(127)*64);
         }
         else{
-          yPos = (64-float(dataTrackData[activeDataTrack].data[step])/float(127)*64);
+          yPos = (64-float(autotrackData[activeAutotrack].data[step])/float(127)*64);
         }
         if(step == viewStart){
           display.drawPixel(32+(step-viewStart)*scale,(yPos),SSD1306_WHITE);
         }
         else{
-          display.drawLine(32+(step-viewStart)*scale,(yPos),32+(step-1-viewStart)*scale,(64-float(getLastDTVal(step-1,activeDataTrack))/float(127)*64),SSD1306_WHITE);
+          display.drawLine(32+(step-viewStart)*scale,(yPos),32+(step-1-viewStart)*scale,(64-float(getLastDTVal(step-1,activeAutotrack))/float(127)*64),SSD1306_WHITE);
         }
 
         //drawing cursor info if in default editor mode
-        if(dataTrackData[activeDataTrack].type == 0){
+        if(autotrackData[activeAutotrack].type == 0){
           //drawing selection arrow
           if(isDataPointSelected(step)){
             display.fillCircle(32+(step-viewStart)*scale,yPos,2,SSD1306_WHITE);
-            if(dataTrackData[activeDataTrack].data[step]>=64)//bottom arrow if data point is high
+            if(autotrackData[activeAutotrack].data[step]>=64)//bottom arrow if data point is high
               drawArrow(32+(step-viewStart)*scale,yPos+4+sin(millis()/100),2,2,true);
             else//top arrow if data point is low
               drawArrow(32+(step-viewStart)*scale,yPos-6+sin(millis()/100),2,3 ,true);
@@ -1455,7 +1449,7 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
         }
 
         //playhead
-        if(playing && ((dataTrackData[activeDataTrack].triggerSource == global && step == playheadPos) || (dataTrackData[activeDataTrack].triggerSource != global && step == dataTrackData[activeDataTrack].playheadPos)))
+        if(playing && ((autotrackData[activeAutotrack].triggerSource == global && step == playheadPos) || (autotrackData[activeAutotrack].triggerSource != global && step == autotrackData[activeAutotrack].playheadPos)))
           display.drawRoundRect(32+(step-viewStart)*scale,0,3,screenHeight,3,SSD1306_WHITE);
         
         //rechead
@@ -1473,43 +1467,43 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     }
     //middle line
     //if it's just the typical node curve, draw midline at middle of the screen (32)
-    if(dataTrackData[activeDataTrack].type == 0)
+    if(autotrackData[activeAutotrack].type == 0)
       drawDottedLineH(32,128,32,3);
     else{
-      drawDottedLineH(32,128,64-(dataTrackData[activeDataTrack].yPos-32),3);
+      drawDottedLineH(32,128,64-(autotrackData[activeAutotrack].yPos-32),3);
     }
     //drawing curve icon
-    if(dataTrackData[activeDataTrack].type == 0)
+    if(autotrackData[activeAutotrack].type == 0)
       drawNodeEditingIcon(12,14,interpType,animOffset,true);
     else
-      drawCurveIcon(12,14,dataTrackData[activeDataTrack].type,animOffset);
+      drawCurveIcon(12,14,autotrackData[activeAutotrack].type,animOffset);
     animOffset++;
     animOffset%=18;
 
     //menu info
     if(shift){
-      printParam(16,2,dataTrackData[activeDataTrack].control,true,dataTrackData[activeDataTrack].parameterType,true);
-      printChannel(16,12,dataTrackData[activeDataTrack].channel,true);
+      printParam(16,2,autotrackData[activeAutotrack].control,true,autotrackData[activeAutotrack].parameterType,true);
+      printChannel(16,12,autotrackData[activeAutotrack].channel,true);
       display.drawChar(3,2+sin(millis()/50),0x0E,1,0,1);
     }
     else{
       //title
       if(!playing){
         printSmall(0,0,"trk",SSD1306_WHITE);
-        printSmall(6-stringify(activeDataTrack+1).length()*2,7,stringify(activeDataTrack+1),SSD1306_WHITE);
+        printSmall(6-stringify(activeAutotrack+1).length()*2,7,stringify(activeAutotrack+1),SSD1306_WHITE);
       }
-      printSmall(15,0,"CC"+stringify(dataTrackData[activeDataTrack].control),SSD1306_WHITE);
-      printSmall(15,7,"CH"+stringify(dataTrackData[activeDataTrack].channel),SSD1306_WHITE);
+      printSmall(15,0,"CC"+stringify(autotrackData[activeAutotrack].control),SSD1306_WHITE);
+      printSmall(15,7,"CH"+stringify(autotrackData[activeAutotrack].channel),SSD1306_WHITE);
     }
     //drawing curve info, for non-defaults
-    if(dataTrackData[activeDataTrack].type != 0){
+    if(autotrackData[activeAutotrack].type != 0){
       if(translation){
-        printSmall(12,26,"@:"+stringify(dataTrackData[activeDataTrack].phase),SSD1306_WHITE);
-        printSmall(12,33,"Y:"+stringify(dataTrackData[activeDataTrack].yPos),SSD1306_WHITE);
+        printSmall(12,26,"@:"+stringify(autotrackData[activeAutotrack].phase),SSD1306_WHITE);
+        printSmall(12,33,"Y:"+stringify(autotrackData[activeAutotrack].yPos),SSD1306_WHITE);
       }
       else{
-        printSmall(12,26,"A:"+stringify(dataTrackData[activeDataTrack].amplitude),SSD1306_WHITE);
-        printSmall(12,33,"P:"+stringify(dataTrackData[activeDataTrack].period),SSD1306_WHITE);
+        printSmall(12,26,"A:"+stringify(autotrackData[activeAutotrack].amplitude),SSD1306_WHITE);
+        printSmall(12,33,"P:"+stringify(autotrackData[activeAutotrack].period),SSD1306_WHITE);
       }
     }
     
@@ -1535,16 +1529,16 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     uint8_t height;
     uint8_t val;
     if(playing){
-      if(dataTrackData[activeDataTrack].data[dataTrackData[activeDataTrack].triggerSource==global?playheadPos:dataTrackData[activeDataTrack].playheadPos] == 255)
-        val = getLastDTVal(dataTrackData[activeDataTrack].triggerSource==global?playheadPos:dataTrackData[activeDataTrack].playheadPos,activeDataTrack);
+      if(autotrackData[activeAutotrack].data[autotrackData[activeAutotrack].triggerSource==global?playheadPos:autotrackData[activeAutotrack].playheadPos] == 255)
+        val = getLastDTVal(autotrackData[activeAutotrack].triggerSource==global?playheadPos:autotrackData[activeAutotrack].playheadPos,activeAutotrack);
       else
-        val = dataTrackData[activeDataTrack].data[dataTrackData[activeDataTrack].triggerSource==global?playheadPos:dataTrackData[activeDataTrack].playheadPos];
+        val = autotrackData[activeAutotrack].data[autotrackData[activeAutotrack].triggerSource==global?playheadPos:autotrackData[activeAutotrack].playheadPos];
     }
     else{
-      if(dataTrackData[activeDataTrack].data[cursorPos] == 255)
-        val = getLastDTVal(cursorPos,activeDataTrack);
+      if(autotrackData[activeAutotrack].data[cursorPos] == 255)
+        val = getLastDTVal(cursorPos,activeAutotrack);
       else
-        val = dataTrackData[activeDataTrack].data[cursorPos];
+        val = autotrackData[activeAutotrack].data[cursorPos];
     }
     //filling the bar graphgraph
     height = abs(float(val)/float(127)*float(barHeight-4));
@@ -1554,10 +1548,10 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     //drawing sent data
     display.setRotation(1);
     if(playing){
-      printSmall(barHeight/2-stringify(getLastDTVal(dataTrackData[activeDataTrack].triggerSource==global?playheadPos:dataTrackData[activeDataTrack].playheadPos,activeDataTrack)).length()*2,3,stringify(getLastDTVal(dataTrackData[activeDataTrack].triggerSource==global?playheadPos:dataTrackData[activeDataTrack].playheadPos,activeDataTrack)),2);
+      printSmall(barHeight/2-stringify(getLastDTVal(autotrackData[activeAutotrack].triggerSource==global?playheadPos:autotrackData[activeAutotrack].playheadPos,activeAutotrack)).length()*2,3,stringify(getLastDTVal(autotrackData[activeAutotrack].triggerSource==global?playheadPos:autotrackData[activeAutotrack].playheadPos,activeAutotrack)),2);
     }
     else{
-      printSmall(barHeight/2-stringify(getLastDTVal(cursorPos,activeDataTrack)).length()*2,3,stringify(getLastDTVal(cursorPos,activeDataTrack)),2);
+      printSmall(barHeight/2-stringify(getLastDTVal(cursorPos,activeAutotrack)).length()*2,3,stringify(getLastDTVal(cursorPos,activeAutotrack)),2);
     }
     display.setRotation(UPRIGHT);
 
@@ -1565,7 +1559,7 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     printSmall(15,42,"src",1);
     drawArrow(20,52+sin(millis()/400),2,3,false);
     if(!settingRecInput || (millis()%40>20))
-      drawAutotrackInputIcon(17,55,activeDataTrack);
+      drawAutotrackInputIcon(17,55,activeAutotrack);
   }
   else{
     printSmall(50,29,"no data, kid",SSD1306_WHITE);
@@ -1573,41 +1567,41 @@ void drawDataTrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
 
 }
 
-bool dataTrackViewerControls(){
+bool autotrackViewerControls(){
   //changing cc
   while(counterB != 0){
-    if(counterB >= 1 && dataTrackData[activeDataTrack].control<127){
-      dataTrackData[activeDataTrack].control++;
+    if(counterB >= 1 && autotrackData[activeAutotrack].control<127){
+      autotrackData[activeAutotrack].control++;
       }
-    if(counterB <= -1 && dataTrackData[activeDataTrack].control>0){
-      dataTrackData[activeDataTrack].control--;
+    if(counterB <= -1 && autotrackData[activeAutotrack].control>0){
+      autotrackData[activeAutotrack].control--;
     }
     counterB += counterB<0?1:-1;
   }
   //changing ch
   while(counterA != 0){
-    if(counterA >= 1 && dataTrackData[activeDataTrack].channel<16){
-      dataTrackData[activeDataTrack].channel++;
+    if(counterA >= 1 && autotrackData[activeAutotrack].channel<16){
+      autotrackData[activeAutotrack].channel++;
       }
-    if(counterA <= -1 && dataTrackData[activeDataTrack].channel>1){
-      dataTrackData[activeDataTrack].channel--;
+    if(counterA <= -1 && autotrackData[activeAutotrack].channel>1){
+      autotrackData[activeAutotrack].channel--;
     }
     counterA += counterA<0?1:-1;
   }
   //sending CC message when shift is held
-  if(shift && dataTrackData.size()>activeDataTrack){
-    dataTrackData[activeDataTrack].play(0);
+  if(shift && autotrackData.size()>activeAutotrack){
+    autotrackData[activeAutotrack].play(0);
   }
   //scrolling up and down
   if(itsbeen(100)){
     if(y != 0){
-      if(dataTrackData.size() != 0){
-        if(y == -1 && activeDataTrack>0){
-          activeDataTrack--;
+      if(autotrackData.size() != 0){
+        if(y == -1 && activeAutotrack>0){
+          activeAutotrack--;
           lastTime = millis();
         }
-        if(y == 1 && activeDataTrack<dataTrackData.size()-1){
-          activeDataTrack++;
+        if(y == 1 && activeAutotrack<autotrackData.size()-1){
+          activeAutotrack++;
           lastTime = millis();
         }
       }
@@ -1618,49 +1612,49 @@ bool dataTrackViewerControls(){
       //changing control #
       if(!shift){
         if(x == -1){
-          dataTrackData[activeDataTrack].control = moveToNextCCParam(dataTrackData[activeDataTrack].control,true,dataTrackData[activeDataTrack].parameterType);
+          autotrackData[activeAutotrack].control = moveToNextCCParam(autotrackData[activeAutotrack].control,true,autotrackData[activeAutotrack].parameterType);
           lastTime = millis();
         }
         else if(x == 1){
-          dataTrackData[activeDataTrack].control = moveToNextCCParam(dataTrackData[activeDataTrack].control,false,dataTrackData[activeDataTrack].parameterType);
+          autotrackData[activeAutotrack].control = moveToNextCCParam(autotrackData[activeAutotrack].control,false,autotrackData[activeAutotrack].parameterType);
           lastTime = millis();
         }
       }
       //changing channel #
       else{
-        if(x == -1 && dataTrackData[activeDataTrack].channel<16){
-          dataTrackData[activeDataTrack].channel++;
+        if(x == -1 && autotrackData[activeAutotrack].channel<16){
+          autotrackData[activeAutotrack].channel++;
           lastTime = millis();
         }
-        else if(x == 1 && dataTrackData[activeDataTrack].channel>1){
-          dataTrackData[activeDataTrack].channel--;
+        else if(x == 1 && autotrackData[activeAutotrack].channel>1){
+          autotrackData[activeAutotrack].channel--;
           lastTime = millis();
         }
       }
     }
   }
   if(itsbeen(200)){
-    //selecting a dataTrack
+    //selecting a autotrack
     if(sel){
-      if(dataTrackData.size()>0){
+      if(autotrackData.size()>0){
         lastTime = millis();
-        dataTrackEditor();
+        autotrackEditor();
       }
     }
     if(n){
-      if(dataTrackData.size() == 0)
-        createDataTrack(0);
+      if(autotrackData.size() == 0)
+        createAutotrack(0);
       else
-        createDataTrack(0,(dataTrackData[dataTrackData.size()-1].control>=127)?0:(dataTrackData[dataTrackData.size()-1].control+1));
+        createAutotrack(0,(autotrackData[autotrackData.size()-1].control>=127)?0:(autotrackData[autotrackData.size()-1].control+1));
       lastTime = millis();
     }
     if(del){
-      if(shift && activeDataTrack<dataTrackData.size()){
-        dataTrackData[activeDataTrack].isActive = !dataTrackData[activeDataTrack].isActive;
+      if(shift && activeAutotrack<autotrackData.size()){
+        autotrackData[activeAutotrack].isActive = !autotrackData[activeAutotrack].isActive;
         lastTime = millis();
       }
       else{
-        deleteDataTrack(activeDataTrack);
+        deleteAutotrack(activeAutotrack);
         lastTime = millis();
       }
     }
@@ -1669,8 +1663,8 @@ bool dataTrackViewerControls(){
       return false;
     }
     if(play){
-      if(shift && activeDataTrack<dataTrackData.size()){
-        dataTrackData[activeDataTrack].isPrimed = !dataTrackData[activeDataTrack].isPrimed;
+      if(shift && activeAutotrack<autotrackData.size()){
+        autotrackData[activeAutotrack].isPrimed = !autotrackData[activeAutotrack].isPrimed;
         lastTime = millis();
       }
       else{
@@ -1679,33 +1673,33 @@ bool dataTrackViewerControls(){
       }
     }
     if(copy_Press){
-      dupeDataTrack(activeDataTrack);
+      dupeAutotrack(activeAutotrack);
       lastTime = millis();
     }
     if(track_Press){
       track_Press = false;
-      uint8_t param = selectCCParam_dataTrack(dataTrackData[activeDataTrack].parameterType);
+      uint8_t param = selectCCParam_autotrack(autotrackData[activeAutotrack].parameterType);
       if(param != 255)
-        dataTrackData[activeDataTrack].control = param;
+        autotrackData[activeAutotrack].control = param;
       lastTime = millis();
     }
-    if(loop_Press && activeDataTrack<dataTrackData.size()){
+    if(loop_Press && activeAutotrack<autotrackData.size()){
       lastTime = millis();
-      setAutotrackTrigger(activeDataTrack);
+      setAutotrackTrigger(activeAutotrack);
     }
   }
   return true;
 }
 
 bool atLeastOneActiveAutotrack(){
-  for(uint8_t i = 0; i<dataTrackData.size(); i++){
-    if(dataTrackData[i].isActive)
+  for(uint8_t i = 0; i<autotrackData.size(); i++){
+    if(autotrackData[i].isActive)
       return true;
   }
   return false;
 }
 
-void drawDataTrackViewer(uint8_t firstTrack){
+void drawAutotrackViewer(uint8_t firstTrack){
   //each track is 14 high, except the target which is 20
   const uint8_t height = 9;
   const uint8_t sideMenu = 32;
@@ -1717,47 +1711,47 @@ void drawDataTrackViewer(uint8_t firstTrack){
   printArp(2,0,"AUTOTRACKS",1);
   display.setRotation(UPRIGHT);
   //drawing tracks
-  if(dataTrackData.size()>0){
+  if(autotrackData.size()>0){
     animOffset++;
     animOffset%=18;
 
     for(uint8_t track = 0; track<5; track++){
       //if there's data for this track (if it exists)
-      if(track+firstTrack<dataTrackData.size()){
-        //if it's the activeDataTrack
-        if(track+firstTrack == activeDataTrack){
+      if(track+firstTrack<autotrackData.size()){
+        //if it's the activeAutotrack
+        if(track+firstTrack == activeAutotrack){
           //track box
           display.drawRoundRect(9,currentHeight,119,23,3,1);
           //track data
           display.fillRoundRect(sideMenu-2,currentHeight+4,screenWidth-sideMenu,height+6,2,SSD1306_BLACK);
           display.drawRoundRect(sideMenu-3,currentHeight+3,screenWidth-sideMenu,height+8,2,SSD1306_WHITE);
 
-          drawMiniDT(sideMenu-3,currentHeight+4,height+6,activeDataTrack);
+          drawMiniDT(sideMenu-3,currentHeight+4,height+6,activeAutotrack);
           //cc/ch indicator
           display.drawBitmap(11,currentHeight+3,cc_tiny,5,3,SSD1306_WHITE);
           display.drawBitmap(11,currentHeight+9,ch_tiny,6,3,SSD1306_WHITE);
-          printSmall(17,currentHeight+2,stringify(dataTrackData[activeDataTrack].control),1);
-          printSmall(18,currentHeight+8,stringify(dataTrackData[track+firstTrack].channel),SSD1306_WHITE);
+          printSmall(17,currentHeight+2,stringify(autotrackData[activeAutotrack].control),1);
+          printSmall(18,currentHeight+8,stringify(autotrackData[track+firstTrack].channel),SSD1306_WHITE);
           //curve icon/send icon while shifting
-          drawCurveIcon(12,currentHeight+14,dataTrackData[activeDataTrack].type,animOffset);
+          drawCurveIcon(12,currentHeight+14,autotrackData[activeAutotrack].type,animOffset);
           
           //if shifting, draw note icon
           if(shift)
             display.drawChar(120-(firstTrack?8:1)+sin(millis()/50),0,0x0E,1,0,1);    
           //if not, print track number        
           else
-            print7SegSmall(screenWidth-countDigits_byte(activeDataTrack)*4-(firstTrack?8:1),0,stringify(activeDataTrack),1);
+            print7SegSmall(screenWidth-countDigits_byte(activeAutotrack)*4-(firstTrack?8:1),0,stringify(activeAutotrack),1);
 
           String trigger;
-          switch(dataTrackData[activeDataTrack].triggerSource){
+          switch(autotrackData[activeAutotrack].triggerSource){
             case global:
               trigger = "global";
               break;
             case TriggerSource::track:
-              trigger = "trck: "+stringify(dataTrackData[activeDataTrack].triggerTarget);
+              trigger = "trck: "+stringify(autotrackData[activeAutotrack].triggerTarget);
               break;
               case channel:
-              trigger = "chnl: "+stringify(dataTrackData[activeDataTrack].triggerTarget);
+              trigger = "chnl: "+stringify(autotrackData[activeAutotrack].triggerTarget);
               break;
           }
           drawLabel(112,currentHeight+2,trigger,false);
@@ -1771,15 +1765,15 @@ void drawDataTrackViewer(uint8_t firstTrack){
         //if it's a normal track (nonactive)
         else{
           //back up the cc label when there're more digits
-          uint8_t x1 = 26 - countDigits_byte(dataTrackData[firstTrack+track].control)*4;
+          uint8_t x1 = 26 - countDigits_byte(autotrackData[firstTrack+track].control)*4;
 
           display.drawBitmap(x1,currentHeight+3,cc_tiny,5,3,SSD1306_WHITE);
-          printSmall(x1+6,currentHeight+2,stringify(dataTrackData[firstTrack+track].control),1);
+          printSmall(x1+6,currentHeight+2,stringify(autotrackData[firstTrack+track].control),1);
           
           display.fillRect(sideMenu,currentHeight,screenWidth-sideMenu,height,SSD1306_BLACK);
           display.drawRect(sideMenu,currentHeight,screenWidth-sideMenu,height,SSD1306_WHITE);
-          if(dataTrackData[track+firstTrack].isActive)
-            printParam_centered(track+firstTrack,sideMenu+(screenWidth-sideMenu)/2,currentHeight+2,dataTrackData[track+firstTrack].control,false,dataTrackData[track+firstTrack].parameterType,false);
+          if(autotrackData[track+firstTrack].isActive)
+            printParam_centered(track+firstTrack,sideMenu+(screenWidth-sideMenu)/2,currentHeight+2,autotrackData[track+firstTrack].control,false,autotrackData[track+firstTrack].parameterType,false);
           else
             printSmall_centered(sideMenu+(screenWidth-sideMenu)/2,currentHeight+2,"[inactive]",1);
           currentHeight+=height-1;
@@ -1788,14 +1782,14 @@ void drawDataTrackViewer(uint8_t firstTrack){
     }
 
     //data track label
-    String p = getCCParam(dataTrackData[activeDataTrack].control,dataTrackData[activeDataTrack].channel,dataTrackData[activeDataTrack].parameterType);
+    String p = getCCParam(autotrackData[activeAutotrack].control,autotrackData[activeAutotrack].channel,autotrackData[activeAutotrack].parameterType);
     printCursive(10,0,p,1);
 
     //drawing 'more tracks' indicators
     if(firstTrack>0){
       drawArrow(124,1+sin(millis()/75),2,2,true);
     }
-    if(firstTrack+4<dataTrackData.size()-1){
+    if(firstTrack+4<autotrackData.size()-1){
       drawArrow(124,63-sin(millis()/75),2,3,true);
     }
   }
@@ -1816,7 +1810,7 @@ void drawDataTrackViewer(uint8_t firstTrack){
   //Drawing our robot bud
   if((playing || recording) && atLeastOneActiveAutotrack())
     // switch(millis()/500%4){
-    switch((playing?dataTrackData[activeDataTrack].playheadPos:recheadPos)/24%4){
+    switch((playing?autotrackData[activeAutotrack].playheadPos:recheadPos)/24%4){
       case 0:
         display.drawBitmap(x1+1,y1+3,robo3_mask,18,17,0);
         display.drawBitmap(x1,y1,robo3,21,24,1);
@@ -1841,14 +1835,14 @@ void drawDataTrackViewer(uint8_t firstTrack){
 }
 
 void drawMiniDT(uint8_t x1, uint8_t y1, uint8_t height, uint8_t which){
-  if(dataTrackData[which].isActive){
+  if(autotrackData[which].isActive){
     float yScale = float(height-1)/float(127);
     // float xScale = scale;
     //i starts at start, goes from start to the end of the screen
     float sc = float(96)/float(loopData[activeLoop].end-loopData[activeLoop].start);
     //ends at viewEnd-1 because it draws lines 2 points at a time
     for(uint16_t i = loopData[activeLoop].start; i<loopData[activeLoop].end; i++){
-      if(i<dataTrackData[which].data.size()){
+      if(i<autotrackData[which].data.size()){
         if(i >= loopData[activeLoop].end - 1){
           display.drawLine(x1+(i-loopData[activeLoop].start)*sc-1, y1+yScale*(127-getLastDTVal(i,which)),x1+(loopData[activeLoop].end-loopData[activeLoop].start)*sc-1, y1+yScale*(127-getLastDTVal(i,which)),SSD1306_WHITE);
           break;
@@ -1856,7 +1850,7 @@ void drawMiniDT(uint8_t x1, uint8_t y1, uint8_t height, uint8_t which){
         else
           display.drawLine(x1+(i-loopData[activeLoop].start)*sc, y1+yScale*(127-getLastDTVal(i,which)),x1+(i+1-loopData[activeLoop].start)*sc-1, y1+yScale*(127-getLastDTVal(i+1,which)),SSD1306_WHITE);
         if(playing){
-          if((dataTrackData[which].triggerSource == global && i == playheadPos) || (dataTrackData[which].triggerSource != global && i == dataTrackData[which].playheadPos)){
+          if((autotrackData[which].triggerSource == global && i == playheadPos) || (autotrackData[which].triggerSource != global && i == autotrackData[which].playheadPos)){
             display.drawFastVLine(x1+(i-loopData[activeLoop].start)*sc,y1,height,SSD1306_WHITE);
           }
         }
@@ -1872,7 +1866,7 @@ void drawMiniDT(uint8_t x1, uint8_t y1, uint8_t height, uint8_t which){
     display.fillRoundRect(x1+(screenWidth-x1)/2-13,y1+height/2-3,25,7,3,SSD1306_BLACK);
     printSmall(x1+(screenWidth-x1)/2-14,y1+height/2-2,"[muted]",SSD1306_WHITE);
   }
-  if(dataTrackData[which].isPrimed){
+  if(autotrackData[which].isPrimed){
     if(millis()/700%2)
       display.fillCircle(x1,y1,2,1);
     else{

@@ -138,24 +138,24 @@ void writeSeqFile(String filename){
     }
   }
   
-  //writing dataTrack info, if there are any dataTracks
+  //writing autotrack info, if there are any autotracks
   //number of bytes is split in two! because it's a uint16_t
-  //stored as (number of dataTracks),(control),(channel),(isActive),(number of bytes1),(number of bytes2),(data)...
-  //number of datatracks is always written, even if it's zero!
-  uint8_t numOfDataTracks[1] = {uint8_t(dataTrackData.size())};
-  seqFile.write(numOfDataTracks,1);
-  if(dataTrackData.size()>0){      
+  //stored as (number of autotracks),(control),(channel),(isActive),(number of bytes1),(number of bytes2),(data)...
+  //number of autotracks is always written, even if it's zero!
+  uint8_t numOfAutotracks[1] = {uint8_t(autotrackData.size())};
+  seqFile.write(numOfAutotracks,1);
+  if(autotrackData.size()>0){      
     //writing dt data
-    for(uint8_t dt = 0; dt<numOfDataTracks[0]; dt++){
-      uint8_t dataTrackInfoData[4] = {dataTrackData[dt].control,dataTrackData[dt].channel,dataTrackData[dt].isActive,dataTrackData[dt].parameterType};
-      uint8_t numberOfDataPoints[2] = {uint8_t(dataTrackData[dt].data.size()>>8),uint8_t(dataTrackData[dt].data.size())};
-      uint8_t dataTrackRawData[dataTrackData[dt].data.size()];
-      for(uint16_t dataPoint = 0; dataPoint<dataTrackData[dt].data.size(); dataPoint++){
-        dataTrackRawData[dataPoint] = dataTrackData[dt].data[dataPoint];
+    for(uint8_t dt = 0; dt<numOfAutotracks[0]; dt++){
+      uint8_t autotrackInfoData[4] = {autotrackData[dt].control,autotrackData[dt].channel,autotrackData[dt].isActive,autotrackData[dt].parameterType};
+      uint8_t numberOfDataPoints[2] = {uint8_t(autotrackData[dt].data.size()>>8),uint8_t(autotrackData[dt].data.size())};
+      uint8_t autotrackRawData[autotrackData[dt].data.size()];
+      for(uint16_t dataPoint = 0; dataPoint<autotrackData[dt].data.size(); dataPoint++){
+        autotrackRawData[dataPoint] = autotrackData[dt].data[dataPoint];
       }
-      seqFile.write(dataTrackInfoData,4);
+      seqFile.write(autotrackInfoData,4);
       seqFile.write(numberOfDataPoints,2);
-      seqFile.write(dataTrackRawData,dataTrackData[dt].data.size());
+      seqFile.write(autotrackRawData,autotrackData[dt].data.size());
     }
   }
 
@@ -253,24 +253,24 @@ void writeCurrentSeqToSerial(bool waitForResponse){
     }
   }
   
-  //writing dataTrack info, if there are any dataTracks
+  //writing autotrack info, if there are any autotracks
   //number of bytes is split in two! because it's a uint16_t
-  //stored as (number of dataTracks),(control),(channel),(isActive),(number of bytes1),(number of bytes2),(data)...
-  //number of datatracks is always written, even if it's zero!
-  uint8_t numOfDataTracks[1] = {uint8_t(dataTrackData.size())};
-  writeBytes(numOfDataTracks,1);
-  if(dataTrackData.size()>0){      
+  //stored as (number of autotracks),(control),(channel),(isActive),(number of bytes1),(number of bytes2),(data)...
+  //number of autotracks is always written, even if it's zero!
+  uint8_t numOfAutotracks[1] = {uint8_t(autotrackData.size())};
+  writeBytes(numOfAutotracks,1);
+  if(autotrackData.size()>0){      
     //writing dt data
-    for(uint8_t dt = 0; dt<numOfDataTracks[0]; dt++){
-      uint8_t dataTrackInfoData[3] = {dataTrackData[dt].control,dataTrackData[dt].channel,dataTrackData[dt].isActive};
-      uint8_t numberOfDataPoints[2] = {uint8_t(dataTrackData[dt].data.size()>>8),uint8_t(dataTrackData[dt].data.size())};
-      uint8_t dataTrackRawData[dataTrackData[dt].data.size()];
-      for(uint16_t dataPoint = 0; dataPoint<dataTrackData[dt].data.size(); dataPoint++){
-        dataTrackRawData[dataPoint] = dataTrackData[dt].data[dataPoint];
+    for(uint8_t dt = 0; dt<numOfAutotracks[0]; dt++){
+      uint8_t autotrackInfoData[3] = {autotrackData[dt].control,autotrackData[dt].channel,autotrackData[dt].isActive};
+      uint8_t numberOfDataPoints[2] = {uint8_t(autotrackData[dt].data.size()>>8),uint8_t(autotrackData[dt].data.size())};
+      uint8_t autotrackRawData[autotrackData[dt].data.size()];
+      for(uint16_t dataPoint = 0; dataPoint<autotrackData[dt].data.size(); dataPoint++){
+        autotrackRawData[dataPoint] = autotrackData[dt].data[dataPoint];
       }
-      writeBytes(dataTrackInfoData,3);
+      writeBytes(autotrackInfoData,3);
       writeBytes(numberOfDataPoints,2);
-      writeBytes(dataTrackRawData,dataTrackData[dt].data.size());
+      writeBytes(autotrackRawData,autotrackData[dt].data.size());
     }
   }
 
@@ -661,9 +661,9 @@ void loadSeqFile(String filename){
     //loading DT's
     uint8_t numberOfDts[1];
     seqFile.read(numberOfDts,1);
-    //clear out dataTrackData
-    vector<dataTrack> newData;
-    newData.swap(dataTrackData);
+    //clear out autotrackData
+    vector<Autotrack> newData;
+    newData.swap(autotrackData);
 
     if(numberOfDts[0]>0){
       for(uint8_t dt = 0; dt<numberOfDts[0]; dt++){
@@ -681,7 +681,7 @@ void loadSeqFile(String filename){
         for(uint16_t point = 0; point<numberOfDtPoints; point++){
           temp.push_back(points[point]);
         }
-        createDataTrack(dtInfo[0],dtInfo[1],dtInfo[2],temp,dtInfo[3]);
+        createAutotrack(dtInfo[0],dtInfo[1],dtInfo[2],temp,dtInfo[3]);
       }
     }
 

@@ -1,6 +1,6 @@
 enum TriggerSource:uint8_t{global,track,channel};
 
-class dataTrack{
+class Autotrack{
   public:
     //holds values in the range 0-127, 255 ==> NO value and a control number should not be sent
     vector<uint8_t> data;
@@ -42,13 +42,13 @@ class dataTrack{
     bool isActive = true;
 
     vector<uint16_t> selectedPoints;
-    dataTrack();
-    dataTrack(uint8_t);
+    Autotrack();
+    Autotrack(uint8_t);
     void play(uint16_t);
     void setTrigger(TriggerSource trigSource, uint8_t trigTarget);
 };
 
-dataTrack::dataTrack(){
+Autotrack::Autotrack(){
   data.push_back(63);
   for(uint16_t i = 1; i<seqEnd; i++){
     data.push_back(255);
@@ -63,7 +63,7 @@ dataTrack::dataTrack(){
   period = 96;
 }
 
-dataTrack::dataTrack(uint8_t t){
+Autotrack::Autotrack(uint8_t t){
   data.push_back(63);
   for(uint16_t i = 1; i<seqEnd; i++){
     data.push_back(255);
@@ -78,7 +78,7 @@ dataTrack::dataTrack(uint8_t t){
   period = 96;
 }
 
-void dataTrack::play(uint16_t timestep){
+void Autotrack::play(uint16_t timestep){
   //bounds check for timestep --> timestep will "loop" around if bigger than data
   if(timestep>=data.size())
     timestep%=data.size();
@@ -90,49 +90,49 @@ void dataTrack::play(uint16_t timestep){
     sendMIDICC(control,data[timestep],channel);
 }
 
-//holds all the datatracks
-vector<dataTrack> dataTrackData;
+//holds all the autotracks
+vector<Autotrack> autotrackData;
 
 //looks for autotracks to trigger and triggers them
 void triggerAutotracks(uint8_t trackID, bool state){
-  for(uint8_t i = 0; i<dataTrackData.size(); i++){
-    switch(dataTrackData[i].triggerSource){
+  for(uint8_t i = 0; i<autotrackData.size(); i++){
+    switch(autotrackData[i].triggerSource){
       case global:
         break;
       case track:
         //if it's a targeted autotrack
-        if(dataTrackData[i].triggerTarget == trackID){
+        if(autotrackData[i].triggerTarget == trackID){
           //triggering it on
           if(state){
-            dataTrackData[i].isActive = true;
-            dataTrackData[i].playheadPos = 0;
+            autotrackData[i].isActive = true;
+            autotrackData[i].playheadPos = 0;
           }
           //triggering it off
-          else if(dataTrackData[i].gated){
-            dataTrackData[i].isActive = false;
-            dataTrackData[i].playheadPos = 0;
+          else if(autotrackData[i].gated){
+            autotrackData[i].isActive = false;
+            autotrackData[i].playheadPos = 0;
           }
         }
         break;
       case channel:
         //if it's a targeted autotrack
-        if(dataTrackData[i].triggerTarget == trackData[trackID].channel){
+        if(autotrackData[i].triggerTarget == trackData[trackID].channel){
           //triggering it on
           if(state){
-            dataTrackData[i].isActive = true;
-            dataTrackData[i].playheadPos = 0;
+            autotrackData[i].isActive = true;
+            autotrackData[i].playheadPos = 0;
           }
           //triggering it off
-          else if(dataTrackData[i].gated){
-            dataTrackData[i].isActive = false;
-            dataTrackData[i].playheadPos = 0;
+          else if(autotrackData[i].gated){
+            autotrackData[i].isActive = false;
+            autotrackData[i].playheadPos = 0;
           }
         }
         break;
     }
   }
 }
-void dataTrack::setTrigger(TriggerSource trigSource, uint8_t trigTarget){
+void Autotrack::setTrigger(TriggerSource trigSource, uint8_t trigTarget){
   triggerSource = trigSource;
   playheadPos = 0;
   switch(triggerSource){
