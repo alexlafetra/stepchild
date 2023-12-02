@@ -348,7 +348,7 @@ void error_callback(int error, const char* description)
 }
 
 //for taking screenshots
-string screenshotFolder = "/Users/alex/Desktop/sequencer_proj/screenshots_headless";
+string screenshotFolder = "/Users/alex/Desktop/Stepchild/sequencer_proj/screenshots_headless";
 int numberOfScreenshots = 0;
 void takeScreenshot(){
     bitmap_image image(128,64);

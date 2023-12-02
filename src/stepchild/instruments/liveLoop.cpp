@@ -85,7 +85,7 @@ void liveLoop(){
         if(!recording){
             int8_t offset = 0;
             if(playing)
-                offset = 2*sin(millis()/100);
+                offset = 2*((millis()/200)%2);
             uint8_t x0 = 6+offset;
             const uint8_t y0 = 0;
             const uint8_t len = 16;

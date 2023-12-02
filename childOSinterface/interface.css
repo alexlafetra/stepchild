@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;1,300&display=swap');
+
+html{
+    /* background:black; */
+
+}
+
+div{
+    border-width:1px;
+    border-color:black;
+    border-style:solid;
+}
+body{
+    margin:0;
+    width:100%;
+    height:100vh;
+    /* margin:40px; */
+    /* padding:10px; */
+    display:block;
+    position:absolute;
+
+}
+
+/* for the rainbow text */
+@keyframes rainbow_anim{ 0%{color:hsl(0,100%,50%);} 
+                    10%{color:hsl(36,100%,50%);}
+                    20%{color:hsl(72,100%,50%);}
+                    30%{color:hsl(108,100%,50%);}
+                    30%{color:hsl(144,100%,50%);}
+                    40%{color:hsl(180,100%,50%);}
+                    50%{color:hsl(216,100%,50%);}
+                    60%{color:hsl(252,100%,50%);}
+                    70%{color:hsl(288,100%,50%);}
+                    80%{color:hsl(324,100%,50%);}
+                    100%{color:hsl(360,100%,50%);}}
+
+
+.rainbow_serif{
+    animation: rainbow_anim 6s infinite;
+    transition:ease-in;
+    font-family: 'Times New Roman', Times, serif;
+    font-size:80px;
+    font-style:italic;
+}
+
+.comic_sans{
+    color:black;
+    font-family: 'Comic Neue', cursive;
+    font-size:50px;
+}
+
+#title{
+    display:block;
+    width:100%;
+}
+
+#app{
+    display:grid;
+    grid-template-columns: 30% 30% 40%;
+    grid-template-rows: 50%;
+    grid-template-areas: "consoleButton consoleText consoleText" "transmission transmission conversion";
+    /* gap:10%; */
+    /* justify-items:stretch; */
+    width:100%;
+    height:80vh;
+}
+.app_component{
+    padding:10px;
+}
+
+#console_button_container{
+    grid-area:consoleButton;
+}
+
+#console_text_container{
+    grid-area:consoleText;
+    background-color:black;
+    color:white;
+    font-family: 'JetBrains Mono', monospace;
+    border-radius: 40px;
+    margin:10px;
+    white-space: pre;
+}
+
+#conversion_container{
+    grid-area:conversion;
+}
+
+#transmission_container{
+    grid-area:transmission;
+}

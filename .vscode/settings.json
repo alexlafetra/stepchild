@@ -30,5 +30,6 @@
         "map": "cpp",
         "regex": "cpp",
         "ios": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "/Users/alex/Desktop/Stepchild/stepchild/src/headless/childOS_headless/glfw-3.3.8"
 }

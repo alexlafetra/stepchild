@@ -135,7 +135,7 @@ void Arp::stop() {
   //brute force way of doing it
   //the downside is that this will cut off ALL notes that are playing
   // sendMIDIallOff();
-  // Serial.println("turning arp off! (Arp::stop())");
+  // //Serial.println("turning arp off! (Arp::stop())");
   Arp::playheadPos = 0;
   Arp::stepCount = 0;
   Arp::activeNote = 0;
@@ -262,29 +262,29 @@ bool Arp::addStepLength() {
 
 void Arp::debugPrintArp() {
   //pring notes, order, and the actual play order
-  // Serial.println("notes:");
-  // Serial.print("{");
+  // //Serial.println("notes:");
+  // //Serial.print("{");
   // for (int i = 0; i < notes.size(); i++) {
-  //   Serial.print(notes[i]);
-  //   Serial.print(",");
+  //   //Serial.print(notes[i]);
+  //   //Serial.print(",");
   // }
-  // Serial.println("}");
+  // //Serial.println("}");
 
-  // Serial.println("order:");
-  // Serial.print("[");
+  // //Serial.println("order:");
+  // //Serial.print("[");
   // for (int i = 0; i < order.size(); i++) {
-  //   Serial.print(order[i]);
-  //   Serial.print(",");
+  //   //Serial.print(order[i]);
+  //   //Serial.print(",");
   // }
-  // Serial.println("]");
+  // //Serial.println("]");
 
-  Serial.println("what you would hear:");
-  Serial.print("(");
+  //Serial.println("what you would hear:");
+  //Serial.print("(");
   for (int i = 0; i < order.size(); i++) {
-    Serial.print(notes[order[i]]);
-    Serial.print(",");
+    //Serial.print(notes[order[i]]);
+    //Serial.print(",");
   }
-  Serial.println(")");
+  //Serial.println(")");
 }
 
 bool compareArpNotes(uint8_t id1, uint8_t id2) {

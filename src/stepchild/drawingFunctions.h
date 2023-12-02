@@ -491,7 +491,7 @@ void drawBarGraphH(int xStart, int yStart, int thickness, int length, float prog
 void drawNoteBracket(int x1, int y1, int length, int height, bool animated){
   float offset;
   if(animated){
-    offset = sin(millis()/200);
+    offset = ((millis()/400)%2);
   }
   else
     offset = 0;
@@ -530,10 +530,10 @@ void drawSelectionBracket(){
   //if the left side is in view
   if(bounds[0]>=viewStart){
     //if the top L corner is in view
-    uint8_t x1 = (bounds[0]-viewStart)*scale+trackDisplay-sin(millis()/100);
+    uint8_t x1 = (bounds[0]-viewStart)*scale+trackDisplay-((millis()/200)%2);
     if(bounds[1]>=startTrack){
       //y coord relative to the view
-      uint8_t y1 = (bounds[1]-startTrack)*trackHeight+debugHeight-sin(millis()/100);
+      uint8_t y1 = (bounds[1]-startTrack)*trackHeight+debugHeight-((millis()/200)%2);
       display.drawLine(x1,y1,x1+5,y1,SSD1306_WHITE);
       display.drawLine(x1,y1-1,x1+5,y1-1,SSD1306_WHITE);
       display.drawLine(x1,y1,x1,y1+5,SSD1306_WHITE);
@@ -542,7 +542,7 @@ void drawSelectionBracket(){
     //if the bottom L corner is in view
     if(bounds[3]<=endTrack){
       //y coord relative to the view
-      uint8_t y1 = (bounds[3]-startTrack+1)*trackHeight+debugHeight+sin(millis()/100);
+      uint8_t y1 = (bounds[3]-startTrack+1)*trackHeight+debugHeight+((millis()/200)%2);
       display.drawLine(x1,y1,x1+5,y1,SSD1306_WHITE);
       display.drawLine(x1,y1+1,x1+5,y1+1,SSD1306_WHITE);
       display.drawLine(x1,y1,x1,y1-5,SSD1306_WHITE);
@@ -551,10 +551,10 @@ void drawSelectionBracket(){
   }
   //if the right corner is in view
   if(bounds[2]<viewEnd){
-    uint8_t x1 = (bounds[2]-viewStart)*scale+trackDisplay+sin(millis()/100)+1;
+    uint8_t x1 = (bounds[2]-viewStart)*scale+trackDisplay+((millis()/200)%2)+1;
     //top R corner
     if(bounds[1]>=startTrack){
-      uint8_t y1 = (bounds[1]-startTrack)*trackHeight+debugHeight-sin(millis()/100);
+      uint8_t y1 = (bounds[1]-startTrack)*trackHeight+debugHeight-((millis()/200)%2);
       display.drawLine(x1,y1,x1-5,y1,SSD1306_WHITE);
       display.drawLine(x1,y1-1,x1-5,y1-1,SSD1306_WHITE);
       display.drawLine(x1,y1,x1,y1+5,SSD1306_WHITE);
@@ -562,7 +562,7 @@ void drawSelectionBracket(){
     }
     //bottom R corner
     if(bounds[3]<=endTrack){
-      uint8_t y1 = (bounds[3]-startTrack+1)*trackHeight+debugHeight+sin(millis()/100);
+      uint8_t y1 = (bounds[3]-startTrack+1)*trackHeight+debugHeight+((millis()/200)%2);
       display.drawLine(x1,y1,x1-5,y1,SSD1306_WHITE);
       display.drawLine(x1,y1+1,x1-5,y1+1,SSD1306_WHITE);
       display.drawLine(x1,y1,x1,y1-5,SSD1306_WHITE);
@@ -706,8 +706,8 @@ void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask,
         //if it's highlighted
         if(wKeyPattern[i]+12*octave == activeKey){
           display.drawRect(i*(keyWidth+1),y1-1,keyWidth,wKeyHeight+1,SSD1306_WHITE);
-          drawArrow(i*(keyWidth+1)+2,y1+17+sin(millis()/100),3,2,true);
-          printSmall(i*(keyWidth+1)+2-text.length()*2,y1+22+sin(millis()/100),text,SSD1306_WHITE);
+          drawArrow(i*(keyWidth+1)+2,y1+17+((millis()/200)%2),3,2,true);
+          printSmall(i*(keyWidth+1)+2-text.length()*2,y1+22+((millis()/200)%2),text,SSD1306_WHITE);
         }
         display.drawPixel(i*(keyWidth+1)+2,y1+15,SSD1306_WHITE);
       }
@@ -715,8 +715,8 @@ void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask,
         //if it's highlighted
         if(wKeyPattern[i]+12*octave == activeKey){
           display.drawRect(i*(keyWidth+1),y1-1,keyWidth,wKeyHeight+1,SSD1306_WHITE);
-          drawArrow(i*(keyWidth+1)+2,y1+17+sin(millis()/100),3,2,true);
-          printSmall(i*(keyWidth+1)+2-text.length()*2,y1+22+sin(millis()/100),text,SSD1306_WHITE);
+          drawArrow(i*(keyWidth+1)+2,y1+17+((millis()/200)%2),3,2,true);
+          printSmall(i*(keyWidth+1)+2-text.length()*2,y1+22+((millis()/200)%2),text,SSD1306_WHITE);
         }
         else
           display.fillRect(i*(keyWidth+1),y1,keyWidth,wKeyHeight,SSD1306_WHITE);
@@ -740,8 +740,8 @@ void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask,
           display.fillRect(xPos+1,y1,keyWidth-2,bKeyHeight-1,SSD1306_WHITE);
         display.drawRect(xPos-1,y1-1,keyWidth+2,bKeyHeight+2,SSD1306_WHITE);
         if(bKeyPattern[i]+12*octave == activeKey){
-          drawArrow(xPos+2,y1+17+sin(millis()/100),3,2,false);
-          printSmall(xPos+2-text.length()*2,y1+22+sin(millis()/100),text,SSD1306_WHITE);
+          drawArrow(xPos+2,y1+17+((millis()/200)%2),3,2,false);
+          printSmall(xPos+2-text.length()*2,y1+22+((millis()/200)%2),text,SSD1306_WHITE);
         }
       }
       else{

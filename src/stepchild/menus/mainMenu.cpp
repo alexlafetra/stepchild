@@ -113,7 +113,7 @@ void animateIcon(WireFrame* w){
     //arp
     case 11:
       handAnimation(w);
-      w -> yPos=20+2*sin(millis()/200);
+      w -> yPos=20+2*((millis()/400)%2);
       w -> rotate(4*sin(millis()/400),1);
       break;
   }

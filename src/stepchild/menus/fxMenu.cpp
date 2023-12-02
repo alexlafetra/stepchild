@@ -112,10 +112,10 @@ void Menu::displayFxMenu(){
   //printing page number/arrows
   printSmall(coords.x1+coords.y1+21,2,stringify(page+1)+"/2",SSD1306_WHITE);
   if(page == 0){
-    drawArrow(coords.x1+coords.y1+26,11+sin(millis()/200),2,3,true);
+    drawArrow(coords.x1+coords.y1+26,11+((millis()/400)%2),2,3,true);
   }
   else{
-    drawArrow(coords.x1+coords.y1+26,9+sin(millis()/200),2,2,true);
+    drawArrow(coords.x1+coords.y1+26,9+((millis()/400)%2),2,2,true);
   }
 
   const uint8_t width = 16;

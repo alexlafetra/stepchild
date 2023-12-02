@@ -124,12 +124,12 @@ void PlayList::clear(){
 }
 
 void PlayList::debugPrint(){
-  Serial.print("{");
+  //Serial.print("{");
   for(int i = 0; i<notes.size(); i++){
-    Serial.print(notes[i].pitch);
-    Serial.print(",");
+    //Serial.print(notes[i].pitch);
+    //Serial.print(",");
   }
-  Serial.println("}");
+  //Serial.println("}");
   Serial.flush();
 }
 

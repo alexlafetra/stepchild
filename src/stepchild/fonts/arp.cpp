@@ -134,22 +134,11 @@ const unsigned char* arpFont[26] = {
 	arp_z
 };
 
-// Array of all bitmaps for convenience. (Total bytes used to store images in  = 96)
-const unsigned char* arpTitle[8] = {
-	arp_a,
-	arp_r,
-	arp_p,
-	arp_e,
-	arp_g,
-	arp_g,
-	arp_i,
-	arp_o
-};
 
 void printArp_wiggly(int x, int y, String text, uint16_t c){
   for(int letter = 0; letter<text.length(); letter++){
     unsigned char character = text.charAt(letter);
-    int8_t offset = 3*sin(float(millis())/float(200)+float(letter));
+    int8_t offset = 3*sin(float(millis())/float(200)+float(letter*200));
     switch(character){
       case ' ':
         x-=2;

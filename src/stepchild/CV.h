@@ -230,11 +230,11 @@ void testCVPitches(){
             readVoltage+=float(analogRead(26))/sampleNumber;
         }
         //record analog val
-        Serial.print("Variable_1:");
-        Serial.print(readVoltage*3.3/1024);
-        Serial.print(",");
-        Serial.print("Variable_2:");
-        Serial.println(readVoltage*3.3*12.0/1024.0);
+        //Serial.print("Variable_1:");
+        //Serial.print(readVoltage*3.3/1024);
+        //Serial.print(",");
+        //Serial.print("Variable_2:");
+        //Serial.println(readVoltage*3.3*12.0/1024.0);
     }
 }
 

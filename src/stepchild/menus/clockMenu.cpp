@@ -85,14 +85,14 @@ void Menu::displayClockMenu(float tVal,uint8_t cursor){
       else
         print7SegString(coords.y1+screenWidth-48,40,b,false);
       printCursive(coords.y1+76,3,"bpm",SSD1306_WHITE);
-      x1 = 10+sin(millis()/100);
+      x1 = 10+((millis()/200)%2);
       drawArrow(42+coords.y1,13+19+x1+2,3,2,false);
       }
       break;
     //swing amplitude
     case 1:
       {
-      x2 = 10+sin(millis()/100);
+      x2 = 10+((millis()/200)%2);
       drawArrow(54+coords.y1,13+27+x2+2,3,2,false);
       drawSwingCurve(coords.y1+32,40);
       display.drawFastHLine(coords.y1+70,16,58,SSD1306_WHITE);
@@ -105,7 +105,7 @@ void Menu::displayClockMenu(float tVal,uint8_t cursor){
     //swing sub div
     case 2:
       {
-      x2 = 10+sin(millis()/100);
+      x2 = 10+((millis()/200)%2);
       drawArrow(54+coords.y1,13+27+x2+2,3,2,false);
       drawSwingCurve(coords.y1+32,40);
       display.drawFastHLine(coords.y1+70,16,58,SSD1306_WHITE);
@@ -118,19 +118,19 @@ void Menu::displayClockMenu(float tVal,uint8_t cursor){
     //internal/external
     case 3:
       {
-      x3 = 10+sin(millis()/100);
+      x3 = 10+((millis()/200)%2);
       drawArrow(66+coords.y1,13+31+x3+2,3,2,false);
       if(!internalClock){
         drawBanner(84,52,"external");
-        drawSmallStepchild(88,30+2*sin(millis()/200));
-        display.drawBitmap(95,15+sin(millis()/200),down_arrow,9,12,SSD1306_WHITE);
-        // display.drawBitmap(91,19+2*sin(millis()/200),MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
-        // display.drawBitmap(95,37+sin(millis()/200),down_arrow,9,12,SSD1306_WHITE);
+        drawSmallStepchild(88,30+2*((millis()/400)%2));
+        display.drawBitmap(95,15+((millis()/400)%2),down_arrow,9,12,SSD1306_WHITE);
+        // display.drawBitmap(91,19+2*((millis()/400)%2),MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
+        // display.drawBitmap(95,37+((millis()/400)%2),down_arrow,9,12,SSD1306_WHITE);
       }
       else{
         drawBanner(84,52,"internal");
-        drawSmallStepchild(88,30+2*sin(millis()/200));
-        display.drawBitmap(95,15+sin(millis()/200),up_arrow,9,12,SSD1306_WHITE);
+        drawSmallStepchild(88,30+2*((millis()/400)%2));
+        display.drawBitmap(95,15+((millis()/400)%2),up_arrow,9,12,SSD1306_WHITE);
       }
       printCursive(coords.y1+76, 3, "source",SSD1306_WHITE);
       }
@@ -172,7 +172,7 @@ void Menu::displayClockMenu(float tVal,uint8_t cursor){
         display.fillRect(10,activeMenu.coords.y1+23,12,10,SSD1306_BLACK);
         display.drawBitmap(6,activeMenu.coords.y1+5,clock_1_bmp,20,38,SSD1306_WHITE);
         x2 = 3*cos(millis()/200);
-        int8_t y2 = 3*sin(millis()/200);
+        int8_t y2 = 3*((millis()/400)%2);
         display.drawLine(15,activeMenu.coords.y1+15,15+x2,activeMenu.coords.y1+15+y2,SSD1306_BLACK);
     }
     else{

@@ -342,16 +342,16 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
 
       switch(cursor){
         case 0:
-          drawArrow(14+sin(millis()/200),9,2,1,true);
+          drawArrow(14+((millis()/400)%2),9,2,1,true);
           break;
         case 1:
         case 2:
-          drawArrow(23+sin(millis()/200),(cursor-1)*8+y1+2,2,0,false);
+          drawArrow(23+((millis()/400)%2),(cursor-1)*8+y1+2,2,0,false);
           break;
         case 3:
         case 4:
         case 5:
-          drawArrow(23+sin(millis()/200),(cursor-1)*8+y1+6,2,0,false);
+          drawArrow(23+((millis()/400)%2),(cursor-1)*8+y1+6,2,0,false);
           break;
         //remove time
         case 6:
@@ -363,7 +363,7 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
           break;
         //brightness
         case 8:{
-          drawArrow(99,50+sin(millis()/200),2,3,true);
+          drawArrow(99,50+((millis()/400)%2),2,3,true);
           String s = "light: "+stringify(screenBrightness);
           display.fillRoundRect(88,41,s.length()*4+2,7,3,1);
           printSmall(90,42,s,0);
@@ -371,7 +371,7 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
           break;
         //save
         case 9:
-          drawArrow(116,50+sin(millis()/200),2,3,true);
+          drawArrow(116,50+((millis()/400)%2),2,3,true);
           drawLabel(116,43,shift?"load":"save",true);
           break;
       }
@@ -387,7 +387,7 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
       printSmall(x1,y1+35,"temp: "+stringify(analogReadTemp())+"}C",1);
       printSmall(x1,y1+43,"cpu speed: "+stringify(float(rp2040.f_cpu())/float(1000000))+"MHZ",1);
       if(cursor == 0){
-        drawArrow(14+sin(millis()/100),26,2,1,false);
+        drawArrow(14+((millis()/200)%2),26,2,1,false);
         display.drawRoundRect(x1,y1+50,16,10,3,SSD1306_WHITE);
         printSmall(x1+6,y1+52,"U^",1);
         display.drawRoundRect(x1+18,y1+50,12,10,3,SSD1306_WHITE);

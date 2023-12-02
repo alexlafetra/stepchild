@@ -423,30 +423,30 @@ void rain(){
       switch(cursor){
         //pitchlist
         case 0:
-          drawArrow(menuWidth-menuOffset-3+sin(millis()/200),y1+2,3,1,false);
+          drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2,3,1,false);
           break;
         //octaves
         case 1:
-          drawArrow(menuWidth-menuOffset-3+sin(millis()/200),y1+2+spacing*2,3,1,false);
+          drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2+spacing*2,3,1,false);
           for(uint8_t i = 1; i<abs(maxOct-minOct); i++){
             display.drawFastVLine(i*screenWidth/abs(maxOct-minOct),24,16,1);
           }
           break;
         //vel
         case 2:
-          drawArrow(menuWidth-menuOffset-3+sin(millis()/200),y1+2+spacing*4,3,1,false);
+          drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2+spacing*4,3,1,false);
           break;
         //grab notes from playlist (wip)
         case 3:
-          drawArrow(menuWidth-menuOffset-3+sin(millis()/200),y1+2+spacing*5+2,3,1,false);
+          drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2+spacing*5+2,3,1,false);
           break;
         //show numbers
         case 4:
-          drawArrow(menuWidth-menuOffset-3+sin(millis()/200),y1+2+spacing*6+6,3,1,false);
+          drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2+spacing*6+6,3,1,false);
           break;
         //exit
         case 5:
-          drawArrow(menuWidth-menuOffset-10+sin(millis()/200),y1+2+spacing*7+10,3,1,false);
+          drawArrow(menuWidth-menuOffset-10+((millis()/400)%2),y1+2+spacing*7+10,3,1,false);
           break;
       }
     }

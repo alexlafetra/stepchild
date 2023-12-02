@@ -32,7 +32,7 @@ void setMidiChannel(uint8_t channel, uint8_t output, bool status){
     uint16_t byte = ~(1 << channel-1);
     midiChannels[output] = midiChannels[output] & byte;
   }
-  // Serial.print(midiChannels[output],BIN);
+  // //Serial.print(midiChannels[output],BIN);
 }
 
 //toggles the channel on an output, and returns its new value
@@ -450,7 +450,7 @@ void midiMenu(){
       if(playing){
         uint8_t x2 = 95;
         uint8_t y2 = 4;
-        display.fillTriangle(x2+sin(millis()/100)+1,y2+6,x2+sin(millis()/100)+1,y2,x2+6+sin(millis()/100)+1,y2+3,SSD1306_WHITE);
+        display.fillTriangle(x2+((millis()/200)%2)+1,y2+6,x2+((millis()/200)%2)+1,y2,x2+6+((millis()/200)%2)+1,y2+3,SSD1306_WHITE);
       }
       //draw feed line
       //if it's currently sending a note, then draw the note pitch instead of the port #
@@ -510,7 +510,7 @@ void midiMenu(){
       //if it's in mute mode, draw a circle around the active port
       if(yCursor == 1 && xCursor == port){
         if(isCurrentlySending){
-          drawArrow(x1+9+2*sin(millis()/100+port),y1+8+sin(millis()/100),2,1,true);
+          drawArrow(x1+9+2*sin(millis()/100+port),y1+8+((millis()/200)%2),2,1,true);
           //for the usb port, it's a little bigger
           if(port == 0){
             display.fillCircle(x1,y1+8+2*sin(millis()/100+port),9,0);
@@ -526,12 +526,12 @@ void midiMenu(){
           if(port == 0){
             display.fillCircle(x1,y1+8+2*sin(millis()/100+port),9,0);
             display.drawCircle(x1,y1+8+sin(millis()/100+port),9,SSD1306_WHITE);
-            drawArrow(x1+9+sin(millis()/100),y1+8+sin(millis()/100),2,1,true);
+            drawArrow(x1+9+((millis()/200)%2),y1+8+((millis()/200)%2),2,1,true);
           }
           else{
             display.fillCircle(x1,y1+8+2*sin(millis()/100+port),8,0);
             display.drawCircle(x1,y1+8+sin(millis()/100+port),8,SSD1306_WHITE);
-            drawArrow(x1,y1+18+sin(millis()/100),2,2,true);
+            drawArrow(x1,y1+18+((millis()/200)%2),2,2,true);
           }
         }
       }
@@ -561,17 +561,17 @@ void midiMenu(){
       switch(xCursor){
         //port routing
         case 0:
-          drawArrow(x1+29+sin(millis()/100),y1+2,3,1,false);
-          // display.drawRoundRect(54+sin(millis()/100),40,22-int(2*cos(millis()/100)),9,3,SSD1306_WHITE);
+          drawArrow(x1+29+((millis()/200)%2),y1+2,3,1,false);
+          // display.drawRoundRect(54+((millis()/200)%2),40,22-int(2*cos(millis()/100)),9,3,SSD1306_WHITE);
           break;
         //input
         case 1:
-          drawArrow(x1+29+sin(millis()/100),y1+10,3,1,false);
-          // display.drawRoundRect(32+sin(millis()/100),47,66-int(2*cos(millis()/100)),9,3,SSD1306_WHITE);
+          drawArrow(x1+29+((millis()/200)%2),y1+10,3,1,false);
+          // display.drawRoundRect(32+((millis()/200)%2),47,66-int(2*cos(millis()/100)),9,3,SSD1306_WHITE);
           break;
         //clock source
         case 2:
-          drawArrow(x1+29+sin(millis()/100),y1+18,3,1,false);
+          drawArrow(x1+29+((millis()/200)%2),y1+18,3,1,false);
           break;
       }
     }
@@ -671,7 +671,7 @@ void inputMenu(){
     }
     int8_t bigOffset;
     if(isReceivingOrSending())
-      bigOffset = 2*sin(millis()/100);
+      bigOffset = 2*((millis()/200)%2);
     else
       bigOffset = 2*sin(millis()/300);
     display.drawBitmap(-12,-4+bigOffset,big_midi_inverse,45,45,SSD1306_WHITE);
@@ -837,7 +837,7 @@ void routeMenu(){
       }
       if(sel){
         bool isActive = toggleMidiChannel(yCursor+menuStart[xCursor]+1,xCursor);
-        // Serial.println("toggling "+stringify(yCursor+menuStart[xCursor])+" on out "+stringify(xCursor));
+        // //Serial.println("toggling "+stringify(yCursor+menuStart[xCursor])+" on out "+stringify(xCursor));
         if(shift){
           for(int i = 0; i<16; i++){
             setMidiChannel(i+1,xCursor,isActive);
@@ -880,11 +880,11 @@ void routeMenu(){
       //"more channels" indicators
       //more channels above
       if(menuStart[midiPort]>0){
-        drawArrow(xOffset+17+midiPort*25,26+sin(millis()/200),2,2,true);
+        drawArrow(xOffset+17+midiPort*25,26+((millis()/400)%2),2,2,true);
       }
       //more channels below
       if(menuStart[midiPort]<11){
-        drawArrow(xOffset+17+midiPort*25,63-sin(millis()/200),2,3,true);
+        drawArrow(xOffset+17+midiPort*25,63-((millis()/400)%2),2,3,true);
       }
     }
     display.display();

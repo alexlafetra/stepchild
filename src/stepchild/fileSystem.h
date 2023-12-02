@@ -78,22 +78,22 @@ void flashTest(){
   unsigned char buff[32];
   File saveFile = LittleFS.open("test.txt","r");
   if(saveFile){
-    Serial.println("Reading:");
+    //Serial.println("Reading:");
     saveFile.read(buff, 31);
     for(int i = 0; i<32; i++){
-      Serial.println(buff[i]);
+      //Serial.println(buff[i]);
     }
   }
   else
-    Serial.println("couldn't open save :/");
+    //Serial.println("couldn't open save :/");
   saveFile.close();
 
   //writing
   if(LittleFS.exists("test.txt")){
-    Serial.println("attempting...");
+    //Serial.println("attempting...");
     File file2 = LittleFS.open("test.txt","w");
     if(file2){
-      Serial.println("Writing...");
+      //Serial.println("Writing...");
       for(int i = 0; i<32; i++){
         buff[i] = millis();
       }
@@ -101,7 +101,7 @@ void flashTest(){
       file2.close();
     }
   }
-  Serial.println("ending...");
+  //Serial.println("ending...");
   LittleFS.end();
 }
 
@@ -216,7 +216,7 @@ void writeSeqFile(String filename){
     }
   }
 
-  // Serial.println("done");
+  // //Serial.println("done");
   // Serial.flush();
   seqFile.close();
   LittleFS.end();
@@ -328,7 +328,7 @@ void sendByteCount(String filename){
 }
 
 void sendFileName(String filename){
-  Serial.print('\n'+filename+'\n');
+  //Serial.print('\n'+filename+'\n');
 }
 
 /*
@@ -574,34 +574,34 @@ uint32_t getByteCount_standAlone(String filename){
 }
 
 void writeSeqSerial_plain(){
-  Serial.print("trackData.size():");
-  Serial.println(trackData.size());
+  //Serial.print("trackData.size():");
+  //Serial.println(trackData.size());
   for(int track = 0; track<trackData.size(); track++){
-    Serial.print("-----------------[Track ");
-    Serial.print(track);
-    Serial.println("]-----------------");
-    Serial.print("notes: ");
-    Serial.println(seqData[track].size()-1);
-    Serial.print("pitch: ");
-    Serial.println(trackData[track].pitch);
-    Serial.print("channel: ");
-    Serial.println(trackData[track].channel);
+    //Serial.print("-----------------[Track ");
+    //Serial.print(track);
+    //Serial.println("]-----------------");
+    //Serial.print("notes: ");
+    //Serial.println(seqData[track].size()-1);
+    //Serial.print("pitch: ");
+    //Serial.println(trackData[track].pitch);
+    //Serial.print("channel: ");
+    //Serial.println(trackData[track].channel);
   }
   for(int track = 0; track<trackData.size(); track++){
     for(int note = 1; note <= seqData[track].size()-1; note++){
-      Serial.print("---[Note ");
-      Serial.print(note);
-      Serial.println("]---");
-      Serial.print("startPos: ");
-      Serial.println(seqData[track][note].startPos);
-      Serial.print("vel: ");
-      Serial.println(seqData[track][note].velocity);
-      Serial.print("mute: ");
-      Serial.println(seqData[track][note].muted);
-      Serial.print("chance: ");
-      Serial.println(seqData[track][note].chance);
-      Serial.print("endPos: ");
-      Serial.println(seqData[track][note].endPos);
+      //Serial.print("---[Note ");
+      //Serial.print(note);
+      //Serial.println("]---");
+      //Serial.print("startPos: ");
+      //Serial.println(seqData[track][note].startPos);
+      //Serial.print("vel: ");
+      //Serial.println(seqData[track][note].velocity);
+      //Serial.print("mute: ");
+      //Serial.println(seqData[track][note].muted);
+      //Serial.print("chance: ");
+      //Serial.println(seqData[track][note].chance);
+      //Serial.print("endPos: ");
+      //Serial.println(seqData[track][note].endPos);
     }
   }
 
@@ -748,8 +748,9 @@ void loadSeqFile(String filename){
     updateLEDs();
     setActiveTrack(0,false);
   }
-  else
-    Serial.println("failed! weird.");
+  else{
+    //Serial.println("failed! weird.");
+  }
 }
 //loads files into menu, for browsing
 //also returns each file's filesize

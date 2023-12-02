@@ -16,7 +16,7 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
     printSmall(x1+29,y1+14,"min",1);
     frac = stepsToMeasures(minLength);
     printFraction_small(x1+29,y1+23,frac);
-    int8_t offset1 = 4*sin(millis()/100);
+    int8_t offset1 = 4*((millis()/200)%2);
     int8_t offset2 = 4*cos(millis()/100);
     display.fillRect(x1+12,y1+24-maxLength/6-offset1/2,6,maxLength/3+offset1,1);
     display.fillRect(x1+20,y1+24-minLength/6-offset2/2,6,minLength/3+offset2,1);
@@ -52,8 +52,8 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
     }   
     // for(uint8_t i = (minChance/8)+1; i<(maxChance/8-diff/2*sin(float(millis())/float(100)))-2; i+=2){
     display.drawCircle(x1+28,y1+20,minChance/8+(millis()/50)%diff+1,1);
-    printSmall(x1,y1+sin(millis()/200),"max",1);
-    printSmall(x1,y1+6+sin(millis()/200),stringify(maxChance),1);
+    printSmall(x1,y1+((millis()/400)%2),"max",1);
+    printSmall(x1,y1+6+((millis()/400)%2),stringify(maxChance),1);
     printSmall(x1+45,y1+34+cos(millis()/200),"min",1);
     printSmall(x1+45,y1+40+cos(millis()/200),stringify(minChance),1);
     printSmall(x1,y1+40,"chance",1);
@@ -86,8 +86,8 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
       for(uint8_t i = (minVel/8)+1; i<(maxVel/8-diff*abs(sin(float(millis())/float(200))))-1; i+=2){
         display.drawCircle(x1+28,y1+20,i,1);
       }
-      printSmall(x1,y1+sin(millis()/200),"max",1);
-      printSmall(x1,y1+6+sin(millis()/200),stringify(maxVel),1);
+      printSmall(x1,y1+((millis()/400)%2),"max",1);
+      printSmall(x1,y1+6+((millis()/400)%2),stringify(maxVel),1);
       printSmall(x1+45,y1+34+cos(millis()/200),"min",1);
       printSmall(x1+45,y1+40+cos(millis()/200),stringify(minVel),1);
       printSmall(x1,y1+40,"velocity",1);
@@ -364,7 +364,7 @@ void drawRandMenu(uint8_t whichTab){
     //length
     if(whichTab == 0){
       display.fillRoundRect(-3,y1,30,9,3,1);
-      drawArrow(18,y1+12+sin(millis()/100),2,2,false);
+      drawArrow(18,y1+12+((millis()/200)%2),2,2,false);
     }
     else{
       display.fillRoundRect(-3,y1,30,9,3,0);
@@ -375,7 +375,7 @@ void drawRandMenu(uint8_t whichTab){
     //odds
     if(whichTab == 1){
       display.fillRoundRect(-3,y2,22,9,3,1);
-      drawArrow(21+sin(millis()/100),y2+4,2,1,false);
+      drawArrow(21+((millis()/200)%2),y2+4,2,1,false);
     }
     else{
       display.fillRoundRect(-3,y2,22,9,3,0);
@@ -386,7 +386,7 @@ void drawRandMenu(uint8_t whichTab){
     //chance
     if(whichTab == 2){
       display.fillRoundRect(-3,y3,30,9,3,1);
-      drawArrow(18,y3-3+sin(millis()/100),2,3,false);
+      drawArrow(18,y3-3+((millis()/200)%2),2,3,false);
     }
     else{
       display.fillRoundRect(-3,y3,30,9,3,0);
@@ -397,7 +397,7 @@ void drawRandMenu(uint8_t whichTab){
     //target
     if(whichTab == 3){
       display.fillRoundRect(101,y1,32,9,3,1);
-      drawArrow(109,y1+12+sin(millis()/100),2,2,false);
+      drawArrow(109,y1+12+((millis()/200)%2),2,2,false);
     }
     else{
       display.fillRoundRect(101,y1,32,9,3,0);
@@ -408,7 +408,7 @@ void drawRandMenu(uint8_t whichTab){
     //vel
     if(whichTab == 4){
       display.fillRoundRect(109,y2,21,9,3,1);
-      drawArrow(107-sin(millis()/100),y2+4,2,0,false);
+      drawArrow(107-((millis()/200)%2),y2+4,2,0,false);
     }
     else{
       display.fillRoundRect(109,y2,21,9,3,0);
@@ -419,7 +419,7 @@ void drawRandMenu(uint8_t whichTab){
     //target
     if(whichTab == 5){
       display.fillRoundRect(101,y3,32,9,3,1);
-      drawArrow(109,y3-3+sin(millis()/100),2,3,false);
+      drawArrow(109,y3-3+((millis()/200)%2),2,3,false);
     }
     else{
       display.fillRoundRect(101,y3,32,9,3,0);

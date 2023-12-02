@@ -151,17 +151,17 @@ void Progression::drawProg(uint8_t x1, uint8_t y1,int8_t activeChord){
 
 //makes tracks and notes and places them in the sequence
 void Progression::commit(){
-  // Serial.println("made it here 0");
+  // //Serial.println("made it here 0");
   // Serial.flush();
   //get unique pitches
   vector<uint8_t> uniquePitches;
   for(uint8_t i = 0; i<chords.size(); i++){
-    // Serial.println("chord "+String(i)+"---------");
-    // Serial.println("root: "+String(chords[i].root));
-    // Serial.println("i:"+String(i));
+    // //Serial.println("chord "+String(i)+"---------");
+    // //Serial.println("root: "+String(chords[i].root));
+    // //Serial.println("i:"+String(i));
     for(uint8_t j = 0; j<chords[i].intervals.size(); j++){
-      // Serial.println(String(chords[i].intervals[j]));
-      // Serial.println("j:"+String(j));
+      // //Serial.println(String(chords[i].intervals[j]));
+      // //Serial.println("j:"+String(j));
       //if a pitch isn't in the vector, add it
       if(!isInVector(chords[i].intervals[j]+chords[i].root,uniquePitches)){
         uniquePitches.push_back(chords[i].intervals[j]+chords[i].root);
@@ -169,7 +169,7 @@ void Progression::commit(){
     }
   }
   for(uint8_t i = 0; i<uniquePitches.size(); i++){
-    // Serial.println(uniquePitches[i]);
+    // //Serial.println(uniquePitches[i]);
   }
   // delay(10);
   //for knowing which tracks are 'new'
@@ -179,15 +179,15 @@ void Progression::commit(){
   for(uint8_t i = 0; i<uniquePitches.size(); i++){
     addTrack_noMove(Track(uniquePitches[i],1), false);
   }
-  // Serial.println("made it here 2");
-  // Serial.println("created "+String(uniquePitches.size())+" new tracks");
+  // //Serial.println("made it here 2");
+  // //Serial.println("created "+String(uniquePitches.size())+" new tracks");
   // Serial.flush();
   //get the corresponding track for each note and make it
   uint16_t writeHead = 0;//records the start of each chord
   for(uint8_t i = 0; i<chords.size(); i++){
-    // Serial.println("i:"+String(i));
+    // //Serial.println("i:"+String(i));
     for(uint8_t j = 0; j<chords[i].intervals.size(); j++){
-      // Serial.println("j:"+String(j));
+      // //Serial.println("j:"+String(j));
       uint8_t track = getTrackWithPitch_above(chords[i].intervals[j]+chords[i].root,trackOffset);
       // delay(10);
       Note newNote = Note(writeHead,writeHead+chords[i].length,127,100,false,false);

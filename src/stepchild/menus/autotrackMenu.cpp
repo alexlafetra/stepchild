@@ -144,7 +144,7 @@ void drawNodeEditingIcon(uint8_t xPos, uint8_t yPos, uint8_t type, uint8_t frame
     //linear
     case 0:
       {
-      uint8_t p1[2] = {3,(uint8_t)(5+sin(millis()/100))};
+      uint8_t p1[2] = {3,(uint8_t)(5+((millis()/200)%2))};
       uint8_t p2[2] = {15,(uint8_t)(5+cos(millis()/100))};
       display.drawLine(xPos+p1[0]+2,yPos+p1[1],xPos+p2[0]-2,yPos+p2[1],SSD1306_WHITE);
       display.drawCircle(xPos+p1[0],yPos+p1[1],1,SSD1306_WHITE);
@@ -265,7 +265,7 @@ void drawCurveIcon(uint8_t xPos, uint8_t yPos, uint8_t type, uint8_t frame){
     case 5:
       {
         display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
-        printSmall(xPos+4,yPos+3+sin(millis()/100),"R",SSD1306_WHITE);
+        printSmall(xPos+4,yPos+3+((millis()/200)%2),"R",SSD1306_WHITE);
         printSmall(xPos+8,yPos+3+sin(millis()/100+1),"N",SSD1306_WHITE);
         printSmall(xPos+12,yPos+3+sin(millis()/100+2),"D",SSD1306_WHITE);
       }
@@ -304,7 +304,7 @@ void setAutotrackTrigger(uint8_t whichAT){
     (trigSource ||togglingGate)?display.drawRect(8,22,27,9,1):display.fillRect(8,22,27,9,1);
     printSmall(10,24,"global",2);
     if(!trigSource && !togglingGate)
-      drawArrow(22,20+sin(millis()/200),3,3,false);
+      drawArrow(22,20+((millis()/400)%2),3,3,false);
 
 
     //drawing gate label
@@ -312,7 +312,7 @@ void setAutotrackTrigger(uint8_t whichAT){
     printSmall_centered(22,40,"gate",1);
 
     if(togglingGate){
-      drawArrow(22,60+sin(millis()/200),3,2,false);
+      drawArrow(22,60+((millis()/400)%2),3,2,false);
     }
 
     //drawing tracks
@@ -321,7 +321,7 @@ void setAutotrackTrigger(uint8_t whichAT){
         break;
       if(trigSource == 1 && trackNumber == i+trackViewStart){
         display.fillRect(x1,y1+i*colHeight,colWidth,colHeight,1);
-        drawArrow(x1+colWidth-6+sin(millis()/200),y1+i*colHeight+colHeight/2,4,1,false);
+        drawArrow(x1+colWidth-6+((millis()/400)%2),y1+i*colHeight+colHeight/2,4,1,false);
       }
       else
         display.drawRect(x1,y1+i*colHeight,colWidth,colHeight,1);
@@ -329,10 +329,10 @@ void setAutotrackTrigger(uint8_t whichAT){
     }
     //arrow indicators
     if(trackViewStart+numberOfTracks<trackData.size()){
-      drawArrow(x1-5,60+sin(millis()/200),3,3,false);
+      drawArrow(x1-5,60+((millis()/400)%2),3,3,false);
     }
     if(trackViewStart>0){
-      drawArrow(x1-5,50-sin(millis()/200),3,2,false);
+      drawArrow(x1-5,50-((millis()/400)%2),3,2,false);
     }
     //drawing channels
     for(uint8_t i = 0; i<=numberOfTracks; i++){
@@ -340,7 +340,7 @@ void setAutotrackTrigger(uint8_t whichAT){
         break;
       if(trigSource == 2 && channelNumber == i+channelViewStart){
         display.fillRect(x2,y1+i*colHeight,colWidth,colHeight,1);
-        drawArrow(x2+6+sin(millis()/200),y1+i*colHeight+colHeight/2,4,0,false);
+        drawArrow(x2+6+((millis()/400)%2),y1+i*colHeight+colHeight/2,4,0,false);
       }
       else
         display.drawRect(x2,y1+i*colHeight,colWidth,colHeight,1);
@@ -348,10 +348,10 @@ void setAutotrackTrigger(uint8_t whichAT){
     }
     //arrow indicators
     if(channelViewStart+numberOfTracks<=16){
-      drawArrow(x2+colWidth+5,60+sin(millis()/200),3,3,false);
+      drawArrow(x2+colWidth+5,60+((millis()/400)%2),3,3,false);
     }
     if(channelViewStart>1){
-      drawArrow(x2+colWidth+5,50-sin(millis()/200),3,2,false);
+      drawArrow(x2+colWidth+5,50-((millis()/400)%2),3,2,false);
     }
     display.setRotation(SIDEWAYS_L);
     printSmall(48-y1,x1-6,"trck",1);
@@ -1436,15 +1436,15 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
           if(isDataPointSelected(step)){
             display.fillCircle(32+(step-viewStart)*scale,yPos,2,SSD1306_WHITE);
             if(autotrackData[activeAutotrack].data[step]>=64)//bottom arrow if data point is high
-              drawArrow(32+(step-viewStart)*scale,yPos+4+sin(millis()/100),2,2,true);
+              drawArrow(32+(step-viewStart)*scale,yPos+4+((millis()/200)%2),2,2,true);
             else//top arrow if data point is low
-              drawArrow(32+(step-viewStart)*scale,yPos-6+sin(millis()/100),2,3 ,true);
+              drawArrow(32+(step-viewStart)*scale,yPos-6+((millis()/200)%2),2,3 ,true);
           }
           //drawing cursor
           if(step == cursorPos){
             display.drawFastVLine(32+(cursorPos-viewStart)*scale,0,64,SSD1306_WHITE);
             display.drawFastVLine(32+(cursorPos-viewStart)*scale+1,0,64,SSD1306_WHITE);
-            display.drawCircle(32+(cursorPos-viewStart)*scale,yPos,3+sin(millis()/200),SSD1306_WHITE);
+            display.drawCircle(32+(cursorPos-viewStart)*scale,yPos,3+((millis()/400)%2),SSD1306_WHITE);
           }
         }
 
@@ -1458,10 +1458,10 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
 
         //loop points
         if(step == loopData[activeLoop].start){
-          drawArrow(32+(step-viewStart)*scale-1+sin(millis()/100),59,4,0,true);
+          drawArrow(32+(step-viewStart)*scale-1+((millis()/200)%2),59,4,0,true);
         }
         else if(step == loopData[activeLoop].end){
-          drawArrow(32+(step-viewStart)*scale+2-sin(millis()/100),59,4,1,false);
+          drawArrow(32+(step-viewStart)*scale+2-((millis()/200)%2),59,4,1,false);
         }
       }
     }
@@ -1509,7 +1509,7 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     
     //play icon
     if(playing)
-      display.fillTriangle(120+sin(millis()/100),9,120+sin(millis()/100),3,120+6+sin(millis()/100),6,SSD1306_WHITE);
+      display.fillTriangle(120+((millis()/200)%2),9,120+((millis()/200)%2),3,120+6+((millis()/200)%2),6,SSD1306_WHITE);
     if(recording){
       //flash it while waiting
       if(waiting && (millis()%1000>500))

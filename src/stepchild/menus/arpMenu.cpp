@@ -1,3 +1,5 @@
+void drawArpMenu(uint8_t cursor);
+
 void deleteCustomLength(uint8_t which){
   vector <uint8_t> newNotes;
   for(uint8_t i = 0; i<activeArp.lengths.size(); i++){
@@ -121,109 +123,88 @@ void customLengthsMenu(){
 }
 
 void drawModBoxes(uint8_t cursor){
-  //three boxes to represent the three parameters
-  uint8_t start = 32-activeArp.maxVelMod/4;
-  uint8_t end = 32+activeArp.minVelMod/4;
-  uint8_t length = end-start;
-  drawBox(4,3*sin(float(millis())/float(400))+start,16,length,4,-4,0);
-  printSmall(8,3*sin(float(millis())/float(400))+32,"v",1);
-
-  drawBox(20,3*sin(float(millis())/float(400)+200)+32-activeArp.chanceMod/4,16,activeArp.chanceMod/2,4,-4,0);
-  printSmall(24,3*sin(float(millis())/float(400)+200)+32,"%",1);
-
-  // drawBox(40,3*sin(float(millis())/float(400)+400)+32-activeArp.lengthMod/4,16,activeArp.lengthMod/2,4,-4,0);
-  // printSmall(44,3*sin(float(millis())/float(400)+400)+32,"l",1);
-
-  drawBox(36,3*sin(float(millis())/float(400)+600)+32-activeArp.repMod/4,16,activeArp.repMod/2,4,-4,0);
-  printSmall(40,3*sin(float(millis())/float(400)+600)+32,"x",1);
-
-  start = 32 - activeArp.maxPitchMod/4;
-  end = 32 + activeArp.minPitchMod/4;
-  length = end - start;
-  drawBox(52,3*sin(float(millis())/float(400)+800)+start,16,length,4,-4,0);
-  printSmall(56,3*sin(float(millis())/float(400)+800)+32,"$",1);
-
-  drawBox(77,23,16,16,4,-4,(cursor == 4)?2:1);
-  drawArpModeIcon(76,30,activeArp.playStyle,2);
-
-  switch(cursor){
-    case 0:
-      // drawDottedLineV(14,36-activeArp.velMod/4,32+activeArp.velMod/4,2);
-      drawArrow(9,37+activeArp.minVelMod/4+sin(millis()/200),3,2,true);
-
-      display.fillRoundRect(95,22,32,30,3,0);//box
-      display.drawRoundRect(95,22,32,30,3,1);//box
-      display.drawFastHLine(97,22,13,0);//mask for letters
-      printSmall(98,20,"vel",1);
-      printSmall(98,30,"mx:",1);
-      print007SegSmall(109,29,stringify(64+activeArp.maxVelMod/2),1);
-      printSmall(98,40,"mn:",1);
-      print007SegSmall(109,39,stringify(64-activeArp.minVelMod/2),1);
-      break;
-    case 1:
-      // drawDottedLineV(30,36-activeArp.chanceMod/4,32+activeArp.chanceMod/4,2);
-      drawArrow(25,37+activeArp.chanceMod/4+sin(millis()/200),3,2,true);
-
-      display.fillRoundRect(95,22,32,18,3,0);//box
-      display.drawRoundRect(95,22,32,18,3,1);//box
-      display.drawFastHLine(97,22,26,0);//mask for letters
-      printSmall(98,20,"chance",1);
-      print007SegSmall(100,29,stringify(activeArp.chanceMod)+"%",1);
-      break;
-    case 2:
-      // drawDottedLineV(62,36-activeArp.repMod/4,32+activeArp.repMod/4,2);
-      drawArrow(41,37+activeArp.repMod/4+sin(millis()/200),3,2,true);
-
-      display.fillRoundRect(95,22,32,18,3,0);//box
-      display.drawRoundRect(95,22,32,18,3,1);//box
-      display.drawFastHLine(95,22,17,0);//mask for letters
-      printSmall(98,20,"reps",1);
-      print007SegSmall(103,29,stringify(activeArp.repMod)+"%",1);
-      break;
-    case 3:
-      drawArrow(57,37+activeArp.minPitchMod/4+sin(millis()/200),3,2,true);
-
-      display.fillRoundRect(95,22,32,30,3,0);//box
-      display.drawRoundRect(95,22,32,30,3,1);//box
-      display.drawFastHLine(97,22,21,0);//mask for letters
-      printSmall(98,20,"pitch",1);
-      printSmall(101,30,"mx:",1);
-      printSmall(113,30,stringify(activeArp.maxPitchMod/16),1);
-      // print007SegSmall(105,29,stringify(activeArp.maxPitchMod/16),1);
-      printSmall(101,40,"mn:",1);
-      printSmall(113,40,stringify(-activeArp.minPitchMod/16),1);
-      // print007SegSmall(105,39,stringify(activeArp.minPitchMod/16),1);
-      break;
-    case 4:
-      drawArrow(81,43+sin(millis()/200),3,2,true);
-
-      String text;
-      switch(activeArp.playStyle){
-        case 5:
-          text = "random";
-          break;
-        case 4:
-          text = "down/up";
-          break;
-        case 3:
-          text = "up/down";
-          break;
-        case 2:
-          text = "up";
-          break;
-        case 1:
-          text = "down";
-          break;
-        case 0:
-          text = "play order";
-          break;
-      }
-      // display.fillRoundRect(17,22,41,20,3,0);//box
-      // display.drawRoundRect(17,22,41,20,3,1);//box
-      // display.drawFastHLine(19,22,45,0);//mask for letters
-      printSmall(88,47,text,1);
-      break;
+  display.fillRect(0,2,70,57,0);
+  display.drawRoundRect(0,2,70,57,3,1);
+  printItalic(2,4,"settings",1);
+  String text;
+  const uint8_t mid = 32;
+  //vel is special, needs a top and a bottom
+  int8_t start = mid-activeArp.maxVelMod/10;
+  int8_t end = mid+activeArp.minVelMod/10;
+  int8_t length = end-start;
+  display.fillRect(3,start,7,length,1);
+  printSmall_centered(7,end+3,stringify(64-activeArp.minVelMod/2),1);
+  printSmall_centered(7,start-7,stringify(activeArp.maxVelMod/2),1);
+  if(cursor == 0){
+    drawArrow(6,end+8+(millis()/200)%2,3,2,true);
+    text = "velocity";
   }
+  
+  //chance
+  display.fillRect(13,mid+13-activeArp.chanceMod/4,7,activeArp.chanceMod/4,1);
+  printSmall_centered(17,mid+7-activeArp.chanceMod/4,stringify(activeArp.chanceMod),1);
+  if(cursor == 1){
+    drawArrow(16,mid+15+(millis()/200)%2,3,2,true);
+    text = "chance";
+  }
+
+  //reps
+  display.fillRect(23,mid+13-activeArp.repMod/4,7,activeArp.repMod/4,1);
+  printSmall_centered(27,mid+7-activeArp.repMod/4,stringify(activeArp.repMod),1);
+  if(cursor == 2){
+    drawArrow(26,mid+15+(millis()/200)%2,3,2,true);
+    text = "repeats";
+  }
+
+  //pitch is also special, needs a top and a bottom
+  start = mid - activeArp.maxPitchMod/10;
+  end = mid + activeArp.minPitchMod/10;
+  length = end - start;
+  display.fillRect(33,start,7,length,1);
+  printSmall_centered(37,end+3,stringify(-activeArp.minPitchMod/16),1);
+  printSmall_centered(37,start-7,stringify(activeArp.maxPitchMod/16),1);
+  if(cursor == 3){
+    drawArrow(36,end+8+(millis()/200)%2,3,2,true);
+    text = "octave";
+  }
+
+  //play order
+  if(cursor == 4){
+    start = mid-(activeArp.playStyle)*12-5;
+    for(uint8_t i = 0; i<6; i++){
+      drawArpModeIcon(44,start+i*12,i,1);
+    }
+    drawArrow(56+(millis()/200)%2,mid,3,1,true);
+    switch(activeArp.playStyle){
+      case 5:
+        text = "random";
+        break;
+      case 4:
+        text = "down/up";
+        break;
+      case 3:
+        text = "up/down";
+        break;
+      case 2:
+        text = "up";
+        break;
+      case 1:
+        text = "down";
+        break;
+      case 0:
+        text = "play order";
+        break;
+    }
+  }
+  else{
+    drawArpModeIcon(44,mid-5,activeArp.playStyle,1);
+  }
+  display.setRotation(3);
+  printSmall(16,60,text,1);
+  display.setRotation(2);
+  display.fillRoundRect(65,0,15,15,3,0);
+  display.drawRoundRect(65,0,15,15,3,1);
+  display.drawBitmap(67,2,gear_bmp,11,11,1);
 }
 
 void arpModMenu(){
@@ -231,6 +212,127 @@ void arpModMenu(){
   while(true){
     readButtons();
     readJoystick();
+    if(itsbeen(50)){
+       if(y != 0){
+        if(y == 1){
+          switch(cursor){
+            case 0:
+              //editing min vel
+              if(shift){
+                if(activeArp.minVelMod<117)
+                  activeArp.minVelMod+=10;
+                else
+                  activeArp.minVelMod = 127;
+              }
+              else{
+                if(activeArp.maxVelMod>10)
+                  activeArp.maxVelMod-=10;
+                else
+                  activeArp.maxVelMod = 0;
+              }
+              lastTime = millis();
+              break;
+            case 1:
+              //editing chance
+              if(activeArp.chanceMod>10)
+                activeArp.chanceMod-=10;
+              else
+                activeArp.chanceMod=0;
+              lastTime = millis();
+              break;
+            case 2:
+              //editing repeats
+              if(activeArp.repMod>10)
+                activeArp.repMod-=10;
+              else
+                activeArp.repMod = 0;
+              lastTime = millis();
+              break;
+            //pitch
+            case 3:
+              if(shift){
+                if(activeArp.minPitchMod<117)
+                  activeArp.minPitchMod+=10;
+                else
+                  activeArp.minPitchMod = 127;
+              }
+              else{
+                if(activeArp.maxPitchMod>10)
+                  activeArp.maxPitchMod-=10;
+                else
+                  activeArp.maxPitchMod = 0;
+              }
+              lastTime = millis();
+              break;
+            //play style
+            case 4:
+              if(activeArp.playStyle<5 && itsbeen(200)){
+                activeArp.playStyle++;
+                lastTime = millis();
+              }
+              break;
+          }
+        }
+        else if(y == -1){
+          switch(cursor){
+            case 0:
+              //editing min vel
+              if(shift){
+                if(activeArp.minVelMod>10)
+                  activeArp.minVelMod-=10;
+                else
+                  activeArp.minVelMod = 0;
+              }
+              else{
+                if(activeArp.maxVelMod<117)
+                  activeArp.maxVelMod+=10;
+                else
+                  activeArp.maxVelMod = 127;
+              }
+              lastTime = millis();
+              break;
+            //editing chance
+            case 1:
+              if(activeArp.chanceMod<90)
+                activeArp.chanceMod+=10;
+              else
+                activeArp.chanceMod = 100;
+              lastTime = millis();
+              break;
+            //editing repeats
+            case 2:
+              if(activeArp.repMod<90)
+                activeArp.repMod+=10;
+              else
+                activeArp.repMod = 100;
+              lastTime = millis();
+              break;
+            //pitch
+            case 3:
+              if(shift){
+                if(activeArp.minPitchMod>10)
+                  activeArp.minPitchMod-=10;
+                else
+                  activeArp.minPitchMod = 0;
+              }
+              else{
+                if(activeArp.maxPitchMod<117)
+                  activeArp.maxPitchMod+=10;
+                else
+                  activeArp.maxPitchMod = 127;
+              }
+              lastTime = millis();
+              break;
+            case 4:
+              if(activeArp.playStyle>0 && itsbeen(200)){
+                activeArp.playStyle--;
+                lastTime = millis();
+              }
+              break;
+          }
+        }
+      }
+    }
     if(itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
@@ -275,149 +377,68 @@ void arpModMenu(){
       }
       while(counterA != 0){
         switch(cursor){
+          //min vel
           case 0:
-            if(!shift){
-              if(counterA < 0){
-                if(activeArp.minVelMod>117)
-                  activeArp.minVelMod = 127;
-                else
-                  activeArp.minVelMod += 10;
-              }
-              if(counterA > 0 ){
-                if(activeArp.minVelMod>10)
-                  activeArp.minVelMod-=10;
-                else
-                  activeArp.minVelMod = 0;
-              }
+            if(counterA < 0 && activeArp.minVelMod<127){
+              activeArp.minVelMod++;
             }
-            else{
-              if(counterA < 0 && activeArp.minVelMod<127){
-                activeArp.minVelMod++;
-              }
-              else if(counterA > 0 && activeArp.minVelMod>0){
-                activeArp.minVelMod--;
-              }
+            else if(counterA > 0 && activeArp.minVelMod>0){
+              activeArp.minVelMod--;
             }
-            counterA += counterA<0?1:-1;;
+            counterA += counterA<0?1:-1;
             break;
+          //chance
           case 1:
-            if(!shift){
-              if(counterA > 0){
-                if(activeArp.chanceMod>90)
-                  activeArp.chanceMod = 100;
-                else
-                  activeArp.chanceMod += 10;
-              }
-              if(counterA < 0){
-                if(activeArp.chanceMod>10)
-                  activeArp.chanceMod-=10;
-                else
-                  activeArp.chanceMod = 0;
-              }
+            if(counterA > 0 && activeArp.chanceMod<100){
+              activeArp.chanceMod++;
             }
-            else{
-              if(counterA > 0 && activeArp.chanceMod<100){
-                activeArp.chanceMod++;
-              }
-              else if(counterA < 0 && activeArp.chanceMod>0){
-                activeArp.chanceMod--;
-              }
+            else if(counterA < 0 && activeArp.chanceMod>0){
+              activeArp.chanceMod--;
             }
-            counterA += counterA<0?1:-1;;
+            counterA += counterA<0?1:-1;
             break;
+          //reps
           case 2:
-            if(!shift){
-              if(counterA > 0){
-                if(activeArp.repMod>90)
-                  activeArp.repMod = 100;
-                else
-                  activeArp.repMod += 10;
-              }
-              if(counterA < 0){
-                if(activeArp.repMod>10)
-                  activeArp.repMod-=10;
-                else
-                  activeArp.repMod = 0;
-              }
+            if(counterA > 0 && activeArp.repMod<100){
+              activeArp.repMod++;
             }
-            else{
-              if(counterA > 0 && activeArp.repMod<100){
-                activeArp.repMod++;
-              }
-              else if(counterA < 0 && activeArp.repMod>0){
-                activeArp.repMod--;
-              }
+            else if(counterA < 0 && activeArp.repMod>0){
+              activeArp.repMod--;
             }
-            counterA += counterA<0?1:-1;;
+            counterA += counterA<0?1:-1;
             break;
           case 3:
-            if(!shift){
-              if(counterA < 0){
-                if(activeArp.minPitchMod>117)
-                  activeArp.minPitchMod = 127;
-                else
-                  activeArp.minPitchMod += 10;
-              }
-              if(counterA > 0){
-                if(activeArp.minPitchMod>10)
-                  activeArp.minPitchMod-=10;
-                else
-                  activeArp.minPitchMod = 0;
-              }
+            if(counterA < 0 && activeArp.minPitchMod<127){
+              activeArp.minPitchMod++;
             }
-            else{
-              if(counterA < 0 && activeArp.minPitchMod<127){
-                activeArp.minPitchMod++;
-              }
-              else if(counterA > 0 && activeArp.minPitchMod>0){
-                activeArp.minPitchMod--;
-              }
+            else if(counterA > 0 && activeArp.minPitchMod>0){
+              activeArp.minPitchMod--;
             }
-            counterA += counterA<0?1:-1;;
+            counterA += counterA<0?1:-1;
             break;
           case 4:
             if(counterA < 0){
-              if(activeArp.playStyle == 0)
-                activeArp.playStyle = 5;
-              else
+              if(activeArp.playStyle > 0)
                 activeArp.playStyle--;
             }
             else{
-              if(activeArp.playStyle == 5)
-                activeArp.playStyle = 0;
-              else
+              if(activeArp.playStyle < 5)
                 activeArp.playStyle++;
             }
-            counterA += counterA<0?1:-1;;
+            counterA += counterA<0?1:-1;
             break;
         }
       }
       while(counterB != 0){
         switch(cursor){
           case 0:
-            if(!shift){
-              if(counterB > 0){
-                if(activeArp.maxVelMod>117)
-                  activeArp.maxVelMod = 127;
-                else
-                  activeArp.maxVelMod += 10;
-              }
-              if(counterB < 0){
-                if(activeArp.maxVelMod>10)
-                  activeArp.maxVelMod-=10;
-                else
-                  activeArp.maxVelMod = 0;
-              }
+            if(counterB > 0 && activeArp.maxVelMod<127){
+              activeArp.maxVelMod++;
             }
-            else{
-              if(counterB > 0 && activeArp.maxVelMod<127){
-                activeArp.maxVelMod++;
-              }
-              else if(counterB < 0 && activeArp.maxVelMod>0){
-                activeArp.maxVelMod--;
-              }
+            else if(counterB < 0 && activeArp.maxVelMod>0){
+              activeArp.maxVelMod--;
             }
-            counterB += counterB<0?1:-1;;
+            counterB += counterB<0?1:-1;
             break;
           case 1:
             counterB = 0;
@@ -426,45 +447,107 @@ void arpModMenu(){
             counterB = 0;
             break;
           case 3:
-            if(!shift){
-              if(counterB > 0){
-                if(activeArp.maxPitchMod>117)
-                  activeArp.maxPitchMod = 127;
-                else
-                  activeArp.maxPitchMod += 10;
-              }
-              if(counterB < 0){
-                if(activeArp.maxPitchMod>10)
-                  activeArp.maxPitchMod-=10;
-                else
-                  activeArp.maxPitchMod = 0;
-              }
+            if(counterB > 0 && activeArp.maxPitchMod<127){
+              activeArp.maxPitchMod++;
             }
-            else{
-              if(counterB > 0 && activeArp.maxPitchMod<127){
-                activeArp.maxPitchMod++;
-              }
-              else if(counterB < 0 && activeArp.maxPitchMod>0){
-                activeArp.maxPitchMod--;
-              }
+            else if(counterB < 0 && activeArp.maxPitchMod>0){
+              activeArp.maxPitchMod--;
             }
-            counterB += counterB<0?1:-1;;
+            counterB += counterB<0?1:-1;
             break;
         }
       }
     }
     display.clearDisplay();
-    printArp_wiggly(66,3,"modulation",1);
+    drawArpMenu(2);
     drawModBoxes(cursor);
     display.display();
   }
 }
-void drawArpModeIcon(uint8_t x1, uint8_t y1, uint8_t which,uint16_t c){
-  // which%=6;
+void drawArpModeIcon(uint8_t x1, int8_t y1, uint8_t which,uint16_t c){
+  which%=6;
+  display.fillRect(x1,y1,11,11,0);
   display.drawBitmap(x1,y1,arpMode_icons[which],11,11,c);
 }
 
-//"notes" option adds notes from the scale onto whatever notes are playing
+void drawArpMenu(uint8_t cursor){
+  //last note played
+  String lastNote = pitchToString(activeArp.lastPitchSent,true,true);
+  printPitch(115,0,lastNote,false,false, 1);
+  if(activeArp.holding && millis()%800>400){
+    printSmall(106,9,"[HOLD]",1);
+  }
+  else if(!activeArp.holding){
+    printSmall(110,9,"cpy 2",1);
+      printSmall(112,15,"hold",1);
+  }
+  const uint8_t y1 = 15;
+  //on/off
+  drawSlider(0,y1,"on","off",!isArping);
+
+  //step lengths
+  String stepLength = activeArp.uniformLength?stepsToMeasures(activeArp.arpSubDiv):"custom";
+  drawSlider(0,y1+20,"custom","uniform",activeArp.uniformLength);
+  printSmall(0,y1+14,"length:" + stepLength,1);
+
+  //modulation
+  printArp(0,52,"MOD",1);
+
+  fillSquareVertically(20,50,11,float(activeArp.maxVelMod*100)/float(127));
+  printSmall(24,53,"v",2);
+
+  fillSquareVertically(33,50,11,float(activeArp.chanceMod));
+  printSmall(37,53,"%",2);
+
+  fillSquareVertically(46,50,11,float(activeArp.repMod*100)/float(127));
+  printSmall(50,53,"x",2);
+
+  fillSquareVertically(59,50,11,float(activeArp.maxPitchMod*100)/float(127));
+  printSmall(63,53,"$",2);
+
+  //arp mode icon
+  drawArpModeIcon(72,50,activeArp.playStyle,1);
+
+  switch(cursor){
+    case 0:
+      drawArrow(29+((millis()/400)%2),y1+5,3,1,false);
+      break;
+    case 1:
+      drawArrow(61+((millis()/400)%2),y1+25,3,1,false);
+      break;
+    case 2:
+      drawArrow(82+((millis()/400)%2),y1+40,3,1,false);
+      break;
+  }
+  //channel icon
+  drawSmallChannelIcon(93,1,activeArp.channel);
+
+  //input icon
+  printSmall(50,1,"src:",1);
+  switch(activeArp.source){
+    //external
+    case 0:
+      display.drawBitmap(64,0,tiny_midi_bmp,7,7,1);
+      break;
+    //internal
+    case 1:
+      display.drawBitmap(64,0,tiny_stepchild_bmp,7,7,1);
+      break;
+    //both
+    case 2:
+      display.drawBitmap(64,0,tiny_midi_bmp,7,7,1);
+      printSmall(72,1,"+",1);
+      display.drawBitmap(76,0,tiny_stepchild_bmp,7,7,1);
+      break;
+  }
+
+  drawKeys(38,14,getOctave(keyboardPitch),14,false);//always start on a C, for simplicity
+  
+  //title
+  printArp_wiggly(0,3,"arpeggi",1);
+}
+
+//"notes" option adds notes from the 1scale onto whatever notes are playing
 void arpMenu(){
   keyboardAnimation(38,14,0,14,true);
   int xStart = 10;
@@ -477,92 +560,7 @@ void arpMenu(){
   uint8_t cursor = 0;
   while(true){
     display.clearDisplay();
-    //last note played
-    String lastNote = pitchToString(activeArp.lastPitchSent,true,true);
-    printPitch(115,0,lastNote,false,false, 1);
-    if(activeArp.holding && millis()%800>400){
-      printSmall(106,9,"[HOLD]",1);
-    }
-    else if(!activeArp.holding){
-      printSmall(110,9,"cpy 2",1);
-        printSmall(112,15,"hold",1);
-    }
-    const uint8_t y1 = 15;
-    //on/off
-    drawSlider(0,y1,"on","off",!isArping);
-
-    //step lengths
-    String stepLength = activeArp.uniformLength?stepsToMeasures(activeArp.arpSubDiv):"custom";
-    drawSlider(0,y1+20,"custom","uniform",activeArp.uniformLength);
-    printSmall(0,y1+14,"length:" + stepLength,1);
-
-    //modulation
-    printArp(0,52,"MOD",1);
-
-    fillSquareVertically(20,50,11,float(activeArp.maxVelMod*100)/float(127));
-    printSmall(24,53,"v",2);
-
-    fillSquareVertically(33,50,11,float(activeArp.chanceMod));
-    printSmall(37,53,"%",2);
-
-    fillSquareVertically(46,50,11,float(activeArp.repMod*100)/float(127));
-    printSmall(50,53,"x",2);
-
-    fillSquareVertically(59,50,11,float(activeArp.maxPitchMod*100)/float(127));
-    printSmall(63,53,"$",2);
-
-    //arp mode icon
-    drawArpModeIcon(72,50,activeArp.playStyle,1);
-
-    switch(cursor){
-      case 0:
-        drawArrow(29+sin(millis()/200),y1+5,3,1,false);
-        break;
-      case 1:
-        drawArrow(61+sin(millis()/200),y1+25,3,1,false);
-        break;
-      case 2:
-        drawArrow(82+sin(millis()/200),y1+40,3,1,false);
-        break;
-      // case 3:
-      //   drawArrow(108+sin(millis()/200),y1+17,3,0,false);
-      //   break;
-    }
-    //channel icon
-    drawSmallChannelIcon(93,1,activeArp.channel);
-    // display.drawBitmap(93,1,ch_tiny,6,3,SSD1306_WHITE);
-    // printSmall(100,1,String(activeArp.channel),1);
-
-    //input icon
-    // printSmall(50,1,"input:"+(activeArp.getNotesFromExternalInput?String("ex"):String("seq")),1);
-    printSmall(50,1,"src:",1);
-    switch(activeArp.source){
-      //external
-      case 0:
-        display.drawBitmap(64,0,tiny_midi_bmp,7,7,1);
-        break;
-      //internal
-      case 1:
-        display.drawBitmap(64,0,tiny_stepchild_bmp,7,7,1);
-        break;
-      //both
-      case 2:
-        display.drawBitmap(64,0,tiny_midi_bmp,7,7,1);
-        printSmall(72,1,"+",1);
-        display.drawBitmap(76,0,tiny_stepchild_bmp,7,7,1);
-        break;
-    }
-
-    drawKeys(38,14,getOctave(keyboardPitch),14,false);//always start on a C, for simplicity
-    //title
-    display.drawBitmap(0,3+3*sin(float(millis())/float(200)),arpTitle[0],5,7,1);
-    display.drawBitmap(6,3+3*sin(float(millis())/float(200)+200),arpTitle[1],5,7,1);
-    display.drawBitmap(12,3+3*sin(float(millis())/float(200)+400),arpTitle[2],5,7,1);
-    display.drawBitmap(18,3+3*sin(float(millis())/float(200)+600),arpTitle[3],5,7,1);
-    display.drawBitmap(24,3+3*sin(float(millis())/float(200)+800),arpTitle[4],5,7,1);
-    display.drawBitmap(30,3+3*sin(float(millis())/float(200)+1000),arpTitle[5],5,7,1);
-    display.drawBitmap(36,3+3*sin(float(millis())/float(200)+1200),arpTitle[6],5,7,1);
-    // display.drawBitmap(42,3+3*sin(float(millis())/float(200)+1400),arpTitle[7],5,7,1);
+    drawArpMenu(cursor);
     display.display();
 
     //controls

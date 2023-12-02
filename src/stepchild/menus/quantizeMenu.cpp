@@ -68,7 +68,7 @@ bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote){
       //if you can't move it, delete it
       if(deleteNote)
         deleteNote_byID(track,id);
-      // Serial.println("deleting note: "+stringify(id));
+      // //Serial.println("deleting note: "+stringify(id));
       return false;
     }
     else if(move){
@@ -282,11 +282,11 @@ void quantizeMenu(){
     printSmall(0,53,"quantize",1);
 
     if(whichParam == 0){
-      drawArrow(96+16+2*sin(millis()/200),56,2,1,true);
+      drawArrow(96+16+2*((millis()/400)%2),56,2,1,true);
       printSmall(90,46,"amount",1);
     }
     else{
-      drawArrow(24+2*sin(millis()/200),8,2,0,true);
+      drawArrow(24+2*((millis()/400)%2),8,2,0,true);
       printSmall(0,6," grid",1);
       //bracket
       drawSubDivBackground();

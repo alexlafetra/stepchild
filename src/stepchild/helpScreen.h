@@ -78,8 +78,8 @@ void displayHelpText(uint8_t which){
         printSmall(4,15+(line-startLine)*7,helptext[which][line],SSD1306_WHITE);
       }
     }
-    // Serial.println(sizeof(helptext[which])/sizeof(*helptext[which]));
-    Serial.println(startLine);
+    // //Serial.println(sizeof(helptext[which])/sizeof(*helptext[which]));
+    //Serial.println(startLine);
     display.display();
   }
   return;

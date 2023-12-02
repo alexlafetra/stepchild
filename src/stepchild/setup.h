@@ -16,12 +16,12 @@ void setup() {
   startMIDI();
   
   //starting serial monitor output @ 9600baud
-  Serial.begin(9600);
+  Serial.begin(921600);
 
   //start the display and print an error if it doesn't work
   //(probably not very helpful)
   if(!display.begin(SSD1306_SWITCHCAPVCC, i2c_Address)) {
-    Serial.println("Error starting the display!");
+    //Serial.println("Error starting the display!");
   }
   //Set the display rotation (which is ~technically~ upside down)
   display.setRotation(UPRIGHT);

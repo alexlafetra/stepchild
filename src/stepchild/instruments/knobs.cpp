@@ -32,11 +32,11 @@ void drawKnobs(uint8_t activeA, uint8_t activeB, uint8_t activeRow, uint8_t howM
             //cursor arrow for activeRow
             if(row == activeRow){
               if(selected){
-                drawArrow(x2-bigR-13+sin(millis()/100),y2-bigR+6+row*32,3,0,true);
-                drawArrow(x2-bigR-13+sin(millis()/100),y2-bigR+17+row*32,3,0,true);
+                drawArrow(x2-bigR-13+((millis()/200)%2),y2-bigR+6+row*32,3,0,true);
+                drawArrow(x2-bigR-13+((millis()/200)%2),y2-bigR+17+row*32,3,0,true);
               }
               else
-                drawArrow(x1,y1+offset+smallR+6+abs(2*sin(millis()/100)),3,2,false);
+                drawArrow(x1,y1+offset+smallR+6+2*((millis()/200)%2),3,2,false);
             }
             //drawing each dial in white, if it's active
             display.fillCircle(x1,y1+offset,smallR,1);
@@ -168,8 +168,8 @@ void knobs(){
       }
     }
     else{
-      // Serial.println("B:"+stringify(counterB));
-      // Serial.println("A:"+stringify(counterA));
+      // //Serial.println("B:"+stringify(counterB));
+      // //Serial.println("A:"+stringify(counterA));
       // Serial.flush();
       while(counterB != 0){
         if(counterB >= 1){

@@ -755,10 +755,10 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
 
   if(!editingNote){
     //pencil
-    display.drawBitmap(coords.x1-20,coords.y1+1+sin(millis()/100),pen_bmp,15,15,SSD1306_WHITE);
+    display.drawBitmap(coords.x1-20,coords.y1+1+((millis()/200)%2),pen_bmp,15,15,SSD1306_WHITE);
     //stencil, if it's greater than 1
     // if((*stencil)!=1){
-    printSmall(coords.x1-6,coords.y1+sin(millis()/100)+12,stringify(*stencil),SSD1306_WHITE);
+    printSmall(coords.x1-6,coords.y1+((millis()/200)%2)+12,stringify(*stencil),SSD1306_WHITE);
     // }
 
     //draw edit icons if the tool bar is onscreen
@@ -786,38 +786,38 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
       //moving notes
       case 0:
         txt = "MOVE";
-        drawArrow(coords.x1+8,13+sin(millis()/200),4,2,false);
+        drawArrow(coords.x1+8,13+((millis()/400)%2),4,2,false);
         break;
       //length
       case 1:
         txt = "LENGTH";
-        drawArrow(coords.x1+23,13+sin(millis()/200),4,2,false);
+        drawArrow(coords.x1+23,13+((millis()/400)%2),4,2,false);
         break;
       //vel
       case 2:
         txt = "VEL";
-        drawArrow(coords.x1+38,13+sin(millis()/200),4,2,false);
+        drawArrow(coords.x1+38,13+((millis()/400)%2),4,2,false);
         break;
       //chance
       case 3:
         txt = "CHANCE";
-        drawArrow(coords.x1+52,13+sin(millis()/200),4,2,false);
+        drawArrow(coords.x1+52,13+((millis()/400)%2),4,2,false);
         break;
       //quantize
       case 4:
         txt = "QUANT";
-        drawArrow(coords.x1+66,13+sin(millis()/200),4,2,false);
+        drawArrow(coords.x1+66,13+((millis()/400)%2),4,2,false);
         break;
       //humanize
       case 5:
         txt = "HUMAN";
-        drawArrow(coords.x1+80,13+sin(millis()/200),4,2,false);
+        drawArrow(coords.x1+80,13+((millis()/400)%2),4,2,false);
         break;
       //warp
       case 6:
         // txt = fxApplicationTexts[currentQuickFunction];
         txt = "FX";
-        drawArrow(coords.x1+95,13+sin(millis()/200),4,2,false);
+        drawArrow(coords.x1+95,13+((millis()/400)%2),4,2,false);
         break;
     }
     //drawing quick function list

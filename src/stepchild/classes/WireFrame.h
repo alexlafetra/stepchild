@@ -326,12 +326,12 @@ void WireFrame::resetExceptFor(uint8_t exceptFor){
 
 void WireFrame::printVerts(){
   for(uint8_t v = 0; v<verts.size(); v++){
-//    Serial.println("-------------------");
-//    Serial.println("Vertex: "+String(v));
-//    Serial.println("-------------------");
-//    Serial.println("x:"+String(verts[v].x));
-//    Serial.println("y:"+String(verts[v].y));
-//    Serial.println("z:"+String(verts[v].z));
+//    //Serial.println("-------------------");
+//    //Serial.println("Vertex: "+String(v));
+//    //Serial.println("-------------------");
+//    //Serial.println("x:"+String(verts[v].x));
+//    //Serial.println("y:"+String(verts[v].y));
+//    //Serial.println("z:"+String(verts[v].z));
   }
 }
 void WireFrame::view(){
@@ -1254,7 +1254,7 @@ WireFrame makeLoopArrows(float angle){
     edges.push_back({uint16_t(offset+temp.size()-1),offset});
     verties.insert(verties.end(),temp.begin(),temp.end());
   }
-  // Serial.println("trying");
+  // //Serial.println("trying");
   // Serial.flush();
   WireFrame arrows = WireFrame(verties,edges);
   arrows.xPos = screenWidth/2;
@@ -1667,7 +1667,7 @@ void loopArrowAnimation(WireFrame* w){
 
 void metAnimation(WireFrame* w){
   //make a new folder wireframe with the right open amount
-  WireFrame  n = makeMetronome(5*sin(millis()/200));
+  WireFrame  n = makeMetronome(5*((millis()/400)%2));
   //rotate it so it's at the same position as the current folder
   n.rotate(w->currentAngle[1],1);
   //then swap their vertices
@@ -1693,9 +1693,9 @@ void renderTest(){
   while(true){
     readJoystick();
     readButtons();
-    // angleX = sin(millis()/200)-20;
-    // angleY = sin(millis()/200)+20;
-    // angleZ = 2*sin(millis()/200)-20;
+    // angleX = ((millis()/400)%2)-20;
+    // angleY = ((millis()/400)%2)+20;
+    // angleZ = 2*((millis()/400)%2)-20;
     // meshes[1].rotate(10,1);
     // meshes[1].render();
 

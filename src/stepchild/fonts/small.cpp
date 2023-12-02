@@ -351,7 +351,7 @@ void printSmall_overflow(int x, int y, int margin, String text, uint16_t c){
       if(wordlength+xCoord>=screenWidth-margin){
         xCoord = x;
         yCoord += 7;
-        // Serial.println(word);
+        // //Serial.println(word);
         if(yCoord>screenHeight)
           return;
       }

@@ -47,7 +47,7 @@ void console(){
     //bounds on graph
     drawDottedLineV(95,10,64,2);
     drawDottedLineV(127,15,64,2);
-    display.drawBitmap(116,1+sin(millis()/200),mainMenu_icons[7],12,12,1);
+    display.drawBitmap(116,1+((millis()/400)%2),mainMenu_icons[7],12,12,1);
 
     //note icon
     display.drawBitmap(3,1,epd_bitmap_small_note,5,5,1);

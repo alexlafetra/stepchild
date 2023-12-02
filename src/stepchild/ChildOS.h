@@ -15,7 +15,13 @@
 
   //for drawing
   #include <Adafruit_GFX.h>//using one optimized for the pico
-  #include <Adafruit_SSD1306.h>
+  #ifdef CAPTURECARD
+    #include <SPI.h>
+    #include "libraries/Adafruit_SSD1306.h"
+    #include "libraries/Adafruit_SSD1306.cpp"
+  #else
+    #include <Adafruit_SSD1306.h>
+  #endif
 
   //for a nice font
   #include <Fonts/FreeSerifItalic9pt7b.h>

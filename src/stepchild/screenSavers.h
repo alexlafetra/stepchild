@@ -186,7 +186,7 @@ void screenSaver_prams(){
     }
     display.display();
     prams.swap(temp);
-    Serial.println(prams.size());
+    //Serial.println(prams.size());
 
     //checking if any buttons are pressed and breaking out of the loop if so
     if(anyActiveInputs()){

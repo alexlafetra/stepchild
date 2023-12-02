@@ -663,7 +663,7 @@ void drawLoopArrow(uint8_t x1, uint8_t y1, uint8_t l, uint8_t h, uint8_t type, u
 void printLoopTitle(uint8_t x1, uint8_t y1){
   if(isLooping){
     display.setRotation(SIDEWAYS_R);
-    display.drawBitmap(screenHeight-y1-5,screenWidth-x1-9-sin(millis()/100),loop_parenth,5,9,SSD1306_WHITE);
+    display.drawBitmap(screenHeight-y1-5,screenWidth-x1-9-((millis()/200)%2),loop_parenth,5,9,SSD1306_WHITE);
     display.setRotation(SIDEWAYS_L);
     display.drawBitmap(y1+5,x1-sin(millis()/100+1),loop_L,7,9,SSD1306_WHITE);
     display.drawBitmap(y1+12,x1-sin(millis()/100+2),loop_O,7,9,SSD1306_WHITE);
@@ -807,7 +807,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
       if(loop+firstLoop == activeLoop){
         //highlight arrow
         if(highlight == activeLoop){
-          drawArrow(xStart-9+sin(millis()/100)+2, yStart+(loopHeight+3)*loop+4,2,0,true);
+          drawArrow(xStart-9+((millis()/200)%2)+2, yStart+(loopHeight+3)*loop+4,2,0,true);
         }
         //loop types
         switch(loopData[activeLoop].type){
@@ -856,13 +856,13 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
           x1+=4*(stringify(loopData[activeLoop].reps+1).length()+1)+1;
         }
         //note icon
-        printSmall(x1,yStart+(loopHeight+3)*loop+2+sin(millis()/100), "$", SSD1306_WHITE);
+        printSmall(x1,yStart+(loopHeight+3)*loop+2+((millis()/200)%2), "$", SSD1306_WHITE);
         x1+=4;
       }
       //highlighted loop
       else if(loop+firstLoop == highlight){
         //highlight arrow
-        drawArrow(xStart-9+sin(millis()/100)+2, yStart+(loopHeight+3)*loop+4,2,0,true);
+        drawArrow(xStart-9+((millis()/200)%2)+2, yStart+(loopHeight+3)*loop+4,2,0,true);
         //loop types
         switch(loopData[highlight].type){
           //normal
