@@ -215,6 +215,8 @@ class DummySerial{
         void end();
         void begin(int);
         void write(int);
+        void readBytes(uint8_t* a, uint8_t b);
+        uint8_t available();
 };
 DummySerial::DummySerial(){
     
@@ -255,6 +257,12 @@ void DummySerial::write(int a){
 }
 string DummySerial::readString(){
     return "hey, you're in headless mode";
+}
+uint8_t DummySerial::available(){
+    return 0;
+}
+void DummySerial::readBytes(uint8_t* a, uint8_t b){
+    return;
 }
 
 DummySerial Serial;

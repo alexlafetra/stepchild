@@ -292,7 +292,7 @@ void constructMenu(uint8_t id){
       Menu filesMenu(7,3,128,64,"FILES");
       activeMenu = filesMenu;
       activeMenu.highlight = 0;
-      slideMenuIn(1,30);
+      // slideMenuIn(1,30);
       fileMenu();
       return;
     }

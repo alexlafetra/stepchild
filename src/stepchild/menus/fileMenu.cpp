@@ -20,6 +20,7 @@ vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
       lastTime = millis();
       activeMenu.highlight = activeMenu.page;
       activeMenu.page = 0;
+      openFolderAnimation(w,30);
     }
     //selecting an option
     if(sel){
@@ -42,8 +43,6 @@ vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
           String fileName = filenames[activeMenu.page];
           loadSeqFile(fileName);
           currentFile = fileName;
-          menuIsActive = false;
-          constructMenu("MENU");
           break;
         }
         //rename
@@ -104,7 +103,6 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
   if(itsbeen(200)){
     if(menu_Press){
       lastTime = millis();
-      slideMenuOut(1,30);
       return false;
     }
     if(n){
@@ -122,9 +120,10 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
           String fileName = enterText("filename?");
           if(fileName != "default"){
             writeSeqFile(fileName);
-            slideMenuOut(1,30);
-            menuIsActive = false;
-            constructMenu("MENU");
+            // slideMenuOut(1,30);
+            // menuIsActive = false;
+            // constructMenu("MENU");
+            return false;
           }
         }
         //entering the minimenu
@@ -134,7 +133,7 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
           //reset highlight to 0
           activeMenu.highlight = 0;
           //open wireFrame
-          openFolderAnimation(w,120);
+          openFolderAnimation(w,80);
           return true;
         }
       }
@@ -159,6 +158,29 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
   return true;
 }
 
+void fileMenuAnimation(bool open, uint8_t menuStart, uint8_t menuEnd,vector<String> filenames, bool inOrOut){
+  if(inOrOut){
+    int16_t textOffset = 128;
+    while(textOffset > 0){
+      textOffset-=10;
+      display.clearDisplay();
+      //draw menu
+      activeMenu.displayFileMenu(textOffset,false,menuStart,menuEnd,filenames);
+      display.display();
+    }
+  }
+  else{
+    int16_t textOffset = 0;
+    while(textOffset < 128){
+      textOffset+=20;
+      display.clearDisplay();
+      //draw menu
+      activeMenu.displayFileMenu(textOffset,false,menuStart,menuEnd,filenames);
+      display.display();
+    }
+  }
+}
+
 void fileMenu(){
   uint8_t menuStart = 0;
   uint8_t menuEnd = 4;
@@ -168,6 +190,7 @@ void fileMenu(){
   folder.xPos = 96;
   folder.yPos = screenHeight/2;
   vector<String> filenames = loadFiles();
+  fileMenuAnimation(false,menuStart,menuEnd,filenames,true);
   while(menuIsActive){
     display.clearDisplay();
     //draw menu
@@ -183,6 +206,7 @@ void fileMenu(){
     readJoystick();
     if(activeMenu.page == 0){
       if(!fileMenuControls(menuStart,menuEnd,&folder,filenames)){
+        fileMenuAnimation(false,menuStart,menuEnd,filenames,false);
         constructMenu("MENU");
         return;
       }
@@ -278,18 +302,18 @@ void Menu::displayFileMenu(int16_t textOffset, bool open, uint8_t menuStart, uin
   for(int i = menuStart; i<=menuEnd; i++){
     if(page == 0){
       if(highlight != i){
-        printSmall(coords.x1+10,(yLoc+1)*textHeight+coords.y1+6,filenames[i],SSD1306_WHITE);
+        printSmall(coords.x1+10+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.y1+6,filenames[i],SSD1306_WHITE);
       }
       else if(highlight == i){
-        drawBanner(coords.x1+16,(yLoc+1)*textHeight+coords.y1+6,filenames[i]);
+        drawBanner(coords.x1+16+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.y1+6,filenames[i]);
       }
     }
     else{
       if(page != i){
-        printSmall(coords.x1+10,(yLoc+1)*textHeight+coords.y1+6,filenames[i],SSD1306_WHITE);
+        printSmall(coords.x1+10+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.y1+6,filenames[i],SSD1306_WHITE);
       }
       else if(page == i){
-        drawBanner(coords.x1+16,(yLoc+1)*textHeight+coords.y1+6,filenames[i]);
+        drawBanner(coords.x1+16+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.y1+6,filenames[i]);
       }
     }
     yLoc++;

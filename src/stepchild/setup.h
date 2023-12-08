@@ -16,7 +16,8 @@ void setup() {
   startMIDI();
   
   //starting serial monitor output @ 9600baud
-  Serial.begin(921600);
+  // Serial.begin(921600);
+  Serial.begin(9600);
 
   //start the display and print an error if it doesn't work
   //(probably not very helpful)

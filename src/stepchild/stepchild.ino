@@ -47,6 +47,7 @@ void noBitches(){
 #include "helpScreen.h"
 
 #include "programChange.h"
+#include "interface.h"
 
 void restartSerial(unsigned int baud){
   Serial.end();
@@ -1952,9 +1953,6 @@ void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t nu
     }
   }
 }
-//each byte represents the channels an output will send on
-//each BIT of each byte is a channel
-uint16_t midiChannels[5] = {65535,65535,65535,65535,65535};
 #ifdef HEADLESS
   bool isThru(uint8_t i){
     return true;
@@ -8284,7 +8282,7 @@ void keyListen() {
       // fragmentMenu();
       break;
     case '/':
-      writeSeqSerial_plain();
+      // writeSeqSerial_plain();
       break;
     case 'C':
       copy();
@@ -9761,7 +9759,17 @@ void helloChild_5(){
   }
   delay(500);
 }
-
+void drawLogo(uint8_t x1, uint8_t y1){
+  display.setTextSize(2);
+  printItalic(x1,y1,"child",1);
+  x1 += 42;
+  y1 += 5;
+  display.setTextSize(1);
+  display.setFont(&FreeSerifItalic12pt7b);
+  display.setCursor(x1,y1);
+  display.print("OS");
+  display.setFont();
+}
 void bootscreen_2(){
   uint16_t frameCount = 0;
   display.setTextColor(SSD1306_WHITE);

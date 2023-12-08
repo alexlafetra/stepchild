@@ -26,6 +26,7 @@ void autotrackViewer();
 String getCCParam(uint8_t param, uint8_t channel, uint8_t type);
 
 //Drawing functions
+void drawLogo(uint8_t x1, uint8_t y1);
 void drawEllipse(uint8_t h, uint8_t k, int a, int b, uint16_t c);
 void shadeArea(int16_t, int16_t, int16_t, int16_t, uint8_t);
 void shadeRect(int16_t x1, int16_t y1, int16_t len, int16_t height, uint8_t shade);
@@ -265,6 +266,7 @@ uint32_t getByteCount(String filename);
 void loadSettings();
 void loadSavedSettingsFromFile();
 void writeCurrentSettingsToFile();
+uint32_t getByteCount_standAlone(String filename);
 
 //Misc. helper functions
 vector<uint16_t> getSelectionBounds2();

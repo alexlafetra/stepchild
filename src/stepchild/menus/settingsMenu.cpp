@@ -129,8 +129,16 @@ void settingsMenu(){
               lastTime = millis();
             }
             break;
-          //disp
+          //interface
           case 2:
+              if(x == -1 && xCursor<1){
+              xCursor++;
+              lastTime = millis();
+            }
+            else if(x == 1 && xCursor>0){
+              xCursor--;
+              lastTime = millis();
+            }
             break;
         }
       }
@@ -145,7 +153,7 @@ void settingsMenu(){
         switch(menuTab){
           case 0:
             //changing screen brightness
-            if(xCursor == 9){
+            if(xCursor == 8){
               if(counterA<0){
                 if(shift && screenBrightness>0){
                   screenBrightness--;
@@ -269,8 +277,13 @@ void settingsMenu(){
                 break;
             }
             break;
-          //
+          //interface
           case 2:
+            switch(xCursor){
+              case 1:
+                webInterface();
+                break;
+            }
             break;
         }
       }
@@ -293,6 +306,21 @@ void drawTemplateOptions(uint8_t x1,uint8_t whichTemplate){
   printSmall(x1+6,32,"4track",1);
   drawCheckbox(x1+30,31,whichTemplate == 2,activeMenu.highlight == 2);
 }
+
+// 'connect_to_interface', 20x20px
+const unsigned char connect_to_interface_bmp [] = {
+	0x07, 0xf8, 0x00, 0x18, 0x04, 0x00, 0x60, 0x1c, 0x00, 0x80, 0x64, 0xc0, 0xe1, 0x95, 0x20, 0x96, 
+	0x75, 0x20, 0x89, 0xf6, 0x40, 0x8b, 0xf4, 0x80, 0x8b, 0xe4, 0xb0, 0x8b, 0x98, 0x70, 0x8a, 0x60, 
+	0x30, 0x69, 0x80, 0x00, 0x1e, 0x00, 0x80, 0x08, 0x03, 0xc0, 0x00, 0x0f, 0xe0, 0x00, 0x3f, 0xc0, 
+	0x00, 0xff, 0x00, 0x01, 0xfc, 0x00, 0x00, 0xf0, 0x00, 0x00, 0x40, 0x00
+};
+// 'screen_capture_2', 24x24px
+const unsigned char screen_capture_bmp [] = {
+	0xff, 0xf0, 0x00, 0x80, 0x10, 0x00, 0xb9, 0x90, 0x00, 0xb3, 0x10, 0x00, 0xa6, 0x50, 0x00, 0x80, 
+	0x10, 0x00, 0xff, 0xf0, 0x00, 0x40, 0x00, 0x00, 0x40, 0x00, 0x00, 0x81, 0xe0, 0x00, 0x82, 0x10, 
+	0x00, 0x82, 0x08, 0x00, 0x44, 0x08, 0x00, 0x38, 0xff, 0xf0, 0x00, 0x80, 0x10, 0x00, 0xb9, 0x90, 
+	0x00, 0xb3, 0x10, 0x00, 0xa6, 0x50, 0x00, 0x80, 0x10, 0x00, 0xff, 0xf0
+};
 
 void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8_t whichTemplate){
   drawSettingsTabs(whichMenu);
@@ -409,9 +437,24 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
       }
     }
       break;
-    //display
+    //interface
     case 2:
+    /*
+    - button to start screen capture
+    - button to connect to interface app (go into interface mode)
+    */
     {
+      display.drawBitmap(20,6,screen_capture_bmp,20,20,1);
+      display.drawBitmap(20,30,connect_to_interface_bmp,20,20,1);
+      switch(cursor){
+        case 0:
+          drawArrow(14+((millis()/200)%2),46,2,1,false);
+          break;
+        case 1:
+          break;
+        case 2:
+          break;
+      }
     }
       break;
   }
@@ -448,7 +491,7 @@ void drawSettingsTabs(uint8_t openTab){
     display.drawFastHLine(x1,y1-6,14,1);
     printSmall(x1+2,120,"sys",1);
     display.drawFastVLine(x1+14,y1-6,7,1);
-    display.drawFastHLine(x1+15,y1,9,1);
+    display.drawFastHLine(x1+15,y1,2,1);
   }
   else{
     uint8_t x1 = 19;
@@ -457,26 +500,26 @@ void drawSettingsTabs(uint8_t openTab){
     display.drawFastHLine(x1,y1-8,14,1);
     printSmall(x1+2,y1-6,"sys",1);
     display.drawFastVLine(x1+14,y1-8,9,1);
-    display.drawFastHLine(x1+15,y1,9,1);
+    display.drawFastHLine(x1+15,y1,2,1);
   }
   if(openTab != 2){
-    // uint8_t x1 = 40;
-    // uint8_t y1 = 124;
-    // display.drawFastVLine(x1,y1-6,7,1);
-    // display.drawFastHLine(x1,y1-6,18,1);
-    // printSmall(x1+2,120,"disp",1);
-    // display.drawFastVLine(x1+18,y1-6,7,1);
-    // display.drawFastHLine(x1+19,y1,2,1);
+    uint8_t x1 = 36;
+    uint8_t y1 = 124;
+    display.drawFastVLine(x1,y1-6,7,1);
+    display.drawFastHLine(x1,y1-6,18,1);
+    printSmall(x1+2,y1-4,"intr",1);
+    display.drawFastVLine(x1+18,y1-6,7,1);
+    display.drawFastHLine(x1+19,y1,2,1);
   }
   else{
-    // uint8_t x1 = 40;
-    // uint8_t y1 = 124;
-    // display.drawFastVLine(x1,y1-8,9,1);
-    // display.drawFastHLine(x1,y1-8,18,1);
-    // printSmall(x1+2,y1-6,"disp",1);
-    // display.drawFastVLine(x1+18,y1-8,9,1);
-    // display.drawFastHLine(x1+19,y1,2,1);
+    uint8_t x1 = 36;
+    uint8_t y1 = 124;
+    display.drawFastVLine(x1,y1-8,9,1);
+    display.drawFastHLine(x1,y1-8,18,1);
+    printSmall(x1+2,y1-6,"intr",1);
+    display.drawFastVLine(x1+18,y1-8,9,1);
+    display.drawFastHLine(x1+19,y1,2,1);
   }
-  display.drawFastHLine(40,124,24,1);
+  display.drawFastHLine(57,124,24,1);
   display.setRotation(2);
 }

@@ -147,6 +147,10 @@ const vector<Note> defaultVec = {offNote};//default vector for a track, holds of
 vector<vector<Note>> seqData;//making a 2D vec, number of rows = tracks, number of columns = usable notes, and stores Note objects
 vector<vector<Note>> copyBuffer;//stores copied notes
 
+//each byte represents the channels an output will send on
+//each BIT of each byte is a channel
+uint16_t midiChannels[5] = {65535,65535,65535,65535,65535};
+
 #include "classes/Track.h"
 
 vector<Track> trackData;//holds the tracks in the sequence
@@ -195,3 +199,4 @@ unsigned short int animOffset = 0;//for animating curves
 //Menus
 #include "menus/loopMenu.cpp"
 #include "menus/consoleMenu.cpp"
+

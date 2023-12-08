@@ -347,7 +347,7 @@ void exportSeqFileToSerial_standAlone(String filename){
 */
 void exportSeqFileToSerial(String filename){
   //first, send the filename with a newline on either end
-  sendFileName(filename);
+  // sendFileName(filename);
 
   //second, send the number of bytes in the file
   sendByteCount(filename);
@@ -471,6 +471,8 @@ uint32_t getByteCount(String filename){
   String path = "/SAVES/"+filename;
   File seqFile = LittleFS.open(path,"r");
   if(seqFile){
+    return seqFile.size();
+    
     //2 bytes for start and end each
     uint8_t start[2];
     uint8_t end[2];

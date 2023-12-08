@@ -1599,8 +1599,8 @@ WireFrame makeFolder(float openAngle){
   //2 points for top front edge
   Vertex v1 = Vertex(-9,-7,2);
   Vertex v2 = Vertex(9,-7,2);
-  v1.rotate(-openAngle,0);
-  v2.rotate(-openAngle,0);
+  // v1.rotate(-openAngle,0);
+  // v2.rotate(-openAngle,0);
   //6 for for top back edge
   Vertex v3 = Vertex(-9,-7,-2);
   Vertex v4 = Vertex(2,-7,-2);
@@ -1621,6 +1621,8 @@ WireFrame makeFolder(float openAngle){
     {8,9}
   };
   WireFrame folder = WireFrame(verties,edges);
+  folder.verts[0].rotate(-openAngle,0);
+  folder.verts[1].rotate(-openAngle,0);
   folder.xPos = screenWidth/2;
   folder.yPos = screenHeight/2;
   folder.rotate(20,2);
@@ -1636,6 +1638,7 @@ void openFolderAnimation(WireFrame* w,float amount){
   //then swap their vertices
   w->verts = n.verts;
 }
+
 //opening and closing
 void folderAnimation(WireFrame* w){
   //make a new folder wireframe with the right open amount

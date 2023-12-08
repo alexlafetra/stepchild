@@ -35,7 +35,7 @@ const vector<String> CCparameters = {"Bank Select","Mod Wheel","Breath Controlle
                                       "Increment +1","Increment -1","Non-Reg. Param. LSB","Non-Reg. Param. MSB",
                                       "Reg. Param. LSB","Reg. Param. MSB","Undefined"};
 const vector<String> MKIICCparameters = {"Ctrl ","EFX On/Off","EFX Selector"};
-const vector<String> stepChildCCParameters = {"Velocty","Probability","Pitch","BPM [Exp]","Swing [Exp]"};
+const vector<String> stepChildCCParameters = {"Velocity","Probability","Pitch","BPM [Exp]","Swing [Exp]"};
 
 uint16_t bpm = 120;
 
