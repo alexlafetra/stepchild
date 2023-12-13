@@ -98,6 +98,10 @@ void readButtons_MPX(){
     menu_Press = menuKeyVal;
     x = xKeyVal;
     y = yKeyVal;
+
+    for(uint8_t i = 0; i<8; i++){
+      step_buttons[i] = headlessStepButtons[i];
+    }
 }
 #endif
 

@@ -6,7 +6,7 @@ class Chord{
   //root note
   uint8_t root;
   //stores the inversion of the chord
-  //basically how to finger it
+  //basically what note is the lowest (defaults to 0 --> the root)
   uint8_t inversion;
   uint16_t length;
   Chord();
@@ -16,6 +16,8 @@ class Chord{
   void draw(uint8_t, uint8_t);
   void printPitchList(uint8_t, uint8_t);
   String getPitchList(uint8_t, uint8_t);
+  void setRoot(uint8_t);
+  void addInterval(uint8_t);
 };
 Chord::Chord(){
   root = 0;

@@ -1240,6 +1240,7 @@ uint8_t countChar(String text,unsigned char c){
 
 //including the default childOS instrumentApps
 #include "instruments/rattle.cpp"
+#include "instruments/chordDJ.cpp"
 #include "instrumentApps.h"
 
 //including the default childOS fx apps

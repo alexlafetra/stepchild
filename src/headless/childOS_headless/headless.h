@@ -345,6 +345,8 @@ int playKeyVal;//c
 int copyKeyVal;//v
 int menuKeyVal;//b
 
+bool headlessStepButtons[8] = {false,false,false,false,false,false,false,false};
+
 void loop();
 void loop1();
 void setup();
@@ -474,6 +476,12 @@ static void key_callback(GLFWwindow* w, int key, int scancode, int action, int m
         if(key == GLFW_KEY_DOWN && action == GLFW_RELEASE){
             yKeyVal = 0;
         }
+    //stepbuttons (2-8)
+    if(key >= 50 && key <= 57 && action == GLFW_PRESS)
+        headlessStepButtons[key - 50] = true;
+    if(key >= 50 && key <= 57 && action == GLFW_RELEASE)
+        headlessStepButtons[key - 50] = false;
+
     //screenshot
         if(key == GLFW_KEY_ENTER && action == GLFW_PRESS)
             takeScreenshot();
