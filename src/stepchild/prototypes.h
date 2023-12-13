@@ -162,6 +162,8 @@ void toggleSelectNote(uint8_t, uint16_t, bool);
 vector<vector<uint8_t>> selectMultipleNotes(String,String);
 vector<uint8_t> selectSeqArea(String);
 bool warpAintoB(CoordinatePair A, CoordinatePair B, bool onlySelected);
+void reverse();
+void rattle();
 
 //Track editing
 void deleteAllTracks();
@@ -192,6 +194,7 @@ void transposeAllPitches(int increment);
 void transposeAllChannels(int increment);
 void setTrackChannel(int track, int channel, bool loud);
 void sortTracks();
+void tuneTracksToScale();
 
 //controls
 void clearButtons();
@@ -214,6 +217,9 @@ void defaultSelectControls();
 void defaultLoopControls();
 void defaultCopyControls();
 int8_t readEncoder(bool encoder);
+void rotaryActionA_Handler();
+void rotaryActionB_Handler();
+
 
 //sequence
 void zoom(bool);
@@ -248,6 +254,7 @@ void setLoopToInfinite(uint8_t targetL);
 //RP2040 Hardware
 float getBattLevel();
 float analogReadTemp();
+void enterBootsel();
 
 //filesystem
 void writeSeqFile(String filename);
@@ -276,7 +283,6 @@ vector<uint8_t> selectKeys(uint8_t startRoot);
 vector<uint8_t> genScale(uint8_t, uint8_t);
 vector<uint8_t> genScale(uint8_t, uint8_t, int8_t,uint8_t);
 float swingOffset(unsigned short int step);
-void selectKeysAnimation(bool);
 String stepsToMeasures(int32_t stepVal);
 void changeSubDivInt(bool);
 String pitchToString(uint8_t input, bool oct, bool sharps);
@@ -290,7 +296,6 @@ void keyboard();
 void drumPad();
 String getMKIIParameterName(uint8_t param,  uint8_t channel);
 String getCCParameterName(uint8_t param);
-void drawBinarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, bool state);
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, void (*displayFunction)());
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, void (*displayFunction)());
 uint8_t countSpaces(String text);
@@ -305,22 +310,35 @@ bool isReceiving();
 bool isSending();
 bool isReceivingOrSending();
 String getInterval(int root, int pitch);
-void updateLEDs();
-void writeLEDs(uint8_t led, bool state);
-void writeLEDs(uint8_t first, uint8_t last);
-void writeLEDs(bool leds[8]);
+
 bool onBeat(int subDiv, int fudge);
 void setNormalMode();
 String enterText(String title);
 void bootscreen();
 uint16_t getIDAtCursor();
 uint8_t countChar(String text,unsigned char c);
-void alert(String text, int time);
-void drawWebLink();
-void displayHelpText(uint8_t);
 void filterOutUnisonNotes(vector<uint8_t>& notes);
 bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote);
 void disarmTracksWithNotes();
+uint8_t countDigits_byte(uint8_t number);
+uint16_t getNoteCount();
+String bytesToString(uint32_t bytes);
+void newSeq();
+
+//Graphics
+void bootscreen_2();
+void alert(String text, int time);
+void drawWebLink();
+void displayHelpText(uint8_t);
+void updateLEDs();
+void writeLEDs(uint8_t led, bool state);
+void writeLEDs(uint8_t first, uint8_t last);
+void writeLEDs(bool leds[8]);
+void drawBinarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, bool state);
+void selectKeysAnimation(bool);
+void printFraction_small_centered(uint8_t x1, uint8_t y1, String fraction);
+void drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, bool full);
+uint8_t printFraction_small(uint8_t x1, uint8_t y1, String fraction);
 
 //MIDI
 void sendMIDIallOff();
@@ -331,3 +349,10 @@ void sendMIDICC(uint8_t,uint8_t,uint8_t);
 uint8_t moveToNextCCParam(uint8_t param, bool up, uint8_t whichList);
 uint8_t selectCCParam_autotrack(uint8_t which);
 bool isActiveChannel(uint8_t channel, uint8_t output);
+void sendMIDIProgramChange(uint8_t port, uint8_t val, uint8_t channel);
+bool isThru(uint8_t i);
+void setThru(uint8_t i, bool state);
+
+//Playback
+void playPCData(uint16_t timestep);
+void muteGroups(int callingTrack, int group);

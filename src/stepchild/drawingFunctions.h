@@ -522,7 +522,7 @@ void drawNoteBracket(int x1, int y1, int length, int height){
 }
 
 void drawNoteBracket(Note note, int track){
-  drawNoteBracket(trackDisplay+(note.startPos-viewStart)*scale,debugHeight+(track-startTrack)*trackHeight,(note.endPos-note.startPos+1)*scale,trackHeight);
+  drawNoteBracket(trackDisplay+(note.startPos-viewStart)*scale,headerHeight+(track-startTrack)*trackHeight,(note.endPos-note.startPos+1)*scale,trackHeight);
 }
 
 void drawSelectionBracket(){
@@ -533,7 +533,7 @@ void drawSelectionBracket(){
     uint8_t x1 = (bounds[0]-viewStart)*scale+trackDisplay-((millis()/200)%2);
     if(bounds[1]>=startTrack){
       //y coord relative to the view
-      uint8_t y1 = (bounds[1]-startTrack)*trackHeight+debugHeight-((millis()/200)%2);
+      uint8_t y1 = (bounds[1]-startTrack)*trackHeight+headerHeight-((millis()/200)%2);
       display.drawLine(x1,y1,x1+5,y1,SSD1306_WHITE);
       display.drawLine(x1,y1-1,x1+5,y1-1,SSD1306_WHITE);
       display.drawLine(x1,y1,x1,y1+5,SSD1306_WHITE);
@@ -542,7 +542,7 @@ void drawSelectionBracket(){
     //if the bottom L corner is in view
     if(bounds[3]<=endTrack){
       //y coord relative to the view
-      uint8_t y1 = (bounds[3]-startTrack+1)*trackHeight+debugHeight+((millis()/200)%2);
+      uint8_t y1 = (bounds[3]-startTrack+1)*trackHeight+headerHeight+((millis()/200)%2);
       display.drawLine(x1,y1,x1+5,y1,SSD1306_WHITE);
       display.drawLine(x1,y1+1,x1+5,y1+1,SSD1306_WHITE);
       display.drawLine(x1,y1,x1,y1-5,SSD1306_WHITE);
@@ -554,7 +554,7 @@ void drawSelectionBracket(){
     uint8_t x1 = (bounds[2]-viewStart)*scale+trackDisplay+((millis()/200)%2)+1;
     //top R corner
     if(bounds[1]>=startTrack){
-      uint8_t y1 = (bounds[1]-startTrack)*trackHeight+debugHeight-((millis()/200)%2);
+      uint8_t y1 = (bounds[1]-startTrack)*trackHeight+headerHeight-((millis()/200)%2);
       display.drawLine(x1,y1,x1-5,y1,SSD1306_WHITE);
       display.drawLine(x1,y1-1,x1-5,y1-1,SSD1306_WHITE);
       display.drawLine(x1,y1,x1,y1+5,SSD1306_WHITE);
@@ -562,7 +562,7 @@ void drawSelectionBracket(){
     }
     //bottom R corner
     if(bounds[3]<=endTrack){
-      uint8_t y1 = (bounds[3]-startTrack+1)*trackHeight+debugHeight+((millis()/200)%2);
+      uint8_t y1 = (bounds[3]-startTrack+1)*trackHeight+headerHeight+((millis()/200)%2);
       display.drawLine(x1,y1,x1-5,y1,SSD1306_WHITE);
       display.drawLine(x1,y1+1,x1-5,y1+1,SSD1306_WHITE);
       display.drawLine(x1,y1,x1,y1-5,SSD1306_WHITE);

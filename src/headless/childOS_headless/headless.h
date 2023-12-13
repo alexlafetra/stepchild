@@ -74,19 +74,6 @@
 
 using namespace std;
 
-string stringify(int a){
-    return to_string(a);
-}
-string stringify(string s){
-    return s;
-}
-int toInt(string s){
-    if(s == "")
-        return 0;
-    else
-        return stoi(s);
-}
-
 int counterA, counterB;
 
 bool core0ready;

@@ -65,7 +65,7 @@ void drawSwingCurve(int8_t xPos, int8_t yPos){
 
 void Menu::displayClockMenu(float tVal,uint8_t cursor){
   //lines
-  display.drawFastHLine(trackDisplay,debugHeight,screenWidth-trackDisplay,SSD1306_WHITE);
+  display.drawFastHLine(trackDisplay,headerHeight,screenWidth-trackDisplay,SSD1306_WHITE);
   uint8_t x1 = 0;
   int8_t x2 = 0;//needs to be signed! for whatever reason, you use this to do the tiny clock hands and it needs
   uint8_t x3 = 0;//to be able to accept -1,1 from a cosine function

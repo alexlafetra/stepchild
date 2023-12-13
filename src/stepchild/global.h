@@ -108,7 +108,7 @@ unsigned short int recheadPos;
 
 uint16_t selectionCount = 0;
 
-const unsigned char debugHeight = 16;
+const unsigned char headerHeight = 16;
 const unsigned char trackDisplay = 32;
 
 //0 is one-shot recording to current loop, 1 is recording to loops as they play in sequence

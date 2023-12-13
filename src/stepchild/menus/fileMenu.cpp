@@ -2,6 +2,45 @@
 vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames);
 bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String> filenames);
 
+void quickSave(){
+  //if it hasn't been saved yet
+  if(currentFile == ""){
+    String fileName = enterText("filename?");
+    if(fileName != "default"){
+      writeSeqFile(fileName);
+      currentFile = fileName;
+      menuText = "saved \'"+currentFile+"\'";
+    }
+  }
+  //if there is a filename for it
+  else{
+    writeSeqFile(currentFile);
+    menuText = "saved \'"+currentFile+"\'";
+  }
+}
+
+void fileMenuDisplayWrapper(){
+  activeMenu.displayFileMenu();
+}
+void loadBackup(){
+  //if there's an active filename
+  if(currentFile != ""){
+    vector<String> ops = {"NAUR","YEA"};
+    int8_t choice = binarySelectionBox(59,32,"NO","YEA","LOAD BACKUP?",fileMenuDisplayWrapper);
+    if(choice){
+      loadSeqFile(currentFile);
+      slideMenuOut(1,30);
+      menuIsActive = false;
+      constructMenu("MENU");
+    }
+  }
+  //if there isn't, just enter files menu
+  else{
+    slideMenuOut(0,20);
+    constructMenu("FILES");
+  }
+}
+
 vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
   //scrolling
   if(itsbeen(100)){

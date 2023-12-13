@@ -40,15 +40,6 @@ void noBitches(){
 
 
 
-#include "menus/randomMenu.cpp"
-#include "menus/warpMenu.cpp"
-#include "menus/reverseMenu.cpp"
-
-#include "helpScreen.h"
-
-#include "programChange.h"
-#include "interface.h"
-
 void restartSerial(unsigned int baud){
   Serial.end();
   delay(1000);
@@ -1000,8 +991,6 @@ void drawCenteredBracket(int x1, int y1, int length, int height){
   drawNoteBracket(x1-length/2,y1-height/2,length, height, false);
 }
 
-// #include "menus/fragmentMenu.cpp"
-
 void setTrackToNearestPitch(vector<uint8_t>pitches,int track,bool allowDuplicates){
   int oldPitch = trackData[track].pitch;
   int pitchDistance = 127;
@@ -1234,26 +1223,6 @@ uint8_t countChar(String text,unsigned char c){
   }
   return count;
 }
-
-//including custom users apps
-#include "user/userApplications.h"
-
-//including the default childOS instrumentApps
-#include "instruments/rattle.cpp"
-#include "instruments/chordDJ.cpp"
-#include "instrumentApps.h"
-
-//including the default childOS fx apps
-#include "fxApps.h"
-
-
-#include "menus/InstrumentMenu.cpp"
-#include "menus/fxMenu.cpp"
-#include "menus/arpMenu.cpp"
-#include "menus/strumMenu.cpp"
-#include "menus/autotrackMenu.cpp"
-
-#include "instruments/chordBuilder.cpp"
 
 String getPitchList(vector<uint8_t> intervals){
   String text;
@@ -1511,12 +1480,6 @@ float getBattLevel(){
   return val;
 }
 
-#include "menus/trackMenu.cpp"
-#include "menus/settingsMenu.cpp"
-#include "menus/quantizeMenu.cpp"
-#include "menus/humanizeMenu.cpp"
-#include "menus/fileMenu.cpp"
-
 void fillSquareVertically(uint8_t x0, uint8_t y0, uint8_t width, uint8_t fillAmount){
   display.drawRect(x0,y0,width,width,SSD1306_WHITE);
   uint8_t maxLine = float(fillAmount)/float(100)*(width-4);
@@ -1654,10 +1617,6 @@ vector<vector<uint16_t>> getSelectionBounds(){
   }
   return bounds;
 }
-
-#include "menus/editMenu.cpp"
-#include "menus/clockMenu.cpp"
-#include "menus/mainMenu.cpp"
 
 //prints pitch with a small # and either a large or small Octave number
 void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct, bool channel, uint16_t c){
@@ -2065,8 +2024,6 @@ void setThru(uint8_t output, bool state){
   }
 }
 #endif
-
-#include "menus/midiMenu.cpp"
 
 void drawArpStepLengths(uint8_t xStart, uint8_t yStart, uint8_t startNote, uint8_t xCursor, bool selected){
   if(activeArp.uniformLength){
@@ -3121,128 +3078,120 @@ void fileAnimation(bool in){
   }
 }
 
-#ifndef HEADLESS
-void startMIDI(){
-  MIDI0.begin(MIDI_CHANNEL_OMNI);
-  MIDI1.begin(MIDI_CHANNEL_OMNI);
-  MIDI2.begin(MIDI_CHANNEL_OMNI);
-  MIDI3.begin(MIDI_CHANNEL_OMNI);
-  MIDI4.begin(MIDI_CHANNEL_OMNI);
+// #ifndef HEADLESS
+// void startMIDI(){
+//   MIDI0.begin(MIDI_CHANNEL_OMNI);
+//   MIDI1.begin(MIDI_CHANNEL_OMNI);
+//   MIDI2.begin(MIDI_CHANNEL_OMNI);
+//   MIDI3.begin(MIDI_CHANNEL_OMNI);
+//   MIDI4.begin(MIDI_CHANNEL_OMNI);
 
-  MIDI0.turnThruOff();
-  MIDI1.turnThruOff();
-  MIDI2.turnThruOff();
-  MIDI3.turnThruOff();
-  MIDI4.turnThruOff();
-}
-
-
-void sendMIDICC(uint8_t controller, uint8_t val, uint8_t channel){
-  if(isActiveChannel(channel, 0)){
-    MIDI0.sendControlChange(controller, val, channel);
-  }
-  if(isActiveChannel(channel, 1))
-    MIDI1.sendControlChange(controller, val, channel);
-  if(isActiveChannel(channel, 2))
-    MIDI2.sendControlChange(controller, val, channel);
-  if(isActiveChannel(channel, 3))
-    MIDI3.sendControlChange(controller, val, channel);
-  if(isActiveChannel(channel, 4))
-    MIDI4.sendControlChange(controller, val, channel);
-}
-
-void sendMIDIallOff(){
-  MIDI0.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
-  MIDI1.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
-  MIDI2.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
-  MIDI3.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
-  MIDI4.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
-}
+//   MIDI0.turnThruOff();
+//   MIDI1.turnThruOff();
+//   MIDI2.turnThruOff();
+//   MIDI3.turnThruOff();
+//   MIDI4.turnThruOff();
+// }
 
 
-void sendMIDInoteOn(uint8_t pitch, uint8_t vel, uint8_t channel){
-  if(isActiveChannel(channel, 0))
-    MIDI0.sendNoteOn(pitch,vel,channel);
-  if(isActiveChannel(channel, 1))
-    MIDI1.sendNoteOn(pitch, vel, channel);
-  if(isActiveChannel(channel, 2))
-    MIDI2.sendNoteOn(pitch, vel, channel);
-  if(isActiveChannel(channel, 3))
-    MIDI3.sendNoteOn(pitch, vel, channel);
-  if(isActiveChannel(channel, 4))
-    MIDI4.sendNoteOn(pitch, vel, channel);
-}
+// void sendMIDICC(uint8_t controller, uint8_t val, uint8_t channel){
+//   if(isActiveChannel(channel, 0)){
+//     MIDI0.sendControlChange(controller, val, channel);
+//   }
+//   if(isActiveChannel(channel, 1))
+//     MIDI1.sendControlChange(controller, val, channel);
+//   if(isActiveChannel(channel, 2))
+//     MIDI2.sendControlChange(controller, val, channel);
+//   if(isActiveChannel(channel, 3))
+//     MIDI3.sendControlChange(controller, val, channel);
+//   if(isActiveChannel(channel, 4))
+//     MIDI4.sendControlChange(controller, val, channel);
+// }
 
-void sendMIDInoteOff(uint8_t pitch, uint8_t vel, uint8_t channel){
-  if(isActiveChannel(channel, 0))
-    MIDI0.sendNoteOff(pitch,vel,channel);
-  if(isActiveChannel(channel, 1))
-    MIDI1.sendNoteOff(pitch, vel, channel);
-  if(isActiveChannel(channel, 2))
-    MIDI2.sendNoteOff(pitch, vel, channel);
-  if(isActiveChannel(channel, 3))
-    MIDI3.sendNoteOff(pitch, vel, channel);
-  if(isActiveChannel(channel, 4))
-    MIDI4.sendNoteOff(pitch, vel, channel);
-}
+// void sendMIDIallOff(){
+//   MIDI0.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
+//   MIDI1.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
+//   MIDI2.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
+//   MIDI3.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
+//   MIDI4.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
+// }
 
-void readMIDI(){
-  MIDI0.read();
-  MIDI1.read();
-}
 
-void sendClock(){
-  MIDI0.sendRealTime(midi::Clock);
-  MIDI1.sendRealTime(midi::Clock);
-  MIDI2.sendRealTime(midi::Clock);
-  MIDI3.sendRealTime(midi::Clock);
-  MIDI4.sendRealTime(midi::Clock);
-}
+// void sendMIDInoteOn(uint8_t pitch, uint8_t vel, uint8_t channel){
+//   if(isActiveChannel(channel, 0))
+//     MIDI0.sendNoteOn(pitch,vel,channel);
+//   if(isActiveChannel(channel, 1))
+//     MIDI1.sendNoteOn(pitch, vel, channel);
+//   if(isActiveChannel(channel, 2))
+//     MIDI2.sendNoteOn(pitch, vel, channel);
+//   if(isActiveChannel(channel, 3))
+//     MIDI3.sendNoteOn(pitch, vel, channel);
+//   if(isActiveChannel(channel, 4))
+//     MIDI4.sendNoteOn(pitch, vel, channel);
+// }
 
-void sendMIDIStart(){
-  MIDI0.sendRealTime(midi::Start);
-  MIDI1.sendRealTime(midi::Start);
-  MIDI2.sendRealTime(midi::Start);
-  MIDI3.sendRealTime(midi::Start);
-  MIDI4.sendRealTime(midi::Start);
-}
+// void sendMIDInoteOff(uint8_t pitch, uint8_t vel, uint8_t channel){
+//   if(isActiveChannel(channel, 0))
+//     MIDI0.sendNoteOff(pitch,vel,channel);
+//   if(isActiveChannel(channel, 1))
+//     MIDI1.sendNoteOff(pitch, vel, channel);
+//   if(isActiveChannel(channel, 2))
+//     MIDI2.sendNoteOff(pitch, vel, channel);
+//   if(isActiveChannel(channel, 3))
+//     MIDI3.sendNoteOff(pitch, vel, channel);
+//   if(isActiveChannel(channel, 4))
+//     MIDI4.sendNoteOff(pitch, vel, channel);
+// }
 
-void sendMIDIStop(){
-  MIDI0.sendRealTime(midi::Stop);
-  MIDI1.sendRealTime(midi::Stop);
-  MIDI2.sendRealTime(midi::Stop);
-  MIDI3.sendRealTime(midi::Stop);
-  MIDI4.sendRealTime(midi::Stop);
-}
+// void readMIDI(){
+//   MIDI0.read();
+//   MIDI1.read();
+// }
 
-void sendMIDIProgramChange(uint8_t port, uint8_t val, uint8_t channel){
-  switch(port){
-    case 0:
-        MIDI0.sendProgramChange(val,channel);
-        break;
-    case 1:
-        MIDI1.sendProgramChange(val,channel);
-        break;
-    case 2:
-        MIDI2.sendProgramChange(val,channel);
-        break;
-    case 3:
-        MIDI3.sendProgramChange(val,channel);
-        break;
-    case 4:
-        MIDI4.sendProgramChange(val,channel);
-        break;
-  }
-}
-#endif
+// void sendClock(){
+//   MIDI0.sendRealTime(midi::Clock);
+//   MIDI1.sendRealTime(midi::Clock);
+//   MIDI2.sendRealTime(midi::Clock);
+//   MIDI3.sendRealTime(midi::Clock);
+//   MIDI4.sendRealTime(midi::Clock);
+// }
 
-//each of the modifiers stores a channel, and a value
-//the parameter gets modified
-//gets added to notes in the vel modifier channel
-//0 is the global channel
-int8_t velModifier[2] = {0,0};
-int8_t chanceModifier[2] = {0,0};
-int8_t pitchModifier[2] = {0,0};
+// void sendMIDIStart(){
+//   MIDI0.sendRealTime(midi::Start);
+//   MIDI1.sendRealTime(midi::Start);
+//   MIDI2.sendRealTime(midi::Start);
+//   MIDI3.sendRealTime(midi::Start);
+//   MIDI4.sendRealTime(midi::Start);
+// }
+
+// void sendMIDIStop(){
+//   MIDI0.sendRealTime(midi::Stop);
+//   MIDI1.sendRealTime(midi::Stop);
+//   MIDI2.sendRealTime(midi::Stop);
+//   MIDI3.sendRealTime(midi::Stop);
+//   MIDI4.sendRealTime(midi::Stop);
+// }
+
+// void sendMIDIProgramChange(uint8_t port, uint8_t val, uint8_t channel){
+//   switch(port){
+//     case 0:
+//         MIDI0.sendProgramChange(val,channel);
+//         break;
+//     case 1:
+//         MIDI1.sendProgramChange(val,channel);
+//         break;
+//     case 2:
+//         MIDI2.sendProgramChange(val,channel);
+//         break;
+//     case 3:
+//         MIDI3.sendProgramChange(val,channel);
+//         break;
+//     case 4:
+//         MIDI4.sendProgramChange(val,channel);
+//         break;
+//   }
+// }
+// #endif
 
 void handleInternalCC(uint8_t ccNumber, uint8_t val, uint8_t channel, uint8_t yPosition){
   switch(ccNumber){
@@ -3803,20 +3752,6 @@ void copyLoop(){
   }
 }
 
-void debugPrintCopyBuffer(){
-  for(int track = 0; track<trackData.size(); track++){
-    for(int i = 0; i<copyBuffer[track].size(); i++){
-      //Serial.print("note ");
-      //Serial.println(i);
-      //Serial.print("s:");
-      //Serial.println(copyBuffer[track][i].startPos);
-      //Serial.print("e:");
-      //Serial.println(copyBuffer[track][i].endPos);
-      //Serial.print("on track:");
-      //Serial.println(track);
-    }
-  }
-}
 //pastes copybuffer
 void paste(){
   if(copyBuffer.size()>0){
@@ -4012,7 +3947,7 @@ void deleteNote_byID(int track, int targetNoteID){
     //make a copy of the seqData[track] vector which excludes the note
     //hopefully, this does a better job of freeing memory
     //swapping it like this! this is so the memory is free'd up again
-    vector<Note> temp = {offNote};
+    vector<Note> temp = {Note()};
     for(int i = 1; i<=seqData[track].size()-1; i++){
       if(i != targetNoteID){//if it's not the target note, or an empty spot, copy it to the temp vector
         temp.push_back(seqData[track][i]);
@@ -4196,8 +4131,7 @@ Note getNote(int track, int timestep) {
     return targetNote;
   }
   else {
-    //Serial.print("No note, your majesty\n");
-    return offNote;
+    return Note();
   }
 }
 
@@ -4268,7 +4202,6 @@ void changeChance(int noteID, int track, int amount){
     seqData[track][noteID].chance = chance;
 }
 
-#include "trackFunctions.h"
 
 //erases every track
 void eraseSeq() {
@@ -4466,87 +4399,7 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
   return selectedNotes;
 }
 
-//Debug -------------------------------------------------------------------------
-//counts notes
-void debugNoteCount() {
-  int totalNotes = 0;
-  for (int i = 0; i < trackData.size(); i++) {
-    totalNotes += seqData[i].size()-1;
-  }
-  //Serial.print(totalNotes + " notes stored in memory\n");
-}
 
-//prints the selection buffer, doe
-void debugPrint() {
-  //Serial.println("Printing out seqData...");
-  for(int i = 0; i<trackData.size(); i++){
-    for(int j = 1; j<seqData[i].size()-1; j++){
-      //Serial.println("+------------+");
-      //Serial.print("id: ");
-      //Serial.println(j);
-      //Serial.print("start: ");
-      //Serial.println(seqData[i][j].startPos);
-      //Serial.print("end: ");
-      //Serial.println(seqData[i][j].endPos);
-    }
-  }
-  //Serial.print("total notes on this track: ");
-  //Serial.print(int(seqData[activeTrack].size()-1));
-  //Serial.print("total notes in the sequence: ");
-  int totalNotes = 0;
-  for (int i = 0; i < trackData.size(); i++) {
-    totalNotes = totalNotes + seqData[i].size()-1;
-  }
-  //Serial.print(totalNotes);
-  //Serial.print("\nNotes in data: ");
-  totalNotes = 0;
-  for (int i = 0; i < trackData.size(); i++) {
-    totalNotes = seqData[i].size() - 1 + totalNotes;
-  }
-  //Serial.print(totalNotes);
-}
-
-//fills sequence with notes
-void debugFillSeq() {
-  //Serial.print("filling with notes\n");
-  for (int i = 0; i < trackData.size(); i++) {
-    for (int j = 0; j < 254; j++) {
-      makeNote(i, j, subDivInt, 0);
-    }
-  }
-  debugNoteCount();
-}
-
-//prints out memory allocation
-void debugPrintMem(bool verby){
-  if(verby){
-    //Serial.print("tracks:");
-    //Serial.println(seqData.size());
-    //Serial.print("notes:");
-    for(int i = 0; i<trackData.size(); i++){
-      //Serial.print(i);
-      //Serial.print(" - ");
-      //Serial.println(seqData[i].size());
-    }
-  }
-  //Serial.print("free:");
-  //Serial.println(rp2040.getFreeHeap());
-  //Serial.print("used:");
-  //Serial.println(rp2040.getUsedHeap());
-  // //Serial.print("total:");
-  // //Serial.println(rp2040.getTotalHeap());
-  //Serial.print("% used:");
-  //Serial.println(float(rp2040.getUsedHeap())/float(rp2040.getTotalHeap()));
-}
-//fills sequence with notes
-void debugFillTrack(int division) {
-  //Serial.print("placing note every ");
-  //Serial.print(division);
-  //Serial.print(" slices...\n");
-  for (int j = 0; j < 254; j += division) {
-    makeNote(activeTrack, j, subDivInt, 0);
-  }
-}
 void addTimeToSeq(uint16_t amount, uint16_t insertPoint){
   //if it'll cause a wrap around
   if(seqEnd+amount>65535)
@@ -4793,7 +4646,7 @@ void initSeq(int tracks, int length) {
 
   for(int i = 0; i < tracks; i++){
     lookupData[i].resize(seqEnd+1, 0);
-    seqData[i] = defaultVec; //each new track is defaultVec, with 0 notes
+    seqData[i] = {Note()};
     Track newTrack;
     trackData.push_back(newTrack);
     defaultPitch--;
@@ -4806,14 +4659,7 @@ void initSeq(){
   initSeq(4,768);
 }
 
-void debugFillSequence(){
-  for(uint16_t step = 0; step<seqEnd; step++){
-    Note debugNote(step,step,127,100,false,false);
-    for(uint8_t track = 0; track<trackData.size(); track++){
-      makeNote(debugNote,track,false);
-    }
-  }
-}
+
 void newSeq(){
   selectionCount = 0;
   vector<vector<uint16_t>> newLookupData;
@@ -4823,8 +4669,6 @@ void newSeq(){
   vector<Track> newTrackData;
   newTrackData.swap(trackData);
 }
-
-#include "fileSystem.h"
 
 //system functions------------------------------------
 void drawWebLink(){
@@ -5539,32 +5383,13 @@ void setCursorToNearestNote(){
   }
 }
 
-void debugPrintSelection(){
-  //Serial.print("#:");
-  //Serial.println(selectionCount);
-  for(int track = 0; track<trackData.size(); track++){
-    for(int note = 1; note<=seqData[track].size()-1; note++){
-      if(seqData[track][note].isSelected){
-        //Serial.print("note ");
-        //Serial.print(note);
-        //Serial.print(" on track ");
-        //Serial.println(track);
-        //Serial.print("[");
-        //Serial.print(seqData[track][note].startPos);
-        //Serial.print(",");
-        //Serial.print(seqData[track][note].endPos);
-        //Serial.println("]");
-      }
-    }
-  }
-}
-void reverse(uint16_t start, uint16_t end){
-  for(uint8_t track = 0; track<trackData.size(); track++){
-    if(trackData[track].isSelected){
-      reverseTrack(track,start,end);
-    }
-  }
-}
+// void reverse(uint16_t start, uint16_t end){
+//   for(uint8_t track = 0; track<trackData.size(); track++){
+//     if(trackData[track].isSelected){
+//       reverseTrack(track,start,end);
+//     }
+//   }
+// }
 void reverseTrack(uint8_t track, uint16_t start, uint16_t end){
   vector<Note> targetNotes;
   //add all notes to seq data
@@ -6015,25 +5840,6 @@ uint8_t getNearestPitch(int pitch, int scale){
 }
 
 //------------------------------------------------------------------------------------------------------------------------------
-//returns a byteCount as a more recognizeable value, like 7kB or 5mB
-String bytesToString(uint32_t bytes){
-  //if it's less than 500, print bytes as-is
-  if(bytes<500){
-    return stringify(bytes)+"B";
-  }
-  //probably never going to go over this
-  else if(bytes<500000){
-    //divide by 100 so the decimal value is now in the 1's place
-    bytes/= 100;
-    String byteCount = stringify(bytes);
-    byteCount += byteCount[byteCount.length()-1];
-    byteCount[byteCount.length()-2] = '.';
-    return byteCount+"kB";
-  }
-  else{
-    return "bruh";
-  }
-}
 //returns the pitch in english AND in either sharp, or flat form
 String pitchToString(uint8_t input, bool oct, bool sharps){
   String pitch;
@@ -6781,11 +6587,6 @@ void xyGrid(){
   }
 }
 
-// #include "mainSequencer.h"
-/*
-    This is the code for the main sequencer piano roll view
-*/
-
 void drawPram(uint8_t x1, uint8_t y1){
   if(onBeat(2,30))
     display.drawBitmap(x1,y1+1,carriage_bmp,14,15,SSD1306_WHITE);
@@ -6890,7 +6691,7 @@ void drawTopIcons(){
 
   //note presence indicator(if notes are offscreen)
   if(areThereMoreNotes(true)){
-    uint8_t y1 = (maxTracksShown>5&&!menuIsActive)?8:debugHeight;
+    uint8_t y1 = (maxTracksShown>5&&!menuIsActive)?8:headerHeight;
     if(!((animOffset/10)%2)){
       display.fillTriangle(trackDisplay-7,y1+3,trackDisplay-3,y1+3,trackDisplay-5,y1+1, SSD1306_WHITE);
     }
@@ -7105,16 +6906,16 @@ void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_
       if(step == loopData[activeLoop].start){
         if(loopFlags){
           if(movingLoop == -1 || movingLoop == 2){
-            display.fillTriangle(trackDisplay+(step-start)*scale, debugHeight-3-sin(millis()/50), trackDisplay+(step-start)*scale, debugHeight-7-sin(millis()/50), trackDisplay+(step-start)*scale+4, debugHeight-7-sin(millis()/50),SSD1306_WHITE);
-            display.drawFastVLine(trackDisplay+(step-start)*scale,debugHeight-3,3,SSD1306_WHITE);
+            display.fillTriangle(trackDisplay+(step-start)*scale, headerHeight-3-sin(millis()/50), trackDisplay+(step-start)*scale, headerHeight-7-sin(millis()/50), trackDisplay+(step-start)*scale+4, headerHeight-7-sin(millis()/50),SSD1306_WHITE);
+            display.drawFastVLine(trackDisplay+(step-start)*scale,headerHeight-3,3,SSD1306_WHITE);
           }
           else{
             if(cursorPos == step){
-              display.fillTriangle(trackDisplay+(step-start)*scale, debugHeight-3, trackDisplay+(step-start)*scale, debugHeight-7, trackDisplay+(step-start)*scale+4, debugHeight-7,SSD1306_WHITE);
-              display.drawFastVLine(trackDisplay+(step-start)*scale,debugHeight-3,3,SSD1306_WHITE);
+              display.fillTriangle(trackDisplay+(step-start)*scale, headerHeight-3, trackDisplay+(step-start)*scale, headerHeight-7, trackDisplay+(step-start)*scale+4, headerHeight-7,SSD1306_WHITE);
+              display.drawFastVLine(trackDisplay+(step-start)*scale,headerHeight-3,3,SSD1306_WHITE);
             }
             else{
-              display.fillTriangle(trackDisplay+(step-start)*scale, debugHeight-1, trackDisplay+(step-start)*scale, debugHeight-5, trackDisplay+(step-start)*scale+4, debugHeight-5,SSD1306_WHITE);
+              display.fillTriangle(trackDisplay+(step-start)*scale, headerHeight-1, trackDisplay+(step-start)*scale, headerHeight-5, trackDisplay+(step-start)*scale+4, headerHeight-5,SSD1306_WHITE);
             }
           }
         }
@@ -7129,16 +6930,16 @@ void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_
       if(step == loopData[activeLoop].end-1){
         if(loopFlags){
           if(movingLoop == 1 || movingLoop == 2){
-            display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-3-sin(millis()/50), trackDisplay+(loopData[activeLoop].end-start)*scale-4, debugHeight-7-sin(millis()/50), trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-7-sin(millis()/50),SSD1306_WHITE);
-            display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,debugHeight-3,3,SSD1306_WHITE);
+            display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-3-sin(millis()/50), trackDisplay+(loopData[activeLoop].end-start)*scale-4, headerHeight-7-sin(millis()/50), trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-7-sin(millis()/50),SSD1306_WHITE);
+            display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,headerHeight-3,3,SSD1306_WHITE);
           }
           else{
             if(cursorPos == step+1){
-              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-3, trackDisplay+(loopData[activeLoop].end-start)*scale-4, debugHeight-7, trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-7,SSD1306_WHITE);
-              display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,debugHeight-3,3,SSD1306_WHITE);
+              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-3, trackDisplay+(loopData[activeLoop].end-start)*scale-4, headerHeight-7, trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-7,SSD1306_WHITE);
+              display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,headerHeight-3,3,SSD1306_WHITE);
             }
             else{
-              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-1, trackDisplay+(loopData[activeLoop].end-start)*scale-4, debugHeight-5, trackDisplay+(loopData[activeLoop].end-start)*scale, debugHeight-5,SSD1306_WHITE);
+              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-1, trackDisplay+(loopData[activeLoop].end-start)*scale-4, headerHeight-5, trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-5,SSD1306_WHITE);
             }
           }
         }
@@ -7182,8 +6983,8 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
       loopFlags = false;
     }
     else{
-      trackHeight = (screenHeight-debugHeight)/maxTracksShown;
-      startHeight = debugHeight;
+      trackHeight = (screenHeight-headerHeight)/maxTracksShown;
+      startHeight = headerHeight;
     }
 
     if(trackData.size()>maxTracksShown){
@@ -7620,11 +7421,8 @@ void selectBox(){
   }
 }
 
-#include "playback.h"
-
 //moves all selected notes (or doesn't)
 bool moveSelectedNotes(int xOffset,int yOffset){
-  // debugPrintLookup();
   //to temporarily store all the notes
   vector<vector<Note>> selectedNotes;
   selectedNotes.resize(seqData.size());
@@ -7668,7 +7466,6 @@ bool moveSelectedNotes(int xOffset,int yOffset){
       makeNote(track+yOffset, selectedNotes[track][note].startPos+xOffset, length+1, selectedNotes[track][note].velocity, selectedNotes[track][note].chance, selectedNotes[track][note].muted, selectedNotes[track][note].isSelected, false);
     }
   }
-  // debugPrintLookup();
   return true;
 }
 
@@ -8080,24 +7877,7 @@ void filterOutUnisonNotes(vector<uint8_t>& notes){
   }
 }
 
-//prints out lookupdata
-void debugPrintLookup(){
-  for(int i = 0; i<trackData.size();i++){
-    //Serial.print(stringify(i)+":"+getTrackPitch(i));
-    //Serial.print('|');
-    for(int j = seqStart; j<= seqEnd; j++){
-      // if(!j%subDivInt)
-      //   //Serial.print('|');
-      if(lookupData[i][j]==0){
-        //Serial.print('-');
-      }
-      else{
-        //Serial.print(lookupData[i][j]);
-      }
-    }
-    //Serial.println('|');
-  }
-}
+
 void togglePlayMode(){
   playing = !playing;
   //if it's looping, set the playhead to the activeLoop start
@@ -8260,264 +8040,6 @@ void printSelectionBounds(){
   //Serial.print("Y2:");
   //Serial.println(coords[1][1]);
 
-}
-//this is the big switch statement that listens for key inputs and runs the according functions
-void keyListen() {
-  unsigned char key = 0;
-  String pitch;
-  int track;
-  key = Serial.read();
-  switch (key) {
-    case 'k':
-      activeArp.start();
-      break;
-    case 'x':
-      printSelectionBounds();
-      break;
-    case 'z':
-      debugPrintSelection();
-      break;
-    case 'F':
-      menuIsActive = true;
-      genFragment();
-      // fragmentMenu();
-      break;
-    case '/':
-      // writeSeqSerial_plain();
-      break;
-    case 'C':
-      copy();
-      break;
-    case 'N':
-      constructMenu("EDIT");
-      menuIsActive = true;
-      break;
-    case 'I':
-      //Serial.println(decimalToNumeral(11));
-      break;
-    case 'c':
-      break;
-    case '`':
-      updateLookupData();
-      displaySeqSerial();
-      break;
-    case 'u':
-      track = getTrackWithPitch(24);
-      //Serial.println(track);
-      break;
-    case '.'://>
-      moveCursor(subDivInt);
-      displaySeqSerial();
-      break;
-    case 'f':
-      debugPrintLookup();
-      break;
-    case ','://<
-      moveCursor(-subDivInt);
-      displaySeqSerial();
-      break;
-    case '>'://precise movement
-      moveCursor(1);
-       displaySeqSerial();
-      break;
-    case '<':
-      moveCursor(-1);
-        displaySeqSerial();
-      break;
-    case 'n':
-      //Serial.print("writing a note...\n");
-      makeNote(activeTrack, cursorPos, subDivInt, 1); //default makes an 8th note
-      displaySeqSerial();
-      break;
-    case ']':
-      setActiveTrack(activeTrack - 1, false);
-        displaySeqSerial();
-      break;
-    case '[':
-      setActiveTrack(activeTrack + 1, false);
-        displaySeqSerial();
-      break;
-    case 's'://select a note
-        toggleSelectNote(activeTrack,getIDAtCursor(),true);
-        displaySeqSerial();
-      break;
-    case 'p'://debug print selected notes
-      // debugPrint();
-        // displaySeqSerial();
-      break;
-    case 't': //add track (tricky! big moment if this works first time) LMAO
-      addTrack(defaultPitch);
-      defaultPitch++;
-        displaySeqSerial();
-      break;
-    case 'd'://deleting the selected note(s)
-      //Serial.print("attempting to delete ");
-      if (selectionCount > 0) {
-        //Serial.print("all selected notes...\n");
-        deleteSelected();
-      }
-      else {
-        //Serial.print("1 note...\n");
-        deleteNote();
-      }
-      displaySeqSerial();
-      break;
-    case 'e'://erase a track
-      eraseTrack();
-        displaySeqSerial();
-      break;
-    case 'E'://erases the sequence
-      eraseSeq();
-        displaySeqSerial();
-      break;
-    case 'm':
-      menuIsActive = true;
-      break;
-    case '1':
-      constructMenu("MENU");
-      mainMenu();
-      break;
-    case '2'://counts notes
-      constructMenu("ARP");
-      break;
-    case '3'://counts notes
-      echoMenu();
-      break;
-    case '4'://counts notes
-      constructMenu("CURVE");
-      break;
-    case 'a'://selects all in track
-      break;
-    case ';':
-      loopData[activeLoop].end -= 16;
-        displaySeqSerial();
-      break;
-    case '\'':
-      loopData[activeLoop].end += 16;
-    case 'r':
-      toggleRecordingMode(waitForNote);
-      break;
-    case 'R':
-        displaySeqSerial();
-      break;
-    case 'P':
-      togglePlayMode();
-      break;
-    case '_':
-        displaySeqSerial();
-      break;
-    case '+':
-      zoom(true);
-      break;
-    case '-':
-      zoom(false);
-      break;
-  }
-}
-
-bool justOneButton(){
-  int score = n+sel+shift+del+loop_Press+play+copy_Press+menu_Press+track_Press+note_Press;
-  if(score == 1)
-    return true;
-  else
-    return false;
-}
-
-bool just(bool button){
-  //if more than one button is pressed, return false
-  if(!justOneButton)
-    return false;
-  //check every button
-  else{
-    if(n && &n == &button)
-      return true;
-    else if(sel && &sel == &button)
-      return true;
-    else if(shift && &shift == &button)
-      return true;
-    else if(del && &del == &button)
-      return true;
-    else if(loop_Press && &loop_Press == &button)
-      return true;
-    else if(menu_Press && &menu_Press == &button)
-      return true;
-    else if(play && &play == &button)
-      return true;
-    else if(copy_Press && &copy_Press == &button)
-      return true;
-    else if(track_Press && &track_Press == &button)
-      return true;
-    else if(note_Press && &note_Press == &button)
-      return true;
-    else
-      return false;
-  }
-}
-
-void rotaryActionA_Handler(){
-  //this is bad programming! prob shouldn't have this in an interrupt
-  counterA += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)?readEncoder(0)*4:readEncoder(0);
-  if(recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)
-    waiting = false;
-}
-
-void rotaryActionB_Handler(){
-  //this is bad programming! prob shouldn't have this in an interrupt
-  counterB += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)?readEncoder(1)*4:readEncoder(1);
-  if(recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)
-    waiting = false;
-}
-
-int8_t readEncoder(bool encoder){
-    int8_t r;
-    int8_t l;
-    
-    static uint8_t lrmem = 3;
-    static int lrsum = 0;
-    const int8_t TRANS[] = {0, -1, 1, 14, 1, 0, 14, -1, -1, 14, 0, 1, 14, 1, -1, 0};
-
-    int clk_Pin;
-    int data_Pin;
-
-    // Read BOTH pin states to deterimine validity of rotation (ie not just switch bounce)
-    if(!encoder){
-      l = digitalRead(track_clk_Pin);
-      r = digitalRead(track_data_Pin);
-    }
-    else{
-      l = digitalRead(note_clk_Pin);
-      r = digitalRead(note_data_Pin);
-    }
-  
-    // Move previous value 2 bits to the left and add in our new values
-    lrmem = ((lrmem & 0x03) << 2) + 2 * l + r;
-
-    // Convert the bit pattern to a movement indicator (14 = impossible, ie switch bounce)
-    lrsum += TRANS[lrmem];
-
-    /* encoder not in the neutral (detent) state */
-    if (lrsum % 4 != 0)
-    {
-        return 0;
-    }
-
-    /* encoder in the neutral state - clockwise rotation*/
-    if (lrsum == 4)
-    {
-        lrsum = 0;
-        return -1;
-    }
-
-    /* encoder in the neutral state - anti-clockwise rotation*/
-    if (lrsum == -4)
-    {
-        lrsum = 0;
-        return 1;
-    }
-
-    // An impossible rotation has been detected - ignore the movement
-    lrsum = 0;
-    return 0;
 }
 
 //moves the whole loop
@@ -8941,7 +8463,6 @@ void mainSequencerButtons(){
     //menu press
     if(menu_Press){
       if(shift){
-        debugPrintLookup();
         lastTime = millis();
         displayHelpText(0);
         return;
@@ -8966,38 +8487,6 @@ void mainSequencerButtons(){
       menuIsActive = true;
       constructMenu("EDIT");
     }
-  }
-}
-
-void debugButtonPrint(){
-  if(n)
-    //Serial.println("n");
-  if(sel)
-    //Serial.println("sel");
-  if(shift)
-    //Serial.println("shift");
-  if(del)
-    //Serial.println("del");
-  if(loop_Press)
-    //Serial.println("loop");
-  if(play)
-    //Serial.println("play");
-  if(copy_Press)
-    //Serial.println("copy");
-  if(menu_Press)
-    //Serial.println("menu");
-
-  for(int i = 0; i<8; i++){
-    if(step_buttons[i]){
-      //Serial.println("step "+stringify(i));
-    }
-  }
-
-  if(x != 0){
-    //Serial.println("x:"+stringify(x));
-  }
-  if(y != 0){
-    //Serial.println("y:"+stringify(y));
   }
 }
 
@@ -9427,12 +8916,6 @@ String enterText(String title){
   return text;
 }
 
-void debugMenuControls(){
-}
-
-void seqMenuControls(){
-}
-
 void drawOSScreen(){
   display.clearDisplay();
   display.drawBitmap(0,0,childOS,128,64,SSD1306_WHITE);
@@ -9446,9 +8929,6 @@ void drawOSScreen(){
       return;
     }
   }
-}
-
-void systemMenuControls(){
 }
 
 bool echoMenuControls(uint8_t* cursor){
@@ -9547,59 +9027,14 @@ bool moveNotes(int xAmount, int yAmount){
   }
 }
 
-void quickSave(){
-  //if it hasn't been saved yet
-  if(currentFile == ""){
-    String fileName = enterText("filename?");
-    if(fileName != "default"){
-      writeSeqFile(fileName);
-      currentFile = fileName;
-      menuText = "saved \'"+currentFile+"\'";
-    }
-  }
-  //if there is a filename for it
-  else{
-    writeSeqFile(currentFile);
-    menuText = "saved \'"+currentFile+"\'";
-  }
-}
-
-void fileMenuDisplayWrapper(){
-  activeMenu.displayFileMenu();
-}
-void loadBackup(){
-  //if there's an active filename
-  if(currentFile != ""){
-    vector<String> ops = {"NAUR","YEA"};
-    int8_t choice = binarySelectionBox(59,32,"NO","YEA","LOAD BACKUP?",fileMenuDisplayWrapper);
-    if(choice){
-      loadSeqFile(currentFile);
-      slideMenuOut(1,30);
-      menuIsActive = false;
-      constructMenu("MENU");
-    }
-  }
-  //if there isn't, just enter files menu
-  else{
-    slideMenuOut(0,20);
-    constructMenu("FILES");
-  }
-}
-
 void inputRead() {
   readJoystick();
   readButtons();
   if(menuIsActive){
-    if(activeMenu.menuTitle == "DEBUG")
-      debugMenuControls();
-    else if(activeMenu.menuTitle == "MENU")
+    if(activeMenu.menuTitle == "MENU")
       mainMenuControls();
     else if(activeMenu.menuTitle == "TRK")
       trackMenuControls();
-    else if(activeMenu.menuTitle == "SEQ")
-      seqMenuControls();
-    else if(activeMenu.menuTitle == "SYS")
-      systemMenuControls();
   }
   else{
     mainSequencerButtons();
@@ -9809,46 +9244,6 @@ void bootscreen_2(){
   turnOffLEDs();
 }
 
-
-void setupPins(){
-  #ifndef HEADLESS
-  //joystick analog inputs
-  pinMode(x_Pin, INPUT);
-  pinMode(y_Pin, INPUT);
-
-  //onboard pins for LED and reading internal VCC
-  pinMode(Vpin, INPUT);
-
-  // pinMode(onboard_ledPin, OUTPUT);
-
-  //encoders
-  pinMode(track_press_Pin, INPUT_PULLUP);
-  pinMode(note_press_Pin, INPUT_PULLUP);
-  pinMode(track_clk_Pin, INPUT_PULLUP);
-  pinMode(note_clk_Pin, INPUT_PULLUP);
-  pinMode(track_data_Pin, INPUT_PULLUP);
-  pinMode(note_data_Pin, INPUT_PULLUP);
-
-  //button bit shift reg
-  pinMode(buttons_load, OUTPUT);
-  pinMode(buttons_clockEnable, OUTPUT);
-  pinMode(buttons_clockIn, OUTPUT);
-  pinMode(buttons_dataIn, INPUT);
-
-  //LED bit shift reg
-  pinMode(latchPin_LEDS, OUTPUT);
-  pinMode(clockPin_LEDS, OUTPUT);
-  pinMode(dataPin_LEDS, OUTPUT);
-
-  // CPU0 handles the encoder interrupts
-  attachInterrupt(track_clk_Pin,rotaryActionA_Handler, CHANGE);
-  attachInterrupt(track_data_Pin,rotaryActionA_Handler, CHANGE);
-  attachInterrupt(note_clk_Pin,rotaryActionB_Handler, CHANGE);
-  attachInterrupt(note_data_Pin,rotaryActionB_Handler, CHANGE);
-
-  #endif
-}
-
 void restartDisplay(){
   #ifndef HEADLESS
   Wire.end();
@@ -9865,8 +9260,6 @@ void checkSerial(){
   }
   #endif
 }
-
-#include "setup.h"
 
 void sequenceLEDs(){
   int length = loopData[activeLoop].end-loopData[activeLoop].start;
@@ -9885,6 +9278,7 @@ void testLEDs(){
   }
   writeLEDs(leds);
 }
+
 void testJoyStick(){
   while(true){
     readJoystick();
@@ -9902,11 +9296,6 @@ void testJoyStick(){
     display.display();
   }
 }
-
-#include "screenSavers.h"
-
-//counter that gets used by the ledPulse() function
-int8_t ledPulseCounter = 0;
 
 //pulses the onboard LED
 void ledPulse(uint8_t speed){
@@ -9942,24 +9331,6 @@ float swingOffset(unsigned short int step){
   return swingVal*sin(2*PI/swingSubDiv * (step-swingSubDiv/4));
 }
 
-void debugTestSwing(){
-  long int i;
-  swingSubDiv = 24;//whole note swing
-  long int  time;
-  while(true){
-    float t = swingOffset(i);
-    i++;
-    //Serial.print("step: ");
-    //Serial.println(i);
-    //Serial.print("swing offset: ");
-    //Serial.println(t);
-    //Serial.print("w/o swing: ");
-    //Serial.println(MicroSperTimeStep);
-    //Serial.print("w/swing: ");
-    //Serial.println(t+MicroSperTimeStep);
-    i%=96;
-  }
-}
 //this is a sloppy lil function that returns true if the time is within (x) of the subDiv
 bool onBeat(int subDiv, int fudge){
   long msPerB = (240000/(bpm*subDiv));

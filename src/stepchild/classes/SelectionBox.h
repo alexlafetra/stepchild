@@ -63,7 +63,7 @@ void SelectionBox::displaySelBox(){
   }
 
   //same, but for tracks
-  uint8_t startHeight = (menuIsActive||maxTracksShown==5)?debugHeight:8;
+  uint8_t startHeight = (menuIsActive||maxTracksShown==5)?headerHeight:8;
   startY = (Y1-startTrack)*trackHeight+startHeight;
   height = ((Y2+1-startTrack)*trackHeight)+startHeight - startY;
   if(Y1<startTrack){

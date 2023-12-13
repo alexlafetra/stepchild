@@ -269,7 +269,7 @@ void constructMenu(uint8_t id){
     }
     case EDIT:
     {
-      Menu editingMenu(trackDisplay-5,0,screenWidth,debugHeight,"EDIT");
+      Menu editingMenu(trackDisplay-5,0,screenWidth,headerHeight,"EDIT");
       activeMenu = editingMenu;
       if(menuIsActive){
         slideMenuIn(1,48);

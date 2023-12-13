@@ -90,9 +90,6 @@ void Autotrack::play(uint16_t timestep){
     sendMIDICC(control,data[timestep],channel);
 }
 
-//holds all the autotracks
-vector<Autotrack> autotrackData;
-
 //looks for autotracks to trigger and triggers them
 void triggerAutotracks(uint8_t trackID, bool state){
   for(uint8_t i = 0; i<autotrackData.size(); i++){

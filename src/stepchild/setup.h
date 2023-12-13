@@ -1,3 +1,42 @@
+void setupPins(){
+  #ifndef HEADLESS
+  //joystick analog inputs
+  pinMode(x_Pin, INPUT);
+  pinMode(y_Pin, INPUT);
+
+  //onboard pins for LED and reading internal VCC
+  pinMode(Vpin, INPUT);
+
+  // pinMode(onboard_ledPin, OUTPUT);
+
+  //encoders
+  pinMode(track_press_Pin, INPUT_PULLUP);
+  pinMode(note_press_Pin, INPUT_PULLUP);
+  pinMode(track_clk_Pin, INPUT_PULLUP);
+  pinMode(note_clk_Pin, INPUT_PULLUP);
+  pinMode(track_data_Pin, INPUT_PULLUP);
+  pinMode(note_data_Pin, INPUT_PULLUP);
+
+  //button bit shift reg
+  pinMode(buttons_load, OUTPUT);
+  pinMode(buttons_clockEnable, OUTPUT);
+  pinMode(buttons_clockIn, OUTPUT);
+  pinMode(buttons_dataIn, INPUT);
+
+  //LED bit shift reg
+  pinMode(latchPin_LEDS, OUTPUT);
+  pinMode(clockPin_LEDS, OUTPUT);
+  pinMode(dataPin_LEDS, OUTPUT);
+
+  // CPU0 handles the encoder interrupts
+  attachInterrupt(track_clk_Pin,rotaryActionA_Handler, CHANGE);
+  attachInterrupt(track_data_Pin,rotaryActionA_Handler, CHANGE);
+  attachInterrupt(note_clk_Pin,rotaryActionB_Handler, CHANGE);
+  attachInterrupt(note_data_Pin,rotaryActionB_Handler, CHANGE);
+
+  #endif
+}
+
 #ifndef HEADLESS
 //CPU 0 setup
 void setup() {

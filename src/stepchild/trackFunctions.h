@@ -387,14 +387,14 @@ void shrinkTracks(){
       startTrack = 0;
       endTrack = trackData.size()-1;
     }
-    // debugHeight = 16;
+    // headerHeight = 16;
   }
   //if it's not shrunk, shrink em
   else{
     maxTracksShown = 16;
     startTrack = 0;
     endTrack = 16;
-    // debugHeight = 8;
+    // headerHeight = 8;
   }
   setActiveTrack(0,false);
 }
@@ -484,7 +484,7 @@ void addTrack(Track newTrack, bool loudly){
 
     //widening seqData
     seqData.resize(trackData.size());
-    seqData[trackData.size()-1] = defaultVec;
+    seqData[trackData.size()-1] = {Note()};
     activeTrack = trackData.size()-1;
 
     if(loudly){
@@ -504,7 +504,7 @@ void addTrack_noMove(Track newTrack, bool loudly){
 
     //widening seqData
     seqData.resize(trackData.size());
-    seqData[trackData.size()-1] = defaultVec;
+    seqData[trackData.size()-1] = {Note()};
 
     if(loudly){
       sendMIDInoteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
@@ -524,7 +524,7 @@ void addTrack(uint8_t pitch, uint8_t channel, bool latch, uint8_t muteGroup, boo
     seqData.resize(trackData.size()); //adding row to seqData
     lookupData.resize(trackData.size()); //adding a row to the lookupData vector, to store lookupID's for notes in this track
     lookupData[trackData.size()-1].resize(seqEnd, 0);//adding all the columns the track holds to the lookupData
-    seqData[trackData.size()-1] = defaultVec;//setting the note data for the new track to the default blank data
+    seqData[trackData.size()-1] = {Note()};//setting the note data for the new track to the default blank data
     activeTrack = trackData.size()-1;
     if(loudly){
       sendMIDInoteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
@@ -548,7 +548,7 @@ int16_t addTrack_return(unsigned short int pitch, unsigned short int channel, bo
     seqData.resize(trackData.size());
     lookupData.resize(trackData.size());
     lookupData[trackData.size()-1].resize(seqEnd, 0);
-    seqData[trackData.size()-1] = defaultVec;
+    seqData[trackData.size()-1] = {Note()};
     activeTrack = trackData.size()-1;
     if(loudly){
       sendMIDInoteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);

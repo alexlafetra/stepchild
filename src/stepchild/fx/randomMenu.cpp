@@ -156,8 +156,8 @@ void drawCoordinateBox(CoordinatePair coords){
     }
     uint8_t startX = trackDisplay+(X1-viewStart)*scale;
     uint8_t length = (X2-X1)*scale;
-    // uint8_t startHeight = maxTracksShown==5?debugHeight:8;
-    uint8_t startHeight = debugHeight;
+    // uint8_t startHeight = maxTracksShown==5?headerHeight:8;
+    uint8_t startHeight = headerHeight;
     uint8_t startY = (Y1-startTrack)*trackHeight+startHeight;
     uint8_t height = ((Y2 - startTrack + 1)*trackHeight - startY)%(screenHeight-startHeight) + startHeight;
    

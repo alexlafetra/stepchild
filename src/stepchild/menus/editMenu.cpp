@@ -223,7 +223,7 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
       activeMenu.coords.x1 = trackDisplay-5;
       activeMenu.coords.y1 = 0;
       activeMenu.coords.x2 = screenWidth;
-      activeMenu.coords.y2 = debugHeight;
+      activeMenu.coords.y2 = headerHeight;
       slideMenuIn(1,48);
       lastTime = millis();
       return;
@@ -238,7 +238,7 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
           activeMenu.coords.x1 = trackDisplay-5;
           activeMenu.coords.y1 = 0;
           activeMenu.coords.x2 = screenWidth;
-          activeMenu.coords.y2 = debugHeight;
+          activeMenu.coords.y2 = headerHeight;
           slideMenuIn(1,48);
           editingNote = false;
           lastTime = millis();
@@ -703,7 +703,7 @@ void editMenu(){
   activeMenu.coords.x1 = trackDisplay-7;
   activeMenu.coords.y1 = 0;
   activeMenu.coords.x2 = screenWidth;
-  activeMenu.coords.y2 = debugHeight;
+  activeMenu.coords.y2 = headerHeight;
   uint8_t fnWindowStart = 0;
   //value determining how many subDivs are skipped when stencilling notes
   uint8_t stencil = 1;

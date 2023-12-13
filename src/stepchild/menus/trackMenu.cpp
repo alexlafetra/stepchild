@@ -241,7 +241,7 @@ void trackMenu(){
 //shows options for edit, tune tracks, delete empty tracks, and disarm tracks w/ notes
 void drawTrackUtils(uint8_t cursor,vector<String> options){
   const uint8_t x1 = 0;
-  const uint8_t y1 = debugHeight;
+  const uint8_t y1 = headerHeight;
   const uint8_t length = 95;
   display.fillRect(x1,y1,length,screenHeight-y1,0);
   display.drawRect(x1,y1,length,screenHeight-y1,1);
@@ -637,10 +637,10 @@ void drawTrackInfo(uint8_t xCursor){
   const uint8_t sideWidth = 18;
   //track scrolling
   endTrack = startTrack + trackData.size();
-  trackHeight = (screenHeight - debugHeight) / trackData.size();
+  trackHeight = (screenHeight - headerHeight) / trackData.size();
   if(trackData.size()>5){
     endTrack = startTrack + 5;
-    trackHeight = (screenHeight-debugHeight)/5;
+    trackHeight = (screenHeight-headerHeight)/5;
   }
   while(activeTrack>endTrack-1 && trackData.size()>5){
     startTrack++;
@@ -654,14 +654,14 @@ void drawTrackInfo(uint8_t xCursor){
   display.setTextColor(SSD1306_WHITE);
 
   //sideWidth border
-  drawDottedLineV2(sideWidth,debugHeight+1,64,6);
+  drawDottedLineV2(sideWidth,headerHeight+1,64,6);
 
   //top and bottom bounds
-  display.drawFastHLine(0,debugHeight-1,screenWidth,SSD1306_WHITE);
+  display.drawFastHLine(0,headerHeight-1,screenWidth,SSD1306_WHITE);
 
   //tracks
   for(uint8_t track = startTrack; track<startTrack+5; track++){
-    unsigned short int y1 = (track-startTrack) * trackHeight + debugHeight-1;
+    unsigned short int y1 = (track-startTrack) * trackHeight + headerHeight-1;
     unsigned short int y2 = y1 + trackHeight;
     if(trackData[track].isSelected){
       //double digit

@@ -84,44 +84,33 @@ class WireFrame;
 class Note;
 class Track;
 class CoordinatePair;
+class Autotrack;
 
-//Overloaded stringify function to create strings
-#ifndef HEADLESS
-  //This works for the Stepchild version of ChildOS
-  String stringify(int a){
-    return String(a);
-  }
-  String stringify(uint8_t a){
-    return String(a);
-  }
-  String stringify(int8_t a){
-    return String(a);
-  }
-  String stringify(uint16_t a){
-    return String(a);
-  }
-  String stringify(int16_t a){
-    return String(a);
-  }
-  String stringify(uint32_t a){
-    return String(a);
-  }
-  String stringify(int32_t a){
-    return String(a);
-  }
-  String stringify(std::vector<Note>::size_type a){
-    return String(a);
-  }
-  String stringify(float a){
-    return String(a);
-  }
-  String stringify(const char * a){
-    return String(a);
-  }
-  int toInt(String s){
-    return s.toInt();
-  }
-#endif
+//Compatability for arduino 'Strings' and c++ 'strings' (some foresight could've avoided this!)
+#include "stringUtils.h"
+
+//Data variables -------------------------------------------
+unsigned short int copyPos[2];//stores the coordinates of the cursor when copying
+vector<vector<uint16_t> > lookupData; //char map of notes; 0 = no note, 1-665,535 = noteID
+vector<vector<Note>> seqData;//making a 2D vec, number of rows = tracks, number of columns = usable notes, and stores Note objects
+vector<vector<Note>> copyBuffer;//stores copied notes
+//holds all the autotracks
+vector<Autotrack> autotrackData;
+vector<Track> trackData;//holds the tracks in the sequence
+
+//each byte represents the channels an output will send on
+//each BIT of each byte is a channel
+uint16_t midiChannels[5] = {65535,65535,65535,65535,65535};
+
+unsigned short int animOffset = 0;//for animating curves
+
+//each of the modifiers stores a channel, and a value
+//the parameter gets modified
+//gets added to notes in the vel modifier channel
+//0 is the global channel
+int8_t velModifier[2] = {0,0};
+int8_t chanceModifier[2] = {0,0};
+int8_t pitchModifier[2] = {0,0};
 
 //bitmaps for graphics
 #include "bitmaps.h"
@@ -141,30 +130,32 @@ class CoordinatePair;
 #include "classes/CoordinatePair.h"
 #include "classes/Menu.h"
 #include "classes/Note.h"
-
-const Note offNote; //default note, always goes in element 0 of seqData for each track
-const vector<Note> defaultVec = {offNote};//default vector for a track, holds offNote at 0
-vector<vector<Note>> seqData;//making a 2D vec, number of rows = tracks, number of columns = usable notes, and stores Note objects
-vector<vector<Note>> copyBuffer;//stores copied notes
-
-//each byte represents the channels an output will send on
-//each BIT of each byte is a channel
-uint16_t midiChannels[5] = {65535,65535,65535,65535,65535};
-
 #include "classes/Track.h"
-
-vector<Track> trackData;//holds the tracks in the sequence
-
 #include "classes/Knob.h"
+//16 knobs for the 'controlknobs' instrument
+Knob controlKnobs[16];
 #include "classes/AutomationTrack.h"
-#include "classes/Loop.h"
-#include "classes/SelectionBox.h"
 
-//These classes need to talk to seqData or trackData
+//These need to be referenced after Autotracks are defined
+void rotaryActionA_Handler(){
+  //this is bad programming! prob shouldn't have this in an interrupt
+  counterA += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)?readEncoder(0)*4:readEncoder(0);
+  if(recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)
+    waiting = false;
+}
+
+void rotaryActionB_Handler(){
+  //this is bad programming! prob shouldn't have this in an interrupt
+  counterB += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)?readEncoder(1)*4:readEncoder(1);
+  if(recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)
+    waiting = false;
+}
+
+#include "classes/SelectionBox.h"
+#include "classes/Loop.h"
 #include "classes/Arp.h"
 #include "classes/NoteID.h"
 #include "classes/Progression.h"
-
 
 //original ChildOS fonts
 #include "fonts/7_segment.cpp"
@@ -174,29 +165,53 @@ vector<Track> trackData;//holds the tracks in the sequence
 #include "fonts/italic.cpp"
 #include "fonts/chunky.cpp"
 
-//scope this into the "knobs" instrument
-Knob controlKnobs[16];
-
 #include "drawingFunctions.h"
 #include "scales.h"
-
-//Data variables -------------------------------------------
-
-unsigned short int copyPos[2];//stores the coordinates of the cursor when copying
-
-//stores cursor position in copy pos, makes a copy of all selected notes (or the target note)
-vector<vector<uint16_t> > lookupData; //char map of notes; 0 = no note, 1-665,535 = noteID
-
 #include "CV.h"
+#include "playback.h"
+#include "interface.h"
+#include "programChange.h"
+
+//including custom users apps
+#include "user/userApplications.h"
+
+//FX Apps
+#include "fx/randomMenu.cpp"
+#include "fx/warpMenu.cpp"
+#include "fx/strumMenu.cpp"
+#include "fx/reverseMenu.cpp"
+#include "fx/quantizeMenu.cpp"
+#include "fx/humanizeMenu.cpp"
+#include "fxApps.h"
+
+//Instrument apps
+#include "instruments/rattle.cpp"
+#include "instruments/chordDJ.cpp"
+#include "instruments/chordBuilder.cpp"
 #include "instruments/planets.cpp"
 #include "instruments/rain.cpp"
 #include "instruments/liveLoop.cpp"
 #include "instruments/knobs.cpp"
 #include "instruments/drumPads.cpp"
-
-unsigned short int animOffset = 0;//for animating curves
+#include "instrumentApps.h"
 
 //Menus
-#include "menus/loopMenu.cpp"
 #include "menus/consoleMenu.cpp"
+#include "menus/InstrumentMenu.cpp"
+#include "menus/arpMenu.cpp"
+#include "menus/autotrackMenu.cpp"
+#include "menus/trackMenu.cpp"
+#include "menus/settingsMenu.cpp"
+#include "menus/fileMenu.cpp"
+#include "menus/editMenu.cpp"
+#include "menus/clockMenu.cpp"
+#include "menus/mainMenu.cpp"
+#include "menus/midiMenu.cpp"
+
+#include "helpScreen.h"
+#include "trackFunctions.h"
+#include "fileSystem.h"
+#include "MIDI.h"
+#include "setup.h"
+#include "screenSavers.h"
 
