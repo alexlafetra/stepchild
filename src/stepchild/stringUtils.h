@@ -48,3 +48,32 @@ int toInt(string s){
         return stoi(s);
 }
 #endif
+
+//Formats a number 1-13 into its Roman Numeral equivalent
+//This is really only used for printing intervals in Roman Numeral notation
+//eg. printing the 3rd degree of a scale as "III"
+String decimalToNumeral(int dec){
+  String numeral = "";
+  if(dec < 4){
+    for(int i = 0; i<dec; i++){
+      numeral+="I";
+    }
+  }
+  if(dec == 4)
+    numeral = "IV";
+  if(dec>4 && dec<9){
+    numeral = "V";
+    for(int i = 5; i<dec; i++){
+      numeral += "I";
+    }
+  }
+  if(dec == 9)
+    numeral = "IX";
+  if(dec>9 && dec<13){
+    numeral = "X";
+    for(int i = 10; i<dec; i++){
+      numeral += "I";
+    }
+  }
+  return numeral;
+}

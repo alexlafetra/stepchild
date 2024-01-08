@@ -1,4 +1,48 @@
 //Specialized functions for drawing geometries
+unsigned short int horzSelectionBox(String caption, vector<String> options, unsigned short int x1, unsigned short int y1, unsigned short int width, unsigned short int height){
+  long int time = millis();
+  unsigned short int select = 0;
+  bool selected = false;
+  while(!selected){
+    display.fillRect(x1,y1,width,height,SSD1306_BLACK);
+    display.drawRect(x1,y1,width,height,SSD1306_WHITE);
+    display.setCursor(x1+20, y1+10);
+    printSmall(x1+2,y1+2,caption,SSD1306_WHITE);
+    for(int i = 0; i<options.size(); i++){
+      display.setCursor(x1+40+i*20,y1+30);
+      if(i == select)
+        display.drawRect(x1+i*20-2,y1+8,8,options[i].length()*4+2,SSD1306_WHITE);
+      printSmall(x1+i*20,y1+10,options[i],SSD1306_WHITE);
+    }
+    display.display();
+    readJoystick();
+    readButtons();
+    if(itsbeen(200)){
+      if(x != 0 || y != 0){
+        if(x == -1 && select<options.size()-1){
+          select++;
+          time = millis();
+        }
+        if(x == 1 && select>0){
+          select--;
+          time = millis();
+        }
+        if(select<0)
+          select = 0;
+        if(select>options.size()-1)
+          select = options.size()-1;
+      }
+      if(sel){
+        selected = true;
+        time = millis();
+      }
+    }
+  }
+  sel = false;
+  lastTime = millis();
+  display.invertDisplay(false);
+  return select;
+}
 
 void shadeArea(int16_t x1, int16_t y1, int16_t len, int16_t height, uint8_t shade){
   for(int j = 0; j<height; j++){
@@ -106,6 +150,86 @@ void drawDottedLineDiagonal(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint
     count++;
   }
 }
+
+void shadeRect(int16_t x1, int16_t y1, int16_t len, int16_t height, uint8_t shade){
+  display.drawRect(x1, y1, len, height, SSD1306_WHITE);
+  shadeArea(x1,y1,len,height,shade);
+}
+void drawCenteredBracket(int x1, int y1, int length, int height){
+  drawNoteBracket(x1-length/2,y1-height/2,length, height, false);
+}
+
+
+void drawBinarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, bool state){
+  const uint8_t height = 11;
+  //getting the longest string so we know how long to make the box
+  uint8_t maxLength;
+  if(op1.length()>op2.length())
+    maxLength = op1.length();
+  else
+    maxLength = op2.length();
+  uint8_t length = (maxLength*4+3)*2;
+
+  display.fillRect(x1-length/2,y1-height/2,length,height,SSD1306_BLACK);
+  drawSlider(x1-length/2,y1-height/2,length,height,state);
+  printSmall(x1-length/4-op1.length()*2+1,y1-2,op1,2);
+  printSmall(x1+length/4-op2.length()*2,y1-2,op2,2);
+  if(title.length()>0){
+    const uint8_t height2 = 9;
+    uint8_t length2 = title.length()*4-countSpaces(title)*2;
+    display.fillRect(x1-length2/2-2,y1-15,length2+4,height2,SSD1306_BLACK);
+    display.drawRect(x1-length2/2-2,y1-15,length2+4,height2,SSD1306_WHITE);
+    printSmall(x1-length2/2,y1-height2-4,title,SSD1306_WHITE);
+  }
+}
+//for no title
+int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, void (*drawingFunction)()){
+  return binarySelectionBox(x1,y1,op1,op2,"",drawingFunction);
+}
+
+//centered on x1 and y1
+//returns -1 (no answer/exit), 0 (no) or 1 (yes)
+int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, void (*drawingFunction)()){
+  //bool for breaking from the loop
+  bool notChosenYet = true;
+  //storing the state
+  bool state = false;
+  lastTime = millis();
+  
+  while(true){
+    display.clearDisplay();
+    drawingFunction();
+    drawBinarySelectionBox(x1,y1,op1,op2,title,state);
+    display.display();
+    readJoystick();
+    readButtons();
+    if(itsbeen(200)){
+      //x to select option
+      if(x != 0){
+        if(x == 1 && state){
+          state = !state;
+          lastTime = millis();
+        }
+        else if(x == -1 && !state){
+          state = !state;
+          lastTime = millis();
+        }
+      }
+      //menu/delete to cancel
+      if(menu_Press || del){
+        lastTime = millis();
+        return -1;
+      }
+      //choose option
+      else if(n || sel){
+        lastTime = millis();
+        return state;
+      }
+    }
+  }
+  return false;
+}
+
 
 void shadeLineV(int16_t xPos, int16_t yPos, int16_t len, uint8_t shade){
   for(uint8_t i = 0; i<=len; i++){
@@ -783,4 +907,613 @@ void drawStar(uint8_t centerX, uint8_t centerY, uint8_t r1, uint8_t r2, uint8_t 
       display.drawLine(coords[pt][0],coords[pt][1],coords[pt+1][0],coords[pt+1][1],SSD1306_WHITE);
     }
   }
+}
+
+void drawPram(uint8_t x1, uint8_t y1){
+  if(onBeat(2,30))
+    display.drawBitmap(x1,y1+1,carriage_bmp,14,15,SSD1306_WHITE);
+  else
+    display.drawBitmap(x1,y1,carriage_bmp,14,15,SSD1306_WHITE);
+}
+
+void drawPlayIcon(int8_t x1, int8_t y1){
+  if(!internalClock && !gotClock){
+    display.drawTriangle(x1,y1+6,x1,y1,x1+6,y1+3,SSD1306_WHITE);
+  }
+  else{
+    display.fillTriangle(x1,y1+6,x1,y1,x1+6,y1+3,SSD1306_WHITE);
+  }
+}
+
+void drawPower(uint8_t x1, uint8_t y1){
+  //check if USB is plugged in
+  bool usb = digitalRead(usbPin);
+  if(usb){
+    // display.drawBitmap(x1,y1,batt_bmp,10,7,SSD1306_WHITE);
+    display.drawBitmap(x1,y1+1,tiny_usb,10,4,SSD1306_WHITE);
+  }
+  else{
+    display.drawBitmap(x1,y1,batt_bmp,10,7,SSD1306_WHITE);
+    float batt = getBattLevel();
+    //for printing batt level to the screen
+    // String lvl = stringify(batt);
+    // printSmall(x1-lvl.length()*4,y1+1,lvl,1);
+    //input ranges from ~1.8 (lowest the Pico can run on) to 3.6v (with 3AA's @ 1.2v)
+    //so the range is 1.8, thus u gotta do 6 increments of 0.3, 1.8 --> 
+    if(batt<=1.8){
+    }
+    else if(batt<2.1){
+      display.fillRect(x1+2,y1+2,1,3,SSD1306_WHITE);
+    }
+    else if(batt<2.4){
+      display.fillRect(x1+2,y1+2,2,3,SSD1306_WHITE);
+    }
+    else if(batt<2.7){
+      display.fillRect(x1+2,y1+2,3,3,SSD1306_WHITE);
+    }
+    else if(batt<3.0){
+      display.fillRect(x1+2,y1+2,4,3,SSD1306_WHITE);
+    }
+    else if(batt<3.3){
+      display.fillRect(x1+2,y1+2,5,3,SSD1306_WHITE);
+    }
+    else{
+      display.fillRect(x1+2,y1+2,6,3,SSD1306_WHITE);
+    }
+  }
+}
+
+//draws pram, other icons (not loop points tho)
+void drawTopIcons(){
+  if(!menuIsActive || (activeMenu.menuTitle == "MENU") || (activeMenu.menuTitle == "FX") || (activeMenu.menuTitle == "EDIT" && activeMenu.coords.x1>32)){
+    if(maxTracksShown == 5){
+      if(!playing && !recording){
+        drawPram(5,0);
+      }
+      //pram bounces faster
+      else if(playing || recording){
+        //if the playhead/rechead is on a subdiv, bounce the pram (this is set in loop1, it's too hard to do accurately here)
+        display.drawBitmap(5,pramOffset,carriage_bmp,14,15,SSD1306_WHITE);
+      }
+    }
+    else{
+      if(!playing && !recording){
+        if(onBeat(2,30))
+          display.drawBitmap(8,1,tinyPram,7,7,SSD1306_WHITE);
+        else
+          display.drawBitmap(8,0,tinyPram,7,7,SSD1306_WHITE);
+      }
+      //pram bounces faster
+      else if(playing || recording){
+        //if the playhead/rechead is on a subdiv, bounce the pram (this is set in loop1, it's too hard to do accurately here)
+        display.drawBitmap(8,pramOffset,tinyPram,7,7,SSD1306_WHITE);
+      }
+    }
+  }
+
+  // if it's recording and waiting for a note
+  if(recording && waiting){
+    if(millis()%1000>500){
+      writeLEDs(0,true);
+    }
+    else{
+      writeLEDs(0,false);
+    }
+  }
+
+  //music symbol while receiving notes
+  if(isReceivingOrSending()){
+    if(!((animOffset/10)%2)){
+      display.drawChar(21,0,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
+    }
+    else{
+      display.drawChar(21,1,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
+    }
+  }
+
+  //note presence indicator(if notes are offscreen)
+  if(areThereMoreNotes(true)){
+    uint8_t y1 = (maxTracksShown>5&&!menuIsActive)?8:headerHeight;
+    if(!((animOffset/10)%2)){
+      display.fillTriangle(trackDisplay-7,y1+3,trackDisplay-3,y1+3,trackDisplay-5,y1+1, SSD1306_WHITE);
+    }
+    else{
+      display.fillTriangle(trackDisplay-7,y1+2,trackDisplay-3,y1+2,trackDisplay-5,y1, SSD1306_WHITE);
+    }
+  }
+  if(areThereMoreNotes(false)){
+    if(!((animOffset/10)%2)){
+      display.fillTriangle(trackDisplay-7,screenHeight-5,trackDisplay-3,screenHeight-5,trackDisplay-5,screenHeight-3, SSD1306_WHITE);
+    }
+    else{
+      display.fillTriangle(trackDisplay-7,screenHeight-4,trackDisplay-3,screenHeight-4,trackDisplay-5,screenHeight-2, SSD1306_WHITE);
+    }
+  }
+
+  uint8_t x1 = 32;
+  //rec/play icon
+  if(recording){
+    if(!internalClock && !gotClock){
+      if(waiting){
+        if(millis()%1000>500){
+          display.drawCircle(trackDisplay+3,3,3,SSD1306_WHITE);
+        }
+      }
+      else
+        display.drawCircle(trackDisplay+3,3,3,SSD1306_WHITE);
+    }
+    else if((!internalClock && gotClock) || internalClock){
+      if(waiting){
+        if(millis()%1000>500){
+          display.fillCircle(trackDisplay+3,3,3,SSD1306_WHITE);
+        }
+      }
+      else
+        display.fillCircle(trackDisplay+3,3,3,SSD1306_WHITE);
+    }
+    x1+=9;
+    switch(recMode){
+      //if one-shot rec
+      case 0:
+        // display.drawBitmap(x1+((millis()/200)%2),0,oneShot_rec,7,7,SSD1306_WHITE);
+        printSmall(x1,1,"1",1);
+        x1+=4;
+        if((millis()/10)%100>50)
+          display.drawBitmap(x1,1,oneshot_bmp,3,5,SSD1306_WHITE);
+        x1+=4;
+        break;
+      //if continuous recording
+      case 1:
+        display.drawBitmap(x1,1,continuous_bmp,9,5,SSD1306_WHITE);
+        x1+=10;
+        break;
+    }
+    if(overwriteRecording){
+      display.drawBitmap(x1,0,((millis()/10)%100>50)?overwrite_1:overwrite_2,7,7,SSD1306_WHITE);
+      x1+=8;
+    }
+  }
+  else if(playing){
+    drawPlayIcon(trackDisplay+((millis()/200)%2)+1,0);
+    x1 += 9;
+    switch(isLooping){
+      //if not looping
+      case 0:
+        if((millis()/10)%100>50)
+          display.drawFastVLine(x1,0,7,1);
+        printSmall(x1+3,1,"1",1);
+        x1+=10;
+        break;
+      //if looping
+      case 1:
+        if(millis()%1000>500){
+          display.drawBitmap(x1,0,toploop_arrow1,7,7,SSD1306_WHITE);
+        }
+        else{
+          display.drawBitmap(x1,0,toploop_arrow2,7,7,SSD1306_WHITE);
+        }
+        x1+=10;
+        break;
+    }
+
+  }
+  //Data track icon
+  if(autotrackData.size()>0){
+    if(millis()%1600>800)
+      // display.drawBitmap(x1,1,sine_small_bmp,6,4,SSD1306_WHITE);
+      display.drawBitmap(x1,0,autotrack1,10,7,SSD1306_WHITE);
+    else{
+      // display.drawBitmap(x1,1,sine_small_reverse_bmp,6,4,SSD1306_WHITE);
+      display.drawBitmap(x1,0,autotrack2,10,7,SSD1306_WHITE);
+    }
+    x1+=12;
+  }
+
+  //swing icon
+  if(swung){
+    drawPendulum(x1+2,0,7,millis()/2,1);
+    x1+=10;
+  }
+  //fragment gem
+  if(isFragmenting){
+    drawTetra(x1,5,10+sin(float(millis())/float(500)),10+sin(float(millis())/float(500)),6+sin(float(millis())/float(500)),1+sin(float(millis())/float(500)),0,SSD1306_WHITE);
+    x1+=8;
+  }
+
+  //velocity/chance indicator while shifting
+  if(shift){
+    if(displayingVel){
+      if(lookupData[activeTrack][cursorPos] == 0){
+        String vel = stringify(defaultVel);
+        printSmall(x1,1,"v:"+vel,SSD1306_WHITE);
+        x1+=vel.length()*4+8;;
+      }
+      else{
+        String vel = stringify(seqData[activeTrack][lookupData[activeTrack][cursorPos]].velocity);
+        printSmall(x1,1,"v:"+vel,SSD1306_WHITE);
+        x1+=vel.length()*4+8;
+      }
+    }
+    else{
+      if(lookupData[activeTrack][cursorPos] == 0){
+        printSmall(x1,1,"c:"+stringify(100),SSD1306_WHITE);
+        x1+=20;
+      }
+      else{
+        printSmall(x1,1,"c:"+stringify(seqData[activeTrack][lookupData[activeTrack][cursorPos]].chance),SSD1306_WHITE);
+        x1+=20;
+      }
+    }
+  }
+  if(isArping){
+    display.drawPixel(x1,3+2*sin(float(millis())/float(200)),1);
+    display.drawPixel(x1+2,3+2*sin(float(millis())/float(200)+100),1);
+    display.drawPixel(x1+4,3+2*sin(float(millis())/float(200)+200),1);
+    // printSmall(x1+6,1,"a",1);
+    display.drawBitmap(x1+6,2,tiny_arp_bmp,9,3,1);
+    // x1+=8;
+    x1+=17;
+  }
+
+  //draw menu text
+  printSmall(x1,1,menuText,SSD1306_WHITE);
+  x1+=menuText.length()*4+2;
+
+  //power/battery indicator
+  drawPower(screenWidth-10,0);
+}
+
+//same function, but doesn't clear or display the screen
+void drawSeq(){
+  drawSeq(true,true,true,true,false);
+}
+//sends data to screen
+//move through rows/columns, printing out data
+void displaySeq(){
+  display.clearDisplay();
+  drawSeq();
+  display.display();
+}
+
+void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection){
+  drawSeq(trackLabels,topLabels,loopPoints,menus,trackSelection,false,viewStart,viewEnd);
+}
+
+void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_t height, bool onlyWithinLoop, bool loopFlags, bool loopPoints){
+  //drawing the measure bars
+  for (uint16_t step = start; step < end; step++) {
+    unsigned short int x1 = trackDisplay+int((step-start)*scale);
+    unsigned short int x2 = x1 + (step-start)*scale;
+
+    //shade everything outside the loop
+    if(onlyWithinLoop){
+      if(step<loopData[activeLoop].start){
+        shadeArea(x1,startHeight,(loopData[activeLoop].start-step)*scale,screenHeight-startHeight,3);
+        step = loopData[activeLoop].start;
+        //ok, step shouldn't ever be zero in this case, since that would mean it was LESS than zero to begin
+        //with. But, just for thoroughnesses sake, make sure step doesn't overflow when you subtract from it
+        if(step != 0){
+          step--;
+        }
+        continue;
+      }
+      else if(step>loopData[activeLoop].end){
+        shadeArea(x1,startHeight,(viewEnd-loopData[activeLoop].end)*scale,screenHeight-startHeight,3);
+        break;
+      }
+    }
+
+    //if the last track is showing
+    if(endTrack == trackData.size()){
+      //measure bars
+      if (!(step % subDivInt) && (step%96) && (subDivInt*scale)>1) {
+        drawDottedLineV(x1,startHeight,height,2);
+      }
+      if(!(step%96)){
+        drawDottedLineV2(x1,startHeight,height,6);
+      }
+    }
+    else{
+      //measure bars
+      if (!(step % subDivInt) && (step%96) && (subDivInt*scale)>1) {
+        drawDottedLineV(x1,startHeight,height,2);
+      }
+      if(!(step%96)){
+        drawDottedLineV2(x1,startHeight,height,6);
+      }
+    }
+
+    //drawing loop points/flags
+    if(loopPoints){//check
+      if(step == loopData[activeLoop].start){
+        if(loopFlags){
+          if(movingLoop == -1 || movingLoop == 2){
+            display.fillTriangle(trackDisplay+(step-start)*scale, headerHeight-3-sin(millis()/50), trackDisplay+(step-start)*scale, headerHeight-7-sin(millis()/50), trackDisplay+(step-start)*scale+4, headerHeight-7-sin(millis()/50),SSD1306_WHITE);
+            display.drawFastVLine(trackDisplay+(step-start)*scale,headerHeight-3,3,SSD1306_WHITE);
+          }
+          else{
+            if(cursorPos == step){
+              display.fillTriangle(trackDisplay+(step-start)*scale, headerHeight-3, trackDisplay+(step-start)*scale, headerHeight-7, trackDisplay+(step-start)*scale+4, headerHeight-7,SSD1306_WHITE);
+              display.drawFastVLine(trackDisplay+(step-start)*scale,headerHeight-3,3,SSD1306_WHITE);
+            }
+            else{
+              display.fillTriangle(trackDisplay+(step-start)*scale, headerHeight-1, trackDisplay+(step-start)*scale, headerHeight-5, trackDisplay+(step-start)*scale+4, headerHeight-5,SSD1306_WHITE);
+            }
+          }
+        }
+        else{
+          display.drawPixel(trackDisplay+(loopData[activeLoop].start-start)*scale, startHeight-1,1);
+        }
+        if(!movingLoop || (movingLoop != 1 && (millis()/400)%2)){
+          display.drawFastVLine(trackDisplay+(step-start)*scale,startHeight,screenHeight-startHeight-(endTrack == trackData.size()),SSD1306_WHITE);
+          display.drawFastVLine(trackDisplay+(step-start)*scale-1,startHeight,screenHeight-startHeight-(endTrack == trackData.size()),SSD1306_WHITE);
+        }
+      }
+      if(step == loopData[activeLoop].end-1){
+        if(loopFlags){
+          if(movingLoop == 1 || movingLoop == 2){
+            display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-3-sin(millis()/50), trackDisplay+(loopData[activeLoop].end-start)*scale-4, headerHeight-7-sin(millis()/50), trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-7-sin(millis()/50),SSD1306_WHITE);
+            display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,headerHeight-3,3,SSD1306_WHITE);
+          }
+          else{
+            if(cursorPos == step+1){
+              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-3, trackDisplay+(loopData[activeLoop].end-start)*scale-4, headerHeight-7, trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-7,SSD1306_WHITE);
+              display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,headerHeight-3,3,SSD1306_WHITE);
+            }
+            else{
+              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-1, trackDisplay+(loopData[activeLoop].end-start)*scale-4, headerHeight-5, trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-5,SSD1306_WHITE);
+            }
+          }
+        }
+        else{
+          display.drawPixel(trackDisplay+(loopData[activeLoop].end-start)*scale, startHeight-1,1);
+        }
+        if(!movingLoop || (movingLoop != -1 && (millis()/400)%2)){
+          display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale+1,startHeight,screenHeight-startHeight-(endTrack == trackData.size()),SSD1306_WHITE);
+          display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale+2,startHeight,screenHeight-startHeight-(endTrack == trackData.size()),SSD1306_WHITE);
+        }
+      }
+      if(movingLoop == 2){
+        if(step>loopData[activeLoop].start && step<loopData[activeLoop].end && step%2){
+          display.drawPixel(trackDisplay+(step-start)*scale, startHeight-7-sin(millis()/50),SSD1306_WHITE);
+        }
+      }
+      if(loopFlags && (step == loopData[activeLoop].start+(loopData[activeLoop].end-loopData[activeLoop].start)/2))
+        printSmall(trackDisplay+(step-start)*scale-1,10,stringify(activeLoop),SSD1306_WHITE);
+    }
+  }
+}
+
+//this function is a mess!
+void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, bool shadeOutsideLoop, uint16_t start, uint16_t end){
+  if(!screenSaving){
+    //handling the note view
+    if(end>seqEnd){
+      end = seqEnd;
+    }
+    if(start>end){
+      start = seqStart;
+    }
+    uint16_t viewLength = end - start;
+
+    uint8_t startHeight = 0;
+    bool loopFlags = loopPoints;
+
+    if(maxTracksShown == 6 && !menuIsActive){
+      startHeight = 8;
+      trackHeight = (screenHeight-startHeight)/maxTracksShown;
+      loopFlags = false;
+    }
+    else{
+      trackHeight = (screenHeight-headerHeight)/maxTracksShown;
+      startHeight = headerHeight;
+    }
+
+    if(trackData.size()>maxTracksShown){
+      endTrack = startTrack + maxTracksShown;
+    }
+    else{
+      endTrack = startTrack + trackData.size();
+    }
+    while(activeTrack>=endTrack && trackData.size()>maxTracksShown){
+      startTrack++;
+      endTrack++;
+    }
+    while(activeTrack<startTrack && trackData.size()>maxTracksShown){
+      startTrack--;
+      endTrack--;
+    }
+
+    display.setTextSize(1);
+    display.setTextColor(SSD1306_WHITE);
+    // display.setTextWrap(false);
+
+    //drawing selection box, since it needs to overlay stepSeq data
+    if(selBox.begun){
+      selBox.displaySelBox();
+    }
+    uint8_t height;
+    if(endTrack == trackData.size())
+      height = startHeight+trackHeight*maxTracksShown;
+    else if(trackData.size()>maxTracksShown)
+      height = startHeight+trackHeight*(maxTracksShown+1);
+    else
+      height = startHeight+trackHeight*trackData.size();
+
+    //drawing measure bars, loop points
+    drawSeqBackground(start, end, startHeight, height, shadeOutsideLoop,loopFlags, loopPoints);
+
+    //top and bottom bounds
+    if(startTrack == 0){
+      display.drawFastHLine(trackDisplay,startHeight,screenWidth,SSD1306_WHITE);
+    }
+    //if the bottom is in view
+    if(endTrack == trackData.size()){
+      display.drawFastHLine(trackDisplay,startHeight+trackHeight*maxTracksShown,screenWidth,SSD1306_WHITE);
+    }
+   else if(endTrack< trackData.size())
+        endTrack++;
+    //drawin all da steps
+    //---------------------------------------------------
+    for (int track = startTrack; track < endTrack; track++) {
+      unsigned short int y1 = (track-startTrack) * trackHeight + startHeight;
+      unsigned short int y2 = y1 + trackHeight;
+      uint8_t xCoord;
+      //track info display
+      if(activeTrack == track){
+        xCoord = 9;
+        // display.setCursor(9, y1+trackHeight/2-2);
+        if(trackLabels)
+          drawArrow(6+((millis()/400)%2),y1+trackHeight/2+1,2,0,true);
+      }
+      else{
+        xCoord = 5;
+        // display.setCursor(5, y1+trackHeight/2-2);
+      }
+      if(trackLabels){
+        if(!isShrunk){
+          //printing note names
+          if(pitchesOrNumbers){
+            printTrackPitch(xCoord, y1+trackHeight/2-2,track,false,true,SSD1306_WHITE);
+          }
+          //just printing pitch numbers
+          else{
+            display.setCursor(xCoord,y1+2);
+            display.print(trackData[track].pitch);
+          }
+          // else{
+          //   if(track == activeTrack && isModulated(trackData[track].channel)){
+          //     if(playing)
+          //       display.drawBitmap(trackDisplay-7,y1+3+((millis()/200)%2),sine_small_bmp,6,4,SSD1306_WHITE);
+          //     else
+          //       display.drawBitmap(trackDisplay-7,y1+2,sine_small_bmp,6,4,SSD1306_WHITE);
+          //   }
+          // }
+        }
+        //if it's shrunk, draw it small
+        else{
+          String pitch = getTrackPitchOctave(track);
+          if(track%2){
+            printSmall(18, y1, pitchToString(trackData[track].pitch,true,true), SSD1306_WHITE);
+          }
+          else
+            printSmall(2, y1, pitchToString(trackData[track].pitch,true,true), SSD1306_WHITE);
+          if(trackData[track].noteLastSent != 255){
+            display.drawRect(0,y1,trackDisplay,trackHeight+2,SSD1306_WHITE);
+          }
+        }
+      }
+      //if you're only drawing selected tracks, and this track ISN'T selected, shade it
+      if(trackSelection && !trackData[track].isSelected){
+        display.fillRect(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,0);
+        shadeArea(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,3);
+      }
+      //if the track is muted, just hatch it out (don't draw any notes)
+      //if it's solo'd and muted, draw it normal (solo overrules mute)
+      else if(trackData[track].isMuted && !trackData[track].isSolo){
+        // display.fillRect(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,0);
+        shadeArea(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,9);
+        continue;
+      }
+      else{
+        //highlight for solo'd tracks
+        if(trackData[track].isSolo)
+          drawNoteBracket(trackDisplay+3,y1-1,screenWidth-trackDisplay-5,trackHeight+2,true);
+        // display.setTextColor(SSD1306_WHITE,SSD1306_BLACK);
+        for (int step = start; step < end; step++) {
+          //if you only want to draw what's within the loop
+          if(shadeOutsideLoop){
+            //if you're less than the loop, jump to the start of the loop
+            //(this could also be in the initial for loop condition!)
+            if(step<loopData[activeLoop].start){
+              step = loopData[activeLoop].start;
+            }
+            //if you're past the loop end, break out of the for loop
+            else if(step>=loopData[activeLoop].end){
+              break;
+            }
+          }
+          int id = lookupData[track][step];
+          unsigned short int x1 = trackDisplay+int((step-start)*scale);
+          unsigned short int x2 = x1 + (step-start)*scale;
+          //drawing note
+          if (id != 0){
+            if(step == seqData[track][id].startPos){
+              uint16_t length = (seqData[track][id].endPos - seqData[track][id].startPos)*scale;
+              if(displayingVel)
+                drawNote_vel(id, track, x1,y1,length,trackHeight,seqData[track][id].velocity,seqData[track][id].isSelected,seqData[track][id].muted);
+              else
+                drawNote_chance(id, track, x1,y1,length,trackHeight,seqData[track][id].chance,seqData[track][id].isSelected,seqData[track][id].muted);
+              if(seqData[track][id].isSelected){
+                display.drawRect(x1,y1,length+1,trackHeight,SSD1306_WHITE);
+                display.drawRect(x1+1,y1+1,length-1,trackHeight-2,SSD1306_BLACK);
+              }
+            }
+            else if(!isInView(seqData[track][id].startPos) && step == start){
+              unsigned short int length = (seqData[track][id].endPos - start)*scale;
+              if(displayingVel)
+                drawNote_vel(id, track, x1,y1,length,trackHeight,seqData[track][id].velocity,seqData[track][id].isSelected,seqData[track][id].muted);
+              else
+                drawNote_chance(id, track, x1,y1,length,trackHeight,seqData[track][id].chance,seqData[track][id].isSelected,seqData[track][id].muted);
+            }
+          }
+        }
+      }
+    }
+    //---------------------------------------------------
+    //drawing cursor
+    if(!editingNote && !(menuIsActive && activeMenu.menuTitle == "EDIT" && activeMenu.page == 1)){
+      uint8_t cPos = trackDisplay+int((cursorPos-start)*scale);
+      if(cPos>127)
+        cPos = 126;
+      if(endTrack == trackData.size()){
+        display.drawFastVLine(cPos, startHeight, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
+        display.drawFastVLine(cPos+1, startHeight, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
+        // display.drawRect(trackDisplay+int((cursorPos-start)*scale), startHeight, 2, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
+      }
+      else{
+        display.drawFastVLine(cPos, startHeight, screenHeight-startHeight, SSD1306_WHITE);
+        display.drawFastVLine(cPos+1, startHeight, screenHeight-startHeight, SSD1306_WHITE);
+        // display.drawRect(trackDisplay+int((cursorPos-start)*scale), startHeight, 2, screenHeight-startHeight, SSD1306_WHITE);
+      }
+    }
+    //carriage bitmap/title
+    if(topLabels)
+      drawTopIcons();
+    //playhead/rechead
+    if(playing && isInView(playheadPos))
+      display.drawRoundRect(trackDisplay+(playheadPos-start)*scale,startHeight,3, screenHeight-startHeight, 3, SSD1306_WHITE);
+    if(recording && isInView(recheadPos))
+      display.drawRoundRect(trackDisplay+(recheadPos-start)*scale,startHeight,3, screenHeight-startHeight, 3, SSD1306_WHITE);
+    
+    int cursorX = trackDisplay+int((cursorPos-start)*scale)-8;
+    if(!playing && !recording){
+      cursorX = 32;
+    }
+    else{
+      //making sure it doesn't print over the subdiv info
+      cursorX = 42;
+    }
+    //drawing active track highlight
+    unsigned short int x1 = trackDisplay;
+    unsigned short int y1 = (activeTrack-startTrack) * trackHeight + startHeight;
+    unsigned short int x2 = x1+screenWidth-trackDisplay;
+    unsigned short int y2 = y1 + trackHeight;
+    // display.drawRect(x1, y1, screenWidth, trackHeight, SSD1306_WHITE);
+    display.drawFastHLine(x1,y1,screenWidth-x1,1);
+    display.drawFastHLine(x1,y1+trackHeight-1,screenWidth-x1,1);
+  }
+  if(menus && menuIsActive){
+    activeMenu.displayMenu(true,true);
+  }
+
+  //anim offset (for the pram)
+  if(!menuIsActive){
+    animOffset++;
+    if(animOffset>100)
+      animOffset = 0;
+  }
+
+  if(playing || recording)
+    updateLEDs();
 }

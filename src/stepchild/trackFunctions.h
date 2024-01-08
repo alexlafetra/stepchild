@@ -581,3 +581,98 @@ void eraseTrack(int track) {
 void eraseTrack() {
   eraseTrack(activeTrack);
 }
+
+void setTrackToNearestPitch(vector<uint8_t>pitches,int track,bool allowDuplicates){
+  int oldPitch = trackData[track].pitch;
+  int pitchDistance = 127;
+  int closestPitch;
+  int octaveOffset = 12*getOctave(oldPitch);
+  for(int i = 0; i<pitches.size(); i++){
+    if(abs(pitches[i]+octaveOffset-oldPitch)<pitchDistance){
+      pitchDistance = abs(pitches[i]+octaveOffset-oldPitch);
+      closestPitch = i;
+      //if the track is already that pitch, return
+      if(pitchDistance == 0){
+        return;
+      }
+    }
+  }
+  //if no duplicates are allowed, check to see if there are any other tracks
+  //with this pitch
+  if(!allowDuplicates){
+    for(uint8_t t = 0; t<trackData.size(); t++){
+      if(t!=track && trackData[t].pitch == pitches[closestPitch]+octaveOffset){
+        return;
+      }
+    }
+  }
+  setTrackPitch(track,pitches[closestPitch]+octaveOffset,false);
+}
+
+//this one won't double up on a pitch
+void setTrackToNearestUniquePitch(vector<uint8_t>pitches,int track){
+  int oldPitch = trackData[track].pitch;
+  int pitchDistance = 127;
+  int closestPitch;
+  int octaveOffset = 12*getOctave(oldPitch);
+  for(int i = 0; i<pitches.size(); i++){
+    if(abs(pitches[i]+octaveOffset-oldPitch)<pitchDistance){
+      pitchDistance = abs(pitches[i]+octaveOffset-oldPitch);
+      closestPitch = i;
+      //if the distance is 0, then the track is already in tune
+      if(pitchDistance == 0){
+        return;
+      }
+    }
+  }
+  //if there's no track already with this pitch, set the track to the pitch
+  if(getTrackWithPitch(pitches[closestPitch]+octaveOffset) == -1){
+    setTrackPitch(track, pitches[closestPitch]+octaveOffset,false);
+  }
+  //if there is, run it again without this pitch (as long as there're still pitches left)
+  else{
+    if(pitches.size()>1){
+      vector<uint8_t>newPitches;
+      for(uint8_t i = 0; i<pitches.size(); i++){
+        if(i != closestPitch)
+          newPitches.push_back(pitches[i]);
+      }
+      pitches.swap(newPitches);
+      //recursively run the function again, just without the already-occupied pitch as an option
+      setTrackToNearestUniquePitch(pitches, track);
+    }
+    //if there's only one pitch,set it to it
+    else{
+      setTrackPitch(track, pitches[closestPitch]+octaveOffset,false);
+    }
+  }
+}
+
+void deleteDuplicateEmptyTracks(){
+  for(uint8_t t = 0; t<trackData.size(); t++){
+    for(uint8_t t2 = 0; t2<trackData.size(); t2++){
+      if(t2 == t)
+        continue;
+      //if a track has the same pitch, channel, and is empty, delete it
+      if(trackData[t].pitch == trackData[t2].pitch &&
+         trackData[t].channel == trackData[t2].channel &&
+         seqData[t2].size() == 1){
+        deleteTrack(t2);
+      }
+    }
+  }
+}
+
+void tuneTracksToScale(){
+  selectKeysAnimation(true);
+  vector<uint8_t> pitches = selectKeys();
+  selectKeysAnimation(false);
+  if(pitches.size() == 0){
+    return;
+  }
+  vector<uint8_t> tracks = selectMultipleTracks("select tracks to tune");
+  bool allowDuplicates = binarySelectionBox(64,32,"no","ye","allow duplicate pitches?",drawSeq);
+  for(int track = tracks.size()-1; track >= 0; track--){
+    setTrackToNearestPitch(pitches, tracks[track], allowDuplicates);
+  }
+}

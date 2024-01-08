@@ -182,6 +182,7 @@ void rotaryActionB_Handler(){
 #include "fx/reverseMenu.cpp"
 #include "fx/quantizeMenu.cpp"
 #include "fx/humanizeMenu.cpp"
+#include "fx/echo.cpp"
 #include "fxApps.h"
 
 //Instrument apps
@@ -193,6 +194,7 @@ void rotaryActionB_Handler(){
 #include "instruments/liveLoop.cpp"
 #include "instruments/knobs.cpp"
 #include "instruments/drumPads.cpp"
+#include "instruments/xy.cpp"
 #include "instrumentApps.h"
 
 //Menus
@@ -214,4 +216,8 @@ void rotaryActionB_Handler(){
 #include "MIDI.h"
 #include "setup.h"
 #include "screenSavers.h"
+#include "hardware.h"
 
+
+#include "TBA_Features.h"
+#include "deprecatedDebugFunctions.h"

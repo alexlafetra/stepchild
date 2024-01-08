@@ -30,7 +30,8 @@ void drawLogo(uint8_t x1, uint8_t y1);
 void drawEllipse(uint8_t h, uint8_t k, int a, int b, uint16_t c);
 void shadeArea(int16_t, int16_t, int16_t, int16_t, uint8_t);
 void shadeRect(int16_t x1, int16_t y1, int16_t len, int16_t height, uint8_t shade);
-void drawNote_vel(unsigned short int, unsigned short int, unsigned short int, unsigned short int, unsigned short int, bool,bool);
+void drawNote_chance(uint16_t id, uint8_t track, unsigned short int xStart, unsigned short int yStart, unsigned short int length, unsigned short int height, unsigned short int chance, bool isSelected, bool isMuted);
+void drawNote_vel(uint16_t id, uint8_t track, unsigned short int xStart, unsigned short int yStart, unsigned short int length, unsigned short int height, unsigned short int vel, bool isSelected, bool isMuted);
 void drawDottedLineH(unsigned short int, unsigned short int, unsigned short int, unsigned short int);
 void displaySeq();
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection);
@@ -240,6 +241,7 @@ void cutInsertTime();
 void moveToNextNote_inTrack(bool up);
 void moveToNextNote(bool forward,bool endSnap);
 bool areThereAnyNotes();
+bool areThereMoreNotes(bool);
 void setCursorToNearestNote();
 void setBpm(int newBpm);
 void checkView();
@@ -324,6 +326,8 @@ uint8_t countDigits_byte(uint8_t number);
 uint16_t getNoteCount();
 String bytesToString(uint32_t bytes);
 void newSeq();
+void printSelectionBounds();
+void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct, bool channel, uint16_t c);
 
 //Graphics
 void bootscreen_2();
@@ -339,6 +343,7 @@ void selectKeysAnimation(bool);
 void printFraction_small_centered(uint8_t x1, uint8_t y1, String fraction);
 void drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, bool full);
 uint8_t printFraction_small(uint8_t x1, uint8_t y1, String fraction);
+void drawNoteBracket(int x1, int y1, int length, int height, bool animated);
 
 //MIDI
 void sendMIDIallOff();
