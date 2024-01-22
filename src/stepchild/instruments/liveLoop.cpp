@@ -6,14 +6,17 @@
 
 */
 void liveLoop(){
+    //save loop!
     Loop originalLoop = loopData[activeLoop];
     uint8_t originalRecMode = recMode;
     menuIsActive = false;
-    recMode = 2;
+    recMode = FULL;
     Knob knobA;
     Knob knobB;
     recordedNotesAreSelected = true;
     overwriteRecording = false;
+
+    uint8_t layerCount = 0;
     clearSelection();
     while(true){
         readButtons();
@@ -47,11 +50,20 @@ void liveLoop(){
                 //if shift is held, and you're not already recording
                 if(!recording && shift){
                     lastTime = millis();
-                    uint16_t temp = recheadPos;
+                    //clear selected notes, so you don't warp 'em
+                    clearSelection();
                     //if you were already playing, just begin recording! don't wait for a note
                     //but if you haven't been playing/recording anything, wait for a note
-                    clearSelection();
-                    toggleRecordingMode(waitForNote);
+                    if(playing){
+                        uint16_t oldPlayheadPos = playheadPos;
+                        recMode = LOOP;
+                        toggleRecordingMode(false);
+                        recheadPos = oldPlayheadPos;
+                    }
+                    else{
+                        recMode = FULL;
+                        toggleRecordingMode(waitForNoteBeforeRec);
+                    }
                 }
                 //if you are already recording
                 //stop the recording and shrink it to the active loop, if you're coming out of a recording
@@ -64,24 +76,24 @@ void liveLoop(){
                     warpAintoB(A,B,true);
                     isLooping = true;
                     lastTime = millis();
+                    //on the first layer
                     //adjust the bpm so that it feels like it's playing at the same speed
-                    float timeScale = float(B.x2-B.x1)/float(A.x2-A.x1);
-                    uint16_t newBPM = bpm*timeScale;
-                    setBpm(newBPM);
+                    if(layerCount == 0){
+                        float timeScale = float(B.x2-B.x1)/float(A.x2-A.x1);
+                        uint16_t newBPM = bpm*timeScale;
+                        setBpm(newBPM);
+                    }
                     //disarm all the tracks that were just written to
-                    disarmTracksWithNotes();
+                    // disarmTracksWithNotes();
                     //clear selection, so you don't re-warp the previously recorded notes
                     clearSelection();
-                }
-                //toggle play/pause if it's just playing
-                else if(!shift){
-                    togglePlayMode();
-                    lastTime = millis();
+                    layerCount++;
                 }
             }
         }
         display.clearDisplay();
         drawSeq(true,false,true,false,false,false,viewStart,viewEnd);
+        printSmall(trackDisplay,0,"#:"+stringify(layerCount),1);
         if(!recording){
             int8_t offset = 0;
             if(playing)
@@ -116,7 +128,6 @@ void liveLoop(){
             else
                 display.drawCircle(x0,y0,radius,1);
         }
-        printCursive(trackDisplay,0,"live looper",1);
         display.display();
     }
     menuIsActive = true;

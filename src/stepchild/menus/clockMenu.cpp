@@ -120,7 +120,7 @@ void Menu::displayClockMenu(float tVal,uint8_t cursor){
       {
       x3 = 10+((millis()/200)%2);
       drawArrow(66+coords.y1,13+31+x3+2,3,2,false);
-      if(!internalClock){
+      if(clockSource == EXTERNAL){
         drawBanner(84,52,"external");
         drawSmallStepchild(88,30+2*((millis()/400)%2));
         display.drawBitmap(95,15+((millis()/400)%2),down_arrow,9,12,SSD1306_WHITE);
@@ -166,7 +166,7 @@ void Menu::displayClockMenu(float tVal,uint8_t cursor){
   display.setFont();
 
     //clock animation
-    if(internalClock){
+    if(clockSource == INTERNAL){
         display.fillRect(0,activeMenu.coords.y1,32,screenHeight-activeMenu.coords.y1,SSD1306_BLACK);
         drawPendulum(16,activeMenu.coords.y1+23,26,tVal);
         display.fillRect(10,activeMenu.coords.y1+23,12,10,SSD1306_BLACK);
@@ -240,7 +240,7 @@ void clockMenu(){
           lastTime = millis();
         }
         else if(cursor == 3){
-          internalClock = internalClock;
+          clockSource = !clockSource;
           lastTime = millis();
         }
       }
@@ -276,7 +276,7 @@ void clockMenu(){
             break;
           //source
           case 3:
-            internalClock = !internalClock;
+            clockSource = !clockSource;
             break;
         }
       }
@@ -311,7 +311,7 @@ void clockMenu(){
             break;
           //source
           case 3:
-            internalClock = !internalClock;
+            clockSource = !clockSource;
             break;
         }
       }
@@ -364,4 +364,92 @@ void clockMenu(){
   // menuIsActive = false;
   activeMenu.highlight = 10;
   constructMenu("MENU");
+}
+
+void tapBpm(){
+  int activeLED = 0;
+  bool leds[8] = {0,0,0,0,0,0,0,0};
+  long t1;
+  long timeE;
+  long timeL;
+  bool time1 = false;
+  display.fillRect(0,8,screenWidth,30,SSD1306_BLACK);
+  display.drawFastHLine(0,8,screenWidth,SSD1306_WHITE);
+  display.drawFastHLine(0,40,screenWidth,SSD1306_WHITE);
+  display.setCursor(46,12);
+  display.print("bpm");
+  display.setFont(&FreeSerifItalic9pt7b);
+  display.setCursor(64-stringify(int(bpm)).length()*4,35);
+  print7SegNumber(64,35,bpm,true);
+  // display.print(int(bpm));
+  display.setFont();
+  display.display();
+  t1 = millis();
+  while(true){
+    //checking if it's been a 1/4 note
+    timeE = micros()-timeL;
+    if(timeE  >= MicroSperTimeStep*24){
+      timeL = micros();
+      leds[activeLED] = 0;
+      activeLED += 1;
+      activeLED %= 8;
+      leds[activeLED] = 1;
+      writeLEDs(leds);
+    }
+    readButtons_MPX();
+    readJoystick();
+    if(menu_Press){
+      lastTime = millis();
+      return;
+    }
+    if(itsbeen(75)){
+      if(step_buttons[0]||step_buttons[1]||step_buttons[2]||step_buttons[3]||step_buttons[4]||step_buttons[5]||step_buttons[6]||step_buttons[7]){
+        setBpm(float(60000)/float(millis()-t1));
+        t1 = millis();
+        display.fillRect(0,8,screenWidth,30,SSD1306_BLACK);
+        display.drawFastHLine(0,8,screenWidth,SSD1306_WHITE);
+        display.drawFastHLine(0,40,screenWidth,SSD1306_WHITE);
+        display.setCursor(46,12);
+        display.print("bpm");
+        display.setFont(&FreeSerifItalic9pt7b);
+        display.setCursor(64-stringify(int(bpm)).length()*4,35);
+        display.print(bpm);
+        display.setFont();
+        display.display();
+        clearButtons();
+        lastTime = millis();
+      }
+    }
+    while(counterA != 0){
+      if(counterA >= 1){
+        if(shift){
+          setBpm(bpm+1);
+        }
+        else{
+          setBpm(bpm+10);
+        }
+      }
+      if(counterA <= -1){
+        if(shift){
+          setBpm(bpm-1);
+        }
+        else{
+          setBpm(bpm-10);
+        }
+      }
+    }
+  }
+}
+
+void setBpm(int newBpm) {
+  if(newBpm<=0){
+    newBpm = 1;
+  }
+  else if(newBpm>999){
+    newBpm = 999;
+  }
+  bpm = newBpm;
+  MicroSperTimeStep = round(2500000/(bpm));
+  if(abs(swingVal)>MicroSperTimeStep)
+    swingVal = swingVal<0?-MicroSperTimeStep:MicroSperTimeStep;
 }

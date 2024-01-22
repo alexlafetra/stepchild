@@ -1,3 +1,38 @@
+//animation for the file menu
+void fileAnimation(bool in){
+  vector<String> filenames = {"*new*"};
+  if(in){
+    activeMenu.highlight = -1;
+    int xDistance = screenWidth-activeMenu.coords.x1;//how far the display is gonna need to slide over
+    int width = activeMenu.coords.x2 - activeMenu.coords.x1;
+    for(int i = 0; i< xDistance; i+=10){
+      //this literally just shifts where the menu is over and over again
+      activeMenu.coords.x1 = screenWidth-i;
+      activeMenu.coords.x2 = activeMenu.coords.x1 + width;
+      display.clearDisplay();
+      activeMenu.displayFileMenu(20-i/10,0,0,3,filenames);
+      // display.drawBitmap(screenWidth-i,0,folder_closed_bmp,14,26,SSD1306_WHITE);
+      display.display();
+    }
+    activeMenu.highlight = 0;
+    display.drawBitmap(0,0,folder_open_bmp,24,26,SSD1306_WHITE);
+  }
+  else if(!in){
+    activeMenu.highlight = -1;
+    int xDistance = screenWidth-activeMenu.coords.x1;//how far the display is gonna need to slide over
+    int width = activeMenu.coords.x2 - activeMenu.coords.x1;
+    for(int i = xDistance; i> 0; i-=10){
+      //this literally just shifts where the menu is over and over again
+      activeMenu.coords.x1 = screenWidth-i;
+      activeMenu.coords.x2 = activeMenu.coords.x1 + width;
+      display.clearDisplay();
+      activeMenu.displayFileMenu(30-i/10,0,0,3,filenames);
+      // display.drawBitmap(xDistance-i,0,folder_closed_bmp,14,26,SSD1306_WHITE);
+      display.display();
+    }
+    activeMenu.highlight = 0;
+  }
+}
 
 vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames);
 bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String> filenames);

@@ -665,7 +665,7 @@ void deleteDuplicateEmptyTracks(){
 
 void tuneTracksToScale(){
   selectKeysAnimation(true);
-  vector<uint8_t> pitches = selectKeys();
+  vector<uint8_t> pitches = selectKeys(0);
   selectKeysAnimation(false);
   if(pitches.size() == 0){
     return;

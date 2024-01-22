@@ -105,3 +105,66 @@ void playStep(uint16_t timestep) {
   }
   checkCV();
 }
+
+
+#ifdef HEADLESS
+  void sendThruOn(uint8_t c, uint8_t n, uint8_t v){
+    return;
+  }
+  void sendThruOff(uint8_t c, uint8_t n){
+    return;
+  }
+#else
+void sendThruOn(uint8_t channel, uint8_t note, uint8_t vel){
+  //if it's a valid thru & channel
+  if(isThru(0) && isActiveChannel(channel, 0)){
+    MIDI0.sendNoteOn(note,vel,channel);
+  }
+  if(isThru(1) && isActiveChannel(channel, 1)){
+    MIDI1.sendNoteOn(note,vel,channel);
+  }
+  if(isThru(2) && isActiveChannel(channel, 2)){
+    MIDI2.sendNoteOn(note,vel,channel);
+  }
+  if(isThru(3) && isActiveChannel(channel, 3)){
+    MIDI3.sendNoteOn(note,vel,channel);
+  }
+  if(isThru(4) && isActiveChannel(channel, 4)){
+    MIDI4.sendNoteOn(note,vel,channel);
+  }
+}
+
+void sendThruOff(uint8_t channel, uint8_t note){
+  //if it's a valid thru & channel
+  if(isThru(0) && isActiveChannel(channel, 0)){
+    MIDI0.sendNoteOff(note,0,channel);
+  }
+  if(isThru(1) && isActiveChannel(channel, 1)){
+    MIDI1.sendNoteOff(note,0,channel);
+  }
+  if(isThru(2) && isActiveChannel(channel, 2)){
+    MIDI2.sendNoteOff(note,0,channel);
+  }
+  if(isThru(3) && isActiveChannel(channel, 3)){
+    MIDI3.sendNoteOff(note,0,channel);
+  }
+  if(isThru(4) && isActiveChannel(channel, 4)){
+    MIDI4.sendNoteOff(note,0,channel);
+  }
+}
+#endif
+
+//stops all midi sends, clears playlist
+void stop(){
+  for(int track = 0; track<trackData.size(); track++){
+    if(trackData[track].noteLastSent != 255){
+      sendMIDInoteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
+      trackData[track].noteLastSent = 255;
+    }
+    else{
+      sendMIDInoteOff(trackData[track].pitch, 0, trackData[track].channel);
+    }
+  }
+  sentNotes.clear();
+}
+

@@ -1,3 +1,42 @@
+//sets cursor to the visually nearest note
+//steps to pixels = steps*scale
+//for a note to be "visually" closer, it needs to have a smaller pixel
+//distance from the cursor than another note
+//compare trackDistance * trackHeight to stepDistance * scale
+float getDistanceFromNoteToCursor(Note note,uint8_t track){
+  //if the start of the note is closer than the end
+  return sqrt(pow(activeTrack - track,2)+pow(((abs(note.startPos-cursorPos)<abs(note.endPos-cursorPos))?(note.startPos-cursorPos):(note.endPos-cursorPos)),2));
+}
+
+void setCursorToNearestNote(){
+  const float maxPossibleDist = seqEnd*scale+trackData.size()*trackHeight;
+  float minDist = maxPossibleDist;
+  int minTrack;
+  int minNote;
+  for(int track = 0; track<seqData.size(); track++){
+    for(int note = 1; note<seqData[track].size(); note++){
+      // //Serial.println("checking n:"+stringify(note)+" t:"+stringify(track));
+      // Serial.flush();
+      float distance = getDistanceFromNoteToCursor(seqData[track][note],track);
+      if(distance<minDist){
+        minTrack = track;
+        minNote = note;
+        minDist = distance;
+        if(minDist == 0)
+          break;
+      }
+    }
+    if(minDist == 0)
+      break;
+  }
+  // //Serial.println("setting cursor...");
+  // Serial.flush();
+  if(minDist != maxPossibleDist){
+    setCursor((seqData[minTrack][minNote].startPos<cursorPos)?seqData[minTrack][minNote].startPos:seqData[minTrack][minNote].endPos-1);
+    setActiveTrack(minTrack,false);
+  }
+}
+
 void fxListControls(uint8_t* currentQuickFunction){
   if(itsbeen(200)){
     if(loop_Press || menu_Press){
@@ -497,7 +536,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
     }
     if(play){
       if(shift)
-        toggleRecordingMode(waitForNote);
+        toggleRecordingMode(waitForNoteBeforeRec);
       else
         togglePlayMode();
       lastTime = millis();

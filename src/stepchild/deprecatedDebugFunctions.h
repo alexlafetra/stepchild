@@ -90,6 +90,36 @@ void debugPrintSelection(){
     }
   }
 }
+
+//These two are both still pretty useful for debugging
+void testLEDs(){
+  bool leds[8] = {0,0,0,0,0,0,0,0};
+  for(int i = 0; i<8; i++){
+    if(step_buttons[i]){
+      leds[i] = 1;
+    }
+  }
+  writeLEDs(leds);
+}
+
+void testJoyStick(){
+  while(true){
+    readJoystick();
+    readButtons();
+    if(itsbeen(200) && menu_Press){
+      lastTime = millis();
+      return;
+    }
+    float X = analogRead(x_Pin);
+    float Y = analogRead(y_Pin);
+    display.clearDisplay();
+    printSmall(0,0,"X: "+stringify(X)+","+stringify(x),1);
+    printSmall(0,10,"Y: "+stringify(Y)+","+stringify(y),1);
+    display.drawCircle(X/8.0,Y/16.0,4,1);
+    display.display();
+  }
+}
+
 //this is the big switch statement that listens for key inputs and runs the according functions
 void keyListen() {
   unsigned char key = 0;
@@ -100,9 +130,6 @@ void keyListen() {
     case 'k':
       activeArp.start();
       break;
-    case 'x':
-      printSelectionBounds();
-      break;
     case 'z':
       debugPrintSelection();
       break;
@@ -110,9 +137,6 @@ void keyListen() {
       menuIsActive = true;
 //      genFragment();
       // fragmentMenu();
-      break;
-    case '/':
-      // writeSeqSerial_plain();
       break;
     case 'C':
       copy();
@@ -195,10 +219,6 @@ void keyListen() {
       eraseTrack();
         displaySeqSerial();
       break;
-    case 'E'://erases the sequence
-      eraseSeq();
-        displaySeqSerial();
-      break;
     case 'm':
       menuIsActive = true;
       break;
@@ -224,7 +244,7 @@ void keyListen() {
     case '\'':
       loopData[activeLoop].end += 16;
     case 'r':
-      toggleRecordingMode(waitForNote);
+      toggleRecordingMode(waitForNoteBeforeRec);
       break;
     case 'R':
         displaySeqSerial();
@@ -315,7 +335,7 @@ void debugPrintLookup(){
   for(int i = 0; i<trackData.size();i++){
     //Serial.print(stringify(i)+":"+getTrackPitch(i));
     //Serial.print('|');
-    for(int j = seqStart; j<= seqEnd; j++){
+    for(int j = 0; j<= seqEnd; j++){
       // if(!j%subDivInt)
       //   //Serial.print('|');
       if(lookupData[i][j]==0){
@@ -477,7 +497,7 @@ void printPlaybackOptions(uint8_t which, uint8_t cursor, bool active){
       }
       printSmall(x1,y1+11,"clock source:",1);
       //external clock
-      if(!internalClock){
+      if(clockSource == EXTERNAL){
         printSmall(x1+56,y1+11,"external",1);
       }
       else{
@@ -568,7 +588,7 @@ void playBackMenu(){
               isLooping = !isLooping;
               break;
             case 1:
-              internalClock = !internalClock;
+              clockSource = !clockSource;
               break;
           }
           break;
@@ -607,7 +627,7 @@ void playBackMenu(){
                 lastTime = millis();
                 break;
               case 1:
-                internalClock = !internalClock;
+                clockSource = !clockSource;
                 lastTime = millis();
                 break;
             }
@@ -807,15 +827,13 @@ void recMenu(){
               break;
             //new tracks
             case 2:
-              alwaysMakeNewTracks = !alwaysMakeNewTracks;
-              lastTime = millis();
               break;
             //count-in
             case 3:
               if(x == 1){
                 if(shift){
                   if(recCountIn == 0)
-                    waitForNote = true;
+                    waitForNoteBeforeRec = true;
                   else{
                     recCountIn--;
                   }
@@ -827,15 +845,15 @@ void recMenu(){
                 }
                 else{
                   if(recCountIn == 0)
-                    waitForNote = true;
+                    waitForNoteBeforeRec = true;
                   else
                     recCountIn = 0;
                   lastTime = 0;
                 }
               }
               else if(x == -1){
-                if(waitForNote){
-                  waitForNote = false;
+                if(waitForNoteBeforeRec){
+                  waitForNoteBeforeRec = false;
                   recCountIn = 0;
                   lastTime = millis();
                 }
@@ -880,20 +898,6 @@ void recMenu(){
               break;
             //loop behavior
             case 5:
-              if(x == 1){
-                if(recLoopBehavior == 2)
-                  recLoopBehavior = 0;
-                else
-                  recLoopBehavior++;
-                lastTime = millis();
-              }
-              else if(x == -1){
-                if(recLoopBehavior == 0)
-                  recLoopBehavior = 2;
-                else
-                  recLoopBehavior--;
-                lastTime = millis();
-              }
               break;
             //post-rec behavior
             case 6:
@@ -1029,20 +1033,9 @@ void Menu::displayRecMenu(uint8_t menuCursor,uint8_t start, uint8_t active){
   //text
   printSmall(22,2,"prime tracks -->",2);
   printSmall(22,11,"overwrite: "+ (overwriteRecording?stringify("yes"):stringify("no")),2);
-  printSmall(22,21,"new tracks: "+ (alwaysMakeNewTracks?stringify("yes"):stringify("no")),2);
-  printSmall(22,30,"count-in: "+ (waitForNote?stringify("listen 4 note"):stepsToMeasures(recCountIn)),2);
+  // printSmall(22,21,"new tracks: "+ (alwaysMakeNewTracks?stringify("yes"):stringify("no")),2);
+  printSmall(22,30,"count-in: "+ (waitForNoteBeforeRec?stringify("listen 4 note"):stepsToMeasures(recCountIn)),2);
   printSmall(22,39,"rec for: "+ (recForNSteps == 0?stringify("ever"):stepsToMeasures(recForNSteps)),2);
-  switch(recLoopBehavior){
-    case 0:
-      printSmall(22,48,"loop: current only",2);
-      break;
-    case 1:
-      printSmall(22,48,"loop: sequence",2);
-      break;
-    case 2:
-      printSmall(22,48,"loop: ignore",2);
-      break;
-  }
   switch(postRec){
     case 0:
       printSmall(22,57,"after: stop",2);
@@ -1118,7 +1111,7 @@ void drawLoopTimeLine(int xStart, int yStart){
         display.setCursor(step*scale+xStart,yStart-3);
         display.print(")");
       }
-      if(step == seqStart-1){
+      if(step == 0-1){
         display.setCursor(step*scale+xStart-4,yStart-3);
         display.print("(");
       }
@@ -1157,5 +1150,79 @@ void drawLoopTimeLine(int xStart, int yStart){
         }
       }
     }
+  }
+}
+void serialDispLoopData(){
+  //Serial.print("activeLoop: ");
+  //Serial.println(activeLoop);
+  //Serial.print("loopData[activeLoop].start:");
+  //Serial.println(loopData[activeLoop].start);
+  //Serial.print("loopData[activeLoop].end:");
+  //Serial.println(loopData[activeLoop].end);
+  //Serial.print("iterations:");
+  //Serial.println(loopData[activeLoop].reps);
+  //Serial.print("count:");
+  //Serial.println(loopCount);
+}
+
+//displays notes in all tracks from viewStart -> viewEnd
+void displaySeqSerial() {
+  // return;
+  unsigned short int id = lookupData[activeTrack][cursorPos];
+  //Serial.print("\n");
+  for (int track = trackData.size() - 1; track > -1; track--) {
+    //Serial.print(getTrackPitch(track));
+    int len = getTrackPitch(track).length();
+    for(int i = 0; i< 5-len; i++){
+      //Serial.print(" ");
+    }
+    //Serial.print("(");
+    //Serial.print(trackData[track].pitch);//prints the pitch before each track
+    //Serial.print(")");
+    for (int note = viewStart; note < viewEnd*scale; note++) {
+      if (!(note % subDivInt)) { //if note is a multiple of subDivInt, print a divider
+        //Serial.print("|");
+      }
+      //if no note
+      if (lookupData[track][note] == 0) {
+        if (note == cursorPos) { //if the cursor is there
+          //Serial.print("#");
+        }
+        else if (track == activeTrack) { //if the track is active
+          //Serial.print("=");
+        }
+        else {
+          //Serial.print(".");//default track icon
+        }
+      }//if there's a tail_ID
+      //if there is a note
+      if (lookupData[track][note] != 0) {
+        if (note == cursorPos && track == activeTrack) { //if the cursor is on it and the track is active
+          if (seqData[track][lookupData[track][note]].isSelected) {
+            //Serial.print("{S}");
+          }
+          else {
+            //Serial.print("[N]");
+          }
+        }
+        else if (track == activeTrack) { //if the track is active
+          if (seqData[track][lookupData[track][note]].isSelected) {
+            //Serial.print("s");
+          }
+          else {
+            //Serial.print("n");
+          }
+        }
+        else { //default display of a note
+          if (seqData[track][lookupData[track][note]].isSelected) {
+            //Serial.print("s");
+          }
+          else {
+            //Serial.print("n");
+          }
+        }
+      }
+    }
+    //Serial.print("|\n");
   }
 }

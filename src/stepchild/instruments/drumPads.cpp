@@ -32,12 +32,12 @@ void drumPad(){
         }
         else if(shift){
           lastTime = millis();
-          toggleRecordingMode(waitForNote);
+          toggleRecordingMode(waitForNoteBeforeRec);
         }
       }
       if(play && recording){
         lastTime = millis();
-        toggleRecordingMode(waitForNote);
+        toggleRecordingMode(waitForNoteBeforeRec);
       }
       if(menu_Press){
         lastTime = millis();

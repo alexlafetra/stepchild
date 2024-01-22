@@ -86,8 +86,8 @@ void xyGrid(){
     display.clearDisplay();
     //rec/play icon
     if(recording){
-      if(!internalClock && !gotClock){
-        if(waiting){
+      if(clockSource == EXTERNAL && !gotClock){
+        if(waitingToReceiveANote){
           if(millis()%1000>500){
             display.drawCircle(3,3,3,SSD1306_WHITE);
           }
@@ -95,8 +95,8 @@ void xyGrid(){
         else
           display.drawCircle(3,3,3,SSD1306_WHITE);
       }
-      else if((!internalClock && gotClock) || internalClock){
-        if(waiting){
+      else if((clockSource == EXTERNAL && gotClock) || clockSource == INTERNAL){
+        if(waitingToReceiveANote){
           if(millis()%1000>500){
             display.fillCircle(3,3,3,SSD1306_WHITE);
           }
@@ -106,7 +106,7 @@ void xyGrid(){
       }
     }
     else if(playing){
-      if(!internalClock && !gotClock){
+      if(clockSource == EXTERNAL && !gotClock){
         display.drawTriangle(0,6,0,0,6,3,SSD1306_WHITE);
       }
       else{

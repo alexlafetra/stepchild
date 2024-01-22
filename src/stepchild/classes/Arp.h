@@ -144,7 +144,7 @@ void Arp::stop() {
 
 void Arp::selectExtended() {
   //draw an arial keyboard and let the user select keys to build the scale
-  vector<uint8_t> selection = selectKeys();
+  vector<uint8_t> selection = selectKeys(0);
   extendedNotes = selection;
 }
 
@@ -361,4 +361,54 @@ void Arp::setOrder() {
       sort(order.begin(), order.end(), randomSort);
       break;
   }
+}
+
+void drawArpStepLengths(uint8_t xStart, uint8_t yStart, uint8_t startNote, uint8_t xCursor, bool selected){
+  if(activeArp.uniformLength){
+    drawCenteredBanner(64,20,"using uniform steps of "+stepsToMeasures(activeArp.arpSubDiv));
+    drawLabel(64,32,"[sel] to toggle custom steps",true);
+  }
+  uint8_t spacing = 3;
+  uint8_t thickness = (screenWidth-8)/activeArp.lengths.size()-spacing;
+  if(activeArp.lengths.size()>=8){
+    thickness = (screenWidth-12)/8-spacing;
+  }
+  uint8_t height;
+  for(uint8_t i = 0; i<8; i++){
+    //only draw blocks for lengths that exist (in case there are less than 16)
+    //also, only draw blocks that will still be on screen
+    if(i<activeArp.lengths.size()){
+      height = float(activeArp.lengths[i+startNote])*float(64-23)/float(96);
+      //drawing filled rect for steps that correspond to currently
+      //held notes
+      if(i + startNote<activeArp.notes.size())
+        display.fillRect(9+(spacing+thickness)*i,screenHeight-height-7, thickness, height,SSD1306_WHITE);
+      //and empty rects for steps that don't
+      else
+        display.drawRect(9+(spacing+thickness)*i,screenHeight-height-7, thickness, height,SSD1306_WHITE);
+      //highlighting the step that's currently playing
+      if(activeArp.playing && (i+startNote == activeArp.activeNote)){
+        // display.fillRect(9+(spacing+thickness)*i,screenHeight-6,thickness,6,1);
+        display.drawRect(7+(spacing+thickness)*i,screenHeight-height-9, thickness+4, height+4,SSD1306_WHITE);
+      }
+      printSmall(10+(spacing+thickness)*i+thickness/2-stringify(i+startNote+1).length()*2,screenHeight-5,stringify(i+startNote),2);
+      //step the cursor is on
+      if(i == xCursor-startNote){
+        drawArrow(9+(spacing+thickness)*i+thickness/2,screenHeight-height-10+2*((millis()/200)%2),3,3,true);
+        printSmall(8+(spacing+thickness)*i+thickness/2-stepsToMeasures(activeArp.lengths[i+startNote]).length()*2+2,screenHeight-height-21+2*((millis()/200)%2),stepsToMeasures(activeArp.lengths[i+startNote]),SSD1306_WHITE);
+      }
+      //if there are steps offscreen
+      if(startNote>0){
+        drawArrow(2+2*((millis()/200)%2),61,2,1,true);
+      }
+      if(activeArp.lengths.size()>startNote+8){
+        drawArrow(screenWidth-2-2*((millis()/200)%2),61,2,0,true);
+      }
+    }
+  }
+  // printArp(28,0,"step lengths",SSD1306_WHITE);
+  // printSmall_centered(64,0,"steps",1);
+  display.setRotation(1);
+  printItalic(16,0,"steps",1);
+  display.setRotation(UPRIGHT);
 }

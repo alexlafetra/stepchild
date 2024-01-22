@@ -650,7 +650,7 @@ void drawNoteBracket(Note note, int track){
 }
 
 void drawSelectionBracket(){
-  vector<uint16_t> bounds  = getSelectionBounds2();
+  vector<uint16_t> bounds  = getSelectedNotesBoundingBox();
   //if the left side is in view
   if(bounds[0]>=viewStart){
     //if the top L corner is in view
@@ -917,7 +917,7 @@ void drawPram(uint8_t x1, uint8_t y1){
 }
 
 void drawPlayIcon(int8_t x1, int8_t y1){
-  if(!internalClock && !gotClock){
+  if(clockSource == EXTERNAL && !gotClock){
     display.drawTriangle(x1,y1+6,x1,y1,x1+6,y1+3,SSD1306_WHITE);
   }
   else{
@@ -992,7 +992,7 @@ void drawTopIcons(){
   }
 
   // if it's recording and waiting for a note
-  if(recording && waiting){
+  if(recording && waitingToReceiveANote){
     if(millis()%1000>500){
       writeLEDs(0,true);
     }
@@ -1033,8 +1033,8 @@ void drawTopIcons(){
   uint8_t x1 = 32;
   //rec/play icon
   if(recording){
-    if(!internalClock && !gotClock){
-      if(waiting){
+    if(clockSource == EXTERNAL && !gotClock){
+      if(waitingToReceiveANote){
         if(millis()%1000>500){
           display.drawCircle(trackDisplay+3,3,3,SSD1306_WHITE);
         }
@@ -1042,8 +1042,8 @@ void drawTopIcons(){
       else
         display.drawCircle(trackDisplay+3,3,3,SSD1306_WHITE);
     }
-    else if((!internalClock && gotClock) || internalClock){
-      if(waiting){
+    else if((clockSource == EXTERNAL && gotClock) || clockSource == INTERNAL){
+      if(waitingToReceiveANote){
         if(millis()%1000>500){
           display.fillCircle(trackDisplay+3,3,3,SSD1306_WHITE);
         }
@@ -1286,13 +1286,13 @@ void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_
 
 //this function is a mess!
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, bool shadeOutsideLoop, uint16_t start, uint16_t end){
-  if(!screenSaving){
+  if(!screenSaverActive){
     //handling the note view
     if(end>seqEnd){
       end = seqEnd;
     }
     if(start>end){
-      start = seqStart;
+      start = 0;
     }
     uint16_t viewLength = end - start;
 
@@ -1516,4 +1516,816 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
 
   if(playing || recording)
     updateLEDs();
+}
+
+
+//draws dashed note (MAKE THIS FASTER!)
+void drawNote(uint16_t id, uint8_t track, unsigned short int x1, unsigned short int y1, unsigned short int len, unsigned short int height, unsigned short int shade, bool isSelected, bool mute){
+  //makes drawing zoomed out notes faster
+  if(len>=3){
+    if(!mute){
+      if(shade != 1){//so it does this faster
+        // display.fillRect(x1,y1,len,height,SSD1306_BLACK);//clearing out the note area
+        display.fillRect(x1+1, y1+1, len-1, height-2, SSD1306_BLACK);//clearing out the note area
+        for(int j = 1; j<height-2; j++){//shading the note...
+          for(int i = x1+1;i+j%shade<x1+len-1; i+=shade){
+            display.drawPixel(i+j%shade,y1+j,SSD1306_WHITE);
+          }
+        }
+        display.drawRect(x1+1, y1+1, len-1, height-2, SSD1306_WHITE);
+      }
+      else{//filling note
+        display.fillRect(x1+1, y1+1, len-1, height-2, SSD1306_WHITE);
+      }
+      //line at the end, if there's something at the end
+      if(lookupData[track][seqData[track][id].endPos] != 0)
+        display.drawFastVLine(x1+len,y1+1,height-2,SSD1306_BLACK);
+    }
+    //if it's muted
+    else{
+      //body
+      display.fillRect(x1+1, y1+1, len-1, height-2, SSD1306_BLACK);
+      display.drawRect(x1+1, y1+1, len-1, height-2, SSD1306_WHITE);
+      display.drawLine(x1+1,y1+1, x1+len-1, y1+height-2,SSD1306_WHITE);
+      display.drawLine(x1+1,y1+height-2,x1+len-1,y1+1,SSD1306_WHITE);
+      display.drawFastVLine(x1+len,y1+1,height-2,SSD1306_BLACK);
+    }
+    if(isSelected){
+      display.drawRect(x1,y1,len+1,trackHeight,SSD1306_WHITE);
+      display.drawRect(x1,y1+1,len,trackHeight-2,SSD1306_BLACK);
+      display.drawRect(x1+2,y1+2,len-3,trackHeight-4,SSD1306_WHITE);
+    }
+  }
+  else{
+    display.fillRect(x1, y1+1, len+2, height-2, SSD1306_WHITE);
+  }
+}
+
+void drawNote_vel(uint16_t id, uint8_t track, unsigned short int xStart, unsigned short int yStart, unsigned short int length, unsigned short int height, unsigned short int vel, bool isSelected, bool isMuted){
+  if(vel>125)
+    drawNote(id, track, xStart,yStart,length,height,1,isSelected,isMuted);
+  else if(vel>110)
+    drawNote(id, track, xStart,yStart,length,height,2,isSelected,isMuted);
+  else if(vel>100)
+    drawNote(id, track, xStart,yStart,length,height,3,isSelected,isMuted);
+  else if(vel>90)
+    drawNote(id, track, xStart,yStart,length,height,4,isSelected,isMuted);
+  else if(vel>80)
+    drawNote(id, track, xStart,yStart,length,height,5,isSelected,isMuted);
+  else if(vel>70)
+    drawNote(id, track, xStart,yStart,length,height,6,isSelected,isMuted);
+  else if(vel>60)
+    drawNote(id, track, xStart,yStart,length,height,7,isSelected,isMuted);
+  else if(vel>50)
+    drawNote(id, track, xStart,yStart,length,height,8,isSelected,isMuted);
+  else if(vel>40)
+    drawNote(id, track, xStart,yStart,length,height,9,isSelected,isMuted);
+  else if(vel>30)
+    drawNote(id, track, xStart,yStart,length,height,10,isSelected,isMuted);
+  else if(vel>20)
+    drawNote(id, track, xStart,yStart,length,height,11,isSelected,isMuted);
+  else if(vel>10)
+    drawNote(id, track, xStart,yStart,length,height,12,isSelected,isMuted);
+  else if(vel>0)
+    drawNote(id, track, xStart,yStart,length,height,13,isSelected,isMuted);
+  else if(vel == 0)
+    drawNote(id, track, xStart,yStart,length,height,1,isSelected,true);
+}
+
+void drawNote_chance(uint16_t id, uint8_t track, unsigned short int xStart, unsigned short int yStart, unsigned short int length, unsigned short int height, unsigned short int chance, bool isSelected, bool isMuted){
+  if(chance>=100)
+    drawNote(id, track, xStart,yStart,length,height,1,isSelected,isMuted);
+  else if(chance>90)
+    drawNote(id, track, xStart,yStart,length,height,2,isSelected,isMuted);
+  else if(chance>80)
+    drawNote(id, track, xStart,yStart,length,height,3,isSelected,isMuted);
+  else if(chance>70)
+    drawNote(id, track, xStart,yStart,length,height,4,isSelected,isMuted);
+  else if(chance>60)
+    drawNote(id, track, xStart,yStart,length,height,5,isSelected,isMuted);
+  else if(chance>50)
+    drawNote(id, track, xStart,yStart,length,height,6,isSelected,isMuted);
+  else if(chance>40)
+    drawNote(id, track, xStart,yStart,length,height,7,isSelected,isMuted);
+  else if(chance>30)
+    drawNote(id, track, xStart,yStart,length,height,8,isSelected,isMuted);
+  else if(chance>20)
+    drawNote(id, track, xStart,yStart,length,height,9,isSelected,isMuted);
+  else if(chance>10)
+    drawNote(id, track, xStart,yStart,length,height,10,isSelected,isMuted);
+  else if(chance>0)
+    drawNote(id, track, xStart,yStart,length,height,11,isSelected,isMuted);
+  else if(chance == 0)
+    drawNote(id, track, xStart,yStart,length,height,12,isSelected,true);
+}
+
+void fillSquareVertically(uint8_t x0, uint8_t y0, uint8_t width, uint8_t fillAmount){
+  display.drawRect(x0,y0,width,width,SSD1306_WHITE);
+  uint8_t maxLine = float(fillAmount)/float(100)*(width-4);
+  for(uint8_t line = 0; line<maxLine; line++){
+    display.drawFastHLine(x0+2,y0+width-3-line,width-4,1);
+  }
+}
+//fill amount is a percent
+void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmount){
+  display.drawRect(x0,y0,width,width,SSD1306_WHITE);
+  //fillAmount = lines/width
+  uint8_t maxLine = float(fillAmount)/float(100)*width*sqrt(2);
+  // if(fillAmount == 1)
+  //   maxLine++;
+  for(uint8_t line = 0; line<maxLine; line++){
+    //bottom right
+    int8_t x1 = x0+2+line;
+    int8_t y1 = y0+width-3;
+    if(x1>x0+width-2)
+      x1=x0+width-2;
+
+    //top left
+    int8_t x2 = x0+2;
+    int8_t y2 = y0+width-3-line;
+
+    if(x1>=x0+width-2){
+      x1 = x0+width-3;
+      y1 = y0+width-3-(line-width+5);
+    }
+    if(y2<y0+2){
+      y2 = y0+2;
+      x2 = x0+2+(line-width+5);
+    }
+    if(y1<y0+2)
+      y1 = y0+2;
+    if(x2>x0+width-2)
+      x2 = x0+width-2;
+    // //Serial.println("x1:"+stringify(x1));
+    // //Serial.println("y1:"+stringify(y1));
+    // //Serial.println("x2:"+stringify(x2));
+    // //Serial.println("y2:"+stringify(y2));
+    display.drawLine(x1,y1,x2,y2,SSD1306_WHITE);
+    // //Serial.println("line:"+stringify(line));
+    // //Serial.println("w:"+stringify(width));
+  }
+}
+
+
+//prints pitch with a small # and either a large or small Octave number
+void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct, bool channel, uint16_t c){
+  String s = getTrackPitchOctave(trackID)+stringify(trackData[trackID].channel)+((trackData[trackID].noteLastSent != 255)?"$":"");
+  uint8_t offset = printPitch(xCoord, yCoord, s, bigOct, channel, c);
+  offset+=4;
+  //if you want to show the track channel
+  if(shift || (menuIsActive && activeMenu.menuTitle == "TRK")){
+    String sx = ":";
+    sx += stringify(trackData[trackID].channel);
+    // if(trackData[trackID].isLatched){
+    //   sx += "<";
+    // }
+    // display.drawBitmap(xCoord+offset+2,yCoord,ch_tiny,6,3,1);
+    printSmall(xCoord+offset,yCoord,sx,1);
+    offset+=sx.length()*4;
+  }
+  //if you want to show the track "primed" status for recording
+  if(recording && trackData[trackID].isPrimed){
+    if((millis()+trackID*10)%1000>500){
+      display.fillCircle(trackDisplay-5,yCoord+1,2,1);
+    }
+    else{
+      display.drawCircle(trackDisplay-5,yCoord+1,2,1);
+    }
+  }
+}
+
+//prints a formatted pitch and returns the pixel length of the printed pitch
+uint8_t printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c){
+  uint8_t offset = 0;
+  display.setCursor(xCoord,yCoord);
+  display.print(pitch.charAt(0));
+  offset+=6;
+  // printChunky(xCoord,yCoord,stringify(pitch.charAt(0)),c);
+  //if it's a sharp
+  if(pitch.charAt(1) == '#'){
+    printSmall(xCoord+offset,yCoord,pitch.charAt(1),c);
+    offset+=6;
+    printSmall(xCoord+offset,yCoord,pitch.charAt(2),c);
+    if(pitch.charAt(2) == '-'){
+      offset+=4;
+      printSmall(xCoord+offset,yCoord,pitch.charAt(3),c);
+    }
+  }
+  //if it's not a sharp
+  else{
+    printSmall(xCoord+offset,yCoord,pitch.charAt(1),c);
+    if(pitch.charAt(1) == '-'){
+      offset+=4;
+      printSmall(xCoord+offset,yCoord,pitch.charAt(2),c);
+    }
+  }
+  if(pitch.charAt(pitch.length()-1) == '$'){
+    offset+=4;
+    printSmall(xCoord+offset,1+yCoord+sin(millis()/50),"$",c);
+  }
+  return offset;
+}
+
+void drawBox(uint8_t cornerX, uint8_t cornerY, uint8_t width, uint8_t height, uint8_t depth, int8_t xSlant, uint8_t fill){
+  // if(cornerX+width>screenWidth || cornerY+height>screenHeight){
+  //   return;
+  // }
+  int16_t point[4][2] = {{cornerX,cornerY},
+                         {int16_t(cornerX+width),cornerY},
+                         {int16_t(cornerX+width+xSlant),int16_t(cornerY+depth)},
+                         {int16_t(cornerX+xSlant),int16_t(cornerY+depth)}};
+  switch(fill){
+    //transparent box (wireframe)
+    case 0:
+      //draw top face
+      display.drawLine(point[0][0],point[0][1],point[1][0],point[1][1],SSD1306_WHITE);
+      display.drawLine(point[1][0],point[1][1],point[2][0],point[2][1],SSD1306_WHITE);
+      display.drawLine(point[2][0],point[2][1],point[3][0],point[3][1],SSD1306_WHITE);
+      display.drawLine(point[3][0],point[3][1],point[0][0],point[0][1],SSD1306_WHITE);
+      //draw bottom face
+      display.drawLine(point[0][0],point[0][1]+height,point[1][0],point[1][1]+height,SSD1306_WHITE);
+      display.drawLine(point[1][0],point[1][1]+height,point[2][0],point[2][1]+height,SSD1306_WHITE);
+      display.drawLine(point[2][0],point[2][1]+height,point[3][0],point[3][1]+height,SSD1306_WHITE);
+      display.drawLine(point[3][0],point[3][1]+height,point[0][0],point[0][1]+height,SSD1306_WHITE);
+      //draw vertical edges
+      display.drawLine(point[0][0],point[0][1],point[0][0],point[0][1]+height,SSD1306_WHITE);
+      display.drawLine(point[1][0],point[1][1],point[1][0],point[1][1]+height,SSD1306_WHITE);
+      display.drawLine(point[2][0],point[2][1],point[2][0],point[2][1]+height,SSD1306_WHITE);
+      display.drawLine(point[3][0],point[3][1],point[3][0],point[3][1]+height,SSD1306_WHITE);
+      break;
+    //for a solid self-occluding box
+    case 1:
+      //clearing out background
+      for(int i = 0; i<=height; i ++){
+        display.drawLine(point[0][0],point[0][1]+i,point[1][0],point[1][1]+i,SSD1306_BLACK);
+        display.drawLine(point[1][0],point[1][1]+i,point[2][0],point[2][1]+i,SSD1306_BLACK);
+        display.drawLine(point[2][0],point[2][1]+i,point[3][0],point[3][1]+i,SSD1306_BLACK);
+        display.drawLine(point[3][0],point[3][1]+i,point[0][0],point[0][1]+i,SSD1306_BLACK);
+      }
+      //draw top face
+      display.drawLine(point[0][0],point[0][1],point[1][0],point[1][1],SSD1306_WHITE);
+      display.drawLine(point[1][0],point[1][1],point[2][0],point[2][1],SSD1306_WHITE);
+      display.drawLine(point[2][0],point[2][1],point[3][0],point[3][1],SSD1306_WHITE);
+      display.drawLine(point[3][0],point[3][1],point[0][0],point[0][1],SSD1306_WHITE);
+
+      if(xSlant>=0){
+        //draw bottom face
+        display.drawLine(point[2][0],point[2][1]+height,point[3][0],point[3][1]+height,SSD1306_WHITE);
+        display.drawLine(point[3][0],point[3][1]+height,point[0][0],point[0][1]+height,SSD1306_WHITE);
+        //draw vertical edges
+        display.drawLine(point[0][0],point[0][1],point[0][0],point[0][1]+height,SSD1306_WHITE);
+        display.drawLine(point[2][0],point[2][1],point[2][0],point[2][1]+height,SSD1306_WHITE);
+        display.drawLine(point[3][0],point[3][1],point[3][0],point[3][1]+height,SSD1306_WHITE);
+      }
+      else if(xSlant<0){
+        //draw bottom face
+        display.drawLine(point[1][0],point[1][1]+height,point[2][0],point[2][1]+height,SSD1306_WHITE);
+        display.drawLine(point[2][0],point[2][1]+height,point[3][0],point[3][1]+height,SSD1306_WHITE);
+        //draw vertical edges
+        display.drawLine(point[1][0],point[1][1],point[1][0],point[1][1]+height,SSD1306_WHITE);
+        display.drawLine(point[2][0],point[2][1],point[2][0],point[2][1]+height,SSD1306_WHITE);
+        display.drawLine(point[3][0],point[3][1],point[3][0],point[3][1]+height,SSD1306_WHITE);
+      }
+      break;
+    //for a solid,filled box
+    //draw top face again and again
+    case 2:
+      for(int i = 0; i<height; i ++){
+        display.drawLine(point[0][0],point[0][1]+i,point[1][0],point[1][1]+i,SSD1306_WHITE);
+        display.drawLine(point[1][0],point[1][1]+i,point[2][0],point[2][1]+i,SSD1306_WHITE);
+        display.drawLine(point[2][0],point[2][1]+i,point[3][0],point[3][1]+i,SSD1306_WHITE);
+        display.drawLine(point[3][0],point[3][1]+i,point[0][0],point[0][1]+i,SSD1306_WHITE);
+      }
+      break;
+    //for a solid box, with black edges
+    case 3:
+      for(int i = 0; i<height; i ++){
+        display.drawLine(point[0][0],point[0][1]+i,point[1][0],point[1][1]+i,SSD1306_WHITE);
+        display.drawLine(point[1][0],point[1][1]+i,point[2][0],point[2][1]+i,SSD1306_WHITE);
+        display.drawLine(point[2][0],point[2][1]+i,point[3][0],point[3][1]+i,SSD1306_WHITE);
+        display.drawLine(point[3][0],point[3][1]+i,point[0][0],point[0][1]+i,SSD1306_WHITE);
+      }
+      //draw top face
+      display.drawLine(point[0][0],point[0][1],point[1][0],point[1][1],SSD1306_BLACK);
+      display.drawLine(point[1][0],point[1][1],point[2][0],point[2][1],SSD1306_BLACK);
+      display.drawLine(point[2][0],point[2][1],point[3][0],point[3][1],SSD1306_BLACK);
+      display.drawLine(point[3][0],point[3][1],point[0][0],point[0][1],SSD1306_BLACK);
+
+      //draw bottom face
+      display.drawLine(point[2][0],point[2][1]+height,point[3][0],point[3][1]+height,SSD1306_BLACK);
+      display.drawLine(point[3][0],point[3][1]+height,point[0][0],point[0][1]+height,SSD1306_BLACK);
+      //draw vertical edges
+      display.drawLine(point[0][0],point[0][1],point[0][0],point[0][1]+height,SSD1306_BLACK);
+      display.drawLine(point[2][0],point[2][1],point[2][0],point[2][1]+height,SSD1306_BLACK);
+      display.drawLine(point[3][0],point[3][1],point[3][0],point[3][1]+height,SSD1306_BLACK);
+      break;
+
+    //for a box with a white border, but no internal lines
+    case 4:
+      //clearing out background
+      for(int i = 0; i<=height; i ++){
+        display.drawLine(point[0][0],point[0][1]+i,point[1][0],point[1][1]+i,SSD1306_BLACK);
+        display.drawLine(point[1][0],point[1][1]+i,point[2][0],point[2][1]+i,SSD1306_BLACK);
+        display.drawLine(point[2][0],point[2][1]+i,point[3][0],point[3][1]+i,SSD1306_BLACK);
+        display.drawLine(point[3][0],point[3][1]+i,point[0][0],point[0][1]+i,SSD1306_BLACK);
+      }
+      //draw top face (just the back two lines)
+      display.drawLine(point[0][0],point[0][1],point[1][0],point[1][1],SSD1306_WHITE);
+      display.drawLine(point[1][0],point[1][1],point[2][0],point[2][1],SSD1306_WHITE);
+      //draw bottom face (just the front two lines)
+      display.drawLine(point[2][0],point[2][1]+height,point[3][0],point[3][1]+height,SSD1306_WHITE);
+      display.drawLine(point[3][0],point[3][1]+height,point[0][0],point[0][1]+height,SSD1306_WHITE);
+      //draw vertical edges (just the two edges)
+      display.drawLine(point[0][0],point[0][1],point[0][0],point[0][1]+height,SSD1306_WHITE);
+      display.drawLine(point[2][0],point[2][1],point[2][0],point[2][1]+height,SSD1306_WHITE);
+      break;
+    //this one is obscure, but basically a solid white box with a black edge (helps it stand out over white things)
+    case 5:
+      //clearing out background
+      for(int i = 0; i<=height; i ++){
+        display.drawLine(point[0][0],point[0][1]+i,point[1][0],point[1][1]+i,SSD1306_WHITE);
+        display.drawLine(point[1][0],point[1][1]+i,point[2][0],point[2][1]+i,SSD1306_WHITE);
+        display.drawLine(point[2][0],point[2][1]+i,point[3][0],point[3][1]+i,SSD1306_WHITE);
+        display.drawLine(point[3][0],point[3][1]+i,point[0][0],point[0][1]+i,SSD1306_WHITE);
+      }
+      //draw top face (just the back two lines)
+      display.drawLine(point[0][0],point[0][1],point[1][0],point[1][1],SSD1306_BLACK);
+      display.drawLine(point[1][0],point[1][1],point[2][0],point[2][1],SSD1306_BLACK);
+      //draw bottom face (just the front two lines)
+      display.drawLine(point[2][0],point[2][1]+height,point[3][0],point[3][1]+height,SSD1306_BLACK);
+      display.drawLine(point[3][0],point[3][1]+height,point[0][0],point[0][1]+height,SSD1306_BLACK);
+      //draw vertical edges (just the two edges)
+      display.drawLine(point[0][0],point[0][1],point[0][0],point[0][1]+height,SSD1306_BLACK);
+      display.drawLine(point[2][0],point[2][1],point[2][0],point[2][1]+height,SSD1306_BLACK);
+      break;
+    //a black wireframe box, with only the internal 3 wires (used for quantcubes)
+    case 6:
+      //draw top face
+      display.drawLine(point[2][0],point[2][1],point[3][0],point[3][1],SSD1306_BLACK);
+      display.drawLine(point[3][0],point[3][1],point[0][0],point[0][1],SSD1306_BLACK);
+      //draw bottom face
+      display.drawLine(point[3][0],point[3][1],point[3][0],point[3][1]+height,SSD1306_BLACK);
+      break;
+    //transparent box (wireframe) with inverted color
+    case 7:
+      //draw top face
+      display.drawLine(point[0][0],point[0][1],point[1][0],point[1][1],2);
+      display.drawLine(point[1][0],point[1][1],point[2][0],point[2][1],2);
+      display.drawLine(point[2][0],point[2][1],point[3][0],point[3][1],2);
+      display.drawLine(point[3][0],point[3][1],point[0][0],point[0][1],2);
+      //draw bottom face
+      display.drawLine(point[0][0],point[0][1]+height,point[1][0],point[1][1]+height,2);
+      display.drawLine(point[1][0],point[1][1]+height,point[2][0],point[2][1]+height,2);
+      display.drawLine(point[2][0],point[2][1]+height,point[3][0],point[3][1]+height,2);
+      display.drawLine(point[3][0],point[3][1]+height,point[0][0],point[0][1]+height,2);
+      //draw vertical edges
+      display.drawLine(point[0][0],point[0][1],point[0][0],point[0][1]+height,2);
+      display.drawLine(point[1][0],point[1][1],point[1][0],point[1][1]+height,2);
+      display.drawLine(point[2][0],point[2][1],point[2][0],point[2][1]+height,2);
+      display.drawLine(point[3][0],point[3][1],point[3][0],point[3][1]+height,2);
+      break;
+    //a black wireframe box, with only the internal 3 wires (used for quantcubes)
+    case 8:
+      //draw top face
+      display.drawLine(point[2][0],point[2][1],point[3][0],point[3][1],2);
+      display.drawLine(point[3][0],point[3][1],point[0][0],point[0][1],2);
+      //draw bottom face
+      display.drawLine(point[3][0],point[3][1],point[3][0],point[3][1]+height,2);
+      break;
+  }
+}
+
+void drawEllipse(uint8_t h, uint8_t k, int a, int b, uint16_t c) {
+  //centerX = h
+  //centerY = k
+  //horizontal radius = a
+  //vertical radius = b
+  int y1;
+  //if the ellipse is secretely a circle
+  if (a == b) {
+    display.drawCircle(h, k, a, c);
+  }
+  //for every x that falls along the length of the ellipse, get a y and draw a point
+  else if (a > 0 && b > 0) {
+    for (int x1 = h - a; x1 <= h + a; x1++) {
+      if (x1 < screenWidth && x1 >= 0) {
+        int root = b * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
+        y1 = k + root;
+        if (y1 < screenHeight) {
+          display.drawPixel(x1, y1, c);
+        }
+        y1 = k - root;
+        if (y1 >= 0) {
+          display.drawPixel(x1, y1, c);
+        }
+      }
+    }
+  }
+}
+
+
+void drawBracket(uint8_t h, uint8_t k, uint8_t height, uint8_t width, uint8_t style, uint16_t c){
+  int16_t point[4][2] = 
+  {{int16_t(h-width/2),int16_t(k-height)},
+   {int16_t(h-width/2),k},
+   {int16_t(h+width/2),k},
+   {int16_t(h+width/2),int16_t(k-height)}};
+  //horizontal bracket facing up
+  if(style == 0){
+   //left side
+   display.drawLine(point[0][0],point[0][1],point[1][0],point[1][1],c);
+   //bottom
+   display.drawLine(point[1][0],point[1][1],point[2][0],point[2][1],c);
+   //right side
+    display.drawLine(point[2][0],point[2][1],point[3][0],point[3][1],c);
+  }
+  //horizontal bracket facing down
+  if(style == 1){
+   //left side
+   display.drawLine(point[0][0],point[0][1],point[1][0],point[1][1],c);
+   //top
+   display.drawLine(point[0][0],point[0][1],point[3][0],point[3][1],c);
+   //right side
+    display.drawLine(point[2][0],point[2][1],point[3][0],point[3][1],c);
+  }
+}
+void drawTetra(uint8_t h, uint8_t k, uint8_t height, uint8_t width, int xDepth, int yDepth, uint8_t style, uint16_t c){
+  //upside down, and transparent
+  if(style == 0){
+    int point[4][2] =
+   {{h,k+height/2},
+    {h-width/2,k-height/2},
+    {h+width/2,k-height/2},
+    {h-xDepth,k-yDepth}};
+    for(int i = 0; i<4; i++){
+      while(point[i][0]<0){
+        point[i][0]++;
+      }
+      while(point[i][1]<0){
+        point[i][1]++;
+      }
+    }
+    //draw front triangle
+    display.drawTriangle(point[0][0],point[0][1],point[1][0],point[1][1],point[2][0],point[2][1],c);
+    //draw left triangle
+    display.drawTriangle(point[0][0],point[0][1],point[1][0],point[1][1],point[3][0],point[3][1],c);
+    //draw right triangle
+    display.drawTriangle(point[0][0],point[0][1],point[2][0],point[2][1],point[3][0],point[3][1],c);
+  }
+}
+
+void fillAroundCircle(float x, float y, float r, uint16_t c){
+  for(float i = 0; i<(x-r+10); i++){
+    display.drawCircle(x,y,r+i,c);
+  }
+}
+
+void drawMoon(int phase, bool forward){
+  //so it's scaled correctly
+  // float scale = float(88)/float(100);
+  // phase*=scale;
+  int r = screenHeight/2-1;
+  int xPos = 63;
+  int yPos = 31;
+  if(phase>88)
+    phase = 88;
+  if(phase<0)
+    phase = 0;
+  //controls whether or not the moon is waxing or waning
+  if(forward){
+    if(phase>0)
+      display.fillCircle(xPos,yPos,r,SSD1306_WHITE);//filling the moon
+    fillEllipse(screenWidth-2*r+phase/2,yPos,r,r+phase,SSD1306_BLACK);//filling earth's shadow
+    if(phase>58 && phase < 88)
+      fillEllipse(xPos,yPos,phase-58,r,SSD1306_WHITE);//filling earth's shadow
+    if(phase>=88){
+      display.fillCircle(xPos,yPos,r,SSD1306_WHITE);
+    }
+    else{
+      fillAroundCircle(63,32,r+1,SSD1306_BLACK);
+    }
+    display.drawCircle(xPos,yPos,r,SSD1306_WHITE);//drawing the moon's outline
+  }
+  else if(!forward){
+    if(phase == 0)
+      display.fillCircle(xPos,yPos,r,SSD1306_WHITE);//filling the moon
+    else{
+      if(phase<88)
+        fillEllipse(screenWidth-2*r+phase/2-4,yPos-2,r+1,r+phase+1,SSD1306_WHITE);//filling earth's shadow
+      if(phase>58 && phase<88)
+        fillEllipse(xPos,yPos,phase-58,r,SSD1306_BLACK);//filling earth's shadow
+      if(phase>=88){
+        display.fillCircle(xPos,yPos,r,SSD1306_BLACK);
+      }
+      else{
+        fillAroundCircle(63,31,r,SSD1306_BLACK);
+        fillAroundCircle(63,32,r+1,SSD1306_BLACK);
+      }
+      display.drawCircle(xPos,yPos,r,SSD1306_WHITE);//drawing the moon's outline
+    }
+  }
+}
+void drawMoon_reverse(int phase){
+  //so it's scaled correctly
+  // float scale = float(88)/float(100);
+  //  phase*=scale;
+  int r = screenHeight/2-1;
+  int xPos = 63;
+  int yPos = 31;
+  if(phase>88)
+    phase = 88;
+  if(phase == 0)
+    display.fillCircle(xPos,yPos,r,SSD1306_WHITE);//filling the moon
+  else{
+    if(phase<88)
+      fillEllipse(screenWidth-2*r+phase/2-4,yPos-2,r+1,r+phase+1,SSD1306_WHITE);//filling earth's shadow
+    if(phase>58)
+      fillEllipse(xPos,yPos,phase-58,r,SSD1306_BLACK);//filling earth's shadow
+    if(phase>=88){
+      display.fillCircle(xPos,yPos,r,SSD1306_BLACK);
+    }
+    else{
+      fillAroundCircle(63,31,r,SSD1306_BLACK);
+    }
+    display.drawCircle(xPos,yPos,r,SSD1306_WHITE);//drawing the moon's outline
+  }
+}
+
+void printChannel(uint8_t xPos, uint8_t yPos, uint8_t channel, bool withBox){
+  if(withBox){
+    display.fillRect(xPos-2,yPos-2,4*(8+stringify(channel).length())+3,9,SSD1306_BLACK);
+    display.drawRect(xPos-2,yPos-2,4*(8+stringify(channel).length())+3,9,SSD1306_WHITE);
+  }
+  printSmall(xPos,yPos,"Channel:"+stringify(channel),SSD1306_WHITE);
+}
+
+void drawProgBar(String text, float progress){
+  display.setCursor(screenWidth-text.length()*10,screenHeight/2-8);
+  display.setTextSize(2);
+  display.print(text);
+  display.setTextSize(1);
+  // display.fillRect(32,screenHeight/2+10,64,8,SSD1306_BLACK);//clearing out the progress bar
+  display.drawRect(32,screenHeight/2+10,64,8,SSD1306_WHITE);//drawing outline
+  display.fillRect(32,screenHeight/2+10,64*progress,8,SSD1306_WHITE);//filling it
+  display.display();
+}
+
+void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation){
+  switch(rotation){
+    //down
+    case 0:
+      drawCurlyBracket(x1,y1,length,height,start,end);
+      break;
+    //up
+    case 1:
+      display.setRotation(UPSIDEDOWN);
+      drawCurlyBracket(screenWidth-x1,screenHeight-y1,length,height,start,end);
+      display.setRotation(UPRIGHT);
+      break;
+    //right
+    case 2:
+      display.setRotation(1);
+      drawCurlyBracket(y1,x1,height,length,start,end);
+      display.setRotation(UPRIGHT);
+      break;
+  }
+}
+
+void drawCurlyBracket(int16_t x1, uint8_t y1, uint8_t length,uint8_t height,bool start, bool end){
+  //left leg
+  if(start){
+    display.drawFastVLine(x1,y1-height,height,SSD1306_WHITE);
+    display.drawPixel(x1+1,y1-height-1,SSD1306_WHITE);
+    //left top
+    display.drawFastHLine(x1+2,y1-height-2,length/2-3,SSD1306_WHITE);
+  }
+  //if start is out of view
+  else{
+     display.drawFastHLine(trackDisplay,y1-height-2,length/2-3-(viewStart-x1),SSD1306_WHITE);
+  }
+  //middle
+  display.drawPixel(x1+length/2-1,y1-height-1,SSD1306_WHITE);
+  display.drawFastVLine(x1+length/2,y1-height-4,3,SSD1306_WHITE);
+  display.drawPixel(x1+length/2+1,y1-height-1,SSD1306_WHITE);
+  //right top
+  display.drawFastHLine(x1+length/2+2,y1-height-2,length/2-3,SSD1306_WHITE);
+  //right leg
+  display.drawPixel(x1+length-1,y1-height-1,SSD1306_WHITE);
+  display.drawFastVLine(x1+length,y1-height,height,SSD1306_WHITE);
+}
+
+
+void bootscreen(){
+  uint16_t frameCount = 0;
+  display.setTextColor(SSD1306_WHITE);
+  char child[5] = {'c','h','i','l','d'};
+  int16_t xCoord;
+  int16_t yCoord;
+
+  uint8_t xOffset = 30;
+  uint8_t yOffset = 15;
+  WireFrame pram = makePram();
+  pram.yPos = 40;
+  pram.xPos = 64;
+  //each letter pops in and swings into place with a x^2 parabolic motion
+  while(frameCount<60){
+    display.clearDisplay();
+    display.setTextSize(2);
+    pram.render();
+    //CHILD
+    for(uint8_t letter = 0; letter<5; letter++){
+      xCoord = 20+letter*8;
+      yCoord = screenHeight-frameCount*10+letter*10;
+      if(yCoord<0)
+        yCoord = 0;
+      yCoord+=yOffset;
+      display.setCursor(xCoord,yCoord);
+      printItalic(xCoord,yCoord,child[letter],1);
+    }
+    //OS
+    if(frameCount>20){
+      display.setTextSize(1);
+      display.setFont(&FreeSerifItalic12pt7b);
+      display.setCursor(xCoord+10,yCoord+5);
+      display.print("OS");
+      display.setFont();
+
+      drawStar(xOffset+68,yOffset-8,3,7,5);
+    }
+    printSmall(0,58,"v0.1",1);
+    display.display();
+    pram.rotate(5,1);
+    writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
+    frameCount+=4;
+  }
+  turnOffLEDs();
+}
+
+void helloChild_1(){
+  display.clearDisplay();
+  display.setCursor(50, 20);
+  // display.setTextSize(3.5);
+  display.setTextColor(SSD1306_WHITE);
+  // display.setFont(&FreeSerifBoldItalic18pt7b);
+  display.print("hello");
+  display.display();
+  delay(1000);
+  display.setCursor(10, 42);
+  display.setFont();
+  display.print("child.");
+  display.invertDisplay(true);
+  display.display();
+  delay(1000);
+  display.invertDisplay(false);
+
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(50, 20);
+  // display.setFont(&FreeSerifBoldItalic18pt7b);
+  display.print("hello");
+  display.setCursor(10, 42);
+  display.setFont();
+  display.print("child.");
+
+  display.drawBitmap(0,16,eyes_bmp,128,38,SSD1306_WHITE);
+  display.display();
+  delay(1500);
+  display.drawBitmap(48,32,carriage_bmp,14,15,SSD1306_BLACK);
+  display.display();
+  delay(1500);
+  display.clearDisplay();
+  display.drawBitmap(48,32,carriage_bmp,14,15,SSD1306_WHITE);
+  display.display();
+  delay(1500);
+  // for(int i = 0; i<20; i++){
+  //   display.drawBitmap(16+i*10,i*10,carriage_bmp,14,15,SSD1306_BLACK);
+  //   display.display();
+  //   delay(30);
+  // }
+}
+void helloChild_2(){
+  display.clearDisplay();
+  display.invertDisplay(true);
+  display.display();
+  delay(1500);
+  display.drawBitmap(50,25,carriage_bmp,14,15,SSD1306_WHITE);
+  display.display();
+  display.invertDisplay(false);
+  delay(1500);
+  display.drawBitmap(0,16,eyes_bmp,128,38,SSD1306_WHITE);
+  display.drawBitmap(50,25,carriage_bmp,14,15,SSD1306_BLACK);
+  display.display();
+  delay(1500);
+  display.fillRect(0,0,128,64,SSD1306_BLACK);
+  display.drawBitmap(50,25,carriage_bmp,14,15,SSD1306_WHITE);
+  display.display();
+  delay(1500);
+}
+void helloChild_3(){
+  display.clearDisplay();
+  display.drawBitmap(0,16,eyes_bmp,128,38,SSD1306_WHITE);
+  display.display();
+  delay(1000);
+  display.drawBitmap(48,32,carriage_bmp,14,15,SSD1306_BLACK);
+  display.display();
+  delay(1500);
+  display.clearDisplay();
+  display.drawBitmap(48,32,carriage_bmp,14,15,SSD1306_WHITE);
+  display.display();
+  delay(1500);
+}
+void helloChild_4(){
+  display.clearDisplay();
+  display.drawBitmap(0,16,eyes_bmp,128,38,SSD1306_WHITE);
+  display.display();
+  delay(1000);
+  display.drawBitmap(48,32,carriage_bmp,14,15,SSD1306_BLACK);
+  display.display();
+  delay(1500);
+  display.clearDisplay();
+  display.drawBitmap(48,32,carriage_bmp,14,15,SSD1306_WHITE);
+  display.display();
+  delay(500);
+  for(float i = 0; i<20; i++){
+    display.clearDisplay();
+    display.drawBitmap(48-i/3*i/3,32+i/3*i/3-i/3,carriage_bmp,14,15,SSD1306_WHITE);
+    display.display();
+    delay(10);
+  }
+  delay(1000);
+}
+void helloChild_5(){
+  display.clearDisplay();
+  display.drawBitmap(48,32,carriage_bmp,14,15,SSD1306_WHITE);
+  display.display();
+  delay(1000);
+  for(float i = 0; i<20; i++){
+    display.clearDisplay();
+    display.drawBitmap(48-i/3*i/3,32+i/3*i/3-i/3,carriage_bmp,14,15,SSD1306_WHITE);
+    display.display();
+    delay(10);
+  }
+  delay(500);
+}
+void drawLogo(uint8_t x1, uint8_t y1){
+  display.setTextSize(2);
+  printItalic(x1,y1,"child",1);
+  x1 += 42;
+  y1 += 5;
+  display.setTextSize(1);
+  display.setFont(&FreeSerifItalic12pt7b);
+  display.setCursor(x1,y1);
+  display.print("OS");
+  display.setFont();
+}
+void bootscreen_2(){
+  uint16_t frameCount = 0;
+  display.setTextColor(SSD1306_WHITE);
+  int16_t xCoord;
+  int16_t yCoord;
+
+  uint8_t xOffset = 30;
+  uint8_t yOffset = 15;
+  //each letter pops in and swings into place with a x^2 parabolic motion
+  while(frameCount<50){
+    display.clearDisplay();
+    display.setTextSize(2);
+    xCoord = 20;
+    yCoord = 20;
+    printItalic(xCoord,yCoord,"child",1);
+    xCoord = 52;
+    display.setTextSize(1);
+    display.setFont(&FreeSerifItalic12pt7b);
+    display.setCursor(xCoord+10,yCoord+5);
+    display.print("OS");
+    display.setFont();
+    // printCursive(xCoord,yCoord,"child",1);
+    //OS
+    if(frameCount>20){
+      drawStar(xOffset+68,yOffset-8,3,7,5);
+      uint8_t i = frameCount-21;
+      display.drawBitmap(48-i/3*i/3,32+i/3*i/3-i/3,carriage_bmp,14,15,SSD1306_WHITE);
+    }
+    else{
+      display.drawBitmap(48,32,carriage_bmp,14,15,SSD1306_WHITE);
+    }
+    display.display();
+    writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
+    frameCount+=2;
+  }
+  turnOffLEDs();
+}
+
+void drawOSScreen(){
+  display.clearDisplay();
+  display.drawBitmap(0,0,childOS,128,64,SSD1306_WHITE);
+  display.display();
+  clearButtons();
+  lastTime = millis();
+  while(true){
+    if(itsbeen(200)&&anyActiveInputs()){
+      clearButtons();
+      lastTime = millis();
+      return;
+    }
+  }
 }

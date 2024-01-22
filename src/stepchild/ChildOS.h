@@ -85,9 +85,7 @@ class Note;
 class Track;
 class CoordinatePair;
 class Autotrack;
-
-//Compatability for arduino 'Strings' and c++ 'strings' (some foresight could've avoided this!)
-#include "stringUtils.h"
+class SelectionBox;
 
 //Data variables -------------------------------------------
 unsigned short int copyPos[2];//stores the coordinates of the cursor when copying
@@ -97,6 +95,27 @@ vector<vector<Note>> copyBuffer;//stores copied notes
 //holds all the autotracks
 vector<Autotrack> autotrackData;
 vector<Track> trackData;//holds the tracks in the sequence
+
+//Stores loop data as start,end,reps,and type
+struct Loop{
+  //The start of the Loop (in steps)
+  uint16_t start;
+  //The end of the Loop (in steps)
+  uint16_t end;
+  //the number of times-1 the loop will play before linking to the next loop. 0 sets the Loop to play once.
+  uint8_t reps;
+  //how the Loop links to the next Loop
+  uint8_t type;
+  /*
+  Type:
+  0 = go to next Loop
+  1 = go to a random Loop
+  2 = go to a random Loop of the same length
+  3 = return to the first Loop
+  4 = repeat this loop again (infinite repeat)
+  */
+};
+vector<Loop> loopData;
 
 //each byte represents the channels an output will send on
 //each BIT of each byte is a channel
@@ -116,7 +135,7 @@ int8_t pitchModifier[2] = {0,0};
 #include "bitmaps.h"
 
 //function prototypes
-#include "prototypes.h"
+#include "functionPrototypes.h"
 
 //program boolean flags and global data, constants
 #include "global.h"
@@ -132,6 +151,10 @@ int8_t pitchModifier[2] = {0,0};
 #include "classes/Note.h"
 #include "classes/Track.h"
 #include "classes/Knob.h"
+
+//string utilities for parsing musical data
+#include "stringUtils.h"
+
 //16 knobs for the 'controlknobs' instrument
 Knob controlKnobs[16];
 #include "classes/AutomationTrack.h"
@@ -141,14 +164,14 @@ void rotaryActionA_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
   counterA += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)?readEncoder(0)*4:readEncoder(0);
   if(recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)
-    waiting = false;
+    waitingToReceiveANote = false;
 }
 
 void rotaryActionB_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
   counterB += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)?readEncoder(1)*4:readEncoder(1);
   if(recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)
-    waiting = false;
+    waitingToReceiveANote = false;
 }
 
 #include "classes/SelectionBox.h"
@@ -165,7 +188,7 @@ void rotaryActionB_Handler(){
 #include "fonts/italic.cpp"
 #include "fonts/chunky.cpp"
 
-#include "drawingFunctions.h"
+#include "graphics.h"
 #include "scales.h"
 #include "CV.h"
 #include "playback.h"
@@ -211,13 +234,16 @@ void rotaryActionB_Handler(){
 #include "menus/midiMenu.cpp"
 
 #include "helpScreen.h"
-#include "trackFunctions.h"
+#include "trackEditing.h"
 #include "fileSystem.h"
 #include "MIDI.h"
 #include "setup.h"
 #include "screenSavers.h"
 #include "hardware.h"
-
+#include "recording.h"
+#include "keyboard.h"
+#include "CCSelector.h"
+#include "noteEditing.h"
 
 #include "TBA_Features.h"
 #include "deprecatedDebugFunctions.h"

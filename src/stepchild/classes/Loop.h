@@ -1,24 +1,10 @@
-//Stores loop data as start,end,reps,and type
-struct Loop{
-  //The start of the Loop (in steps)
-  uint16_t start;
-  //The end of the Loop (in steps)
-  uint16_t end;
-  //the number of times-1 the loop will play before linking to the next loop. 0 sets the Loop to play once.
-  uint8_t reps;
-  //how the Loop links to the next Loop
-  uint8_t type;
-  /*
-  Type:
-  0 = go to next Loop
-  1 = go to a random Loop
-  2 = go to a random Loop of the same length
-  3 = return to the first Loop
-  4 = repeat this loop again (infinite repeat)
-  */
-};
+#define NORMAL 0
+#define RANDOM 1
+#define RANDOM_SAME 2
+#define RETURN 3
+#define INFINITE 4
 
-vector<Loop> loopData;
+// vector<Loop> loopData;
 
 void printLoopTitle(uint8_t, uint8_t);
 void drawLoopBlocksVertically(int,int,int);
@@ -318,7 +304,7 @@ bool viewLoopControls(uint8_t which){
     }
     //if play+shift, or if play and it's already recording
     if(play && shift || play && recording){
-      toggleRecordingMode(waitForNote);
+      toggleRecordingMode(waitForNoteBeforeRec);
       lastTime = millis();
     }
  
@@ -931,7 +917,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
       for(uint8_t l = firstLoop+maxLoopsShown-1; l<loopData.size(); l++){
         //if there is a return loop offscreen
         //or if the last loop is normal, and offscreen
-        if(loopData[l].type == 3 || (l == loopData.size()-1 && loopData[l].type == 0)){
+        if(loopData[l].type == RETURN || (l == loopData.size()-1 && loopData[l].type == NORMAL)){
           //if the first loop is off screen too
           //just draw a vertical line
           if(firstLoop>0){
@@ -982,6 +968,186 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
         case 4:
           drawLoopArrow(xStart,yStart+(loopHeight+3)*loop+loopHeight/2,length,loopHeight+3,1,loop+firstLoop);
           break;
+      }
+    }
+  }
+}
+
+void setActiveLoop(unsigned int id){
+  if(id<loopData.size() && id >=0){
+    activeLoop = id;
+    loopCount = 0;
+  }
+}
+
+void addLoop(){
+  Loop newLoop;
+  newLoop.start = loopData[activeLoop].start;
+  newLoop.end = loopData[activeLoop].end;
+  newLoop.reps = loopData[activeLoop].reps;
+  newLoop.type = loopData[activeLoop].type;
+  loopData.push_back(newLoop);
+  setActiveLoop(loopData.size()-1);
+}
+
+void addLoop(unsigned short int start, unsigned short int end, unsigned short int iter, unsigned short int type){
+  Loop newLoop;
+  newLoop.start = start;
+  newLoop.end = end;
+  newLoop.reps = iter;
+  newLoop.type = type;
+  loopData.push_back(newLoop);
+}
+
+void deleteLoop(uint8_t id){
+  if(loopData.size() > 1 && loopData.size()>id){//if there's more than one loop, and id is in loopData
+    vector<Loop> tempVec;
+    for(int i = 0; i<loopData.size(); i++){
+      if(i!=id){
+        tempVec.push_back(loopData[i]);
+      }
+    }
+    loopData.swap(tempVec);
+    //if activeLoop was the loop that got deleted, or above it
+    //decrement it's id so it reads correct (and existing) data
+    if(activeLoop>=loopData.size()){  
+      activeLoop = loopData.size()-1;
+    }
+  }
+  setActiveLoop(activeLoop);
+}
+
+void toggleLoop(){
+  isLooping = !isLooping;
+}
+
+void setLoopToInfinite(uint8_t targetL){
+  //if it's already a 3, set it to 0
+  if(loopData[targetL].type == INFINITE){
+    loopData[targetL].type = NORMAL;
+  }
+  //if not, set this loop to 3
+  else{
+    loopData[targetL].type = INFINITE;
+  }
+  //set all other inf loops to 0
+  for(uint8_t l = 0; l<loopData.size(); l++){
+    if(l != targetL){
+      if(loopData[l].type == INFINITE)
+        loopData[l].type = NORMAL;
+    }
+  }
+}
+
+//moves to the next loop in loopSeq
+void nextLoop(){
+  loopCount = 0;
+  if(loopData.size()>1){
+    switch(loopData[activeLoop].type){
+      case NORMAL:
+        //move to next loop
+        if(activeLoop < loopData.size()-1)
+          activeLoop++;
+        else
+          activeLoop = 0;
+        if(playing)
+          playheadPos = loopData[activeLoop].start;
+        if(recording)
+          recheadPos = loopData[activeLoop].start;
+        break;
+      case RANDOM:{
+        activeLoop = random(0,loopData.size());
+        if(playing)
+          playheadPos = loopData[activeLoop].start;
+        if(recording)
+          recheadPos = loopData[activeLoop].start;
+        break;}
+      case RANDOM_SAME:{
+        //move to next loop
+        if(activeLoop < loopData.size()-1)
+          activeLoop++;
+        else
+          activeLoop = 0;
+        //if rnd of same size mode, choose a random loop
+        int currentLength = loopData[activeLoop].end - loopData[activeLoop].start;
+        vector<uint8_t> similarLoops;
+        for(int i = 0; i<loopData.size(); i++){
+          int len = loopData[i].end-loopData[i].start;
+          if(len == currentLength){
+            similarLoops.push_back(i);
+          }
+        }
+        activeLoop = similarLoops[random(0,similarLoops.size())];
+        if(playing)
+          playheadPos = loopData[activeLoop].start;
+        if(recording)
+          recheadPos = loopData[activeLoop].start;
+        break;}
+      case RETURN:{
+        activeLoop = 0;
+        if(playing)
+          playheadPos = loopData[activeLoop].start;
+        if(recording)
+          recheadPos = loopData[activeLoop].start;
+        break;}
+      case INFINITE:{
+        if(playing)
+          playheadPos = loopData[activeLoop].start;
+        if(recording)
+          recheadPos = loopData[activeLoop].start;
+        break;}
+    }
+  }
+}
+
+
+//cuts notes off when loop repeats, then starts new note at beginning
+void cutLoop(){
+  for(int i = 0; i<trackData.size(); i++){
+    if(trackData[i].noteLastSent != 255){
+      seqData[i][seqData[i].size()-1].endPos = loopData[activeLoop].end;
+      //if it's about to loop again (if it's a one-shot recording, there's no need to make a new note)
+      if(recMode != ONESHOT)
+        writeNoteOn(loopData[activeLoop].start,trackData[i].pitch,seqData[i][seqData[i].size()-1].velocity,trackData[i].channel);
+    }
+  }
+}
+
+//this checks loops bounds, moves to next loop, and cuts loop
+void checkLoop(){
+  if(playing){
+    if (playheadPos > loopData[activeLoop].end-1) { //if the timestep is past the end of the loop, loop it to the start
+      loopCount++;
+      if(loopCount > loopData[activeLoop].reps){
+        nextLoop();
+      }
+      playheadPos = loopData[activeLoop].start;
+      if(!isLooping)
+        togglePlayMode();
+    }
+  }
+  else if(recording){
+    //one-shot record to current loop, without looping
+    if(recMode == ONESHOT){
+      if(recheadPos>=loopData[activeLoop].end){
+        toggleRecordingMode(waitForNoteBeforeRec);
+      }
+    }
+    //record to one loop over and over again
+    else if(recMode == LOOP){
+      if(recheadPos>=loopData[activeLoop].end){
+        recheadPos = loopData[activeLoop].start;
+      }
+    }
+    //record to loops as they play in sequence
+    else if(recMode == LOOPSEQUENCE){
+      if(recheadPos>=loopData[activeLoop].end){
+        cutLoop();
+        loopCount++;
+        if(loopData[activeLoop].reps>=loopCount){
+          nextLoop();
+        }
+        recheadPos = loopData[activeLoop].start;
       }
     }
   }

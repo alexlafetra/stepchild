@@ -15,6 +15,33 @@ void linearInterpolate(uint16_t start, uint16_t end, uint8_t id);
 void ellipticalInterpolate(uint16_t start, uint16_t end, uint8_t id, bool up);
 void smoothSelectedPoints(uint8_t type);
 
+
+//moving cursor around while in autotrack mode
+//This could probably be combined with "moveCursor"
+void moveAutotrackCursor(int moveAmount){
+  //if you're trying to move back at the start
+  if(cursorPos==0 && moveAmount < 0){
+    return;
+  }
+  if(moveAmount<0 && abs(moveAmount)>=cursorPos)
+    cursorPos = 0;
+  else
+    cursorPos += moveAmount;
+  if(cursorPos >= seqEnd) {
+    cursorPos = seqEnd-1;
+  }
+  if(cursorPos<0){
+    cursorPos = 0;
+  }
+  //Move the view along with the cursor
+  if(cursorPos<viewStart+subDivInt && viewStart>0){
+    moveView(cursorPos - (viewStart+subDivInt));
+  }
+  else if(cursorPos > viewEnd-subDivInt && viewEnd<seqEnd){
+    moveView(cursorPos - (viewEnd-subDivInt));
+  }
+}
+
 void createDataPoint(){
   autotrackData[activeAutotrack].data[cursorPos] = 64;
 }
@@ -1512,10 +1539,10 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
       display.fillTriangle(120+((millis()/200)%2),9,120+((millis()/200)%2),3,120+6+((millis()/200)%2),6,SSD1306_WHITE);
     if(recording){
       //flash it while waiting
-      if(waiting && (millis()%1000>500))
+      if(waitingToReceiveANote && (millis()%1000>500))
         display.drawCircle(124,6,3,SSD1306_WHITE);
       //draw it solid if the rec has started
-      else if(!waiting)
+      else if(!waitingToReceiveANote)
         display.fillCircle(124,6,3,SSD1306_WHITE);
     }
     

@@ -207,14 +207,8 @@ void settingsMenu(){
                 updateLEDs();
                 lastTime = millis();
                 break;
-              //external clock
-              // case 3:
-              //   internalClock = !internalClock;
-              //   lastTime = millis();
-              //   break;
-              //count-in
               case 3:
-                waitForNote = !waitForNote;
+                waitForNoteBeforeRec = !waitForNoteBeforeRec;
                 lastTime = millis();
                 break;
               //overwrite
@@ -224,7 +218,8 @@ void settingsMenu(){
                 break;
               //rec mode
               case 5:
-                recMode = !recMode;
+                recMode++;
+                recMode%=4;
                 lastTime = millis();
                 break;
               //remove time
@@ -268,7 +263,7 @@ void settingsMenu(){
             switch(xCursor){
               //enter update mode 
               case 1:
-                drawWebLink();
+                display.drawBitmap(39,7,web_bmp,50,50,SSD1306_WHITE);
                 enterBootsel();
                 break;
               //enter bottsel
@@ -348,7 +343,7 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
       printSmall(x1+47,y1+14,"rec",1);
 
       printSmall(x1-5,y1+20,"wait:",1);
-      drawLabel(x1+22,y1+20,waitForNote?"on":"off",waitForNote);
+      drawLabel(x1+22,y1+20,waitForNoteBeforeRec?"on":"off",waitForNoteBeforeRec);
 
       printSmall(x1-5,y1+28,"overwrite:",1);
       drawLabel(x1+42,y1+28,overwriteRecording?"on":"off",overwriteRecording);

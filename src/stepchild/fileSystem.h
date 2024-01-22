@@ -52,9 +52,6 @@ String bytesToString(uint32_t bytes){
   uint32_t getByteCount(String filename){
     return 0;
   }
-  void writeSeqSerial_plain(){
-    return;
-  }
   void loadSeqFile(String filename){
     return;
   }
@@ -132,7 +129,8 @@ void writeSeqFile(String filename){
 
   //writing seq info
   //start, end
-  uint8_t start[2] = {uint8_t(seqStart>>8),uint8_t(seqStart)};
+  // uint8_t start[2] = {uint8_t(seqStart>>8),uint8_t(seqStart)};
+    uint8_t start[2] = {0,0};
   uint8_t end[2] = {uint8_t(seqEnd>>8),uint8_t(seqEnd)};
   seqFile.write(start,2);
   seqFile.write(end,2);
@@ -595,39 +593,25 @@ uint32_t getByteCount_standAlone(String filename){
   return byteCount;
 }
 
-void writeSeqSerial_plain(){
-  //Serial.print("trackData.size():");
-  //Serial.println(trackData.size());
-  for(int track = 0; track<trackData.size(); track++){
-    //Serial.print("-----------------[Track ");
-    //Serial.print(track);
-    //Serial.println("]-----------------");
-    //Serial.print("notes: ");
-    //Serial.println(seqData[track].size()-1);
-    //Serial.print("pitch: ");
-    //Serial.println(trackData[track].pitch);
-    //Serial.print("channel: ");
-    //Serial.println(trackData[track].channel);
+//this makes notes without updating the noteCount, and doesn't check bounds n stuff
+void loadNote(int id, int track, int start, int velocity, bool isMuted, int chance, int end, bool selected){
+  Note newNoteOn(start, end, velocity, chance, isMuted, false);
+  newNoteOn.isSelected = selected;
+  if(selected){
+    selectionCount++;
   }
-  for(int track = 0; track<trackData.size(); track++){
-    for(int note = 1; note <= seqData[track].size()-1; note++){
-      //Serial.print("---[Note ");
-      //Serial.print(note);
-      //Serial.println("]---");
-      //Serial.print("startPos: ");
-      //Serial.println(seqData[track][note].startPos);
-      //Serial.print("vel: ");
-      //Serial.println(seqData[track][note].velocity);
-      //Serial.print("mute: ");
-      //Serial.println(seqData[track][note].muted);
-      //Serial.print("chance: ");
-      //Serial.println(seqData[track][note].chance);
-      //Serial.print("endPos: ");
-      //Serial.println(seqData[track][note].endPos);
-    }
-  }
-
+  loadNote(newNoteOn, track);
 }
+
+void loadNote(Note newNote, uint8_t track){
+  //adding to seqData
+  seqData[track].push_back(newNote);
+  //adding to lookupData
+  for (uint16_t i =  newNote.startPos; i < newNote.endPos; i++) { //sets id
+    lookupData[track][i] = seqData[track].size()-1;
+  }
+}
+
 
 //load a sequence, from a file
 void loadSeqFile(String filename){
@@ -643,7 +627,7 @@ void loadSeqFile(String filename){
     uint8_t end[2];
     seqFile.read(start,2);
     seqFile.read(end,2);
-    seqStart = (uint16_t(start[0])<<8)+uint16_t(start[1]);
+    // seqStart = (uint16_t(start[0])<<8)+uint16_t(start[1]);
     seqEnd = (uint16_t(end[0])<<8)+uint16_t(end[1]);
 
     //loading tracks
@@ -859,9 +843,9 @@ void writeCurrentSettingsToFile(){
   File f = LittleFS.open("/settings","w");
   uint8_t pOrN[1] = {pitchesOrNumbers};
   uint8_t leds[1] = {LEDsOn};
-  uint8_t clock[1] = {internalClock};
+  uint8_t clock[1] = {clockSource};
   uint8_t playAfterRec[1] = {0};
-  uint8_t countIn[1] = {waitForNote};
+  uint8_t countIn[1] = {waitForNoteBeforeRec};
   uint8_t idleTime[2] = {uint8_t(sleepTime>>8),uint8_t(sleepTime)};
   f.write(pOrN,1);
   f.write(leds,1);
@@ -893,9 +877,9 @@ void loadSavedSettingsFromFile(){
 
   pitchesOrNumbers = pOrN[0];
   LEDsOn = leds[0];
-  internalClock = clock[0];
+  clockSource = clock[0];
   //playAfterRec
-  waitForNote = countIn[0];
+  waitForNoteBeforeRec = countIn[0];
   //idleTime
 }
 

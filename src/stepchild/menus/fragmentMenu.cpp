@@ -73,8 +73,8 @@ void fragmentMenu(){
         }
       }
       //bounds checking
-      if(timeS<seqStart-screenWidth/2){
-        timeS = seqStart-screenWidth/2;
+      if(timeS<-screenWidth/2){
+        timeS = -screenWidth/2;
       }
       if(timeS+64>seqEnd){
         timeS = seqEnd-64;
@@ -271,7 +271,7 @@ void fragmentMenu(){
       //display timeline when selecting the start
       for(int lineStep = 0; lineStep<screenWidth; lineStep++){
         //if it's within the seq
-        if((lineStep+timeS)<=seqEnd&&(lineStep+timeS)>=seqStart){
+        if((lineStep+timeS)<=seqEnd&&(lineStep+timeS)>=0){
           if(playing){
             timeS = playheadPos - 64;
             if(lineStep+timeS == playheadPos){

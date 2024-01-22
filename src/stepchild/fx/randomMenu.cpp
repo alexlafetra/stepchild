@@ -2,7 +2,7 @@ WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float sca
 
 
 //Random Menu
-void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxChance, uint16_t minLength, uint16_t maxLength, uint8_t minVel, uint8_t maxVel, uint8_t gridBehavior, bool target){
+void drawRandMenuOptions(uint8_t which,RandomData randData){
   switch(which){
   //length
   case 0:
@@ -11,15 +11,15 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
     const uint8_t y1 = 10;
     printSmall(x1-8,y1,"length of notes",1);
     printSmall(x1-2,y1+24,"max",1);
-    String frac = stepsToMeasures(maxLength);
+    String frac = stepsToMeasures(randData.maxLength);
     printFraction_small(x1-(frac.length()>=4?5:0),y1+15,frac);
     printSmall(x1+29,y1+14,"min",1);
-    frac = stepsToMeasures(minLength);
+    frac = stepsToMeasures(randData.minLength);
     printFraction_small(x1+29,y1+23,frac);
     int8_t offset1 = 4*((millis()/200)%2);
     int8_t offset2 = 4*cos(millis()/100);
-    display.fillRect(x1+12,y1+24-maxLength/6-offset1/2,6,maxLength/3+offset1,1);
-    display.fillRect(x1+20,y1+24-minLength/6-offset2/2,6,minLength/3+offset2,1);
+    display.fillRect(x1+12,y1+24-randData.maxLength/6-offset1/2,6,randData.maxLength/3+offset1,1);
+    display.fillRect(x1+20,y1+24-randData.minLength/6-offset2/2,6,randData.minLength/3+offset2,1);
     }
     break;
     //odds
@@ -30,7 +30,7 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
       printSmall(x1,y1,"odds of a",1);
       printSmall(x1-10,y1+7,"note appearing",1);
       //formatting the string
-      String val = stringify(odds);
+      String val = stringify(randData.odds);
       while(val.length()<3){
         val = "0" + val;
       }
@@ -44,18 +44,17 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
     {
     const uint8_t x1 = 36;
     const uint8_t y1 = 14;
-    display.drawCircle(x1+28,y1+20,maxChance/6,1);
-    display.fillCircle(x1+28,y1+20,minChance/6,1);
-    uint8_t diff = ceil(float(maxChance)/8.0-float(minChance)/8.0);
+    display.drawCircle(x1+28,y1+20,randData.maxChance/6,1);
+    display.fillCircle(x1+28,y1+20,randData.minChance/6,1);
+    uint8_t diff = ceil(float(randData.maxChance)/8.0-float(randData.minChance)/8.0);
     if(!diff){
         diff = 1;
     }   
-    // for(uint8_t i = (minChance/8)+1; i<(maxChance/8-diff/2*sin(float(millis())/float(100)))-2; i+=2){
-    display.drawCircle(x1+28,y1+20,minChance/8+(millis()/50)%diff+1,1);
+    display.drawCircle(x1+28,y1+20,randData.minChance/8+(millis()/50)%diff+1,1);
     printSmall(x1,y1+((millis()/400)%2),"max",1);
-    printSmall(x1,y1+6+((millis()/400)%2),stringify(maxChance),1);
+    printSmall(x1,y1+6+((millis()/400)%2),stringify(randData.maxChance),1);
     printSmall(x1+45,y1+34+cos(millis()/200),"min",1);
-    printSmall(x1+45,y1+40+cos(millis()/200),stringify(minChance),1);
+    printSmall(x1+45,y1+40+cos(millis()/200),stringify(randData.minChance),1);
     printSmall(x1,y1+40,"chance",1);
     }
     break;
@@ -65,7 +64,7 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
     const uint8_t x1 = 36;
     const uint8_t y1 = 14;
     printSmall(x1+8,y1,"randomize...",1);
-      if(target){
+      if(randData.target){
         printArp_wiggly(x1+8,y1+16,"Notes",1);
         printSmall_centered(64,y1+32,"(alter existing notes)",1);
       }
@@ -80,16 +79,16 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
       {
       const uint8_t x1 = 36;
       const uint8_t y1 = 14;
-      display.drawCircle(x1+28,y1+20,maxVel/8,1);
-      display.fillCircle(x1+28,y1+20,minVel/8,1);
-      uint8_t diff = maxVel/8-minVel/8;
-      for(uint8_t i = (minVel/8)+1; i<(maxVel/8-diff*abs(sin(float(millis())/float(200))))-1; i+=2){
+      display.drawCircle(x1+28,y1+20,randData.maxVel/8,1);
+      display.fillCircle(x1+28,y1+20,randData.minVel/8,1);
+      uint8_t diff = randData.maxVel/8-randData.minVel/8;
+      for(uint8_t i = (randData.minVel/8)+1; i<(randData.maxVel/8-diff*abs(sin(float(millis())/float(200))))-1; i+=2){
         display.drawCircle(x1+28,y1+20,i,1);
       }
       printSmall(x1,y1+((millis()/400)%2),"max",1);
-      printSmall(x1,y1+6+((millis()/400)%2),stringify(maxVel),1);
+      printSmall(x1,y1+6+((millis()/400)%2),stringify(randData.maxVel),1);
       printSmall(x1+45,y1+34+cos(millis()/200),"min",1);
-      printSmall(x1+45,y1+40+cos(millis()/200),stringify(minVel),1);
+      printSmall(x1+45,y1+40+cos(millis()/200),stringify(randData.minVel),1);
       printSmall(x1,y1+40,"velocity",1);
       }
       break;
@@ -98,7 +97,7 @@ void drawRandMenuOptions(uint8_t which,int8_t odds,int8_t minChance, int8_t maxC
       {
       const uint8_t x1 = 44;
       const uint8_t y1 = 10;
-      if(gridBehavior){
+      if(randData.onlyOnGrid){
         printArp_wiggly(x1,y1+10,"On Grid",1);
         printSmall_centered(64,y1+25,"locked to grid:",1);
         printFraction_small_centered(62,y1+35,stepsToMeasures(subDivInt));
@@ -273,7 +272,7 @@ CoordinatePair selectArea_random(){
   }
 }
 
-void genRandom(int8_t odds, int8_t minChance, int8_t maxChance, uint16_t minLength, uint16_t maxLength, uint8_t minVel, uint8_t maxVel,bool onGrid,bool target){
+void genRandom(RandomData randData){
   while(true){
     CoordinatePair coords = selectArea_random();
     if(coords.x1 == coords.x2 && coords.y1 == coords.y2){
@@ -290,16 +289,16 @@ void genRandom(int8_t odds, int8_t minChance, int8_t maxChance, uint16_t minLeng
       coords.y2 = temp;
     }
     //if you're targeting empty spaces
-    if(!target){
+    if(!randData.target){
       //iterate over the tracks (inclusively)
       for(uint8_t t = coords.y1; t<=coords.y2; t++){
         for(uint16_t step = coords.x1; step<coords.x2; step++){
           //if it's not only making notes on the grid, or if the step is on a subDiv
-          if((!onGrid || !(step%subDivInt)) && lookupData[t][step] == 0){
-            if(random(0,100)<odds){
-              uint8_t chance = random(minChance,maxChance+1);
-              uint16_t length = random(minLength,maxLength+1);
-              uint8_t vel = random(minVel,maxVel+1);
+          if((!randData.onlyOnGrid || !(step%subDivInt)) && lookupData[t][step] == 0){
+            if(random(0,100)<randData.odds){
+              uint8_t chance = random(randData.minChance,randData.maxChance+1);
+              uint16_t length = random(randData.minLength,randData.maxLength+1);
+              uint8_t vel = random(randData.minVel,randData.maxVel+1);
               //making sure notes won't run off the end
               if(step+length>coords.x2){
                 length = coords.x2-step;
@@ -309,8 +308,8 @@ void genRandom(int8_t odds, int8_t minChance, int8_t maxChance, uint16_t minLeng
               step = newNote.endPos-1;
               //if it's not on grid, move a random amount forward
             }
-            if(!onGrid){
-              step+=random(0,maxLength*(100-odds)/100);
+            if(!randData.onlyOnGrid){
+              step+=random(0,randData.maxLength*(100-randData.odds)/100);
             }
           }
         }
@@ -323,10 +322,10 @@ void genRandom(int8_t odds, int8_t minChance, int8_t maxChance, uint16_t minLeng
         for(uint16_t step = coords.x1; step<coords.x2; step++){
           //ignore grid for this
           if(lookupData[t][step] != 0){
-            if(random(0,100)<odds){
-              uint8_t chance = random(minChance,maxChance+1);
-              uint16_t length = random(minLength,maxLength+1);
-              uint8_t vel = random(minVel,maxVel+1);
+            if(random(0,100)<randData.odds){
+              uint8_t chance = random(randData.minChance,randData.maxChance+1);
+              uint16_t length = random(randData.minLength,randData.maxLength+1);
+              uint8_t vel = random(randData.minVel,randData.maxVel+1);
               //making sure notes won't run off the end
               if(step+length>coords.x2){
                 length = coords.x2-step;
@@ -428,7 +427,7 @@ void drawRandMenu(uint8_t whichTab){
     printSmall(104,y3+2,"timing",2);
 }
 
-bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int8_t * maxChance, uint16_t * minLength, uint16_t * maxLength, uint8_t * minVel, uint8_t * maxVel, bool * gridBehavior, bool * target){
+bool randMenuControls(uint8_t * whichTab){
     readJoystick();
     readButtons();
     if(itsbeen(200)){
@@ -458,7 +457,7 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
         }
       if(n){
         lastTime = millis();
-        genRandom(*odds, *minChance, * maxChance, *minLength, *maxLength, *minVel, *maxVel,*gridBehavior,*target);
+        genRandom(randomData);
       }
     }
     
@@ -468,40 +467,40 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
         case 0:
           if(counterA >= 1){
             if(shift)
-              (*minLength)++;
+              (randomData.minLength)++;
             else{
-              *minLength = changeSubDiv(true,*minLength,false);
+              randomData.minLength = changeSubDiv(true,randomData.minLength,false);
             }
-            if(*minLength>96)
-              *minLength = 96;
+            if(randomData.minLength>96)
+              randomData.minLength = 96;
           }
           else if(counterA <= -1){
-            if(shift && *minLength>1)
-              (*minLength)--;
+            if(shift && randomData.minLength>1)
+              (randomData.minLength)--;
             else
-              *minLength = changeSubDiv(false,*minLength,false);
+              randomData.minLength = changeSubDiv(false,randomData.minLength,false);
           }
-          if(*minLength>*maxLength)
-            *maxLength=*minLength;
+          if(randomData.minLength>randomData.maxLength)
+            randomData.maxLength=randomData.minLength;
           counterA += counterA<0?1:-1;
           break;
         //odds
         case 1:
           if(counterA >= 1){
             if(shift)
-              (*odds)++;
+              (randomData.odds)++;
             else
-              (*odds)+=10;
-            if(*odds>100)
-              *odds = 100;
+              (randomData.odds)+=10;
+            if(randomData.odds>100)
+              randomData.odds = 100;
           }
           else if(counterA <= -1){
             if(shift)
-              (*odds)--;
+              (randomData.odds)--;
             else
-              (*odds)-=10;
-            if(*odds<0)
-              (*odds) = 0;
+              (randomData.odds)-=10;
+            if(randomData.odds<0)
+              (randomData.odds) = 0;
           }
           counterA += counterA<0?1:-1;
           break;
@@ -509,64 +508,64 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
         case 2:
           if(counterA >= 1){
             if(shift)
-              (*minChance)++;
+              (randomData.minChance)++;
             else{
-              if(*minChance == 1)
-                *minChance = 10;
+              if(randomData.minChance == 1)
+                randomData.minChance = 10;
               else
-                (*minChance) += 10;
+                (randomData.minChance) += 10;
             }
-            if(*minChance>100)
-              *minChance = 100;
+            if(randomData.minChance>100)
+              randomData.minChance = 100;
           }
           else if(counterA <= -1){
-            if(shift && *minChance>1)
-              (*minChance)--;
-            else if(*minChance>16)
-              (*minChance) -= 16;
+            if(shift && randomData.minChance>1)
+              (randomData.minChance)--;
+            else if(randomData.minChance>16)
+              (randomData.minChance) -= 16;
             else
-              (*minChance) = 1;
+              (randomData.minChance) = 1;
             
-            if(*minChance>*maxChance)
-              *maxChance = *minChance;
+            if(randomData.minChance>randomData.maxChance)
+              randomData.maxChance = randomData.minChance;
           }
           counterA += counterA<0?1:-1;
           break;
         //randomize selection/everything
         case 3:
-          *target = !*target;
+          randomData.target = !randomData.target;
           counterA += counterA<0?1:-1;
           break;
         //vel
         case 4:
           if(counterA >= 1){
             if(shift)
-              (*minVel)++;
+              (randomData.minVel)++;
             else{
-              if(*minVel == 1)
-                *minVel = 16;
+              if(randomData.minVel == 1)
+                randomData.minVel = 16;
               else
-                (*minVel) += 16;
+                (randomData.minVel) += 16;
             }
-            if(*minVel>127)
-              *minVel = 127;
+            if(randomData.minVel>127)
+              randomData.minVel = 127;
           }
           else if(counterA <= -1){
-            if(shift && *minVel>1)
-              (*minVel)--;
-            else if(*minVel>16)
-             (*minVel) -= 16;
+            if(shift && randomData.minVel>1)
+              (randomData.minVel)--;
+            else if(randomData.minVel>16)
+             (randomData.minVel) -= 16;
             else
-              (*minVel) = 1;
+              (randomData.minVel) = 1;
             
-            if(*minVel>*maxVel)
-              *maxVel = *minVel;
+            if(randomData.minVel>randomData.maxVel)
+              randomData.maxVel = randomData.minVel;
           }
           counterA += counterA<0?1:-1;
           break;
         //grid on/off
         case 5:
-          *gridBehavior = !*gridBehavior;
+          randomData.onlyOnGrid = !randomData.onlyOnGrid;
           counterA += counterA<0?1:-1;
           break;
       }
@@ -579,21 +578,21 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
         {
           if(counterB >= 1){
             if(shift)
-              (*maxLength)++;
+              (randomData.maxLength)++;
             else{
-              *maxLength = changeSubDiv(true,*maxLength,false);
+              randomData.maxLength = changeSubDiv(true,randomData.maxLength,false);
             }
-            if(*maxLength>96)
-              *maxLength = 96;
+            if(randomData.maxLength>96)
+              randomData.maxLength = 96;
           }
           else if(counterB <= -1){
-            if(shift && *maxLength>1)
-              (*maxLength)--;
+            if(shift && randomData.maxLength>1)
+              (randomData.maxLength)--;
             else
-              *maxLength = changeSubDiv(false,*maxLength,false);
+              randomData.maxLength = changeSubDiv(false,randomData.maxLength,false);
           }
-          if((*maxLength)<(*minLength))
-            *minLength = *maxLength;
+          if((randomData.maxLength)<(randomData.minLength))
+            randomData.minLength = randomData.maxLength;
           counterB += counterB<0?1:-1;
         }
         break;
@@ -601,19 +600,19 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
         case 1:
           if(counterB >= 1){
             if(shift)
-              (*odds)++;
+              (randomData.odds)++;
             else
-              (*odds)+=10;
-            if(*odds>100)
-              *odds = 100;
+              (randomData.odds)+=10;
+            if(randomData.odds>100)
+              randomData.odds = 100;
           }
           else if(counterB <= -1){
             if(shift)
-              (*odds)--;
+              (randomData.odds)--;
             else
-              (*odds)-=10;
-            if(*odds<0)
-              (*odds) = 0;
+              (randomData.odds)-=10;
+            if(randomData.odds<0)
+              (randomData.odds) = 0;
           }
           counterB += counterB<0?1:-1;
           break;
@@ -621,58 +620,58 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
         case 2:
           if(counterB >= 1){
             if(shift)
-              (*maxChance)++;
+              (randomData.maxChance)++;
             else{
-              if(*maxChance == 1)
-                *maxChance = 10;
+              if(randomData.maxChance == 1)
+                randomData.maxChance = 10;
               else{
-                (*maxChance) += 10;
+                (randomData.maxChance) += 10;
               }
             }
-            if(*maxChance>100)
-              *maxChance = 100;
+            if(randomData.maxChance>100)
+              randomData.maxChance = 100;
           }
           else if(counterB <= -1){
-            if(shift && *maxChance>1)
-              (*maxChance)--;
-            else if(*maxChance>10)
-              (*maxChance) -= 10;
+            if(shift && randomData.maxChance>1)
+              (randomData.maxChance)--;
+            else if(randomData.maxChance>10)
+              (randomData.maxChance) -= 10;
             else
-              *maxChance = 1;
-            if(*maxChance<*minChance)
-              *minChance = *maxChance;
+              randomData.maxChance = 1;
+            if(randomData.maxChance<randomData.minChance)
+              randomData.minChance = randomData.maxChance;
           }
           counterB += counterB<0?1:-1;
           break;
         //randomize selection/everything
         case 3:
-          *target = !*target;
+          randomData.target = !randomData.target;
           counterB += counterB<0?1:-1;
           break;
         //velocity
         case 4:
           if(counterB >= 1){
             if(shift)
-              maxVel++;
+              randomData.maxVel++;
             else{
-              if(*maxVel == 1)
-                *maxVel = 16;
+              if(randomData.maxVel == 1)
+                randomData.maxVel = 16;
               else
-                (*maxVel) += 16;
+                (randomData.maxVel) += 16;
             }
-            if(*maxVel>127)
-              *maxVel = 127;
+            if(randomData.maxVel>127)
+              randomData.maxVel = 127;
           }
           else if(counterB <= -1){
-            if(shift && *maxVel>1)
-             (*maxVel)--;
-            else if(*maxVel>16)
-              (*maxVel) -= 16;
+            if(shift && randomData.maxVel>1)
+             (randomData.maxVel)--;
+            else if(randomData.maxVel>16)
+              (randomData.maxVel) -= 16;
             else
-              *maxVel = 1;
+              randomData.maxVel = 1;
             
-            if(*maxVel<*minVel)
-              *minVel = *maxVel;
+            if(randomData.maxVel<randomData.minVel)
+              randomData.minVel = randomData.maxVel;
           }
           counterB += counterB<0?1:-1;
           break;
@@ -694,25 +693,14 @@ bool randMenuControls(uint8_t * whichTab, int8_t * odds, int8_t * minChance, int
 void randMenu(){
     //which menu you're on
     uint8_t whichTab = 1;
-    //vars for randomizer
-    int8_t odds = 60;
-    int8_t minChance = 100;
-    int8_t maxChance = 100;
-    uint16_t minLength = 24;
-    uint16_t maxLength = 48;
-    uint8_t minVel = 64;
-    uint8_t maxVel = 127;
-    bool gridBehavior = true;//true is on the grid, false is off grid
-    bool target = 0;//0 is all, 1 is select
-
+    //vars for randomizer are stored in randomData struct
     WireFrame cube = makeCube(70);
     cube.xPos = 64;
     cube.yPos = 32;
     while(true){
-        if(!randMenuControls(&whichTab,&odds,&minChance,&maxChance,&minLength,&maxLength,&minVel,&maxVel,&gridBehavior,&target)){
+        if(!randMenuControls(&whichTab)){
             break;
         }
-        
         //rotating cube
         cube.rotate(1,0);
         cube.rotate(1,1);
@@ -722,7 +710,7 @@ void randMenu(){
         printItalic(29,0,"randomize",1);//printing title
         drawRandMenu(whichTab);//printing the side tabs (and bouncing arrows)
         //printing the submenus
-        drawRandMenuOptions(whichTab,odds,minChance,maxChance,minLength,maxLength,minVel,maxVel,gridBehavior,target);
+        drawRandMenuOptions(whichTab,randomData);
         display.display();
     }
 }

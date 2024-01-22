@@ -313,7 +313,7 @@ void chordBuilder(){
       text = stepsToMeasures(length);
       printSmall(105,50,"L",SSD1306_WHITE);
       printFractionCentered(121,49,stepsToMeasures(length));
-      drawCenteredBanner(64,55,getPitchList(pressedKeys));
+      drawCenteredBanner(64,55,convertVectorToPitches(pressedKeys));
     }
     else if(editorState == 1){
       //draw the keys that are in the chord as "selected"

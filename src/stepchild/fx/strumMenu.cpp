@@ -3,7 +3,7 @@
 #define BYTRACK_ASC 1
 #define BYPITCH_DESC 2
 #define BYPITCH_ASC 3
-#define RANDOM 4
+#define RANDOM_ORDER 4
 
 bool compareTracks(NoteID n1, NoteID n2){
     return n1.track>n2.track;

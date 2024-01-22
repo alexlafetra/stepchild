@@ -141,3 +141,11 @@ void fragmentAnimation(bool in){
     }
   }
 }
+
+//this should restart USB serial/midi if it's become disconnected
+void checkSerial(){
+  #ifndef HEADLESS
+  if(digitalRead(usbPin) && !TinyUSBDevice.mounted()){
+  }
+  #endif
+}
