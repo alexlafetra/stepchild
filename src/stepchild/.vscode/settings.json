@@ -1,6 +1,7 @@
 {
     "cmake.sourceDirectory": "/Users/alex/Desktop/Stepchild/stepchild/src/stepchild/libraries",
     "files.associations": {
+        "*.txt": "plaintext",
         "vector": "cpp",
         "__bit_reference": "cpp",
         "__hash_table": "cpp",
@@ -11,6 +12,7 @@
         "string": "cpp",
         "string_view": "cpp",
         "unordered_map": "cpp",
-        "__locale": "cpp"
+        "__locale": "cpp",
+        "new": "cpp"
     }
 }

@@ -22,49 +22,25 @@ void drawInstrumentPanel(uint8_t x1, uint8_t y1){
     }
   }
 }
-
 void instrumentPanelAnimation(bool in){
-  if(in){
-    int16_t animFrame = 50;
-    while(animFrame>0){
-      const uint8_t width = 14;
-      const uint8_t height = 14;
-      const uint8_t x1 = 36;
-      const uint8_t y1 = 1;
-      uint8_t count = 0;
-      display.clearDisplay();
-      for(uint8_t j = 0; j<4; j++){
-        for(uint8_t i = 0; i<4; i++){
-          display.drawRoundRect(x1+16*i,y1+animFrame*(1+count)+16*j+sin(millis()/200+j*4+i),width,height,3,1);
-          display.drawBitmap(x1+16*i+1,y1+animFrame*(1+count)+16*j+sin(millis()/200+j*4+i)+1,instrumentApplicationIcons[count],12,12,1);
-          count++;
-        }
+  uint8_t counter = in?1:4;
+  while(in?(counter < 4):(counter>0)){
+    const uint8_t width = 14;
+    const uint8_t height = 14;
+    const uint8_t x1 = 36;
+    const uint8_t y1 = 1;
+    uint8_t count = 0;
+    display.clearDisplay();
+    for(uint8_t j = 0; j<counter; j++){
+      for(uint8_t i = 0; i<counter; i++){
+        display.drawRoundRect(x1+16*i,y1+16*j+sin(millis()/200+j*4+i),width,height,3,1);
+        display.drawBitmap(x1+16*i+1,y1+16*j+sin(millis()/200+j*4+i)+1,instrumentApplicationIcons[count],12,12,1);
+        count++;
       }
-      display.display();
-      animFrame-=5;
-      // delay(100);
     }
-  }
-  else{
-    int16_t animFrame = 0;
-    while(animFrame<50){
-      const uint8_t width = 14;
-      const uint8_t height = 14;
-      const uint8_t x1 = 36;
-      const uint8_t y1 = 1;
-      uint8_t count = 0;
-      display.clearDisplay();
-      for(uint8_t j = 0; j<4; j++){
-        for(uint8_t i = 0; i<4; i++){
-          display.drawRoundRect(x1+16*i,y1+animFrame*(1+count)+16*j+sin(millis()/200+j*4+i),width,height,3,1);
-          display.drawBitmap(x1+16*i+1,y1+animFrame*(1+count)+16*j+sin(millis()/200+j*4+i)+1,instrumentApplicationIcons[count],12,12,1);
-          count++;
-        }
-      }
-      display.display();
-      animFrame+=5;
-      // delay(100);
-    }
+    counter+=in?1:-1;
+    display.display();
+    delay(12);
   }
 }
 
@@ -101,7 +77,6 @@ void selectInstrumentMenu(){
       if(menu_Press){
         lastTime = millis();
         menu_Press = false;
-        instrumentPanelAnimation(false);
         return;
       }
       if(sel){
@@ -122,13 +97,10 @@ void selectInstrumentMenu(){
     display.drawBitmap(x1+16*(cursor%4)+width/2-12,y1+16*(cursor/4)+height/2+2,mouse_cursor_outline_bmp,9,15,1);
     
     //title
-    // printCursive(-1,0,"instruments",1);
     display.drawPixel(64,5,0);
     String text = instrumentApplicationTexts[cursor];
-    // printArp(0,10,text,1);
     display.setRotation(1);
-    // printSmall(0,10,text,1);
-    printItalic(screenHeight-text.length()*8,27,text,1);
+    printItalic_wave(screenHeight-text.length()*8,27,text,5,200,1);
     display.setRotation(UPRIGHT);
     display.display();
   }

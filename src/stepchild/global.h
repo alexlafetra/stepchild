@@ -61,6 +61,44 @@ class StepchildSequence{
   }
 };
 
+#define NEW 0
+#define SHIFT 1
+#define SELECT 2
+#define DELETE 3
+#define LOOP 4
+#define PLAY 5
+#define COPY 6
+#define MENU 7
+
+class StepchildInput{
+  public:
+
+  //this should probably do all the hardware inits, and get passed a "settings" struct with the pins
+  StepchildInput(){
+
+  }
+  //stores buttons 1-8
+  uint8_t topButtons = 0;
+  //stores the 13 step buttons
+  uint16_t stepButtons = 0;
+
+  //reads in inputs
+  void readTopButtons(){
+
+  }
+  void readStepButtons(){
+
+  }
+
+  bool buttonState(uint8_t which){
+    return topButtons>>which & 1;
+  }
+
+  bool stepButtonState(uint8_t which){
+    return stepButtons>>which & 1;
+  }
+};
+
 
 uint16_t bpm = 120;
 

@@ -164,10 +164,11 @@ void handleNoteOff_Recording(uint8_t channel, uint8_t note, uint8_t velocity){
   waitingToReceiveANote = false;
   noteOffReceived = true;
 
-  //is this a good idea? idk
-  recentNote.pitch = note;
-  recentNote.vel = velocity;
-  recentNote.channel = channel;
+  //is this a good idea? idk (it messed w/ live loop so i'm disabling it)
+  //if you need this, you should have a "recentNoteOff" variable too
+  // recentNote.pitch = note;
+  // recentNote.vel = velocity;
+  // recentNote.channel = channel;
 
   noteOffReceivedHandlerFunc(channel,note,velocity);
   
@@ -210,9 +211,9 @@ void handleNoteOff_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
   sendThruOff(channel, note);
   noteOffReceived = true;
 
-  recentNote.pitch = note;
-  recentNote.vel = velocity;
-  recentNote.channel = channel;
+  // recentNote.pitch = note;
+  // recentNote.vel = velocity;
+  // recentNote.channel = channel;
   receivedNotes.subNote(note);
 }
 

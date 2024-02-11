@@ -266,10 +266,18 @@ const unsigned char epd_bitmap_small_divide []  = {
 const unsigned char epd_bitmap_degree [] = {
 	0x40, 0x00, 0x00, 0x00, 0x00
 };
+// 'stop', 3x5px
+const unsigned char epd_bitmap_stop [] = {
+	0x00, 0xe0, 0xe0, 0xe0, 0x00
+};
+// 'play', 3x5px
+const unsigned char epd_bitmap_play [] = {
+	0x80, 0xc0, 0xe0, 0xc0, 0x80
+};
 
 
 // Array of all bitmaps for convenience. (Total bytes used to store images in  = 1312)
-const unsigned char* small_font[67] = {
+const unsigned char* small_font[69] = {
 	epd_bitmap_small_a,
 	epd_bitmap_small_b,
 	epd_bitmap_small_c,
@@ -336,7 +344,9 @@ const unsigned char* small_font[67] = {
   epd_bitmap_small_delta,
   epd_bitmap_small_double_quotes,
   epd_bitmap_small_divide,
-  epd_bitmap_degree
+  epd_bitmap_degree,
+  epd_bitmap_stop,
+  epd_bitmap_play
 };
 
 //this one prints out one word at a time, with bounds
@@ -663,6 +673,14 @@ void printSmall(int x, int y, char text, uint16_t c){
     case '}':
       display.drawBitmap(x,y,small_font[66],3,5,c);
       break;
+    //play
+    case '\a':
+      display.drawBitmap(x,y,small_font[67],3,5,c);
+      break;
+    //stop
+    case '\t':
+      display.drawBitmap(x,y,small_font[68],3,5,c);
+      break;
   }
 }
 void printSmall(int x, int y, String text, uint16_t c){
@@ -962,6 +980,14 @@ void printSmall(int x, int y, String text, uint16_t c){
       //degree
       case '}':
         display.drawBitmap(x+4*letter,y,small_font[66],3,5,c);
+        break;
+      //play
+      case '\a':
+        display.drawBitmap(x+4*letter,y,small_font[67],3,5,c);
+        break;
+      //stop
+      case '\t':
+        display.drawBitmap(x+4*letter,y,small_font[68],3,5,c);
         break;
     }
   }

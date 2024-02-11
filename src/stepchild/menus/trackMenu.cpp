@@ -123,14 +123,14 @@ bool trackMenuControls(){
   }
   if(itsbeen(200)){
     if(track_Press || menu_Press){
-      slideMenuOut(1,7);
+      slideMenuOut(1,10);
       menuIsActive = false;
       constructMenu("MENU");
       lastTime = millis();
       return false;
     }
     if(note_Press){
-      slideMenuOut(1,7);
+      slideMenuOut(1,10);
       lastTime = millis();
       constructMenu("EDIT");
       return false;

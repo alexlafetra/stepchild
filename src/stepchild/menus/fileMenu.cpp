@@ -117,6 +117,7 @@ vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
           String fileName = filenames[activeMenu.page];
           loadSeqFile(fileName);
           currentFile = fileName;
+          alert("loaded "+currentFile+"!",500);
           break;
         }
         //rename
@@ -234,9 +235,11 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
 
 void fileMenuAnimation(bool open, uint8_t menuStart, uint8_t menuEnd,vector<String> filenames, bool inOrOut){
   if(inOrOut){
-    int16_t textOffset = 128;
+    int16_t textOffset = 24;
     while(textOffset > 0){
-      textOffset-=10;
+      textOffset -= 5;
+      if(textOffset< -5)
+        textOffset = -5;
       display.clearDisplay();
       //draw menu
       activeMenu.displayFileMenu(textOffset,false,menuStart,menuEnd,filenames);
@@ -246,7 +249,7 @@ void fileMenuAnimation(bool open, uint8_t menuStart, uint8_t menuEnd,vector<Stri
   else{
     int16_t textOffset = 0;
     while(textOffset < 128){
-      textOffset+=20;
+      textOffset+=16;
       display.clearDisplay();
       //draw menu
       activeMenu.displayFileMenu(textOffset,false,menuStart,menuEnd,filenames);

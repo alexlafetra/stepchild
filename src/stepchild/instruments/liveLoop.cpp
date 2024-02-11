@@ -5,6 +5,30 @@
     While the seq is playing, the encoders are also used to send CC data.
 
 */
+
+void exitRecAndStartPlaying(uint8_t& layerCount){
+    CoordinatePair A = CoordinatePair(loopData[activeLoop].start,recheadPos);
+    CoordinatePair B = CoordinatePair(loopData[activeLoop].start,loopData[activeLoop].end);
+    //make sure to call this first, so that the recording is cleaned up
+    togglePlayMode();
+    //only warp selected notes
+    warpAintoB(A,B,true);
+    isLooping = true;
+    lastTime = millis();
+    //on the first layer
+    //adjust the bpm so that it feels like it's playing at the same speed
+    if(layerCount == 0){
+        float timeScale = float(B.x2-B.x1)/float(A.x2-A.x1);
+        uint16_t newBPM = bpm*timeScale;
+        setBpm(newBPM);
+    }
+    //disarm all the tracks that were just written to
+    // disarmTracksWithNotes();
+    //clear selection, so you don't re-warp the previously recorded notes
+    clearSelection();
+    layerCount++;
+}
+
 void liveLoop(){
     //save loop!
     Loop originalLoop = loopData[activeLoop];
@@ -16,6 +40,10 @@ void liveLoop(){
     recordedNotesAreSelected = true;
     overwriteRecording = false;
 
+    //note that can trigger play/stop
+    int8_t startStopTriggerNote = -1; //this is disabled by default
+    // int8_t startStopTriggerNote = 46; //this is disabled by default
+
     uint8_t layerCount = 0;
     clearSelection();
     while(true){
@@ -26,7 +54,7 @@ void liveLoop(){
         defaultSelectBoxControls();
         if(itsbeen(75)){
             //delete
-            if(del && !shift){
+            if(del){
                 if (selectionCount > 0){
                     deleteSelected();
                     lastTime = millis();
@@ -44,6 +72,14 @@ void liveLoop(){
             if(menu_Press){
                 lastTime = millis();
                 break;
+            }
+            //hold shift to set the most recent note received to the trigger note
+            if(shift && !play){
+                if(recentNote.pitch<=127){
+                    startStopTriggerNote = recentNote.pitch;
+                    recentNote.pitch = 255;
+                    lastTime = millis();
+                }
             }
             //get ready to record, but wait for note
             if(play){
@@ -68,67 +104,38 @@ void liveLoop(){
                 //if you are already recording
                 //stop the recording and shrink it to the active loop, if you're coming out of a recording
                 else if(recording && !playing){
-                    CoordinatePair A = CoordinatePair(loopData[activeLoop].start,recheadPos);
-                    CoordinatePair B = CoordinatePair(loopData[activeLoop].start,loopData[activeLoop].end);
-                    //make sure to call this first, so that the recording is cleaned up
-                    togglePlayMode();
-                    //only warp selected notes
-                    warpAintoB(A,B,true);
-                    isLooping = true;
-                    lastTime = millis();
-                    //on the first layer
-                    //adjust the bpm so that it feels like it's playing at the same speed
-                    if(layerCount == 0){
-                        float timeScale = float(B.x2-B.x1)/float(A.x2-A.x1);
-                        uint16_t newBPM = bpm*timeScale;
-                        setBpm(newBPM);
-                    }
-                    //disarm all the tracks that were just written to
-                    // disarmTracksWithNotes();
-                    //clear selection, so you don't re-warp the previously recorded notes
-                    clearSelection();
-                    layerCount++;
+                    exitRecAndStartPlaying(layerCount);
                 }
             }
         }
+        //drawing display
         display.clearDisplay();
         drawSeq(true,false,true,false,false,false,viewStart,viewEnd);
-        printSmall(trackDisplay,0,"#:"+stringify(layerCount),1);
-        if(!recording){
-            int8_t offset = 0;
-            if(playing)
-                offset = 2*((millis()/200)%2);
-            uint8_t x0 = 6+offset;
-            const uint8_t y0 = 0;
-            const uint8_t len = 16;
-            uint8_t len2 = len-(16-(millis()/100)%16);
-            uint8_t height;
-            if(maxTracksShown == 6 && !menuIsActive){
-                height = 6;
-            }
-            else{
-                height = 12;
-            }
-            if(playing){
-                display.fillTriangle(x0,y0,x0,y0+height,x0+len,y0+height/2,1);
-                display.fillRect(x0+len2,y0,len-len2,height,0);
-            }
-            display.drawTriangle(x0,y0,x0,y0+height,x0+len,y0+height/2,1);
+        display.fillRoundRect(-5,-5,39,22,5,0);
+        display.drawRoundRect(-5,-5,39,22,5,1);
+        display.drawBitmap(0,0,live_loop_title_bmp,31,15,1,0);
+        if(startStopTriggerNote != -1){
+           printSmall(88,0,stringify("\a/\t:")+pitchToString(startStopTriggerNote,true,true),1);
         }
-        else if(recording){
-            uint8_t radius = 7;
-            uint8_t y0 = 7;
-            const uint8_t x0 = 15;
-            if(maxTracksShown == 6 && !menuIsActive){
-                y0 = 4;
-                radius = 4;
-            }
-            if(millis()%1000>500)
-                display.fillCircle(x0,y0,radius,1);
-            else
-                display.drawCircle(x0,y0,radius,1);
+        else{
+            printSmall(88,0,"no trigger",1);
         }
+        printSmall(88,6,"layer #:"+stringify(layerCount),1);
         display.display();
+
+        //checking if the seq should start/stop
+        if(startStopTriggerNote != -1){
+            if(recentNote.pitch == startStopTriggerNote){
+                if(recording){
+                    exitRecAndStartPlaying(layerCount);
+                }
+                else{
+                    togglePlayMode();
+                }
+                recentNote.pitch = 255;//set this to something weird so you don't double-trigger it
+            }
+        }
+
     }
     menuIsActive = true;
     recMode = originalRecMode;

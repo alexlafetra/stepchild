@@ -27,7 +27,7 @@ struct NoteData{
 };
 
 NoteData::NoteData(){
-  pitch = 0;
+  pitch = 255;
   vel = 0;
   channel = 0;
 }

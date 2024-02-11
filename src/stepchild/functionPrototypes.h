@@ -81,8 +81,8 @@ String getCCParam(uint8_t param, uint8_t channel, uint8_t type);
 void writeNoteOn(unsigned short int step, uint8_t pitch, uint8_t vel, uint8_t channel);
 
 //Drawing functions
-void printItalic(int x, int y, char character, uint16_t c);
-void printItalic(int x, int y, String text, uint16_t c);
+void printItalic(int16_t x, int16_t y, char character, uint16_t c);
+void printItalic(int16_t x, int16_t y, String text, uint16_t c);
 void drawCenteredBanner(int8_t x1, int8_t y1, String text);
 void drawNoteBracket(int x1, int y1, int length, int height, bool animated);
 void drawNoteBracket(Note note, int track);
@@ -400,6 +400,7 @@ void printFraction_small_centered(uint8_t x1, uint8_t y1, String fraction);
 void drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, bool full);
 uint8_t printFraction_small(uint8_t x1, uint8_t y1, String fraction);
 void drawNoteBracket(int x1, int y1, int length, int height, bool animated);
+void printItalic_wave(int16_t x, int16_t y, string text, uint8_t height, uint8_t timing, uint16_t c);
 
 //MIDI
 void sendMIDIallOff();

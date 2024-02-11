@@ -149,13 +149,13 @@ void slideMenuOut(int toWhere, int speed){
     while(activeMenu.coords.x1<screenWidth){
       activeMenu.coords.x1+=speed;
       activeMenu.coords.x2+=speed;
-      //make sure x bounds don't glitch out
-      if(activeMenu.coords.x2>screenWidth){
-        activeMenu.coords.x2 = screenWidth;
-      }
+      //make sure x bounds don't glitch out/overflow  (don't think this is necessary, leaving it for legacy/in case you find a menu that bugs)
+      //Using this makes some menus slide a lil' ugly
+      // if(activeMenu.coords.x2>screenWidth){
+      //   activeMenu.coords.x2 = screenWidth;
+      // }
       displaySeq();
       drawPram(5,0);
-      // delay(20);
     }
   }
   //to the bottom
@@ -179,7 +179,7 @@ void slideMenuOut(int toWhere, int speed){
 #define CLOCK 2
 #define SETTINGS 3
 #define SEQ 4
-#define LOOP 5
+#define LOOPMENU 5
 #define MIDI 6
 #define FRAGMENT 7
 #define CURVE 8
@@ -234,7 +234,7 @@ void constructMenu(uint8_t id){
       settingsMenu();
       return;
     }
-    case LOOP:
+    case LOOPMENU:
     {
       Menu loopMenu(2,4,80,60,"LOOP");
       activeMenu = loopMenu;
@@ -285,6 +285,7 @@ void constructMenu(uint8_t id){
         slideMenuIn(1,10);
       }
       trackMenu();
+      // slideMenuOut(1,10);
       return;
     }
     case FILES:
@@ -317,7 +318,7 @@ void constructMenu(String title){
     constructMenu(SEQ);
   }
   else if(title == "LOOP"){
-    constructMenu(LOOP);
+    constructMenu(LOOPMENU);
   }
   else if(title == "MIDI"){
     constructMenu(MIDI);
