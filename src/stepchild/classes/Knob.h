@@ -45,5 +45,5 @@ void Knob::set(int16_t newVal){
   val = newVal;
 }
 void Knob::send(){
-  sendMIDICC(cc,val,channel);
+  MIDI.sendCC(cc,val,channel);
 }

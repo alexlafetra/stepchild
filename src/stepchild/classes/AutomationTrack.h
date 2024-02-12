@@ -87,7 +87,7 @@ void Autotrack::play(uint16_t timestep){
   if(parameterType == 2)
     handleInternalCC(control,data[timestep],channel,yPos);
   else if(data[timestep] != 255)
-    sendMIDICC(control,data[timestep],channel);
+    MIDI.sendCC(control,data[timestep],channel);
 }
 
 //looks for autotracks to trigger and triggers them

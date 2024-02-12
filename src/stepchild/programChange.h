@@ -56,7 +56,7 @@ void playPCData(uint16_t timestep){
     for(uint8_t port = 0; port<5; port++){
         for(uint16_t event = 0; event<PCData[port].size(); event++){
             if(PCData[port][event].timestep == timestep){
-                sendMIDIProgramChange(port,PCData[port][event].val,PCData[port][event].channel);
+                MIDI.sendPC(port,PCData[port][event].val,PCData[port][event].channel);
             }
         }
     }

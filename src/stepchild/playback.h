@@ -4,7 +4,7 @@ void playTrack(uint8_t track, uint16_t timestep){
   if (lookupData[track][timestep] == 0){
     if(trackData[track].noteLastSent != 255){//if the track was sending, send a note off
       if(!isArping || activeArp.source == 0 )//if the arp is off, or if it's just listening to notes from outside the seq
-        sendMIDInoteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
+        MIDI.noteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
       sentNotes.subNote(trackData[track].noteLastSent);
       trackData[track].noteLastSent = 255;
       triggerAutotracks(track,false);
@@ -20,7 +20,7 @@ void playTrack(uint8_t track, uint16_t timestep){
         //if the track was already sending a note, send note off
         if(trackData[track].noteLastSent != 255){
           if(!isArping || activeArp.source == 0)
-            sendMIDInoteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
+            MIDI.noteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
           trackData[track].noteLastSent = 255;
           triggerAutotracks(track,false);
         }
@@ -57,11 +57,11 @@ void playTrack(uint8_t track, uint16_t timestep){
             muteGroups(track, trackData[track].muteGroup);
           }
           if(!isArping || activeArp.source == 0)
-            sendMIDInoteOn(pitch, vel, trackData[track].channel);
+            MIDI.noteOn(pitch, vel, trackData[track].channel);
           trackData[track].noteLastSent = pitch;
           if(trackData[track].isLatched){
             if(!isArping || activeArp.source == 0)
-              sendMIDInoteOff(pitch, 0, trackData[track].channel);
+              MIDI.noteOff(pitch, 0, trackData[track].channel);
           }
           sentNotes.addNote(pitch,vel,trackData[track].channel);
           triggerAutotracks(track,true);
@@ -117,38 +117,38 @@ void playStep(uint16_t timestep) {
 #else
 void sendThruOn(uint8_t channel, uint8_t note, uint8_t vel){
   //if it's a valid thru & channel
-  if(isThru(0) && isActiveChannel(channel, 0)){
+  if(MIDI.isThru(0) && MIDI.isChannelActive(channel, 0)){
     MIDI0.sendNoteOn(note,vel,channel);
   }
-  if(isThru(1) && isActiveChannel(channel, 1)){
+  if(MIDI.isThru(1) && MIDI.isChannelActive(channel, 1)){
     MIDI1.sendNoteOn(note,vel,channel);
   }
-  if(isThru(2) && isActiveChannel(channel, 2)){
+  if(MIDI.isThru(2) && MIDI.isChannelActive(channel, 2)){
     MIDI2.sendNoteOn(note,vel,channel);
   }
-  if(isThru(3) && isActiveChannel(channel, 3)){
+  if(MIDI.isThru(3) && MIDI.isChannelActive(channel, 3)){
     MIDI3.sendNoteOn(note,vel,channel);
   }
-  if(isThru(4) && isActiveChannel(channel, 4)){
+  if(MIDI.isThru(4) && MIDI.isChannelActive(channel, 4)){
     MIDI4.sendNoteOn(note,vel,channel);
   }
 }
 
 void sendThruOff(uint8_t channel, uint8_t note){
   //if it's a valid thru & channel
-  if(isThru(0) && isActiveChannel(channel, 0)){
+  if(MIDI.isThru(0) && MIDI.isChannelActive(channel, 0)){
     MIDI0.sendNoteOff(note,0,channel);
   }
-  if(isThru(1) && isActiveChannel(channel, 1)){
+  if(MIDI.isThru(1) && MIDI.isChannelActive(channel, 1)){
     MIDI1.sendNoteOff(note,0,channel);
   }
-  if(isThru(2) && isActiveChannel(channel, 2)){
+  if(MIDI.isThru(2) && MIDI.isChannelActive(channel, 2)){
     MIDI2.sendNoteOff(note,0,channel);
   }
-  if(isThru(3) && isActiveChannel(channel, 3)){
+  if(MIDI.isThru(3) && MIDI.isChannelActive(channel, 3)){
     MIDI3.sendNoteOff(note,0,channel);
   }
-  if(isThru(4) && isActiveChannel(channel, 4)){
+  if(MIDI.isThru(4) && MIDI.isChannelActive(channel, 4)){
     MIDI4.sendNoteOff(note,0,channel);
   }
 }
@@ -158,11 +158,11 @@ void sendThruOff(uint8_t channel, uint8_t note){
 void stop(){
   for(int track = 0; track<trackData.size(); track++){
     if(trackData[track].noteLastSent != 255){
-      sendMIDInoteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
+      MIDI.noteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
       trackData[track].noteLastSent = 255;
     }
     else{
-      sendMIDInoteOff(trackData[track].pitch, 0, trackData[track].channel);
+      MIDI.noteOff(trackData[track].pitch, 0, trackData[track].channel);
     }
   }
   sentNotes.clear();

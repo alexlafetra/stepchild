@@ -9,11 +9,11 @@ const uint8_t Screen_SDA = 8;
 const uint8_t Screen_SCL = 9;
 
 //ENCODERS
-const unsigned char note_press_Pin = 17;
+const unsigned char encoderA_Button = 17;
 const unsigned char note_clk_Pin = 18;
 const unsigned char note_data_Pin = 19;
 
-const unsigned char track_press_Pin = 20;
+const unsigned char encoderB_Button = 20;
 const unsigned char track_clk_Pin = 21;
 const unsigned char track_data_Pin = 22;
 

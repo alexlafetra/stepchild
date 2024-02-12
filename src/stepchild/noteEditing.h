@@ -102,8 +102,8 @@ void makeNote(Note newNoteOn, int track, bool loudly){
     }
     seqData[track].push_back(newNoteOn);
     if (loudly) {
-      sendMIDInoteOn(trackData[track].pitch, newNoteOn.velocity, trackData[track].channel);
-      sendMIDInoteOff(trackData[track].pitch, 0, trackData[track].channel);
+      MIDI.noteOn(trackData[track].pitch, newNoteOn.velocity, trackData[track].channel);
+      MIDI.noteOff(trackData[track].pitch, 0, trackData[track].channel);
     }
   }
 }

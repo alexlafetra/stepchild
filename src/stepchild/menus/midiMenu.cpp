@@ -1,68 +1,10 @@
-bool toggleThru(uint8_t output){
-  bool isActive = isThru(output);
-  setThru(output, !isActive);
-  return !isActive;
-}
-
-bool isTotallyMuted(uint8_t which){
-  if(!midiChannels[which])
-    return true;
-  else
-    return false;
-}
-bool isActiveChannel(uint8_t channel, uint8_t output){
-  //if it's an omni channel, it'll be max values
-  if(midiChannels[output] == 65535){
-    return true;
-  }
-  else{
-    bool value = (midiChannels[output] & (1 << channel-1)) != 0 ;
-    return value;
-  }
-}
-
-void setMidiChannel(uint8_t channel, uint8_t output, bool status){
-  //for activating, you use OR
-  if(status){
-    uint16_t byte = 1 << channel-1;
-    midiChannels[output] = midiChannels[output] | byte;
-  }
-  //for deactivating, you use AND (and NOT to create the mask)
-  else{
-    uint16_t byte = ~(1 << channel-1);
-    midiChannels[output] = midiChannels[output] & byte;
-  }
-  // //Serial.print(midiChannels[output],BIN);
-}
-
-//toggles the channel on an output, and returns its new value
-bool toggleMidiChannel(uint8_t channel, uint8_t output){
-  bool isActive = isActiveChannel(channel, output);
-  setMidiChannel(channel, output, !isActive);
-  return !isActive;//return new state of channel
-}
-
-void muteMidiPort(uint8_t which){
-  midiChannels[which] = 0;
-}
-
-void unmuteMidiPort(uint8_t which){
-  midiChannels[which] = 65535;
-}
-
-void toggleMidiPort(uint8_t which){
-  bool isActive = toggleMidiChannel(0,which);
-  for(int i = 0; i<16; i++){
-    setMidiChannel(i+1,which,isActive);
-  }
-}
 void drawPortIcon(uint8_t which){
   uint8_t x1,y1;
   switch(which){
     case 0:
       x1 = 64;
       y1 = 46;
-      if(midiChannels[which] != 0)
+      if(MIDI.midiChannelFilters[which] != 0)
         display.drawBitmap(x1-8,y1+sin(millis()/100+which),usb_logo_bmp,17,17,SSD1306_WHITE);
       display.drawCircle(x1,y1+8+sin(millis()/100+which),9,SSD1306_WHITE);
       drawDottedLineDiagonal(x1,y1+8,x1,35,3);
@@ -70,7 +12,7 @@ void drawPortIcon(uint8_t which){
     case 1:
       x1 = 15;
       y1 = 7;
-      if(midiChannels[which] != 0)
+      if(MIDI.midiChannelFilters[which] != 0)
         display.drawBitmap(x1-8,y1+sin(millis()/100+which),MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
       display.drawCircle(x1,y1+8+sin(millis()/100+which),8,SSD1306_WHITE);
       drawDottedLineDiagonal(x1+9,y1+8,x1+22,y1+8,3);
@@ -78,7 +20,7 @@ void drawPortIcon(uint8_t which){
     case 2:
       x1 = 25;
       y1 = 37;
-      if(midiChannels[which] != 0)
+      if(MIDI.midiChannelFilters[which] != 0)
         display.drawBitmap(x1-8,y1+sin(millis()/100+which),MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
       display.drawCircle(x1,y1+8+sin(millis()/100+which),8,SSD1306_WHITE);
       drawDottedLineDiagonal(x1+1,y1+10,x1+22,y1-4,3);
@@ -86,7 +28,7 @@ void drawPortIcon(uint8_t which){
     case 3:
       x1 = screenWidth-25;
       y1 = 37;
-      if(midiChannels[which] != 0)
+      if(MIDI.midiChannelFilters[which] != 0)
         display.drawBitmap(x1-8,y1+sin(millis()/100+which),MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
       display.drawCircle(x1,y1+8+sin(millis()/100+which),8,SSD1306_WHITE);
       drawDottedLineDiagonal(x1-2,y1+9,x1-22,y1-4,3);
@@ -94,7 +36,7 @@ void drawPortIcon(uint8_t which){
     case 4:
       x1 = screenWidth-15;
       y1 = 7;
-      if(midiChannels[which] != 0)
+      if(MIDI.midiChannelFilters[which] != 0)
         display.drawBitmap(x1-8,y1+sin(millis()/100+which),MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
       display.drawCircle(x1,y1+8+sin(millis()/100+which),8,SSD1306_WHITE);
       drawDottedLineDiagonal(x1-8,y1+8,x1-22,y1+8,3);
@@ -130,7 +72,7 @@ void portMenu(uint8_t which){
     //if something is being sent/received on this port
     bool something;
     for(uint8_t i = 0; i<receivedNotes.notes.size(); i++){
-      if(isActiveChannel(receivedNotes.notes[i].channel,which)){
+      if(MIDI.isChannelActive(receivedNotes.notes[i].channel,which)){
         currentVel = receivedNotes.notes[i].vel;
         something = true;
       }
@@ -152,14 +94,14 @@ void portMenu(uint8_t which){
       }
       if(del){
         lastTime = millis();
-        muteMidiPort(which);
+        MIDI.muteMidiPort(which);
       }
       if(n){
         lastTime = millis();
-        unmuteMidiPort(which);
+        MIDI.unmuteMidiPort(which);
       }
       if(sel){
-        toggleMidiPort(which);
+        MIDI.toggleMidiPort(which);
         lastTime = millis();
       }
     }
@@ -188,10 +130,10 @@ void thruMenu(){ //controls which midi port you're editing
         break;
       }
       if(sel){
-        bool isActive = toggleThru(xCursor);
+        bool isActive = MIDI.toggleThru(xCursor);
         if(shift){
           for(int i = 0; i<5; i++){
-            setThru(i, isActive);
+            MIDI.setThru(i, isActive);
           }
         }
         lastTime = millis();
@@ -218,7 +160,7 @@ void thruMenu(){ //controls which midi port you're editing
       }
       if(xCursor == midiPort)
         display.drawCircle(xOffset+midiPort*25+8,8+2*sin(midiPort+millis()/100)+8,8,SSD1306_WHITE);
-      if(isThru(midiPort)){
+      if(MIDI.isThru(midiPort)){
         display.fillRect(xOffset+midiPort*25,34,17,7,SSD1306_WHITE);
         printSmall(xOffset+1+midiPort*25,35,"Thru",SSD1306_BLACK);
       }
@@ -258,7 +200,7 @@ void midiMenu(){
         }
         else{
           // portMenu(xCursor);
-          toggleMidiPort(xCursor);
+          MIDI.toggleMidiPort(xCursor);
           lastTime = millis();
         }
       }
@@ -271,7 +213,7 @@ void midiMenu(){
         togglePlayMode();
       }
       if(del && yCursor == 0){
-        muteMidiPort(xCursor);
+        MIDI.muteMidiPort(xCursor);
         lastTime = millis();
       }
     }
@@ -410,7 +352,7 @@ void midiMenu(){
       uint8_t currentPitch;
       //drawing note icon for actively sending/rxing ports
       for(uint8_t i = 0; i<activeChannels.size(); i++){
-        if(isActiveChannel(activeChannels[i][0],port)){
+        if(MIDI.isChannelActive(activeChannels[i][0],port)){
           isCurrentlySending = true;
           currentPitch = activeChannels[i][1];
         }
@@ -463,7 +405,7 @@ void midiMenu(){
           //pitch
           printSmall(x1+1,y1-5+2*sin(millis()/100+port),pitchToString(currentPitch,true,true),SSD1306_WHITE);
           //bitmap
-          if(!isTotallyMuted(port))
+          if(!MIDI.isTotallyMuted(port))
             display.drawBitmap(x1-8,y1+2*sin(millis()/100+port),usb_logo_bmp,17,17,SSD1306_WHITE);
           else if(xCursor != port)
             display.drawCircle(x1,y1+8+2*sin(millis()/100+port),9,SSD1306_WHITE);
@@ -476,7 +418,7 @@ void midiMenu(){
           //pitch
           printSmall(x1+1,y1+18+2*sin(millis()/100+port),pitchToString(currentPitch,true,true),SSD1306_WHITE);
           //bitmap
-          if(!isTotallyMuted(port))
+          if(!MIDI.isTotallyMuted(port))
             display.drawBitmap(x1-8,y1+2*sin(millis()/100+port),MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
           else if(xCursor != port)
             display.drawCircle(x1,y1+8+2*sin(millis()/100+port),8,SSD1306_WHITE);
@@ -488,7 +430,7 @@ void midiMenu(){
       else{
         //number
         if(port == 0){
-          if(!isTotallyMuted(port))
+          if(!MIDI.isTotallyMuted(port))
             display.drawBitmap(x1-8,y1+sin(millis()/100+port),usb_logo_bmp,17,17,SSD1306_WHITE);
           else if(xCursor != port){
             display.fillCircle(x1,y1+8+2*sin(millis()/100+port),9,0);
@@ -497,7 +439,7 @@ void midiMenu(){
           printSmall(x1-5,y1-5+sin(millis()/100+port),"usb",SSD1306_WHITE);
         }
         else{
-          if(!isTotallyMuted(port))
+          if(!MIDI.isTotallyMuted(port))
             display.drawBitmap(x1-8,y1+sin(millis()/100+port),MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
           else if(xCursor != port){
             display.fillCircle(x1,y1+8+2*sin(millis()/100+port),8,0);
@@ -836,11 +778,11 @@ void routeMenu(){
         break;
       }
       if(sel){
-        bool isActive = toggleMidiChannel(yCursor+menuStart[xCursor]+1,xCursor);
+        bool isActive = MIDI.toggleMidiChannel(yCursor+menuStart[xCursor]+1,xCursor);
         // //Serial.println("toggling "+stringify(yCursor+menuStart[xCursor])+" on out "+stringify(xCursor));
         if(shift){
           for(int i = 0; i<16; i++){
-            setMidiChannel(i+1,xCursor,isActive);
+            MIDI.setMidiChannel(i+1,xCursor,isActive);
           }
         }
         lastTime = millis();
@@ -854,14 +796,14 @@ void routeMenu(){
         printSmall(xOffset+3+midiPort*25,0,"USB",SSD1306_WHITE);
         if(xCursor == 0)
           yCoord = 8+2*sin(midiPort+millis()/100);
-        if(!isTotallyMuted(0))
+        if(!MIDI.isTotallyMuted(0))
           display.drawBitmap(xOffset+midiPort*25,yCoord,usb_logo_bmp,17,17,SSD1306_WHITE);
       }
       else{
         printSmall(xOffset+7+midiPort*25,0,stringify(midiPort),SSD1306_WHITE);
         if(xCursor == midiPort)
           yCoord = 8+2*sin(midiPort+millis()/100);
-        if(!isTotallyMuted(midiPort))
+        if(!MIDI.isTotallyMuted(midiPort))
           display.drawBitmap(xOffset+midiPort*25,yCoord,MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
       }
       if(xCursor == midiPort)
@@ -873,9 +815,9 @@ void routeMenu(){
         //print channel values
         //if this box is cursore'd, AND if it's the active midi port
         if(i == yCursor && xCursor == midiPort)
-          drawCheckbox(xOffset+1+midiPort*25, 29+i*6, isActiveChannel(i+menuStart[midiPort]+1,midiPort), true);
+          drawCheckbox(xOffset+1+midiPort*25, 29+i*6, MIDI.isChannelActive(i+menuStart[midiPort]+1,midiPort), true);
         else
-          drawCheckbox(xOffset+1+midiPort*25, 29+i*6, isActiveChannel(i+menuStart[midiPort]+1,midiPort), false);
+          drawCheckbox(xOffset+1+midiPort*25, 29+i*6, MIDI.isChannelActive(i+menuStart[midiPort]+1,midiPort), false);
       }
       //"more channels" indicators
       //more channels above

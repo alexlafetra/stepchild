@@ -35,73 +35,6 @@ uint16_t getLookupID(uint8_t track, uint16_t pos){
   return lookupData[track][pos];
 }
 
-#ifdef HEADLESS
-  bool isThru(uint8_t i){
-    return true;
-  }
-  void setThru(uint8_t o, bool s){
-    return;
-  }
-#else
-bool isThru(uint8_t output){
-  switch(output){
-    case 0:
-      return MIDI0.getThruState();
-    case 1:
-      return MIDI1.getThruState();
-    case 2:
-      return MIDI2.getThruState();
-    case 3:
-      return MIDI3.getThruState();
-    case 4:
-      return MIDI4.getThruState();
-  }
-  //if it's an invalid midi port
-  return 0;
-}
-
-void setThru(uint8_t output, bool state){
-  if(state){
-    switch(output){
-      case 0:
-        MIDI0.turnThruOn();
-        break;
-      case 1:
-        MIDI1.turnThruOn();
-        break;
-      case 2:
-        MIDI2.turnThruOn();
-        break;
-      case 3:
-        MIDI3.turnThruOn();
-        break;
-      case 4:
-        MIDI4.turnThruOn();
-        break;
-    }
-  }
-  else{
-    switch(output){
-      case 0:
-        MIDI0.turnThruOff();
-        break;
-      case 1:
-        MIDI1.turnThruOff();
-        break;
-      case 2:
-        MIDI2.turnThruOff();
-        break;
-      case 3:
-        MIDI3.turnThruOff();
-        break;
-      case 4:
-        MIDI4.turnThruOff();
-        break;
-    }
-  }
-}
-#endif
-
 void handleInternalCC(uint8_t ccNumber, uint8_t val, uint8_t channel, uint8_t yPosition){
   switch(ccNumber){
     //velocity
@@ -248,11 +181,11 @@ void setActiveTrack(uint8_t newActiveTrack, bool loudly) {
     }
     activeTrack = newActiveTrack;
     if (loudly) {
-      sendMIDInoteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
-      sendMIDInoteOff(trackData[activeTrack].pitch, 0, trackData[activeTrack].channel);
+      MIDI.noteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOff(trackData[activeTrack].pitch, 0, trackData[activeTrack].channel);
       if(trackData[activeTrack].isLatched){
-        sendMIDInoteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
-        sendMIDInoteOff(trackData[activeTrack].pitch, 0, trackData[activeTrack].channel);
+        MIDI.noteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+        MIDI.noteOff(trackData[activeTrack].pitch, 0, trackData[activeTrack].channel);
       }
     }
   }
@@ -796,12 +729,12 @@ void togglePlayMode(){
     if(isArping){
       activeArp.start();
     }
-    sendMIDIStart();
+    MIDI.sendStart();
   }
   else if(!playing){
     stop();
     setNormalMode();
-    sendMIDIStop();
+    MIDI.sendStop();
     velModifier[1] = 0;
     chanceModifier[1] = 0;
     pitchModifier[1] = 0;
@@ -1254,7 +1187,6 @@ void mainSequencerButtons(){
     if(menu_Press){
       if(shift){
         lastTime = millis();
-        displayHelpText(0);
         return;
       }
       else{
@@ -1337,7 +1269,7 @@ bool anyActiveInputs(){
   if(x || y)
     return true;
   //encoder presses
-  if(digitalRead(note_press_Pin) || digitalRead(track_press_Pin)){
+  if(digitalRead(encoderA_Button) || digitalRead(encoderB_Button)){
     return true;
   }
   //encoder clicks
@@ -1756,7 +1688,7 @@ void playingLoop(){
   //internal timing
   if(clockSource == INTERNAL){
     if(hasItBeenEnoughTime()){
-      sendClock();
+      MIDI.sendClock();
       playStep(playheadPos);
       playheadPos++;
       checkLoop();
@@ -1768,7 +1700,7 @@ void playingLoop(){
   }
   //external timing
   else if(clockSource == EXTERNAL){
-    readMIDI();
+    MIDI.read();
     if(gotClock && hasStarted){
       gotClock = false;
       playStep(playheadPos);
@@ -1836,7 +1768,7 @@ void defaultLoop(){
   playheadPos = loopData[activeLoop].start;
   recheadPos = loopData[activeLoop].start;
   // fragmentStep = 0;
-  readMIDI();
+  MIDI.read();
 }
 
 void arpLoop(){

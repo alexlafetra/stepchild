@@ -378,8 +378,8 @@ void rain(){
         }
         if(drops[i].madeSound && pitchList.size()){
           uint8_t pitch = positionToPitch(pitchList,startPitch,minOct,maxOct,drops[i].x1);
-          sendMIDInoteOn(pitch,dropVelToNoteVel(drops[i].vel/float(stormIntensity+intensityVariance),minVel,maxVel),channel);
-          sendMIDInoteOff(pitch,0,channel);
+          MIDI.noteOn(pitch,dropVelToNoteVel(drops[i].vel/float(stormIntensity+intensityVariance),minVel,maxVel),channel);
+          MIDI.noteOff(pitch,0,channel);
           if(showingText)
             printSmall(drops[i].x1,59,pitchToString(pitch,true,true),1);
           else

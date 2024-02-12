@@ -207,17 +207,17 @@ void writeSeqFile(String filename){
   seqFile.write(swingByte,1);
 
   //writing routing data
-  uint8_t midiChannelBytes[10] = {uint8_t(midiChannels[0]>>8),uint8_t(midiChannels[0]),
-                          uint8_t(midiChannels[1]>>8),uint8_t(midiChannels[1]),
-                          uint8_t(midiChannels[2]>>8),uint8_t(midiChannels[2]),
-                          uint8_t(midiChannels[3]>>8),uint8_t(midiChannels[3]),
-                          uint8_t(midiChannels[4]>>8),uint8_t(midiChannels[4])};
+  uint8_t midiChannelBytes[10] = {uint8_t(MIDI.midiChannelFilters[0]>>8),uint8_t(MIDI.midiChannelFilters[0]),
+                          uint8_t(MIDI.midiChannelFilters[1]>>8),uint8_t(MIDI.midiChannelFilters[1]),
+                          uint8_t(MIDI.midiChannelFilters[2]>>8),uint8_t(MIDI.midiChannelFilters[2]),
+                          uint8_t(MIDI.midiChannelFilters[3]>>8),uint8_t(MIDI.midiChannelFilters[3]),
+                          uint8_t(MIDI.midiChannelFilters[4]>>8),uint8_t(MIDI.midiChannelFilters[4])};
   seqFile.write(midiChannelBytes,10);
   
   //writing thru data
   uint8_t midiThruBytes[5];
   for(uint8_t port = 0; port<5; port++){
-    midiThruBytes[port] = isThru(port);
+    midiThruBytes[port] = MIDI.isThru(port);
   }
   seqFile.write(midiThruBytes,5);
 
@@ -323,17 +323,17 @@ void writeCurrentSeqToSerial(bool waitForResponse){
   writeBytes(swingByte,1);
 
   //writing routing data
-  uint8_t midiChannelBytes[10] = {uint8_t(midiChannels[0]>>8),uint8_t(midiChannels[0]),
-                          uint8_t(midiChannels[1]>>8),uint8_t(midiChannels[1]),
-                          uint8_t(midiChannels[2]>>8),uint8_t(midiChannels[2]),
-                          uint8_t(midiChannels[3]>>8),uint8_t(midiChannels[3]),
-                          uint8_t(midiChannels[4]>>8),uint8_t(midiChannels[4])};
+  uint8_t midiChannelBytes[10] = {uint8_t(MIDI.midiChannelFilters[0]>>8),uint8_t(MIDI.midiChannelFilters[0]),
+                          uint8_t(MIDI.midiChannelFilters[1]>>8),uint8_t(MIDI.midiChannelFilters[1]),
+                          uint8_t(MIDI.midiChannelFilters[2]>>8),uint8_t(MIDI.midiChannelFilters[2]),
+                          uint8_t(MIDI.midiChannelFilters[3]>>8),uint8_t(MIDI.midiChannelFilters[3]),
+                          uint8_t(MIDI.midiChannelFilters[4]>>8),uint8_t(MIDI.midiChannelFilters[4])};
   writeBytes(midiChannelBytes,10);
   
   //writing thru data
   uint8_t midiThruBytes[5];
   for(uint8_t port = 0; port<5; port++){
-    midiThruBytes[port] = isThru(port);
+    midiThruBytes[port] = MIDI.isThru(port);
   }
   writeBytes(midiThruBytes,5);
 }
@@ -732,8 +732,8 @@ void loadSeqFile(String filename){
     seqFile.read(midiChannelBytes,10);
     seqFile.read(midiThruBytes,5);
     for(uint8_t port = 0; port<5; port++){
-      midiChannels[port] = uint16_t(midiChannelBytes[port*2]<<8)+uint16_t(midiChannelBytes[port*2+1]);
-      setThru(port,bool(midiThruBytes[port]));
+      MIDI.midiChannelFilters[port] = uint16_t(midiChannelBytes[port*2]<<8)+uint16_t(midiChannelBytes[port*2+1]);
+      MIDI.setThru(port,bool(midiThruBytes[port]));
     }
 
     //loading PC sequence data

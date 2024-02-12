@@ -256,7 +256,7 @@ void cleanupRecording(uint16_t stopTime){
 
 //runs while "recording" is true
 void recordingLoop(){
-  readMIDI();
+  MIDI.read();
   if(clockSource == INTERNAL){
     if(hasItBeenEnoughTime()){
       timeLastStepPlayed = micros();
@@ -264,7 +264,7 @@ void recordingLoop(){
       //if it's not in wait mode, or if it is but a note has been received
       if(!waitForNoteBeforeRec || !waitingToReceiveANote){
         continueStep(recheadPos);
-        sendClock();
+        MIDI.sendClock();
         recheadPos++;
         checkLoop();
       }

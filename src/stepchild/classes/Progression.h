@@ -34,14 +34,14 @@ Chord::Chord(uint8_t r, vector<uint8_t> i, uint16_t l){
 //sends a midi on for each of the notes in the chord
 void Chord::play(){
   for(uint8_t i = 0; i<intervals.size(); i++){
-    sendMIDInoteOn(intervals[i]+root,127,0);
+    MIDI.noteOn(intervals[i]+root,127,0);
   }
 }
 
 //sends a midi off for each of the notes in the chord
 void Chord::stop(){
   for(uint8_t i = 0; i<intervals.size(); i++){
-    sendMIDInoteOff(intervals[i]+root,0,0);
+    MIDI.noteOff(intervals[i]+root,0,0);
   }
 }
 

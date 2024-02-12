@@ -62,21 +62,15 @@
   #define UPSIDEDOWN 0
   #define SIDEWAYS_R 3
   #define SIDEWAYS_L 1
-  SoftwareSerial Serial3 = SoftwareSerial(SerialPIO::NOPIN,txPin_3);
-  SoftwareSerial Serial4 = SoftwareSerial(SerialPIO::NOPIN,txPin_4);
-
-  //USB MIDI object
-  Adafruit_USBD_MIDI usb_midi;
-
-  //1 and 2 are I/0, 3&4 are just O
-  MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, MIDI0);
-  MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
-  MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, MIDI2);
-  MIDI_CREATE_INSTANCE(SoftwareSerial, Serial3, MIDI3);
-  MIDI_CREATE_INSTANCE(SoftwareSerial, Serial4, MIDI4);
 #endif
 
 using namespace std;
+
+//Don't include this if you're in headless mode
+//Headless has it's own midi.h
+#ifndef HEADLESS
+#include "StepchildMIDI.h"
+#endif
 
 //class prototypes
 class Knob;
@@ -116,10 +110,6 @@ struct Loop{
   */
 };
 vector<Loop> loopData;
-
-//each byte represents the channels an output will send on
-//each BIT of each byte is a channel
-uint16_t midiChannels[5] = {65535,65535,65535,65535,65535};
 
 unsigned short int animOffset = 0;//for animating curves
 
@@ -233,10 +223,8 @@ void rotaryActionB_Handler(){
 #include "menus/mainMenu.cpp"
 #include "menus/midiMenu.cpp"
 
-#include "helpScreen.h"
 #include "trackEditing.h"
 #include "fileSystem.h"
-#include "MIDI.h"
 #include "setup.h"
 #include "screenSavers.h"
 #include "hardware.h"

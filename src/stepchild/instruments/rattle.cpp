@@ -57,8 +57,8 @@ void rattle(){
 
         //if the difference between the current time and the time the last note was sent is more than the noteLength
         if(isPlaying && ((millis()-timeSinceLastNote)>=noteLength)){
-            sendMIDInoteOn(pitch,vel,channel);
-            sendMIDInoteOff(pitch,0,channel);
+            MIDI.noteOn(pitch,vel,channel);
+            MIDI.noteOff(pitch,0,channel);
             timeSinceLastNote = millis();
         }
 

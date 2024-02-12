@@ -554,7 +554,7 @@ void autotrackEditor(){
         }
       }
       if(shift){
-        sendMIDICC(autotrackData[activeAutotrack].control,127,autotrackData[activeAutotrack].channel);      
+        MIDI.sendCC(autotrackData[activeAutotrack].control,127,autotrackData[activeAutotrack].channel);      
       }
     }
     display.clearDisplay();

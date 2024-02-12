@@ -81,8 +81,8 @@ unsigned long lastTime = 0;
 bool playing = false;
 bool recording = false;
 
-#include "Midi.h"
-#include "FileSystem.h"
+#include "HeadlessMIDI.h"
+#include "HeadlessFileSystem.h"
 
 //emulating micros and millis
 auto progStartTime = chrono::high_resolution_clock::now();
@@ -256,7 +256,7 @@ DummySerial Serial;
 
 void bootscreen();
 
-#include "Display.h"
+#include "HeadlessDisplay.h"
 
 //emulating delay
 void delay(unsigned long time){

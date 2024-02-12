@@ -174,13 +174,13 @@ void slideMenuOut(int toWhere, int speed){
   }
 }
 
-#define DEBUG 0
-#define MENU 1
-#define CLOCK 2
-#define SETTINGS 3
-#define SEQ 4
-#define LOOPMENU 5
-#define MIDI 6
+#define DEBUG_MENU 0
+#define MAIN_MENU 1
+#define CLOCK_MENU 2
+#define SETTINGS_MENU 3
+#define SEQUENCE_MENU 4
+#define LOOP_MENU 5
+#define MIDI_MENU 6
 #define FRAGMENT 7
 #define CURVE 8
 #define ARP 9
@@ -196,7 +196,7 @@ void slideMenuOut(int toWhere, int speed){
 void constructMenu(uint8_t id){
   resetEncoders();
   switch(id){
-    case(MENU):
+    case(MAIN_MENU):
     {
       Menu debugMenu(25,1,93,64,"MENU");
       if(activeMenu.menuTitle == "FILES")
@@ -207,7 +207,7 @@ void constructMenu(uint8_t id){
       }
       return;
     }
-    case DEBUG:
+    case DEBUG_MENU:
     {
       Menu debugMenu(32,4,128,64,"DEBUG");
       activeMenu = debugMenu;
@@ -217,7 +217,7 @@ void constructMenu(uint8_t id){
       return;
     }
     //This one needs a slide in animation
-    case CLOCK:
+    case CLOCK_MENU:
     {
       Menu clckMenu(0,0,35,64,"CLOCK");
       activeMenu = clckMenu;
@@ -227,21 +227,21 @@ void constructMenu(uint8_t id){
       clockMenu();
       return;
     }
-    case SETTINGS:
+    case SETTINGS_MENU:
     {
       Menu settingMenu(0,2,128,64,"SETTINGS");
       activeMenu = settingMenu;
       settingsMenu();
       return;
     }
-    case LOOPMENU:
+    case LOOP_MENU:
     {
       Menu loopMenu(2,4,80,60,"LOOP");
       activeMenu = loopMenu;
       return;
       // cassetteAnimation();
     }
-    case MIDI:
+    case MIDI_MENU:
     {
       Menu midiMenu(2,4,80,60,"MIDI");
       activeMenu = midiMenu;
@@ -303,25 +303,25 @@ void constructMenu(uint8_t id){
 //doing it this way is a little better i think? so all the menu dat doesn't need to be global and only loads when you need it
 void constructMenu(String title){
   if(title == "MENU"){
-    constructMenu(MENU);
+    constructMenu(MAIN_MENU);
   }
   else if(title == "DEBUG"){
-    constructMenu(DEBUG);
+    constructMenu(DEBUG_MENU);
   }
   else if(title == "CLOCK"){
-    constructMenu(CLOCK);
+    constructMenu(CLOCK_MENU);
   }
   else if(title == "SETTINGS"){
-    constructMenu(SETTINGS);
+    constructMenu(SETTINGS_MENU);
   }
   else if(title == "SEQ"){
-    constructMenu(SEQ);
+    constructMenu(SEQUENCE_MENU);
   }
   else if(title == "LOOP"){
-    constructMenu(LOOPMENU);
+    constructMenu(LOOP_MENU);
   }
   else if(title == "MIDI"){
-    constructMenu(MIDI);
+    constructMenu(MIDI_MENU);
   }
   else if(title == "FRAGMENT"){
     constructMenu(FRAGMENT);

@@ -155,8 +155,8 @@ void xyGrid(){
 
     //if you're not keybinding, keep sending vals
     if(!shift){
-      sendMIDICC(controlX,xCoord,channelX);
-      sendMIDICC(controlY,yCoord,channelY);
+      MIDI.sendCC(controlX,xCoord,channelX);
+      MIDI.sendCC(controlY,yCoord,channelY);
       pauseX = false;
       pauseY = false;
     }
@@ -167,12 +167,12 @@ void xyGrid(){
     //sending CC vals for keybinding
     if(shift){
       if(x != 0){
-        sendMIDICC(controlX,xCoord,channelX);
+        MIDI.sendCC(controlX,xCoord,channelX);
         pauseY = true;
         pauseX = false;
       }
       else if(y != 0){
-        sendMIDICC(controlY,yCoord,channelY);
+        MIDI.sendCC(controlY,yCoord,channelY);
         pauseY = false;
         pauseX = true;
       }

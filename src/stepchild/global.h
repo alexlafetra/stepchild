@@ -3,17 +3,6 @@ unsigned const char screenHeight = 64;
 
 uint8_t screenBrightness = 255;
 
-//sequence note editor help text
-const String helptext[2][23] = {{"n   : draw note","+sh : create track","sel : add note to selection","+sh : select single note",
-                                "del : delete note","+sh : mute note","loop: move loop points","+sh : open loop editor","pl  : play/stop",
-                                "+sh : record","cpy : copy selection","+sh : paste selection","menu: open menu","</> : move cursor","+sh : move cursor by 1 step",
-                                "^/& : change active track","+sh : change velocity","A   : zoom","+sh : change track pitch","+clk: open track menu",
-                                "B   : change subdivision","+sh : toggle 1/3 subdivisions","+clk: open note menu"},
-                                {"test2","test","test"}};
-
-const String infotext[2] = {"Hey! This is the stepchild sequence editor. This screen is the base note editor where you can add, delete, and see notes in your sequence. [SHIFT] to see the control list.",
-                            "This is the track editor."};
-
 const String OSversionNumber = "V0.1";
 /*
 CC numbers:
@@ -61,15 +50,30 @@ class StepchildSequence{
   }
 };
 
-#define NEW 0
-#define SHIFT 1
-#define SELECT 2
-#define DELETE 3
-#define LOOP 4
-#define PLAY 5
-#define COPY 6
-#define MENU 7
+#define NEW_BUTTON 0
+#define SHIFT_BUTTON 1
+#define SELECT_BUTTON 2
+#define DELETE_BUTTON 3
+#define LOOP_BUTTON 4
+#define PLAY_BUTTON 5
+#define COPY_BUTTON 6
+#define MENU_BUTTON 7
 
+// #define A 8
+// #define B 9
+
+#define STEPBUTTONS_DATA 12
+#define BUTTONS_DATA 13
+#define BUTTONS_LOAD 14
+#define BUTTONS_CLOCK_IN 15
+#define BUTTONS_CLOCK_ENABLE 16
+
+#define JOYSTICK_X 26
+#define JOYSTICK_Y 27
+
+//Holds all the hardware input functions (and the headless overloads)
+//Accessed like Stepchild.buttons.buttonState(LOOP)?
+//or maybe like Stepchild.button(LOOP) and internally call this objects .buttonState(LOOP) function
 class StepchildInput{
   public:
 
@@ -84,10 +88,20 @@ class StepchildInput{
 
   //reads in inputs
   void readTopButtons(){
-
+    digitalWrite(BUTTONS_LOAD,LOW);
+    digitalWrite(BUTTONS_LOAD,HIGH);
+    digitalWrite(BUTTONS_CLOCK_IN, HIGH);
+    digitalWrite(BUTTONS_CLOCK_ENABLE,LOW);
+    topButtons = shiftIn(BUTTONS_DATA, BUTTONS_CLOCK_IN, LSBFIRST);
+    digitalWrite(BUTTONS_CLOCK_ENABLE, HIGH);
   }
   void readStepButtons(){
-
+    digitalWrite(BUTTONS_LOAD,LOW);
+    digitalWrite(BUTTONS_LOAD,HIGH);
+    digitalWrite(BUTTONS_CLOCK_IN, HIGH);
+    digitalWrite(BUTTONS_CLOCK_ENABLE,LOW);
+    stepButtons = shiftIn(STEPBUTTONS_DATA, BUTTONS_CLOCK_IN, LSBFIRST);
+    digitalWrite(BUTTONS_CLOCK_ENABLE, HIGH);
   }
 
   bool buttonState(uint8_t which){
@@ -99,6 +113,22 @@ class StepchildInput{
   }
 };
 
+//Holds all the graphics functions
+//Accessed thru Stepchild.graphics.function();
+class StepchildGraphics{
+  public:
+  StepchildGraphics(){
+
+  }
+};
+
+//Keeps track of the clock
+class StepchildClock{
+  public:
+  StepchildClock(){
+
+  }
+};
 
 uint16_t bpm = 120;
 

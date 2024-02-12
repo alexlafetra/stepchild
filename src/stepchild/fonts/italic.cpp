@@ -131,7 +131,7 @@ const unsigned char* italic_font[26] = {
 	italic_y,
 	italic_z
 };
-void printItalic_wave(int16_t x, int16_t y, string text, uint8_t height, uint8_t timing, uint16_t c){
+void printItalic_wave(int16_t x, int16_t y, String text, uint8_t height, uint8_t timing, uint16_t c){
   for(uint8_t i = 0; i<text.length(); i++){
     int8_t y1 = y-float(height*2)*sin(millis()/timing+float(i)/float(text.length())*PI)+height;
     if(y1>y)

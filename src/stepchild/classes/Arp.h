@@ -120,7 +120,7 @@ void Arp::start() {
   Arp::startTime = micros();
     if(order.size()>activeNote){
         if(Arp::notes.size() > getOrder()){
-            sendMIDInoteOn(notes[getOrder()], 100, Arp::channel);
+            MIDI.noteOn(notes[getOrder()], 100, Arp::channel);
             lastPitchSent = notes[getOrder()];
             Arp::timeLastStepPlayed = micros();
         }
@@ -130,11 +130,11 @@ void Arp::start() {
 
 void Arp::stop() {
   for (int i = 0; i < notes.size(); i++)
-    sendMIDInoteOff(notes[i], 0, channel);
-  sendMIDInoteOff(lastPitchSent, 0, channel);
+    MIDI.noteOff(notes[i], 0, channel);
+  MIDI.noteOff(lastPitchSent, 0, channel);
   //brute force way of doing it
   //the downside is that this will cut off ALL notes that are playing
-  // sendMIDIallOff();
+  // MIDI.allOff();
   // //Serial.println("turning arp off! (Arp::stop())");
   Arp::playheadPos = 0;
   Arp::stepCount = 0;
@@ -189,7 +189,7 @@ void Arp::playstep() {
     }
     //if the playhead is past the current active note
     if ((uniformLength && playheadPos > arpSubDiv) || (!uniformLength && playheadPos > lengths[getOrder()])) {
-      sendMIDInoteOff(lastPitchSent, 0, channel);
+      MIDI.noteOff(lastPitchSent, 0, channel);
       uint8_t willItRep = random(0, 100);
       //if it's not repeating, then play it again
       if (willItRep >= repMod || repMod == 0) {
@@ -218,7 +218,7 @@ void Arp::playstep() {
         //same as vel, if min and max are diffferent then use the modifier
         if (maxPitchMod != minPitchMod)
           pitch += (12 * randOctave);
-        sendMIDInoteOn(pitch, vel, channel);
+        MIDI.noteOn(pitch, vel, channel);
         lastPitchSent = pitch;
       }
     } else {

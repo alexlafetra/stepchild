@@ -389,7 +389,6 @@ void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct
 //Graphics
 void bootscreen_2();
 void alert(String text, int time);
-void displayHelpText(uint8_t);
 void updateLEDs();
 void writeLEDs(uint8_t led, bool state);
 void writeLEDs(uint8_t first, uint8_t last);
@@ -403,17 +402,9 @@ void drawNoteBracket(int x1, int y1, int length, int height, bool animated);
 void printItalic_wave(int16_t x, int16_t y, string text, uint8_t height, uint8_t timing, uint16_t c);
 
 //MIDI
-void sendMIDIallOff();
-void sendMIDInoteOn(uint8_t,uint8_t,uint8_t);
-void sendMIDInoteOff(uint8_t,uint8_t,uint8_t);
 void handleInternalCC(uint8_t, uint8_t, uint8_t, uint8_t);
-void sendMIDICC(uint8_t,uint8_t,uint8_t);
 uint8_t moveToNextCCParam(uint8_t param, bool up, uint8_t whichList);
 uint8_t selectCCParam_autotrack(uint8_t which);
-bool isActiveChannel(uint8_t channel, uint8_t output);
-void sendMIDIProgramChange(uint8_t port, uint8_t val, uint8_t channel);
-bool isThru(uint8_t i);
-void setThru(uint8_t i, bool state);
 
 //Playback
 void playPCData(uint16_t timestep);

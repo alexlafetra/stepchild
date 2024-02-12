@@ -10,8 +10,8 @@ void setupPins(){
   // pinMode(onboard_ledPin, OUTPUT);
 
   //encoders
-  pinMode(track_press_Pin, INPUT_PULLUP);
-  pinMode(note_press_Pin, INPUT_PULLUP);
+  pinMode(encoderB_Button, INPUT_PULLUP);
+  pinMode(encoderA_Button, INPUT_PULLUP);
   pinMode(track_clk_Pin, INPUT_PULLUP);
   pinMode(note_clk_Pin, INPUT_PULLUP);
   pinMode(track_data_Pin, INPUT_PULLUP);
@@ -43,16 +43,12 @@ void setup() {
   //--------------------------------------------------------------------
   //                              Hardware
   //--------------------------------------------------------------------
-  //setting MIDI serial ports to non-default pins so they don't conflict
-  //with other stepchild features
-  Serial1.setRX(rxPin);
-  Serial1.setTX(txPin_1);
-  Serial2.setTX(txPin_2);
+
   //doing the same to the screen twoWire connection
   Wire.setSDA(Screen_SDA);
   Wire.setSCL(Screen_SCL);
 
-  startMIDI();
+  MIDI.start();
   
   //starting serial monitor output @ 9600baud
   // Serial.begin(921600);
@@ -107,7 +103,7 @@ void setup() {
 #endif
 #ifdef HEADLESS
 void setup(){
-  startMIDI();
+  MIDI.start();
 
   //Set the display rotation (which is ~technically~ upside down)
   display.setRotation(UPRIGHT);

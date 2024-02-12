@@ -50,55 +50,55 @@ bool just(bool button){
 }
 
 int8_t readEncoder(bool encoder){
-    int8_t r;
-    int8_t l;
-    
-    static uint8_t lrmem = 3;
-    static int lrsum = 0;
-    const int8_t TRANS[] = {0, -1, 1, 14, 1, 0, 14, -1, -1, 14, 0, 1, 14, 1, -1, 0};
-
-    int clk_Pin;
-    int data_Pin;
-
-    // Read BOTH pin states to deterimine validity of rotation (ie not just switch bounce)
-    if(!encoder){
-      l = digitalRead(track_clk_Pin);
-      r = digitalRead(track_data_Pin);
-    }
-    else{
-      l = digitalRead(note_clk_Pin);
-      r = digitalRead(note_data_Pin);
-    }
+  int8_t r;
+  int8_t l;
   
-    // Move previous value 2 bits to the left and add in our new values
-    lrmem = ((lrmem & 0x03) << 2) + 2 * l + r;
+  static uint8_t lrmem = 3;
+  static int lrsum = 0;
+  const int8_t TRANS[] = {0, -1, 1, 14, 1, 0, 14, -1, -1, 14, 0, 1, 14, 1, -1, 0};
 
-    // Convert the bit pattern to a movement indicator (14 = impossible, ie switch bounce)
-    lrsum += TRANS[lrmem];
+  int clk_Pin;
+  int data_Pin;
 
-    /* encoder not in the neutral (detent) state */
-    if (lrsum % 4 != 0)
-    {
-        return 0;
-    }
+  // Read BOTH pin states to deterimine validity of rotation (ie not just switch bounce)
+  if(!encoder){
+    l = digitalRead(track_clk_Pin);
+    r = digitalRead(track_data_Pin);
+  }
+  else{
+    l = digitalRead(note_clk_Pin);
+    r = digitalRead(note_data_Pin);
+  }
 
-    /* encoder in the neutral state - clockwise rotation*/
-    if (lrsum == 4)
-    {
-        lrsum = 0;
-        return -1;
-    }
+  // Move previous value 2 bits to the left and add in our new values
+  lrmem = ((lrmem & 0x03) << 2) + 2 * l + r;
 
-    /* encoder in the neutral state - anti-clockwise rotation*/
-    if (lrsum == -4)
-    {
-        lrsum = 0;
-        return 1;
-    }
+  // Convert the bit pattern to a movement indicator (14 = impossible, ie switch bounce)
+  lrsum += TRANS[lrmem];
 
-    // An impossible rotation has been detected - ignore the movement
-    lrsum = 0;
-    return 0;
+  /* encoder not in the neutral (detent) state */
+  if (lrsum % 4 != 0)
+  {
+      return 0;
+  }
+
+  /* encoder in the neutral state - clockwise rotation*/
+  if (lrsum == 4)
+  {
+      lrsum = 0;
+      return -1;
+  }
+
+  /* encoder in the neutral state - anti-clockwise rotation*/
+  if (lrsum == -4)
+  {
+      lrsum = 0;
+      return 1;
+  }
+
+  // An impossible rotation has been detected - ignore the movement
+  lrsum = 0;
+  return 0;
 }
 
 #ifndef HEADLESS
@@ -199,8 +199,8 @@ void readButtons_MPX(){
 #ifndef HEADLESS
 void readButtons(){
   // joy_Press = !digitalRead(joy_press_Pin);
-  track_Press = digitalRead(track_press_Pin);
-  note_Press = digitalRead(note_press_Pin);
+  track_Press = digitalRead(encoderB_Button);
+  note_Press = digitalRead(encoderA_Button);
   readButtons_MPX();
 }
 #else

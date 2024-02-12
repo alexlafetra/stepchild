@@ -15,7 +15,7 @@ class QChord{
         intervals = {0};
         playing = false;
     }
-    QChord(uint8_t r,vector<int8_t> i){
+    QChord(uint8_t r,vector<uint8_t> i){
         root = r;
         intervals = i;
         playing = false;
@@ -23,6 +23,7 @@ class QChord{
     //this one gets built from midi notes
     QChord(vector<uint8_t> midiNotes){
         if(midiNotes.size()){
+            //set the root to the lowest note
             sort(midiNotes.begin(),midiNotes.end());
             root = midiNotes[0];
             for(uint8_t i = 0; i<midiNotes.size(); i++){
@@ -62,7 +63,7 @@ class QChord{
             return;
         playing = true;
         for(uint8_t note = 0; note<intervals.size(); note++){
-            sendMIDInoteOn(intervals[note]+root,v,ch);
+            MIDI.noteOn(intervals[note]+root,v,ch);
         }
     }
     void stop(uint8_t ch){
@@ -70,7 +71,7 @@ class QChord{
             return;
         playing = false;
         for(uint8_t note = 0; note<intervals.size(); note++){
-            sendMIDInoteOff(intervals[note]+root,0,ch);
+            MIDI.noteOff(intervals[note]+root,0,ch);
         }
     }
 
@@ -89,39 +90,27 @@ void addChord(){
 
 //chord builder
 QChord editChord(QChord& originalChord){
-  uint8_t keyCursor = 0;
-  vector<uint8_t> pressedKeys = originalChord.toMDINotes();
-  vector<uint8_t> mask;
+  vector<uint8_t> pressedKeys = originalChord.toMIDINotes();
   uint8_t octave = originalChord.octave();
-  uint8_t maskIndex = 0;
+
+  uint8_t keyCursor = 0;
+  if(pressedKeys.size())
+    keyCursor = pressedKeys[0];
+
+  vector<uint8_t> mask;
+  uint8_t maskRoot = 0;
+
   while(true){
     readJoystick();
     readButtons();
     if(x != 0 && ((!shift && itsbeen(50)) || (shift && itsbeen(150)))){
-        //if it's masked, it moves to the next masked note
-        if(mask.size()>0){
-            if(x == -1 && maskIndex<mask.size()-1){
-                keyCursor = mask[maskIndex++];
-                lastTime = millis();
-            }
-            else if(x == 1 && maskIndex>0){
-                keyCursor = mask[maskIndex--];
-                lastTime = millis();
-            }
-            if(keyCursor<0)
-                keyCursor = mask[maskIndex++];
-            if(keyCursor>=36)
-                keyCursor = mask[maskIndex--];
+        if(x == -1 && keyCursor<12*octave+35){
+            keyCursor++;
+            lastTime = millis();
         }
-        else{
-            if(x == -1 && keyCursor<35){
-                keyCursor++;
-                lastTime = millis();
-            }
-            else if(x == 1 && keyCursor>0){
-                keyCursor--;
-                lastTime = millis();
-            }
+        else if(x == 1 && keyCursor>12*octave){
+            keyCursor--;
+            lastTime = millis();
         }
     }
     if(itsbeen(200)){
@@ -130,7 +119,9 @@ QChord editChord(QChord& originalChord){
         //if there's no mask, make one
         //(mask uses highlit note as root)
         if(mask.size() == 0){
-            mask = genScale(MAJOR,keyCursor%12,3,octave);
+            mask = genScale(MAJOR,keyCursor%12,4,octave?(octave-1):0);
+            // mask = genScale(keyCursor%12,0,3,octave);
+            maskRoot = keyCursor%12;
         }
         //if there is, unmake one
         else{
@@ -148,20 +139,20 @@ QChord editChord(QChord& originalChord){
             pressedKeys.swap(temp);
         }
         else{
-        //if the key is already selected, remove it
-        if(isInVector(keyCursor,pressedKeys)){
-            vector<uint8_t> temp;
-            //removing keys from pressedKeys;
-            for(uint8_t i = 0; i<pressedKeys.size(); i++){
-            if(pressedKeys[i] != keyCursor){
-                temp.push_back(pressedKeys[i]);
+            //if the key is already selected, remove it
+            if(isInVector(keyCursor,pressedKeys)){
+                vector<uint8_t> temp;
+                //removing keys from pressedKeys;
+                for(uint8_t i = 0; i<pressedKeys.size(); i++){
+                if(pressedKeys[i] != keyCursor){
+                    temp.push_back(pressedKeys[i]);
+                }
+                }
+                pressedKeys.swap(temp);
             }
+            else{
+                pressedKeys.push_back(keyCursor);
             }
-            pressedKeys.swap(temp);
-        }
-        else{
-            pressedKeys.push_back(keyCursor);
-        }
         }
       }
       //making a chord
@@ -173,11 +164,10 @@ QChord editChord(QChord& originalChord){
     display.clearDisplay();
     //normal, make-new-chord mode
     drawFullKeyBed(pressedKeys,mask,keyCursor,octave);
-    
-    drawCenteredBanner(64,55,convertVectorToPitches(pressedKeys));
+    // drawCenteredBanner(64,55,convertVectorToPitches(pressedKeys));
     //if there's a mask
     if(mask.size()>0){
-      drawCenteredBanner(64,55,pitchToString(mask[0],false,true)+" major");
+      drawCenteredBanner(64,55,pitchToString(maskRoot,false,true)+" major");
     }
     else{
         printSmall(0,59,"[Loop] to choose notes from a scale",1);
@@ -240,6 +230,9 @@ void chordDJ(){
                     display.fillRect(3+i*16,startY,11,64-startY,1);
                 }
             }
+            if(i == activeChord){
+                drawArrow(8+i*16,startY+(millis()/200)%2,3,DOWN,true);
+            }
         }
         display.display();
         readButtons();
@@ -255,6 +248,16 @@ void chordDJ(){
             if(sel){
                 lastTime = millis();
                 chords[activeChord] = editChord(chords[activeChord]);
+            }
+            if(x){
+                if(x == 1 && activeChord>0){
+                    activeChord--;
+                    lastTime = millis();
+                }
+                else if(x == -1 && activeChord<8){
+                    activeChord++;
+                    lastTime = millis();
+                }
             }
         }
         //checking step buttons to see if a chord should be played

@@ -819,8 +819,12 @@ void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask,
   //keypresses and (maybe) even change which keys are displayed at all    
   //first draw white keys
   for(uint8_t i = 0; i<21; i++){
+    //pixel indicating it's in the chord
+    if(isInVector(wKeyPattern[i]+12*octave,pressList))
+      display.drawPixel(i*(keyWidth+1)+2,y1+15,SSD1306_WHITE);
+
     //if there's no mask, or if the key is in the mask
-    if(mask.size() == 0 || isInVector(wKeyPattern[i],mask)){
+    if(mask.size() == 0 || isInVector(wKeyPattern[i]+12*octave,mask)){
       //if it's pressed, draw it blinking
       if(isInVector(wKeyPattern[i]+12*octave,pressList)){
         if(millis()%800>400)
@@ -833,7 +837,6 @@ void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask,
           drawArrow(i*(keyWidth+1)+2,y1+17+((millis()/200)%2),3,2,true);
           printSmall(i*(keyWidth+1)+2-text.length()*2,y1+22+((millis()/200)%2),text,SSD1306_WHITE);
         }
-        display.drawPixel(i*(keyWidth+1)+2,y1+15,SSD1306_WHITE);
       }
       else{
         //if it's highlighted
@@ -850,6 +853,10 @@ void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask,
   //then draw black keys
   uint8_t xPos = 3;
   for(uint8_t i = 0; i<15; i++){
+    //pixel indicating it's in the chord
+    if(isInVector(bKeyPattern[i]+12*octave,pressList))
+      display.drawPixel(xPos+2,y1+15,SSD1306_WHITE);
+
     if(mask.size() == 0 || isInVector(bKeyPattern[i]+12*octave,mask)){
       if(isInVector(bKeyPattern[i]+12*octave,pressList) || bKeyPattern[i]+12*octave == activeKey){
         display.fillRect(xPos,y1,keyWidth,bKeyHeight,SSD1306_BLACK);
@@ -858,7 +865,6 @@ void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask,
           if(millis()%800>400){
             display.fillRect(xPos+1,y1,keyWidth-2,bKeyHeight-1,SSD1306_WHITE);
           }
-          display.drawPixel(xPos+2,y1+15,SSD1306_WHITE);
         }
         else
           display.fillRect(xPos+1,y1,keyWidth-2,bKeyHeight-1,SSD1306_WHITE);

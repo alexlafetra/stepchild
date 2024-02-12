@@ -336,7 +336,6 @@ bool viewLoopControls(uint8_t which){
     if(menu_Press){
       if(shift){
         lastTime = millis();
-        displayHelpText(0);
         return false;
       }
       else{

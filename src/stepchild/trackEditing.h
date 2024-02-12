@@ -410,11 +410,11 @@ void transposeAllChannels(int increment){
 
 void setTrackChannel(int track, int channel, bool loud){
   if(channel>=1 && channel<=16){
-    sendMIDInoteOff(trackData[track].pitch,0,trackData[track].channel);
+    MIDI.noteOff(trackData[track].pitch,0,trackData[track].channel);
     trackData[track].channel = channel;
     if(loud){
-      sendMIDInoteOn(trackData[track].pitch,63,trackData[track].channel);
-      sendMIDInoteOff(trackData[track].pitch,0,trackData[track].channel);
+      MIDI.noteOn(trackData[track].pitch,63,trackData[track].channel);
+      MIDI.noteOff(trackData[track].pitch,0,trackData[track].channel);
     }
   }
 }
@@ -430,11 +430,11 @@ void transposeAllPitches(int increment){
 
 void setTrackPitch(int track, int note, bool loud) {
   if(note>=0 && note<=120){
-    sendMIDInoteOff(trackData[track].pitch,0,trackData[track].channel);
+    MIDI.noteOff(trackData[track].pitch,0,trackData[track].channel);
     trackData[track].pitch = note;
     if(loud){
-      sendMIDInoteOn(trackData[track].pitch,63,trackData[track].channel);
-      sendMIDInoteOff(trackData[track].pitch,0,trackData[track].channel);
+      MIDI.noteOn(trackData[track].pitch,63,trackData[track].channel);
+      MIDI.noteOff(trackData[track].pitch,0,trackData[track].channel);
     }
   }
 }
@@ -488,8 +488,8 @@ void addTrack(Track newTrack, bool loudly){
     activeTrack = trackData.size()-1;
 
     if(loudly){
-      sendMIDInoteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
-      sendMIDInoteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
     }
   }
 }
@@ -507,8 +507,8 @@ void addTrack_noMove(Track newTrack, bool loudly){
     seqData[trackData.size()-1] = {Note()};
 
     if(loudly){
-      sendMIDInoteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
-      sendMIDInoteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
     }
   }
 }
@@ -527,8 +527,8 @@ void addTrack(uint8_t pitch, uint8_t channel, bool latch, uint8_t muteGroup, boo
     seqData[trackData.size()-1] = {Note()};//setting the note data for the new track to the default blank data
     activeTrack = trackData.size()-1;
     if(loudly){
-      sendMIDInoteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
-      sendMIDInoteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
     }
   }
 }
@@ -551,8 +551,8 @@ int16_t addTrack_return(unsigned short int pitch, unsigned short int channel, bo
     seqData[trackData.size()-1] = {Note()};
     activeTrack = trackData.size()-1;
     if(loudly){
-      sendMIDInoteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
-      sendMIDInoteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
     }
     return (activeTrack);
   }
