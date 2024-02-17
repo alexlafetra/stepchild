@@ -98,7 +98,7 @@ typedef uint32_t PortMask;
 #define SSD1306_SETHIGHCOLUMN 0x10 ///< Not currently used
 #define SSD1306_SETSTARTLINE 0x40  ///< See datasheet
 
-#define SSD1306_EXTERNALVCC 0x01  ///< External display voltage source
+#define SSD1306_EXTERNAL_CLOCKVCC 0x01  ///< External display voltage source
 #define SSD1306_SWITCHCAPVCC 0x02 ///< Gen. display voltage from 3.3V
 
 #define SSD1306_RIGHT_HORIZONTAL_SCROLL 0x26              ///< Init rt scroll

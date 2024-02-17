@@ -15,109 +15,93 @@ analogWriteResolution (int resolution) to set the resolution of the PWM signal â
 analogWrite(GPIO, duty cycle) to output a PWM signal to a specified pin with a defined duty cycle. It continuously outputs a PWM signal until a digitalWrite() or other digital output is performed.
 */
 
-//pitch
-const uint8_t CV1_Pin = 5;
-//gate
-const uint8_t CV2_Pin = 6;
-//clock
-const uint8_t CV3_Pin = 28;
+#define CV1_PIN 5
+#define CV2_PIN 6
+#define CV3_PIN 28
 
-//stores -1 if no pitch is being sent, or 0-127 for the current pitch
-int8_t currentCVPitch = -1;
-//on or off, set at the end of the "play all tracks" loop.
-//set to on if currentCVPitch != 0
-bool CVGate = false;
-bool usingCV = true;
+#define CV_PITCH 0
+#define CV_GATE 1
+#define CV_CLOCK 2
 
-void checkCV(){
-    //if the CV functionality is turned off, just return immediately
-    if(!usingCV){
-        CVGate = false;
-        return;
+class StepchildCV{
+    public:
+    int8_t currentPitch = -1;
+    int8_t gateState = 0;
+    bool on = true;
+    StepchildCV(){
     }
-    CVGate = false;
-    //if a track is sending a pitch, 
-    for(uint8_t i = 0; i<trackData.size(); i++){
-        if(trackData[i].noteLastSent != 255){
-            CVGate = true;
-            currentCVPitch = trackData[i].noteLastSent;
+    void init(){
+        #ifndef HEADLESS
+        pinMode(CV1_PIN, OUTPUT);
+        pinMode(CV2_PIN, OUTPUT);
+        pinMode(CV3_PIN, OUTPUT);
+        //frequency of the oscillation
+        analogWriteFreq(1000000);//1,000,000 (1MHz)
+        //max value you can put into it (65535 @ 16bit res let's us do a 100% duty cycle)
+        analogWriteRange(65535);
+        //16 bit resolution
+        analogWriteResolution(16);
+        #endif
+    }
+
+    //this converts a midi 8-bit pitch to a 12note/V CV voltage
+    float pitchToVoltage(int8_t pitch){
+        //the CV scale is 12 tones/volt
+        if(pitch == -1){
+            return -1;
         }
+        //each semitone is a 1/12 of a volt, so semitones*1/12 = voltage
+        float voltage = float(pitch)/12.0;
+        return voltage;
     }
-    //if the gate was off, and a pitch is on, write CVGate on
-    writeCVGate(CVGate);
-    writeCVPitch(currentCVPitch);
-    writeCVClock();
-}
-
-void initPWM(){
-#ifndef HEADLESS
-  pinMode(CV1_Pin, OUTPUT);
-  pinMode(CV2_Pin, OUTPUT);
-  pinMode(CV3_Pin, OUTPUT);
-  pinMode(onboard_ledPin, OUTPUT);
-
-  //frequency of the oscillation
-  analogWriteFreq(1000000);
-  //max value you can put into it (65535 @ 16bit res let's us do a 100% duty cycle)
-  analogWriteRange(65535);
-  //16 bit resolution
-  analogWriteResolution(16);
-#endif
-}
-
-//this converts a midi 8-bit pitch to a 12note/V CV voltage
-float pitchToVoltage(int8_t pitch){
-    //the CV scale is 12 tones/volt
-    //so the first thing we need to do is crop the pitch to be within C1-C4 since we only have ~3V ==> 3 octaves
-    //actually, the max pitch we could write would be 3.3*12semitones above the lowest, so 39.6 semitones is our range
-    //C3 is 48
-
-    if(pitch == -1){
-        return -1;
+    uint16_t getDutyCycleFromVoltage(float voltage){
+        float dutyCycle = voltage/3.3;
+        uint16_t twoByteNumber = dutyCycle*65535;
+        return twoByteNumber;
     }
-
-    const uint8_t lowerBound = 24;
-    const uint8_t upperBound = lowerBound+39;
-
-    //C1 is 24
-    while(pitch<lowerBound){
-        pitch+=12;
+    void writePitch(uint8_t pitch){
+        float V = this->pitchToVoltage(pitch);
+        uint16_t dCycle = this->getDutyCycleFromVoltage(V);
+        analogWrite(CV1_PIN,dCycle);
     }
-    //63 is 
-    while(pitch>upperBound){
-        pitch-=12;
+    void writeGate(bool on){
+        uint16_t dCycle = on?65535:0;
+        analogWrite(CV2_PIN,dCycle);
     }
+    //writes a clock pulse
+    void writeClock(){
+        analogWrite(CV3_PIN,65535);
+        analogWrite(CV3_PIN,0);
+    }
+    void check(){
+        //if the CV functionality is turned off, just return immediately
+        if(!this->on){
+            this->gateState = false;
+            return;
+        }
+        this->gateState = false;
+        //if a track is sending a pitch, 
+        for(uint8_t i = 0; i<trackData.size(); i++){
+            if(trackData[i].noteLastSent != 255){
+                this->gateState = true;
+                this->currentPitch = trackData[i].noteLastSent;
+            }
+        }
+        //if the gate was off, and a pitch is on, write CVGate on
+        this->writeGate(this->gateState);
+        this->writePitch(this->currentPitch);
+        this->writeClock();
+    }
+    void off(){            
+        this->currentPitch = -1;
+        this->gateState = false;
+        this->writeGate(false);
+    }
+};
 
-    //each semitone is a 1/12 of a volt, so semitones*1/12 = voltage
-    float voltage = float(pitch)/12.0;
-    return voltage;
-}
+StepchildCV CV;
 
-
-uint16_t getDutyCycleFromVoltage(float voltage){
-    float dutyCycle = voltage/3.3;
-    uint16_t twoByteNumber = dutyCycle*65535;
-    return twoByteNumber;
-}
-
-void writeCVPitch(uint8_t pitch){
-    float V = pitchToVoltage(pitch);
-    uint16_t dCycle = getDutyCycleFromVoltage(V);
-   analogWrite(CV1_Pin,dCycle);
-}
-
-void writeCVGate(bool on){
-    uint16_t dCycle = on?65535:0;
-   analogWrite(CV2_Pin,dCycle);
-}
-
-//writes a clock pulse
-void writeCVClock(){
-    analogWrite(CV3_Pin,65535);
-    analogWrite(CV3_Pin,0);
-}
-
-String CVtoPitch(float v){
+String CVtoPitchString(float v){
     uint8_t pitch = v*12;
     return pitchToString(pitch,true,true);
 }
@@ -142,6 +126,28 @@ void drawCVOsc(int8_t pitch, uint8_t vel, bool gate){
     }
 }
 
+void testCVPitches(){
+    lastTime = millis();
+    uint8_t pitch = 0;
+    bool gate = false;
+    while(true){
+        display.clearDisplay();
+        printSmall_centered(64,32,stringify(pitch),1);
+        printSmall_centered(64,38,stringify(CV.pitchToVoltage(pitch))+"V",1);
+        display.display();
+        if(itsbeen(1000)){
+            lastTime = millis();
+            CV.writePitch(pitch);
+            // writeCVGate(gate);
+            pitch++;
+            if(pitch>127){
+                pitch = 0;
+            }
+            gate = !gate;
+        }
+    }
+}
+
 //small app that can translate MIDI input to CV output
 //loop runs and checks for MIDI notes that have been received
 //when it finds one, it reproduces it using the CV PWM
@@ -150,20 +156,21 @@ void MIDItoCV(){
     bool gate = false;
     //0 is global, anything else is a filter
     int8_t channel = 0;
+    testCVPitches();
     while(true){
         if(noteOnReceived && (channel == 0 || channel == recentNote.channel)){
             noteOnReceived = false;
             gate = true;
             pitch = recentNote.pitch;
-            writeCVGate(gate);
-            writeCVPitch(pitch);
+            CV.writeGate(gate);
+            CV.writePitch(pitch);
         }
         if(noteOffReceived && recentNote.pitch == pitch && (channel == 0 || channel == recentNote.channel)){
             noteOffReceived = false;
             gate = false;
             pitch = recentNote.pitch;
-            writeCVGate(gate);
-            writeCVPitch(pitch);
+            CV.writeGate(gate);
+            CV.writePitch(pitch);
         }
         readJoystick();
         readButtons();
@@ -196,7 +203,7 @@ void MIDItoCV(){
         drawCVOsc(pitch,recentNote.vel,gate);
         printSmall(0,0,"$: "+stringify(pitch)+" ("+pitchToString(pitch,true,true)+")",1);
         printSmall(0,57,"CV: ",1);
-        printSmall(30,57,stringify(pitchToVoltage(pitch))+"V",1);
+        printSmall(30,57,stringify(CV.pitchToVoltage(pitch))+"V",1);
         if(gate){
             display.fillRect(13,55,15,9,1);
             printSmall(17,57,"on",0);
@@ -208,41 +215,11 @@ void MIDItoCV(){
         display.display();
     }
 }
-
-void testCVPitches(){
-    lastTime = millis();
-    uint8_t pitch = 24;
-    bool gate = false;
-    while(true){
-        if(itsbeen(1000)){
-            lastTime = millis();
-            writeCVPitch(pitch);
-            // writeCVGate(gate);
-            pitch++;
-            if(pitch>63){
-                pitch = 0;
-            }
-            gate = !gate;
-        }
-        float readVoltage = 0;
-        const float sampleNumber = 6000.0;
-        for(uint32_t i = 0; i<sampleNumber; i++){
-            readVoltage+=float(analogRead(26))/sampleNumber;
-        }
-        //record analog val
-        //Serial.print("Variable_1:");
-        //Serial.print(readVoltage*3.3/1024);
-        //Serial.print(",");
-        //Serial.print("Variable_2:");
-        //Serial.println(readVoltage*3.3*12.0/1024.0);
-    }
-}
-
 void CVEncoders(uint8_t encoderVal, uint8_t cursor){
     switch(cursor){
         //turns CV on/off
         case 0:
-            usingCV = !usingCV;
+            CV.on = !CV.on;
             break;
         case 1:
             break;
@@ -279,19 +256,19 @@ void CVMenu(){
         }
         display.clearDisplay();
         printSmall(0,1,"CV is ",1);
-        drawLabel(28,1,usingCV?"on":"off",true);
-        drawCVOsc(currentCVPitch,127,CVGate);
-        if(currentCVPitch == -1){
+        drawLabel(28,1,CV.on?"on":"off",true);
+        drawCVOsc(CV.currentPitch,127,CV.gateState);
+        if(CV.currentPitch == -1){
             printSmall(0,57,"CV: 0V",1);
             printSmall(0,50,"$0",1);
         }
         else{
-            float p = pitchToVoltage(currentCVPitch);
-            printSmall(0,57,"CV: "+stringify(p)+"V"+" ("+CVtoPitch(p)+")",1);
-            printSmall(0,50,"$"+pitchToString(currentCVPitch,true,true),1);
+            float p = CV.pitchToVoltage(CV.currentPitch);
+            printSmall(0,57,"CV: "+stringify(p)+"V"+" ("+CVtoPitchString(p)+")",1);
+            printSmall(0,50,"$"+pitchToString(CV.currentPitch,true,true),1);
         }
         printSmall(0,43,"gate:",1);
-        if(CVGate)
+        if(CV.gateState)
             display.fillRect(18,43,5,5,1);
         else
             display.drawRect(18,43,5,5,1);

@@ -27,7 +27,7 @@
 #include "bitmap/bitmap_image.hpp"
 
 //including this for continuity
-#include "../../stepchild/pins.h"
+//#include "../../stepchild/pins.h"
 
 #define UPRIGHT 2
 #define UPSIDEDOWN 0
@@ -93,6 +93,15 @@ unsigned long micros(){
 unsigned long millis(){
     auto rn = chrono::high_resolution_clock::now();
     return chrono::duration_cast<std::chrono::milliseconds>(rn-progStartTime).count();
+}
+int constrain(int target, int lower, int upper){
+    if(target<lower){
+        return lower;
+    }
+    else if(target>upper){
+        return upper;
+    }
+    else return target;
 }
 
 inline GFXglyph *pgm_read_glyph_ptr(const GFXfont *gfxFont, uint8_t c) {

@@ -19,9 +19,9 @@ void gridAnimation(bool in){
       //outer circle
       display.drawCircle(64,0+i/2,5,SSD1306_WHITE);
       //dotted vert
-      drawDottedLineV(64,32-i/2,32+i/2,3);
+      graphics.drawDottedLineV(64,32-i/2,32+i/2,3);
       //dotted horz
-      drawDottedLineH(64-i/2,64+i/2,32,3);
+      graphics.drawDottedLineH(64-i/2,64+i/2,32,3);
 
       display.display();
     }
@@ -42,9 +42,9 @@ void gridAnimation(bool in){
       //outer circle
       display.drawCircle(64,0+i/2,5,SSD1306_WHITE);
       //dotted vert
-      drawDottedLineV(64,32-i/2,32+i/2,3);
+      graphics.drawDottedLineV(64,32-i/2,32+i/2,3);
       //dotted horz
-      drawDottedLineH(64-i/2,64+i/2,32,3);
+      graphics.drawDottedLineH(64-i/2,64+i/2,32,3);
 
       display.display();
     }
@@ -54,17 +54,17 @@ void gridAnimation(bool in){
 //range is (5-1023) aka 0-1018
 const float joystickScaleFactor = float(128)/float(1018);
 
-int8_t getJoyX(){
-  return abs(128 - (analogRead(x_Pin) - 5) * joystickScaleFactor);
+int16_t getJoyX(){
+  return abs(analogRead(x_Pin) * joystickScaleFactor);
 }
 
-int8_t getJoyY(){
-  return abs(128 - (analogRead(y_Pin) - 5) * joystickScaleFactor);
+int16_t getJoyY(){
+  return abs(128 - constrain(analogRead(y_Pin)*joystickScaleFactor,0,128));
 }
 
 void xyGrid(){
-  int8_t xCoord = getJoyX();
-  int8_t yCoord = getJoyY();
+  int16_t xCoord = getJoyX();
+  int16_t yCoord = getJoyY();
   uint8_t controlX = 1;
   uint8_t controlY = 2;
 
@@ -86,7 +86,7 @@ void xyGrid(){
     display.clearDisplay();
     //rec/play icon
     if(recording){
-      if(clockSource == EXTERNAL && !gotClock){
+      if(clockSource == EXTERNAL_CLOCK && !gotClock){
         if(waitingToReceiveANote){
           if(millis()%1000>500){
             display.drawCircle(3,3,3,SSD1306_WHITE);
@@ -95,7 +95,7 @@ void xyGrid(){
         else
           display.drawCircle(3,3,3,SSD1306_WHITE);
       }
-      else if((clockSource == EXTERNAL && gotClock) || clockSource == INTERNAL){
+      else if((clockSource == EXTERNAL_CLOCK && gotClock) || clockSource == INTERNAL_CLOCK){
         if(waitingToReceiveANote){
           if(millis()%1000>500){
             display.fillCircle(3,3,3,SSD1306_WHITE);
@@ -106,7 +106,7 @@ void xyGrid(){
       }
     }
     else if(playing){
-      if(clockSource == EXTERNAL && !gotClock){
+      if(clockSource == EXTERNAL_CLOCK && !gotClock){
         display.drawTriangle(0,6,0,0,6,3,SSD1306_WHITE);
       }
       else{
@@ -116,9 +116,9 @@ void xyGrid(){
     display.drawRect(32,0,64,64,SSD1306_WHITE);
     //axes
     if(!pauseY)
-      drawDottedLineV(64,0,64,3);
+      graphics.drawDottedLineV(64,0,64,3);
     if(!pauseX)
-      drawDottedLineH(32,96,32,3);
+      graphics.drawDottedLineH(32,96,32,3);
     display.fillCircle(xCoord/2+34,64 - yCoord/2,3,SSD1306_WHITE);
     display.drawCircle(xCoord/2+34,64 - yCoord/2,5,SSD1306_WHITE);
 

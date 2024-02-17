@@ -103,7 +103,7 @@ void playStep(uint16_t timestep) {
   for(uint8_t dT = 0; dT < autotrackData.size(); dT++){
     playDT(dT,timestep);
   }
-  checkCV();
+  CV.check();
 }
 
 

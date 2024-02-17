@@ -357,8 +357,8 @@ void Menu::displayMainMenu(){
       //animate clock hands
      if(count == 10){
         display.drawBitmap(coords.x1+4+width*i,coords.y1+j*(width-1)+17+sin(millis()/200+count),mainMenu_icons[count],12,12,SSD1306_WHITE);
-        drawCircleRadian(coords.x1+4+width*i+6,coords.y1+j*(width-1)+17+sin(millis()/200+count)+6,4,millis()/10,0);
-        drawCircleRadian(coords.x1+4+width*i+6,coords.y1+j*(width-1)+17+sin(millis()/200+count)+6,3,millis()/100,0);
+        graphics.drawCircleRadian(coords.x1+4+width*i+6,coords.y1+j*(width-1)+17+sin(millis()/200+count)+6,4,millis()/10,0);
+        graphics.drawCircleRadian(coords.x1+4+width*i+6,coords.y1+j*(width-1)+17+sin(millis()/200+count)+6,3,millis()/100,0);
       }
       else
         display.drawBitmap(coords.x1+4+width*i,coords.y1+j*(width-1)+17+sin(millis()/200+count),mainMenu_icons[count],12,12,SSD1306_WHITE);

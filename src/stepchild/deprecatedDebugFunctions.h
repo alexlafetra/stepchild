@@ -38,6 +38,17 @@ void debugPrint() {
   //Serial.print(totalNotes);
 }
 
+//prints out each bit of the byte
+void printByte(uint8_t b){
+  // Serial.print("\n");
+  uint8_t i = 0;
+  while(i<8){
+    // Serial.print(b&1);
+    b = b>>1;
+    i++;
+  }
+}
+
 //fills sequence with notes
 void debugFillSeq() {
   //Serial.print("filling with notes\n");
@@ -497,7 +508,7 @@ void printPlaybackOptions(uint8_t which, uint8_t cursor, bool active){
       }
       printSmall(x1,y1+11,"clock source:",1);
       //external clock
-      if(clockSource == EXTERNAL){
+      if(clockSource == EXTERNAL_CLOCK){
         printSmall(x1+56,y1+11,"external",1);
       }
       else{

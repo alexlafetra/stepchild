@@ -83,7 +83,7 @@ void drawEchoMenu(uint8_t cursor){
 
       //time
       String text = stepsToMeasures(echoData.delay);
-      printFraction_small_centered(64,29,text);
+      graphics.printFraction_small_centered(64,29,text);
 
       //arrows
       drawArrow(78-((millis()/400)%2),31,3,0,false);
@@ -129,7 +129,7 @@ void drawEchoMenu(uint8_t cursor){
     }
     for(int i = 0; i<reps; i++){
       if(animOffset/3-spacing*i+sin(animOffset)*(i%2)<(screenWidth+16))
-        drawEllipse(xCoord, yCoord, animOffset/3-spacing*i+sin(animOffset)*(i%2), animOffset/8-spacing*i/3,SSD1306_WHITE);
+        graphics.drawEllipse(xCoord, yCoord, animOffset/3-spacing*i+sin(animOffset)*(i%2), animOffset/8-spacing*i/3,SSD1306_WHITE);
     }
   }
   if(animOffset<yCoord){
@@ -169,8 +169,7 @@ void echoAnimation(){
         reps = maxReps;
       }
       for(int i = 0; i<reps; i++){
-        // fillEllipse_cheap(xCoord, yCoord, animFrame/3-spacing*i+sin(animFrame)*(i%2), animFrame/8-spacing*i/3, SSD1306_BLACK);
-        drawEllipse(xCoord, yCoord, animFrame/3-spacing*i+sin(animFrame)*(i%2), animFrame/8-spacing*i/3, SSD1306_WHITE);
+        graphics.drawEllipse(xCoord, yCoord, animFrame/3-spacing*i+sin(animFrame)*(i%2), animFrame/8-spacing*i/3, SSD1306_WHITE);
       }
     }
     if(animFrame<yCoord){

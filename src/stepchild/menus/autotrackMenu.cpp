@@ -335,7 +335,7 @@ void setAutotrackTrigger(uint8_t whichAT){
 
 
     //drawing gate label
-    drawBinarySelectionBox(22, 52, "on", "off", "", !autotrackData[whichAT].gated);
+    graphics.drawBinarySelectionBox(22, 52, "on", "off", "", !autotrackData[whichAT].gated);
     printSmall_centered(22,40,"gate",1);
 
     if(togglingGate){
@@ -1436,10 +1436,10 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
       if(step<seqEnd){
         //measure bars
         if (!(step % subDivInt) && (step%96) && (subDivInt*scale)>2) {
-          drawDottedLineV((step-viewStart)*scale+32,0,64,4);
+          graphics.drawDottedLineV((step-viewStart)*scale+32,0,64,4);
         }
         if(!(step%96)){
-          drawDottedLineV2((step-viewStart)*scale+32,0,64,6);
+          graphics.drawDottedLineV2((step-viewStart)*scale+32,0,64,6);
         }
         //gets the on-screen position of each point
         uint8_t yPos;
@@ -1495,9 +1495,9 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     //middle line
     //if it's just the typical node curve, draw midline at middle of the screen (32)
     if(autotrackData[activeAutotrack].type == 0)
-      drawDottedLineH(32,128,32,3);
+      graphics.drawDottedLineH(32,128,32,3);
     else{
-      drawDottedLineH(32,128,64-(autotrackData[activeAutotrack].yPos-32),3);
+      graphics.drawDottedLineH(32,128,64-(autotrackData[activeAutotrack].yPos-32),3);
     }
     //drawing curve icon
     if(autotrackData[activeAutotrack].type == 0)
@@ -1885,11 +1885,11 @@ void drawMiniDT(uint8_t x1, uint8_t y1, uint8_t height, uint8_t which){
       else
         break;
     }
-    drawDottedLineH(x1,x1+94,y1+height/2,3);
+    graphics.drawDottedLineH(x1,x1+94,y1+height/2,3);
   }
   //if it's muted/inactive
   else{
-    shadeRect(x1,y1,screenWidth-x1-3,height,5);
+    graphics.shadeRect(x1,y1,screenWidth-x1-3,height,5);
     display.fillRoundRect(x1+(screenWidth-x1)/2-13,y1+height/2-3,25,7,3,SSD1306_BLACK);
     printSmall(x1+(screenWidth-x1)/2-14,y1+height/2-2,"[muted]",SSD1306_WHITE);
   }

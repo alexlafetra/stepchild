@@ -12,10 +12,10 @@ void drawRandMenuOptions(uint8_t which,RandomData randData){
     printSmall(x1-8,y1,"length of notes",1);
     printSmall(x1-2,y1+24,"max",1);
     String frac = stepsToMeasures(randData.maxLength);
-    printFraction_small(x1-(frac.length()>=4?5:0),y1+15,frac);
+    graphics.printFraction_small(x1-(frac.length()>=4?5:0),y1+15,frac);
     printSmall(x1+29,y1+14,"min",1);
     frac = stepsToMeasures(randData.minLength);
-    printFraction_small(x1+29,y1+23,frac);
+    graphics.printFraction_small(x1+29,y1+23,frac);
     int8_t offset1 = 4*((millis()/200)%2);
     int8_t offset2 = 4*cos(millis()/100);
     display.fillRect(x1+12,y1+24-randData.maxLength/6-offset1/2,6,randData.maxLength/3+offset1,1);
@@ -100,7 +100,7 @@ void drawRandMenuOptions(uint8_t which,RandomData randData){
       if(randData.onlyOnGrid){
         printArp_wiggly(x1,y1+10,"On Grid",1);
         printSmall_centered(64,y1+25,"locked to grid:",1);
-        printFraction_small_centered(62,y1+35,stepsToMeasures(subDivInt));
+        graphics.printFraction_small_centered(62,y1+35,stepsToMeasures(subDivInt));
       }
       else{
         printArp_wiggly(x1-4,y1+10,"Off Grid",1);
@@ -161,7 +161,7 @@ void drawCoordinateBox(CoordinatePair coords){
     uint8_t height = ((Y2 - startTrack + 1)*trackHeight - startY)%(screenHeight-startHeight) + startHeight;
    
    if((millis())%400>200){
-      shadeRect(startX,startY,length,height,3);
+      graphics.shadeRect(startX,startY,length,height,3);
     }
     else{
       display.drawRect(startX,startY,length,height,1);

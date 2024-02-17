@@ -307,12 +307,12 @@ void chordBuilder(){
       //display subDivInt
       String text = stepsToMeasures(subDivInt);
       printSmall(103,37,"~",SSD1306_WHITE);
-      printFractionCentered(121,36,stepsToMeasures(subDivInt));
+      graphics.printFractionCentered(121,36,stepsToMeasures(subDivInt));
       
       //length
       text = stepsToMeasures(length);
       printSmall(105,50,"L",SSD1306_WHITE);
-      printFractionCentered(121,49,stepsToMeasures(length));
+      graphics.printFractionCentered(121,49,stepsToMeasures(length));
       drawCenteredBanner(64,55,convertVectorToPitches(pressedKeys));
     }
     else if(editorState == 1){
@@ -325,7 +325,7 @@ void chordBuilder(){
       drawFullKeyBed(tempNotes,mask,keyCursor,0);
       chordSequence.drawProg(32, 50, activeChord);
       //if you are editing a chord, display it's length
-      printFraction(115,32,stepsToMeasures(chordSequence.chords[activeChord].length));
+      graphics.printFraction(115,32,stepsToMeasures(chordSequence.chords[activeChord].length));
     }
     else if(editorState == 2){
       vector<uint8_t> tempNotes;

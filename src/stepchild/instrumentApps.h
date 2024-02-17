@@ -64,33 +64,30 @@ const unsigned char chord_dj_bmp []  = {
 
 //Default ChildOS instrument applications
 
-#define INSTRUMENT_APP1_ICON xy_bmp
-#define INSTRUMENT_APP2_ICON rain_bmp
-#define INSTRUMENT_APP3_ICON knobs_bmp
-#define INSTRUMENT_APP4_ICON keys_bmp
-#define INSTRUMENT_APP5_ICON drum_bmp
-#define INSTRUMENT_APP6_ICON cv_icon_bmp
-#define INSTRUMENT_APP7_ICON rattle_bmp
-#define INSTRUMENT_APP8_ICON live_loop_bmp
-
-#define INSTRUMENT_APP1_FUNCTION xyGrid
-#define INSTRUMENT_APP2_FUNCTION rain
-#define INSTRUMENT_APP3_FUNCTION knobs
-#define INSTRUMENT_APP4_FUNCTION keyboard
-#define INSTRUMENT_APP5_FUNCTION drumPad
-#define INSTRUMENT_APP6_FUNCTION MIDItoCV
-#define INSTRUMENT_APP7_FUNCTION rattle
-#define INSTRUMENT_APP8_FUNCTION liveLoop
-
 //max 8 characters! otherwise it'll run off the screen
 #define INSTRUMENT_APP1_TEXT "joystick"
+#define INSTRUMENT_APP1_FUNCTION xyGrid
+#define INSTRUMENT_APP1_ICON xy_bmp
+
+#define INSTRUMENT_APP2_FUNCTION rain
 #define INSTRUMENT_APP2_TEXT "rain"
+#define INSTRUMENT_APP2_ICON rain_bmp
+
+#define INSTRUMENT_APP3_FUNCTION knobs
 #define INSTRUMENT_APP3_TEXT "knobs"
-#define INSTRUMENT_APP4_TEXT "keys"
-#define INSTRUMENT_APP5_TEXT "drumpad"
-#define INSTRUMENT_APP6_TEXT "midi cv"
-#define INSTRUMENT_APP7_TEXT "rattle"
-#define INSTRUMENT_APP8_TEXT "liveloop"
+#define INSTRUMENT_APP3_ICON knobs_bmp
+
+#define INSTRUMENT_APP4_FUNCTION chordDJ
+#define INSTRUMENT_APP4_TEXT "chord dj"
+#define INSTRUMENT_APP4_ICON chord_dj_bmp
+
+#define INSTRUMENT_APP5_FUNCTION liveLoop
+#define INSTRUMENT_APP5_TEXT "liveloop"
+#define INSTRUMENT_APP5_ICON live_loop_bmp
+
+#define INSTRUMENT_APP6_FUNCTION rattle
+#define INSTRUMENT_APP6_TEXT "rattle"
+#define INSTRUMENT_APP6_ICON rattle_bmp
 
 /*
     Check to see if the user has defined these in their code!

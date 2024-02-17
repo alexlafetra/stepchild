@@ -27,7 +27,7 @@ class QChord{
             sort(midiNotes.begin(),midiNotes.end());
             root = midiNotes[0];
             for(uint8_t i = 0; i<midiNotes.size(); i++){
-                intervals.push_back(midiNotes[i]+root);
+                intervals.push_back(midiNotes[i]-root);
             }
         }
         else{
@@ -84,10 +84,6 @@ class QChord{
     }
 };
 
-void addChord(){
-
-}
-
 //chord builder
 QChord editChord(QChord& originalChord){
   vector<uint8_t> pressedKeys = originalChord.toMIDINotes();
@@ -99,6 +95,8 @@ QChord editChord(QChord& originalChord){
 
   vector<uint8_t> mask;
   uint8_t maskRoot = 0;
+    
+  bool playedChord = false;
 
   while(true){
     readJoystick();
@@ -113,58 +111,74 @@ QChord editChord(QChord& originalChord){
             lastTime = millis();
         }
     }
+    if(play && !playedChord){
+        for(uint8_t i = 0; i<pressedKeys.size(); i++){
+            MIDI.noteOn(pressedKeys[i]+octave*12,100,1);
+        }
+        playedChord = true;
+    }
+    else if(playedChord && !play){
+        for(uint8_t i = 0; i<pressedKeys.size(); i++){
+            MIDI.noteOff(pressedKeys[i]+octave*12,100,1);
+        }
+        playedChord = false;
+    }
+
     if(itsbeen(200)){
-      if(loop_Press){
-        lastTime = millis();
-        //if there's no mask, make one
-        //(mask uses highlit note as root)
-        if(mask.size() == 0){
-            mask = genScale(MAJOR,keyCursor%12,4,octave?(octave-1):0);
-            // mask = genScale(keyCursor%12,0,3,octave);
-            maskRoot = keyCursor%12;
-        }
-        //if there is, unmake one
-        else{
-            vector<uint8_t> temp;
-            mask.swap(temp);
-        }
-      }
-      //selecting/deselecting notes
-      if(sel){
-        //making new chord
-        lastTime = millis();
-        //deselect all notes
-        if(shift){
-            vector<uint8_t> temp;
-            pressedKeys.swap(temp);
-        }
-        else{
-            //if the key is already selected, remove it
-            if(isInVector(keyCursor,pressedKeys)){
+        if(loop_Press){
+            lastTime = millis();
+            //if there's no mask, make one
+            //(mask uses highlit note as root)
+            if(mask.size() == 0){
+                mask = genScale(MAJOR,keyCursor%12,4,octave?(octave-1):0);
+                // mask = genScale(keyCursor%12,0,3,octave);
+                maskRoot = keyCursor%12;
+            }
+            //if there is, unmake one
+            else{
                 vector<uint8_t> temp;
-                //removing keys from pressedKeys;
-                for(uint8_t i = 0; i<pressedKeys.size(); i++){
-                if(pressedKeys[i] != keyCursor){
-                    temp.push_back(pressedKeys[i]);
-                }
-                }
+                mask.swap(temp);
+            }
+        }
+        //selecting/deselecting notes
+        if(sel){
+            //making new chord
+            lastTime = millis();
+            //deselect all notes
+            if(shift){
+                vector<uint8_t> temp;
                 pressedKeys.swap(temp);
             }
             else{
-                pressedKeys.push_back(keyCursor);
+                //if the key is already selected, remove it
+                if(isInVector(keyCursor,pressedKeys)){
+                    vector<uint8_t> temp;
+                    //removing keys from pressedKeys;
+                    for(uint8_t i = 0; i<pressedKeys.size(); i++){
+                    if(pressedKeys[i] != keyCursor){
+                        temp.push_back(pressedKeys[i]);
+                    }
+                    }
+                    pressedKeys.swap(temp);
+                }
+                else{
+                    pressedKeys.push_back(keyCursor);
+                }
             }
         }
-      }
-      //making a chord
-      if(n || menu_Press){
-        lastTime = millis();
-        return QChord(pressedKeys);
-      }
+        //making a chord
+        if(n || menu_Press){
+            lastTime = millis();
+            return QChord(pressedKeys);
+        }
     }
     display.clearDisplay();
     //normal, make-new-chord mode
     drawFullKeyBed(pressedKeys,mask,keyCursor,octave);
-    // drawCenteredBanner(64,55,convertVectorToPitches(pressedKeys));
+    if(playedChord)
+        printSmall(0,52,"Playing...",1);
+    else
+        printSmall(0,52,"[Play] to hear Chord",1);
     //if there's a mask
     if(mask.size()>0){
       drawCenteredBanner(64,55,pitchToString(maskRoot,false,true)+" major");
@@ -205,6 +219,94 @@ vector<QChord> initChordDjList(uint8_t preset, uint8_t root){
     return chords;
 }
 
+QChord getChordFromPlaylist(){
+    vector<uint8_t> pitches;
+    for (int i = 0; i < receivedNotes.notes.size(); i++) {
+        pitches.push_back(receivedNotes.notes[i].pitch);
+    }
+    return QChord(pitches);
+}
+
+//Inserts a chord and makes a new track for each pitch
+void insertChordAt(uint16_t timestep,uint16_t length, uint8_t trackLoc, QChord chord, uint8_t channel, uint8_t velocity){
+    for(uint8_t i = 0; i<chord.intervals.size(); i++){
+        int16_t trackID = insertTrack_return(chord.intervals[i]+chord.octave()*12,channel,false, trackLoc);
+        makeNote(trackID,timestep,length,velocity,100,false,false,false);
+    }
+}
+
+void insertChordIntoSequence(QChord chord){
+    uint16_t length = subDivInt;
+    uint8_t channel = 1;
+    uint8_t velocity = 127;
+    selBox.begun = true;
+    while(true){
+        readButtons();
+        readJoystick();
+        defaultJoystickControls(false);
+
+        selBox.x1 = cursorPos+length;
+        selBox.y1 = activeTrack+chord.intervals.size();
+        if(selBox.y2>=trackData.size()){
+            selBox.y2 = trackData.size()-1;
+        }
+
+        //Encoders
+        while(counterA != 0){
+            //changing zoom
+            if(counterA >= 1){
+                if(shift && (length<(192-subDivInt))){
+                    length+=subDivInt;
+                }
+                else if(!shift){
+                    zoom(true);
+                }
+            }
+            if(counterA <= -1){
+                if(shift && (length-subDivInt)>0){
+                    length-=subDivInt;
+                }
+                else if(!shift){
+                    zoom(false);
+                }
+            }
+            counterA += counterA<0?1:-1;;
+        }
+        while(counterB != 0){
+            //if shifting, toggle between 1/3 and 1/4 mode
+            if(shift){
+                toggleTriplets();
+            }
+            else if(counterB >= 1){
+                changeSubDivInt(true);
+            }
+            //changing subdivint
+            else if(counterB <= -1){
+                changeSubDivInt(false);
+            }
+            counterB += counterB<0?1:-1;;
+        }
+        if(itsbeen(200)){
+            //quit
+            if(menu_Press){
+                lastTime = millis();
+                break;
+            }
+            if(n){
+                lastTime = millis();
+                insertChordAt(cursorPos,length,activeTrack,chord,channel,velocity);
+                selBox.begun = false;
+                break;
+            }
+        }
+        display.clearDisplay();
+        printSmall(0,0,"[Sh]+[B] for +/-",1);
+        printSmall(0,7,"[N] to commit!",1);
+        drawSeq(true,false,true,false,false,false,viewStart,viewEnd);
+        display.display();
+    }
+}
+
 void chordDJ(){
     //at most, 16 QChords that can be toggled by the step buttons (w/shift for the second 8)
     //init with the major and minor chords in C
@@ -214,50 +316,72 @@ void chordDJ(){
     uint8_t activeChord = 0;
     while(true){
         display.clearDisplay();
+        printItalic(5,0,"chord dj",1);
+        display.drawFastHLine(0,3,5,1);
+        display.drawFastHLine(44,3,7,1);
+        display.drawFastHLine(66,3,128-66,1);
+
         //idea is to have 8 vertical columns with the root root pitch and interval numbers in them, as well as a play indicator
         //128/8 = 16,so 12px will give you a 4px gap between each
-        const uint8_t startY = 24;
         for(uint8_t i = 0; i<8; i++){
-            printSmall_centered(8+i*16,startY-24,stringify(i),1);
-            display.drawFastVLine(2+i*16,startY,64-startY,1);
-            display.drawFastVLine(14+i*16,startY,64-startY,1);
+            uint8_t startY = 24;
             if(i<chords.size()){
-                printSmall_centered(8+i*16,startY-16,pitchToString(chords[i].root,true,true),1);
+                if(i == activeChord){
+                    drawArrow(8+i*16,startY+(millis()/200)%2-7,3,DOWN,true);
+                    startY = 20;
+                }
+                printSmall_centered(9+i*16,startY-12,stringify(i+1),1);
                 for(uint8_t j = 0; j<chords[i].intervals.size(); j++){
+                    if(j>4){
+                        display.drawPixel(6+i*16,startY+1+j*6,1);
+                        display.drawPixel(6+i*16,startY+3+j*6,1);
+                        display.drawPixel(6+i*16,startY+5+j*6,1);
+                        break;
+                    }
                     printSmall_centered(8+i*16,startY+j*6,pitchToString(chords[i].intervals[j]+chords[i].root,false,true),1);
                 }
                 if(chords[i].playing){
-                    display.fillRect(3+i*16,startY,11,64-startY,1);
+                    display.fillRect(3+i*16,startY-2,11,66-startY,2);
                 }
-            }
-            if(i == activeChord){
-                drawArrow(8+i*16,startY+(millis()/200)%2,3,DOWN,true);
+                else{
+                    display.drawRect(2+i*16,startY-2,13,66-startY,1);
+                }
             }
         }
         display.display();
         readButtons();
+        readJoystick();
+
+        //while shifting, set the active chord to whatever keys are held
+        if(shift){
+            chords[activeChord] = getChordFromPlaylist();
+        }
         if(itsbeen(200)){
+            //Exiting
             if(menu_Press){
                 lastTime = millis();
                 break;
             }
-            if(n){
-                lastTime = millis();
-                addChord();
-            }
+            //Editing a chord
             if(sel){
                 lastTime = millis();
                 chords[activeChord] = editChord(chords[activeChord]);
             }
+            //Moving cursor around
             if(x){
                 if(x == 1 && activeChord>0){
                     activeChord--;
                     lastTime = millis();
                 }
-                else if(x == -1 && activeChord<8){
+                else if(x == -1 && activeChord<7){
                     activeChord++;
                     lastTime = millis();
                 }
+            }
+            //Committing a chord to the main sequence
+            if(n){
+                lastTime = millis();
+                insertChordIntoSequence(chords[activeChord]);
             }
         }
         //checking step buttons to see if a chord should be played
@@ -281,7 +405,3 @@ void chordDJ(){
         }
     }
 }
-
-#define INSTRUMENT_APP9_FUNCTION chordDJ
-#define INSTRUMENT_APP9_TEXT "chord dj"
-#define INSTRUMENT_APP9_ICON chord_dj_bmp

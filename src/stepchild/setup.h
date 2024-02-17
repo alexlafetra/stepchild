@@ -7,7 +7,7 @@ void setupPins(){
   //onboard pins for LED and reading internal VCC
   pinMode(Vpin, INPUT);
 
-  // pinMode(onboard_ledPin, OUTPUT);
+  pinMode(onboard_ledPin, OUTPUT);
 
   //encoders
   pinMode(encoderB_Button, INPUT_PULLUP);
@@ -33,7 +33,6 @@ void setupPins(){
   attachInterrupt(track_data_Pin,rotaryActionA_Handler, CHANGE);
   attachInterrupt(note_clk_Pin,rotaryActionB_Handler, CHANGE);
   attachInterrupt(note_data_Pin,rotaryActionB_Handler, CHANGE);
-
   #endif
 }
 
@@ -43,7 +42,6 @@ void setup() {
   //--------------------------------------------------------------------
   //                              Hardware
   //--------------------------------------------------------------------
-
   //doing the same to the screen twoWire connection
   Wire.setSDA(Screen_SDA);
   Wire.setSCL(Screen_SCL);
@@ -54,10 +52,9 @@ void setup() {
   // Serial.begin(921600);
   Serial.begin(9600);
 
-  //start the display and print an error if it doesn't work
+  //start the display and throw an error if it doesn't work
   //(probably not very helpful)
   if(!display.begin(SSD1306_SWITCHCAPVCC, i2c_Address)) {
-    //Serial.println("Error starting the display!");
   }
   //Set the display rotation (which is ~technically~ upside down)
   display.setRotation(UPRIGHT);
@@ -71,6 +68,8 @@ void setup() {
 
   //setting up the pinout
   setupPins();
+
+  CV.init();
 
   //wait for tinyUSB to connect, if the USB port is connected (not sure if this is necessary, need to test)
   if(tud_connected()){
@@ -99,6 +98,7 @@ void setup() {
   core0ready = true;
   lastTime = millis();
   bootscreen_2();
+  testCVPitches();
 }
 #endif
 #ifdef HEADLESS

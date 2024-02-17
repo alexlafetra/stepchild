@@ -7,7 +7,7 @@ void drawPortIcon(uint8_t which){
       if(MIDI.midiChannelFilters[which] != 0)
         display.drawBitmap(x1-8,y1+sin(millis()/100+which),usb_logo_bmp,17,17,SSD1306_WHITE);
       display.drawCircle(x1,y1+8+sin(millis()/100+which),9,SSD1306_WHITE);
-      drawDottedLineDiagonal(x1,y1+8,x1,35,3);
+      graphics.drawDottedLineDiagonal(x1,y1+8,x1,35,3);
       break;
     case 1:
       x1 = 15;
@@ -15,7 +15,7 @@ void drawPortIcon(uint8_t which){
       if(MIDI.midiChannelFilters[which] != 0)
         display.drawBitmap(x1-8,y1+sin(millis()/100+which),MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
       display.drawCircle(x1,y1+8+sin(millis()/100+which),8,SSD1306_WHITE);
-      drawDottedLineDiagonal(x1+9,y1+8,x1+22,y1+8,3);
+      graphics.drawDottedLineDiagonal(x1+9,y1+8,x1+22,y1+8,3);
       break;
     case 2:
       x1 = 25;
@@ -23,7 +23,7 @@ void drawPortIcon(uint8_t which){
       if(MIDI.midiChannelFilters[which] != 0)
         display.drawBitmap(x1-8,y1+sin(millis()/100+which),MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
       display.drawCircle(x1,y1+8+sin(millis()/100+which),8,SSD1306_WHITE);
-      drawDottedLineDiagonal(x1+1,y1+10,x1+22,y1-4,3);
+      graphics.drawDottedLineDiagonal(x1+1,y1+10,x1+22,y1-4,3);
       break;
     case 3:
       x1 = screenWidth-25;
@@ -31,7 +31,7 @@ void drawPortIcon(uint8_t which){
       if(MIDI.midiChannelFilters[which] != 0)
         display.drawBitmap(x1-8,y1+sin(millis()/100+which),MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
       display.drawCircle(x1,y1+8+sin(millis()/100+which),8,SSD1306_WHITE);
-      drawDottedLineDiagonal(x1-2,y1+9,x1-22,y1-4,3);
+      graphics.drawDottedLineDiagonal(x1-2,y1+9,x1-22,y1-4,3);
       break;
     case 4:
       x1 = screenWidth-15;
@@ -39,7 +39,7 @@ void drawPortIcon(uint8_t which){
       if(MIDI.midiChannelFilters[which] != 0)
         display.drawBitmap(x1-8,y1+sin(millis()/100+which),MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
       display.drawCircle(x1,y1+8+sin(millis()/100+which),8,SSD1306_WHITE);
-      drawDottedLineDiagonal(x1-8,y1+8,x1-22,y1+8,3);
+      graphics.drawDottedLineDiagonal(x1-8,y1+8,x1-22,y1+8,3);
       break;
   }
 }
@@ -364,29 +364,29 @@ void midiMenu(){
         //usb is in the middle
           x1 = screenWidth/2;
           y1 = 46;
-          drawDottedLineDiagonal(x1,y1+8,x1,35,3);
+          graphics.drawDottedLineDiagonal(x1,y1+8,x1,35,3);
           break;
         //1 and 2 are on left
         case 1:
           x1 = 15;
           y1 = 7;
-          drawDottedLineDiagonal(x1+9,y1+8,x1+22,y1+8,3);
+          graphics.drawDottedLineDiagonal(x1+9,y1+8,x1+22,y1+8,3);
           break;
         case 2:
           x1 = 25;
           y1 = 37;
-          drawDottedLineDiagonal(x1+1,y1+10,x1+22,y1-4,3);
+          graphics.drawDottedLineDiagonal(x1+1,y1+10,x1+22,y1-4,3);
           break;
         //3 and 4 are on right
         case 3:
           x1 = screenWidth-25;
           y1 = 37;
-          drawDottedLineDiagonal(x1-2,y1+9,x1-22,y1-4,3);
+          graphics.drawDottedLineDiagonal(x1-2,y1+9,x1-22,y1-4,3);
           break;
         case 4:
           x1 = screenWidth-15;
           y1 = 7;
-          drawDottedLineDiagonal(x1-8,y1+8,x1-22,y1+8,3);
+          graphics.drawDottedLineDiagonal(x1-8,y1+8,x1-22,y1+8,3);
           break;
       }
       if(playing){
@@ -582,15 +582,15 @@ void inputMenu(){
       if(midiChannelFilter & (1<<(i+menuStart[0]))){
         //if this box is cursore'd, AND if it's the active midi port
         if(i == yCursor && xCursor == 0)
-          drawCheckbox(x1+1, y1+i*6, true, true);
+          graphics.drawCheckbox(x1+1, y1+i*6, true, true);
         else
-          drawCheckbox(x1+1, y1+i*6, true, false);
+          graphics.drawCheckbox(x1+1, y1+i*6, true, false);
       }
       else{
         if(i == yCursor && xCursor == 0)
-          drawCheckbox(x1+1, y1+i*6, false, true);
+          graphics.drawCheckbox(x1+1, y1+i*6, false, true);
         else
-          drawCheckbox(x1+1, y1+i*6, false, false);
+          graphics.drawCheckbox(x1+1, y1+i*6, false, false);
       }
     }
     // const vector<String> labels = {"note:","cc:","clock:"};
@@ -600,15 +600,15 @@ void inputMenu(){
       display.drawBitmap(x2+11,y2+i*10+1,icons[i],5,5,SSD1306_WHITE);
       if(midiMessageFilter & (1<<i)){
         if(yCursor == i && xCursor == 1)
-          drawCheckbox(x2+1, y2+i*10, true, true);
+          graphics.drawCheckbox(x2+1, y2+i*10, true, true);
         else
-          drawCheckbox(x2+1, y2+i*10, true, false);
+          graphics.drawCheckbox(x2+1, y2+i*10, true, false);
       }
       else{
         if(yCursor == i && xCursor == 1)
-          drawCheckbox(x2+1, y2+i*10, false, true);
+          graphics.drawCheckbox(x2+1, y2+i*10, false, true);
         else
-          drawCheckbox(x2+1, y2+i*10, false, false);
+          graphics.drawCheckbox(x2+1, y2+i*10, false, false);
       }
     }
     int8_t bigOffset;
@@ -623,15 +623,15 @@ void inputMenu(){
       display.setRotation(1);
       printChunky(screenHeight-y1-45,x1-8,"channels",SSD1306_WHITE);
       display.setRotation(UPRIGHT);
-      drawDottedLineDiagonal(21,16+bigOffset,41,36+bigOffset,3);
-      drawDottedLineDiagonal(41,36+bigOffset,50,36+bigOffset,3);
+      graphics.drawDottedLineDiagonal(21,16+bigOffset,41,36+bigOffset,3);
+      graphics.drawDottedLineDiagonal(41,36+bigOffset,50,36+bigOffset,3);
     }
     else if(xCursor == 1){
       display.setRotation(1);
       printChunky(screenHeight-y2-28,x2-8,"types",SSD1306_WHITE);
       display.setRotation(UPRIGHT);
-      drawDottedLineDiagonal(10,32+bigOffset,10,58+bigOffset,3);
-      drawDottedLineDiagonal(10,56+bigOffset,x2-10,56+bigOffset,3);
+      graphics.drawDottedLineDiagonal(10,32+bigOffset,10,58+bigOffset,3);
+      graphics.drawDottedLineDiagonal(10,56+bigOffset,x2-10,56+bigOffset,3);
     }
     display.display();
 
@@ -815,9 +815,9 @@ void routeMenu(){
         //print channel values
         //if this box is cursore'd, AND if it's the active midi port
         if(i == yCursor && xCursor == midiPort)
-          drawCheckbox(xOffset+1+midiPort*25, 29+i*6, MIDI.isChannelActive(i+menuStart[midiPort]+1,midiPort), true);
+          graphics.drawCheckbox(xOffset+1+midiPort*25, 29+i*6, MIDI.isChannelActive(i+menuStart[midiPort]+1,midiPort), true);
         else
-          drawCheckbox(xOffset+1+midiPort*25, 29+i*6, MIDI.isChannelActive(i+menuStart[midiPort]+1,midiPort), false);
+          graphics.drawCheckbox(xOffset+1+midiPort*25, 29+i*6, MIDI.isChannelActive(i+menuStart[midiPort]+1,midiPort), false);
       }
       //"more channels" indicators
       //more channels above

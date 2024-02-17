@@ -154,7 +154,7 @@ void humanizeMenu(){
     print7SegSmall(3,9,q+"%",1);
       
     String s = stepsToMeasures(subDivInt);
-    printFraction_small(screenWidth-s.length()*4,11,s);
+    graphics.printFraction_small(screenWidth-s.length()*4,11,s);
 
     //velocity amount
     q = stringify(humanizerParameters.velocityAmount);

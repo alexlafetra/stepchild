@@ -93,7 +93,7 @@ void screenSaver_ripples(){
       }
       for(int i = 0; i<reps; i++){
         if(animOffset/3-spacing*i+sin(animOffset)*(i%2)<(screenWidth+16))
-          drawEllipse(xCoord, yCoord, animOffset/3-spacing*i+sin(animOffset)*(i%2), animOffset/8-spacing*i/3,SSD1306_WHITE);
+            graphics.drawEllipse(xCoord, yCoord, animOffset/3-spacing*i+sin(animOffset)*(i%2), animOffset/8-spacing*i/3,SSD1306_WHITE);
       }
     }
     display.display();

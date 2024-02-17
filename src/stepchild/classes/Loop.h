@@ -773,7 +773,7 @@ void drawLoopPreview(uint8_t x1, uint8_t y1, uint8_t loop){
     printSmall(x1+3,y1,"[Empty]",SSD1306_WHITE);
   }
 
-  printFraction_small_centered(x1+18,y1-18,stepsToMeasures(loopData[loop].end - loopData[loop].start));
+  graphics.printFraction_small_centered(x1+18,y1-18,stepsToMeasures(loopData[loop].end - loopData[loop].start));
   display.setRotation(SIDEWAYS_L);
   printSmall(screenHeight-y1+8,x1,stepsToPosition(loopData[loop].start,true),1);
   printSmall(screenHeight-y1+8,x1+27,stepsToPosition(loopData[loop].end,true),1);
@@ -806,7 +806,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
       //loop block
       display.drawRect(xStart, yStart+(loopHeight+3)*loop, length, loopHeight, 1);
       if(isLooping)
-        shadeArea(xStart, yStart+(loopHeight+3)*loop, length, loopHeight,shade);
+        graphics.shadeArea(xStart, yStart+(loopHeight+3)*loop, length, loopHeight,shade);
       
       uint8_t x1 = xStart+length+3;
 
@@ -849,7 +849,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
             break;
         }
         //length
-        x1+=printFraction_small(x1,yStart+(loopHeight+3)*loop+1,stepsToMeasures(loopData[activeLoop].end-loopData[activeLoop].start))+2;
+        x1+=graphics.printFraction_small(x1,yStart+(loopHeight+3)*loop+1,stepsToMeasures(loopData[activeLoop].end-loopData[activeLoop].start))+2;
         if(playing){
           //play/iterations
           printSmall(x1,yStart+(loopHeight+3)*loop+1, "("+stringify(loopCount)+"/"+stringify(loopData[activeLoop].reps+1)+")", SSD1306_WHITE);
@@ -903,7 +903,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
             break;
         }
         //length
-        x1+=printFraction_small(x1,yStart+(loopHeight+3)*loop+1,stepsToMeasures(loopData[highlight].end-loopData[highlight].start))+2;
+        x1+=graphics.printFraction_small(x1,yStart+(loopHeight+3)*loop+1,stepsToMeasures(loopData[highlight].end-loopData[highlight].start))+2;
         // play symbol
         drawArrow(x1+2,yStart+(loopHeight+3)*loop+3,2,0,true);
         x1+=4;

@@ -654,7 +654,7 @@ void drawTrackInfo(uint8_t xCursor){
   display.setTextColor(SSD1306_WHITE);
 
   //sideWidth border
-  drawDottedLineV2(sideWidth,headerHeight+1,64,6);
+  graphics.drawDottedLineV2(sideWidth,headerHeight+1,64,6);
 
   //top and bottom bounds
   display.drawFastHLine(0,headerHeight-1,screenWidth,SSD1306_WHITE);
@@ -753,7 +753,7 @@ void drawTrackInfo(uint8_t xCursor){
     }
 
     //latch
-    drawCheckbox(sideWidth+48,y1+4,trackData[track].isLatched,xCursor == 5 && activeTrack == track);
+    graphics.drawCheckbox(sideWidth+48,y1+4,trackData[track].isLatched,xCursor == 5 && activeTrack == track);
 
     //mute group
     if(trackData[track].muteGroup == 0){

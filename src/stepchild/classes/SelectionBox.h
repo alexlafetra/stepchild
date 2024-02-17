@@ -75,7 +75,7 @@ void SelectionBox::displaySelBox(){
 
   if(len>5 && height>=trackHeight){
     display.fillRect(startX+2,startY+2, len-4, height-4, SSD1306_BLACK);
-    shadeArea(startX+2,startY+2, len-4, height-4,10);
+    graphics.shadeArea(startX+2,startY+2, len-4, height-4,10);
   }
 }
 

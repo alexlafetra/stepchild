@@ -295,11 +295,11 @@ void drawTemplateOptions(uint8_t x1,uint8_t whichTemplate){
   display.drawFastVLine(x1,0,screenHeight,1);
   printSmall(x1+4,2,"templates",1);
   printSmall(x1+6,12,"basic",1);
-  drawCheckbox(x1+30,11,whichTemplate == 0,activeMenu.highlight == 0);
+  graphics.drawCheckbox(x1+30,11,whichTemplate == 0,activeMenu.highlight == 0);
   printSmall(x1+6,22,"404",1);
-  drawCheckbox(x1+30,21,whichTemplate == 1,activeMenu.highlight == 1);
+  graphics.drawCheckbox(x1+30,21,whichTemplate == 1,activeMenu.highlight == 1);
   printSmall(x1+6,32,"4track",1);
-  drawCheckbox(x1+30,31,whichTemplate == 2,activeMenu.highlight == 2);
+  graphics.drawCheckbox(x1+30,31,whichTemplate == 2,activeMenu.highlight == 2);
 }
 
 // 'connect_to_interface', 20x20px

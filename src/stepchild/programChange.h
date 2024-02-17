@@ -222,10 +222,10 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
         unsigned short int x2 = x1 + (step-viewStart)*scale;
         //measure bars
         if (!(step % subDivInt) && (step%96) && (subDivInt*scale)>1) {
-            drawDottedLineV(x1,9,64,2);
+            graphics.drawDottedLineV(x1,9,64,2);
         }
         if(!(step%96)){
-            drawDottedLineV2(x1,9,64,6);
+            graphics.drawDottedLineV2(x1,9,64,6);
         }
       if(step == loopData[activeLoop].start){
           if(movingLoop == -1 || movingLoop == 2){

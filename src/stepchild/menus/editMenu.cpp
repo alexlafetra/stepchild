@@ -580,7 +580,7 @@ void drawFxIcon(uint8_t x1,uint8_t y1, uint8_t w, bool anim){
 //two blocks
 void drawQuantIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim){
   //dotted
-  drawDottedRect(x1,y1+size/2-1,size/2+1,size/2+1,2);
+  graphics.drawDottedRect(x1,y1+size/2-1,size/2+1,size/2+1,2);
   //full
   if(anim){
     x1-=(millis()/200)%(size/2);
@@ -595,14 +595,14 @@ void drawHumanizeIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim){
   if(anim){
     angle = (millis()/15)%90;
   }
-  drawDottedRect(x1,y1,size,size,2);
-  drawRotatedRect(x1+size/2,y1+size/2,size-2,size-2,angle,SSD1306_WHITE);
+  graphics.drawDottedRect(x1,y1,size,size,2);
+  graphics.drawRotatedRect(x1+size/2,y1+size/2,size-2,size-2,angle,SSD1306_WHITE);
 }
 
 void drawVelIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
   if(anim){
     display.drawRect(x1,y1,w,w,SSD1306_WHITE);
-    shadeRect(x1+1,y1+1,w-2,w-2,(millis()/200)%5+1);
+    graphics.shadeRect(x1+1,y1+1,w-2,w-2,(millis()/200)%5+1);
     display.drawRect(x1+1,y1+1,w-2,w-2,SSD1306_BLACK);
   }
   else{
@@ -615,7 +615,7 @@ void drawVelIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
 void drawChanceIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
   if(anim){
     display.drawRect(x1,y1,w,w,SSD1306_WHITE);
-    shadeRect(x1+1,y1+1,w-2,w-2,(millis()/200)%5+1);
+    graphics.shadeRect(x1+1,y1+1,w-2,w-2,(millis()/200)%5+1);
     display.drawRect(x1+1,y1+1,w-2,w-2,SSD1306_BLACK);
   }
   else{
@@ -627,7 +627,7 @@ void drawChanceIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
 
 void drawWarpIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
   w--;
-  drawDottedRect(x1,y1,w,w,2);
+  graphics.drawDottedRect(x1,y1,w,w,2);
   if(anim)
     display.fillRect(x1,y1,(millis()/100)%(w)+2,(millis()/100)%(w)+2,SSD1306_WHITE);
   else
@@ -883,7 +883,7 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
       //length
       display.fillCircle(6,coords.x1+9,3,1);
       printSmall(5,coords.x1+7,"L",2);
-      printFractionCentered(18,coords.x1+7,stepsToMeasures(activeNote.endPos-activeNote.startPos));
+      graphics.printFractionCentered(18,coords.x1+7,stepsToMeasures(activeNote.endPos-activeNote.startPos));
       //vel
       display.fillCircle(6,coords.x1+20,3,1);
       printSmall(5,coords.x1+18,"V",2);
@@ -933,7 +933,7 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
       case 1:
         drawLengthIcon(4,6,16,6,true);
         if(lookupData[activeTrack][cursorPos] != 0){
-          printFraction(66,3,stepsToMeasures(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos-seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos));
+          graphics.printFraction(66,3,stepsToMeasures(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos-seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos));
         }
         txt = "LENGTH";
         break;
@@ -976,7 +976,7 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
 
         //amount
         printSmall(70,1,stringify(quantizeAmount)+"%",1);
-        printFraction(60,3,stepsToMeasures(subDivInt));
+        graphics.printFraction(60,3,stepsToMeasures(subDivInt));
         printSmall(104,0,"[sh]+L",1);
         // printSmall(84,0,"[menu] back",1);
         break;

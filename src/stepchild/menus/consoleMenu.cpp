@@ -45,8 +45,8 @@ void console(){
     //midline
     display.drawFastVLine(44,0,64,1);
     //bounds on graph
-    drawDottedLineV(95,10,64,2);
-    drawDottedLineV(127,15,64,2);
+    graphics.drawDottedLineV(95,10,64,2);
+    graphics.drawDottedLineV(127,15,64,2);
     display.drawBitmap(116,1+((millis()/400)%2),mainMenu_icons[7],12,12,1);
 
     //note icon

@@ -115,7 +115,7 @@ void displayStrumMenu(uint8_t cursor, uint8_t sortType, uint8_t sortedValue, uin
     }
     //delay (amount)
     String amt = stepsToMeasures(amount);
-    printFraction_small(0,3,amt);
+    graphics.printFraction_small(0,3,amt);
     if(cursor == 0){
         drawArrow(amt.length()*4+((millis()/400)%2),5,3,1,false);
     }

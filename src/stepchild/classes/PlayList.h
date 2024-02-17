@@ -16,7 +16,7 @@ CCData::CCData(uint8_t param, uint8_t v, uint8_t c){
   channel = c;
 }
 
-//stores note data (pitch, vel, channel) and source (INTERNAL, EXTERNAL)
+//stores note data (pitch, vel, channel) and source (INTERNAL_CLOCK, EXTERNAL_CLOCK)
 struct NoteData{
   uint8_t pitch;
   uint8_t vel;

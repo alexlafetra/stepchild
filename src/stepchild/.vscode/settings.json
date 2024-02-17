@@ -19,6 +19,11 @@
         "deque": "cpp",
         "span": "cpp",
         "format": "cpp",
-        "__config": "cpp"
+        "__config": "cpp",
+        "bitset": "cpp",
+        "queue": "cpp",
+        "stack": "cpp",
+        "iosfwd": "cpp",
+        "*.tcc": "cpp"
     }
 }

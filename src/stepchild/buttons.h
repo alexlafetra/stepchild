@@ -1,4 +1,72 @@
 //buttons/inputs
+#define NEW_BUTTON 0
+#define SHIFT_BUTTON 1
+#define SELECT_BUTTON 2
+#define DELETE_BUTTON 3
+#define LOOP_BUTTON 4
+#define PLAY_BUTTON 5
+#define COPY_BUTTON 6
+#define MENU_BUTTON 7
+
+#define A_BUTTON 8
+#define B_BUTTON 9
+
+#define STEPBUTTONS_DATA 12
+#define BUTTONS_DATA 13
+#define BUTTONS_LOAD 14
+#define BUTTONS_CLOCK_IN 15
+#define BUTTONS_CLOCK_ENABLE 16
+
+#define JOYSTICK_X 26
+#define JOYSTICK_Y 27
+
+//Holds all the hardware input functions (and the headless overloads)
+//Accessed like Stepchild.buttons.buttonState(LOOP)?
+//or just buttons.play(), buttons.loop()
+class StepchildInput{
+  public:
+
+  //this should probably do all the hardware inits, and get passed a "settings" struct with the pins
+  StepchildInput(){
+
+  }
+  //stores buttons 1-8
+  uint8_t topButtons = 0;
+  //stores the 13 step buttons
+  uint16_t stepButtons = 0;
+
+  //reads in inputs
+  void readTopButtons(){
+    digitalWrite(BUTTONS_LOAD,LOW);
+    digitalWrite(BUTTONS_LOAD,HIGH);
+    digitalWrite(BUTTONS_CLOCK_IN, HIGH);
+    digitalWrite(BUTTONS_CLOCK_ENABLE,LOW);
+    topButtons = shiftIn(BUTTONS_DATA, BUTTONS_CLOCK_IN, LSBFIRST);
+    digitalWrite(BUTTONS_CLOCK_ENABLE, HIGH);
+  }
+  void readStepButtons(){
+    digitalWrite(BUTTONS_LOAD,LOW);
+    digitalWrite(BUTTONS_LOAD,HIGH);
+    digitalWrite(BUTTONS_CLOCK_IN, HIGH);
+    digitalWrite(BUTTONS_CLOCK_ENABLE,LOW);
+    stepButtons = shiftIn(STEPBUTTONS_DATA, BUTTONS_CLOCK_IN, LSBFIRST);
+    digitalWrite(BUTTONS_CLOCK_ENABLE, HIGH);
+  }
+
+  bool buttonState(uint8_t which){
+    return topButtons>>which & 1;
+  }
+
+  bool stepButtonState(uint8_t which){
+    return stepButtons>>which & 1;
+  }
+  bool n(){
+    return buttonState(NEW_BUTTON);
+  }
+};
+
+StepchildInput buttons;
+
 #ifndef HEADLESS
   unsigned long lastTime;
   //incremented from an interrupt when rotary encoders are moved

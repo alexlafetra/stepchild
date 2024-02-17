@@ -72,7 +72,7 @@ void Planet::draw(uint8_t xOff, uint8_t yOff,float offset){
   temp.rotate(offset,0);
   temp.render(xOff,yOff,1,size,fill);
   if(ring)
-    drawEllipse(temp.x+xOff,temp.y+yOff,size+6,size,SSD1306_WHITE);
+      graphics.drawEllipse(temp.x+xOff,temp.y+yOff,size+6,size,SSD1306_WHITE);
 }
 
 class SolarSystem{

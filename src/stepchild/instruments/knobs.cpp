@@ -41,13 +41,13 @@ void drawKnobs(uint8_t activeA, uint8_t activeB, uint8_t activeRow, uint8_t howM
             //drawing each dial in white, if it's active
             display.fillCircle(x1,y1+offset,smallR,1);
             display.drawCircle(x1,y1+offset,smallR-1,0);
-            drawCircleRadian(x1,y1+offset,smallR,float(value)*float(360)/float(127)+270,0);
+            graphics.drawCircleRadian(x1,y1+offset,smallR,float(value)*float(360)/float(127)+270,0);
           }
           else{
             //drawing the dials in black, when not active
             display.fillCircle(x1,y1+offset,smallR,0);
             display.drawCircle(x1,y1+offset,smallR,1);
-            drawCircleRadian(x1,y1+offset,smallR,float(value)*float(360)/float(127)+270,1);
+            graphics.drawCircleRadian(x1,y1+offset,smallR,float(value)*float(360)/float(127)+270,1);
           }
           //printing the cc and ch vals
           printSmall_centered(x1+1,y1+offset-smallR-6,stringify(cc),1);
@@ -75,12 +75,12 @@ void drawKnobs(uint8_t activeA, uint8_t activeB, uint8_t activeRow, uint8_t howM
       //draw dials in white when in xy mode
       display.fillCircle(x2,y2,bigR,1);
       display.drawCircle(x2,y2,bigR-1,0);
-      drawCircleRadian(x2,y2,bigR,float(i==0?valA:valB)/float(127)*float(360)+270,0);
+      graphics.drawCircleRadian(x2,y2,bigR,float(i==0?valA:valB)/float(127)*float(360)+270,0);
     }
     else{
       //draw dials in black when in normal mode
       display.drawCircle(x2,y2,bigR,1);
-      drawCircleRadian(x2,y2,bigR,float(i==0?valA:valB)/float(127)*float(360)+270,1);
+      graphics.drawCircleRadian(x2,y2,bigR,float(i==0?valA:valB)/float(127)*float(360)+270,1);
     }
     //printing data to left of the dial
     display.drawBitmap(x2-bigR-10,y2-bigR,cc_tiny,5,3,1);

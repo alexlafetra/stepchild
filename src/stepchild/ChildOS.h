@@ -2,6 +2,43 @@
 //- added customo graphic to SSD1306 driver
 //- switched out the adafruit GFX library for the pico optimized one
 //- turned off Sysex in the MIDI library
+
+const uint8_t Screen_SDA = 8;
+const uint8_t Screen_SCL = 9;
+
+//ENCODERS
+const unsigned char encoderA_Button = 17;
+const unsigned char note_clk_Pin = 18;
+const unsigned char note_data_Pin = 19;
+
+const unsigned char encoderB_Button = 20;
+const unsigned char track_clk_Pin = 21;
+const unsigned char track_data_Pin = 22;
+
+//SHIFT REGISTERS
+// const unsigned char dataPin_LEDS = 9;//V0.4
+const unsigned char dataPin_LEDS = 7;
+const unsigned char latchPin_LEDS = 10;
+const unsigned char clockPin_LEDS = 11;
+
+const unsigned char buttons_clockEnable = 16;
+const unsigned char buttons_dataIn = 13;
+const unsigned char buttons_load = 14;
+const unsigned char buttons_clockIn = 15;
+//doubling up on load, clockin, and clockenable (since i'll read from them simultaneously)
+const unsigned char stepButtons_dataIn = 12;
+
+//JOYSTICK
+const unsigned char y_Pin = 26;
+const unsigned char x_Pin = 27;
+
+//MISC. HARDWARE
+const unsigned char Vpin = 29;
+const unsigned char usbPin = 24;
+
+const unsigned char ledPin = 6;
+const unsigned char onboard_ledPin = 25;
+
 #ifndef HEADLESS
   #include <vector>
   #include <algorithm>
@@ -39,12 +76,10 @@
     #include "pico/time.h"
     #include "pico/bootrom.h"
   }
-
-  #include "pins.h"
-
+  
   //setting up screen
   #define i2c_Address 0x3c //initialize with the I2C addr 0x3C Typically eBay OLED's
-  // #define i2c_Address 0x3D //initialize with the I2C addr 0x3C Typically eBay OLED's
+  // #define i2c_Address 0x3D
 
   #define SCREEN_WIDTH 128 // OLED display width, in pixels
   #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -77,9 +112,9 @@ class Knob;
 class WireFrame;
 class Note;
 class Track;
-class CoordinatePair;
 class Autotrack;
 class SelectionBox;
+struct CoordinatePair;
 
 //Data variables -------------------------------------------
 unsigned short int copyPos[2];//stores the coordinates of the cursor when copying
@@ -145,6 +180,17 @@ int8_t pitchModifier[2] = {0,0};
 //string utilities for parsing musical data
 #include "stringUtils.h"
 
+//original ChildOS fonts
+#include "fonts/7_segment.cpp"
+#include "fonts/cursive.cpp"
+#include "fonts/small.cpp"
+#include "fonts/arp.cpp"
+#include "fonts/italic.cpp"
+#include "fonts/chunky.cpp"
+
+//Basic graphic functions
+#include "graphics.h"
+
 //16 knobs for the 'controlknobs' instrument
 Knob controlKnobs[16];
 #include "classes/AutomationTrack.h"
@@ -170,15 +216,6 @@ void rotaryActionB_Handler(){
 #include "classes/NoteID.h"
 #include "classes/Progression.h"
 
-//original ChildOS fonts
-#include "fonts/7_segment.cpp"
-#include "fonts/cursive.cpp"
-#include "fonts/small.cpp"
-#include "fonts/arp.cpp"
-#include "fonts/italic.cpp"
-#include "fonts/chunky.cpp"
-
-#include "graphics.h"
 #include "scales.h"
 #include "CV.h"
 #include "playback.h"

@@ -218,7 +218,7 @@ void handleNoteOff_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
 }
 
 void handleStart_Normal(){
-  if(clockSource == EXTERNAL){
+  if(clockSource == EXTERNAL_CLOCK){
     if(!playing && !recording){
       togglePlayMode();
     }
@@ -226,7 +226,7 @@ void handleStart_Normal(){
 }
 
 void handleStop_Normal(){
-  if(clockSource == EXTERNAL){
+  if(clockSource == EXTERNAL_CLOCK){
     if(playing){
       togglePlayMode();
     }
@@ -257,7 +257,7 @@ void cleanupRecording(uint16_t stopTime){
 //runs while "recording" is true
 void recordingLoop(){
   MIDI.read();
-  if(clockSource == INTERNAL){
+  if(clockSource == INTERNAL_CLOCK){
     if(hasItBeenEnoughTime()){
       timeLastStepPlayed = micros();
       checkAutotracks();
@@ -270,7 +270,7 @@ void recordingLoop(){
       }
     }
   }
-  else if(clockSource == EXTERNAL){
+  else if(clockSource == EXTERNAL_CLOCK){
     if(gotClock && hasStarted){
       gotClock = false;
       continueStep(recheadPos);

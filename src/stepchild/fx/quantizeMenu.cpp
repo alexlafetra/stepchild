@@ -106,9 +106,9 @@ void drawQuantCubes(uint8_t distance){
     // drawBox(48-distance/2,hOffset+12+distance/2,width,width,12,12,6);
 
     //top line
-    drawDottedLineDiagonal(48-distance/2,hOffset+16+distance/2,48+distance/2,hOffset+16-distance/2,2);
+    graphics.drawDottedLineDiagonal(48-distance/2,hOffset+16+distance/2,48+distance/2,hOffset+16-distance/2,2);
     //bottom line
-    drawDottedLineDiagonal(48-distance/2+width+14,hOffset+16+distance/2+width+10,48+distance/2+width+13,hOffset+16-distance/2+width+11,2);
+    graphics.drawDottedLineDiagonal(48-distance/2+width+14,hOffset+16+distance/2+width+10,48+distance/2+width+13,hOffset+16-distance/2+width+11,2);
   }
 }
 

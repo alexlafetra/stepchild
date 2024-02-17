@@ -54,7 +54,7 @@
 #include "splash.h"
 #include <Adafruit_GFX.h>
 
-// SOME DEFINES AND STATIC VARIABLES USED INTERNALLY -----------------------
+// SOME DEFINES AND STATIC VARIABLES USED INTERNAL_CLOCKLY -----------------------
 
 #if defined(I2C_BUFFER_LENGTH)
 #define WIRE_MAX min(256, I2C_BUFFER_LENGTH) ///< Particle or similar Wire lib
@@ -460,7 +460,7 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c) {
     @brief  Allocate RAM for image buffer, initialize peripherals and pins.
     @param  vcs
             VCC selection. Pass SSD1306_SWITCHCAPVCC to generate the display
-            voltage (step up) from the 3.3V source, or SSD1306_EXTERNALVCC
+            voltage (step up) from the 3.3V source, or SSD1306_EXTERNAL_CLOCKVCC
             otherwise. Most situations with Adafruit SSD1306 breakouts will
             want SSD1306_SWITCHCAPVCC.
     @param  addr
@@ -577,7 +577,7 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
                                           SSD1306_CHARGEPUMP};        // 0x8D
   ssd1306_commandList(init2, sizeof(init2));
 
-  ssd1306_command1((vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0x14);
+  ssd1306_command1((vccstate == SSD1306_EXTERNAL_CLOCKVCC) ? 0x10 : 0x14);
 
   static const uint8_t PROGMEM init3[] = {SSD1306_MEMORYMODE, // 0x20
                                           0x00, // 0x0 act like ks0108
@@ -593,10 +593,10 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
     contrast = 0x8F;
   } else if ((WIDTH == 128) && (HEIGHT == 64)) {
     comPins = 0x12;
-    contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x9F : 0xCF;
+    contrast = (vccstate == SSD1306_EXTERNAL_CLOCKVCC) ? 0x9F : 0xCF;
   } else if ((WIDTH == 96) && (HEIGHT == 16)) {
     comPins = 0x2; // ada x12
-    contrast = (vccstate == SSD1306_EXTERNALVCC) ? 0x10 : 0xAF;
+    contrast = (vccstate == SSD1306_EXTERNAL_CLOCKVCC) ? 0x10 : 0xAF;
   } else {
     // Other screen varieties -- TBD
   }
@@ -607,7 +607,7 @@ bool Adafruit_SSD1306::begin(uint8_t vcs, uint8_t addr, bool reset,
   ssd1306_command1(contrast);
 
   ssd1306_command1(SSD1306_SETPRECHARGE); // 0xd9
-  ssd1306_command1((vccstate == SSD1306_EXTERNALVCC) ? 0x22 : 0xF1);
+  ssd1306_command1((vccstate == SSD1306_EXTERNAL_CLOCKVCC) ? 0x22 : 0xF1);
   static const uint8_t PROGMEM init5[] = {
       SSD1306_SETVCOMDETECT, // 0xDB
       0x40,

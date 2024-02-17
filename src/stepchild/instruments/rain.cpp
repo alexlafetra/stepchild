@@ -348,9 +348,8 @@ void rain(){
               lastTime = millis();
             }
             else{
-              menu_Press = false;
+              menuState = false;
               lastTime = millis();
-              return;
             }
           }
         }
@@ -419,7 +418,7 @@ void rain(){
       printSmall(2-menuOffset,y1+spacing*4,stringify(minVel)+" to "+stringify(maxVel),1);
       drawLabel(18-menuOffset,y1+spacing*5+2,"from seq",grabNotesFromPlaylist);
       drawLabel(18-menuOffset,y1+spacing*6+6,"show txt",showingText);
-      drawLabel(18-menuOffset,y1+spacing*7+10,"exit",cursor==5);
+      drawLabel(18-menuOffset,y1+spacing*7+10,"quit",cursor==5);
       switch(cursor){
         //pitchlist
         case 0:

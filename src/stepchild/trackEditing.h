@@ -541,10 +541,32 @@ void addTrack(unsigned char pitch) {
 void addTrack(unsigned char pitch, bool loudly) {
   addTrack(pitch, defaultChannel, loudly);
 }
+
+//returns the index of the new track
 int16_t addTrack_return(unsigned short int pitch, unsigned short int channel, bool loudly) {
   if(trackData.size()<256){
     Track newTrack(pitch, channel);
     trackData.push_back(newTrack);
+    seqData.resize(trackData.size());
+    lookupData.resize(trackData.size());
+    lookupData[trackData.size()-1].resize(seqEnd, 0);
+    seqData[trackData.size()-1] = {Note()};
+    activeTrack = trackData.size()-1;
+    if(loudly){
+      MIDI.noteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+    }
+    return (activeTrack);
+  }
+  else{
+    return -1;
+  }
+}
+
+int16_t insertTrack_return(unsigned short int pitch, unsigned short int channel, bool loudly, uint8_t loc){
+  if(trackData.size()<256){
+    Track newTrack(pitch, channel);
+    trackData.insert(trackData.begin()+loc,newTrack);
     seqData.resize(trackData.size());
     lookupData.resize(trackData.size());
     lookupData[trackData.size()-1].resize(seqEnd, 0);

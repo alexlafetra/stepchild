@@ -50,86 +50,6 @@ class StepchildSequence{
   }
 };
 
-#define NEW_BUTTON 0
-#define SHIFT_BUTTON 1
-#define SELECT_BUTTON 2
-#define DELETE_BUTTON 3
-#define LOOP_BUTTON 4
-#define PLAY_BUTTON 5
-#define COPY_BUTTON 6
-#define MENU_BUTTON 7
-
-// #define A 8
-// #define B 9
-
-#define STEPBUTTONS_DATA 12
-#define BUTTONS_DATA 13
-#define BUTTONS_LOAD 14
-#define BUTTONS_CLOCK_IN 15
-#define BUTTONS_CLOCK_ENABLE 16
-
-#define JOYSTICK_X 26
-#define JOYSTICK_Y 27
-
-//Holds all the hardware input functions (and the headless overloads)
-//Accessed like Stepchild.buttons.buttonState(LOOP)?
-//or maybe like Stepchild.button(LOOP) and internally call this objects .buttonState(LOOP) function
-class StepchildInput{
-  public:
-
-  //this should probably do all the hardware inits, and get passed a "settings" struct with the pins
-  StepchildInput(){
-
-  }
-  //stores buttons 1-8
-  uint8_t topButtons = 0;
-  //stores the 13 step buttons
-  uint16_t stepButtons = 0;
-
-  //reads in inputs
-  void readTopButtons(){
-    digitalWrite(BUTTONS_LOAD,LOW);
-    digitalWrite(BUTTONS_LOAD,HIGH);
-    digitalWrite(BUTTONS_CLOCK_IN, HIGH);
-    digitalWrite(BUTTONS_CLOCK_ENABLE,LOW);
-    topButtons = shiftIn(BUTTONS_DATA, BUTTONS_CLOCK_IN, LSBFIRST);
-    digitalWrite(BUTTONS_CLOCK_ENABLE, HIGH);
-  }
-  void readStepButtons(){
-    digitalWrite(BUTTONS_LOAD,LOW);
-    digitalWrite(BUTTONS_LOAD,HIGH);
-    digitalWrite(BUTTONS_CLOCK_IN, HIGH);
-    digitalWrite(BUTTONS_CLOCK_ENABLE,LOW);
-    stepButtons = shiftIn(STEPBUTTONS_DATA, BUTTONS_CLOCK_IN, LSBFIRST);
-    digitalWrite(BUTTONS_CLOCK_ENABLE, HIGH);
-  }
-
-  bool buttonState(uint8_t which){
-    return topButtons>>which & 1;
-  }
-
-  bool stepButtonState(uint8_t which){
-    return stepButtons>>which & 1;
-  }
-};
-
-//Holds all the graphics functions
-//Accessed thru Stepchild.graphics.function();
-class StepchildGraphics{
-  public:
-  StepchildGraphics(){
-
-  }
-};
-
-//Keeps track of the clock
-class StepchildClock{
-  public:
-  StepchildClock(){
-
-  }
-};
-
 uint16_t bpm = 120;
 
 #ifndef HEADLESS
@@ -141,15 +61,16 @@ bool gotClock = false;
 bool hasStarted = false;
 bool isArping = false;
 bool menuIsActive = false;
-bool displayingVel = true;
+bool displayingVel = true;//get rid of this
 bool drawingNote = false;
 bool pitchesOrNumbers = true;
 
 bool pramOffset = 1;
 
-#define INTERNAL 1
-#define EXTERNAL 0
-uint8_t clockSource = INTERNAL;
+#define INTERNAL_CLOCK 1
+#define EXTERNAL_CLOCK 0
+uint8_t clockSource = INTERNAL_CLOCK;
+
 bool swung = false;
 bool overwriteRecording = true;
 bool onlyRecToPrimedTracks = true;//Not implemented yet
