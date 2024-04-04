@@ -252,4 +252,6 @@ class StepchildMIDI{
     }
   }
 };
+
+//instance that the stepchild's code uses
 StepchildMIDI MIDI;
