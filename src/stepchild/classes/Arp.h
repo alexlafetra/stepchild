@@ -365,8 +365,8 @@ void Arp::setOrder() {
 
 void drawArpStepLengths(uint8_t xStart, uint8_t yStart, uint8_t startNote, uint8_t xCursor, bool selected){
   if(activeArp.uniformLength){
-    drawCenteredBanner(64,20,"using uniform steps of "+stepsToMeasures(activeArp.arpSubDiv));
-    drawLabel(64,32,"[sel] to toggle custom steps",true);
+    graphics.drawCenteredBanner(64,20,"using uniform steps of "+stepsToMeasures(activeArp.arpSubDiv));
+    graphics.drawLabel(64,32,"[sel] to toggle custom steps",true);
   }
   uint8_t spacing = 3;
   uint8_t thickness = (screenWidth-8)/activeArp.lengths.size()-spacing;
@@ -394,15 +394,15 @@ void drawArpStepLengths(uint8_t xStart, uint8_t yStart, uint8_t startNote, uint8
       printSmall(10+(spacing+thickness)*i+thickness/2-stringify(i+startNote+1).length()*2,screenHeight-5,stringify(i+startNote),2);
       //step the cursor is on
       if(i == xCursor-startNote){
-        drawArrow(9+(spacing+thickness)*i+thickness/2,screenHeight-height-10+2*((millis()/200)%2),3,3,true);
+        graphics.drawArrow(9+(spacing+thickness)*i+thickness/2,screenHeight-height-10+2*((millis()/200)%2),3,3,true);
         printSmall(8+(spacing+thickness)*i+thickness/2-stepsToMeasures(activeArp.lengths[i+startNote]).length()*2+2,screenHeight-height-21+2*((millis()/200)%2),stepsToMeasures(activeArp.lengths[i+startNote]),SSD1306_WHITE);
       }
       //if there are steps offscreen
       if(startNote>0){
-        drawArrow(2+2*((millis()/200)%2),61,2,1,true);
+        graphics.drawArrow(2+2*((millis()/200)%2),61,2,1,true);
       }
       if(activeArp.lengths.size()>startNote+8){
-        drawArrow(screenWidth-2-2*((millis()/200)%2),61,2,0,true);
+        graphics.drawArrow(screenWidth-2-2*((millis()/200)%2),61,2,0,true);
       }
     }
   }

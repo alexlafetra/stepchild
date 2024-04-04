@@ -299,7 +299,7 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
     //drawing the title (if no info should be drawn)
     printItalic(8,0,"PC",1);
     if(cursorPos<viewEnd && cursorPos>=viewStart){
-        drawArrow((cursorPos-viewStart)*scale+trackDisplay+((millis()/200)%2)-1,activePort*portHeight+14,3,0,false);
+        graphics.drawArrow((cursorPos-viewStart)*scale+trackDisplay+((millis()/200)%2)-1,activePort*portHeight+14,3,0,false);
     }
     if(playing && playheadPos<viewEnd && playheadPos>=viewStart){
         display.drawRoundRect(trackDisplay+(playheadPos-viewStart)*scale,9,3, screenHeight-9, 3, SSD1306_WHITE);

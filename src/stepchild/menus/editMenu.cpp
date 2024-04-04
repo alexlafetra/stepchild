@@ -820,45 +820,47 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
 
     //arrow highlight
     String txt;
-    if(coords.x1<screenWidth)
-    switch(activeMenu.highlight){
-      //moving notes
-      case 0:
-        txt = "MOVE";
-        drawArrow(coords.x1+8,13+((millis()/400)%2),4,2,false);
-        break;
-      //length
-      case 1:
-        txt = "LENGTH";
-        drawArrow(coords.x1+23,13+((millis()/400)%2),4,2,false);
-        break;
-      //vel
-      case 2:
-        txt = "VEL";
-        drawArrow(coords.x1+38,13+((millis()/400)%2),4,2,false);
-        break;
-      //chance
-      case 3:
-        txt = "CHANCE";
-        drawArrow(coords.x1+52,13+((millis()/400)%2),4,2,false);
-        break;
-      //quantize
-      case 4:
-        txt = "QUANT";
-        drawArrow(coords.x1+66,13+((millis()/400)%2),4,2,false);
-        break;
-      //humanize
-      case 5:
-        txt = "HUMAN";
-        drawArrow(coords.x1+80,13+((millis()/400)%2),4,2,false);
-        break;
-      //warp
-      case 6:
-        // txt = fxApplicationTexts[currentQuickFunction];
-        txt = "FX";
-        drawArrow(coords.x1+95,13+((millis()/400)%2),4,2,false);
-        break;
+    uint8_t xLoc = 0;
+    if(coords.x1<screenWidth){
+      switch(activeMenu.highlight){
+        //moving notes
+        case 0:
+          txt = "MOVE";
+          xLoc = 8;
+          break;
+        //length
+        case 1:
+          txt = "LENGTH";
+          xLoc = 23;
+          break;
+        //vel
+        case 2:
+          txt = "VEL";
+          xLoc = 38;
+          break;
+        //chance
+        case 3:
+          txt = "CHANCE";
+          xLoc = 52;
+          break;
+        //quantize
+        case 4:
+          txt = "QUANT";
+          xLoc = 66;
+          break;
+        //humanize
+        case 5:
+          txt = "HUMAN";
+          xLoc = 80;
+          break;
+        //warp
+        case 6:
+          txt = "FX";
+          xLoc = 95;
+          break;
+      }
     }
+    graphics.drawArrow(coords.x1+xLoc,13+((millis()/400)%2),shift?3:4,2,shift);
     //drawing quick function list
     if(windowStart > 0){
       display.fillRect(screenWidth-windowStart,0,windowStart,screenHeight,0);
@@ -887,16 +889,11 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
       //vel
       display.fillCircle(6,coords.x1+20,3,1);
       printSmall(5,coords.x1+18,"V",2);
-      // display.setCursor(sin(millis()/50+2)+11,coords.x1+18);
-      // display.print(stringify(activeNote.velocity));
       print007SegSmall(11,coords.x1+17,stringify(activeNote.velocity),1);
       //chance
       display.fillCircle(6,coords.x1+31,3,1);
       printSmall(5,coords.x1+29,"%",2);
-      // display.setCursor(sin(millis()/50+4)+11,coords.x1+30);
-      // display.print(stringify(activeNote.chance));
       print007SegSmall(11,coords.x1+28,stringify(activeNote.chance),1);
-            //indicator arrows
     }
     //if there's no note here...
     else{
@@ -1002,10 +999,10 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
     }
     //draw moving brackets
     if(lookupData[activeTrack][cursorPos] != 0)
-      drawNoteBracket(seqData[activeTrack][lookupData[activeTrack][cursorPos]],activeTrack);
+      graphics.drawNoteBracket(seqData[activeTrack][lookupData[activeTrack][cursorPos]],activeTrack);
     //or draw brackets around the selection
     if(selectionCount > 0)
-      drawSelectionBracket();
+      graphics.drawSelectionBracket();
 
     //drawing edit param info
     display.fillRoundRect(32,0,txt.length()*4+5,7,3,SSD1306_WHITE);

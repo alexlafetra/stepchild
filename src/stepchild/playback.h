@@ -29,6 +29,8 @@ void playTrack(uint8_t track, uint16_t timestep){
         int16_t pitch = trackData[track].pitch;
         int16_t vel = seqData[track][lookupData[track][timestep]].velocity;
         //if the channel matches, or if the modifier is global
+
+        //adjusting chance
         if(trackData[track].channel == chanceModifier[0] || chanceModifier[0] == 0){
           chance += chanceModifier[1];
           if(chance<0)
@@ -36,6 +38,8 @@ void playTrack(uint8_t track, uint16_t timestep){
           else if(chance>100)
             chance = 100;
         }
+
+        //adjusting pitch
         if(trackData[track].channel == pitchModifier[0] || pitchModifier[0] == 0){ 
           pitch += pitchModifier[1];
           if(pitch<0)
@@ -43,6 +47,8 @@ void playTrack(uint8_t track, uint16_t timestep){
           else if(pitch>127)
             pitch = 127;
         }
+
+        //adjusting vel
         if(trackData[track].channel == velModifier[0] || velModifier[0] == 0){
           vel += velModifier[1];
           if(vel<0)
@@ -51,7 +57,7 @@ void playTrack(uint8_t track, uint16_t timestep){
             vel = 127;
         }
         //if chance is 100%
-        if(chance >= 100 || seqData[track][lookupData[track][timestep]].chance>random(100)){
+        if(chance > random(100)){
           //if it's part of a muteGroup
           if(trackData[track].muteGroup!=0){
             muteGroups(track, trackData[track].muteGroup);
@@ -66,6 +72,10 @@ void playTrack(uint8_t track, uint16_t timestep){
           sentNotes.addNote(pitch,vel,trackData[track].channel);
           triggerAutotracks(track,true);
           return;
+        }
+        //if the note fails to fire, set the pitch flag anyway so the sequencer knows not to try and play it again
+        else{
+          trackData[track].noteLastSent = pitch;
         }
       }
     }

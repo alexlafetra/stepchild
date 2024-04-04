@@ -70,6 +70,8 @@ const unsigned char onboard_ledPin = 25;
   #include <LittleFS.h> // LittleFS is declared
   #include "pico/stdlib.h"
 
+  #include "lowerBoard.h"
+
   //from the pico sdk
   extern "C" {
     #include "pico.h"
@@ -78,8 +80,8 @@ const unsigned char onboard_ledPin = 25;
   }
   
   //setting up screen
-  #define i2c_Address 0x3c //initialize with the I2C addr 0x3C Typically eBay OLED's
-  // #define i2c_Address 0x3D
+  #define SCREEN_ADDR 0x3c //initialize with the I2C addr 0x3C Typically eBay OLED's
+  // #define SCREEN_ADDR 0x3D
 
   #define SCREEN_WIDTH 128 // OLED display width, in pixels
   #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -179,6 +181,7 @@ int8_t pitchModifier[2] = {0,0};
 
 //string utilities for parsing musical data
 #include "stringUtils.h"
+#include "utils.h"
 
 //original ChildOS fonts
 #include "fonts/7_segment.cpp"
@@ -233,8 +236,6 @@ void rotaryActionB_Handler(){
 #include "fx/quantizeMenu.cpp"
 #include "fx/humanizeMenu.cpp"
 #include "fx/echo.cpp"
-#include "fxApps.h"
-
 //Instrument apps
 #include "instruments/rattle.cpp"
 #include "instruments/chordDJ.cpp"
@@ -245,7 +246,8 @@ void rotaryActionB_Handler(){
 #include "instruments/knobs.cpp"
 #include "instruments/drumPads.cpp"
 #include "instruments/xy.cpp"
-#include "instrumentApps.h"
+
+#include "applications.h"
 
 //Menus
 #include "menus/consoleMenu.cpp"

@@ -363,7 +363,7 @@ void drawRandMenu(uint8_t whichTab){
     //length
     if(whichTab == 0){
       display.fillRoundRect(-3,y1,30,9,3,1);
-      drawArrow(18,y1+12+((millis()/200)%2),2,2,false);
+      graphics.drawArrow(18,y1+12+((millis()/200)%2),2,2,false);
     }
     else{
       display.fillRoundRect(-3,y1,30,9,3,0);
@@ -374,7 +374,7 @@ void drawRandMenu(uint8_t whichTab){
     //odds
     if(whichTab == 1){
       display.fillRoundRect(-3,y2,22,9,3,1);
-      drawArrow(21+((millis()/200)%2),y2+4,2,1,false);
+      graphics.drawArrow(21+((millis()/200)%2),y2+4,2,1,false);
     }
     else{
       display.fillRoundRect(-3,y2,22,9,3,0);
@@ -385,7 +385,7 @@ void drawRandMenu(uint8_t whichTab){
     //chance
     if(whichTab == 2){
       display.fillRoundRect(-3,y3,30,9,3,1);
-      drawArrow(18,y3-3+((millis()/200)%2),2,3,false);
+      graphics.drawArrow(18,y3-3+((millis()/200)%2),2,3,false);
     }
     else{
       display.fillRoundRect(-3,y3,30,9,3,0);
@@ -396,7 +396,7 @@ void drawRandMenu(uint8_t whichTab){
     //target
     if(whichTab == 3){
       display.fillRoundRect(101,y1,32,9,3,1);
-      drawArrow(109,y1+12+((millis()/200)%2),2,2,false);
+      graphics.drawArrow(109,y1+12+((millis()/200)%2),2,2,false);
     }
     else{
       display.fillRoundRect(101,y1,32,9,3,0);
@@ -407,7 +407,7 @@ void drawRandMenu(uint8_t whichTab){
     //vel
     if(whichTab == 4){
       display.fillRoundRect(109,y2,21,9,3,1);
-      drawArrow(107-((millis()/200)%2),y2+4,2,0,false);
+      graphics.drawArrow(107-((millis()/200)%2),y2+4,2,0,false);
     }
     else{
       display.fillRoundRect(109,y2,21,9,3,0);
@@ -418,7 +418,7 @@ void drawRandMenu(uint8_t whichTab){
     //target
     if(whichTab == 5){
       display.fillRoundRect(101,y3,32,9,3,1);
-      drawArrow(109,y3-3+((millis()/200)%2),2,3,false);
+      graphics.drawArrow(109,y3-3+((millis()/200)%2),2,3,false);
     }
     else{
       display.fillRoundRect(101,y3,32,9,3,0);

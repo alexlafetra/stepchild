@@ -277,16 +277,16 @@ void quantizeMenu(){
 
     //draw swing indicator
     // printSmall(90,6,deleteNote?"delete":"leave",1);
-    drawLabel(100,1,deleteNote?"delete":"leave",1);
+    graphics.drawLabel(100,1,deleteNote?"delete":"leave",1);
     printSmall_centered(100,8,"collisions",1);
     printSmall(0,53,"quantize",1);
 
     if(whichParam == 0){
-      drawArrow(96+16+2*((millis()/400)%2),56,2,1,true);
+      graphics.drawArrow(96+16+2*((millis()/400)%2),56,2,1,true);
       printSmall(90,46,"amount",1);
     }
     else{
-      drawArrow(24+2*((millis()/400)%2),8,2,0,true);
+      graphics.drawArrow(24+2*((millis()/400)%2),8,2,0,true);
       printSmall(0,6," grid",1);
       //bracket
       drawSubDivBackground();

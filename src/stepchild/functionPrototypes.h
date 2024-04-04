@@ -83,9 +83,6 @@ void writeNoteOn(unsigned short int step, uint8_t pitch, uint8_t vel, uint8_t ch
 //Drawing functions
 void printItalic(int16_t x, int16_t y, char character, uint16_t c);
 void printItalic(int16_t x, int16_t y, String text, uint16_t c);
-void drawCenteredBanner(int8_t x1, int8_t y1, String text);
-void drawNoteBracket(int x1, int y1, int length, int height, bool animated);
-void drawNoteBracket(Note note, int track);
 void drawLogo(uint8_t x1, uint8_t y1);
 void drawNote_chance(uint16_t id, uint8_t track, unsigned short int xStart, unsigned short int yStart, unsigned short int length, unsigned short int height, unsigned short int chance, bool isSelected, bool isMuted);
 void drawNote_vel(uint16_t id, uint8_t track, unsigned short int xStart, unsigned short int yStart, unsigned short int length, unsigned short int height, unsigned short int vel, bool isSelected, bool isMuted);
@@ -97,15 +94,13 @@ void drawNote(unsigned short int, unsigned short int, unsigned short int, unsign
 void drawBox(uint8_t cornerX, uint8_t cornerY, uint8_t width, uint8_t height, uint8_t depth, int8_t xSlant, uint8_t fill);
 void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation);
 void drawPram(uint8_t x1, uint8_t y1);
-void drawVU(int8_t x1, int8_t y1, float val);
+void drawPram();
 void drawTetra(uint8_t h, uint8_t k, uint8_t height, uint8_t width, int xDepth, int yDepth, uint8_t style, uint16_t c);
 void drawBracket(uint8_t h, uint8_t k, uint8_t height, uint8_t width, uint8_t style, uint16_t c);
 void drawKeys(uint8_t xStart,uint8_t yStart,uint8_t octave,uint8_t numberOfKeys, bool fromPlaylist);
 void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numberOfPads);
-void drawLabel(uint8_t x1, uint8_t y1, String text, bool wOrB);
 void drawSlider(uint8_t x1, uint8_t y1, uint8_t w, uint8_t h, bool state);
 void drawSlider(uint8_t x1, uint8_t y1, String a, String b, bool state);
-void drawBanner(int8_t x1, int8_t y1, String text);
 void drawArpStepLengths(uint8_t xStart, uint8_t yStart, uint8_t startNote, uint8_t xCursor, bool selected);
 void drawFullKeyBed(vector<uint8_t> pressList, vector<uint8_t> mask, uint8_t activeKey,uint8_t octave);
 void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask, uint8_t activeKey,uint8_t octave);
@@ -124,9 +119,7 @@ void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmou
 void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t numberOfKeys, bool into);
 void printParam_centered(uint8_t which, uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);
 void printParam(uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);
-void printChannel(uint8_t xPos, uint8_t yPos, uint8_t channel, bool withBox);
 void drumPadAnimation(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numberOfPads, bool into);
-void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val,uint8_t r);
 
 //Icons
 void drawEchoIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim);
@@ -390,8 +383,6 @@ void writeLEDs(uint8_t led, bool state);
 void writeLEDs(uint8_t first, uint8_t last);
 void writeLEDs(bool leds[8]);
 void selectKeysAnimation(bool);
-void drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, bool full);
-void drawNoteBracket(int x1, int y1, int length, int height, bool animated);
 void printItalic_wave(int16_t x, int16_t y, string text, int8_t height, uint8_t timing, uint16_t c);
 
 //MIDI

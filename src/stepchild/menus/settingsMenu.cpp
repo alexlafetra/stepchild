@@ -30,7 +30,7 @@ void printMemoryInfo(uint8_t x1, uint8_t y1){
 
 void printPowerInfo(uint8_t x1, uint8_t y1){
   String s = stringify(getBattLevel());
-  drawLabel(x1,y1,"vsys: "+s+"v",true);
+  graphics.drawLabel(x1,y1,"vsys: "+s+"v",true);
 }
 
 void displaySettingsMenu_selectionBox(){
@@ -334,28 +334,28 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
       const uint8_t y1 = 2;
 
       printSmall(x1-5,y1,"track labels:",1);
-      drawLabel(x1+62,y1,pitchesOrNumbers?"pitches":"numbers",true);
+      graphics.drawLabel(x1+62,y1,pitchesOrNumbers?"pitches":"numbers",true);
       
       printSmall(x1-5,y1+8,"leds:",1);
-      drawLabel(x1+22,y1+8,LEDsOn?"on":"off",LEDsOn);
+      graphics.drawLabel(x1+22,y1+8,LEDsOn?"on":"off",LEDsOn);
 
       display.drawFastHLine(x1-7,y1+16,53,1);
       printSmall(x1+47,y1+14,"rec",1);
 
       printSmall(x1-5,y1+20,"wait:",1);
-      drawLabel(x1+22,y1+20,waitForNoteBeforeRec?"on":"off",waitForNoteBeforeRec);
+      graphics.drawLabel(x1+22,y1+20,waitForNoteBeforeRec?"on":"off",waitForNoteBeforeRec);
 
       printSmall(x1-5,y1+28,"overwrite:",1);
-      drawLabel(x1+42,y1+28,overwriteRecording?"on":"off",overwriteRecording);
+      graphics.drawLabel(x1+42,y1+28,overwriteRecording?"on":"off",overwriteRecording);
 
       printSmall(x1-5,y1+36,"rec mode:",1);
-      drawLabel(x1+50,y1+36,recMode?"continuous":"1-shot",true);
+      graphics.drawLabel(x1+50,y1+36,recMode?"continuous":"1-shot",true);
       
       //length
       printSmall(x1+3,y1+48,"length -- "+stepsToMeasures(seqEnd),1);
       printSmall(x1+2,y1+56,"("+stringify(seqEnd)+" steps)",1);
-      drawArrow(x1-12,y1+54,6,1,cursor == 6);
-      drawArrow(x1+56,y1+54,6,0,cursor == 7);
+      graphics.drawArrow(x1-12,y1+54,6,1,cursor == 6);
+      graphics.drawArrow(x1+56,y1+54,6,0,cursor == 7);
 
       //lightbulb
       display.drawBitmap(94,52,lightbulb_bmp,12,12,2);
@@ -365,28 +365,28 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
 
       switch(cursor){
         case 0:
-          drawArrow(14+((millis()/400)%2),9,2,1,true);
+          graphics.drawArrow(14+((millis()/400)%2),9,2,1,true);
           break;
         case 1:
         case 2:
-          drawArrow(23+((millis()/400)%2),(cursor-1)*8+y1+2,2,0,false);
+          graphics.drawArrow(23+((millis()/400)%2),(cursor-1)*8+y1+2,2,0,false);
           break;
         case 3:
         case 4:
         case 5:
-          drawArrow(23+((millis()/400)%2),(cursor-1)*8+y1+6,2,0,false);
+          graphics.drawArrow(23+((millis()/400)%2),(cursor-1)*8+y1+6,2,0,false);
           break;
         //remove time
         case 6:
-          drawLabel(x1+24,y1+40,"remove time",false);
+          graphics.drawLabel(x1+24,y1+40,"remove time",false);
           break;
         //add time
         case 7:
-          drawLabel(x1+24,y1+40,"add time",false);
+          graphics.drawLabel(x1+24,y1+40,"add time",false);
           break;
         //brightness
         case 8:{
-          drawArrow(99,50+((millis()/400)%2),2,3,true);
+          graphics.drawArrow(99,50+((millis()/400)%2),2,3,true);
           String s = "light: "+stringify(screenBrightness);
           display.fillRoundRect(88,41,s.length()*4+2,7,3,1);
           printSmall(90,42,s,0);
@@ -394,8 +394,8 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
           break;
         //save
         case 9:
-          drawArrow(116,50+((millis()/400)%2),2,3,true);
-          drawLabel(116,43,shift?"load":"save",true);
+          graphics.drawArrow(116,50+((millis()/400)%2),2,3,true);
+          graphics.drawLabel(116,43,shift?"load":"save",true);
           break;
       }
     }
@@ -410,7 +410,7 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
       printSmall(x1,y1+35,"temp: "+stringify(analogReadTemp())+"}C",1);
       printSmall(x1,y1+43,"cpu speed: "+stringify(float(rp2040.f_cpu())/float(1000000))+"MHZ",1);
       if(cursor == 0){
-        drawArrow(14+((millis()/200)%2),26,2,1,false);
+        graphics.drawArrow(14+((millis()/200)%2),26,2,1,false);
         display.drawRoundRect(x1,y1+50,16,10,3,SSD1306_WHITE);
         printSmall(x1+6,y1+52,"U^",1);
         display.drawRoundRect(x1+18,y1+50,12,10,3,SSD1306_WHITE);
@@ -443,7 +443,7 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
       display.drawBitmap(20,30,connect_to_interface_bmp,20,20,1);
       switch(cursor){
         case 0:
-          drawArrow(14+((millis()/200)%2),46,2,1,false);
+          graphics.drawArrow(14+((millis()/200)%2),46,2,1,false);
           break;
         case 1:
           break;

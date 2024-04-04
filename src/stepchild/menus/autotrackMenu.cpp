@@ -331,7 +331,7 @@ void setAutotrackTrigger(uint8_t whichAT){
     (trigSource ||togglingGate)?display.drawRect(8,22,27,9,1):display.fillRect(8,22,27,9,1);
     printSmall(10,24,"global",2);
     if(!trigSource && !togglingGate)
-      drawArrow(22,20+((millis()/400)%2),3,3,false);
+      graphics.drawArrow(22,20+((millis()/400)%2),3,3,false);
 
 
     //drawing gate label
@@ -339,7 +339,7 @@ void setAutotrackTrigger(uint8_t whichAT){
     printSmall_centered(22,40,"gate",1);
 
     if(togglingGate){
-      drawArrow(22,60+((millis()/400)%2),3,2,false);
+      graphics.drawArrow(22,60+((millis()/400)%2),3,2,false);
     }
 
     //drawing tracks
@@ -348,7 +348,7 @@ void setAutotrackTrigger(uint8_t whichAT){
         break;
       if(trigSource == 1 && trackNumber == i+trackViewStart){
         display.fillRect(x1,y1+i*colHeight,colWidth,colHeight,1);
-        drawArrow(x1+colWidth-6+((millis()/400)%2),y1+i*colHeight+colHeight/2,4,1,false);
+        graphics.drawArrow(x1+colWidth-6+((millis()/400)%2),y1+i*colHeight+colHeight/2,4,1,false);
       }
       else
         display.drawRect(x1,y1+i*colHeight,colWidth,colHeight,1);
@@ -356,10 +356,10 @@ void setAutotrackTrigger(uint8_t whichAT){
     }
     //arrow indicators
     if(trackViewStart+numberOfTracks<trackData.size()){
-      drawArrow(x1-5,60+((millis()/400)%2),3,3,false);
+      graphics.drawArrow(x1-5,60+((millis()/400)%2),3,3,false);
     }
     if(trackViewStart>0){
-      drawArrow(x1-5,50-((millis()/400)%2),3,2,false);
+      graphics.drawArrow(x1-5,50-((millis()/400)%2),3,2,false);
     }
     //drawing channels
     for(uint8_t i = 0; i<=numberOfTracks; i++){
@@ -367,7 +367,7 @@ void setAutotrackTrigger(uint8_t whichAT){
         break;
       if(trigSource == 2 && channelNumber == i+channelViewStart){
         display.fillRect(x2,y1+i*colHeight,colWidth,colHeight,1);
-        drawArrow(x2+6+((millis()/400)%2),y1+i*colHeight+colHeight/2,4,0,false);
+        graphics.drawArrow(x2+6+((millis()/400)%2),y1+i*colHeight+colHeight/2,4,0,false);
       }
       else
         display.drawRect(x2,y1+i*colHeight,colWidth,colHeight,1);
@@ -375,10 +375,10 @@ void setAutotrackTrigger(uint8_t whichAT){
     }
     //arrow indicators
     if(channelViewStart+numberOfTracks<=16){
-      drawArrow(x2+colWidth+5,60+((millis()/400)%2),3,3,false);
+      graphics.drawArrow(x2+colWidth+5,60+((millis()/400)%2),3,3,false);
     }
     if(channelViewStart>1){
-      drawArrow(x2+colWidth+5,50-((millis()/400)%2),3,2,false);
+      graphics.drawArrow(x2+colWidth+5,50-((millis()/400)%2),3,2,false);
     }
     display.setRotation(SIDEWAYS_L);
     printSmall(48-y1,x1-6,"trck",1);
@@ -1463,9 +1463,9 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
           if(isDataPointSelected(step)){
             display.fillCircle(32+(step-viewStart)*scale,yPos,2,SSD1306_WHITE);
             if(autotrackData[activeAutotrack].data[step]>=64)//bottom arrow if data point is high
-              drawArrow(32+(step-viewStart)*scale,yPos+4+((millis()/200)%2),2,2,true);
+              graphics.drawArrow(32+(step-viewStart)*scale,yPos+4+((millis()/200)%2),2,2,true);
             else//top arrow if data point is low
-              drawArrow(32+(step-viewStart)*scale,yPos-6+((millis()/200)%2),2,3 ,true);
+              graphics.drawArrow(32+(step-viewStart)*scale,yPos-6+((millis()/200)%2),2,3 ,true);
           }
           //drawing cursor
           if(step == cursorPos){
@@ -1485,10 +1485,10 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
 
         //loop points
         if(step == loopData[activeLoop].start){
-          drawArrow(32+(step-viewStart)*scale-1+((millis()/200)%2),59,4,0,true);
+          graphics.drawArrow(32+(step-viewStart)*scale-1+((millis()/200)%2),59,4,0,true);
         }
         else if(step == loopData[activeLoop].end){
-          drawArrow(32+(step-viewStart)*scale+2-((millis()/200)%2),59,4,1,false);
+          graphics.drawArrow(32+(step-viewStart)*scale+2-((millis()/200)%2),59,4,1,false);
         }
       }
     }
@@ -1510,7 +1510,7 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     //menu info
     if(shift){
       printParam(16,2,autotrackData[activeAutotrack].control,true,autotrackData[activeAutotrack].parameterType,true);
-      printChannel(16,12,autotrackData[activeAutotrack].channel,true);
+      graphics.printChannel(16,12,autotrackData[activeAutotrack].channel,true);
       display.drawChar(3,2+sin(millis()/50),0x0E,1,0,1);
     }
     else{
@@ -1584,7 +1584,7 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
 
     //drawing source icon
     printSmall(15,42,"src",1);
-    drawArrow(20,52+sin(millis()/400),2,3,false);
+    graphics.drawArrow(20,52+sin(millis()/400),2,3,false);
     if(!settingRecInput || (millis()%40>20))
       drawAutotrackInputIcon(17,55,activeAutotrack);
   }
@@ -1781,10 +1781,10 @@ void drawAutotrackViewer(uint8_t firstTrack){
               trigger = "chnl: "+stringify(autotrackData[activeAutotrack].triggerTarget);
               break;
           }
-          drawLabel(112,currentHeight+2,trigger,false);
+          graphics.drawLabel(112,currentHeight+2,trigger,false);
 
           //arrow highlight
-          drawArrow(110,currentHeight+2+cos(millis()/100),4,3,false);
+          graphics.drawArrow(110,currentHeight+2+cos(millis()/100),4,3,false);
 
           //increment height so the next track is drawn below
           currentHeight+=height+12;
@@ -1814,10 +1814,10 @@ void drawAutotrackViewer(uint8_t firstTrack){
 
     //drawing 'more tracks' indicators
     if(firstTrack>0){
-      drawArrow(124,1+sin(millis()/75),2,2,true);
+      graphics.drawArrow(124,1+sin(millis()/75),2,2,true);
     }
     if(firstTrack+4<autotrackData.size()-1){
-      drawArrow(124,63-sin(millis()/75),2,3,true);
+      graphics.drawArrow(124,63-sin(millis()/75),2,3,true);
     }
   }
   else{

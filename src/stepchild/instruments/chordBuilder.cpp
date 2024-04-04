@@ -313,7 +313,7 @@ void chordBuilder(){
       text = stepsToMeasures(length);
       printSmall(105,50,"L",SSD1306_WHITE);
       graphics.printFractionCentered(121,49,stepsToMeasures(length));
-      drawCenteredBanner(64,55,convertVectorToPitches(pressedKeys));
+      graphics.drawCenteredBanner(64,55,convertVectorToPitches(pressedKeys));
     }
     else if(editorState == 1){
       //draw the keys that are in the chord as "selected"
@@ -335,11 +335,11 @@ void chordBuilder(){
       drawFullKeyBed(pressedKeys,mask,keyCursor,0);
       //draw a second keybed lower, JUST showing the notes that are in-key
       drawFullKeyBed(32,tempNotes,pressedKeys,255,0);
-      drawCenteredBanner(64,55,chordSequence.chords[activeChord].getPitchList(0,59));
+      graphics.drawCenteredBanner(64,55,chordSequence.chords[activeChord].getPitchList(0,59));
     }
     //if there's a mask
     if(mask.size()>0){
-      drawCenteredBanner(64,55,pitchToString(mask[0],false,true)+" major");
+      graphics.drawCenteredBanner(64,55,pitchToString(mask[0],false,true)+" major");
     }
     display.display();
   }

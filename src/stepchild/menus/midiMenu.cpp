@@ -48,16 +48,16 @@ void portMenu(uint8_t which){
   uint8_t cursors[3];
   uint8_t menuState = 0;
   //vu meter
-  int16_t currentVel;
-  int16_t lastVel;
-  float VUval;
+  int16_t currentVel = 0;
+  int16_t lastVel = 0;
+  float VUval = 0.0;
   uint8_t channelMenuStart = 0;
   while(true){
     display.clearDisplay();
     drawPortIcon(which);
     switch(which){
       case 0:
-        drawVU(0,0,1-VUval);
+        graphics.drawVU(0,0,1-VUval);
         break;
       case 1:
         break;
@@ -452,7 +452,7 @@ void midiMenu(){
       //if it's in mute mode, draw a circle around the active port
       if(yCursor == 1 && xCursor == port){
         if(isCurrentlySending){
-          drawArrow(x1+9+2*sin(millis()/100+port),y1+8+((millis()/200)%2),2,1,true);
+          graphics.drawArrow(x1+9+2*sin(millis()/100+port),y1+8+((millis()/200)%2),2,1,true);
           //for the usb port, it's a little bigger
           if(port == 0){
             display.fillCircle(x1,y1+8+2*sin(millis()/100+port),9,0);
@@ -468,12 +468,12 @@ void midiMenu(){
           if(port == 0){
             display.fillCircle(x1,y1+8+2*sin(millis()/100+port),9,0);
             display.drawCircle(x1,y1+8+sin(millis()/100+port),9,SSD1306_WHITE);
-            drawArrow(x1+9+((millis()/200)%2),y1+8+((millis()/200)%2),2,1,true);
+            graphics.drawArrow(x1+9+((millis()/200)%2),y1+8+((millis()/200)%2),2,1,true);
           }
           else{
             display.fillCircle(x1,y1+8+2*sin(millis()/100+port),8,0);
             display.drawCircle(x1,y1+8+sin(millis()/100+port),8,SSD1306_WHITE);
-            drawArrow(x1,y1+18+((millis()/200)%2),2,2,true);
+            graphics.drawArrow(x1,y1+18+((millis()/200)%2),2,2,true);
           }
         }
       }
@@ -503,17 +503,17 @@ void midiMenu(){
       switch(xCursor){
         //port routing
         case 0:
-          drawArrow(x1+29+((millis()/200)%2),y1+2,3,1,false);
+          graphics.drawArrow(x1+29+((millis()/200)%2),y1+2,3,1,false);
           // display.drawRoundRect(54+((millis()/200)%2),40,22-int(2*cos(millis()/100)),9,3,SSD1306_WHITE);
           break;
         //input
         case 1:
-          drawArrow(x1+29+((millis()/200)%2),y1+10,3,1,false);
+          graphics.drawArrow(x1+29+((millis()/200)%2),y1+10,3,1,false);
           // display.drawRoundRect(32+((millis()/200)%2),47,66-int(2*cos(millis()/100)),9,3,SSD1306_WHITE);
           break;
         //clock source
         case 2:
-          drawArrow(x1+29+((millis()/200)%2),y1+18,3,1,false);
+          graphics.drawArrow(x1+29+((millis()/200)%2),y1+18,3,1,false);
           break;
       }
     }
@@ -822,11 +822,11 @@ void routeMenu(){
       //"more channels" indicators
       //more channels above
       if(menuStart[midiPort]>0){
-        drawArrow(xOffset+17+midiPort*25,26+((millis()/400)%2),2,2,true);
+        graphics.drawArrow(xOffset+17+midiPort*25,26+((millis()/400)%2),2,2,true);
       }
       //more channels below
       if(menuStart[midiPort]<11){
-        drawArrow(xOffset+17+midiPort*25,63-((millis()/400)%2),2,3,true);
+        graphics.drawArrow(xOffset+17+midiPort*25,63-((millis()/400)%2),2,3,true);
       }
     }
     display.display();

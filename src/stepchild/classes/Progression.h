@@ -141,7 +141,6 @@ void Progression::drawProg(uint8_t x1, uint8_t y1,int8_t activeChord){
     chords[i].draw(x2,y1);
     if(activeChord != -1){
       if(i == activeChord){
-        drawCurlyBracket(x2+chords[i].length/4,y1+1,chords[i].length/4,0,true,true,1);
         // display.drawFastHLine(x2,y1+3,chords[i].length/4,SSD1306_WHITE);
         chords[i].printPitchList(x2,y1+6);
       }

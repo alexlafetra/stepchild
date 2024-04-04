@@ -193,15 +193,14 @@ void slideMenuOut(int toWhere, int speed){
 #define FILES 16
 #define REC 17
 
-void constructMenu(uint8_t id){
+void constructMenu(uint8_t id,uint8_t highlight){
   resetEncoders();
   switch(id){
     case(MAIN_MENU):
     {
-      Menu debugMenu(25,1,93,64,"MENU");
-      if(activeMenu.menuTitle == "FILES")
-        debugMenu.highlight = 9;
-      activeMenu = debugMenu;
+      Menu mainMenu(25,1,93,64,"MENU");
+      mainMenu.highlight = highlight;
+      activeMenu = mainMenu;
       if(menuIsActive){
         slideMenuIn(0,30);
       }
@@ -210,6 +209,7 @@ void constructMenu(uint8_t id){
     case DEBUG_MENU:
     {
       Menu debugMenu(32,4,128,64,"DEBUG");
+      debugMenu.highlight = highlight;
       activeMenu = debugMenu;
       if(menuIsActive){
         slideMenuIn(0,30);
@@ -220,6 +220,7 @@ void constructMenu(uint8_t id){
     case CLOCK_MENU:
     {
       Menu clckMenu(0,0,35,64,"CLOCK");
+      clckMenu.highlight = highlight;
       activeMenu = clckMenu;
       if(menuIsActive){
         slideMenuIn(0,20);
@@ -301,61 +302,68 @@ void constructMenu(uint8_t id){
 }
 //these gotta go here so the menu display can talk to them
 //doing it this way is a little better i think? so all the menu dat doesn't need to be global and only loads when you need it
-void constructMenu(String title){
+void constructMenu(String title,uint8_t highlight){
   if(title == "MENU"){
-    constructMenu(MAIN_MENU);
+    constructMenu(MAIN_MENU,highlight);
   }
   else if(title == "DEBUG"){
-    constructMenu(DEBUG_MENU);
+    constructMenu(DEBUG_MENU,highlight);
   }
   else if(title == "CLOCK"){
-    constructMenu(CLOCK_MENU);
+    constructMenu(CLOCK_MENU,highlight);
   }
   else if(title == "SETTINGS"){
-    constructMenu(SETTINGS_MENU);
+    constructMenu(SETTINGS_MENU,highlight);
   }
   else if(title == "SEQ"){
-    constructMenu(SEQUENCE_MENU);
+    constructMenu(SEQUENCE_MENU,highlight);
   }
   else if(title == "LOOP"){
-    constructMenu(LOOP_MENU);
+    constructMenu(LOOP_MENU,highlight);
   }
   else if(title == "MIDI"){
-    constructMenu(MIDI_MENU);
+    constructMenu(MIDI_MENU,highlight);
   }
   else if(title == "FRAGMENT"){
-    constructMenu(FRAGMENT);
+    constructMenu(FRAGMENT,highlight);
   }
   else if(title == "CURVE"){
-    constructMenu(CURVE);
+    constructMenu(CURVE,highlight);
   }
   else if(title == "ARP"){
-    constructMenu(ARP);
+    constructMenu(ARP,highlight);
   }
   else if(title == "FX"){
-    constructMenu(FX);
+    constructMenu(FX,highlight);
   }
   //edit menu is called by note menu
   else if(title == "EDIT"){
-    constructMenu(EDIT);
+    constructMenu(EDIT,highlight);
   }
   else if(title == "TRK"){
-    constructMenu(TRK);
+    constructMenu(TRK,highlight);
   }
   else if(title == "QZ"){
-    constructMenu(QZ);
+    constructMenu(QZ,highlight);
   }
   else if(title == "HUMANIZE"){
-    constructMenu(HUMANIZE);
+    constructMenu(HUMANIZE,highlight);
   }
   else if(title == "SAVE"){
-    constructMenu(SAVE);
+    constructMenu(SAVE,highlight);
   }
   else if(title == "FILES"){
-    constructMenu(FILES);
+    constructMenu(FILES,highlight);
   }
   else if(title == "REC"){
-    constructMenu(REC);
+    constructMenu(REC,highlight);
   }
+}
+
+void constructMenu(String title){
+  constructMenu(title,0);
+}
+void constructMenu(uint8_t id){
+  constructMenu(id,0);
 }
 

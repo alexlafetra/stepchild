@@ -44,12 +44,12 @@ void Vertex::render(uint8_t xOffset,uint8_t yOffset, float scale, uint8_t size, 
 
 
 //multiplies a vertex by a transformation matrix
-void Vertex::coordTransform(vector<vector<float>> trans){
+void Vertex::coordTransform(vector<vector<float>> transformer){
   float x1,y1,z1;
-  if(trans.size() == 3){
+  if(transformer.size() == 3){
     //multiplying columns
     for(uint8_t a = 0; a<3; a++){
-      float temp = trans[a][0] * x + trans[a][1] * y + trans[a][2] * z;
+      float temp = transformer[a][0] * x + transformer[a][1] * y + transformer[a][2] * z;
       switch(a){
         case 0:
           x1 = temp;
@@ -67,10 +67,11 @@ void Vertex::coordTransform(vector<vector<float>> trans){
   z = z1;
 }
 
-//rotates a vertex
+//rotates a vertex around x (0) y (1) or z (2) axes
 void Vertex::rotate(float angle, uint8_t axis){
   vector<vector<float>> rotationMatrix;
-  angle = angle*PI/float(180);
+  //convert to radians
+  angle = angle*(PI/180.0);
   switch(axis){
     //x
     case 0:
@@ -108,7 +109,7 @@ class WireFrame{
   void renderDie();
   void renderDotsIfInFrontOf(float zCutoff);
   void rotate(float,uint8_t);
-  void rotateAbsolute(float,uint8_t);
+  void setRotation(float,uint8_t);
   void printVerts();
   bool isFarthestVert(uint8_t);
   bool isClosestVert(uint8_t);
@@ -299,7 +300,7 @@ void WireFrame::rotateVertRelative(uint8_t which, float angle, uint8_t axis){
   verts[which].y += yPos;
 }
 //this one resets the rotation of the target axis, THEN applies the rotation
-void WireFrame::rotateAbsolute(float angle, uint8_t axis){
+void WireFrame::setRotation(float angle, uint8_t axis){
   float oldAngles[3] = {currentAngle[0],currentAngle[1],currentAngle[2]};
   resetExceptFor(axis);
   rotate(angle,axis);
@@ -1595,6 +1596,7 @@ WireFrame makeHelix(uint8_t r, uint8_t revs, float length, uint8_t points, bool 
   return helix;
 }
 
+//folder anim doesn't open correctly! fix this
 WireFrame makeFolder(float openAngle){
   //2 points for top front edge
   Vertex v1 = Vertex(-9,-7,2);
@@ -1629,6 +1631,26 @@ WireFrame makeFolder(float openAngle){
   return folder;
 }
 
+//keys are three rectangular prisms that each ebb and flow
+WireFrame makeArpBoxes(float keyOffsetTimer){
+    WireFrame keys[3];
+    //bouncing each key
+    for(uint8_t i = 0; i<3; i++){
+        WireFrame key = makeBox(7, 5, 5);
+       key.move(10*i-10,7.0*sin(keyOffsetTimer/60.0+((2.0*PI/3.0)*i)),0);
+        // key.move(10*i-10,0,0);
+        keys[i] = key;
+    }
+    //joingin keys into one wireframe
+    keys[1].add(keys[2]);
+    keys[0].add(keys[1]);
+    //styling
+    keys[0].rotate(15,2);
+    // keys[0].rotate(30.0*sin(keyOffsetTimer/10.0),1);
+    keys[0].rotate(30.0,1);
+    return keys[0];
+}
+
 
 void openFolderAnimation(WireFrame* w,float amount){
   //make a new folder wireframe with the right open amount
@@ -1657,6 +1679,9 @@ void handAnimation(WireFrame* w){
   WireFrame n = makeHand_flat(fingies[0],fingies[1],fingies[2],fingies[3],fingies[4]);
   n.rotate(w->currentAngle[1],1);
   w->verts = n.verts;
+}
+void keysAnimation(WireFrame* w){
+    
 }
 
 void loopArrowAnimation(WireFrame* w){
@@ -1740,7 +1765,7 @@ void renderTest(){
     }
     display.setCursor(0,0);
     display.print("mem:");
-    display.print(rp2040.getUsedHeap());
+//    display.print(rp2040.getUsedHeap());
     display.display();
     if(menu_Press){
       return;

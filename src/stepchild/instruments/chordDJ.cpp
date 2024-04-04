@@ -181,7 +181,7 @@ QChord editChord(QChord& originalChord){
         printSmall(0,52,"[Play] to hear Chord",1);
     //if there's a mask
     if(mask.size()>0){
-      drawCenteredBanner(64,55,pitchToString(maskRoot,false,true)+" major");
+      graphics.drawCenteredBanner(64,55,pitchToString(maskRoot,false,true)+" major");
     }
     else{
         printSmall(0,59,"[Loop] to choose notes from a scale",1);
@@ -327,7 +327,7 @@ void chordDJ(){
             uint8_t startY = 24;
             if(i<chords.size()){
                 if(i == activeChord){
-                    drawArrow(8+i*16,startY+(millis()/200)%2-7,3,DOWN,true);
+                    graphics.drawArrow(8+i*16,startY+(millis()/200)%2-7,3,DOWN,true);
                     startY = 20;
                 }
                 printSmall_centered(9+i*16,startY-12,stringify(i+1),1);

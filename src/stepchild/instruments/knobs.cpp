@@ -32,11 +32,11 @@ void drawKnobs(uint8_t activeA, uint8_t activeB, uint8_t activeRow, uint8_t howM
             //cursor arrow for activeRow
             if(row == activeRow){
               if(selected){
-                drawArrow(x2-bigR-13+((millis()/200)%2),y2-bigR+6+row*32,3,0,true);
-                drawArrow(x2-bigR-13+((millis()/200)%2),y2-bigR+17+row*32,3,0,true);
+                graphics.drawArrow(x2-bigR-13+((millis()/200)%2),y2-bigR+6+row*32,3,0,true);
+                graphics.drawArrow(x2-bigR-13+((millis()/200)%2),y2-bigR+17+row*32,3,0,true);
               }
               else
-                drawArrow(x1,y1+offset+smallR+6+2*((millis()/200)%2),3,2,false);
+                graphics.drawArrow(x1,y1+offset+smallR+6+2*((millis()/200)%2),3,2,false);
             }
             //drawing each dial in white, if it's active
             display.fillCircle(x1,y1+offset,smallR,1);
@@ -65,7 +65,7 @@ void drawKnobs(uint8_t activeA, uint8_t activeB, uint8_t activeRow, uint8_t howM
     Knob k = controlKnobs[(i==0)?activeA:(activeB+8)];
     if(!selected)
       //drawing the val with a highlight, when it's in value mode
-      drawLabel(x2-bigR-7,y2+bigR-1,stringify(k.val),1);
+      graphics.drawLabel(x2-bigR-7,y2+bigR-1,stringify(k.val),1);
     else{
       //when it's in 'selected' mode, don't highlight val so that
       //user knows they're changing cc/ch now

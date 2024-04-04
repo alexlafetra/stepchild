@@ -136,7 +136,7 @@ void drawModBoxes(uint8_t cursor){
   printSmall_centered(7,end+3,stringify(64-activeArp.minVelMod/2),1);
   printSmall_centered(7,start-7,stringify(activeArp.maxVelMod/2),1);
   if(cursor == 0){
-    drawArrow(6,end+8+(millis()/200)%2,3,2,true);
+    graphics.drawArrow(6,end+8+(millis()/200)%2,3,2,true);
     text = "velocity";
   }
   
@@ -144,7 +144,7 @@ void drawModBoxes(uint8_t cursor){
   display.fillRect(13,mid+13-activeArp.chanceMod/4,7,activeArp.chanceMod/4,1);
   printSmall_centered(17,mid+7-activeArp.chanceMod/4,stringify(activeArp.chanceMod),1);
   if(cursor == 1){
-    drawArrow(16,mid+15+(millis()/200)%2,3,2,true);
+    graphics.drawArrow(16,mid+15+(millis()/200)%2,3,2,true);
     text = "chance";
   }
 
@@ -152,7 +152,7 @@ void drawModBoxes(uint8_t cursor){
   display.fillRect(23,mid+13-activeArp.repMod/4,7,activeArp.repMod/4,1);
   printSmall_centered(27,mid+7-activeArp.repMod/4,stringify(activeArp.repMod),1);
   if(cursor == 2){
-    drawArrow(26,mid+15+(millis()/200)%2,3,2,true);
+    graphics.drawArrow(26,mid+15+(millis()/200)%2,3,2,true);
     text = "repeats";
   }
 
@@ -164,7 +164,7 @@ void drawModBoxes(uint8_t cursor){
   printSmall_centered(37,end+3,stringify(-activeArp.minPitchMod/16),1);
   printSmall_centered(37,start-7,stringify(activeArp.maxPitchMod/16),1);
   if(cursor == 3){
-    drawArrow(36,end+8+(millis()/200)%2,3,2,true);
+    graphics.drawArrow(36,end+8+(millis()/200)%2,3,2,true);
     text = "octave";
   }
 
@@ -174,7 +174,7 @@ void drawModBoxes(uint8_t cursor){
     for(uint8_t i = 0; i<6; i++){
       drawArpModeIcon(44,start+i*12,i,1);
     }
-    drawArrow(56+(millis()/200)%2,mid,3,1,true);
+    graphics.drawArrow(56+(millis()/200)%2,mid,3,1,true);
     switch(activeArp.playStyle){
       case 5:
         text = "random";
@@ -510,13 +510,13 @@ void drawArpMenu(uint8_t cursor){
 
   switch(cursor){
     case 0:
-      drawArrow(29+((millis()/400)%2),y1+5,3,1,false);
+      graphics.drawArrow(29+((millis()/400)%2),y1+5,3,1,false);
       break;
     case 1:
-      drawArrow(61+((millis()/400)%2),y1+25,3,1,false);
+      graphics.drawArrow(61+((millis()/400)%2),y1+25,3,1,false);
       break;
     case 2:
-      drawArrow(82+((millis()/400)%2),y1+40,3,1,false);
+      graphics.drawArrow(82+((millis()/400)%2),y1+40,3,1,false);
       break;
   }
   //channel icon

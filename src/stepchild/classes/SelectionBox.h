@@ -260,7 +260,7 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
     //draw a note bracket on any note that's been added to the selection
     for(int track = 0; track<selectedNotes.size(); track++){
       for(int note = 0; note<selectedNotes[track].size(); note++){
-        drawNoteBracket(seqData[track][selectedNotes[track][note]],track);
+        graphics.drawNoteBracket(seqData[track][selectedNotes[track][note]],track);
       }
     }
     display.display();
@@ -359,7 +359,7 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
     display.clearDisplay();
     drawSeq(true, false, true, false, false, false, viewStart, viewEnd);
     if(!selectionCount){
-      printSmall(trackDisplay,0,"select notes to "+text+"!",1);
+      printSmall(trackDisplay,0,"select notes to "+text,1);
     }
     else{
       printSmall(trackDisplay,0,"[n] to "+text+" "+stringify(selectionCount)+(selectionCount == 1?" note":" notes"),1);

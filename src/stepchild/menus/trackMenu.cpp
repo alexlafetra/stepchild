@@ -416,7 +416,7 @@ void Menu::displayTrackMenu_trackEdit(uint8_t xCursor){
   
   //menu highlight
   if(highlight == 3)
-    drawArrow(coords.x1+25+((millis()/200)%2),39,2,1,true);
+    graphics.drawArrow(coords.x1+25+((millis()/200)%2),39,2,1,true);
   //first column
   else if(highlight>=4 && highlight<=6)
     display.drawRoundRect(coords.x1+3,34+7*(highlight-3),15,9,2,SSD1306_WHITE);
@@ -540,7 +540,7 @@ void Menu::displayTrackMenu(){
   
   //menu highlight
   if(highlight == 3)
-    drawArrow(coords.x1+28+((millis()/200)%2),39,2,1,true);
+    graphics.drawArrow(coords.x1+28+((millis()/200)%2),39,2,1,true);
   //first column
   else if(highlight>=4 && highlight<=6){
     display.drawRoundRect(coords.x1+3,34+7*(highlight-3),15,9,2,SSD1306_WHITE);
@@ -690,7 +690,7 @@ void drawTrackInfo(uint8_t xCursor){
     if(track == activeTrack){
       //track
       if(xCursor == 0)
-        drawArrow(3+((millis()/200)%2),y1+7,2,0,true);
+        graphics.drawArrow(3+((millis()/200)%2),y1+7,2,0,true);
       //note
       else if(xCursor == 1){
         if(getTrackPitch(track).length()>1)

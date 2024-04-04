@@ -256,7 +256,7 @@ void CVMenu(){
         }
         display.clearDisplay();
         printSmall(0,1,"CV is ",1);
-        drawLabel(28,1,CV.on?"on":"off",true);
+        graphics.drawLabel(28,1,CV.on?"on":"off",true);
         drawCVOsc(CV.currentPitch,127,CV.gateState);
         if(CV.currentPitch == -1){
             printSmall(0,57,"CV: 0V",1);

@@ -117,25 +117,25 @@ void displayStrumMenu(uint8_t cursor, uint8_t sortType, uint8_t sortedValue, uin
     String amt = stepsToMeasures(amount);
     graphics.printFraction_small(0,3,amt);
     if(cursor == 0){
-        drawArrow(amt.length()*4+((millis()/400)%2),5,3,1,false);
+        graphics.drawArrow(amt.length()*4+((millis()/400)%2),5,3,1,false);
     }
     //type (ascending/descending)
     String type = sortType?stringify("ascending"):stringify("descending");
     printSmall(screenWidth-type.length()*4,1,type,1);
     if(cursor == 1){
-        drawArrow(screenWidth-type.length()*4-4+((millis()/400)%2),3,3,0,false);
+        graphics.drawArrow(screenWidth-type.length()*4-4+((millis()/400)%2),3,3,0,false);
     }
     //randomness
     String rnd = "vary - "+stringify(variation)+"%";
     printSmall(0,58,rnd,1);
     if(cursor == 2){
-        drawArrow(rnd.length()*4+((millis()/400)%2),60,3,1,false);
+        graphics.drawArrow(rnd.length()*4+((millis()/400)%2),60,3,1,false);
     }
     //target (pitch/track)
     String by = "by "+(sortedValue?stringify("trk #"):stringify("$"));
     printSmall(screenWidth-by.length()*4,58,by,1);
     if(cursor == 3){
-        drawArrow(screenWidth-by.length()*4-4+((millis()/400)%2),60,3,0,false);
+        graphics.drawArrow(screenWidth-by.length()*4-4+((millis()/400)%2),60,3,0,false);
     }
 }
 

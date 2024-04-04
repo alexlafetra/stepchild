@@ -173,21 +173,25 @@ class HeadlessMIDI{
 
     void sendCC(uint8_t cc, uint8_t v, uint8_t c){
         // 11<<4 to turn it into 10110000, then | with the channel to add the channel
-        vector<uint8_t> message = {static_cast<unsigned char>((11<<4)|(c&15)),cc,v};
+//        vector<uint8_t> message = {static_cast<unsigned char>((11<<4)|(c&15)),cc,v};
+        //or, you can use the binary numbersdirectly
+        vector<uint8_t> message = {static_cast<unsigned char>(0b10110000|(0b01111111&c)),cc,v};
         virtualMidiOut->sendMessage( &message );
     }
     void allOff(){
-        vector<uint8_t> message = {11<<4,123,0};//all off on channel 0 (should you implement the other channels?)
+//        vector<uint8_t> message = {11<<4,123,0};//all off on channel 0 (should you implement the other channels?)
+        vector<uint8_t> message = {0b10110000,123,0};//all off on channel 0 (should you implement the other channels?)
         virtualMidiOut->sendMessage( &message );
     }
     void noteOn(uint8_t pitch, uint8_t vel, uint8_t channel){
         // 11<<4 to turn it into 10010000, then | with the channel to add the channel
-        vector<uint8_t> message = {static_cast<unsigned char>((9<<4)|(channel&(uint8_t)15)),pitch,vel};
+        vector<uint8_t> message = {static_cast<unsigned char>(0b10010000|(channel&(uint8_t)15)),pitch,vel};
         virtualMidiOut->sendMessage( &message );
     }
     void noteOff(uint8_t pitch, uint8_t vel, uint8_t channel){
         // 11<<4 to turn it into 10000000, then | with the channel to add the channel
-        vector<uint8_t> message = {static_cast<unsigned char>((8<<4)|(channel&15)),pitch,vel};
+//        vector<uint8_t> message = {static_cast<unsigned char>((8<<4)|(channel&15)),pitch,vel};
+        vector<uint8_t> message = {static_cast<unsigned char>(0b10000000|(channel&15)),pitch,vel};
         virtualMidiOut->sendMessage( &message );
     }
     //not really applicable in headless mode! the midi ports are *always* listening

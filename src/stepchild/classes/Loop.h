@@ -814,7 +814,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
       if(loop+firstLoop == activeLoop){
         //highlight arrow
         if(highlight == activeLoop){
-          drawArrow(xStart-9+((millis()/200)%2)+2, yStart+(loopHeight+3)*loop+4,2,0,true);
+          graphics.drawArrow(xStart-9+((millis()/200)%2)+2, yStart+(loopHeight+3)*loop+4,2,0,true);
         }
         //loop types
         switch(loopData[activeLoop].type){
@@ -857,7 +857,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
         }
         else{
           // play * iterations
-          drawArrow(x1+2,yStart+(loopHeight+3)*loop+3,2,0,true);
+          graphics.drawArrow(x1+2,yStart+(loopHeight+3)*loop+3,2,0,true);
           x1+=4;
           printSmall(x1,yStart+(loopHeight+3)*loop+1, "|"+stringify(loopData[activeLoop].reps+1), SSD1306_WHITE);
           x1+=4*(stringify(loopData[activeLoop].reps+1).length()+1)+1;
@@ -869,7 +869,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
       //highlighted loop
       else if(loop+firstLoop == highlight){
         //highlight arrow
-        drawArrow(xStart-9+((millis()/200)%2)+2, yStart+(loopHeight+3)*loop+4,2,0,true);
+        graphics.drawArrow(xStart-9+((millis()/200)%2)+2, yStart+(loopHeight+3)*loop+4,2,0,true);
         //loop types
         switch(loopData[highlight].type){
           //normal
@@ -905,7 +905,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
         //length
         x1+=graphics.printFraction_small(x1,yStart+(loopHeight+3)*loop+1,stepsToMeasures(loopData[highlight].end-loopData[highlight].start))+2;
         // play symbol
-        drawArrow(x1+2,yStart+(loopHeight+3)*loop+3,2,0,true);
+        graphics.drawArrow(x1+2,yStart+(loopHeight+3)*loop+3,2,0,true);
         x1+=4;
         // iterations
         printSmall(x1,yStart+(loopHeight+3)*loop+1, "|"+stringify(loopData[highlight].reps+1), SSD1306_WHITE);

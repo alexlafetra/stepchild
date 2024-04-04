@@ -54,8 +54,11 @@ void setup() {
 
   //start the display and throw an error if it doesn't work
   //(probably not very helpful)
-  if(!display.begin(SSD1306_SWITCHCAPVCC, i2c_Address)) {
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR)) {
+    Serial.println("Display won't turn on!");
+    Serial.flush();
   }
+
   //Set the display rotation (which is ~technically~ upside down)
   display.setRotation(UPRIGHT);
   //turn text wrapping off, so our menus look ok
@@ -69,7 +72,7 @@ void setup() {
   //setting up the pinout
   setupPins();
 
-  CV.init();
+  // CV.init();
 
   //wait for tinyUSB to connect, if the USB port is connected (not sure if this is necessary, need to test)
   if(tud_connected()){
@@ -77,6 +80,7 @@ void setup() {
       delay(1);
     }
   }
+  lowerBoard.initialize();
 
   //--------------------------------------------------------------------//
   //                              Software                              //
@@ -98,7 +102,7 @@ void setup() {
   core0ready = true;
   lastTime = millis();
   bootscreen_2();
-  testCVPitches();
+  // testCVPitches();
 }
 #endif
 #ifdef HEADLESS
@@ -130,6 +134,11 @@ void setup(){
   core0ready = true;
   lastTime = millis();
   bootscreen_2();
+  // while(true){
+  //   display.clearDisplay();
+  //   printCursive(10,29,"unsound instruments",1);
+  //   display.display();
+  // }
   updateLEDs();
 }
 #endif

@@ -416,36 +416,36 @@ void rain(){
       printSmall(2-menuOffset,y1+spacing*2,stringify(minOct)+" to "+stringify(maxOct),1);
       printSmall(-menuOffset,y1+spacing*3,"vel:",1);
       printSmall(2-menuOffset,y1+spacing*4,stringify(minVel)+" to "+stringify(maxVel),1);
-      drawLabel(18-menuOffset,y1+spacing*5+2,"from seq",grabNotesFromPlaylist);
-      drawLabel(18-menuOffset,y1+spacing*6+6,"show txt",showingText);
-      drawLabel(18-menuOffset,y1+spacing*7+10,"quit",cursor==5);
+      graphics.drawLabel(18-menuOffset,y1+spacing*5+2,"from seq",grabNotesFromPlaylist);
+      graphics.drawLabel(18-menuOffset,y1+spacing*6+6,"show txt",showingText);
+      graphics.drawLabel(18-menuOffset,y1+spacing*7+10,"quit",cursor==5);
       switch(cursor){
         //pitchlist
         case 0:
-          drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2,3,1,false);
+          graphics.drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2,3,1,false);
           break;
         //octaves
         case 1:
-          drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2+spacing*2,3,1,false);
+          graphics.drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2+spacing*2,3,1,false);
           for(uint8_t i = 1; i<abs(maxOct-minOct); i++){
             display.drawFastVLine(i*screenWidth/abs(maxOct-minOct),24,16,1);
           }
           break;
         //vel
         case 2:
-          drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2+spacing*4,3,1,false);
+          graphics.drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2+spacing*4,3,1,false);
           break;
         //grab notes from playlist (wip)
         case 3:
-          drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2+spacing*5+2,3,1,false);
+          graphics.drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2+spacing*5+2,3,1,false);
           break;
         //show numbers
         case 4:
-          drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2+spacing*6+6,3,1,false);
+          graphics.drawArrow(menuWidth-menuOffset-3+((millis()/400)%2),y1+2+spacing*6+6,3,1,false);
           break;
         //exit
         case 5:
-          drawArrow(menuWidth-menuOffset-10+((millis()/400)%2),y1+2+spacing*7+10,3,1,false);
+          graphics.drawArrow(menuWidth-menuOffset-10+((millis()/400)%2),y1+2+spacing*7+10,3,1,false);
           break;
       }
     }

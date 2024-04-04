@@ -1,6 +1,6 @@
-WireFrame getMainMenuWireFrame(){
+WireFrame getMainMenuWireFrame(uint8_t which){
   WireFrame w;
-  switch(activeMenu.highlight){
+  switch(which){
     //autotracks
     case 0:
       w = makeGraphBox(5);
@@ -51,8 +51,9 @@ WireFrame getMainMenuWireFrame(){
       break;
     //arp
     case 11:
-      w = makeHand_flat(0,0,0,0,0);
-      w.yPos = 32;
+      // w = makeHand_flat(0,0,0,0,0);
+      w = makeArpBoxes(millis());
+      w.yPos = 16;
       break;
   }
   return w;
@@ -112,9 +113,12 @@ void animateIcon(WireFrame* w){
       break;
     //arp
     case 11:
-      handAnimation(w);
-      w -> yPos=20+2*((millis()/400)%2);
-      w -> rotate(4*sin(millis()/400),1);
+      // handAnimation(w);
+      // w -> yPos=20+2*((millis()/400)%2);
+      // w -> rotate(4*sin(millis()/400),1);
+      WireFrame temp = makeArpBoxes(millis());
+      w -> verts = temp.verts;
+      w -> yPos = 16;
       break;
   }
 }
@@ -295,11 +299,11 @@ void drawMainMenuLabel(){
       text = "ARP";
       break;
   }
-  drawLabel(112,34,text,true);
+  graphics.drawLabel(112,34,text,true);
 }
 void mainMenu(){
   uint8_t activeWireFrame;
-  WireFrame icon = getMainMenuWireFrame();
+  WireFrame icon = getMainMenuWireFrame(activeMenu.highlight);
   icon.xPos = 112;
   icon.yPos = 16;
   while(true){
@@ -311,7 +315,7 @@ void mainMenu(){
     
     //if the highlight changes, get the new wireFrame
     if(activeWireFrame != activeMenu.highlight){
-      icon = getMainMenuWireFrame();
+      icon = getMainMenuWireFrame(activeMenu.highlight);
       icon.xPos = 112;
       if(activeMenu.highlight == 7)
         icon.yPos = 11;
@@ -323,7 +327,7 @@ void mainMenu(){
     animateIcon(&icon);
     display.clearDisplay();
     drawSeq(true,false,true,false,false);
-    drawPram(5,0);
+    drawPram();
     display.fillCircle(111,15,23,0);
     display.drawCircle(111,15,23,1);
     activeMenu.displayMainMenu();

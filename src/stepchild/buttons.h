@@ -217,14 +217,15 @@ void readButtons_MPX(){
   }
 
   if(LEDsOn){
-    digitalWrite(buttons_load,LOW);
-    digitalWrite(buttons_load,HIGH);
-    digitalWrite(buttons_clockIn, HIGH);
-    digitalWrite(buttons_clockEnable,LOW);
-    unsigned char bits_stepButtons = shiftIn(stepButtons_dataIn, buttons_clockIn, MSBFIRST);
-    digitalWrite(buttons_clockEnable, HIGH);
-    for(int digit = 0; digit<8; digit++){
-      step_buttons[digit] = !((bits_stepButtons>>digit)&1);
+    uint8_t capButtons = lowerBoard.getStateOfMainButtons();
+    for(uint8_t digit = 0; digit<8; digit++){
+      step_buttons[digit] = (capButtons>>digit)&1;
+    }
+    lowerBoard.reset();
+  }
+  else{
+    for(uint8_t digit = 0; digit<8; digit++){
+      step_buttons[digit] = 0;
     }
   }
 

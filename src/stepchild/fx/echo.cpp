@@ -86,7 +86,7 @@ void drawEchoMenu(uint8_t cursor){
       graphics.printFraction_small_centered(64,29,text);
 
       //arrows
-      drawArrow(78-((millis()/400)%2),31,3,0,false);
+      graphics.drawArrow(78-((millis()/400)%2),31,3,0,false);
       }
       break;
     case 1:{
@@ -97,8 +97,8 @@ void drawEchoMenu(uint8_t cursor){
       display.drawFastHLine(29,46,66,SSD1306_BLACK);
       printSmall(64-stringify(echoData.repeats).length()*2,29,stringify(echoData.repeats),SSD1306_WHITE);
       
-      drawArrow(78-((millis()/400)%2),31,3,0,false);
-      drawArrow(50+((millis()/400)%2),31,3,1,false);
+      graphics.drawArrow(78-((millis()/400)%2),31,3,0,false);
+      graphics.drawArrow(50+((millis()/400)%2),31,3,1,false);
       }
       break;
     case 2:{
@@ -109,7 +109,7 @@ void drawEchoMenu(uint8_t cursor){
       display.drawFastHLine(49,46,30,SSD1306_BLACK);
       printSmall(64-(stringify(echoData.decay).length()+1)*2,29,stringify(echoData.decay)+"%",SSD1306_WHITE);
       
-      drawArrow(50+((millis()/400)%2),31,3,1,false);
+      graphics.drawArrow(50+((millis()/400)%2),31,3,1,false);
       }
       break;
   }

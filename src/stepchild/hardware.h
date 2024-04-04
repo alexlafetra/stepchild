@@ -18,6 +18,63 @@ void enterBootsel(){
   // display.display();
   reset_usb_boot(1<<PICO_DEFAULT_LED_PIN,0);
 }
+void writeLEDs(uint8_t data){
+  lowerBoard.writeLEDs(data);
+}
+
+void writeLEDs(uint8_t led, bool state){
+  if(LEDsOn){
+    bool leds[8];
+    leds[led] = state;
+    writeLEDs(leds);
+  }
+}
+//this one turns on a range of LEDS
+void writeLEDs(uint8_t first, uint8_t last){
+  uint8_t dat = 0;
+  if(LEDsOn){
+    for(int i = 0; i<8; i++){
+      dat = dat<<1;
+      if(i >= first && i <= last){
+        dat++;
+      }
+    }
+  }
+  dat = ((dat * 0x0802LU & 0x22110LU) | (dat * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
+  // sending data to shift reg
+  // digitalWrite(latchPin_LEDS, LOW);
+  // shiftOut(dataPin_LEDS, clockPin_LEDS, MSBFIRST, dat);
+  // digitalWrite(latchPin_LEDS, HIGH);
+  writeLEDs(dat);
+}
+void writeLEDs(bool leds[8]){
+  uint8_t dat = 0;
+  if(LEDsOn){
+    for(int i = 0; i<8; i++){
+      dat = dat<<1;
+      if(leds[i]){
+        dat++;
+      }
+    }
+  }
+  dat = ((dat * 0x0802LU & 0x22110LU) | (dat * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
+  writeLEDs(dat);
+}
+
+void turnOffLEDs(){
+  uint8_t dat = 0;
+  // sending data to shift reg
+  writeLEDs(dat);
+}
+
+void restartDisplay(){
+  #ifndef HEADLESS
+  Wire.end();
+  // Wire.begin();
+  display.begin(SCREEN_ADDR,true);
+  display.display();
+  #endif
+}
 
 
 //array to hold the LED states
@@ -52,70 +109,12 @@ void updateLEDs(){
   //https://dronebotworkshop.com/shift-registers/
 
   // sending data to shift reg
-  digitalWrite(latchPin_LEDS, LOW);
-  shiftOut(dataPin_LEDS, clockPin_LEDS, MSBFIRST, dat);
-  digitalWrite(latchPin_LEDS, HIGH);
-
-  // printByte(dat);
+  // digitalWrite(latchPin_LEDS, LOW);
+  // shiftOut(dataPin_LEDS, clockPin_LEDS, MSBFIRST, dat);
+  // digitalWrite(latchPin_LEDS, HIGH);
+  writeLEDs(dat);
 }
 
-void writeLEDs(uint8_t led, bool state){
-  if(LEDsOn){
-    bool leds[8];
-    leds[led] = state;
-    writeLEDs(leds);
-  }
-}
-//this one turns on a range of LEDS
-void writeLEDs(uint8_t first, uint8_t last){
-  uint8_t dat = 0;
-  if(LEDsOn){
-    for(int i = 0; i<8; i++){
-      dat = dat<<1;
-      if(i >= first && i <= last){
-        dat++;
-      }
-    }
-  }
-  dat = ((dat * 0x0802LU & 0x22110LU) | (dat * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
-  // sending data to shift reg
-  digitalWrite(latchPin_LEDS, LOW);
-  shiftOut(dataPin_LEDS, clockPin_LEDS, MSBFIRST, dat);
-  digitalWrite(latchPin_LEDS, HIGH);
-}
-void writeLEDs(bool leds[8]){
-  uint8_t dat = 0;
-  if(LEDsOn){
-    for(int i = 0; i<8; i++){
-      dat = dat<<1;
-      if(leds[i]){
-        dat++;
-      }
-    }
-  }
-  dat = ((dat * 0x0802LU & 0x22110LU) | (dat * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
-  // sending data to shift reg
-  digitalWrite(latchPin_LEDS, LOW);
-  shiftOut(dataPin_LEDS, clockPin_LEDS, MSBFIRST, dat);
-  digitalWrite(latchPin_LEDS, HIGH);
-}
-
-void turnOffLEDs(){
-  uint8_t dat = 0;
-  // sending data to shift reg
-  digitalWrite(latchPin_LEDS, LOW);
-  shiftOut(dataPin_LEDS, clockPin_LEDS, MSBFIRST, dat);
-  digitalWrite(latchPin_LEDS, HIGH);
-}
-
-void restartDisplay(){
-  #ifndef HEADLESS
-  Wire.end();
-  // Wire.begin();
-  display.begin(i2c_Address,true);
-  display.display();
-  #endif
-}
 
 
 //Sleep---------------------------

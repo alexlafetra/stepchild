@@ -24,6 +24,8 @@
         "queue": "cpp",
         "stack": "cpp",
         "iosfwd": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "complex": "cpp",
+        "cmath": "cpp"
     }
 }

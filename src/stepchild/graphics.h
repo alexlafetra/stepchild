@@ -115,7 +115,7 @@ class StepchildGraphics{
   }
 
   void drawCenteredBracket(int x1, int y1, int length, int height){
-    drawNoteBracket(x1-length/2,y1-height/2,length, height, false);
+    this->drawNoteBracket(x1-length/2,y1-height/2,length, height, false);
   }
 
   void drawBinarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, bool state){
@@ -418,261 +418,265 @@ class StepchildGraphics{
       }
     }
   }
+  void drawStar(uint8_t centerX, uint8_t centerY, uint8_t r1, uint8_t r2, uint8_t points){
+    uint8_t numberOfPoints = points*2;//the actual number of points (both convex and concave vertices)
+    uint8_t coords[numberOfPoints][2];
+    for(uint8_t pt = 0; pt<numberOfPoints; pt++){
+      vector<uint8_t> pair;
+      //if it's odd, it's a convex point
+      if(!(pt%2))
+        pair = utils.getRadian(centerX, centerY, r1, r1, pt*360/numberOfPoints);
+      else
+        pair = utils.getRadian(centerX, centerY, r2, r2, pt*360/numberOfPoints);
+      coords[pt][0] = pair[0];
+      coords[pt][1] = pair[1];
+    }
+    for(uint8_t pt = 0; pt<numberOfPoints; pt++){
+      if(pt == numberOfPoints-1){
+        display.drawLine(coords[pt][0],coords[pt][1],coords[0][0],coords[0][1],SSD1306_WHITE);
+      }
+      else{
+        display.drawLine(coords[pt][0],coords[pt][1],coords[pt+1][0],coords[pt+1][1],SSD1306_WHITE);
+      }
+    }
+  }
+  void printChannel(uint8_t xPos, uint8_t yPos, uint8_t channel, bool withBox){
+    if(withBox){
+      display.fillRect(xPos-2,yPos-2,4*(8+stringify(channel).length())+3,9,SSD1306_BLACK);
+      display.drawRect(xPos-2,yPos-2,4*(8+stringify(channel).length())+3,9,SSD1306_WHITE);
+    }
+    printSmall(xPos,yPos,"Channel:"+stringify(channel),SSD1306_WHITE);
+  }
+  //draws a horizontal bar graph -- so far totally unused
+  void drawBarGraphH(int xStart, int yStart, int thickness, int length, float progress){
+    float percentage = progress*length;
+    display.fillRect(xStart,yStart,length,thickness,SSD1306_BLACK);
+    display.drawRect(xStart,yStart,length,thickness,SSD1306_WHITE);
+    display.fillRect(xStart,yStart,percentage,thickness,SSD1306_WHITE);
+    display.drawRect(xStart+1,yStart+1,length-2,thickness-2,SSD1306_BLACK);
+  }
+  //Draws percentage bar showing how full the sequence is
+  void drawSequenceMemoryBar(uint8_t x1, uint8_t y1, uint8_t length){
+    float free = rp2040.getFreeHeap();
+    float total = rp2040.getTotalHeap();
+    float percentageUsed = 1.0 - free/total;
+    // display.fillRoundRect(x1-14,y1-2,length+16,9,3,0);
+    // display.drawRoundRect(x1-14,y1-2,length+16,9,3,1);
+    this->drawBarGraphH(x1,y1,5,length,percentageUsed);
+    printSmall(x1-12,y1,"mem",1);
+  }
+  #define RIGHT 0
+  #define LEFT 1
+  #define UP 2
+  #define DOWN 3
+  
+  void drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, bool full){
+    switch(direction){
+      //right
+      case RIGHT:
+        if(full)
+          display.fillTriangle(pointX, pointY, pointX-size, pointY-size, pointX-size, pointY+size,SSD1306_WHITE);
+        else{
+          display.fillTriangle(pointX, pointY, pointX-size, pointY-size, pointX-size, pointY+size,SSD1306_BLACK);
+          display.drawTriangle(pointX, pointY, pointX-size, pointY-size, pointX-size, pointY+size,SSD1306_WHITE);
+        }
+        break;
+      //left
+      case LEFT:
+        if(full)
+          display.fillTriangle(pointX, pointY,pointX+size, pointY-size, pointX+size, pointY+size,SSD1306_WHITE);
+        else{
+          display.fillTriangle(pointX, pointY,pointX+size, pointY-size, pointX+size, pointY+size,SSD1306_BLACK);
+          display.drawTriangle(pointX, pointY,pointX+size, pointY-size, pointX+size, pointY+size,SSD1306_WHITE);
+        }
+        break;
+      //up
+      case UP:
+        if(full)
+          display.fillTriangle(pointX, pointY, pointX-size, pointY+size, pointX+size, pointY+size, SSD1306_WHITE);
+        else{
+          display.fillTriangle(pointX, pointY, pointX-size, pointY+size, pointX+size, pointY+size, SSD1306_BLACK);
+          display.drawTriangle(pointX, pointY, pointX-size, pointY+size, pointX+size, pointY+size, SSD1306_WHITE);
+        }
+        break;
+      //down
+      case DOWN:
+        if(full)
+          display.fillTriangle(pointX, pointY, pointX-size, pointY-size, pointX+size, pointY-size, SSD1306_WHITE);
+        else{
+          display.fillTriangle(pointX, pointY, pointX-size, pointY-size, pointX+size, pointY-size, SSD1306_BLACK);
+          display.drawTriangle(pointX, pointY, pointX-size, pointY-size, pointX+size, pointY-size, SSD1306_WHITE);
+        }
+        break;
+    }
+  }
+
+  void drawArrow_highlight(uint8_t pointX,uint8_t pointY, uint8_t size, uint8_t direction){
+    this->drawArrow(pointX,pointY,size+2,direction,true);
+    switch(direction){
+      case RIGHT:
+        this->drawArrow(pointX-1,pointY,size,direction,false);
+        break;
+      case LEFT:
+        this->drawArrow(pointX+1,pointY,size,direction,false);
+        break;
+      case UP:
+        this->drawArrow(pointX,pointY+1,size,direction,false);
+        break;
+      case DOWN:
+        this->drawArrow(pointX,pointY-1,size,direction,false);
+        break;
+    }
+  }
+  //bracket around a note
+  void drawNoteBracket(int x1, int y1, int length, int height, bool animated){
+    float offset;
+    if(animated){
+      offset = ((millis()/400)%2);
+    }
+    else
+      offset = 0;
+    x1++;
+    y1++;
+    length-=2;
+    height-=2;
+    if(x1>=viewStart){
+      //topL
+      display.drawLine(x1-2-offset,y1-2-offset,x1+1-offset,y1-2-offset,SSD1306_WHITE);
+      display.drawLine(x1-2-offset,y1-2-offset,x1-2-offset,y1+1-offset,SSD1306_WHITE);
+      //bottomL
+      display.drawLine(x1-2-offset,y1+height+2+offset,x1+1-offset,y1+height+2+offset,SSD1306_WHITE);
+      display.drawLine(x1-2-offset,y1+height+2+offset,x1-2-offset,y1+height-1+offset,SSD1306_WHITE);
+    }
+    if(x1+length<=viewEnd){
+      //topR
+      display.drawLine(x1+length+2+offset,y1-2-offset,x1+length-1+offset,y1-2-offset,SSD1306_WHITE);
+      display.drawLine(x1+length+2+offset,y1-2-offset,x1+length+2+offset,y1+1-offset,SSD1306_WHITE);
+      //bottomR
+      display.drawLine(x1+length+2+offset,y1+height+2+offset,x1+length-1+offset,y1+height+2+offset,SSD1306_WHITE);
+      display.drawLine(x1+length+2+offset,y1+height+2+offset,x1+length+2+offset,y1+height-1+offset,SSD1306_WHITE);
+    }
+  }
+
+  void drawNoteBracket(int x1, int y1, int length, int height){
+    this->drawNoteBracket(x1, y1, length, height, true);
+  }
+
+  void drawNoteBracket(Note note, int track){
+    this->drawNoteBracket(trackDisplay+(note.startPos-viewStart)*scale,headerHeight+(track-startTrack)*trackHeight,(note.endPos-note.startPos+1)*scale,trackHeight);
+  }
+
+  void drawSelectionBracket(){
+    vector<uint16_t> bounds  = getSelectedNotesBoundingBox();
+    //if the left side is in view
+    if(bounds[0]>=viewStart){
+      //if the top L corner is in view
+      uint8_t x1 = (bounds[0]-viewStart)*scale+trackDisplay-((millis()/200)%2);
+      if(bounds[1]>=startTrack){
+        //y coord relative to the view
+        uint8_t y1 = (bounds[1]-startTrack)*trackHeight+headerHeight-((millis()/200)%2);
+        display.drawLine(x1,y1,x1+5,y1,SSD1306_WHITE);
+        display.drawLine(x1,y1-1,x1+5,y1-1,SSD1306_WHITE);
+        display.drawLine(x1,y1,x1,y1+5,SSD1306_WHITE);
+        display.drawLine(x1-1,y1,x1-1,y1+5,SSD1306_WHITE);
+      }
+      //if the bottom L corner is in view
+      if(bounds[3]<=endTrack){
+        //y coord relative to the view
+        uint8_t y1 = (bounds[3]-startTrack+1)*trackHeight+headerHeight+((millis()/200)%2);
+        display.drawLine(x1,y1,x1+5,y1,SSD1306_WHITE);
+        display.drawLine(x1,y1+1,x1+5,y1+1,SSD1306_WHITE);
+        display.drawLine(x1,y1,x1,y1-5,SSD1306_WHITE);
+        display.drawLine(x1-1,y1,x1-1,y1-5,SSD1306_WHITE);
+      }
+    }
+    //if the right corner is in view
+    if(bounds[2]<viewEnd){
+      uint8_t x1 = (bounds[2]-viewStart)*scale+trackDisplay+((millis()/200)%2)+1;
+      //top R corner
+      if(bounds[1]>=startTrack){
+        uint8_t y1 = (bounds[1]-startTrack)*trackHeight+headerHeight-((millis()/200)%2);
+        display.drawLine(x1,y1,x1-5,y1,SSD1306_WHITE);
+        display.drawLine(x1,y1-1,x1-5,y1-1,SSD1306_WHITE);
+        display.drawLine(x1,y1,x1,y1+5,SSD1306_WHITE);
+        display.drawLine(x1+1,y1,x1+1,y1+5,SSD1306_WHITE);
+      }
+      //bottom R corner
+      if(bounds[3]<=endTrack){
+        uint8_t y1 = (bounds[3]-startTrack+1)*trackHeight+headerHeight+((millis()/200)%2);
+        display.drawLine(x1,y1,x1-5,y1,SSD1306_WHITE);
+        display.drawLine(x1,y1+1,x1-5,y1+1,SSD1306_WHITE);
+        display.drawLine(x1,y1,x1,y1-5,SSD1306_WHITE);
+        display.drawLine(x1+1,y1,x1+1,y1-5,SSD1306_WHITE);
+      }
+    }
+  }
+
+  void drawBanner(int8_t x1, int8_t y1, String text){
+    display.drawBitmap(x1-13,y1-4,bannerL_bmp,12,9,SSD1306_WHITE);
+    // display.drawBitmap(x1+text.length()*4-countSpaces(text)*2,y1,bannerR_bmp,11,9,SSD1306_WHITE);
+    display.setRotation(UPSIDEDOWN);
+    display.drawBitmap(screenWidth-(x1+text.length()*4-countSpaces(text)*2+countChar(text,'#')*2)-12,screenHeight-y1-9,bannerL_bmp,12,9,SSD1306_WHITE);
+    display.setRotation(UPRIGHT);
+    display.fillRect(x1-1,y1-1,text.length()*4-countSpaces(text)*2+countChar(text,'#')*2+1,7,SSD1306_WHITE);
+    printSmall(x1,y1,text,SSD1306_BLACK);
+  }
+
+  void drawCenteredBanner(int8_t x1, int8_t y1, String text){
+    uint8_t len = text.length()*4-countSpaces(text)*2+countChar(text,'#')*2;
+    x1-=len/2;
+    this->drawBanner(x1,y1,text);
+  }
+
+  //draws a VU meter, where val is the angle of the needle
+  void drawVU(int8_t x1, int8_t y1, float val){
+    display.drawBitmap(x1,y1,VUmeter_bmp,19,14,SSD1306_WHITE);
+    float angle = radians(5)+(PI-radians(5))*val;
+    int8_t pY = 12*sin(angle);
+    int8_t pX = 12*cos(angle);
+    display.drawLine(x1+9,y1+12,x1+10+pX,y1+12-pY,SSD1306_BLACK);
+    display.drawRect(x1,y1,19,14,SSD1306_WHITE);
+  }
+  //draws a swinging pendulum, for the clock menu
+  void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val,uint8_t r){
+    //pendulum
+    int a = length;
+    int h = x2;
+    int k = y2;
+    float x1;
+    float y1;
+    x1 = h + a * cos(radians(val))/float(2.4);
+    // if (val > 180) {
+      // y1 = k - a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
+    // }
+    // else {
+      y1 = k + a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
+    // }
+    display.drawLine(x1,y1,h,k,SSD1306_WHITE);
+    display.fillCircle(x1,y1,r,SSD1306_BLACK);
+    display.drawCircle(x1,y1,r,SSD1306_WHITE);
+  }
+  //draws a pendulum where "val" is a the angle of the pendulum
+  void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val){
+    this->drawPendulum(x2,y2,length,val,3);
+  }
+  void drawLabel_outline(uint8_t x1, uint8_t y1, String text){
+    display.fillRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-2,text.length()*4-countSpaces(text)*2+5,9,3,0);
+    display.drawRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-2,text.length()*4-countSpaces(text)*2+5,9,3,1);
+    printSmall(x1-text.length()*2+countSpaces(text),y1,text,2);
+  }
+  void drawLabel(uint8_t x1, uint8_t y1, String text, bool wOrB){
+    if(wOrB){
+      display.fillRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-1,text.length()*4-countSpaces(text)*2+5,7,3,wOrB == true ? 1:0 );
+      printSmall(x1-text.length()*2+countSpaces(text),y1,text,2);
+    }
+    else{
+      this->drawLabel_outline(x1,y1,text);
+    }
+  }
 };
 
 StepchildGraphics graphics;
-
-vector<uint8_t> getRadian(uint8_t h, uint8_t k, int a, int b, float angle) {
-  float x1 = h + a * cos(radians(angle));
-  float y1;
-  if (angle > 180) {
-    y1 = k - b * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
-  }
-  else {
-    y1 = k + b * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
-  }
-  vector<uint8_t> coords = {uint8_t(x1),uint8_t(y1)};
-  return coords;
-}
-#define RIGHT 0
-#define LEFT 1
-#define UP 2
-#define DOWN 3
-
-void drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, bool full){
-  switch(direction){
-    //right
-    case RIGHT:
-      if(full)
-        display.fillTriangle(pointX, pointY, pointX-size, pointY-size, pointX-size, pointY+size,SSD1306_WHITE);
-      else{
-        display.fillTriangle(pointX, pointY, pointX-size, pointY-size, pointX-size, pointY+size,SSD1306_BLACK);
-        display.drawTriangle(pointX, pointY, pointX-size, pointY-size, pointX-size, pointY+size,SSD1306_WHITE);
-      }
-      break;
-    //left
-    case LEFT:
-      if(full)
-        display.fillTriangle(pointX, pointY,pointX+size, pointY-size, pointX+size, pointY+size,SSD1306_WHITE);
-      else{
-        display.fillTriangle(pointX, pointY,pointX+size, pointY-size, pointX+size, pointY+size,SSD1306_BLACK);
-        display.drawTriangle(pointX, pointY,pointX+size, pointY-size, pointX+size, pointY+size,SSD1306_WHITE);
-      }
-      break;
-    //up
-    case UP:
-      if(full)
-        display.fillTriangle(pointX, pointY, pointX-size, pointY+size, pointX+size, pointY+size, SSD1306_WHITE);
-      else{
-        display.fillTriangle(pointX, pointY, pointX-size, pointY+size, pointX+size, pointY+size, SSD1306_BLACK);
-        display.drawTriangle(pointX, pointY, pointX-size, pointY+size, pointX+size, pointY+size, SSD1306_WHITE);
-      }
-      break;
-    //down
-    case DOWN:
-      if(full)
-        display.fillTriangle(pointX, pointY, pointX-size, pointY-size, pointX+size, pointY-size, SSD1306_WHITE);
-      else{
-        display.fillTriangle(pointX, pointY, pointX-size, pointY-size, pointX+size, pointY-size, SSD1306_BLACK);
-        display.drawTriangle(pointX, pointY, pointX-size, pointY-size, pointX+size, pointY-size, SSD1306_WHITE);
-      }
-      break;
-  }
-}
-
-void drawArrow_highlight(uint8_t pointX,uint8_t pointY, uint8_t size, uint8_t direction){
-  drawArrow(pointX,pointY,size+2,direction,true);
-  switch(direction){
-    case RIGHT:
-      drawArrow(pointX-1,pointY,size,direction,false);
-      break;
-    case LEFT:
-      drawArrow(pointX+1,pointY,size,direction,false);
-      break;
-    case UP:
-      drawArrow(pointX,pointY+1,size,direction,false);
-      break;
-    case DOWN:
-      drawArrow(pointX,pointY-1,size,direction,false);
-      break;
-  }
-}
-
-//draws a horizontal bar graph
-void drawBarGraphH(int xStart, int yStart, int thickness, int length, float progress){
-  float percentage = progress*length;
-  display.fillRect(xStart,yStart,length,thickness,SSD1306_BLACK);
-  display.drawRect(xStart,yStart,length,thickness,SSD1306_WHITE);
-  display.fillRect(xStart,yStart,percentage,thickness,SSD1306_WHITE);
-  display.drawRect(xStart+1,yStart+1,length-2,thickness-2,SSD1306_BLACK);
-}
-
-//bracket around a note
-void drawNoteBracket(int x1, int y1, int length, int height, bool animated){
-  float offset;
-  if(animated){
-    offset = ((millis()/400)%2);
-  }
-  else
-    offset = 0;
-  x1++;
-  y1++;
-  length-=2;
-  height-=2;
-  if(x1>=viewStart){
-    //topL
-    display.drawLine(x1-2-offset,y1-2-offset,x1+1-offset,y1-2-offset,SSD1306_WHITE);
-    display.drawLine(x1-2-offset,y1-2-offset,x1-2-offset,y1+1-offset,SSD1306_WHITE);
-    //bottomL
-    display.drawLine(x1-2-offset,y1+height+2+offset,x1+1-offset,y1+height+2+offset,SSD1306_WHITE);
-    display.drawLine(x1-2-offset,y1+height+2+offset,x1-2-offset,y1+height-1+offset,SSD1306_WHITE);
-  }
-  if(x1+length<=viewEnd){
-    //topR
-    display.drawLine(x1+length+2+offset,y1-2-offset,x1+length-1+offset,y1-2-offset,SSD1306_WHITE);
-    display.drawLine(x1+length+2+offset,y1-2-offset,x1+length+2+offset,y1+1-offset,SSD1306_WHITE);
-    //bottomR
-    display.drawLine(x1+length+2+offset,y1+height+2+offset,x1+length-1+offset,y1+height+2+offset,SSD1306_WHITE);
-    display.drawLine(x1+length+2+offset,y1+height+2+offset,x1+length+2+offset,y1+height-1+offset,SSD1306_WHITE);
-  }
-}
-
-void drawNoteBracket(int x1, int y1, int length, int height){
-  drawNoteBracket(x1, y1, length, height, true);
-}
-
-void drawNoteBracket(Note note, int track){
-  drawNoteBracket(trackDisplay+(note.startPos-viewStart)*scale,headerHeight+(track-startTrack)*trackHeight,(note.endPos-note.startPos+1)*scale,trackHeight);
-}
-
-void drawSelectionBracket(){
-  vector<uint16_t> bounds  = getSelectedNotesBoundingBox();
-  //if the left side is in view
-  if(bounds[0]>=viewStart){
-    //if the top L corner is in view
-    uint8_t x1 = (bounds[0]-viewStart)*scale+trackDisplay-((millis()/200)%2);
-    if(bounds[1]>=startTrack){
-      //y coord relative to the view
-      uint8_t y1 = (bounds[1]-startTrack)*trackHeight+headerHeight-((millis()/200)%2);
-      display.drawLine(x1,y1,x1+5,y1,SSD1306_WHITE);
-      display.drawLine(x1,y1-1,x1+5,y1-1,SSD1306_WHITE);
-      display.drawLine(x1,y1,x1,y1+5,SSD1306_WHITE);
-      display.drawLine(x1-1,y1,x1-1,y1+5,SSD1306_WHITE);
-    }
-    //if the bottom L corner is in view
-    if(bounds[3]<=endTrack){
-      //y coord relative to the view
-      uint8_t y1 = (bounds[3]-startTrack+1)*trackHeight+headerHeight+((millis()/200)%2);
-      display.drawLine(x1,y1,x1+5,y1,SSD1306_WHITE);
-      display.drawLine(x1,y1+1,x1+5,y1+1,SSD1306_WHITE);
-      display.drawLine(x1,y1,x1,y1-5,SSD1306_WHITE);
-      display.drawLine(x1-1,y1,x1-1,y1-5,SSD1306_WHITE);
-    }
-  }
-  //if the right corner is in view
-  if(bounds[2]<viewEnd){
-    uint8_t x1 = (bounds[2]-viewStart)*scale+trackDisplay+((millis()/200)%2)+1;
-    //top R corner
-    if(bounds[1]>=startTrack){
-      uint8_t y1 = (bounds[1]-startTrack)*trackHeight+headerHeight-((millis()/200)%2);
-      display.drawLine(x1,y1,x1-5,y1,SSD1306_WHITE);
-      display.drawLine(x1,y1-1,x1-5,y1-1,SSD1306_WHITE);
-      display.drawLine(x1,y1,x1,y1+5,SSD1306_WHITE);
-      display.drawLine(x1+1,y1,x1+1,y1+5,SSD1306_WHITE);
-    }
-    //bottom R corner
-    if(bounds[3]<=endTrack){
-      uint8_t y1 = (bounds[3]-startTrack+1)*trackHeight+headerHeight+((millis()/200)%2);
-      display.drawLine(x1,y1,x1-5,y1,SSD1306_WHITE);
-      display.drawLine(x1,y1+1,x1-5,y1+1,SSD1306_WHITE);
-      display.drawLine(x1,y1,x1,y1-5,SSD1306_WHITE);
-      display.drawLine(x1+1,y1,x1+1,y1-5,SSD1306_WHITE);
-    }
-  }
-}
-
-void drawCenteredBanner(int8_t x1, int8_t y1, String text){
-  uint8_t len = text.length()*4-countSpaces(text)*2+countChar(text,'#')*2;
-  x1-=len/2;
-  drawBanner(x1,y1,text);
-}
-
-void drawBanner(int8_t x1, int8_t y1, String text){
-  display.drawBitmap(x1-13,y1-4,bannerL_bmp,12,9,SSD1306_WHITE);
-  // display.drawBitmap(x1+text.length()*4-countSpaces(text)*2,y1,bannerR_bmp,11,9,SSD1306_WHITE);
-  display.setRotation(UPSIDEDOWN);
-  display.drawBitmap(screenWidth-(x1+text.length()*4-countSpaces(text)*2+countChar(text,'#')*2)-12,screenHeight-y1-9,bannerL_bmp,12,9,SSD1306_WHITE);
-  display.setRotation(UPRIGHT);
-  display.fillRect(x1-1,y1-1,text.length()*4-countSpaces(text)*2+countChar(text,'#')*2+1,7,SSD1306_WHITE);
-  printSmall(x1,y1,text,SSD1306_BLACK);
-}
-
-//draws a VU meter, where val is the angle of the needle
-void drawVU(int8_t x1, int8_t y1, float val){
-  display.drawBitmap(x1,y1,VUmeter_bmp,19,14,SSD1306_WHITE);
-  float angle = radians(5)+(PI-radians(5))*val;
-  int8_t pY = 12*sin(angle);
-  int8_t pX = 12*cos(angle);
-  display.drawLine(x1+9,y1+12,x1+10+pX,y1+12-pY,SSD1306_BLACK);
-  display.drawRect(x1,y1,19,14,SSD1306_WHITE);
-}
-
-void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val){
-  drawPendulum(x2,y2,length,val,3);
-}
-//draws a swinging pendulum, for the clock menu
-void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val,uint8_t r){
-  //pendulum
-  int a = length;
-  int h = x2;
-  int k = y2;
-  float x1;
-  float y1;
-  x1 = h + a * cos(radians(val))/float(2.4);
-  // if (val > 180) {
-    // y1 = k - a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
-  // }
-  // else {
-    y1 = k + a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
-  // }
-  display.drawLine(x1,y1,h,k,SSD1306_WHITE);
-  display.fillCircle(x1,y1,r,SSD1306_BLACK);
-  display.drawCircle(x1,y1,r,SSD1306_WHITE);
-}
-
-void drawSideLabel(bool side, int8_t y1, String titleText, String bodyText){
-  switch(side){
-    //left
-    case 0:
-      display.fillRoundRect(0,y1-1,titleText.length()*4+4,7,4,1);
-      display.drawRoundRect(-5,y1+2,bodyText.length()*4+4,16,3,1);
-      printSmall(2,y1,titleText,2);
-      break;
-    //right
-    case 1:
-      break;
-  }
-}
-
-void drawLabel_outline(uint8_t x1, uint8_t y1, String text){
-  display.fillRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-2,text.length()*4-countSpaces(text)*2+5,9,3,0);
-  display.drawRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-2,text.length()*4-countSpaces(text)*2+5,9,3,1);
-  printSmall(x1-text.length()*2+countSpaces(text),y1,text,2);
-}
-void drawLabel(uint8_t x1, uint8_t y1, String text, bool wOrB){
-  if(wOrB){
-    display.fillRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-1,text.length()*4-countSpaces(text)*2+5,7,3,wOrB == true ? 1:0 );
-    printSmall(x1-text.length()*2+countSpaces(text),y1,text,2);
-  }
-  else{
-    drawLabel_outline(x1,y1,text);
-  }
-}
-
-void drawScaledBitmap(int x1, int y1, const unsigned char * bmp,int w, int h, uint8_t sc){
-
-}
-
 
 void drawSlider(uint8_t x1, uint8_t y1, uint8_t w, uint8_t h, bool state){
   display.fillRect(x1,y1,w,h,0);
@@ -720,7 +724,7 @@ void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask,
       display.drawPixel(i*(keyWidth+1)+2,y1+15,SSD1306_WHITE);
     //draw cursor indicator
     if(wKeyPattern[i]+12*octave == activeKey){
-      drawArrow(i*(keyWidth+1)+2,y1+17+((millis()/200)%2),3,2,true);
+      graphics.drawArrow(i*(keyWidth+1)+2,y1+17+((millis()/200)%2),3,2,true);
       printSmall(i*(keyWidth+1)+2-text.length()*2,y1+22+((millis()/200)%2),text,SSD1306_WHITE);
     }
 
@@ -753,7 +757,7 @@ void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask,
       display.drawPixel(xPos+2,y1+15,SSD1306_WHITE);
     //draw cursor indicator
     if(bKeyPattern[i]+12*octave == activeKey){
-      drawArrow(xPos+2,y1+17+((millis()/200)%2),3,2,false);
+      graphics.drawArrow(xPos+2,y1+17+((millis()/200)%2),3,2,false);
       printSmall(xPos+2-text.length()*2,y1+22+((millis()/200)%2),text,SSD1306_WHITE);
     }
 
@@ -782,29 +786,6 @@ void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask,
     //if it's not, just increment like normal
     else
       xPos+= 1+keyWidth;
-  }
-}
-
-void drawStar(uint8_t centerX, uint8_t centerY, uint8_t r1, uint8_t r2, uint8_t points){
-  uint8_t numberOfPoints = points*2;//the actual number of points (both convex and concave vertices)
-  uint8_t coords[numberOfPoints][2];
-  for(uint8_t pt = 0; pt<numberOfPoints; pt++){
-    vector<uint8_t> pair;
-    //if it's odd, it's a convex point
-    if(!(pt%2))
-      pair = getRadian(centerX, centerY, r1, r1, pt*360/numberOfPoints);
-    else
-      pair = getRadian(centerX, centerY, r2, r2, pt*360/numberOfPoints);
-    coords[pt][0] = pair[0];
-    coords[pt][1] = pair[1];
-  }
-  for(uint8_t pt = 0; pt<numberOfPoints; pt++){
-    if(pt == numberOfPoints-1){
-      display.drawLine(coords[pt][0],coords[pt][1],coords[0][0],coords[0][1],SSD1306_WHITE);
-    }
-    else{
-      display.drawLine(coords[pt][0],coords[pt][1],coords[pt+1][0],coords[pt+1][1],SSD1306_WHITE);
-    }
   }
 }
 
@@ -1365,13 +1346,7 @@ void drawMoon_reverse(int phase){
   }
 }
 
-void printChannel(uint8_t xPos, uint8_t yPos, uint8_t channel, bool withBox){
-  if(withBox){
-    display.fillRect(xPos-2,yPos-2,4*(8+stringify(channel).length())+3,9,SSD1306_BLACK);
-    display.drawRect(xPos-2,yPos-2,4*(8+stringify(channel).length())+3,9,SSD1306_WHITE);
-  }
-  printSmall(xPos,yPos,"Channel:"+stringify(channel),SSD1306_WHITE);
-}
+
 
 void drawProgBar(String text, float progress){
   display.setCursor(screenWidth-text.length()*10,screenHeight/2-8);
@@ -1383,51 +1358,6 @@ void drawProgBar(String text, float progress){
   display.fillRect(32,screenHeight/2+10,64*progress,8,SSD1306_WHITE);//filling it
   display.display();
 }
-
-void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation){
-  switch(rotation){
-    //down
-    case 0:
-      drawCurlyBracket(x1,y1,length,height,start,end);
-      break;
-    //up
-    case 1:
-      display.setRotation(UPSIDEDOWN);
-      drawCurlyBracket(screenWidth-x1,screenHeight-y1,length,height,start,end);
-      display.setRotation(UPRIGHT);
-      break;
-    //right
-    case 2:
-      display.setRotation(1);
-      drawCurlyBracket(y1,x1,height,length,start,end);
-      display.setRotation(UPRIGHT);
-      break;
-  }
-}
-
-void drawCurlyBracket(int16_t x1, uint8_t y1, uint8_t length,uint8_t height,bool start, bool end){
-  //left leg
-  if(start){
-    display.drawFastVLine(x1,y1-height,height,SSD1306_WHITE);
-    display.drawPixel(x1+1,y1-height-1,SSD1306_WHITE);
-    //left top
-    display.drawFastHLine(x1+2,y1-height-2,length/2-3,SSD1306_WHITE);
-  }
-  //if start is out of view
-  else{
-     display.drawFastHLine(trackDisplay,y1-height-2,length/2-3-(viewStart-x1),SSD1306_WHITE);
-  }
-  //middle
-  display.drawPixel(x1+length/2-1,y1-height-1,SSD1306_WHITE);
-  display.drawFastVLine(x1+length/2,y1-height-4,3,SSD1306_WHITE);
-  display.drawPixel(x1+length/2+1,y1-height-1,SSD1306_WHITE);
-  //right top
-  display.drawFastHLine(x1+length/2+2,y1-height-2,length/2-3,SSD1306_WHITE);
-  //right leg
-  display.drawPixel(x1+length-1,y1-height-1,SSD1306_WHITE);
-  display.drawFastVLine(x1+length,y1-height,height,SSD1306_WHITE);
-}
-
 
 void bootscreen(){
   uint16_t frameCount = 0;
@@ -1464,7 +1394,7 @@ void bootscreen(){
       display.print("OS");
       display.setFont();
 
-      drawStar(xOffset+68,yOffset-8,3,7,5);
+      graphics.drawStar(xOffset+68,yOffset-8,3,7,5);
     }
     printSmall(0,58,"v0.1",1);
     display.display();
@@ -1615,7 +1545,7 @@ void bootscreen_2(){
     // printCursive(xCoord,yCoord,"child",1);
     //OS
     if(frameCount>20){
-      drawStar(xOffset+68,yOffset-8,3,7,5);
+      graphics.drawStar(xOffset+68,yOffset-8,3,7,5);
       uint8_t i = frameCount-21;
       display.drawBitmap(48-i/3*i/3,32+i/3*i/3-i/3,carriage_bmp,14,15,SSD1306_WHITE);
     }

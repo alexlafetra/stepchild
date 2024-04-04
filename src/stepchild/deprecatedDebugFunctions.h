@@ -1,3 +1,48 @@
+//Misc. unused code, that might be useful in the future
+void drawCurlyBracket(int16_t x1, uint8_t y1, uint8_t length,uint8_t height,bool start, bool end){
+  //left leg
+  if(start){
+    display.drawFastVLine(x1,y1-height,height,SSD1306_WHITE);
+    display.drawPixel(x1+1,y1-height-1,SSD1306_WHITE);
+    //left top
+    display.drawFastHLine(x1+2,y1-height-2,length/2-3,SSD1306_WHITE);
+  }
+  //if start is out of view
+  else{
+    display.drawFastHLine(trackDisplay,y1-height-2,length/2-3-(viewStart-x1),SSD1306_WHITE);
+  }
+  //middle
+  display.drawPixel(x1+length/2-1,y1-height-1,SSD1306_WHITE);
+  display.drawFastVLine(x1+length/2,y1-height-4,3,SSD1306_WHITE);
+  display.drawPixel(x1+length/2+1,y1-height-1,SSD1306_WHITE);
+  //right top
+  display.drawFastHLine(x1+length/2+2,y1-height-2,length/2-3,SSD1306_WHITE);
+  //right leg
+  display.drawPixel(x1+length-1,y1-height-1,SSD1306_WHITE);
+  display.drawFastVLine(x1+length,y1-height,height,SSD1306_WHITE);
+}
+
+void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation){
+  switch(rotation){
+    //down
+    case 0:
+      drawCurlyBracket(x1,y1,length,height,start,end);
+      break;
+    //up
+    case 1:
+      display.setRotation(UPSIDEDOWN);
+      drawCurlyBracket(screenWidth-x1,screenHeight-y1,length,height,start,end);
+      display.setRotation(UPRIGHT);
+      break;
+    //right
+    case 2:
+      display.setRotation(1);
+      drawCurlyBracket(y1,x1,height,length,start,end);
+      display.setRotation(UPRIGHT);
+      break;
+  }
+}
+
 //Debug -------------------------------------------------------------------------
 //counts notes
 void debugNoteCount() {
@@ -519,11 +564,11 @@ void printPlaybackOptions(uint8_t which, uint8_t cursor, bool active){
         switch(cursor){
           case 0:
             display.fillRoundRect(x1+22,y1-1,isLooping?11:15,9,3,2);
-            drawArrow(x1+37+((millis()/200)%2),y1+3,3,1,false);
+            graphics.drawArrow(x1+37+((millis()/200)%2),y1+3,3,1,false);
             break;
           case 1:
             display.fillRoundRect(x1+54,y1+9,35,9,3,2);
-            drawArrow(x1+91+((millis()/200)%2),y1+13,3,1,false);
+            graphics.drawArrow(x1+91+((millis()/200)%2),y1+13,3,1,false);
             break;
         }
       }
@@ -541,10 +586,10 @@ void printPlaybackOptions(uint8_t which, uint8_t cursor, bool active){
       if(active){
         switch(cursor){
           case 0:
-            drawArrow(x1+104+((millis()/200)%2),y1+10,3,1,true);
+            graphics.drawArrow(x1+104+((millis()/200)%2),y1+10,3,1,true);
             break;
           case 1:
-            drawArrow(x1+104+((millis()/200)%2),y1+32,3,1,true);
+            graphics.drawArrow(x1+104+((millis()/200)%2),y1+32,3,1,true);
             break;
         }
       }
@@ -760,7 +805,7 @@ void playBackMenu(){
       drawCassetteButton(x1,y1+i*gap,i,buttonCursor==i);
       //if you're in menu-select mode
       if(buttonCursor == i && !menuState)
-        drawArrow(x1+15+((millis()/200)%2),y1+i*gap+6,3,1,false);
+        graphics.drawArrow(x1+15+((millis()/200)%2),y1+i*gap+6,3,1,false);
     }
     display.display();
   }
@@ -973,7 +1018,7 @@ void recMenu(){
       activeMenu.page-=8;
     }
     display.clearDisplay();
-    drawVU(0,50,1-VUval);
+    graphics.drawVU(0,50,1-VUval);
     // cassette.render();
     activeMenu.displayRecMenu(cursor,yCursor,activeT);
     display.display();
@@ -1061,10 +1106,10 @@ void Menu::displayRecMenu(uint8_t menuCursor,uint8_t start, uint8_t active){
   //if the prime menu is 'slid' onscreen
   if(activeMenu.page>0){
     if(start>0){
-      drawArrow(x1-8,2+((millis()/400)%2),2,2,true);
+      graphics.drawArrow(x1-8,2+((millis()/400)%2),2,2,true);
     }
     if(start+8<trackData.size()){
-      drawArrow(x1-8,62-((millis()/400)%2),2,3,true);
+      graphics.drawArrow(x1-8,62-((millis()/400)%2),2,3,true);
     }
     display.setRotation(1);
     printSmall(38,x1-10,"prime",SSD1306_WHITE);
@@ -1078,7 +1123,7 @@ void Menu::displayRecMenu(uint8_t menuCursor,uint8_t start, uint8_t active){
         uint8_t x2 = x1+3;
         if(i+start == active){
           x2-=2+((millis()/200)%2);
-          drawArrow(x1-2,i*8+3,2,0,false);
+          graphics.drawArrow(x1-2,i*8+3,2,0,false);
         }
         //print track pitch
         printSmall(x2+10,i*8+1,getTrackPitchOctave(i+start),SSD1306_WHITE);

@@ -6,11 +6,9 @@
 
 #include "ChildOS.h"
 
-
-//draws pram, other icons (not loop points tho)
-void drawTopIcons(){
+void drawPram(){
   if(!menuIsActive || (activeMenu.menuTitle == "MENU") || (activeMenu.menuTitle == "FX") || (activeMenu.menuTitle == "EDIT" && activeMenu.coords.x1>32)){
-    if(maxTracksShown == 5){
+    if(maxTracksShown == 5 || (menuIsActive && activeMenu.menuTitle == "MENU")){//weird graphical case where you want the pram to b big when the main menu is open
       if(!playing && !recording){
         drawPram(5,0);
       }
@@ -34,7 +32,10 @@ void drawTopIcons(){
       }
     }
   }
+}
 
+//draws pram, other icons (not loop points tho)
+void drawTopIcons(){
   // if it's recording and waiting for a note
   if(recording && waitingToReceiveANote){
     if(millis()%1000>500){
@@ -155,7 +156,7 @@ void drawTopIcons(){
 
   //swing icon
   if(swung){
-    drawPendulum(x1+2,0,7,millis()/2,1);
+    graphics.drawPendulum(x1+2,0,7,millis()/2,1);
     x1+=10;
   }
   //fragment gem
@@ -189,6 +190,10 @@ void drawTopIcons(){
       }
     }
   }
+  else{
+    //power/battery indicator
+    drawPower(screenWidth-10,0);
+  }
   if(isArping){
     display.drawPixel(x1,3+2*sin(float(millis())/float(200)),1);
     display.drawPixel(x1+2,3+2*sin(float(millis())/float(200)+100),1);
@@ -198,13 +203,14 @@ void drawTopIcons(){
     // x1+=8;
     x1+=17;
   }
-
-  //draw menu text
-  printSmall(x1,1,menuText,SSD1306_WHITE);
-  x1+=menuText.length()*4+2;
-
-  //power/battery indicator
-  drawPower(screenWidth-10,0);
+  if(shift){
+    graphics.drawSequenceMemoryBar(screenWidth-30,0,30);
+  }
+  else{
+    //draw menu text
+    printSmall(x1,1,menuText,SSD1306_WHITE);
+    x1+=menuText.length()*4+2;
+  }
 }
 
 //same function, but doesn't clear or display the screen
@@ -215,7 +221,7 @@ void drawSeq(){
 //move through rows/columns, printing out data
 void displaySeq(){
   display.clearDisplay();
-  drawSeq();
+  drawSeq(true,true,true,true,false,false,viewStart,viewEnd);
   display.display();
 }
 
@@ -223,6 +229,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
   drawSeq(trackLabels,topLabels,loopPoints,menus,trackSelection,false,viewStart,viewEnd);
 }
 
+//Start = step you're starting on, startheight is the y coord the sequence grid begins at
 void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_t height, bool onlyWithinLoop, bool loopFlags, bool loopPoints){
   //drawing the measure bars
   for (uint16_t step = start; step < end; step++) {
@@ -272,16 +279,16 @@ void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_
       if(step == loopData[activeLoop].start){
         if(loopFlags){
           if(movingLoop == -1 || movingLoop == 2){
-            display.fillTriangle(trackDisplay+(step-start)*scale, headerHeight-3-sin(millis()/50), trackDisplay+(step-start)*scale, headerHeight-7-sin(millis()/50), trackDisplay+(step-start)*scale+4, headerHeight-7-sin(millis()/50),SSD1306_WHITE);
-            display.drawFastVLine(trackDisplay+(step-start)*scale,headerHeight-3,3,SSD1306_WHITE);
+            display.fillTriangle(trackDisplay+(step-start)*scale, startHeight-3-sin(millis()/50), trackDisplay+(step-start)*scale, startHeight-7-sin(millis()/50), trackDisplay+(step-start)*scale+4, startHeight-7-sin(millis()/50),SSD1306_WHITE);
+            display.drawFastVLine(trackDisplay+(step-start)*scale,startHeight-3,3,SSD1306_WHITE);
           }
           else{
             if(cursorPos == step){
-              display.fillTriangle(trackDisplay+(step-start)*scale, headerHeight-3, trackDisplay+(step-start)*scale, headerHeight-7, trackDisplay+(step-start)*scale+4, headerHeight-7,SSD1306_WHITE);
-              display.drawFastVLine(trackDisplay+(step-start)*scale,headerHeight-3,3,SSD1306_WHITE);
+              display.fillTriangle(trackDisplay+(step-start)*scale, startHeight-3, trackDisplay+(step-start)*scale, startHeight-7, trackDisplay+(step-start)*scale+4, startHeight-7,SSD1306_WHITE);
+              display.drawFastVLine(trackDisplay+(step-start)*scale,startHeight-3,3,SSD1306_WHITE);
             }
             else{
-              display.fillTriangle(trackDisplay+(step-start)*scale, headerHeight-1, trackDisplay+(step-start)*scale, headerHeight-5, trackDisplay+(step-start)*scale+4, headerHeight-5,SSD1306_WHITE);
+              display.fillTriangle(trackDisplay+(step-start)*scale, startHeight-1, trackDisplay+(step-start)*scale, startHeight-5, trackDisplay+(step-start)*scale+4, startHeight-5,SSD1306_WHITE);
             }
           }
         }
@@ -296,16 +303,16 @@ void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_
       if(step == loopData[activeLoop].end-1){
         if(loopFlags){
           if(movingLoop == 1 || movingLoop == 2){
-            display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-3-sin(millis()/50), trackDisplay+(loopData[activeLoop].end-start)*scale-4, headerHeight-7-sin(millis()/50), trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-7-sin(millis()/50),SSD1306_WHITE);
-            display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,headerHeight-3,3,SSD1306_WHITE);
+            display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, startHeight-3-sin(millis()/50), trackDisplay+(loopData[activeLoop].end-start)*scale-4, startHeight-7-sin(millis()/50), trackDisplay+(loopData[activeLoop].end-start)*scale, startHeight-7-sin(millis()/50),SSD1306_WHITE);
+            display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,startHeight-3,3,SSD1306_WHITE);
           }
           else{
             if(cursorPos == step+1){
-              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-3, trackDisplay+(loopData[activeLoop].end-start)*scale-4, headerHeight-7, trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-7,SSD1306_WHITE);
-              display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,headerHeight-3,3,SSD1306_WHITE);
+              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, startHeight-3, trackDisplay+(loopData[activeLoop].end-start)*scale-4, startHeight-7, trackDisplay+(loopData[activeLoop].end-start)*scale, startHeight-7,SSD1306_WHITE);
+              display.drawFastVLine(trackDisplay+(loopData[activeLoop].end-start)*scale,startHeight-3,3,SSD1306_WHITE);
             }
             else{
-              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-1, trackDisplay+(loopData[activeLoop].end-start)*scale-4, headerHeight-5, trackDisplay+(loopData[activeLoop].end-start)*scale, headerHeight-5,SSD1306_WHITE);
+              display.drawTriangle(trackDisplay+(loopData[activeLoop].end-start)*scale, startHeight-1, trackDisplay+(loopData[activeLoop].end-start)*scale-4, startHeight-5, trackDisplay+(loopData[activeLoop].end-start)*scale, startHeight-5,SSD1306_WHITE);
             }
           }
         }
@@ -323,7 +330,7 @@ void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_
         }
       }
       if(loopFlags && (step == loopData[activeLoop].start+(loopData[activeLoop].end-loopData[activeLoop].start)/2))
-        printSmall(trackDisplay+(step-start)*scale-1,10,stringify(activeLoop),SSD1306_WHITE);
+        printSmall(trackDisplay+(step-start)*scale-1,startHeight-7,stringify(activeLoop),SSD1306_WHITE);
     }
   }
 }
@@ -385,7 +392,8 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
       height = startHeight+trackHeight*trackData.size();
 
     //drawing measure bars, loop points
-    drawSeqBackground(start, end, startHeight, height, shadeOutsideLoop,loopFlags, loopPoints);
+    // drawSeqBackground(start, end, startHeight, height, shadeOutsideLoop, loopFlags, loopPoints);
+    drawSeqBackground(start, end, startHeight, height, shadeOutsideLoop, isLooping, loopPoints);
 
     //top and bottom bounds
     if(startTrack == 0){
@@ -408,7 +416,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
         xCoord = 9;
         // display.setCursor(9, y1+trackHeight/2-2);
         if(trackLabels)
-          drawArrow(6+((millis()/400)%2),y1+trackHeight/2+1,2,0,true);
+          graphics.drawArrow(6+((millis()/400)%2),y1+trackHeight/2+1,2,0,true);
       }
       else{
         xCoord = 5;
@@ -462,7 +470,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
       else{
         //highlight for solo'd tracks
         if(trackData[track].isSolo)
-          drawNoteBracket(trackDisplay+3,y1-1,screenWidth-trackDisplay-5,trackHeight+2,true);
+          graphics.drawNoteBracket(trackDisplay+3,y1-1,screenWidth-trackDisplay-5,trackHeight+2,true);
         // display.setTextColor(SSD1306_WHITE,SSD1306_BLACK);
         for (int step = start; step < end; step++) {
           //if you only want to draw what's within the loop
@@ -522,8 +530,12 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
       }
     }
     //carriage bitmap/title
-    if(topLabels)
-      drawTopIcons();
+    if(topLabels){
+      drawPram();
+      if(startHeight == 16){
+        drawTopIcons();
+      }
+    }
     //playhead/rechead
     if(playing && isInView(playheadPos))
       display.drawRoundRect(trackDisplay+(playheadPos-start)*scale,startHeight,3, screenHeight-startHeight, 3, SSD1306_WHITE);
@@ -998,7 +1010,7 @@ int16_t moveCursor(int moveAmount){
   }
   //update the LEDs
   updateLEDs();
-  menuText = (moveAmount>0)?(stepsToPosition(cursorPos,true)+">>"):("<<"+stepsToPosition(cursorPos,true));
+  menuText = ((moveAmount>0)?(stepsToPosition(cursorPos,true)+">>"):("<<"+stepsToPosition(cursorPos,true)));
   return amt;
 }
 
@@ -1715,14 +1727,17 @@ void defaultLoopControls(){
         //if you're on the start, move the start
         if(cursorPos == loopData[activeLoop].start){
           movingLoop = -1;
+          menuText = "Moving Loop Start";
         }
         //if you're on the end
         else if(cursorPos == loopData[activeLoop].end){
           movingLoop = 1;
+          menuText = "Moving Loop End";
         }
         //if you're not on either, move the whole loop
         else{
           movingLoop = 2;
+          menuText = "Moving Loop";
         }
         lastTime = millis();
       }
@@ -2198,6 +2213,8 @@ void ledPulse(uint8_t speed){
 }
 
 void loop() {
+  // Serial.println("Hey from CPU_0");
+  // Serial.flush();
   readJoystick();
   readButtons();
 
@@ -2443,4 +2460,6 @@ void loop1(){
     arpLoop();
   }
   ledPulse(16);
+  // Serial.println("Hey from CPU_1");
+  // Serial.flush();
 }

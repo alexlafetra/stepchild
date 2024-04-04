@@ -284,7 +284,7 @@ void fileMenu(){
     if(activeMenu.page == 0){
       if(!fileMenuControls(menuStart,menuEnd,&folder,filenames)){
         fileMenuAnimation(false,menuStart,menuEnd,filenames,false);
-        constructMenu("MENU");
+        constructMenu(MAIN_MENU,9);
         return;
       }
         //menu data shit
@@ -370,10 +370,10 @@ void Menu::displayFileMenu(int16_t textOffset, bool open, uint8_t menuStart, uin
   }
   //drawing indicator arrows
   if(menuStart>0){
-    drawArrow(coords.x1,coords.y1+13-sin(millis()/150),2,2,false);
+    graphics.drawArrow(coords.x1,coords.y1+13-sin(millis()/150),2,2,false);
   }
   if(menuEnd<filenames.size()-1){
-    drawArrow(coords.x1,coords.y1+60+sin(millis()/150),2,3,false);
+    graphics.drawArrow(coords.x1,coords.y1+60+sin(millis()/150),2,3,false);
   }
   //printing out the menu
   for(int i = menuStart; i<=menuEnd; i++){
@@ -382,7 +382,7 @@ void Menu::displayFileMenu(int16_t textOffset, bool open, uint8_t menuStart, uin
         printSmall(coords.x1+10+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.y1+6,filenames[i],SSD1306_WHITE);
       }
       else if(highlight == i){
-        drawBanner(coords.x1+16+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.y1+6,filenames[i]);
+        graphics.drawBanner(coords.x1+16+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.y1+6,filenames[i]);
       }
     }
     else{
@@ -390,7 +390,7 @@ void Menu::displayFileMenu(int16_t textOffset, bool open, uint8_t menuStart, uin
         printSmall(coords.x1+10+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.y1+6,filenames[i],SSD1306_WHITE);
       }
       else if(page == i){
-        drawBanner(coords.x1+16+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.y1+6,filenames[i]);
+        graphics.drawBanner(coords.x1+16+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.y1+6,filenames[i]);
       }
     }
     yLoc++;
