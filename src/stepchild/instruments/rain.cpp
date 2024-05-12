@@ -149,7 +149,8 @@ void rain(){
   bool showingText = false;
   bool grabNotesFromPlaylist = false;
 
-  vector<uint8_t> pitchList;
+  //start off w/ C major scale
+  vector<uint8_t> pitchList = genScale(MAJOR,0);
 
   bool isPlaying = true;
   while(true){
@@ -369,7 +370,8 @@ void rain(){
     }
     //loop for updating and playing sound from each raindrop
     if(isPlaying){
-      bool leds[8] = {false,false,false,false,false,false,false,false};
+      // bool leds[8] = {false,false,false,false,false,false,false,false};
+      uint16_t leds = 0;
       for(uint8_t i = 0; i<drops.size(); i++){
         if(!drops[i].update()){
           drops.erase(drops.begin()+i,drops.begin()+i+1);
@@ -384,10 +386,11 @@ void rain(){
           else
             display.drawBitmap(drops[i].x1-5,59,splash_bmp,11,5,1);
 
-          leds[drops[i].x1/16] = true;
+          leds |= 1<<(drops[i].x1/8);
         }
       }
-      writeLEDs(leds);
+      lowerBoard.writeLEDs(leds);
+      // writeLEDs(leds);
     }
 
     //info

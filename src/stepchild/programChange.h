@@ -402,10 +402,11 @@ uint16_t getPCIndexAtCursor(uint8_t port){
 
 void PCEditingEncoderControls(uint8_t activePort,uint8_t* editingCursor){
     uint16_t targetPC = getPCIndexAtCursor(activePort);
+    //if there is no data there, just return
     if(targetPC == 65535)
         return;
     while(counterA != 0){
-        if(*editingCursor == 0)
+        if((*editingCursor) == 0)
             (*editingCursor) = 1;
         if(counterA<0){
             if(PCData[activePort][targetPC].channel>0)
@@ -417,16 +418,33 @@ void PCEditingEncoderControls(uint8_t activePort,uint8_t* editingCursor){
         }
         counterA += counterA<0?1:-1;
     }
+
     while(counterB != 0){
-        if(*editingCursor == 1)
+        if((*editingCursor) == 1)
             (*editingCursor) = 0;
         if(counterB<0){
-            if(PCData[activePort][targetPC].val>0)
-                PCData[activePort][targetPC].val--;
+            if(shift){
+                if(PCData[activePort][targetPC].val>10)
+                    PCData[activePort][targetPC].val-=10;
+                else
+                    PCData[activePort][targetPC].val=0;
+            }
+            else{
+                if(PCData[activePort][targetPC].val>0)
+                    PCData[activePort][targetPC].val--;
+            }
         }
         if(counterB>0){
-            if(PCData[activePort][targetPC].channel<15)
-                PCData[activePort][targetPC].channel++;
+            if(shift){
+                if(PCData[activePort][targetPC].val<117)
+                    PCData[activePort][targetPC].val+=10;
+                else
+                    PCData[activePort][targetPC].val=127;
+            }
+            else{
+                if(PCData[activePort][targetPC].val<127)
+                    PCData[activePort][targetPC].val++;
+            }
         }
         counterB += counterB<0?1:-1;
     }

@@ -31,8 +31,8 @@ void playTrack(uint8_t track, uint16_t timestep){
         //if the channel matches, or if the modifier is global
 
         //adjusting chance
-        if(trackData[track].channel == chanceModifier[0] || chanceModifier[0] == 0){
-          chance += chanceModifier[1];
+        if(trackData[track].channel == globalModifiers.chance[0] || globalModifiers.chance[0] == 0){
+          chance += globalModifiers.chance[1];
           if(chance<0)
             chance = 0;
           else if(chance>100)
@@ -40,8 +40,8 @@ void playTrack(uint8_t track, uint16_t timestep){
         }
 
         //adjusting pitch
-        if(trackData[track].channel == pitchModifier[0] || pitchModifier[0] == 0){ 
-          pitch += pitchModifier[1];
+        if(trackData[track].channel == globalModifiers.pitch[0] || globalModifiers.pitch[0] == 0){ 
+          pitch += globalModifiers.pitch[1];
           if(pitch<0)
             pitch = 0;
           else if(pitch>127)
@@ -49,8 +49,8 @@ void playTrack(uint8_t track, uint16_t timestep){
         }
 
         //adjusting vel
-        if(trackData[track].channel == velModifier[0] || velModifier[0] == 0){
-          vel += velModifier[1];
+        if(trackData[track].channel == globalModifiers.velocity[0] || globalModifiers.velocity[0] == 0){
+          vel += globalModifiers.velocity[1];
           if(vel<0)
             vel = 0;
           else if(vel>127)

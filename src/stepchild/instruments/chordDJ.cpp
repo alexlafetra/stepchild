@@ -176,15 +176,15 @@ QChord editChord(QChord& originalChord){
     //normal, make-new-chord mode
     drawFullKeyBed(pressedKeys,mask,keyCursor,octave);
     if(playedChord)
-        printSmall(0,52,"Playing...",1);
+        printSmall(0,59,"Playing...",1);
     else
-        printSmall(0,52,"[Play] to hear Chord",1);
+        printSmall(0,59,"[Play] to hear Chord",1);
     //if there's a mask
     if(mask.size()>0){
-      graphics.drawCenteredBanner(64,55,pitchToString(maskRoot,false,true)+" major");
+      graphics.drawCenteredBanner(64,48,pitchToString(maskRoot,false,true)+" major");
     }
     else{
-        printSmall(0,59,"[Loop] to choose notes from a scale",1);
+        printSmall(0,52,"[Loop] to choose notes from a scale",1);
     }
     display.display();
   }
@@ -300,9 +300,11 @@ void insertChordIntoSequence(QChord chord){
             }
         }
         display.clearDisplay();
+        drawSeq(true,false,true,false,false,false,viewStart,viewEnd);
+        display.fillRect(0,0,55,15,0);
+        display.drawRect(0,0,55,15,1);
         printSmall(0,0,"[Sh]+[B] for +/-",1);
         printSmall(0,7,"[N] to commit!",1);
-        drawSeq(true,false,true,false,false,false,viewStart,viewEnd);
         display.display();
     }
 }
@@ -360,7 +362,9 @@ void chordDJ(){
             //Exiting
             if(menu_Press){
                 lastTime = millis();
-                break;
+                if(binarySelectionBox(64,32,"no","yes","exit?",&drawSeq) == 1){
+                    break;
+                }
             }
             //Editing a chord
             if(sel){

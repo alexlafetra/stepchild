@@ -54,8 +54,8 @@ const unsigned char onboard_ledPin = 25;
   #include <Adafruit_GFX.h>//using one optimized for the pico
   #ifdef CAPTURECARD
     #include <SPI.h>
-    #include "libraries/Adafruit_SSD1306.h"
-    #include "libraries/Adafruit_SSD1306.cpp"
+    #include "libraries/Adafruit_SSD1306_CaptureCard.h"
+    #include "libraries/Adafruit_SSD1306_CaptureCard.cpp"
   #else
     #include <Adafruit_SSD1306.h>
   #endif
@@ -69,8 +69,6 @@ const unsigned char onboard_ledPin = 25;
   //for flash storage
   #include <LittleFS.h> // LittleFS is declared
   #include "pico/stdlib.h"
-
-  #include "lowerBoard.h"
 
   //from the pico sdk
   extern "C" {
@@ -154,9 +152,13 @@ unsigned short int animOffset = 0;//for animating curves
 //the parameter gets modified
 //gets added to notes in the vel modifier channel
 //0 is the global channel
-int8_t velModifier[2] = {0,0};
-int8_t chanceModifier[2] = {0,0};
-int8_t pitchModifier[2] = {0,0};
+struct GlobalModifiers{
+  int8_t velocity[2] = {0,0};
+  int8_t chance[2] = {0,0};
+  int8_t pitch[2] = {0,0};
+};
+
+GlobalModifiers globalModifiers;
 
 //bitmaps for graphics
 #include "bitmaps.h"
@@ -168,7 +170,8 @@ int8_t pitchModifier[2] = {0,0};
 #include "global.h"
 
 //button defs and reading functions
-#include "buttons.h"
+#include "hardware.h"
+// #include "buttons.h"
 
 //classes
 #include "classes/WireFrame.h"//wireframe stuff
@@ -178,6 +181,8 @@ int8_t pitchModifier[2] = {0,0};
 #include "classes/Note.h"
 #include "classes/Track.h"
 #include "classes/Knob.h"
+
+#include "lowerBoard.h"
 
 //string utilities for parsing musical data
 #include "stringUtils.h"
@@ -196,7 +201,8 @@ int8_t pitchModifier[2] = {0,0};
 
 //16 knobs for the 'controlknobs' instrument
 Knob controlKnobs[16];
-#include "classes/AutomationTrack.h"
+
+#include "classes/AutoTrack.h"
 
 //These need to be referenced after Autotracks are defined
 void rotaryActionA_Handler(){
@@ -266,7 +272,6 @@ void rotaryActionB_Handler(){
 #include "fileSystem.h"
 #include "setup.h"
 #include "screenSavers.h"
-#include "hardware.h"
 #include "recording.h"
 #include "keyboard.h"
 #include "CCSelector.h"

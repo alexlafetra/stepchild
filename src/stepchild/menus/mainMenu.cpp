@@ -33,9 +33,11 @@ WireFrame getMainMenuWireFrame(uint8_t which){
     case 6:
       w = genRandMenuObjects(0,0,10,1);
       break;
-    //heart
+    //PC
     case 7:
-      w = makePram();
+      // w = makePram();
+      w = makeMonitor();
+      w.rotate(15,2);
       break;
     //midi
     case 8:
@@ -51,7 +53,6 @@ WireFrame getMainMenuWireFrame(uint8_t which){
       break;
     //arp
     case 11:
-      // w = makeHand_flat(0,0,0,0,0);
       w = makeArpBoxes(millis());
       w.yPos = 16;
       break;
@@ -113,9 +114,6 @@ void animateIcon(WireFrame* w){
       break;
     //arp
     case 11:
-      // handAnimation(w);
-      // w -> yPos=20+2*((millis()/400)%2);
-      // w -> rotate(4*sin(millis()/400),1);
       WireFrame temp = makeArpBoxes(millis());
       w -> verts = temp.verts;
       w -> yPos = 16;

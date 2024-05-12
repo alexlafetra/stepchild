@@ -147,17 +147,6 @@ void debugPrintSelection(){
   }
 }
 
-//These two are both still pretty useful for debugging
-void testLEDs(){
-  bool leds[8] = {0,0,0,0,0,0,0,0};
-  for(int i = 0; i<8; i++){
-    if(step_buttons[i]){
-      leds[i] = 1;
-    }
-  }
-  writeLEDs(leds);
-}
-
 void testJoyStick(){
   while(true){
     readJoystick();

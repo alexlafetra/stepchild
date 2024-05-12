@@ -37,16 +37,57 @@ void displaySettingsMenu_selectionBox(){
     activeMenu.displaySettingsMenu(0,7,0,0);
 }
 
+WireFrame getSettingsMenuWireFrame(uint8_t which){
+  WireFrame w;
+  switch(which){
+    //gear
+    case 0:
+      w = makeThickGear(10,8,8,40,true);
+      w.xPos = 100;
+      w.yPos = 10;
+      w.scale = 4;
+      w.rotate(-30,1);
+      break;
+    //pram
+    case 1:
+      w = makePram();
+      w.xPos = 100;
+      w.yPos = 20;
+      w.scale = 4;
+      break;
+    //computer
+    case 2:
+      w = makeMonitor();
+      w.xPos = 100;
+      w.yPos = 30;
+      w.scale = 4;
+      w.rotate(-30,1);
+      w.rotate(-10,0);
+      break;
+  }
+  return w;
+}
+
+void animateSettingsMenuWireFrame(WireFrame &w,uint8_t which){
+  switch(which){
+    case 0:
+      w.rotate(2,2);
+      break;
+    case 1:
+      w.rotate(2,1);
+      break;
+    case 2:
+      w.yPos = 20+8.0*sin(millis()/600.0);
+      w.rotate(PI/6.0*sin(millis()/400),1);
+      break;
+  }
+}
 void settingsMenu(){
   //which 'tab' you're looking at
   uint8_t menuTab = 0;
   //the cursor
   uint8_t xCursor = 0;
-  WireFrame gear = makeThickGear(10,8,8,40,true);
-  gear.xPos = 100;
-  gear.yPos = 10;
-  gear.scale = 4;
-  gear.rotate(-30,1);
+  WireFrame gear = getSettingsMenuWireFrame(menuTab);
   while(true){
     readJoystick();
     readButtons();
@@ -56,10 +97,12 @@ void settingsMenu(){
             if(y == 1 && menuTab<2){
               menuTab++;
               lastTime = millis();
+              gear = getSettingsMenuWireFrame(menuTab);
             }
             else if(y == -1 && menuTab>0){
               menuTab--;
               lastTime = millis();
+              gear = getSettingsMenuWireFrame(menuTab);
             }
         }
         else{
@@ -287,7 +330,7 @@ void settingsMenu(){
     gear.render();
     activeMenu.displaySettingsMenu(menuTab,xCursor,0,0);
     display.display();
-    gear.rotate(2,2);
+    animateSettingsMenuWireFrame(gear,menuTab);
   }
 }
 void drawTemplateOptions(uint8_t x1,uint8_t whichTemplate){

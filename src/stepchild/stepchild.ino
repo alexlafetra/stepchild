@@ -120,7 +120,7 @@ void drawTopIcons(){
   }
   else if(playing){
     drawPlayIcon(trackDisplay+((millis()/200)%2)+1,0);
-    x1 += 9;
+    x1 += 10;
     switch(isLooping){
       //if not looping
       case 0:
@@ -615,6 +615,8 @@ int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String t
       //choose option
       else if(n || sel){
         lastTime = millis();
+        n = false;
+        sel = false;
         return state;
       }
     }
@@ -699,20 +701,20 @@ void handleInternalCC(uint8_t ccNumber, uint8_t val, uint8_t channel, uint8_t yP
   switch(ccNumber){
     //velocity
     case 0:
-      velModifier[0] = channel;
-      velModifier[1] = val-63;
+      globalModifiers.velocity[0] = channel;
+      globalModifiers.velocity[1] = val-63;
       break;
     //chance
     case 1:
-      chanceModifier[0] = channel;
-      chanceModifier[1] = float(val)/float(127) * 100 - 50;
+      globalModifiers.chance[0] = channel;
+      globalModifiers.chance[1] = float(val)/float(127) * 100 - 50;
       break;
     break;
     //track pitch
     case 2:
-      pitchModifier[0] = channel;
+      globalModifiers.pitch[0] = channel;
       //this can at MOST change the pitch by 2 octaves up or down, so a span of 48 notes
-      pitchModifier[1] = float(val)/float(127) * 48 - 24;
+      globalModifiers.pitch[1] = float(val)/float(127) * 48 - 24;
       break;
     //bpm
     case 3:
@@ -1395,9 +1397,9 @@ void togglePlayMode(){
     stop();
     setNormalMode();
     MIDI.sendStop();
-    velModifier[1] = 0;
-    chanceModifier[1] = 0;
-    pitchModifier[1] = 0;
+    globalModifiers.velocity[1] = 0;
+    globalModifiers.chance[1] = 0;
+    globalModifiers.pitch[1] = 0;
     CV.off();
 
   }
@@ -1926,7 +1928,7 @@ bool anyActiveInputs(){
 }
 #else
 bool anyActiveInputs(){
-  glfwPollEvents();
+  readButtons();
   if(x || y || n || shift || sel || del || loop_Press || play || copy_Press || menu_Press || counterA || counterB || note_Press || track_Press)
     return true;
   else
@@ -2224,6 +2226,8 @@ void loop() {
   defaultJoystickControls(true);
 
   displaySeq();
+
+  screenSaverCheck();
 }
 
 //the closer the step is to the subDiv (both forward and backward), the shorter the time val

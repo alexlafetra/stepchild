@@ -691,6 +691,10 @@ bool randMenuControls(uint8_t * whichTab){
 }
 
 void randMenu(){
+    //start by jumping into randomizer
+    genRandom(randomData);
+    //once the user exits, build them the options screen:
+
     //which menu you're on
     uint8_t whichTab = 1;
     //vars for randomizer are stored in randomData struct

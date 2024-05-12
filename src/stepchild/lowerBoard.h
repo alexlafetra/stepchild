@@ -1,5 +1,3 @@
-#include <Wire.h>
-// #include "cap1214.h"
 
 // #define SDA_PIN 0
 // #define SCL_PIN 1
@@ -27,181 +25,327 @@ unsigned char reverseBits(unsigned char b) {
    return b;
 }
 
-/*
-CAP1214 Class for read/interacting w Cap1214
-CITE!
-*/
+void print2BytesToSerial(uint16_t b){
+	for(uint8_t i = 0; i<16; i++){
+		Serial.print(b>>i & 0b0000000000000001);
+	}
+}
+
 #ifndef HEADLESS
-class CAP1214{
+
+// Redundant Include
+// #include <Wire.h>
+// #include "CAP1214.h"
+#include "libraries/MCP23017/src/MCP23017.cpp"
+
+void debugDumpRegisters(MCP23017 mcp){
+  	uint8_t conf = mcp.readRegister(MCP23017Register::IODIR_A);
+	Serial.print("IODIR_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+	
+	conf = mcp.readRegister(MCP23017Register::IODIR_B);
+	Serial.print("IODIR_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::IPOL_A);
+	Serial.print("IPOL_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::IPOL_B);
+	Serial.print("IPOL_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::GPINTEN_A);
+	Serial.print("GPINTEN_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::GPINTEN_B);
+	Serial.print("GPINTEN_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::DEFVAL_A);
+	Serial.print("DEFVAL_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::DEFVAL_B);
+	Serial.print("DEFVAL_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::INTCON_A);
+	Serial.print("INTCON_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::INTCON_B);
+	Serial.print("INTCON_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::IOCON);
+	Serial.print("IOCON : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	//conf = mcp.readRegister(IOCONB);
+	//Serial.print("IOCONB : ");
+	//Serial.print(conf, BIN);
+	//Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::GPPU_A);
+	Serial.print("GPPU_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::GPPU_B);
+	Serial.print("GPPU_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::INTF_A);
+	Serial.print("INTF_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::INTF_B);
+	Serial.print("INTF_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::INTCAP_A);
+	Serial.print("INTCAP_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::INTCAP_B);
+	Serial.print("INTCAP_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::GPIO_A);
+	Serial.print("GPIO_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::GPIO_B);
+	Serial.print("GPIO_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::OLAT_A);
+	Serial.print("OLAT_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::OLAT_B);
+	Serial.print("OLAT_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+}
+
+/*
+	These addresses are hardware defined by pulling A0, A1, A2 pins high&low on the
+	LowerBoard PCB. 
+					|A0|A1|A2|
+	LED MCP23017:	 1	0  0
+	Button MCP23017: 0  1  0
+
+	As per the MCP23017 datasheet, the I2C addresses are encoded as
+	7-bit addresses:
+	0100{A2,A1,A0}
+
+	so the LEDs:
+	0b0100001
+	and the Buttons:
+	0b0100010
+*/
+
+#define LED_I2C_ADDR 0b0100001
+#define BUTTON_I2C_ADDR 0b0100010
+
+class LowerBoard{
   public:
-    enum CAP1214_Register_Address{
-      CAP1214_MAIN_CTRL		= 0x00,/**< Main Control.*/
-			CAP1214_BTN_STATUS_1	= 0x03,
-			CAP1214_BTN_STATUS_2	= 0x04,
-			CAP1214_SLIDER_POS		= 0x06,/**< Slider position, Volumetric Data.*/
-			CAP1214_VOLUM_STEP		= 0x09,
-			CAP1214_DELTA_COUNT		= 0x10,/**< [0x10 -> 0x1D] Sensor Input Delta Count. Stores the delta count for CSx (0x10 = CS1, 0x1D = CS14)*/
-			CAP1214_QUEUE_CTRL		= 0x1E,
-			CAP1214_DATA_SENSITIV	= 0x1F,/**< Sensitivity Control Controls the sensitivity of the threshold and delta counts and data scaling of the base counts*/
-			CAP1214_GLOBAL_CONFIG	= 0x20,
-			CAP1214_SENSOR_ENABLE	= 0x21,/**< Sensor Input Enable Controls whether the capacitive touch sensor inputs are sampled*/
-			CAP1214_BTN_CONFIG		= 0x22,
-			CAP1214_GROUP_CFG_1		= 0x23,
-			CAP1214_GROUP_CFG_2		= 0x24,
-			CAP1214_FRCE_CALIB		= 0x26, //Recalibrates 0-7
-			CAP1214_IRQ_ENABLE_1	= 0x27,
-			CAP1214_IRQ_ENABLE_2	= 0x28,
-			CAP1214_SENSOR_THRES	= 0x30,/**< [30h -> 37h] Sensor Input Threshold. Stores the delta count threshold to determine a touch for Capacitive Touch Sensor Input x (30h = 1, 37h = 8)*/
-			CAP1214_GLOBAL_CONFIG_2	= 0x40,/**Controls whether or not sliders are active*/
-      CAP1214_FRCE_CALIB_2  = 0x46, // Recalibrates 8-14
-      CAP1214_LED_STATUS_1 = 0x60,
-      CAP1214_LED_STATUS_2 = 0x61,
-      CAP1214_LED_DIRECTION = 0x70,
-      CAP1214_LED_OUTPUT_1 = 0x73,
-      CAP1214_LED_OUTPUT_2 = 0x74
-    };
-    CAP1214(){
+  MCP23017 LEDs = MCP23017(LED_I2C_ADDR,Wire);
+  MCP23017 Buttons = MCP23017(BUTTON_I2C_ADDR,Wire);
+  unsigned short int buttonState = 0;
+  LowerBoard(){}
+  unsigned short int getStateOfStepButtons(){
+    return 0;
+  }
+  unsigned short int getStateOfMainButtons(){
+	return 0;
+  }
+  unsigned short int readButtons(){
+	// uint8_t buttonsA = this->Buttons.readRegister(MCP23017Register::GPIO_A);
+	// uint8_t buttonsB = this->Buttons.readRegister(MCP23017Register::GPIO_B);
+	uint8_t buttonsA = this->Buttons.readRegister(MCP23017Register::GPIO_A);
+	uint8_t buttonsB = this->Buttons.readRegister(MCP23017Register::GPIO_B);
 
-    }
-    void writeByteToRegister(CAP1214_Register_Address reg, unsigned char dataByte){
-      Wire.beginTransmission(LB_ADDR);
-      Wire.write(reg);
-      Wire.write(dataByte);
-      unsigned char error = Wire.endTransmission();
-      if(error){
-        Serial.print("Something went wrong while talking to CAP1214! Code ");
-        Serial.println(error);
-      }
-    }
-    unsigned char readRegister(CAP1214_Register_Address reg){
-      Wire.beginTransmission(LB_ADDR);
-      Wire.write(reg);
-      //if something goes wrong with the transmission, return
-      unsigned char error = Wire.endTransmission();
-      if(error){
-        Serial.print("Something went wrong! Code ");
-        Serial.println(error);
-        return 0;
-      }
-      Wire.requestFrom(LB_ADDR,1);
-      return Wire.read();
-    }
-    /*
-    Sensitivity values are between 0 (most sensitive) and 111b (7)
-    0 = 128x, 1 = 64x, 2 = 32x, 3 = 16x, 4 = 8x, 5 = 4x, 6 = 2x, 7 = 1x
-    The data sensitivity byte is stored as (4 bits for sensitivity) (4 bits for the base shift)
-    This method only updates sensitivity! Datasheets says most applications shouldn't need to update the base shift values
-    */
-    void setSensitivity(unsigned char val){
-      //bounds check
-      if(val>7)
-        val = 7;
-      //Combine value with the default base shift value, so that you don't overwrite it w something weird
-      this->writeByteToRegister(CAP1214_DATA_SENSITIV,(val<<4)|0b1111);
-      
-    }
-    //Clears the INT bit that gets set whenever a button is pressed
-    void clearInterruptBit(){
-      unsigned char status = this->readRegister(CAP1214_MAIN_CTRL);
-      status = status & 0b11111110;
-      this->writeByteToRegister(CAP1214_MAIN_CTRL,status);
-    }
-    bool checkInterruptBitAndReset(){
-      return false;
-    }
-    //Sets the LED pins to LED driver mode
-    void setLEDsAsOutputs(){
-      this->writeByteToRegister(CAP1214_LED_DIRECTION,0b11111111);
-    }
-    void disableSliders(){
-      this->writeByteToRegister(CAP1214_GLOBAL_CONFIG_2,0b00000010);
-    }
-    void recalibrate(){
-      this->writeByteToRegister(CAP1214_FRCE_CALIB,0b11111111);
-      this->writeByteToRegister(CAP1214_FRCE_CALIB_2,0b11111111);
-    }
+	return uint16_t(buttonsB)<<8 | uint16_t(buttonsA);
+  }
+  void writeLEDs(unsigned short int state){
+	//swap led 6 and 7, bc of a wiring fuckup!
+	uint8_t led6 = 0b00100000 & uint8_t(state);
+	uint8_t led7 = 0b01000000 & uint8_t(state);
+	if(led6)
+		state |= 0b0000000001000000;
+	else
+		state &= 0b1111111110111111;
+	if(led7)
+		state |= 0b0000000000100000;
+	else
+		state &= 0b1111111111011111;
 
-    //The Main Status Control reg bits are [X DEACT SLEEP DSLEEP X X PWR_LED INT]
-    void activeMode(){
-      this->writeByteToRegister(CAP1214_MAIN_CTRL,0b00000000);
-    }
-    void sleepMode(){
-      this->writeByteToRegister(CAP1214_MAIN_CTRL,0b00100000);
-    }
-    void deepSleepMode(){
-      this->writeByteToRegister(CAP1214_MAIN_CTRL,0b00010000);
-    }
-    void inactiveMode(){
-      this->writeByteToRegister(CAP1214_MAIN_CTRL,0b01000000);
-    }
+	//Bank A is LEDs 8-15
+    uint8_t bankAState = uint8_t(state>>8);
+	this->LEDs.writeRegister(MCP23017Register::GPIO_A,bankAState);
 
-    //Returns a 16-bit number, the first 13 bits contain the 13 button states (MSB->LSB)
-    unsigned short int getButtonStatus(){
-      //Check and see if the INT flag is set
-      // unsigned char buttonStatus = this->readRegister(CAP1214_MAIN_CTRL);
+	//Bank B is LEDs 0-7
+	uint8_t bankBState = uint8_t(state);
+	this->LEDs.writeRegister(MCP23017Register::GPIO_B,bankBState);
+  }
+  void reset(){}
+  void initialize(){
+    //default startup control state
+	this->LEDs.writeRegister(MCP23017Register::IOCON, 0b00100000);
+	//setting both banks of IO to outputs
+	this->LEDs.writeRegister(MCP23017Register::IODIR_A, 0b00000000);
+	this->LEDs.writeRegister(MCP23017Register::IODIR_B, 0b00000000);
+	//writing the GPIO pins to high, which set the values the Output Latch Registers will turn on&off
+	this->LEDs.writeRegister(MCP23017Register::GPIO_A,0b11111111);
+	this->LEDs.writeRegister(MCP23017Register::GPIO_B,0b11111111);
 
-      unsigned char buttons1 = this->readRegister(CAP1214_BTN_STATUS_1);
-      unsigned char buttons2 = this->readRegister(CAP1214_BTN_STATUS_2);
-      /*
-      buttons1 is [UP,   DOWN,   CS6,  CS5,  CS4, CS3, CS2, CS1]
-      buttons2 is [CS14, CS13,  cS12, CS11, CS10, cS9, CS8, CS7]
-      So we need to shift buttons1 to get rid of up/down flags, then concatenate both bytes, then shift them back!
-      This gives us [0,1,2,3,4,5,6,7,8,9,10,11,12,13,NA,NA].
-      */
-      unsigned short int buttonsBoth = ((buttons1 & 0b00111111)) | (buttons2<<6);
-      // this->clearInterruptBit();
-      return buttonsBoth;
-    }
-    void reset(){
-      this->clearInterruptBit();
-    }
-    //For the stepchild, only writes to LEDs 1-8
-    void writeLEDs(unsigned char status){
-      writeByteToRegister(CAP1214_LED_OUTPUT_1,status);
-    }
-    //This is another stepchild-specific function that returns a byte representing the state of the 8 big keys
-    unsigned char getStateOfMainButtons(){
-      unsigned short int data = this->getButtonStatus();
-      //you only want 0,2,4,5,7,9,11,12
-      //So 0b0001010110101011
-      unsigned char mainButtons = 0;
-      // mainButtons = mainButtons | ((unsigned char)((data&0b0001000000000000)>>5));
-      // mainButtons = mainButtons | ((unsigned char)((data&0b0000010000000000)>>4));
-      // mainButtons = mainButtons | ((unsigned char)((data&0b0000000100000000)>>3));
-      // mainButtons = mainButtons | ((unsigned char)(data&0b0000000010000000)>>3);
-      // mainButtons = mainButtons | ((unsigned char)(data&0b0000000000100000)>>2);
-      // mainButtons = mainButtons | ((unsigned char)(data&0b0000000000001000)>>1);
-      // mainButtons = mainButtons | ((unsigned char)(data&0b0000000000000010));
-      // mainButtons = mainButtons | ((unsigned char)(data&0b0000000000000001));
-      //this one is bit-reversed
-      mainButtons = mainButtons | ((unsigned char)((data&0b0001000000000000)>>12));
-      mainButtons = mainButtons | ((unsigned char)((data&0b0000010000000000)>>9));
-      mainButtons = mainButtons | ((unsigned char)((data&0b0000000100000000)>>6));
-      mainButtons = mainButtons | ((unsigned char)(data&0b0000000010000000)>>4);
-      mainButtons = mainButtons | ((unsigned char)(data&0b0000000000100000)>>1);
-      mainButtons = mainButtons | ((unsigned char)(data&0b0000000000001000)<<2);
-      mainButtons = mainButtons | ((unsigned char)(data&0b0000000000000010)<<5);
-      mainButtons = mainButtons | ((unsigned char)(data&0b0000000000000001)<<7);
-      return mainButtons;
-    }
-    void initialize(){
-        // Wire.setSDA(0);
-        // Wire.setSCL(1);
-        // Wire.begin();
-        this->setLEDsAsOutputs();
-        this->disableSliders();
-        this->setSensitivity(7);
-        this->recalibrate();
-    }
+	//default startup settings
+	this->Buttons.writeRegister(MCP23017Register::IOCON, 0b00100000);
+	//Setting all GPIO's to inputs
+	this->Buttons.writeRegister(MCP23017Register::IODIR_A, 0b11111111);
+	this->Buttons.writeRegister(MCP23017Register::IODIR_B, 0b11111111);
+	//Disabling internal pullup resistors (since we have a pulldown resistor)
+	// this->Buttons.writeRegister(MCP23017Register::GPPU_A, 0b00000000);
+	// this->Buttons.writeRegister(MCP23017Register::GPPU_B, 0b00000000);
+	this->Buttons.writeRegister(MCP23017Register::GPPU_A, 0b11111111);
+	this->Buttons.writeRegister(MCP23017Register::GPPU_B, 0b11111111);
 
+	this->Buttons.writeRegister(MCP23017Register::GPIO_A,0b11111111);
+	this->Buttons.writeRegister(MCP23017Register::GPIO_B,0b11111111);
+
+  }
+  void test(){
+	uint8_t i = 0;
+	uint16_t oldState = 0;
+    while(true){
+		// uint16_t state = this->readButtons();
+		uint16_t state = this->Buttons.read();
+		this->writeLEDs(state);
+
+		i++;
+		i%=16;
+    }
+  }
 };
-CAP1214 lowerBoard;
+
+LowerBoard lowerBoard;
+
+#else
+DummyLowerBoard lowerBoard;
 #endif
+
+
 
 void lightLEDs(){
   // uint16_t data = lowerBoard.getButtonStatus();
   uint8_t data = lowerBoard.getStateOfMainButtons(); 
   lowerBoard.writeLEDs(data);
   Serial.print("buttons:");
-  Serial.println(data);
+}
+
+
+void writeLEDs(uint8_t led, bool state){
+  if(LEDsOn){
+    bool leds[8];
+    leds[led] = state;
+    writeLEDs(leds);
+  }
+}
+//this one turns on a range of LEDS
+void writeLEDs(uint8_t first, uint8_t last){
+  uint8_t dat = 0;
+  if(LEDsOn){
+    for(int i = 0; i<8; i++){
+      dat = dat<<1;
+      if(i >= first && i <= last){
+        dat++;
+      }
+    }
+  }
+  dat = ((dat * 0x0802LU & 0x22110LU) | (dat * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
+  // sending data to shift reg
+  // digitalWrite(latchPin_LEDS, LOW);
+  // shiftOut(dataPin_LEDS, clockPin_LEDS, MSBFIRST, dat);
+  // digitalWrite(latchPin_LEDS, HIGH);
+  lowerBoard.writeLEDs(dat);
+}
+void writeLEDs(bool leds[16]){
+  uint16_t dat = 0;
+  if(LEDsOn){
+    for(int i = 0; i<16; i++){
+      dat = dat<<1;
+      if(leds[i]){
+        dat++;
+      }
+    }
+  }
+  dat = ((dat * 0x0802LU & 0x22110LU) | (dat * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
+  lowerBoard.writeLEDs(dat);
+}
+
+void turnOffLEDs(){
+  uint8_t dat = 0;
+  // sending data to shift reg
+  lowerBoard.writeLEDs(dat);
+}
+
+void restartDisplay(){
+  #ifndef HEADLESS
+  Wire.end();
+  // Wire.begin();
+  display.begin(SCREEN_ADDR,true);
+  display.display();
+  #endif
+}
+
+
+//array to hold the LED states
+//displays notes on LEDs
+void updateLEDs(){
+  uint16_t dat = 0;//00000000
+  if(LEDsOn && !screenSaverActive){
+    uint16_t viewLength = viewEnd-viewStart;
+    //move through the view, check every subDivInt
+    const uint16_t jump = viewLength/16;
+    //if there are any notes, check
+    if(seqData[activeTrack].size()>1){
+      for(uint8_t i = 0; i<16; i++){
+        uint16_t step = viewStart+i*jump;
+        if(lookupData[activeTrack][step] != 0){
+          //not sure if it should only light up if it's on the start step or nah
+          if(seqData[activeTrack][lookupData[activeTrack][step]].startPos == step){
+            //if playing or recording, and the head isn't on that step, it should be on
+            //if it is on that step, then the step should blink
+            if((playing && (playheadPos <  seqData[activeTrack][lookupData[activeTrack][step]].startPos || playheadPos > seqData[activeTrack][lookupData[activeTrack][step]].endPos)) || !playing){
+              dat = dat|(1<<i);
+            }
+          }
+        }
+      }
+    }
+  }
+  lowerBoard.writeLEDs(dat);
 }

@@ -71,7 +71,9 @@ void liveLoop(){
             defaultLoopControls();
             if(menu_Press){
                 lastTime = millis();
-                break;
+                if(binarySelectionBox(64,32,"no","yes","exit?",&drawSeq) == 1){
+                    break;
+                }
             }
             //hold shift to set the most recent note received to the trigger note
             if(shift && !play){
@@ -111,9 +113,11 @@ void liveLoop(){
         //drawing display
         display.clearDisplay();
         drawSeq(true,false,true,false,false,false,viewStart,viewEnd);
-        display.fillRoundRect(-5,-5,39,22,5,0);
-        display.drawRoundRect(-5,-5,39,22,5,1);
-        display.drawBitmap(0,0,live_loop_title_bmp,31,15,1,0);
+        // display.fillRoundRect(-5,-5,39,22,5,0);
+        display.fillRect(0,0,32,16,0);
+        // display.drawRoundRect(-5,-5,39,22,5,1);
+        // display.drawBitmap(0,0,live_loop_title_bmp,31,15,1,0);
+        display.drawBitmap(0,0,live_loop_title_border_bmp,34,17,1,0);
         if(startStopTriggerNote != -1){
            printSmall(88,0,stringify("\a/\t:")+pitchToString(startStopTriggerNote,true,true),1);
         }

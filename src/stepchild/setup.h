@@ -72,7 +72,7 @@ void setup() {
   //setting up the pinout
   setupPins();
 
-  // CV.init();
+  // CV.init()
 
   //wait for tinyUSB to connect, if the USB port is connected (not sure if this is necessary, need to test)
   if(tud_connected()){
@@ -81,6 +81,7 @@ void setup() {
     }
   }
   lowerBoard.initialize();
+  // lowerBoard.test();
 
   //--------------------------------------------------------------------//
   //                              Software                              //

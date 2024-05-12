@@ -26,6 +26,13 @@
         "iosfwd": "cpp",
         "*.tcc": "cpp",
         "complex": "cpp",
-        "cmath": "cpp"
-    }
+        "cmath": "cpp",
+        "chrono": "cpp",
+        "ostream": "cpp",
+        "system_error": "cpp",
+        "locale": "cpp",
+        "istream": "cpp"
+    },
+    "cmake.options.statusBarVisibility": "hidden",
+    "workbench.sideBar.location": "left"
 }

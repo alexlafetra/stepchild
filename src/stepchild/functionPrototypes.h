@@ -381,7 +381,7 @@ void alert(String text, int time);
 void updateLEDs();
 void writeLEDs(uint8_t led, bool state);
 void writeLEDs(uint8_t first, uint8_t last);
-void writeLEDs(bool leds[8]);
+void writeLEDs(bool leds[16]);
 void selectKeysAnimation(bool);
 void printItalic_wave(int16_t x, int16_t y, string text, int8_t height, uint8_t timing, uint16_t c);
 

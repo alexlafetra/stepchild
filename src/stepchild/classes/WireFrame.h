@@ -93,6 +93,8 @@ class WireFrame{
   public:
   float currentAngle[3];
   vector<Vertex> verts;
+  //this should also be a vector of arrays instead of a vec of vecs
+  //bc each edge will only be between 2 points
   vector<vector<uint16_t>>edges;//should be 16-bit so it can handle more than 256 verts (just in case)
   vector<uint16_t> dots;
   uint8_t xPos;
@@ -119,7 +121,9 @@ class WireFrame{
   void resetExceptFor(uint8_t);
   void rotateVertRelative(uint8_t,float,uint8_t);
   void view();
-  void add(WireFrame);
+  void join(WireFrame);
+  void addVerts(vector<Vertex>);
+  void addEdges(vector<vector<uint16_t>>);
   void move(float,float,float);
 };
 
@@ -151,7 +155,7 @@ WireFrame::WireFrame(vector<Vertex> vertices,vector<vector<uint16_t>> edgeList){
   drawEdges = true;
   drawDots = false;
 }
-void WireFrame::add(WireFrame w){
+void WireFrame::join(WireFrame w){
 
   int16_t offset = verts.size();
 
@@ -173,12 +177,23 @@ void WireFrame::add(WireFrame w){
   //finally, add verts
   verts.insert(verts.end(),w.verts.begin(),w.verts.end());
 }
+
 void WireFrame::move(float x1, float y1, float z1){
   for(int i = 0; i<verts.size(); i++){
     verts[i].x += x1;
     verts[i].y += y1;
     verts[i].z += z1;
   }
+}
+void WireFrame::addVerts(vector<Vertex> v){
+    for(Vertex vert:v){
+        this->verts.push_back(vert);
+    }
+}
+void WireFrame::addEdges(vector<vector<uint16_t>> e){
+    for(vector<uint16_t> edge:e){
+        this->edges.push_back(edge);
+    }
 }
 
 
@@ -379,7 +394,7 @@ void WireFrame::view(){
         return;
       }
     }
-    // rotate(1,1);
+    rotate(1,1);
     display.clearDisplay();
     render();
     display.display();
@@ -551,7 +566,7 @@ WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float sca
     allDots.dots.push_back(i);
   }
   allDots.scale = scale;
-  cube.add(allDots);
+  cube.join(allDots);
   cube.drawDots = true;
   return cube;
 }
@@ -615,7 +630,7 @@ WireFrame makeHammer(){
   }
   edges.push_back({uint16_t(verts.size()-1),0});
   //add the two together
-  hammer.add(WireFrame(verts,edges));
+  hammer.join(WireFrame(verts,edges));
   //stitching the two together
   for(uint8_t v = 0; v<13; v++){
     hammer.edges.push_back({v,uint16_t(v+13)});
@@ -831,7 +846,7 @@ WireFrame makeGyro(float angleX, float angleY, float angleZ,float angle2X, float
   arc2.rotate(angle2Y,1);
   arc2.rotate(angle2Z,2);
 
-  arc1.add(arc2);
+  arc1.join(arc2);
   arc1.xPos = 111;
   arc1.yPos = 16;
   return arc1;
@@ -890,17 +905,17 @@ WireFrame makeCycle(){
     WireFrame wheel1 = wheel;
     //front wheel
     wheel1.move(-5,0,0.5);
-    cycle.add(wheel1);
+    cycle.join(wheel1);
     wheel1 = wheel;
     wheel1.move(-5,0,-0.5);
-    cycle.add(wheel1);
+    cycle.join(wheel1);
     //back wheel
     wheel1 = wheel;
     wheel1.move(5,0,0.5);
-    cycle.add(wheel1);
+    cycle.join(wheel1);
     wheel1 = wheel;
     wheel1.move(5,0,-0.5);
-    cycle.add(wheel1);
+    cycle.join(wheel1);
     
     //front spokes
     WireFrame spokes = makeCircle(1.5,12);
@@ -911,21 +926,21 @@ WireFrame makeCycle(){
     }
     spokes.move(-5,0,0);
     rim.move(-5,0,0);
-//    cycle.add(spokes);
-    cycle.add(rim);
+//    cycle.join(spokes);
+    cycle.join(rim);
     rim.move(10,0,0);
-    cycle.add(rim);
+    cycle.join(rim);
 
     
     //front disc brake
     WireFrame disc = makeCircle(0.75,10);
     WireFrame disc1 = disc;
     disc1.move(-5,0,0);
-    cycle.add(disc1);
+    cycle.join(disc1);
     //rear disc brake
     disc1 = disc;
     disc1.move(5,0,0);
-    cycle.add(disc1);
+    cycle.join(disc1);
     
     
     cycle.xPos = 64;
@@ -982,14 +997,14 @@ WireFrame makePram(){
   //body
   WireFrame pram = makeHalfPramBody(zOff);
   uint8_t vertCount = pram.verts.size();
-  pram.add(makeHalfPramBody(-zOff));
+  pram.join(makeHalfPramBody(-zOff));
   //connecting two halves
   for(uint8_t i = 0; i<vertCount; i ++){
     pram.edges.push_back({i,uint16_t(i+vertCount)});
   }
   //legs
-  pram.add(makeHalfPramLegs(zOff));
-  pram.add(makeHalfPramLegs(-zOff));
+  pram.join(makeHalfPramLegs(zOff));
+  pram.join(makeHalfPramLegs(-zOff));
   //wheels
   for(uint8_t i = 0; i<4; i++){
     WireFrame wheel = makeCircle(2.5,18);
@@ -1009,7 +1024,7 @@ WireFrame makePram(){
         wheel.move(4,9,-zOff);
         break;
     }
-    pram.add(wheel);
+    pram.join(wheel);
   }
   pram.xPos = screenWidth/2;
   pram.xPos-=10;
@@ -1049,7 +1064,7 @@ WireFrame makeGear(float r1, float r2, uint8_t teeth, uint8_t points, bool cente
   edges.push_back({uint16_t(verties.size()-1),0});
   WireFrame gear = WireFrame(verties,edges);
   if(center){
-    gear.add(makeCircle(2,8));
+    gear.join(makeCircle(2,8));
   }
   // gear.xPos = 64;
   // gear.yPos = 32;
@@ -1065,9 +1080,9 @@ WireFrame makeThickGear(float r1, float r2, uint8_t teeth, uint8_t points, bool 
   for(uint16_t i = 0; i<offset; i++){
     g1.edges.push_back({i,uint16_t(i+offset)});
   }
-  g1.add(g2);
+  g1.join(g2);
   if(center)
-    g1.add(makeCircle(2,8));
+    g1.join(makeCircle(2,8));
   // g1.view();
   return g1;
 }
@@ -1109,12 +1124,12 @@ WireFrame makeCassette(){
   //tape
   WireFrame d = makeDisc(1,0,1,2,6,20,0);
   d.rotate(90,2);
-  b.add(d);
+  b.join(d);
   //spokes
   WireFrame a = makeDisc(-3,1,1,1,0,10,0);
   WireFrame c = makeDisc(3,1,1,1,0,10,0);
-  b.add(a);
-  b.add(c);
+  b.join(a);
+  b.join(c);
   //rectangle
   Vertex v1 = Vertex(-5.5,3,1);
   Vertex v2 = Vertex(5.5,3,1);
@@ -1123,7 +1138,7 @@ WireFrame makeCassette(){
   vector<Vertex> verts = {v1,v2,v3,v4};
   vector<vector<uint16_t>> edges = {{0,1},{1,2},{2,3},{3,0}};
   WireFrame e = WireFrame(verts,edges);
-  b.add(e);
+  b.join(e);
 
   b.xPos = screenWidth/2;
   b.yPos = screenHeight/2;
@@ -1201,7 +1216,7 @@ WireFrame makePencil(){
   WireFrame pencil;
   pencil.xPos = screenWidth/2;
   pencil.yPos = screenHeight/2;
-  pencil.add(makeDisc(0,20,0,4,0,6,0));
+  pencil.join(makeDisc(0,20,0,4,0,6,0));
   for(uint16_t edge = 0; edge<6; edge++){
     pencil.edges.push_back({edge,uint16_t(edge+5)});
     pencil.edges.push_back({uint16_t(edge+6),uint16_t(edge+11)});
@@ -1596,23 +1611,21 @@ WireFrame makeHelix(uint8_t r, uint8_t revs, float length, uint8_t points, bool 
   return helix;
 }
 
-//folder anim doesn't open correctly! fix this
+//folder anim works correctly now :)
 WireFrame makeFolder(float openAngle){
   //2 points for top front edge
-  Vertex v1 = Vertex(-9,-7,2);
-  Vertex v2 = Vertex(9,-7,2);
-  // v1.rotate(-openAngle,0);
-  // v2.rotate(-openAngle,0);
+  Vertex v1 = Vertex(-9,-16,2);
+  Vertex v2 = Vertex(9,-16,2);
   //6 for for top back edge
-  Vertex v3 = Vertex(-9,-7,-2);
-  Vertex v4 = Vertex(2,-7,-2);
-  Vertex v5 = Vertex(3,-9,-2);
-  Vertex v6 = Vertex(7,-9,-2);
-  Vertex v7 = Vertex(8,-7,-2);
-  Vertex v8 = Vertex(9,-7,-2);
+  Vertex v3 = Vertex(-9,-16,-2);
+  Vertex v4 = Vertex(2,-16,-2);
+  Vertex v5 = Vertex(3,-18,-2);
+  Vertex v6 = Vertex(7,-18,-2);
+  Vertex v7 = Vertex(8,-16,-2);
+  Vertex v8 = Vertex(9,-16,-2);
   //bottom 2 points
-  Vertex v9 = Vertex(-9,9,0);
-  Vertex v10 = Vertex(9,9,0);
+  Vertex v9 = Vertex(-9,0,0);
+  Vertex v10 = Vertex(9,0,0);
   vector<Vertex> verties = {v1,v2,v3,v4,v5,v6,v7,v8,v9,v10};
   vector<vector<uint8_t>> edges = {
     //front
@@ -1625,10 +1638,45 @@ WireFrame makeFolder(float openAngle){
   WireFrame folder = WireFrame(verties,edges);
   folder.verts[0].rotate(-openAngle,0);
   folder.verts[1].rotate(-openAngle,0);
+  folder.rotate(20,2);
   folder.xPos = screenWidth/2;
   folder.yPos = screenHeight/2;
-  folder.rotate(20,2);
+  folder.move(0,9,0);
   return folder;
+}
+
+//builds a rectangle in the XY plane centered on c with height = h and width = w
+WireFrame makeRect(float w, float h, Vertex c){
+  vector<Vertex> verties = {Vertex(c.x-w/2,c.y-h/2,c.z),Vertex(c.x+w/2,c.y-h/2,c.z),Vertex(c.x+w/2,c.y+h/2,c.z),Vertex(c.x-w/2,c.y+h/2,c.z)};
+  vector<vector<uint16_t>> edges = {{0,1},{1,2},{2,3},{3,0}};
+  return WireFrame(verties,edges);
+}
+
+WireFrame makeMonitor(){
+    //front frame
+    // WireFrame screen = makeRect(10,8,Vertex(0,0,0));
+    //  WireFrame screen = makeFolder(90);
+    WireFrame screen = makeRect(10,8,Vertex(0,0,0));
+    screen.join(makeRect(8,6.5,Vertex(0,0,-7)));
+    screen.join(makeRect(8,6.5,Vertex(0,0,-0.5)));
+    // screen.addEdges({{0,4},{1,5},{2,6},{3,7}});
+    screen.edges.push_back({0,4});
+    screen.edges.push_back({1,5});
+    screen.edges.push_back({2,6});
+    screen.edges.push_back({3,7});
+
+    WireFrame keyboard = makeBox(10,2,7);
+    keyboard.move(0,7,0);
+    screen.join(keyboard);
+
+    WireFrame base = makeBox(7,4,4);
+    base.move(0,6,-5);
+    screen.join(base);
+
+    screen.scale = 2;
+    screen.xPos = 80;
+    screen.move(0,0,2);
+  return screen;
 }
 
 //keys are three rectangular prisms that each ebb and flow
@@ -1637,16 +1685,15 @@ WireFrame makeArpBoxes(float keyOffsetTimer){
     //bouncing each key
     for(uint8_t i = 0; i<3; i++){
         WireFrame key = makeBox(7, 5, 5);
-       key.move(10*i-10,7.0*sin(keyOffsetTimer/60.0+((2.0*PI/3.0)*i)),0);
+        key.move(10*i-10,7.0*sin(keyOffsetTimer/200.0+((2.0*PI/3.0)*i)),0);
         // key.move(10*i-10,0,0);
         keys[i] = key;
     }
     //joingin keys into one wireframe
-    keys[1].add(keys[2]);
-    keys[0].add(keys[1]);
+    keys[1].join(keys[2]);
+    keys[0].join(keys[1]);
     //styling
     keys[0].rotate(15,2);
-    // keys[0].rotate(30.0*sin(keyOffsetTimer/10.0),1);
     keys[0].rotate(30.0,1);
     return keys[0];
 }
@@ -1664,7 +1711,7 @@ void openFolderAnimation(WireFrame* w,float amount){
 //opening and closing
 void folderAnimation(WireFrame* w){
   //make a new folder wireframe with the right open amount
-  WireFrame  n = makeFolder(float(30)+float(10)*sin(millis()/400));
+  WireFrame  n = makeFolder((45.0*sin(millis()/400.0)+45.0)/2.0);
   //rotate it so it's at the same position as the current folder
   n.rotate(w->currentAngle[1],1);
   //then swap their vertices
@@ -1712,7 +1759,7 @@ void graphAnimation(WireFrame* w){
 }
 
 void renderTest(){
-  vector<WireFrame> meshes = {makeWrench(),makeFolder(30),makeHand(0,0,0,0,0),makeKeys(),makeMIDI(),makeMetronome(0),makeLoopArrows(0),makeGraphBox(5)};
+  vector<WireFrame> meshes = {makeWrench(),makeFolder(30.0),makeHand(0,0,0,0,0),makeKeys(),makeMIDI(),makeMetronome(0),makeLoopArrows(0),makeGraphBox(5)};
   float angleX,angleY,angleZ;
   uint8_t activeOption = 0;
   bool justOne = false;

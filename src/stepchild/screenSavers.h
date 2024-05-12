@@ -282,10 +282,56 @@ void screenSaver_text(){
   }
 }
 
+//inspired by the drum machine from Iglooghost's music vide:
+//https://www.youtube.com/watch?v=5IfB819O7qg
+void screenSaver_playing(){
+  while(true){
+    readButtons();
+    if(anyActiveInputs()){
+      lastTime = millis();
+      break;
+    }
+    display.clearDisplay();
+    display.drawFastVLine(64,0,64,1);
+    // graphics.drawDottedLineH(64,0,64,2);
+    vector<uint8_t> trackIDsWithPitches;
+    for(uint8_t i = 0; i<trackData.size(); i++){
+      if(seqData[i].size()>1){
+        trackIDsWithPitches.push_back(i);
+      }
+    }
+    for(uint16_t step = 0; step<128; step++){
+      for(uint8_t track:trackIDsWithPitches){
+        int32_t start = playheadPos - 64;
+        if(start+step<0)
+          continue;
+        if(track>8)
+          break;
+        if(lookupData[track][start+step]){
+          Note note = seqData[track][lookupData[track][start+step]];
+          if(note.startPos == (start+step)){
+            if(playheadPos<note.endPos && playheadPos>=note.startPos)
+              display.fillRect(step,track*8,note.endPos-note.startPos,7,1);
+            else
+              display.drawRect(step,track*8,note.endPos-note.startPos,7,1);
+          }
+          else if(note.startPos<(start) && note.endPos > start){
+            if(playheadPos<note.endPos && playheadPos>=note.startPos)
+              display.fillRect(-1,track*8,note.endPos-start,7,1);
+            else
+              display.drawRect(-1,track*8,note.endPos-start,7,1);
+          }
+        }
+      }
+    }
+    display.display();
+  }
+}
+
 void screenSaver(){
   //vector that holds all the screen savers
   if(playing || recording){
-    screenSaver_keys();
+    screenSaver_playing();
   }
   vector<void (*)()> screenSaverList = {screenSaver_prams,screenSaver_droplets,screenSaver_cassette,screenSaver_ripples,screenSaver_text};
   uint8_t which = random(0,screenSaverList.size());

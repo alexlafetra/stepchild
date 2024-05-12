@@ -46,7 +46,6 @@ vector<uint8_t> genScale(uint8_t scale, uint8_t root){
     newScale = {root,uint8_t(root+2),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+8),uint8_t(root+10),uint8_t(root+12)};
   else if(scale == LOCRIAN)
     newScale = {root,uint8_t(root+1),uint8_t(root+3),uint8_t(root+5),uint8_t(root+6),uint8_t(root+8),uint8_t(root+10),uint8_t(root+12)};
-  
   else if(scale == MELODIC_MINOR)
     newScale = {root,uint8_t(root+2),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+8),uint8_t(root+10),uint8_t(root+12)};
   else if(scale == HARMONIC_MINOR)

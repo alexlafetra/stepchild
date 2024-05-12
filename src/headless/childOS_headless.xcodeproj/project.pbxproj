@@ -11,13 +11,25 @@
 		FA01CE682AC2F94C005BBB0F /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE672AC2F94C005BBB0F /* CoreMIDI.framework */; };
 		FA01CE6A2AC2F955005BBB0F /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */; };
 		FA0A413E2AD5252500013622 /* HeadlessFileSystem.h in Sources */ = {isa = PBXBuildFile; fileRef = FA0A413D2AD5252500013622 /* HeadlessFileSystem.h */; };
+		FA2FA85D2BD75B8100A3F5C8 /* libglfw.3.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA2FA85C2BD75B8100A3F5C8 /* libglfw.3.4.dylib */; };
+		FA2FA85E2BD75B8200A3F5C8 /* libglfw.3.4.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = FA2FA85C2BD75B8100A3F5C8 /* libglfw.3.4.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		FA3C22AE2AD4E00A004634E6 /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA3C21932AD4E009004634E6 /* RtMidi.cpp */; };
-		FA7578F82996CF8500378FA9 /* libglfw.3.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA7578F72996CF8500378FA9 /* libglfw.3.3.dylib */; };
 		FAA06B06299423D4004BEC01 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA06B05299423D4004BEC01 /* OpenGL.framework */; };
 		FAA06B0E29943BC7004BEC01 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAA06B0D29943BC6004BEC01 /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		FA2FA85F2BD75B8200A3F5C8 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				FA2FA85E2BD75B8200A3F5C8 /* libglfw.3.4.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FAA06AF829942167004BEC01 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -36,6 +48,8 @@
 		FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		FA01CE702AC35CBB005BBB0F /* HeadlessMIDI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HeadlessMIDI.h; sourceTree = "<group>"; };
 		FA0A413D2AD5252500013622 /* HeadlessFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HeadlessFileSystem.h; sourceTree = "<group>"; };
+		FA2FA85B2BD75A4E00A3F5C8 /* stepchild */ = {isa = PBXFileReference; lastKnownFileType = folder; name = stepchild; path = ../stepchild; sourceTree = "<group>"; };
+		FA2FA85C2BD75B8100A3F5C8 /* libglfw.3.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.4.dylib; path = ../../../../../../../usr/local/Cellar/glfw/3.4/lib/libglfw.3.4.dylib; sourceTree = "<group>"; };
 		FA3C21892AD4DBB8004634E6 /* RtMidi.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = "childOS_headless/rtmidi-6.0.0/RtMidi.cpp"; sourceTree = "<group>"; };
 		FA3C218B2AD4DBC8004634E6 /* RtMidi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = "childOS_headless/rtmidi-6.0.0/RtMidi.h"; sourceTree = "<group>"; };
 		FA3C21922AD4E009004634E6 /* libtool */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = libtool; sourceTree = "<group>"; };
@@ -267,6 +281,7 @@
 		FA3C22AA2AD4E00A004634E6 /* Makefile.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.in; sourceTree = "<group>"; };
 		FA3C22AB2AD4E00A004634E6 /* aclocal.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = aclocal.m4; sourceTree = "<group>"; };
 		FA3C22AC2AD4E00A004634E6 /* autogen.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = autogen.sh; sourceTree = "<group>"; };
+		FA7028352BF17EE6009065F4 /* headlessLowerBoard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headlessLowerBoard.h; sourceTree = "<group>"; };
 		FA7578F32996CC0A00378FA9 /* GL */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GL; path = ../../../../../../usr/local/include/GL; sourceTree = "<group>"; };
 		FA7578F72996CF8500378FA9 /* libglfw.3.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.3.dylib; path = ../../../../../../usr/local/Cellar/glfw/3.3.8/lib/libglfw.3.3.dylib; sourceTree = "<group>"; };
 		FA7578F92996F34000378FA9 /* bitmap */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bitmap; sourceTree = "<group>"; };
@@ -287,8 +302,8 @@
 				FA01CE682AC2F94C005BBB0F /* CoreMIDI.framework in Frameworks */,
 				FA01CE662AC2F93D005BBB0F /* CoreAudio.framework in Frameworks */,
 				FA01CE6A2AC2F955005BBB0F /* CoreFoundation.framework in Frameworks */,
+				FA2FA85D2BD75B8100A3F5C8 /* libglfw.3.4.dylib in Frameworks */,
 				FAA06B06299423D4004BEC01 /* OpenGL.framework in Frameworks */,
-				FA7578F82996CF8500378FA9 /* libglfw.3.3.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -967,6 +982,7 @@
 		FAA06AF129942167004BEC01 = {
 			isa = PBXGroup;
 			children = (
+				FA2FA85B2BD75A4E00A3F5C8 /* stepchild */,
 				FA3C21912AD4E009004634E6 /* rtmidi-6.0.0 */,
 				FA3C218B2AD4DBC8004634E6 /* RtMidi.h */,
 				FA3C21892AD4DBB8004634E6 /* RtMidi.cpp */,
@@ -989,6 +1005,7 @@
 			children = (
 				FAA06B0B29943B71004BEC01 /* Fonts */,
 				FAA06AFD29942167004BEC01 /* headless.h */,
+				FA7028352BF17EE6009065F4 /* headlessLowerBoard.h */,
 				FA0A413D2AD5252500013622 /* HeadlessFileSystem.h */,
 				FA01CE702AC35CBB005BBB0F /* HeadlessMIDI.h */,
 				FAB6ECBA2AB2340500A32AD2 /* HeadlessDisplay.h */,
@@ -1001,6 +1018,7 @@
 		FAA06B04299423D4004BEC01 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FA2FA85C2BD75B8100A3F5C8 /* libglfw.3.4.dylib */,
 				FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */,
 				FA01CE672AC2F94C005BBB0F /* CoreMIDI.framework */,
 				FA01CE652AC2F93D005BBB0F /* CoreAudio.framework */,
@@ -1023,6 +1041,7 @@
 				FAA06AF729942167004BEC01 /* Frameworks */,
 				FAA06AF829942167004BEC01 /* Copy Files */,
 				FAB99E4E29959C340045ABA0 /* Resources */,
+				FA2FA85F2BD75B8200A3F5C8 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -1222,6 +1241,7 @@
 					"$(inherited)",
 					/usr/local/Cellar/glfw/3.3.8/include,
 					/usr/local/Cellar/glfw/3.3.8/lib,
+					/usr/local/Cellar/glfw/3.4/lib,
 				);
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
@@ -1241,6 +1261,7 @@
 					"$(inherited)",
 					/usr/local/Cellar/glfw/3.3.8/include,
 					/usr/local/Cellar/glfw/3.3.8/lib,
+					/usr/local/Cellar/glfw/3.4/lib,
 				);
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";

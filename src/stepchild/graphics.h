@@ -1372,7 +1372,7 @@ void bootscreen(){
   pram.yPos = 40;
   pram.xPos = 64;
   //each letter pops in and swings into place with a x^2 parabolic motion
-  while(frameCount<60){
+  while(frameCount<64){
     display.clearDisplay();
     display.setTextSize(2);
     pram.render();
@@ -1399,7 +1399,10 @@ void bootscreen(){
     printSmall(0,58,"v0.1",1);
     display.display();
     pram.rotate(5,1);
-    writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
+    // writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
+    uint16_t ledData = 0b1111111111111111;
+    ledData>>(16-frameCount/8);
+    lowerBoard.writeLEDs(ledData);
     frameCount+=4;
   }
   turnOffLEDs();
@@ -1530,7 +1533,7 @@ void bootscreen_2(){
   uint8_t xOffset = 30;
   uint8_t yOffset = 15;
   //each letter pops in and swings into place with a x^2 parabolic motion
-  while(frameCount<50){
+  while(frameCount<128){
     display.clearDisplay();
     display.setTextSize(2);
     xCoord = 20;
@@ -1544,16 +1547,17 @@ void bootscreen_2(){
     display.setFont();
     // printCursive(xCoord,yCoord,"child",1);
     //OS
-    if(frameCount>20){
+    if(frameCount>40){
       graphics.drawStar(xOffset+68,yOffset-8,3,7,5);
-      uint8_t i = frameCount-21;
+      uint8_t i = frameCount-42;
       display.drawBitmap(48-i/3*i/3,32+i/3*i/3-i/3,carriage_bmp,14,15,SSD1306_WHITE);
     }
     else{
       display.drawBitmap(48,32,carriage_bmp,14,15,SSD1306_WHITE);
     }
     display.display();
-    writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
+    // writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
+    lowerBoard.writeLEDs(0b1111111111111111>>(16-(frameCount/8)));
     frameCount+=2;
   }
   turnOffLEDs();

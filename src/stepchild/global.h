@@ -160,7 +160,7 @@ long offBy,timeElapsed;
 bool core1ready = false;
 
 //30000/1000 = 30 seconds
-const uint16_t sleepTime = 30000;
+uint16_t sleepTime = 10000;
 //120,000ms = 2min
 const uint32_t deepSleepTime = 120000;
 
@@ -197,8 +197,8 @@ struct RandomData{
   int8_t minChance = 100;
   int8_t maxChance = 100;
   uint16_t minLength = 24;
-  uint16_t maxLength = 48;
-  uint8_t minVel = 64;
+  uint16_t maxLength = 24;
+  uint8_t minVel = 100;
   uint8_t maxVel = 127;
   bool onlyOnGrid = true;//true is on the grid, false is off grid
   bool target = 0;//0 is all, 1 is selected
