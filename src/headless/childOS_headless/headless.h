@@ -74,10 +74,9 @@
 
 using namespace std;
 
-int counterA, counterB;
+int headlessCounterA, headlessCounterB;
 
 bool core0ready;
-unsigned long lastTime = 0;
 bool playing = false;
 bool recording = false;
 
@@ -285,7 +284,6 @@ void digitalWrite(uint8_t pin, bool value){
     return;
 }
 void analogWrite(uint8_t pin, uint16_t val){
-    
 }
 
 //random
@@ -435,10 +433,10 @@ static void key_callback(GLFWwindow* w, int key, int scancode, int action, int m
     //encoders
         //0
         if(key == 48 && action == GLFW_PRESS)
-            counterA++;
+            headlessCounterA++;
         //k
         if(key == 75 && action == GLFW_PRESS)
-            counterA--;
+            headlessCounterA--;
         //o
         if(key == 79 && action == GLFW_PRESS)
             encAPRESS = 1;
@@ -446,10 +444,10 @@ static void key_callback(GLFWwindow* w, int key, int scancode, int action, int m
             encAPRESS = 0;
         //-
         if(key == '-' && action == GLFW_PRESS)
-            counterB++;
+            headlessCounterB++;
         //l
         if(key == 76 && action == GLFW_PRESS)
-            counterB--;
+            headlessCounterB--;
         //p
         if(key == 80 && action == GLFW_PRESS)
             encBPRESS = 1;

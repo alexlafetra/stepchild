@@ -63,10 +63,10 @@ void fxListControls(uint8_t* currentQuickFunction){
 }
 
 void editMenuControls_editing(uint8_t* currentQuickFunction){
-  while(counterB != 0){
+  while(controls.counterB != 0){
     //changing vel
     if(activeMenu.highlight == 2){
-      if(counterB<0)
+      if(controls.counterB<0)
         changeVel(-1);
       else{
         changeVel(1);
@@ -74,13 +74,13 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
     }
     //changing chance
     else if(activeMenu.highlight == 3){
-      if(counterB<0)
+      if(controls.counterB<0)
         changeChance(-1);
       else{
         changeChance(1);
       }
     }
-    counterB += counterB<0?1:-1;;
+    controls.counterB += controls.counterB<0?1:-1;;
   }
 
   //joystick
@@ -321,42 +321,42 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
     drawingNote = false;
   }
   //encoderA changes zoom AND +controls.SHIFT() changes the stencil
-  while(counterA != 0){
+  while(controls.counterA != 0){
     if(!controls.SHIFT()){
       //changing zoom
-      if(counterA >= 1){
+      if(controls.counterA >= 1){
           zoom(true);
         }
-      if(counterA <= -1){
+      if(controls.counterA <= -1){
         zoom(false);
       }
     }
     else{
-      if(counterA >= 1 && (*stencil)<16){
+      if(controls.counterA >= 1 && (*stencil)<16){
         (*stencil)++;
       }
-      else if(counterA <= -1 && (*stencil)>1){
+      else if(controls.counterA <= -1 && (*stencil)>1){
         (*stencil)--;
       }
     }
-    counterA += counterA<0?1:-1;;
+    controls.counterA += controls.counterA<0?1:-1;;
   }
   //encoder B steps through menu options AND increments them by one (unlike joystick) when shifted
-  while(counterB != 0){
+  while(controls.counterB != 0){
     if(!controls.SHIFT()){
-      if(counterB >= 1 && !controls.SHIFT()){
+      if(controls.counterB >= 1 && !controls.SHIFT()){
         changeSubDivInt(true);
       }
       //changing subdivint
-      if(counterB <= -1 && !controls.SHIFT()){
+      if(controls.counterB <= -1 && !controls.SHIFT()){
         changeSubDivInt(false);
       }
     }
     //if shifting, toggle between 1/3 and 1/4 mode
-    else while(counterB != 0 && controls.B()){
+    else while(controls.counterB != 0 && controls.B()){
       toggleTriplets();
     }
-    counterB += counterB<0?1:-1;;
+    controls.counterB += controls.counterB<0?1:-1;;
   }
   //joystick
   if(utils.itsbeen(100)){

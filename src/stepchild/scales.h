@@ -103,29 +103,29 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
       }
     }
     //changing root
-    while(counterA != 0){
-      if(counterA >= 1)
+    while(controls.counterA != 0){
+      if(controls.counterA >= 1)
         root++;
-      else if(counterA <= -1){
+      else if(controls.counterA <= -1){
         if(root == 0)
           root = 11;
         else
           root--;
       }
       root%=12;
-      counterA += counterA<0?1:-1;;
+      controls.counterA += controls.counterA<0?1:-1;;
     }
     //changing scale
-    while(counterB != 0){
+    while(controls.counterB != 0){
       if(!showingScale){
         showingScale = true;
         activeScale = 0;
       }
       else{
-        if(counterB >= 1){
+        if(controls.counterB >= 1){
           activeScale++;
         }
-        else if(counterB <= -1){
+        else if(controls.counterB <= -1){
           if(activeScale == 0)
             activeScale = 11;
           else activeScale--;
@@ -141,7 +141,7 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
       for(int i = 0; i<newScale.size(); i++){
         keys[newScale[i]] = true;
       }
-      counterB += counterB<0?1:-1;;
+      controls.counterB += controls.counterB<0?1:-1;;
     }
     //also changing root and scale, but with joystick
     if(utils.itsbeen(200)){

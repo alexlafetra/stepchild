@@ -518,14 +518,14 @@ void autotrackEditor(){
         settingRecInput = false;
       }   
       //if any of these controls are pressed, then set the current data track param to it
-      if(counterA != 0){
-        counterA = 0;
+      if(controls.counterA != 0){
+        controls.counterA = 0;
         autotrackData[activeAutotrack].recordFrom = 1;
         recInputSet = true;
         lastTime = millis();
       }
-      else if(counterB != 0){
-        counterB = 0;
+      else if(controls.counterB != 0){
+        controls.counterB = 0;
         autotrackData[activeAutotrack].recordFrom = 2;
         recInputSet = true;
         lastTime = millis();
@@ -821,21 +821,21 @@ void randomInterp(uint16_t start, uint16_t end, uint8_t which){
 
 bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
   //zoom/subdiv zoom
-  while(counterA != 0 && !recordingToAutotrack){
+  while(controls.counterA != 0 && !recordingToAutotrack){
     //changing zoom
     if(!controls.SHIFT()){
-      if(counterA >= 1){
+      if(controls.counterA >= 1){
           zoom(true);
         }
-      if(counterA <= -1){
+      if(controls.counterA <= -1){
         zoom(false);
       }
     }
     else{
-      if(counterA >= 1 && autotrackData[activeAutotrack].channel<16){
+      if(controls.counterA >= 1 && autotrackData[activeAutotrack].channel<16){
         autotrackData[activeAutotrack].channel++;
       }
-      else if(counterA <= -1){
+      else if(controls.counterA <= -1){
         //if it's an internal parameter type, then it can go to channel 0
         if(autotrackData[activeAutotrack].parameterType == 2 && autotrackData[activeAutotrack].channel>0)
           autotrackData[activeAutotrack].channel--;
@@ -843,27 +843,27 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
           autotrackData[activeAutotrack].channel--;
       }
     }
-    counterA += counterA<0?1:-1;
+    controls.counterA += controls.counterA<0?1:-1;
   }
-  while(counterB != 0 && !recordingToAutotrack){
+  while(controls.counterB != 0 && !recordingToAutotrack){
     if(!controls.SHIFT()){   
-      if(counterB >= 1){
+      if(controls.counterB >= 1){
         changeSubDivInt(true);
       }
       //changing subdivint
-      if(counterB <= -1){
+      if(controls.counterB <= -1){
         changeSubDivInt(false);
       }
     }
     else{
-      if(counterB >= 1){
+      if(controls.counterB >= 1){
         autotrackData[activeAutotrack].control = moveToNextCCParam(autotrackData[activeAutotrack].control,true,autotrackData[activeAutotrack].parameterType);
       }
-      else if(counterB <= -1){
+      else if(controls.counterB <= -1){
         autotrackData[activeAutotrack].control = moveToNextCCParam(autotrackData[activeAutotrack].control,false,autotrackData[activeAutotrack].parameterType);
       }
     }
-    counterB += counterB<0?1:-1;
+    controls.counterB += controls.counterB<0?1:-1;
   }
 
   if(!recordingToAutotrack || autotrackData[activeAutotrack].recordFrom != 3){
@@ -946,8 +946,8 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
         lastTime = millis();
         recordingToAutotrack = true;
         recentCC.val = 0;
-        counterA = 64;
-        counterB = 64;
+        controls.counterA = 64;
+        controls.counterB = 64;
         toggleRecordingMode(true);
       }
       else{
@@ -1023,21 +1023,21 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
 //x is change period, y is change amplitude, controls.SHIFT() x is change phase, controls.SHIFT() y is vertically translate
 bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
   //zoom/subdiv zoom (this is the same to the normal DT editor)
-  while(counterA != 0){
+  while(controls.counterA != 0){
     //changing zoom
     if(!controls.SHIFT()){
-      if(counterA >= 1){
+      if(controls.counterA >= 1){
           zoom(true);
         }
-      if(counterA <= -1){
+      if(controls.counterA <= -1){
         zoom(false);
       }
     }
     else{
-      if(counterA >= 1 && autotrackData[activeAutotrack].channel<16){
+      if(controls.counterA >= 1 && autotrackData[activeAutotrack].channel<16){
         autotrackData[activeAutotrack].channel++;
       }
-      else if(counterA <= -1){
+      else if(controls.counterA <= -1){
         //if it's an internal parameter type, then it can go to channel 0
         if(autotrackData[activeAutotrack].parameterType == 2 && autotrackData[activeAutotrack].channel>0)
           autotrackData[activeAutotrack].channel--;
@@ -1045,27 +1045,27 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
           autotrackData[activeAutotrack].channel--;
       }
     }
-    counterA += counterA<0?1:-1;
+    controls.counterA += controls.counterA<0?1:-1;
   }
-  while(counterB != 0){
+  while(controls.counterB != 0){
     if(!controls.SHIFT()){   
-      if(counterB >= 1 && !controls.SHIFT()){
+      if(controls.counterB >= 1 && !controls.SHIFT()){
         changeSubDivInt(true);
       }
       //changing subdivint
-      if(counterB <= -1 && !controls.SHIFT()){
+      if(controls.counterB <= -1 && !controls.SHIFT()){
         changeSubDivInt(false);
       }
     }
     else{
-      if(counterB >= 1){
+      if(controls.counterB >= 1){
         autotrackData[activeAutotrack].control = moveToNextCCParam(autotrackData[activeAutotrack].control,true,autotrackData[activeAutotrack].parameterType);
       }
-      else if(counterB <= -1){
+      else if(controls.counterB <= -1){
         autotrackData[activeAutotrack].control = moveToNextCCParam(autotrackData[activeAutotrack].control,false,autotrackData[activeAutotrack].parameterType);
       }
     }
-    counterB += counterB<0?1:-1;
+    controls.counterB += controls.counterB<0?1:-1;
   }
   if(utils.itsbeen(200)){
     //toggling DT type
@@ -1596,24 +1596,24 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
 
 bool autotrackViewerControls(){
   //changing cc
-  while(counterB != 0){
-    if(counterB >= 1 && autotrackData[activeAutotrack].control<127){
+  while(controls.counterB != 0){
+    if(controls.counterB >= 1 && autotrackData[activeAutotrack].control<127){
       autotrackData[activeAutotrack].control++;
       }
-    if(counterB <= -1 && autotrackData[activeAutotrack].control>0){
+    if(controls.counterB <= -1 && autotrackData[activeAutotrack].control>0){
       autotrackData[activeAutotrack].control--;
     }
-    counterB += counterB<0?1:-1;
+    controls.counterB += controls.counterB<0?1:-1;
   }
   //changing ch
-  while(counterA != 0){
-    if(counterA >= 1 && autotrackData[activeAutotrack].channel<16){
+  while(controls.counterA != 0){
+    if(controls.counterA >= 1 && autotrackData[activeAutotrack].channel<16){
       autotrackData[activeAutotrack].channel++;
       }
-    if(counterA <= -1 && autotrackData[activeAutotrack].channel>1){
+    if(controls.counterA <= -1 && autotrackData[activeAutotrack].channel>1){
       autotrackData[activeAutotrack].channel--;
     }
-    counterA += counterA<0?1:-1;
+    controls.counterA += controls.counterA<0?1:-1;
   }
   //sending CC message when controls.SHIFT() is held
   if(controls.SHIFT() && autotrackData.size()>activeAutotrack){

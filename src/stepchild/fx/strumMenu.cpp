@@ -151,21 +151,21 @@ void strumMenu(){
     while(true){
         controls.readJoystick();
         readButtons();
-        while(counterA != 0){
+        while(controls.counterA != 0){
             switch(cursor){
                 //amount (delay)
                 case 0:
                     if(controls.SHIFT())
                         toggleTriplets(amount);
                     else
-                        amount = changeSubDiv(counterA>0,amount,false);
+                        amount = changeSubDiv(controls.counterA>0,amount,false);
                 //type
                 case 1:
                     sortType = !sortType;
                     break;
                 //variation
                 case 2:
-                    randomness+=(counterA>0?1:-1);
+                    randomness+=(controls.counterA>0?1:-1);
                     if(randomness>100)
                         randomness = 100;
                     else if(randomness<0)
@@ -176,16 +176,16 @@ void strumMenu(){
                     sortValue = !sortValue;
                     break;
             }
-            counterA += counterA<0?1:-1;
+            controls.counterA += controls.counterA<0?1:-1;
         }
-        while(counterB != 0){
+        while(controls.counterB != 0){
             switch(cursor){
                 //amount (delay)
                 case 0:
                     if(controls.SHIFT())
                         toggleTriplets(amount);
                     else
-                        amount = changeSubDiv(counterB>0,amount,false);
+                        amount = changeSubDiv(controls.counterB>0,amount,false);
                     break;
                 //type
                 case 1:
@@ -193,7 +193,7 @@ void strumMenu(){
                     break;
                 //variation
                 case 2:
-                    randomness+=(counterB>0?1:-1);
+                    randomness+=(controls.counterB>0?1:-1);
                     if(randomness>100)
                         randomness = 100;
                     else if(randomness<0)
@@ -204,7 +204,7 @@ void strumMenu(){
                     sortValue = !sortValue;
                     break;
             }
-            counterB += counterB<0?1:-1;
+            controls.counterB += controls.counterB<0?1:-1;
         }
         if(utils.itsbeen(200)){
             if(controls.MENU()){

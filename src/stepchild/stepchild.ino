@@ -59,8 +59,8 @@ void setup() {
   for(uint8_t i = 0; i<16; i++){
     controlKnobs[i].cc = i+1;
   }
-  counterA = 0;
-  counterB = 0;
+  controls.counterA = 0;
+  controls.counterB = 0;
   setNormalMode();
   core0ready = true;
   lastTime = millis();

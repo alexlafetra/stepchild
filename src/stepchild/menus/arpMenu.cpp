@@ -375,49 +375,49 @@ void arpModMenu(){
             break;
         }
       }
-      while(counterA != 0){
+      while(controls.counterA != 0){
         switch(cursor){
           //min vel
           case 0:
-            if(counterA < 0 && activeArp.minVelMod<127){
+            if(controls.counterA < 0 && activeArp.minVelMod<127){
               activeArp.minVelMod++;
             }
-            else if(counterA > 0 && activeArp.minVelMod>0){
+            else if(controls.counterA > 0 && activeArp.minVelMod>0){
               activeArp.minVelMod--;
             }
-            counterA += counterA<0?1:-1;
+            controls.counterA += controls.counterA<0?1:-1;
             break;
           //chance
           case 1:
-            if(counterA > 0 && activeArp.chanceMod<100){
+            if(controls.counterA > 0 && activeArp.chanceMod<100){
               activeArp.chanceMod++;
             }
-            else if(counterA < 0 && activeArp.chanceMod>0){
+            else if(controls.counterA < 0 && activeArp.chanceMod>0){
               activeArp.chanceMod--;
             }
-            counterA += counterA<0?1:-1;
+            controls.counterA += controls.counterA<0?1:-1;
             break;
           //reps
           case 2:
-            if(counterA > 0 && activeArp.repMod<100){
+            if(controls.counterA > 0 && activeArp.repMod<100){
               activeArp.repMod++;
             }
-            else if(counterA < 0 && activeArp.repMod>0){
+            else if(controls.counterA < 0 && activeArp.repMod>0){
               activeArp.repMod--;
             }
-            counterA += counterA<0?1:-1;
+            controls.counterA += controls.counterA<0?1:-1;
             break;
           case 3:
-            if(counterA < 0 && activeArp.minPitchMod<127){
+            if(controls.counterA < 0 && activeArp.minPitchMod<127){
               activeArp.minPitchMod++;
             }
-            else if(counterA > 0 && activeArp.minPitchMod>0){
+            else if(controls.counterA > 0 && activeArp.minPitchMod>0){
               activeArp.minPitchMod--;
             }
-            counterA += counterA<0?1:-1;
+            controls.counterA += controls.counterA<0?1:-1;
             break;
           case 4:
-            if(counterA < 0){
+            if(controls.counterA < 0){
               if(activeArp.playStyle > 0)
                 activeArp.playStyle--;
             }
@@ -425,35 +425,35 @@ void arpModMenu(){
               if(activeArp.playStyle < 5)
                 activeArp.playStyle++;
             }
-            counterA += counterA<0?1:-1;
+            controls.counterA += controls.counterA<0?1:-1;
             break;
         }
       }
-      while(counterB != 0){
+      while(controls.counterB != 0){
         switch(cursor){
           case 0:
-            if(counterB > 0 && activeArp.maxVelMod<127){
+            if(controls.counterB > 0 && activeArp.maxVelMod<127){
               activeArp.maxVelMod++;
             }
-            else if(counterB < 0 && activeArp.maxVelMod>0){
+            else if(controls.counterB < 0 && activeArp.maxVelMod>0){
               activeArp.maxVelMod--;
             }
-            counterB += counterB<0?1:-1;
+            controls.counterB += controls.counterB<0?1:-1;
             break;
           case 1:
-            counterB = 0;
+            controls.counterB = 0;
             break;
           case 2:
-            counterB = 0;
+            controls.counterB = 0;
             break;
           case 3:
-            if(counterB > 0 && activeArp.maxPitchMod<127){
+            if(controls.counterB > 0 && activeArp.maxPitchMod<127){
               activeArp.maxPitchMod++;
             }
-            else if(counterB < 0 && activeArp.maxPitchMod>0){
+            else if(controls.counterB < 0 && activeArp.maxPitchMod>0){
               activeArp.maxPitchMod--;
             }
-            counterB += counterB<0?1:-1;
+            controls.counterB += controls.counterB<0?1:-1;
             break;
         }
       }
@@ -660,53 +660,53 @@ void arpMenu(){
         controls.setMENU(false) ;
         break;
       }
-      while(counterA != 0){
+      while(controls.counterA != 0){
         switch(cursor){
           case 0:
             isArping = !isArping;
-            counterA += counterA<0?1:-1;;
+            controls.counterA += controls.counterA<0?1:-1;;
             break;
           case 1:
             if(controls.SHIFT()){
               activeArp.arpSubDiv = toggleTriplets(activeArp.arpSubDiv);
-              counterA += counterA<0?1:-1;;
+              controls.counterA += controls.counterA<0?1:-1;;
             }
             else{
-              if(counterA > 0){
+              if(controls.counterA > 0){
                 activeArp.arpSubDiv = changeSubDiv(true,activeArp.arpSubDiv,false);
-                counterA += counterA<0?1:-1;;
+                controls.counterA += controls.counterA<0?1:-1;;
               }
               else{
                 activeArp.arpSubDiv = changeSubDiv(false,activeArp.arpSubDiv,false);
-                counterA += counterA<0?1:-1;;
+                controls.counterA += controls.counterA<0?1:-1;;
               }
             }
             break;
           case 2:
-            if(counterA > 0){
+            if(controls.counterA > 0){
               activeArp.playStyle++;
               if(activeArp.playStyle == 6)
                 activeArp.playStyle = 0;
             }
-            else if(counterA < 0){
+            else if(controls.counterA < 0){
               if(activeArp.playStyle == 0)
                 activeArp.playStyle = 5;
               else
                 activeArp.playStyle--;
             }
-            counterA += counterA<0?1:-1;;
+            controls.counterA += controls.counterA<0?1:-1;;
             break;
         }
       }
-      while(counterB != 0){
-        if(counterB < 0 && activeArp.channel>1){
+      while(controls.counterB != 0){
+        if(controls.counterB < 0 && activeArp.channel>1){
           activeArp.channel--;
         }
-        else if(counterB > 0 && activeArp.channel<16){
+        else if(controls.counterB > 0 && activeArp.channel<16){
           activeArp.channel++;
         }
         lastTime = millis();
-        counterB += counterB<0?1:-1;;
+        controls.counterB += controls.counterB<0?1:-1;;
       }
     }
   }

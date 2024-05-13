@@ -255,23 +255,23 @@ bool humanizeMenuControls(uint8_t* cursor){
   //change amount
   //this is comically ugly. It's because i changed humanizerParameters to a class
   //which did NOT make it more convenient than a byte array,except i can store a subDiv in there if I wanted to
-  while(counterA != 0 ){
+  while(controls.counterA != 0 ){
       //changing subDiv
       if((*cursor) == 2){
         //if shifting, toggle between 1/3 and 1/4 mode
         if(controls.SHIFT()){
           toggleTriplets();
         }
-        else if(counterA >= 1){
+        else if(controls.counterA >= 1){
           changeSubDivInt(true);
         }
         //changing subdivint
-        else if(counterA <= -1){
+        else if(controls.counterA <= -1){
           changeSubDivInt(false);
         }
       }
       else{
-        if(counterA >= 1 && ((*humanizerParameters.get(*cursor))<100)){
+        if(controls.counterA >= 1 && ((*humanizerParameters.get(*cursor))<100)){
           if(controls.SHIFT()){
             (*humanizerParameters.get(*cursor))++;
           }
@@ -282,7 +282,7 @@ bool humanizeMenuControls(uint8_t* cursor){
             (*humanizerParameters.get(*cursor)) = 100;
           }
         }
-        if(counterA <= -1 && (*humanizerParameters.get(*cursor))>0){
+        if(controls.counterA <= -1 && (*humanizerParameters.get(*cursor))>0){
           if(controls.SHIFT()){
             (*humanizerParameters.get(*cursor))--;
           }
@@ -294,21 +294,21 @@ bool humanizeMenuControls(uint8_t* cursor){
           }
         }
       }
-    counterA += counterA<0?1:-1;;
+    controls.counterA += controls.counterA<0?1:-1;;
   }
-  while(counterB != 0){
+  while(controls.counterB != 0){
     //if shifting, toggle between 1/3 and 1/4 mode
     if(controls.SHIFT()){
       toggleTriplets();
     }
-    else if(counterB >= 1){
+    else if(controls.counterB >= 1){
       changeSubDivInt(true);
     }
     //changing subdivint
-    else if(counterB <= -1){
+    else if(controls.counterB <= -1){
       changeSubDivInt(false);
     }
-    counterB += counterB<0?1:-1;;
+    controls.counterB += controls.counterB<0?1:-1;;
   }
 
   return true;

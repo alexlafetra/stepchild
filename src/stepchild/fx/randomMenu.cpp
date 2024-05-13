@@ -461,11 +461,11 @@ bool randMenuControls(uint8_t * whichTab){
       }
     }
     
-    while(counterA != 0){
+    while(controls.counterA != 0){
       switch(*whichTab){
         //length
         case 0:
-          if(counterA >= 1){
+          if(controls.counterA >= 1){
             if(controls.SHIFT())
               (randomData.minLength)++;
             else{
@@ -474,7 +474,7 @@ bool randMenuControls(uint8_t * whichTab){
             if(randomData.minLength>96)
               randomData.minLength = 96;
           }
-          else if(counterA <= -1){
+          else if(controls.counterA <= -1){
             if(controls.SHIFT() && randomData.minLength>1)
               (randomData.minLength)--;
             else
@@ -482,11 +482,11 @@ bool randMenuControls(uint8_t * whichTab){
           }
           if(randomData.minLength>randomData.maxLength)
             randomData.maxLength=randomData.minLength;
-          counterA += counterA<0?1:-1;
+          controls.counterA += controls.counterA<0?1:-1;
           break;
         //odds
         case 1:
-          if(counterA >= 1){
+          if(controls.counterA >= 1){
             if(controls.SHIFT())
               (randomData.odds)++;
             else
@@ -494,7 +494,7 @@ bool randMenuControls(uint8_t * whichTab){
             if(randomData.odds>100)
               randomData.odds = 100;
           }
-          else if(counterA <= -1){
+          else if(controls.counterA <= -1){
             if(controls.SHIFT())
               (randomData.odds)--;
             else
@@ -502,11 +502,11 @@ bool randMenuControls(uint8_t * whichTab){
             if(randomData.odds<0)
               (randomData.odds) = 0;
           }
-          counterA += counterA<0?1:-1;
+          controls.counterA += controls.counterA<0?1:-1;
           break;
       //chance
         case 2:
-          if(counterA >= 1){
+          if(controls.counterA >= 1){
             if(controls.SHIFT())
               (randomData.minChance)++;
             else{
@@ -518,7 +518,7 @@ bool randMenuControls(uint8_t * whichTab){
             if(randomData.minChance>100)
               randomData.minChance = 100;
           }
-          else if(counterA <= -1){
+          else if(controls.counterA <= -1){
             if(controls.SHIFT() && randomData.minChance>1)
               (randomData.minChance)--;
             else if(randomData.minChance>16)
@@ -529,16 +529,16 @@ bool randMenuControls(uint8_t * whichTab){
             if(randomData.minChance>randomData.maxChance)
               randomData.maxChance = randomData.minChance;
           }
-          counterA += counterA<0?1:-1;
+          controls.counterA += controls.counterA<0?1:-1;
           break;
         //randomize selection/everything
         case 3:
           randomData.target = !randomData.target;
-          counterA += counterA<0?1:-1;
+          controls.counterA += controls.counterA<0?1:-1;
           break;
         //vel
         case 4:
-          if(counterA >= 1){
+          if(controls.counterA >= 1){
             if(controls.SHIFT())
               (randomData.minVel)++;
             else{
@@ -550,7 +550,7 @@ bool randMenuControls(uint8_t * whichTab){
             if(randomData.minVel>127)
               randomData.minVel = 127;
           }
-          else if(counterA <= -1){
+          else if(controls.counterA <= -1){
             if(controls.SHIFT() && randomData.minVel>1)
               (randomData.minVel)--;
             else if(randomData.minVel>16)
@@ -561,22 +561,22 @@ bool randMenuControls(uint8_t * whichTab){
             if(randomData.minVel>randomData.maxVel)
               randomData.maxVel = randomData.minVel;
           }
-          counterA += counterA<0?1:-1;
+          controls.counterA += controls.counterA<0?1:-1;
           break;
         //grid on/off
         case 5:
           randomData.onlyOnGrid = !randomData.onlyOnGrid;
-          counterA += counterA<0?1:-1;
+          controls.counterA += controls.counterA<0?1:-1;
           break;
       }
     }
 
-    while(counterB != 0){
+    while(controls.counterB != 0){
       switch(*whichTab){
         //length
         case 0:
         {
-          if(counterB >= 1){
+          if(controls.counterB >= 1){
             if(controls.SHIFT())
               (randomData.maxLength)++;
             else{
@@ -585,7 +585,7 @@ bool randMenuControls(uint8_t * whichTab){
             if(randomData.maxLength>96)
               randomData.maxLength = 96;
           }
-          else if(counterB <= -1){
+          else if(controls.counterB <= -1){
             if(controls.SHIFT() && randomData.maxLength>1)
               (randomData.maxLength)--;
             else
@@ -593,12 +593,12 @@ bool randMenuControls(uint8_t * whichTab){
           }
           if((randomData.maxLength)<(randomData.minLength))
             randomData.minLength = randomData.maxLength;
-          counterB += counterB<0?1:-1;
+          controls.counterB += controls.counterB<0?1:-1;
         }
         break;
         //odds
         case 1:
-          if(counterB >= 1){
+          if(controls.counterB >= 1){
             if(controls.SHIFT())
               (randomData.odds)++;
             else
@@ -606,7 +606,7 @@ bool randMenuControls(uint8_t * whichTab){
             if(randomData.odds>100)
               randomData.odds = 100;
           }
-          else if(counterB <= -1){
+          else if(controls.counterB <= -1){
             if(controls.SHIFT())
               (randomData.odds)--;
             else
@@ -614,11 +614,11 @@ bool randMenuControls(uint8_t * whichTab){
             if(randomData.odds<0)
               (randomData.odds) = 0;
           }
-          counterB += counterB<0?1:-1;
+          controls.counterB += controls.counterB<0?1:-1;
           break;
         //chance
         case 2:
-          if(counterB >= 1){
+          if(controls.counterB >= 1){
             if(controls.SHIFT())
               (randomData.maxChance)++;
             else{
@@ -631,7 +631,7 @@ bool randMenuControls(uint8_t * whichTab){
             if(randomData.maxChance>100)
               randomData.maxChance = 100;
           }
-          else if(counterB <= -1){
+          else if(controls.counterB <= -1){
             if(controls.SHIFT() && randomData.maxChance>1)
               (randomData.maxChance)--;
             else if(randomData.maxChance>10)
@@ -641,16 +641,16 @@ bool randMenuControls(uint8_t * whichTab){
             if(randomData.maxChance<randomData.minChance)
               randomData.minChance = randomData.maxChance;
           }
-          counterB += counterB<0?1:-1;
+          controls.counterB += controls.counterB<0?1:-1;
           break;
         //randomize selection/everything
         case 3:
           randomData.target = !randomData.target;
-          counterB += counterB<0?1:-1;
+          controls.counterB += controls.counterB<0?1:-1;
           break;
         //velocity
         case 4:
-          if(counterB >= 1){
+          if(controls.counterB >= 1){
             if(controls.SHIFT())
               randomData.maxVel++;
             else{
@@ -662,7 +662,7 @@ bool randMenuControls(uint8_t * whichTab){
             if(randomData.maxVel>127)
               randomData.maxVel = 127;
           }
-          else if(counterB <= -1){
+          else if(controls.counterB <= -1){
             if(controls.SHIFT() && randomData.maxVel>1)
              (randomData.maxVel)--;
             else if(randomData.maxVel>16)
@@ -673,17 +673,17 @@ bool randMenuControls(uint8_t * whichTab){
             if(randomData.maxVel<randomData.minVel)
               randomData.minVel = randomData.maxVel;
           }
-          counterB += counterB<0?1:-1;
+          controls.counterB += controls.counterB<0?1:-1;
           break;
         //changing grid subDiv
         case 5:
-          if(counterB >= 1){
+          if(controls.counterB >= 1){
             changeSubDivInt(true);
           }
-          else if(counterB <= -1){
+          else if(controls.counterB <= -1){
             changeSubDivInt(false);
           }
-          counterB += counterB<0?1:-1;
+          controls.counterB += controls.counterB<0?1:-1;
           break;
       }
     }

@@ -173,36 +173,36 @@ void rain(){
       //messing with the rain as an instrument
       case 0:
         //B changes the intensity
-        while(counterB != 0){
-          if(counterB > 0 && stormIntensity<maxIntensity){
+        while(controls.counterB != 0){
+          if(controls.counterB > 0 && stormIntensity<maxIntensity){
             stormIntensity++;
             maxDrops++;
           }
-          else if(counterB < 0 && stormIntensity>1){
+          else if(controls.counterB < 0 && stormIntensity>1){
             stormIntensity--;
             maxDrops--;
           }
-          counterB += counterB<0?1:-1;;
+          controls.counterB += controls.counterB<0?1:-1;;
         }
         //A changes the width/spread
-        while(counterA != 0){
+        while(controls.counterA != 0){
           if(controls.SHIFT()){
-            if(counterA>0 && startPitch<127){
+            if(controls.counterA>0 && startPitch<127){
               startPitch++;
             }
-            else if(counterA<0 && startPitch>0){
+            else if(controls.counterA<0 && startPitch>0){
               startPitch--;
             }
           }
           else{
-            if(counterA > 0 && xVariance<screenWidth){
+            if(controls.counterA > 0 && xVariance<screenWidth){
               xVariance+=3;
             }
-            if(counterA < 0 && xVariance>10){
+            if(controls.counterA < 0 && xVariance>10){
               xVariance-=3;
             }
           }
-          counterA += counterA<0?1:-1;
+          controls.counterA += controls.counterA<0?1:-1;
         }
         //X joystick changes the centerPoint
         if(controls.joystickX == -1 && xCoord<screenWidth){
@@ -235,77 +235,77 @@ void rain(){
         switch(cursor){
           //changing startPitch w/encoders
           case 0:
-            while(counterA != 0){
-              if(counterA>0 && startPitch<127){
+            while(controls.counterA != 0){
+              if(controls.counterA>0 && startPitch<127){
                 startPitch++;
               }
-              else if(counterA<0 && startPitch>0){
+              else if(controls.counterA<0 && startPitch>0){
                 startPitch--;
               }
-              counterA += counterA<0?1:-1;
+              controls.counterA += controls.counterA<0?1:-1;
             }
-            while(counterB != 0){
-              if(counterB>0 && startPitch<127){
+            while(controls.counterB != 0){
+              if(controls.counterB>0 && startPitch<127){
                 startPitch++;
               }
-              else if(counterB<0 && startPitch>0){
+              else if(controls.counterB<0 && startPitch>0){
                 startPitch--;
               }
-              counterB += counterB<0?1:-1;
+              controls.counterB += controls.counterB<0?1:-1;
             }
             break;
           //changing octave range
           case 1:
-            while(counterB != 0){
-              if(counterB > 0 && maxOct<8){
+            while(controls.counterB != 0){
+              if(controls.counterB > 0 && maxOct<8){
                 maxOct++;
               }
-              if(counterB < 0 && maxOct>1){
+              if(controls.counterB < 0 && maxOct>1){
                 maxOct--;
               }
               if(maxOct<minOct){
                 minOct = maxOct-1;
               }
-              counterB += counterB<0?1:-1;
+              controls.counterB += controls.counterB<0?1:-1;
             }
-            while(counterA != 0){
-              if(counterA > 0 && minOct<7){
+            while(controls.counterA != 0){
+              if(controls.counterA > 0 && minOct<7){
                 minOct++;
               }
-              if(counterA < 0 && minOct>0){
+              if(controls.counterA < 0 && minOct>0){
                 minOct--;
               }
               if(minOct>maxOct){
                 maxOct = minOct+1;
               }
-              counterA += counterA<0?1:-1;
+              controls.counterA += controls.counterA<0?1:-1;
             }
             break;
           //changing velocity range
           case 2:
-            while(counterB != 0){
-              if(counterB > 0 && maxVel<127){
+            while(controls.counterB != 0){
+              if(controls.counterB > 0 && maxVel<127){
                 maxVel++;
               }
-              if(counterB < 0 && maxVel>1){
+              if(controls.counterB < 0 && maxVel>1){
                 maxVel--;
               }
               if(maxVel<minVel){
                 minVel = maxVel-1;
               }
-              counterB += counterB<0?1:-1;
+              controls.counterB += controls.counterB<0?1:-1;
             }
-            while(counterA != 0){
-              if(counterA > 0 && minVel<126){
+            while(controls.counterA != 0){
+              if(controls.counterA > 0 && minVel<126){
                 minVel++;
               }
-              if(counterA < 0 && minVel>0){
+              if(controls.counterA < 0 && minVel>0){
                 minVel--;
               }
               if(minVel>maxVel){
                 maxVel = minVel+1;
               }
-              counterA += counterA<0?1:-1;
+              controls.counterA += controls.counterA<0?1:-1;
             }
             break;
         }

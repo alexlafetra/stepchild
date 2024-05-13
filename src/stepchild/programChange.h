@@ -405,24 +405,24 @@ void PCEditingEncoderControls(uint8_t activePort,uint8_t* editingCursor){
     //if there is no data there, just return
     if(targetPC == 65535)
         return;
-    while(counterA != 0){
+    while(controls.counterA != 0){
         if((*editingCursor) == 0)
             (*editingCursor) = 1;
-        if(counterA<0){
+        if(controls.counterA<0){
             if(PCData[activePort][targetPC].channel>0)
                 PCData[activePort][targetPC].channel--;
         }
-        if(counterA>0){
+        if(controls.counterA>0){
             if(PCData[activePort][targetPC].channel<15)
                 PCData[activePort][targetPC].channel++;
         }
-        counterA += counterA<0?1:-1;
+        controls.counterA += controls.counterA<0?1:-1;
     }
 
-    while(counterB != 0){
+    while(controls.counterB != 0){
         if((*editingCursor) == 1)
             (*editingCursor) = 0;
-        if(counterB<0){
+        if(controls.counterB<0){
             if(controls.SHIFT()){
                 if(PCData[activePort][targetPC].val>10)
                     PCData[activePort][targetPC].val-=10;
@@ -434,7 +434,7 @@ void PCEditingEncoderControls(uint8_t activePort,uint8_t* editingCursor){
                     PCData[activePort][targetPC].val--;
             }
         }
-        if(counterB>0){
+        if(controls.counterB>0){
             if(controls.SHIFT()){
                 if(PCData[activePort][targetPC].val<117)
                     PCData[activePort][targetPC].val+=10;
@@ -446,7 +446,7 @@ void PCEditingEncoderControls(uint8_t activePort,uint8_t* editingCursor){
                     PCData[activePort][targetPC].val++;
             }
         }
-        counterB += counterB<0?1:-1;
+        controls.counterB += controls.counterB<0?1:-1;
     }
 }
 

@@ -145,52 +145,52 @@ void knobs(){
     controls.readJoystick();
     //changing cc/channel
     if(selected){
-      while(counterA != 0){
-        if(counterA >= 1 && controlKnobs[activeRow?(activeKnobB+8):activeKnobA].channel<16){
+      while(controls.counterA != 0){
+        if(controls.counterA >= 1 && controlKnobs[activeRow?(activeKnobB+8):activeKnobA].channel<16){
           controlKnobs[activeRow?(activeKnobB+8):activeKnobA].channel++;
         }
-        else if(counterA <= -1 && controlKnobs[activeRow?(activeKnobB+8):activeKnobA].channel>0){
+        else if(controls.counterA <= -1 && controlKnobs[activeRow?(activeKnobB+8):activeKnobA].channel>0){
           controlKnobs[activeRow?(activeKnobB+8):activeKnobA].channel--;
         }
         controlKnobs[activeRow?(activeKnobB+8):activeKnobA].send();
 
-        counterA += counterA<0?1:-1;
+        controls.counterA += controls.counterA<0?1:-1;
       }
-      while(counterB != 0){
-        if(counterB >= 1 && controlKnobs[activeRow?(activeKnobB+8):activeKnobA].cc<127){
+      while(controls.counterB != 0){
+        if(controls.counterB >= 1 && controlKnobs[activeRow?(activeKnobB+8):activeKnobA].cc<127){
           controlKnobs[activeRow?(activeKnobB+8):activeKnobA].cc++;
         }
-        else if(counterB <= -1 && controlKnobs[activeRow?(activeKnobB+8):activeKnobA].cc>0){
+        else if(controls.counterB <= -1 && controlKnobs[activeRow?(activeKnobB+8):activeKnobA].cc>0){
           controlKnobs[activeRow?(activeKnobB+8):activeKnobA].cc--;
         }
         controlKnobs[activeRow?(activeKnobB+8):activeKnobA].send();
-        counterB += counterB<0?1:-1;;
+        controls.counterB += controls.counterB<0?1:-1;;
       }
     }
     else{
-      // //Serial.println("B:"+stringify(counterB));
-      // //Serial.println("A:"+stringify(counterA));
+      // //Serial.println("B:"+stringify(controls.counterB));
+      // //Serial.println("A:"+stringify(controls.counterA));
       // Serial.flush();
-      while(counterB != 0){
-        if(counterB >= 1){
+      while(controls.counterB != 0){
+        if(controls.counterB >= 1){
           controlKnobs[activeKnobA].increment(controls.SHIFT()?1:8);
         }
-        else if(counterB <= -1){
+        else if(controls.counterB <= -1){
           controlKnobs[activeKnobA].increment(controls.SHIFT()?-1:int8_t(-8));
         }
         controlKnobs[activeKnobA].send();
-        // counterB += counterB<0?1:-1;;
-        counterB+=counterB<0?1:-1;
+        // controls.counterB += controls.counterB<0?1:-1;;
+        controls.counterB+=controls.counterB<0?1:-1;
       }
-      while(counterA != 0){
-        if(counterA >= 1){
+      while(controls.counterA != 0){
+        if(controls.counterA >= 1){
           controlKnobs[activeKnobB+8].increment(controls.SHIFT()?1:8);
         }
-        else if(counterA <= -1){
+        else if(controls.counterA <= -1){
           controlKnobs[activeKnobB+8].increment(controls.SHIFT()?-1:int8_t(-8));
         }
         controlKnobs[activeKnobB+8].send();
-        counterA += counterA<0?1:-1;
+        controls.counterA += controls.counterA<0?1:-1;
       }
     }
     if(utils.itsbeen(100)){

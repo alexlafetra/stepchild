@@ -778,11 +778,9 @@ void initSeq(int tracks, int length) {
 
   viewStart = 0;
   viewEnd = 192;
-  // viewLength = viewEnd-viewStart;
-  subDivInt = subDivInt; //default note length
 
-  counterA = 0;
-  counterB = 0;
+  controls.counterA = 0;
+  controls.counterB = 0;
 
   cursorPos = viewStart; //cursor position (before playing)
   activeTrack = 0; //sets which track you're editing, you'll only be able to edit one at a time
@@ -1404,8 +1402,8 @@ void setNormalMode(){
   }
   if(recordingToAutotrack){
     recordingToAutotrack = false;
-    counterA = 0;
-    counterB = 0;
+    controls.counterA = 0;
+    controls.counterB = 0;
   }
   #ifndef HEADLESS
   MIDI1.disconnectCallbackFromType(midi::Clock);
@@ -1816,29 +1814,23 @@ void mainSequencerButtons(){
 
     //menu press
     if(controls.MENU()){
-      if(controls.SHIFT()){
-        lastTime = millis();
-        return;
-      }
-      else{
-        lastTime = millis();
-        menuIsActive = true;
-        constructMenu("MENU");
-        mainMenu();
-        return;
-      }
+      lastTime = millis();
+      menuIsActive = true;
+      constructMenu("MENU");
+      mainMenu();
+      return;
     }
     if(controls.A()){
       menuIsActive = true;
       lastTime = millis();
-      controls.setA(false);
-      constructMenu("TRK");
+      // controls.setA(false);
+      constructMenu(TRACK_MENU);
     }
     if(controls.B()){
       lastTime = millis();
-      controls.setB(false);;
+      // controls.setB(false);;
       menuIsActive = true;
-      constructMenu("EDIT");
+      constructMenu(EDIT_MENU);
     }
   }
 }
@@ -1903,66 +1895,66 @@ void alert(String text, int time){
 }
 
 void defaultEncoderControls(){
-  while(counterA != 0){
+  while(controls.counterA != 0){
     //changing zoom
-    if(counterA >= 1){
+    if(controls.counterA >= 1){
       zoom(true);
     }
-    if(counterA <= -1){
+    if(controls.counterA <= -1){
       zoom(false);
     }
-    counterA += counterA<0?1:-1;;
+    controls.counterA += controls.counterA<0?1:-1;;
   }
-  while(counterB != 0){
+  while(controls.counterB != 0){
     //if shifting, toggle between 1/3 and 1/4 mode
     if(controls.SHIFT()){
       toggleTriplets();
     }
-    else if(counterB >= 1){
+    else if(controls.counterB >= 1){
       changeSubDivInt(true);
     }
     //changing subdivint
-    else if(counterB <= -1){
+    else if(controls.counterB <= -1){
       changeSubDivInt(false);
     }
-    counterB += counterB<0?1:-1;;
+    controls.counterB += controls.counterB<0?1:-1;;
   }
 }
 
 void mainSequencerEncoders(){
-  while(counterA != 0){
+  while(controls.counterA != 0){
     //changing pitch
     if(controls.SHIFT()){
-      if(counterA >= 1){
+      if(controls.counterA >= 1){
         setTrackPitch(activeTrack,trackData[activeTrack].pitch+1,true);
       }
-      if(counterA <= -1){
+      if(controls.counterA <= -1){
         setTrackPitch(activeTrack,trackData[activeTrack].pitch-1,true);
       }
     }
     //changing zoom
     else{
-      if(counterA >= 1 && !controls.A()){
+      if(controls.counterA >= 1 && !controls.A()){
         zoom(true);
       }
-      if(counterA <= -1 && !controls.A()){
+      if(controls.counterA <= -1 && !controls.A()){
         zoom(false);
       }
     }
-    counterA += counterA<0?1:-1;;
+    controls.counterA += controls.counterA<0?1:-1;;
   }
-  while(counterB != 0){
+  while(controls.counterB != 0){
     if(controls.SHIFT()){
       toggleTriplets();
     }
-    else if(counterB >= 1){
+    else if(controls.counterB >= 1){
       changeSubDivInt(true,true);
     }
     //changing subdivint
-    else if(counterB <= -1){
+    else if(controls.counterB <= -1){
       changeSubDivInt(false,true);
     }
-    counterB += counterB<0?1:-1;;
+    controls.counterB += controls.counterB<0?1:-1;;
   }
 }
 
@@ -2121,113 +2113,11 @@ void ledPulse(uint8_t speed){
   analogWrite(ONBOARD_LED,4*abs(int8_t(millis()/speed)));
 }
 
-
-//the closer the step is to the subDiv (both forward and backward), the shorter the time val
-unsigned long getTimeValue(unsigned short int step){
-  step%=swingSubDiv;
-  //if it's closer to the next subDiv, move it forward
-  if(step>=swingSubDiv/2){
-  }
-  //if it's closer to the last subDiv, move it backward
-  else if(step<swingSubDiv/2){
-  }
-  if(swingVal != 0){
-    return MicroSperTimeStep;
-  }
-  else
-    return MicroSperTimeStep;
-}
-
-//returns the offset in microseconds at a given step
-float swingOffset(unsigned short int step){
-  return swingVal*sin(2*PI/swingSubDiv * (step-swingSubDiv/4));
-}
-
-//this is a sloppy lil function that returns true if the time is within (x) of the subDiv
-bool onBeat(int subDiv, int fudge){
-  long msPerB = (240000/(bpm*subDiv));
-  long offVal = millis()%msPerB;
-  //if it's within fudge of this beat or the next
-  if(offVal<=fudge || offVal>= msPerB - fudge ){
-    return true;
-  }
-  else 
-    return false;
-}
-
-//old,working one without floats (uses %)
-bool hasItBeenEnoughTime_swing(){
-  timeElapsed = micros()-timeLastStepPlayed;
-  if(timeElapsed >= MicroSperTimeStep+swingOffset(playheadPos)){
-    if(!(playheadPos%swingSubDiv)){//if it's a multiple of the swing subDiv, it should be perfectly on time, so grab the offset from here
-     offBy = (micros()-startTime)%(MicroSperTimeStep);
-    }
-    // //Serial.println(timeElapsed);
-    if(offBy == 0)
-      startTime = micros();
-    timeLastStepPlayed = micros();
-    return true;
-  }
-  else
-    return false;
-}
-
-//old,working one without floats (uses %)
-bool hasItBeenEnoughTime(){
-  if(swung){
-    return hasItBeenEnoughTime_swing();
-  }
-  else{
-    timeElapsed = micros()-timeLastStepPlayed;
-    if(timeElapsed + offBy >= MicroSperTimeStep){
-      offBy = (micros()-startTime)%MicroSperTimeStep;
-      if(offBy == 0)
-        startTime = micros();
-      timeLastStepPlayed = micros();
-      return true;
-    }
-    else
-      return false;
-  }
-}
-bool hasItBeenEnoughTime_cycleCount(){
-  timeElapsed = rp2040.getCycleCount()-timeLastStepPlayed;
-  if(timeElapsed + offBy >= MicroSperTimeStep){
-    offBy = (micros()-startTime)%MicroSperTimeStep;
-    timeLastStepPlayed = rp2040.getCycleCount();
-    return true;
-  }
-  else
-    return false;
-}
-//this one is for the clockMenu
-bool hasItBeenEnoughTime_clock(int timeStep){
-  timeElapsed = micros()-timeLastStepPlayed;
-  if(swung){
-    if(timeElapsed >= MicroSperTimeStep+swingOffset(timeStep)){
-      timeLastStepPlayed = micros();
-      return true;
-    }
-    else{
-      return false;
-    }
-  }
-  else{
-    if(timeElapsed >= MicroSperTimeStep){
-      timeLastStepPlayed = micros();
-      return true;
-    }
-    else{
-      return false;
-    }
-  }
-}
-
 //runs while "playing" is true
 void playingLoop(){
   //internal timing
   if(clockSource == INTERNAL_CLOCK){
-    if(hasItBeenEnoughTime()){
+    if(hasItBeenEnoughTime(playheadPos)){
       MIDI.sendClock();
       playStep(playheadPos);
       playheadPos++;
@@ -2261,20 +2151,20 @@ void checkAutotracks(){
         return;
       //rec from encoder A
       case 1:
-        if(counterA>127){
-          counterA = 127;
+        if(controls.counterA>127){
+          controls.counterA = 127;
         }
-        if(counterA<0)
-          counterA = 0;
-        newVal = counterA;
+        if(controls.counterA<0)
+          controls.counterA = 0;
+        newVal = controls.counterA;
         break;
       //rec from encoder B
       case 2:
-        if(counterB>127)
-          counterB = 127;
-        if(counterB<0)
-          counterB = 0;
-        newVal = counterB;
+        if(controls.counterB>127)
+          controls.counterB = 127;
+        if(controls.counterB<0)
+          controls.counterB = 0;
+        newVal = controls.counterB;
         break;
       //rec from joystick X
       case 3:

@@ -180,23 +180,23 @@ void MIDItoCV(){
                 break;
             }
         }
-        while(counterA != 0){
-            if(counterA<0 && channel>0){
+        while(controls.counterA != 0){
+            if(controls.counterA<0 && channel>0){
                 channel--;
             }
-            else if(counterA>0 && channel<16){
+            else if(controls.counterA>0 && channel<16){
                 channel++;
             }
-            counterA += counterA<0?1:-1;
+            controls.counterA += controls.counterA<0?1:-1;
         }
-        while(counterB != 0){
-            if(counterB<0 && channel>0){
+        while(controls.counterB != 0){
+            if(controls.counterB<0 && channel>0){
                 channel--;
             }
-            else if(counterB>0 && channel<16){
+            else if(controls.counterB>0 && channel<16){
                 channel++;
             }
-            counterB += counterB<0?1:-1;
+            controls.counterB += controls.counterB<0?1:-1;
         }
         display.clearDisplay();
         printSmall(100,0,"ch:"+(channel?stringify(channel):"all"),1);
@@ -235,13 +235,13 @@ void CVMenu(){
     while(true){
         controls.readJoystick();
         readButtons();
-        while(counterA != 0){
-            CVEncoders(counterA,cursor);
-            counterA += counterA<0?1:-1;
+        while(controls.counterA != 0){
+            CVEncoders(controls.counterA,cursor);
+            controls.counterA += controls.counterA<0?1:-1;
         }
-        while(counterB != 0){
-            CVEncoders(counterB,cursor);
-            counterB += counterB<0?1:-1;
+        while(controls.counterB != 0){
+            CVEncoders(controls.counterB,cursor);
+            controls.counterB += controls.counterB<0?1:-1;
         }
         if(utils.itsbeen(200)){
             if(controls.MENU()){

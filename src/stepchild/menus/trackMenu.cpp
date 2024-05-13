@@ -151,8 +151,8 @@ bool trackMenuControls(){
       }
     }
     if(activeMenu.highlight<3){
-      while(counterA != 0){
-        if(counterA >= 1 || controls.joystickX == -1){
+      while(controls.counterA != 0){
+        if(controls.counterA >= 1 || controls.joystickX == -1){
           //pitch
           if(activeMenu.highlight == 0 && trackData[activeTrack].pitch<120){
             if(controls.SHIFT())
@@ -177,9 +177,9 @@ bool trackMenuControls(){
               setTrackChannel(activeTrack,trackData[activeTrack].channel+1,true);
             lastTime = millis();
           }
-          counterA += counterA<0?1:-1;;
+          controls.counterA += controls.counterA<0?1:-1;;
         }
-        if(counterA <= -1 || controls.joystickX == 1){
+        if(controls.counterA <= -1 || controls.joystickX == 1){
           //pitch
           if(activeMenu.highlight == 0 && trackData[activeTrack].pitch>0){
             if(controls.SHIFT())
@@ -204,20 +204,20 @@ bool trackMenuControls(){
               setTrackChannel(activeTrack,trackData[activeTrack].channel-1,true);
             lastTime = millis();
           }
-          counterA += counterA<0?1:-1;;
+          controls.counterA += controls.counterA<0?1:-1;;
         }
       }
     }
-    while(counterB != 0){
-      if(counterB <= -1){
+    while(controls.counterB != 0){
+      if(controls.counterB <= -1){
         setActiveTrack(activeTrack+1,true);
         lastTime = millis();
       }
-      if(counterB >= 1){
+      if(controls.counterB >= 1){
         setActiveTrack(activeTrack-1,true);
         lastTime = millis();
       }
-      counterB += counterB<0?1:-1;;
+      controls.counterB += controls.counterB<0?1:-1;;
     }
   }
   return true;
@@ -920,8 +920,8 @@ void trackEditMenu(){
         setActiveTrack(trackData.size()-1,false);
         lastTime = millis();
       }
-      while(counterA != 0){
-        if(counterA >= 1){
+      while(controls.counterA != 0){
+        if(controls.counterA >= 1){
           switch(xCursor){
             //note
             case 1:
@@ -1025,7 +1025,7 @@ void trackEditMenu(){
               break;
           }
         }
-        counterA += counterA<0?1:-1;
+        controls.counterA += controls.counterA<0?1:-1;
       }
       if(controls.SELECT() ){
         switch(xCursor){

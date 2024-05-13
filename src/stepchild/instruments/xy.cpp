@@ -178,23 +178,23 @@ void xyGrid(){
       }
     }
 
-    while(counterA != 0){
-      if(counterA >= 1 && controlY<127){
+    while(controls.counterA != 0){
+      if(controls.counterA >= 1 && controlY<127){
         controlY++;
       }
-      else if(counterA <= -1 && controlY>0){
+      else if(controls.counterA <= -1 && controlY>0){
         controlY--;
       }
-      counterA += counterA<0?1:-1;;
+      controls.counterA += controls.counterA<0?1:-1;;
     }
-    while(counterB != 0){
-      if(counterB >= 1 && controlX<127){
+    while(controls.counterB != 0){
+      if(controls.counterB >= 1 && controlX<127){
         controlX++;
       }
-      else if(counterB <= -1 && controlX>0){
+      else if(controls.counterB <= -1 && controlX>0){
         controlX--;
       }
-      counterB += counterB<0?1:-1;;
+      controls.counterB += controls.counterB<0?1:-1;;
     }
     if(utils.itsbeen(200)){
       if(controls.MENU()){

@@ -1,7 +1,7 @@
 //Stores one x,y pair
 struct Coordinate{
     int16_t x;
-    int8_t y;
+    int16_t y;
     Coordinate(){
         this->x = 0;
         this->y = 0;
@@ -29,6 +29,8 @@ struct CoordinatePair{
         return (this->start.x) == (this->end.x);
     }
 };
+
+unsigned long lastTime;
 
 class StepchildUtilities{
     public:

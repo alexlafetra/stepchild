@@ -96,55 +96,52 @@ void Menu::displayMenu(){
 }
 
 //slides a menu in from the top,right,bottom, or left
-void slideMenuIn(int fromWhere, int speed){
+void slideMenuIn(int fromWhere, int8_t speed){
   //sliding in from the right
   if(fromWhere == 1){
     //store original coords
-    CoordinatePair originalCoords = activeMenu.coords;
+    CoordinatePair targetCoords = activeMenu.coords;
     //then, offset the menu coordinates
-    int8_t offset = screenWidth-activeMenu.coords.start.x;
-    activeMenu.coords.start.x+=offset;
-    activeMenu.coords.end.x+=offset;
+    int16_t offset = screenWidth-activeMenu.coords.start.x;
+    activeMenu.coords.start.x = screenWidth;
+    activeMenu.coords.end.x += offset;
     //continuously move the menu coords and display it, until it reaches original position
-    while(activeMenu.coords.start.x>originalCoords.start.x){
-      activeMenu.coords.end.x-=speed;
-      activeMenu.coords.end.x-=speed;
-      if(activeMenu.coords.start.x<originalCoords.start.x){
-        activeMenu.coords.start.x=originalCoords.start.x;
-        activeMenu.coords.end.x=originalCoords.end.x;
+    while(activeMenu.coords.start.x>targetCoords.start.x){
+      activeMenu.coords.end.x -= speed;
+      activeMenu.coords.start.x -= speed;
+      if(activeMenu.coords.start.x<targetCoords.start.x){
+        activeMenu.coords = targetCoords;
+        break;
       }
       displaySeq();
-      // delay(20);
+      // delay(100);
     }
-    activeMenu.coords.start.x = originalCoords.start.x;
-    activeMenu.coords.end.x = originalCoords.end.x;
+    activeMenu.coords = targetCoords;
   }
   //from the bottom
   else if(fromWhere == 0){
     //store original coords
-    CoordinatePair originalCoords = activeMenu.coords;
+    CoordinatePair targetCoords = activeMenu.coords;
     //then, offset the menu coordinates
-    int8_t offset = screenHeight-activeMenu.coords.start.y;
-    activeMenu.coords.start.y+=offset;
-    activeMenu.coords.end.y+=offset;
+    int16_t offset = screenHeight-activeMenu.coords.start.y;
+    activeMenu.coords.start.y += offset;
+    activeMenu.coords.end.y += offset;
     //continuously move the menu coords and display it, until it reaches original position
-    while(activeMenu.coords.start.y>originalCoords.start.y){
-      activeMenu.coords.start.y-=speed;
-      activeMenu.coords.end.y-=speed;
-      if(activeMenu.coords.start.y<originalCoords.start.y){
-        activeMenu.coords.start.y=originalCoords.start.y;
-        activeMenu.coords.end.y=originalCoords.end.y;
+    while(activeMenu.coords.start.y>targetCoords.start.y){
+      activeMenu.coords.start.y-= speed;
+      activeMenu.coords.end.y-= speed;
+      if(activeMenu.coords.start.y<targetCoords.start.y){
+        activeMenu.coords = targetCoords;
       }
       displaySeq();
       // delay(20);
     }
-    activeMenu.coords.start.y = originalCoords.start.y;
-    activeMenu.coords.end.y = originalCoords.end.y;
+    activeMenu.coords = targetCoords;
   }
 }
 
 //same thang, but in reverse
-void slideMenuOut(int toWhere, int speed){
+void slideMenuOut(int toWhere, int8_t speed){
   if(toWhere == 1){//sliding out to the left side
     while(activeMenu.coords.start.x<screenWidth){
       activeMenu.coords.start.x+=speed;
@@ -181,17 +178,29 @@ void slideMenuOut(int toWhere, int speed){
 #define SEQUENCE_MENU 4
 #define LOOP_MENU 5
 #define MIDI_MENU 6
-#define FRAGMENT 7
+#define FRAGMENT_MENU 7
+#define CURVE_MENU 8
+#define ARP_MENU 9
+#define FX_MENU 10
+#define EDIT_MENU 11
+#define TRACK_MENU 12
+#define QUANTIZE_MENU 13
+#define HUMANIZE_MENU 14
+#define SAVE_MENU 15
+#define FILE_MENU 16
+#define REC_MENU 17
+
 #define CURVE 8
+#define FRAGMENT 7
+#define SAVE 15
+#define FILES 16
+#define REC 17
 #define ARP 9
 #define FX 10
 #define EDIT 11
 #define TRK 12
 #define QZ 13
 #define HUMANIZE 14
-#define SAVE 15
-#define FILES 16
-#define REC 17
 
 void constructMenu(uint8_t id,uint8_t highlight){
   resetEncoders();
@@ -268,7 +277,7 @@ void constructMenu(uint8_t id,uint8_t highlight){
       }
       return;
     }
-    case EDIT:
+    case EDIT_MENU:
     {
       Menu editingMenu(trackDisplay-5,0,screenWidth,headerHeight,"EDIT");
       activeMenu = editingMenu;
@@ -278,7 +287,7 @@ void constructMenu(uint8_t id,uint8_t highlight){
       editMenu();
       return;
     }
-    case TRK:
+    case TRACK_MENU:
     {
       Menu trkMenu(94,0,129,65,"TRK");
       activeMenu = trkMenu;

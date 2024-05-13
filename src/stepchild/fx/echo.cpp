@@ -213,8 +213,8 @@ bool echoMenuControls(uint8_t* cursor){
       }
     }
   }
-  while(counterA != 0){//if there's data for this option
-    if(counterA >= 1){
+  while(controls.counterA != 0){//if there's data for this option
+    if(controls.counterA >= 1){
       if((*cursor) == 0 && echoData.delay<96){
         if(controls.SHIFT())
           echoData.delay++;
@@ -232,7 +232,7 @@ bool echoMenuControls(uint8_t* cursor){
           echoData.decay+=10;
       }
     }
-    else if(counterA <= -1){
+    else if(controls.counterA <= -1){
       if((*cursor) == 0){
         if(controls.SHIFT() && echoData.delay>0)
           echoData.delay--;
@@ -248,16 +248,16 @@ bool echoMenuControls(uint8_t* cursor){
           echoData.decay-=10;
       }
     }
-    counterA += counterA<0?1:-1;;
+    controls.counterA += controls.counterA<0?1:-1;;
   }
-  while(counterB != 0){
-    if(counterB <= -1 && (*cursor)>0){
+  while(controls.counterB != 0){
+    if(controls.counterB <= -1 && (*cursor)>0){
       (*cursor)--;
     }
-    else if(counterB >= 1 && (*cursor)<2){
+    else if(controls.counterB >= 1 && (*cursor)<2){
       (*cursor)++;
     }
-    counterB += counterB<0?1:-1;;
+    controls.counterB += controls.counterB<0?1:-1;;
   }
   return true;
 }

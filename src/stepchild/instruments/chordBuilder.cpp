@@ -41,7 +41,7 @@ void chordBuilder(){
   while(true){
     controls.readJoystick();
     readButtons();
-    while(counterA != 0){
+    while(controls.counterA != 0){
       uint16_t *lengthPointer;
       //switch so you can edit the new length val, or the length of an existing chord
       if(editorState == 1){
@@ -52,32 +52,32 @@ void chordBuilder(){
       }
       //changing length
       if(!controls.SHIFT()){
-        if(counterA >= 1 && (*lengthPointer)<96){
+        if(controls.counterA >= 1 && (*lengthPointer)<96){
           (*lengthPointer)+=subDivInt;
           if((*lengthPointer)>96){
             (*lengthPointer) = 96;
           }
-          counterA += counterA<0?1:-1;;
+          controls.counterA += controls.counterA<0?1:-1;;
         }
-        if(counterA <= -1 && (*lengthPointer)>subDivInt){
+        if(controls.counterA <= -1 && (*lengthPointer)>subDivInt){
           (*lengthPointer)-=subDivInt;
           if((*lengthPointer)<subDivInt){
             (*lengthPointer) = subDivInt;
           }
-          counterA += counterA<0?1:-1;;  
+          controls.counterA += controls.counterA<0?1:-1;;  
         }
       }
     }
-    while(counterB != 0){
+    while(controls.counterB != 0){
       if(!controls.SHIFT()){   
-        if(counterB >= 1){
+        if(controls.counterB >= 1){
           changeSubDivInt(true);
-          counterB += counterB<0?1:-1;;
+          controls.counterB += controls.counterB<0?1:-1;;
         }
         //changing subdivint
-        if(counterB <= -1){
+        if(controls.counterB <= -1){
           changeSubDivInt(false);
-          counterB += counterB<0?1:-1;;
+          controls.counterB += controls.counterB<0?1:-1;;
         }
       }
     }

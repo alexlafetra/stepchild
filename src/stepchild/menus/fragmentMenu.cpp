@@ -115,10 +115,10 @@ void fragmentMenu(){
       }
     }
     //encoder A changes minimums and maximums (while shifting)
-    while(counterA != 0){
+    while(controls.counterA != 0){
       //changing minimums
       if(!controls.SHIFT()){
-        if(counterA >= 1){
+        if(controls.counterA >= 1){
           //changing min length
           if(activeMenu.options[activeMenu.highlight] == "size"){
             if(fragmentData[0][1]*fragmentSubDiv<=maxLengthVal-fragmentSubDiv)
@@ -139,7 +139,7 @@ void fragmentMenu(){
             isFragmenting = !isFragmenting;
           }
         }
-        else if(counterA <= -1){
+        else if(controls.counterA <= -1){
           //changing min length
           if(activeMenu.options[activeMenu.highlight] == "size"){
             if(fragmentData[0][1]*fragmentSubDiv>=fragmentSubDiv){
@@ -169,7 +169,7 @@ void fragmentMenu(){
       }
       //changing maximums
       else if(controls.SHIFT()){
-        if(counterA >= 1){
+        if(controls.counterA >= 1){
           //changing max length
           if(activeMenu.options[activeMenu.highlight] == "size"){
             if(fragmentData[0][2]*fragmentSubDiv<=maxLengthVal-fragmentSubDiv){
@@ -197,7 +197,7 @@ void fragmentMenu(){
             isFragmenting = !isFragmenting;
           }
         }
-        else if(counterA <= -1){
+        else if(controls.counterA <= -1){
           //changing max length
           if(activeMenu.options[activeMenu.highlight] == "size"){
             if(fragmentData[0][2]*fragmentSubDiv>=fragmentSubDiv){
@@ -225,22 +225,22 @@ void fragmentMenu(){
           }
         }
       }
-      counterA += counterA<0?1:-1;
+      controls.counterA += controls.counterA<0?1:-1;
     }
     //changing subDivInt
-    while(counterB != 0 && activeMenu.options[activeMenu.highlight] == "div"){
-      if(counterB <= -1 && !controls.SHIFT()){
+    while(controls.counterB != 0 && activeMenu.options[activeMenu.highlight] == "div"){
+      if(controls.counterB <= -1 && !controls.SHIFT()){
         changeFragmentSubDivInt(true);
       }
       //changing subdivint
-      if(counterB >= 1 && !controls.SHIFT()){
+      if(controls.counterB >= 1 && !controls.SHIFT()){
         changeFragmentSubDivInt(false);
       }
       //if shifting, toggle between 1/3 and 1/4 mode
-      else while(counterB != 0 && controls.SHIFT()){
+      else while(controls.counterB != 0 && controls.SHIFT()){
         toggleFragmentTriplets();
       }
-      counterB += counterB<0?1:-1;;
+      controls.counterB += controls.counterB<0?1:-1;;
     }
     display.clearDisplay();
     int menuStart;

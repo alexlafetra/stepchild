@@ -4,23 +4,23 @@ void drumPad(){
     readButtons();
     stepButtons();//handles notes, and toggling
     //midi messages from encoders when in keys/drumpads mode
-    while(counterA != 0){
-      if(counterA >= 1 && keyboardPitch<127){
+    while(controls.counterA != 0){
+      if(controls.counterA >= 1 && keyboardPitch<127){
         keyboardPitch++;
       }
-      else if(counterA <= -1 && keyboardPitch>0){
+      else if(controls.counterA <= -1 && keyboardPitch>0){
         keyboardPitch--;
       }
-      counterA += counterA<0?1:-1;
+      controls.counterA += controls.counterA<0?1:-1;
     }
-    while(counterB != 0){
-      if(counterB >= 1 && defaultChannel<16){
+    while(controls.counterB != 0){
+      if(controls.counterB >= 1 && defaultChannel<16){
         defaultChannel++;
-        counterB += counterB<0?1:-1;;
+        controls.counterB += controls.counterB<0?1:-1;;
       }
-      else if(counterB <= -1 && defaultChannel>0){
+      else if(controls.counterB <= -1 && defaultChannel>0){
         defaultChannel--;
-        counterB += counterB<0?1:-1;;
+        controls.counterB += controls.counterB<0?1:-1;;
       }
     }
     //play/rec

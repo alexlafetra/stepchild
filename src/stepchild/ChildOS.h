@@ -134,6 +134,13 @@ struct Loop{
   3 = return to the first Loop
   4 = repeat this loop again (infinite repeat)
   */
+ Loop(){}
+ Loop(uint16_t s, uint16_t e, uint8_t r, uint8_t t){
+  this->start = s;
+  this->end = e;
+  this->reps = r;
+  this->type = t;
+ }
 };
 vector<Loop> loopData;
 //each of the modifiers stores a channel, and a value
@@ -169,6 +176,8 @@ unsigned short int animOffset = 0;//for animating curves
 #include "functionPrototypes.h"
 
 //program boolean flags and global data, constants
+#include "clock.h"
+#include "sequence.h"
 #include "global.h"
 
 //button defs and reading functions
@@ -206,14 +215,14 @@ Knob controlKnobs[16];
 //These need to be referenced after Autotracks are defined
 void rotaryActionA_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  counterA += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)?controls.readEncoder(0)*4:controls.readEncoder(0);
+  controls.counterA += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)?controls.readEncoder(0)*4:controls.readEncoder(0);
   if(recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)
     waitingToReceiveANote = false;
 }
 
 void rotaryActionB_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  counterB += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)?controls.readEncoder(1)*4:controls.readEncoder(1);
+  controls.counterB += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)?controls.readEncoder(1)*4:controls.readEncoder(1);
   if(recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)
     waitingToReceiveANote = false;
 }

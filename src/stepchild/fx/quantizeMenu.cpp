@@ -140,26 +140,26 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
     }
   }
   //changing subDivInt
-  while(counterB != 0){
-    if(counterB >= 1 && !controls.SHIFT()){
+  while(controls.counterB != 0){
+    if(controls.counterB >= 1 && !controls.SHIFT()){
       changeSubDivInt(true);
     }
     //changing subdivint
-    if(counterB <= -1 && !controls.SHIFT()){
+    if(controls.counterB <= -1 && !controls.SHIFT()){
       changeSubDivInt(false);
     }
     //if shifting, toggle between 1/3 and 1/4 mode
-    else while(counterB != 0 && controls.SHIFT()){
+    else while(controls.counterB != 0 && controls.SHIFT()){
       toggleTriplets();
     }
-    counterB += counterB<0?1:-1;;
+    controls.counterB += controls.counterB<0?1:-1;;
     if(*whichParam != 1){
       (*whichParam) = 1;
     }
   }
   //changing quantize amount
-  while(counterA != 0){
-    if(counterA >= 1){
+  while(controls.counterA != 0){
+    if(controls.counterA >= 1){
       if(quantizeAmount < 100){
         if(controls.SHIFT())
           quantizeAmount++;
@@ -171,7 +171,7 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
         quantizeAmount = 100;
       }
     }
-    if(counterA <= -1){
+    if(controls.counterA <= -1){
       if(quantizeAmount>0){
         if(controls.SHIFT())
           quantizeAmount--;
@@ -186,7 +186,7 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
     if(*whichParam != 0){
       (*whichParam) = 0;
     }
-    counterA += counterA<0?1:-1;;
+    controls.counterA += controls.counterA<0?1:-1;;
   }
   if(utils.itsbeen(60)){
     if(controls.joystickY != 0){

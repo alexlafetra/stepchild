@@ -398,19 +398,19 @@ void loopMenu(){
     controls.readJoystick();
     readButtons();
     //changing the loop iterations
-    while(counterA != 0){
-      if(counterA>0){
+    while(controls.counterA != 0){
+      if(controls.counterA>0){
         loopData[targetL].reps++;
       }
       else{
         if(loopData[targetL].reps != 0)
           loopData[targetL].reps--;
       }
-      counterA += counterA<0?1:-1;
+      controls.counterA += controls.counterA<0?1:-1;
     }
     //changing the loop type
-    while(counterB != 0){
-      if(counterB>0){
+    while(controls.counterB != 0){
+      if(controls.counterB>0){
         if(loopData[targetL].type<4)
           loopData[targetL].type++;
         else
@@ -422,7 +422,7 @@ void loopMenu(){
         else
           loopData[targetL].type = 4;
       }
-      counterB += counterB<0?1:-1;
+      controls.counterB += controls.counterB<0?1:-1;
     }
     if(utils.itsbeen(100)){
       if(controls.joystickY != 0){

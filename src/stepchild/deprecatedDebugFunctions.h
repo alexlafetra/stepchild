@@ -624,7 +624,7 @@ void playBackMenu(){
   while(true){
     readButtons();
     controls.readJoystick();
-    while(counterA != 0){
+    while(controls.counterA != 0){
       switch(menuState){
         //play
         case 1:
@@ -641,25 +641,25 @@ void playBackMenu(){
         case 3:
           switch(menuCursor){
             case 0:
-              if(counterA >= 1 && onStop<2){
+              if(controls.counterA >= 1 && onStop<2){
                 onStop++;
               }
-              else if(counterA <= -1 && onStop>0){
+              else if(controls.counterA <= -1 && onStop>0){
                 onStop--;
               }
               break;
             case 1:
-              if(counterA >= 1 && postRec<2){
+              if(controls.counterA >= 1 && postRec<2){
                 postRec++;
               }
-              else if(counterA <= -1 && postRec>0){
+              else if(controls.counterA <= -1 && postRec>0){
                 postRec--;
               }
               break;
           }
           break;
       }
-      counterA+=counterA<0?1:-1;
+      controls.counterA+=controls.counterA<0?1:-1;
     }
     if(utils.itsbeen(200)){
       if(controls.joystickX != 0){

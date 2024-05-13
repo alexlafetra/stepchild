@@ -215,17 +215,17 @@ void sortTracks(){
         break;
       }
     }
-    while(counterB != 0){
+    while(controls.counterB != 0){
       sortType = !sortType;
-      counterB+=counterB<0?1:-1;
+      controls.counterB+=controls.counterB<0?1:-1;
     }
-    while(counterA != 0){
-      sortTarget+=counterA<0?-1:1;
+    while(controls.counterA != 0){
+      sortTarget+=controls.counterA<0?-1:1;
       if(sortTarget<0)
         sortTarget = 2;
       if(sortTarget == 3)
         sortTarget = 0;
-      counterA+=counterA<0?1:-1;
+      controls.counterA+=controls.counterA<0?1:-1;
     }
     display.clearDisplay();
     drawSeq(true, false, false, true, false, false, viewStart, viewEnd);

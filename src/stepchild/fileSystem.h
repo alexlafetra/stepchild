@@ -792,8 +792,8 @@ void writeCurrentSettingsToFile(){
         f.write(leds,1);
         break;}
       case CLOCK_SOURCE:{
-        uint8_t clock[1] = {clockSource};
-        f.write(clock,1);
+        uint8_t clockData[1] = {clockSource};
+        f.write(clockData,1);
         break;}
       case REC_MODE:{
         uint8_t playAfterRec[1] = {0};
@@ -831,9 +831,9 @@ void loadSavedSettingsFromFile(){
         LEDsOn = leds[0];
         break;}
       case CLOCK_SOURCE:{
-        uint8_t clock[1];
-        f.read(clock,1);
-        clockSource = clock[0];
+        uint8_t clockData[1];
+        f.read(clockData,1);
+        clockSource = clockData[0];
         break;}
       case REC_MODE:{
         uint8_t playAfterRec[1];

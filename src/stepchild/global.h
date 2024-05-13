@@ -30,28 +30,6 @@ const vector<String> stepChildCCParameters = {"Velocity","Probability","Pitch","
 #define PLAYING 1
 #define RECORDING 2
 
-//Providing all the data and functions that the stepchild needs to run the sequence, but none of the graphics
-class StepchildSequence{
-  public:
-  vector<Note> noteData;
-  vector<vector<uint16_t>> lookupData;
-  uint16_t activeTrack;
-  uint16_t bpm;
-  uint16_t cursorPos;
-  uint16_t playheadPos;
-  uint16_t recheadPos;
-
-  uint16_t viewStart;
-  uint16_t viewEnd;
-
-  uint8_t playState;
-  StepchildSequence(){
-
-  }
-};
-
-uint16_t bpm = 120;
-
 #ifndef HEADLESS
 bool playing = false;
 bool recording = false;
@@ -71,7 +49,6 @@ bool pramOffset = 1;
 #define EXTERNAL_CLOCK 0
 uint8_t clockSource = INTERNAL_CLOCK;
 
-bool swung = false;
 bool overwriteRecording = true;
 bool onlyRecToPrimedTracks = true;//Not implemented yet
 bool waitForNoteBeforeRec = true;
@@ -151,9 +128,6 @@ uint8_t maxTracksShown = 5;
 uint8_t startTrack = 0;
 uint8_t endTrack;
 
-//timing vars
-unsigned long timeLastStepPlayed,MicroSperTimeStep,startTime;
-long offBy,timeElapsed;
 #ifndef HEADLESS
     bool core0ready = false;
 #endif
@@ -163,12 +137,6 @@ bool core1ready = false;
 uint16_t sleepTime = 10000;
 //60,000ms = 1min
 const unsigned long deepSleepTime = 60000;
-
-//swing vars
-//holds the amount that the notes swing
-int32_t swingVal = 4000;
-//holds the subdiv the notes are swung to
-uint16_t swingSubDiv = 96;
 
 unsigned char defaultPitch;
 unsigned char defaultChannel;

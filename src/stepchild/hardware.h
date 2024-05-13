@@ -39,13 +39,6 @@
 #define USB_PIN 24
 #define ONBOARD_LED 25
 
-#ifndef HEADLESS
-  unsigned long lastTime;
-  //incremented from an interrupt when rotary encoders are moved
-  volatile int16_t counterA;
-  volatile int16_t counterB;
-#endif
-
 //Holds all the hardware input functions (and the headless overloads)
 //Accessed like Stepchild.buttons.buttonState(LOOP)?
 //or just buttons.play(), buttons.loop()
@@ -55,8 +48,8 @@ class StepchildHardwareInput{
   uint8_t mainButtons = 0;
   //stores the 13 step buttons
   uint16_t stepButtons = 0;
-  int8_t counterA = 0;
-  int8_t counterB = 0;
+  volatile int8_t counterA = 0;
+  volatile int8_t counterB = 0;
   //7th bit is A, 8th bit is B
   //as in:  0b000000AB
   uint8_t encoderButtons = 0;
@@ -117,10 +110,12 @@ class StepchildHardwareInput{
     #else
     int temp[8] = {newKeyVal,shiftKeyVal,selectKeyVal,deleteKeyVal,loopKeyVal,playKeyVal,copyKeyVal,menuKeyVal};
     uint8_t states = 0;
-    for(uint8_t i:temp){
+    for(uint8_t i = 0; i<8;i++){
       states |= temp[i]<<i;
     }
     this->mainButtons = states;
+    this->counterA += headlessCounterA;
+    this->counterB += headlessCounterB;
     #endif
   }
   void readStepButtons(){
@@ -137,8 +132,8 @@ class StepchildHardwareInput{
     #else
     this->setB(encAPRESS);
     this->setA(encBPRESS);
-    encAPRESS = 0;
-    encBPRESS = 0;
+    // encAPRESS = 0;
+    // encBPRESS = 0;
     #endif
   }
   void readJoystick(){
@@ -168,6 +163,8 @@ class StepchildHardwareInput{
   //reads in all the inputs!
   void readButtons(){
     #ifdef HEADLESS
+    headlessCounterA = this->counterA;
+    headlessCounterB = this->counterB;
     try{
       glfwPollEvents();
     }
@@ -432,28 +429,20 @@ void readButtons(){
 }
 #else
 void readButtons(){
-   controls.setB(encAPRESS);
-   controls.setA(encBPRESS);
-   encAPRESS = 0;
-   encBPRESS = 0;
-   readButtons_MPX();
+  //  controls.setB(encAPRESS);
+  //  controls.setA(encBPRESS);
+  //  encAPRESS = 0;
+  //  encBPRESS = 0;
+  //  readButtons_MPX();
 
-//  controls.readButtons();
+ controls.readButtons();
 }
 #endif
 
-#ifndef HEADLESS
 void resetEncoders(){
-  counterA = 0;
-  counterB = 0;
+  controls.counterA = 0;
+  controls.counterB = 0;
 }
-#else
-void resetEncoders(){
-  counterA = 0;
-  counterB = 0;
-  return;
-}
-#endif
 
 void restartSerial(unsigned int baud){
   Serial.end();
@@ -615,8 +604,8 @@ void clearButtons(){
   for(int i = 0; i < 8; i++){
     controls.setStepButton(i,false);
   }
-  counterA = 0;
-  counterB = 0;
+  controls.counterA = 0;
+  controls.counterB = 0;
   controls.joystickX = false;
   controls.joystickY = false;
   controls.setA(false);
@@ -670,9 +659,9 @@ bool anyActiveInputs(){
     return true;
   }
   //encoder clicks
-  if(counterA || counterB){
-    counterA = 0;
-    counterB = 0;
+  if(controls.counterA || controls.counterB){
+    controls.counterA = 0;
+    controls.counterB = 0;
     return true;
   }
 
@@ -681,7 +670,7 @@ bool anyActiveInputs(){
 #else
 bool anyActiveInputs(){
   readButtons();
-  if(controls.joystickX || controls.joystickY || controls.NEW() || controls.SHIFT() || controls.SELECT()  || controls.DELETE() || controls.LOOP() || controls.PLAY() || controls.COPY() || controls.MENU() || counterA || counterB || controls.B() || controls.A())
+  if(controls.joystickX || controls.joystickY || controls.NEW() || controls.SHIFT() || controls.SELECT()  || controls.DELETE() || controls.LOOP() || controls.PLAY() || controls.COPY() || controls.MENU() || controls.counterA || controls.counterB || controls.B() || controls.A())
     return true;
   else
     return false;

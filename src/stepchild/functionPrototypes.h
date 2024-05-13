@@ -153,8 +153,8 @@ void chordBuilder();
 void echoMenu();
 void humanizeMenu();
 void quantizeMenu();
-void slideMenuIn(int fromWhere, int speed);
-void slideMenuOut(int fromWhere, int speed);
+void slideMenuIn(int fromWhere, int8_t speed);
+void slideMenuOut(int fromWhere, int8_t speed);
 void strumMenu();
 
 //Note editing

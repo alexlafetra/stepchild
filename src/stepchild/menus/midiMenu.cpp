@@ -407,10 +407,9 @@ void midiMenu(){
           //bitmap
           if(!MIDI.isTotallyMuted(port))
             display.drawBitmap(x1-8,y1+2*sin(millis()/100+port),usb_logo_bmp,17,17,SSD1306_WHITE);
-          else if(xCursor != port)
+          //draw highlight if it's muted (so there's not just a blank space)
+          else if(xCursor != port || !yCursor)
             display.drawCircle(x1,y1+8+2*sin(millis()/100+port),9,SSD1306_WHITE);
-          //'usb' doesn't display (it's replaced by note)
-          // printSmall(x1-5,y1-4+2*sin(millis()/100+port),"usb",SSD1306_WHITE);
         }
         else{
           //note icon
@@ -420,7 +419,7 @@ void midiMenu(){
           //bitmap
           if(!MIDI.isTotallyMuted(port))
             display.drawBitmap(x1-8,y1+2*sin(millis()/100+port),MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
-          else if(xCursor != port)
+          else if(xCursor != port || !yCursor)
             display.drawCircle(x1,y1+8+2*sin(millis()/100+port),8,SSD1306_WHITE);
           //number
           printSmall(x1-1,y1-4+2*sin(millis()/100+port),stringify(port),SSD1306_WHITE);
@@ -432,8 +431,7 @@ void midiMenu(){
         if(port == 0){
           if(!MIDI.isTotallyMuted(port))
             display.drawBitmap(x1-8,y1+sin(millis()/100+port),usb_logo_bmp,17,17,SSD1306_WHITE);
-          else if(xCursor != port){
-            display.fillCircle(x1,y1+8+2*sin(millis()/100+port),9,0);
+          else if(xCursor != port || !yCursor){
             display.drawCircle(x1,y1+8+2*sin(millis()/100+port),9,1);
           }
           printSmall(x1-5,y1-5+sin(millis()/100+port),"usb",SSD1306_WHITE);
@@ -441,8 +439,7 @@ void midiMenu(){
         else{
           if(!MIDI.isTotallyMuted(port))
             display.drawBitmap(x1-8,y1+sin(millis()/100+port),MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
-          else if(xCursor != port){
-            display.fillCircle(x1,y1+8+2*sin(millis()/100+port),8,0);
+          else if(xCursor != port || !yCursor){
             display.drawCircle(x1,y1+8+2*sin(millis()/100+port),8,1);
           }
           printSmall(x1-1,y1-4+sin(millis()/100+port),stringify(port),SSD1306_WHITE);
@@ -452,26 +449,23 @@ void midiMenu(){
       //if it's in mute mode, draw a circle around the active port
       if(yCursor == 1 && xCursor == port){
         if(isCurrentlySending){
-          graphics.drawArrow(x1+9+2*sin(millis()/100+port),y1+8+((millis()/200)%2),2,1,true);
           //for the usb port, it's a little bigger
           if(port == 0){
-            display.fillCircle(x1,y1+8+2*sin(millis()/100+port),9,0);
             display.drawCircle(x1,y1+8+2*sin(millis()/100+port),9,SSD1306_WHITE);
+            graphics.drawArrow(x1+9+((millis()/200)%2),y1+8,2,1,true);
           }
           else{
-            display.fillCircle(x1,y1+8+2*sin(millis()/100+port),8,0);
             display.drawCircle(x1,y1+8+2*sin(millis()/100+port),8,SSD1306_WHITE);
+            graphics.drawArrow(x1,y1+18+((millis()/200)%2),2,2,true);
           }
         }
         else{
           //usb port is a little bigger
           if(port == 0){
-            display.fillCircle(x1,y1+8+2*sin(millis()/100+port),9,0);
             display.drawCircle(x1,y1+8+sin(millis()/100+port),9,SSD1306_WHITE);
-            graphics.drawArrow(x1+9+((millis()/200)%2),y1+8+((millis()/200)%2),2,1,true);
+            graphics.drawArrow(x1+9+((millis()/200)%2),y1+8,2,1,true);
           }
           else{
-            display.fillCircle(x1,y1+8+2*sin(millis()/100+port),8,0);
             display.drawCircle(x1,y1+8+sin(millis()/100+port),8,SSD1306_WHITE);
             graphics.drawArrow(x1,y1+18+((millis()/200)%2),2,2,true);
           }

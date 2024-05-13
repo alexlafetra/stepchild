@@ -245,8 +245,8 @@ void clockMenu(){
         }
       }
     }
-    while(counterA != 0){
-      if(counterA >= 1){
+    while(controls.counterA != 0){
+      if(controls.counterA >= 1){
         switch(cursor){
           //bpm
           case 0:
@@ -280,7 +280,7 @@ void clockMenu(){
             break;
         }
       }
-      else if(counterA <= -1){
+      else if(controls.counterA <= -1){
         switch(cursor){
           //bpm
           case 0:
@@ -315,10 +315,10 @@ void clockMenu(){
             break;
         }
       }
-      counterA += counterA<0?1:-1;
+      controls.counterA += controls.counterA<0?1:-1;
     }
-    while(counterB != 0){
-      if(counterB >= 1){
+    while(controls.counterB != 0){
+      if(controls.counterB >= 1){
         switch(cursor){
           case 1:
             cursor = 2;
@@ -336,7 +336,7 @@ void clockMenu(){
             break;
         }
       }
-      else if(counterB <= -1){
+      else if(controls.counterB <= -1){
         switch(cursor){
           case 1:
             cursor = 2;
@@ -357,7 +357,7 @@ void clockMenu(){
             break;
         }
       }
-      counterB += counterB<0?1:-1;
+      controls.counterB += controls.counterB<0?1:-1;
     }
   }
   slideMenuOut(0,16);
@@ -419,8 +419,8 @@ void tapBpm(){
         lastTime = millis();
       }
     }
-    while(counterA != 0){
-      if(counterA >= 1){
+    while(controls.counterA != 0){
+      if(controls.counterA >= 1){
         if(controls.SHIFT()){
           setBpm(bpm+1);
         }
@@ -428,7 +428,7 @@ void tapBpm(){
           setBpm(bpm+10);
         }
       }
-      if(counterA <= -1){
+      if(controls.counterA <= -1){
         if(controls.SHIFT()){
           setBpm(bpm-1);
         }
@@ -438,17 +438,4 @@ void tapBpm(){
       }
     }
   }
-}
-
-void setBpm(int newBpm) {
-  if(newBpm<=0){
-    newBpm = 1;
-  }
-  else if(newBpm>999){
-    newBpm = 999;
-  }
-  bpm = newBpm;
-  MicroSperTimeStep = round(2500000/(bpm));
-  if(abs(swingVal)>MicroSperTimeStep)
-    swingVal = swingVal<0?-MicroSperTimeStep:MicroSperTimeStep;
 }

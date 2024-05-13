@@ -192,12 +192,12 @@ void settingsMenu(){
         return;
       }
       bool changedBrightness = false;
-      while(counterA != 0){
+      while(controls.counterA != 0){
         switch(menuTab){
           case 0:
             //changing screen brightness
             if(xCursor == 8){
-              if(counterA<0){
+              if(controls.counterA<0){
                 if(controls.SHIFT() && screenBrightness>0){
                   screenBrightness--;
                   changedBrightness = true;
@@ -211,7 +211,7 @@ void settingsMenu(){
                   changedBrightness = true;
                 }
               }
-              else if(counterA>0){
+              else if(controls.counterA>0){
                 if(controls.SHIFT() && screenBrightness<255){
                   screenBrightness++;
                   changedBrightness = true;
@@ -228,7 +228,7 @@ void settingsMenu(){
             }
             break;
         }
-        counterA += counterA<0?1:-1;
+        controls.counterA += controls.counterA<0?1:-1;
       }
       if(changedBrightness){
         display.ssd1306_command(SSD1306_SETCONTRAST);

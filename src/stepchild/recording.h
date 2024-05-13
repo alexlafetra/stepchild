@@ -258,7 +258,7 @@ void cleanupRecording(uint16_t stopTime){
 void recordingLoop(){
   MIDI.read();
   if(clockSource == INTERNAL_CLOCK){
-    if(hasItBeenEnoughTime()){
+    if(hasItBeenEnoughTime(recheadPos)){
       timeLastStepPlayed = micros();
       checkAutotracks();
       //if it's not in wait mode, or if it is but a note has been received
