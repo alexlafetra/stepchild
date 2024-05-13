@@ -18,7 +18,7 @@ void exitRecAndStartPlaying(uint8_t& layerCount){
     //on the first layer
     //adjust the bpm so that it feels like it's playing at the same speed
     if(layerCount == 0){
-        float timeScale = float(B.x2-B.x1)/float(A.x2-A.x1);
+        float timeScale = float(B.end.x-B.start.x)/float(A.end.x-A.start.x);
         uint16_t newBPM = bpm*timeScale;
         setBpm(newBPM);
     }
@@ -48,11 +48,11 @@ void liveLoop(){
     clearSelection();
     while(true){
         readButtons();
-        readJoystick();
+        controls.readJoystick();
         mainSequencerEncoders();
         defaultJoystickControls(false);
         defaultSelectBoxControls();
-        if(itsbeen(75)){
+        if(utils.itsbeen(75)){
             //delete
             if(del){
                 if (selectionCount > 0){
@@ -65,7 +65,7 @@ void liveLoop(){
                 }
             }
         }
-        if(itsbeen(200)){
+        if(utils.itsbeen(200)){
             defaultSelectControls();
             defaultCopyControls();
             defaultLoopControls();
@@ -94,7 +94,7 @@ void liveLoop(){
                     //but if you haven't been playing/recording anything, wait for a note
                     if(playing){
                         uint16_t oldPlayheadPos = playheadPos;
-                        recMode = LOOP;
+                        recMode = LOOP_MODE;
                         toggleRecordingMode(false);
                         recheadPos = oldPlayheadPos;
                     }

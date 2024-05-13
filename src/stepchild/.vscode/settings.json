@@ -31,7 +31,11 @@
         "ostream": "cpp",
         "system_error": "cpp",
         "locale": "cpp",
-        "istream": "cpp"
+        "istream": "cpp",
+        "thread": "cpp",
+        "optional": "cpp",
+        "memory": "cpp",
+        "random": "cpp"
     },
     "cmake.options.statusBarVisibility": "hidden",
     "workbench.sideBar.location": "left"

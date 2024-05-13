@@ -230,8 +230,8 @@ void changeChance(int noteID, int track, int amount){
 void cutInsertTime(){
   while(true){
     readButtons();
-    readJoystick();
-    if(itsbeen(200)){
+    controls.readJoystick();
+    if(utils.itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
         return;

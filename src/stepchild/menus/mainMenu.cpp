@@ -122,28 +122,28 @@ void animateIcon(WireFrame* w){
 }
 
 bool mainMenuControls(){
-  if(itsbeen(100)){
-    if(x != 0){
-      if(x == -1){
+  if(utils.itsbeen(100)){
+    if(controls.joystickX != 0){
+      if(controls.joystickX == -1){
         //if it's not divisible by four (in which case this would be 0)
         if((activeMenu.highlight+1)%4)
           activeMenu.highlight++;
         lastTime = millis();
       }
-      else if(x == 1){
+      else if(controls.joystickX == 1){
         if((activeMenu.highlight)%4)
           activeMenu.highlight--;
         lastTime = millis();
       }
     }
-    if(y != 0){
-      if(y == 1){
+    if(controls.joystickY != 0){
+      if(controls.joystickY == 1){
         //first row
         if(activeMenu.highlight < 8)
           activeMenu.highlight += 4;
         lastTime = millis();
       }
-      else if(y == -1){
+      else if(controls.joystickY == -1){
         //second row
         if(activeMenu.highlight > 3)
           activeMenu.highlight -= 4;
@@ -151,7 +151,7 @@ bool mainMenuControls(){
       }
     }
   }
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     if(menu_Press){
       if(shift){
         slideMenuOut(0,20);
@@ -306,7 +306,7 @@ void mainMenu(){
   icon.yPos = 16;
   while(true){
     //controls
-    readJoystick();
+    controls.readJoystick();
     readButtons();
     if(!mainMenuControls())
       break;
@@ -340,13 +340,13 @@ void mainMenu(){
 
 void Menu::displayMainMenu(){
   //drawing menu box (+16 so the title is transparent)
-  display.fillRect(coords.x1,coords.y1+12, coords.x2-coords.x1, coords.y2-coords.y1, SSD1306_BLACK);
-  display.drawRect(coords.x1,coords.y1+12, coords.x2-coords.x1, coords.y2-coords.y1-12, SSD1306_WHITE);
+  display.fillRect(coords.start.x,coords.start.y+12, coords.end.x-coords.start.x, coords.end.y-coords.start.y, SSD1306_BLACK);
+  display.drawRect(coords.start.x,coords.start.y+12, coords.end.x-coords.start.x, coords.end.y-coords.start.y-12, SSD1306_WHITE);
 
   //if the title will be on screen
-  if(coords.x1+coords.y1-1<screenWidth){
-    display.fillRect(coords.x1+coords.y1-1,0,40,13,0);
-    display.setCursor(coords.x1+coords.y1-1,5);
+  if(coords.start.x+coords.start.y-1<screenWidth){
+    display.fillRect(coords.start.x+coords.start.y-1,0,40,13,0);
+    display.setCursor(coords.start.x+coords.start.y-1,5);
     display.setFont(&FreeSerifItalic9pt7b);
     display.print("Menu");
     display.setFont();
@@ -358,14 +358,14 @@ void Menu::displayMainMenu(){
     for(uint8_t i = 0; i<4; i++){
       //animate clock hands
      if(count == 10){
-        display.drawBitmap(coords.x1+4+width*i,coords.y1+j*(width-1)+17+sin(millis()/200+count),mainMenu_icons[count],12,12,SSD1306_WHITE);
-        graphics.drawCircleRadian(coords.x1+4+width*i+6,coords.y1+j*(width-1)+17+sin(millis()/200+count)+6,4,millis()/10,0);
-        graphics.drawCircleRadian(coords.x1+4+width*i+6,coords.y1+j*(width-1)+17+sin(millis()/200+count)+6,3,millis()/100,0);
+        display.drawBitmap(coords.start.x+4+width*i,coords.start.y+j*(width-1)+17+sin(millis()/200+count),mainMenu_icons[count],12,12,SSD1306_WHITE);
+        graphics.drawCircleRadian(coords.start.x+4+width*i+6,coords.start.y+j*(width-1)+17+sin(millis()/200+count)+6,4,millis()/10,0);
+        graphics.drawCircleRadian(coords.start.x+4+width*i+6,coords.start.y+j*(width-1)+17+sin(millis()/200+count)+6,3,millis()/100,0);
       }
       else
-        display.drawBitmap(coords.x1+4+width*i,coords.y1+j*(width-1)+17+sin(millis()/200+count),mainMenu_icons[count],12,12,SSD1306_WHITE);
+        display.drawBitmap(coords.start.x+4+width*i,coords.start.y+j*(width-1)+17+sin(millis()/200+count),mainMenu_icons[count],12,12,SSD1306_WHITE);
       if(i+4*j == highlight){
-        display.drawRoundRect(coords.x1+2+width*i,coords.y1+j*(width-1)+15+sin(millis()/200+count),width,width,3,SSD1306_WHITE);
+        display.drawRoundRect(coords.start.x+2+width*i,coords.start.y+j*(width-1)+15+sin(millis()/200+count),width,width,3,SSD1306_WHITE);
       }
       count++;
     }

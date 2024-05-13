@@ -50,30 +50,30 @@ void selectInstrumentMenu(){
   uint8_t cursor = 0;
   while(true){
     readButtons();
-    readJoystick();
-    if(itsbeen(100)){
-      if(x != 0){
-        if(x == -1 && (cursor%4!=3)){
+    controls.readJoystick();
+    if(utils.itsbeen(100)){
+      if(controls.joystickX != 0){
+        if(controls.joystickX == -1 && (cursor%4!=3)){
           cursor++;
           lastTime = millis();
         }
-        else if(x == 1 && (cursor%4)){
+        else if(controls.joystickX == 1 && (cursor%4)){
           cursor--;
           lastTime = millis();
         }
       }
-      if(y != 0){
-        if(y == 1 && (cursor<12)){
+      if(controls.joystickY != 0){
+        if(controls.joystickY == 1 && (cursor<12)){
           cursor+=4;
           lastTime = millis();
         }
-        else if(y == -1 && (cursor>3)){
+        else if(controls.joystickY == -1 && (cursor>3)){
           cursor-=4;
           lastTime = millis();
         }
       }
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
         menu_Press = false;

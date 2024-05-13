@@ -89,17 +89,17 @@ void settingsMenu(){
   uint8_t xCursor = 0;
   WireFrame gear = getSettingsMenuWireFrame(menuTab);
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(itsbeen(200)){
-      if(y != 0){
+    if(utils.itsbeen(200)){
+      if(controls.joystickY != 0){
         if(xCursor == 0){
-            if(y == 1 && menuTab<2){
+            if(controls.joystickY == 1 && menuTab<2){
               menuTab++;
               lastTime = millis();
               gear = getSettingsMenuWireFrame(menuTab);
             }
-            else if(y == -1 && menuTab>0){
+            else if(controls.joystickY == -1 && menuTab>0){
               menuTab--;
               lastTime = millis();
               gear = getSettingsMenuWireFrame(menuTab);
@@ -108,13 +108,13 @@ void settingsMenu(){
         else{
           switch(menuTab){
             case 0:
-              if(y == 1){
+              if(controls.joystickY == 1){
                 if(xCursor<6){
                   xCursor++;
                   lastTime = millis();
                 } 
               }
-              else if(y == -1){
+              else if(controls.joystickY == -1){
                 if(xCursor >  5){
                   xCursor = 5;
                   lastTime = millis();
@@ -132,11 +132,11 @@ void settingsMenu(){
           }
         }
       }
-      if(x != 0){
+      if(controls.joystickX != 0){
         switch(menuTab){
           //seq
           case 0:
-            if(x == -1){
+            if(controls.joystickX == -1){
               if(xCursor == 0){
                 xCursor++;
                 lastTime = millis();
@@ -150,7 +150,7 @@ void settingsMenu(){
                 lastTime = millis();
               }
             }
-            else if(x == 1){
+            else if(controls.joystickX == 1){
               if( xCursor<6){
                 xCursor = 0;
                 lastTime = millis();
@@ -163,22 +163,22 @@ void settingsMenu(){
             break;
           //sys
           case 1:
-            if(x == -1 && xCursor<2){
+            if(controls.joystickX == -1 && xCursor<2){
               xCursor++;
               lastTime = millis();
             }
-            else if(x == 1 && xCursor>0){
+            else if(controls.joystickX == 1 && xCursor>0){
               xCursor--;
               lastTime = millis();
             }
             break;
           //interface
           case 2:
-              if(x == -1 && xCursor<1){
+              if(controls.joystickX == -1 && xCursor<1){
               xCursor++;
               lastTime = millis();
             }
-            else if(x == 1 && xCursor>0){
+            else if(controls.joystickX == 1 && xCursor>0){
               xCursor--;
               lastTime = millis();
             }

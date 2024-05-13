@@ -131,8 +131,8 @@ void knobs(){
     valA += (controlKnobs[activeKnobA].val-valA)/4;
     valB += (controlKnobs[activeKnobB+8].val-valB)/4;
     if(xyMode){
-      controlKnobs[activeKnobB+8].val = abs(128 - (analogRead(x_Pin) - 5) * scaleF);
-      controlKnobs[activeKnobA].val = abs((analogRead(y_Pin) - 5) * scaleF);
+      controlKnobs[activeKnobB+8].val = abs(128 - (analogRead(JOYSTICK_X) - 5) * scaleF);
+      controlKnobs[activeKnobA].val = abs((analogRead(JOYSTICK_Y) - 5) * scaleF);
       if(controlKnobs[activeKnobA].val>127)
         controlKnobs[activeKnobA].val = 127;
       if(controlKnobs[activeKnobB+8].val>127)
@@ -142,7 +142,7 @@ void knobs(){
     drawKnobs(activeKnobA,activeKnobB,activeRow,16,selected,ccType,valA,valB,xyMode);
     display.display();
     readButtons();
-    readJoystick();
+    controls.readJoystick();
     //changing cc/channel
     if(selected){
       while(counterA != 0){
@@ -193,10 +193,10 @@ void knobs(){
         counterA += counterA<0?1:-1;
       }
     }
-    if(itsbeen(100)){
-      if(x != 0){
+    if(utils.itsbeen(100)){
+      if(controls.joystickX != 0){
         if(!xyMode){
-          if(x == -1){
+          if(controls.joystickX == -1){
             if(activeRow == 0 && activeKnobA<7){
               activeKnobA++;
               lastTime = millis();
@@ -206,7 +206,7 @@ void knobs(){
               lastTime = millis();
             }
           }
-          else if(x == 1){
+          else if(controls.joystickX == 1){
             if(activeRow == 0 && activeKnobA>0){
               activeKnobA--;
               lastTime = millis();
@@ -218,20 +218,20 @@ void knobs(){
           }
         }
       }
-      if(y != 0){
+      if(controls.joystickY != 0){
         if(!xyMode){
-          if(y == 1 && activeRow == 0){
+          if(controls.joystickY == 1 && activeRow == 0){
             activeRow = 1;
             lastTime = millis();
           }
-          if(y == -1 && activeRow == 1){
+          if(controls.joystickY == -1 && activeRow == 1){
             activeRow = 0;
             lastTime = millis();
           }
         }
       }
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(sel){
         selected = !selected;
         lastTime = millis();

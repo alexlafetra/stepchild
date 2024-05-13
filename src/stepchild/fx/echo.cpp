@@ -16,7 +16,7 @@ void echoMenu(){
   // echoAnimation();
   while(true){
     readButtons();
-    readJoystick();
+    controls.readJoystick();
     if(!echoMenuControls(&cursor)){
       return;
     }
@@ -183,17 +183,17 @@ void echoAnimation(){
 
 
 bool echoMenuControls(uint8_t* cursor){
-  if(itsbeen(200)){
-    if(x == 1 && (*cursor) > 0){
+  if(utils.itsbeen(200)){
+    if(controls.joystickX == 1 && (*cursor) > 0){
       (*cursor)--;
       lastTime = millis();
     }
-    if(x == -1 && (*cursor) < 2){
+    if(controls.joystickX == -1 && (*cursor) < 2){
       (*cursor)++;
       lastTime = millis();
     }
   }
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     if(menu_Press){
       lastTime = millis();
       return false;

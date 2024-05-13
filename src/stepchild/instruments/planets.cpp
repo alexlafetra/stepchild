@@ -132,25 +132,25 @@ void testSolarSystem(){
   system.yOff = screenHeight/2;
   system.angle = -15;
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(x != 0){
-      if(x == 1){
+    if(controls.joystickX != 0){
+      if(controls.joystickX == 1){
         system.rotate(-1,1);
       }
-      else if(x == -1){
+      else if(controls.joystickX == -1){
         system.rotate(1,1);
       }
     }
-    if(y != 0){
-      if(y == 1){
+    if(controls.joystickY != 0){
+      if(controls.joystickY == 1){
         system.angle += 1;
       }
-      else if(y == -1){
+      else if(controls.joystickY == -1){
         system.angle -= 1;
       }
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(menu_Press){
         return;
       }

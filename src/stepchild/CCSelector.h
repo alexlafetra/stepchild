@@ -301,11 +301,11 @@ uint8_t selectCCParam_autotrack(uint8_t which){
   if(which == 2)
     end = 5;
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(itsbeen(200)){
-      if(x != 0){
-        if(x == -1){
+    if(utils.itsbeen(200)){
+      if(controls.joystickX != 0){
+        if(controls.joystickX == -1){
           vector<uint8_t> listControls = switchBetweenCCLists(start,end,targetParam,which,false);
           start = listControls[0];
           end = listControls[1];
@@ -313,7 +313,7 @@ uint8_t selectCCParam_autotrack(uint8_t which){
           which = listControls[3];
           lastTime = millis();
         }
-        else if(x == 1){
+        else if(controls.joystickX == 1){
           vector<uint8_t> listControls = switchBetweenCCLists(start,end,targetParam,which,true);
           start = listControls[0];
           end = listControls[1];
@@ -341,7 +341,7 @@ uint8_t selectCCParam_autotrack(uint8_t which){
         lastTime = millis();
         return autotrackData[activeAutotrack].control;
       }
-      if(note_Press && which != 2){
+      if(controls.B() && which != 2){
         start-= 6;
         if(start<0)
           start = 0;
@@ -349,7 +349,7 @@ uint8_t selectCCParam_autotrack(uint8_t which){
         targetParam = start;
         lastTime = millis();
       }
-      if(track_Press && which != 2){
+      if(controls.A() && which != 2){
         end+= 6;
         if(which == 1){
           if(end > 7){
@@ -364,13 +364,13 @@ uint8_t selectCCParam_autotrack(uint8_t which){
         lastTime = millis();
       }
     }
-    if(itsbeen(100)){
-      if(y != 0){
-        if(y == -1 && targetParam>0){
+    if(utils.itsbeen(100)){
+      if(controls.joystickY != 0){
+        if(controls.joystickY == -1 && targetParam>0){
           targetParam--;
           lastTime = millis();
         }
-        else if(y == 1 && targetParam<127){
+        else if(controls.joystickY == 1 && targetParam<127){
           targetParam++;
           if(which == 1){
             if(targetParam > 7)

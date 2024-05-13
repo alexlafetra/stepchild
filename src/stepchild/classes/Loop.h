@@ -101,23 +101,23 @@ uint16_t getLongestLoop(){
 bool viewLoopControls(uint8_t which){
   //selectionBox
   //when sel is pressed and stick is moved, and there's no selection box
-  if(sel && !selBox.begun && (x != 0 || y != 0)){
+  if(sel && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
     selBox.begun = true;
-    selBox.x1 = cursorPos;
-    selBox.y1 = activeTrack;
+    selBox.coords.start.x = cursorPos;
+    selBox.coords.start.y = activeTrack;
   }
   //if sel is released, and there's a selection box
   if(!sel && selBox.begun){
-    selBox.x2 = cursorPos;
-    selBox.y2 = activeTrack;
+    selBox.coords.end.x = cursorPos;
+    selBox.coords.end.y = activeTrack;
     selectBox();
     selBox.begun = false;
   }
   if(!n)
     drawingNote = false;
   mainSequencerEncoders();
-  if (itsbeen(100)) {
-    if (x == 1 && !shift) {
+  if (utils.itsbeen(100)) {
+    if (controls.joystickX == 1 && !shift) {
       //if cursor isn't on a measure marker, move it to the nearest one
       if(cursorPos%subDivInt){
         if(!movingLoop)
@@ -147,7 +147,7 @@ bool viewLoopControls(uint8_t which){
         setLoopPoint(cursorPos,false);
       }
     }
-    if (x == -1 && !shift) {
+    if (controls.joystickX == -1 && !shift) {
       if(cursorPos%subDivInt){
         if(!movingLoop)
           moveCursorWithinLoop(subDivInt-cursorPos%subDivInt,which);
@@ -175,8 +175,8 @@ bool viewLoopControls(uint8_t which){
       }
     }
   }
-  if(itsbeen(100)){
-    if (y == 1 && !shift && !loop_Press) {
+  if(utils.itsbeen(100)){
+    if (controls.joystickY == 1 && !shift && !loop_Press) {
       if(recording)//if you're not in normal mode, you don't want it to be loud
         setActiveTrack(activeTrack + 1, false);
       else
@@ -184,7 +184,7 @@ bool viewLoopControls(uint8_t which){
       drawingNote = false;
       lastTime = millis();
     }
-    if (y == -1 && !shift && !loop_Press) {
+    if (controls.joystickY == -1 && !shift && !loop_Press) {
       if(recording)//if you're not in normal mode, you don't want it to be loud
         setActiveTrack(activeTrack - 1, false);
       else
@@ -193,9 +193,9 @@ bool viewLoopControls(uint8_t which){
       lastTime = millis();
     }
   }
-  if (itsbeen(50)) {
+  if (utils.itsbeen(50)) {
     //moving
-    if (x == 1 && shift) {
+    if (controls.joystickX == 1 && shift) {
       if(!movingLoop)
         moveCursorWithinLoop(-1,which);
       else
@@ -208,7 +208,7 @@ bool viewLoopControls(uint8_t which){
       else if(movingLoop == 1)
         setLoopPoint(cursorPos,false);
     }
-    if (x == -1 && shift) {
+    if (controls.joystickX == -1 && shift) {
       if(!movingLoop)
         moveCursorWithinLoop(1,which);
       else
@@ -222,23 +222,23 @@ bool viewLoopControls(uint8_t which){
         loopData[activeLoop].end = cursorPos;
     }
     //changing vel
-    if (y == 1 && shift) {
+    if (controls.joystickY == 1 && shift) {
       changeVel(-10);
       lastTime = millis();
     }
-    if (y == -1 && shift) {
+    if (controls.joystickY == -1 && shift) {
       changeVel(10);
       lastTime = millis();
     }
 
     if(lookupData[activeTrack][cursorPos]==0){
-      if(y == 1 && shift){
+      if(controls.joystickY == 1 && shift){
         defaultVel-=10;
         if(defaultVel<1)
           defaultVel = 1;
         lastTime = millis();
       }
-      if(y == -1 && shift){
+      if(controls.joystickY == -1 && shift){
         defaultVel+=10;
         if(defaultVel>127)
           defaultVel = 127;
@@ -247,7 +247,7 @@ bool viewLoopControls(uint8_t which){
     }
   }
   //delete happens a liitle faster (so you can draw/erase fast)
-  if(itsbeen(75)){
+  if(utils.itsbeen(75)){
     //delete
     if(del && !shift){
       if (selectionCount > 0){
@@ -260,9 +260,9 @@ bool viewLoopControls(uint8_t which){
       }
     }
   }
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     //new
-    if(n && !track_Press && !drawingNote && !sel){
+    if(n && !controls.A() && !drawingNote && !sel){
       if((!shift)&&(lookupData[activeTrack][cursorPos] == 0 || cursorPos != seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos)){
         makeNote(activeTrack,cursorPos,subDivInt,true);
         drawingNote = true;
@@ -303,7 +303,7 @@ bool viewLoopControls(uint8_t which){
       lastTime = millis();
     }
     //if play+shift, or if play and it's already recording
-    if(play && shift || play && recording){
+    if((play && shift) || (play && recording)){
       toggleRecordingMode(waitForNoteBeforeRec);
       lastTime = millis();
     }
@@ -362,7 +362,7 @@ void viewLoop(uint8_t which){
   setActiveLoop(which);
   String tempText;
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
     if(!viewLoopControls(which))
       return;
@@ -395,7 +395,7 @@ void loopMenu(){
   w.yPos = 32;
   w.scale = 4.0;
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
     //changing the loop iterations
     while(counterA != 0){
@@ -424,14 +424,14 @@ void loopMenu(){
       }
       counterB += counterB<0?1:-1;
     }
-    if(itsbeen(100)){
-      if(y != 0){
-        if(y == 1){
+    if(utils.itsbeen(100)){
+      if(controls.joystickY != 0){
+        if(controls.joystickY == 1){
           if(targetL<loopData.size()-1){
             targetL++;
           }
         }
-        else if(y == -1){
+        else if(controls.joystickY == -1){
           if(targetL>0){
             targetL--;
           }
@@ -439,35 +439,35 @@ void loopMenu(){
         lastTime = millis();
       }
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       // step buttons loop selecting
       for(uint8_t i = 0; i<loopData.size(); i++){
-        if(step_buttons[i]){
+        if(controls.stepButton(i)){
           setActiveLoop(i);
           lastTime = millis();
           break;
         }
       }
       //changing loop type and iterations
-      if(x != 0){
+      if(controls.joystickX != 0){
         //iterations
         if(!shift){
-          if(x == -1){
+          if(controls.joystickX == -1){
             loopData[targetL].reps++;
             lastTime = millis();
           }
-          else if(x == 1 && loopData[targetL].reps>0){
+          else if(controls.joystickX == 1 && loopData[targetL].reps>0){
             loopData[targetL].reps--;
             lastTime = millis();
           }
         }
         //loop type
         else{
-          if(x == -1 && loopData[targetL].type<3){
+          if(controls.joystickX == -1 && loopData[targetL].type<3){
             loopData[targetL].type++;
             lastTime = millis();
           }
-          if(x == 1 && loopData[targetL].type>0){
+          if(controls.joystickX == 1 && loopData[targetL].type>0){
             loopData[targetL].type--;
             lastTime = millis();
           }
@@ -532,7 +532,7 @@ void loopMenu(){
         menu_Press = false;
         return;
       }
-      if(shift && !copy_Press && x == 0){
+      if(shift && !copy_Press && controls.joystickX == 0){
         showingPreview = !showingPreview;
         lastTime = millis();
       }
@@ -1133,7 +1133,7 @@ void checkLoop(){
       }
     }
     //record to one loop over and over again
-    else if(recMode == LOOP){
+    else if(recMode == LOOP_MODE){
       if(recheadPos>=loopData[activeLoop].end){
         recheadPos = loopData[activeLoop].start;
       }

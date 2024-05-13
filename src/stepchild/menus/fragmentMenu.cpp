@@ -29,24 +29,24 @@ void fragmentMenu(){
     h = 80;
     k = 30;
     readButtons();
-    readJoystick();
-    if(itsbeen(200)){
+    controls.readJoystick();
+    if(utils.itsbeen(200)){
       if(menu_Press){
         menuIsActive = false;
         constructMenu("MENU");
         lastTime = millis();
       }
-      if(step_buttons[3]){
-        step_buttons[3] = 0;
+      if(controls.stepButtons(3)){
+        controls.stepButtons(3) = 0;
         constructMenu("MENU");
         menuIsActive = false;
         lastTime = millis();
       }
     }
     //controlling where the line starts
-    if(itsbeen(100) && x != 0){
+    if(utils.itsbeen(100) && x != 0){
       lastTime = millis();
-      if(x == 1 && timeS != -screenWidth/2){//last part is so it doesn't 'bounce'
+      if(controls.joystickX == 1 && timeS != -screenWidth/2){//last part is so it doesn't 'bounce'
         if(shift){
           timeS--;
         }
@@ -59,7 +59,7 @@ void fragmentMenu(){
           }
         }
       }
-      if(x == -1){
+      if(controls.joystickX == -1){
         if(shift){
           timeS++;
         }
@@ -80,14 +80,14 @@ void fragmentMenu(){
         timeS = seqEnd-64;
       }
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       //scrolling thru the menu, when shift isn't held
-      if(y != 0 && !shift){
-        if(y == 1){
+      if(controls.joystickY != 0 && !shift){
+        if(controls.joystickY == 1){
           activeMenu.moveMenuCursor(true);
           lastTime = millis();
         }
-        if(y == -1){
+        if(controls.joystickY == -1){
           activeMenu.moveMenuCursor(false);
           lastTime = millis();
         }

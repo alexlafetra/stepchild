@@ -10,8 +10,8 @@ const unsigned char drip_bmp [] = {
 class Raindrop{
   public:
     uint8_t length;
-    int8_t x1;
-    float y1;
+    int8_t x;
+    float y;
     float vel;//pixels/frame
     bool madeSound;
     Raindrop();
@@ -25,39 +25,39 @@ class Raindrop{
 Raindrop::Raindrop(){
   vel = 0.7;
   length = vel*2;
-  x1 = random(0,screenWidth);
-  y1 = -length;//starts so the bottom of the line is on the top pixel of the screen
+  this->x = random(0,screenWidth);
+  this->y = -length;//starts so the bottom of the line is on the top pixel of the screen
   madeSound = false;
 }
 Raindrop::Raindrop(uint8_t xPos, uint8_t maxVel, uint8_t minVel){
   vel = pow(float(random(float(minVel),float(maxVel))),1.1);
   length = vel+3;
-  x1 = xPos;
-  y1 = -length;//starts so the bottom of the line is on the top pixel of the screen
+  this->x = xPos;
+  this->y = -length;//starts so the bottom of the line is on the top pixel of the screen
   madeSound = false;
 }
 void Raindrop::render(bool text){
-  display.drawFastVLine(x1,y1,length,1);
+  display.drawFastVLine(this->x,this->y,length,1);
   if(text)
-    printSmall(x1+2,y1,stringify(vel),1);
+    printSmall(this->x+2,this->y,stringify(vel),1);
 }
 void Raindrop::render(const unsigned char * bmp,uint8_t w, uint8_t h){
-  display.drawBitmap(x1,y1,bmp,w,h,1);
+  display.drawBitmap(this->x,this->y,bmp,w,h,1);
 }
 
 bool Raindrop::update(){
   bool  hasNotCrossedYet = false;
-  if(y1<64){
+  if(this->y<64){
     hasNotCrossedYet = true;
   }
-  y1+=vel;
-  if(y1>64 &&  hasNotCrossedYet){
+  this->y+=vel;
+  if(this->y>64 &&  hasNotCrossedYet){
     madeSound = true;
   }
   else{
     madeSound = false;
   }
-  if(y1>=screenHeight+length){
+  if(this->y>=screenHeight+length){
     return false;
   }
   else{
@@ -157,8 +157,8 @@ void rain(){
     //controls
     //--------------------
     readButtons();
-    readJoystick();
-    if(itsbeen(200)){
+    controls.readJoystick();
+    if(utils.itsbeen(200)){
       if(play){
         lastTime = millis();
         isPlaying = !isPlaying;
@@ -205,15 +205,15 @@ void rain(){
           counterA += counterA<0?1:-1;
         }
         //X joystick changes the centerPoint
-        if(x == -1 && xCoord<screenWidth){
+        if(controls.joystickX == -1 && xCoord<screenWidth){
           xCoord+=2;
           lastTime = millis();
         }
-        else if(x == 1 && xCoord>0){
+        else if(controls.joystickX == 1 && xCoord>0){
           xCoord-=2;
           lastTime = millis();
         }
-        if(itsbeen(200)){
+        if(utils.itsbeen(200)){
           if(shift){
             lastTime = millis();
             menuState = !menuState;
@@ -226,8 +226,8 @@ void rain(){
         break;
       //editing the rain parameters
       case 1:
-        if(itsbeen(100)){
-          if(x != 0){
+        if(utils.itsbeen(100)){
+          if(controls.joystickX != 0){
             lastTime = millis();
             menuState = false;
           }
@@ -309,19 +309,19 @@ void rain(){
             }
             break;
         }
-        if(itsbeen(100)){
-          if(y != 0){
-            if(y == 1 && cursor<5){
+        if(utils.itsbeen(100)){
+          if(controls.joystickY != 0){
+            if(controls.joystickY == 1 && cursor<5){
               cursor++;
               lastTime = millis();
             }
-            else if(y == -1 && cursor>0){
+            else if(controls.joystickY == -1 && cursor>0){
               cursor--;
               lastTime = millis();
             }
           }
         }
-        if(itsbeen(200)){
+        if(utils.itsbeen(200)){
           if(sel){
             lastTime = millis();
             switch(cursor){
@@ -378,15 +378,15 @@ void rain(){
           continue;
         }
         if(drops[i].madeSound && pitchList.size()){
-          uint8_t pitch = positionToPitch(pitchList,startPitch,minOct,maxOct,drops[i].x1);
+          uint8_t pitch = positionToPitch(pitchList,startPitch,minOct,maxOct,drops[i].x);
           MIDI.noteOn(pitch,dropVelToNoteVel(drops[i].vel/float(stormIntensity+intensityVariance),minVel,maxVel),channel);
           MIDI.noteOff(pitch,0,channel);
           if(showingText)
-            printSmall(drops[i].x1,59,pitchToString(pitch,true,true),1);
+            printSmall(drops[i].x,59,pitchToString(pitch,true,true),1);
           else
-            display.drawBitmap(drops[i].x1-5,59,splash_bmp,11,5,1);
+            display.drawBitmap(drops[i].x-5,59,splash_bmp,11,5,1);
 
-          leds |= 1<<(drops[i].x1/8);
+          leds |= 1<<(drops[i].x/8);
         }
       }
       lowerBoard.writeLEDs(leds);

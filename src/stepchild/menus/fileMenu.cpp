@@ -3,12 +3,12 @@ void fileAnimation(bool in){
   vector<String> filenames = {"*new*"};
   if(in){
     activeMenu.highlight = -1;
-    int xDistance = screenWidth-activeMenu.coords.x1;//how far the display is gonna need to slide over
-    int width = activeMenu.coords.x2 - activeMenu.coords.x1;
+    int xDistance = screenWidth-activeMenu.coords.start.x;//how far the display is gonna need to slide over
+    int width = activeMenu.coords.end.x - activeMenu.coords.start.x;
     for(int i = 0; i< xDistance; i+=10){
       //this literally just shifts where the menu is over and over again
-      activeMenu.coords.x1 = screenWidth-i;
-      activeMenu.coords.x2 = activeMenu.coords.x1 + width;
+      activeMenu.coords.start.x = screenWidth-i;
+      activeMenu.coords.end.x = activeMenu.coords.start.x + width;
       display.clearDisplay();
       activeMenu.displayFileMenu(20-i/10,0,0,3,filenames);
       // display.drawBitmap(screenWidth-i,0,folder_closed_bmp,14,26,SSD1306_WHITE);
@@ -19,12 +19,12 @@ void fileAnimation(bool in){
   }
   else if(!in){
     activeMenu.highlight = -1;
-    int xDistance = screenWidth-activeMenu.coords.x1;//how far the display is gonna need to slide over
-    int width = activeMenu.coords.x2 - activeMenu.coords.x1;
+    int xDistance = screenWidth-activeMenu.coords.start.x;//how far the display is gonna need to slide over
+    int width = activeMenu.coords.end.x - activeMenu.coords.start.x;
     for(int i = xDistance; i> 0; i-=10){
       //this literally just shifts where the menu is over and over again
-      activeMenu.coords.x1 = screenWidth-i;
-      activeMenu.coords.x2 = activeMenu.coords.x1 + width;
+      activeMenu.coords.start.x = screenWidth-i;
+      activeMenu.coords.end.x = activeMenu.coords.start.x + width;
       display.clearDisplay();
       activeMenu.displayFileMenu(30-i/10,0,0,3,filenames);
       // display.drawBitmap(xDistance-i,0,folder_closed_bmp,14,26,SSD1306_WHITE);
@@ -78,17 +78,17 @@ void loadBackup(){
 
 vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
   //scrolling
-  if(itsbeen(100)){
-    if(y == 1 && activeMenu.highlight<5){
+  if(utils.itsbeen(100)){
+    if(controls.joystickY == 1 && activeMenu.highlight<5){
       activeMenu.highlight++;
       lastTime = millis();
     }
-    else if(y == -1 && activeMenu.highlight>0){
+    else if(controls.joystickY == -1 && activeMenu.highlight>0){
       activeMenu.highlight--;
       lastTime = millis();
     }
   }
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     //back to normal mode
     if(menu_Press){
       lastTime = millis();
@@ -157,8 +157,8 @@ vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
 }
 
 bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String> filenames){
-  if(itsbeen(100)){
-    if(y == -1 && activeMenu.highlight>0){
+  if(utils.itsbeen(100)){
+    if(controls.joystickY == -1 && activeMenu.highlight>0){
         activeMenu.highlight--;
         if(activeMenu.highlight<menuStart){
             menuStart--;
@@ -166,7 +166,7 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
         }
         lastTime = millis();
     }
-    if(y == 1 && activeMenu.highlight<(filenames.size()-1)){
+    if(controls.joystickY == 1 && activeMenu.highlight<(filenames.size()-1)){
         activeMenu.highlight++;
         if(activeMenu.highlight>menuEnd){
             menuStart++;
@@ -175,7 +175,7 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
         lastTime = millis();
     }
   }
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     if(menu_Press){
       lastTime = millis();
       return false;
@@ -280,7 +280,7 @@ void fileMenu(){
     display.display();
     folder.rotate(1,1);
     readButtons();
-    readJoystick();
+    controls.readJoystick();
     if(activeMenu.page == 0){
       if(!fileMenuControls(menuStart,menuEnd,&folder,filenames)){
         fileMenuAnimation(false,menuStart,menuEnd,filenames,false);
@@ -348,12 +348,12 @@ void Menu::displayFileMenu(){
 }
 
 void Menu::displayFileMenu(int16_t textOffset, bool open, uint8_t menuStart, uint8_t menuEnd,vector<String> filenames){
-  unsigned short int menuHeight = abs(coords.y2-coords.y1);
-  display.setCursor(coords.x1+9,coords.y1+3);
+  unsigned short int menuHeight = abs(coords.end.y-coords.start.y);
+  display.setCursor(coords.start.x+9,coords.start.y+3);
   display.setFont(&FreeSerifItalic9pt7b);
   display.print("Files");
   display.setFont();
-  printSmall(coords.x1+9,coords.y1+10,"--------",SSD1306_WHITE);
+  printSmall(coords.start.x+9,coords.start.y+10,"--------",SSD1306_WHITE);
 
   const uint8_t textWidth = 20;
   const uint8_t textHeight = 9;
@@ -370,27 +370,27 @@ void Menu::displayFileMenu(int16_t textOffset, bool open, uint8_t menuStart, uin
   }
   //drawing indicator arrows
   if(menuStart>0){
-    graphics.drawArrow(coords.x1,coords.y1+13-sin(millis()/150),2,2,false);
+    graphics.drawArrow(coords.start.x,coords.start.y+13-sin(millis()/150),2,2,false);
   }
   if(menuEnd<filenames.size()-1){
-    graphics.drawArrow(coords.x1,coords.y1+60+sin(millis()/150),2,3,false);
+    graphics.drawArrow(coords.start.x,coords.start.y+60+sin(millis()/150),2,3,false);
   }
   //printing out the menu
   for(int i = menuStart; i<=menuEnd; i++){
     if(page == 0){
       if(highlight != i){
-        printSmall(coords.x1+10+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.y1+6,filenames[i],SSD1306_WHITE);
+        printSmall(coords.start.x+10+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.start.y+6,filenames[i],SSD1306_WHITE);
       }
       else if(highlight == i){
-        graphics.drawBanner(coords.x1+16+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.y1+6,filenames[i]);
+        graphics.drawBanner(coords.start.x+16+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.start.y+6,filenames[i]);
       }
     }
     else{
       if(page != i){
-        printSmall(coords.x1+10+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.y1+6,filenames[i],SSD1306_WHITE);
+        printSmall(coords.start.x+10+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.start.y+6,filenames[i],SSD1306_WHITE);
       }
       else if(page == i){
-        graphics.drawBanner(coords.x1+16+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.y1+6,filenames[i]);
+        graphics.drawBanner(coords.start.x+16+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.start.y+6,filenames[i]);
       }
     }
     yLoc++;

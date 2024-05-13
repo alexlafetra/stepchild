@@ -99,14 +99,14 @@ QChord editChord(QChord& originalChord){
   bool playedChord = false;
 
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(x != 0 && ((!shift && itsbeen(50)) || (shift && itsbeen(150)))){
-        if(x == -1 && keyCursor<12*octave+35){
+    if(controls.joystickX != 0 && ((!shift && utils.itsbeen(50)) || (shift && utils.itsbeen(150)))){
+        if(controls.joystickX == -1 && keyCursor<12*octave+35){
             keyCursor++;
             lastTime = millis();
         }
-        else if(x == 1 && keyCursor>12*octave){
+        else if(controls.joystickX == 1 && keyCursor>12*octave){
             keyCursor--;
             lastTime = millis();
         }
@@ -124,7 +124,7 @@ QChord editChord(QChord& originalChord){
         playedChord = false;
     }
 
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
         if(loop_Press){
             lastTime = millis();
             //if there's no mask, make one
@@ -242,13 +242,13 @@ void insertChordIntoSequence(QChord chord){
     selBox.begun = true;
     while(true){
         readButtons();
-        readJoystick();
+        controls.readJoystick();
         defaultJoystickControls(false);
 
-        selBox.x1 = cursorPos+length;
-        selBox.y1 = activeTrack+chord.intervals.size();
-        if(selBox.y2>=trackData.size()){
-            selBox.y2 = trackData.size()-1;
+        selBox.coords.start.x = cursorPos+length;
+        selBox.coords.start.y = activeTrack+chord.intervals.size();
+        if(selBox.coords.end.y>=trackData.size()){
+            selBox.coords.end.y = trackData.size()-1;
         }
 
         //Encoders
@@ -286,7 +286,7 @@ void insertChordIntoSequence(QChord chord){
             }
             counterB += counterB<0?1:-1;;
         }
-        if(itsbeen(200)){
+        if(utils.itsbeen(200)){
             //quit
             if(menu_Press){
                 lastTime = millis();
@@ -352,13 +352,13 @@ void chordDJ(){
         }
         display.display();
         readButtons();
-        readJoystick();
+        controls.readJoystick();
 
         //while shifting, set the active chord to whatever keys are held
         if(shift){
             chords[activeChord] = getChordFromPlaylist();
         }
-        if(itsbeen(200)){
+        if(utils.itsbeen(200)){
             //Exiting
             if(menu_Press){
                 lastTime = millis();
@@ -372,12 +372,12 @@ void chordDJ(){
                 chords[activeChord] = editChord(chords[activeChord]);
             }
             //Moving cursor around
-            if(x){
-                if(x == 1 && activeChord>0){
+            if(controls.joystickX != 0){
+                if(controls.joystickX == 1 && activeChord>0){
                     activeChord--;
                     lastTime = millis();
                 }
-                else if(x == -1 && activeChord<7){
+                else if(controls.joystickX == -1 && activeChord<7){
                     activeChord++;
                     lastTime = millis();
                 }
@@ -391,7 +391,7 @@ void chordDJ(){
         //checking step buttons to see if a chord should be played
         for(uint8_t i = 0; i<chords.size(); i++){
             if(i<8){
-                if(!shift && step_buttons[i]){
+                if(!shift && controls.stepButton(i)){
                     chords[i].play(vel,channel);
                 }
                 else{
@@ -399,7 +399,7 @@ void chordDJ(){
                 }
             }
             else{
-                if(shift && step_buttons[i-8]){
+                if(shift && controls.stepButton(i-8)){
                     chords[i].play(vel,channel);
                 }
                 else{

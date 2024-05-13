@@ -1,7 +1,7 @@
 //turns off screen and LEDs, sends pico to deep sleep (Not done yet!)
 #ifndef HEADLESS
 void deepSleep(){
-  if(itsbeen(sleepTime)){
+  if(utils.itsbeen(sleepTime)){
     display.ssd1306_command(SSD1306_DISPLAYOFF);
     clearButtons();
     turnOffLEDs();
@@ -62,7 +62,7 @@ void screenSaver_cassette(){
       lastTime = millis();
       return;
     }
-    else if(itsbeen(sleepTime) && done){
+    else if(utils.itsbeen(sleepTime) && done){
       return;
     }
   }
@@ -113,7 +113,7 @@ void screenSaver_ripples(){
       lastTime = millis();
       return;
     }
-    else if(itsbeen(sleepTime) && done){
+    else if(utils.itsbeen(sleepTime) && done){
       return;
     }
   }
@@ -141,7 +141,7 @@ void screenSaver_moon(){
       lastTime = millis();
       return;
     }
-    else if(itsbeen(sleepTime) && done){
+    else if(utils.itsbeen(sleepTime) && done){
       return;
     }
   }
@@ -159,7 +159,7 @@ void screenSaver_template(){
       lastTime = millis();
       return;
     }
-    else if(itsbeen(sleepTime) && done){
+    else if(utils.itsbeen(sleepTime) && done){
       return;
     }
   }
@@ -181,7 +181,7 @@ void screenSaver_prams(){
       prams[i].render(carriage_bmp,14,15);
       prams[i].update();
       //only keeping the prams that aren't offscreen
-      if(prams[i].y1<screenWidth)
+      if(prams[i].y<screenWidth)
         temp.push_back(prams[i]);
     }
     display.display();
@@ -193,7 +193,7 @@ void screenSaver_prams(){
       lastTime = millis();
       return;
     }
-    else if(itsbeen(sleepTime)){
+    else if(utils.itsbeen(sleepTime)){
       return;
     }
   }
@@ -216,7 +216,7 @@ void screenSaver_droplets(){
       drops[i].render(false);
       drops[i].update();
       //only keeping the prams that aren't offscreen
-      if(drops[i].y1<screenWidth)
+      if(drops[i].y<screenWidth)
         temp.push_back(drops[i]);
     }
     display.display();
@@ -226,7 +226,7 @@ void screenSaver_droplets(){
       lastTime = millis();
       return;
     }
-    else if(itsbeen(sleepTime)){
+    else if(utils.itsbeen(sleepTime)){
       return;
     }
   }
@@ -244,7 +244,7 @@ void screenSaver_keys(){
       lastTime = millis();
       return;
     }
-    else if(itsbeen(sleepTime) && done){
+    else if(utils.itsbeen(sleepTime) && done){
       return;
     }
   }
@@ -276,7 +276,7 @@ void screenSaver_text(){
       lastTime = millis();
       return;
     }
-    else if(itsbeen(sleepTime) && done){
+    else if(utils.itsbeen(sleepTime) && done){
       return;
     }
   }
@@ -340,9 +340,9 @@ void screenSaver(){
 }
 
 void screenSaverCheck(){
-  while(itsbeen(sleepTime)){
+  while(utils.itsbeen(sleepTime)){
     screenSaver();
-    if(itsbeen(deepSleepTime)){
+    if(utils.itsbeen(deepSleepTime)){
       deepSleep();
     }
   }

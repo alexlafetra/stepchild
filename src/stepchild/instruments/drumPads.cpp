@@ -24,7 +24,7 @@ void drumPad(){
       }
     }
     //play/rec
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(play && !recording){
         if(!shift){
           lastTime = millis();

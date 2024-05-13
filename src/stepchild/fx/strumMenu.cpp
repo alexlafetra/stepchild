@@ -149,7 +149,7 @@ void strumMenu(){
 
     vector<NoteID> ids;
     while(true){
-        readJoystick();
+        controls.readJoystick();
         readButtons();
         while(counterA != 0){
             switch(cursor){
@@ -206,7 +206,7 @@ void strumMenu(){
             }
             counterB += counterB<0?1:-1;
         }
-        if(itsbeen(200)){
+        if(utils.itsbeen(200)){
             if(menu_Press){
                 lastTime = millis();
                 break;
@@ -215,22 +215,22 @@ void strumMenu(){
                 lastTime = millis();
                 strum(sortType, sortValue, amount, randomness);
             }
-            if(x != 0){
-                if(x == -1 && !(cursor%2)){//cursor == 0 or 2
+            if(controls.joystickX != 0){
+                if(controls.joystickX == -1 && !(cursor%2)){//cursor == 0 or 2
                     cursor++;
                     lastTime = millis();
                 }
-                else if(x == 1 && (cursor%2)){//cursor == 1 or 3
+                else if(controls.joystickX == 1 && (cursor%2)){//cursor == 1 or 3
                     cursor--;
                     lastTime = millis();
                 }
             }
-            if(y != 0){
-                if(y == -1 && cursor>=2){
+            if(controls.joystickY != 0){
+                if(controls.joystickY == -1 && cursor>=2){
                     cursor-=2;
                     lastTime = millis();
                 }
-                else if(y == 1 && cursor<=1){
+                else if(controls.joystickY == 1 && cursor<=1){
                     cursor+=2;
                     lastTime = millis();
                 }

@@ -174,14 +174,7 @@ class LowerBoard{
   public:
   MCP23017 LEDs = MCP23017(LED_I2C_ADDR,Wire);
   MCP23017 Buttons = MCP23017(BUTTON_I2C_ADDR,Wire);
-  unsigned short int buttonState = 0;
   LowerBoard(){}
-  unsigned short int getStateOfStepButtons(){
-    return 0;
-  }
-  unsigned short int getStateOfMainButtons(){
-	return 0;
-  }
   unsigned short int readButtons(){
 	// uint8_t buttonsA = this->Buttons.readRegister(MCP23017Register::GPIO_A);
 	// uint8_t buttonsB = this->Buttons.readRegister(MCP23017Register::GPIO_B);
@@ -256,96 +249,3 @@ LowerBoard lowerBoard;
 #else
 DummyLowerBoard lowerBoard;
 #endif
-
-
-
-void lightLEDs(){
-  // uint16_t data = lowerBoard.getButtonStatus();
-  uint8_t data = lowerBoard.getStateOfMainButtons(); 
-  lowerBoard.writeLEDs(data);
-  Serial.print("buttons:");
-}
-
-
-void writeLEDs(uint8_t led, bool state){
-  if(LEDsOn){
-    bool leds[8];
-    leds[led] = state;
-    writeLEDs(leds);
-  }
-}
-//this one turns on a range of LEDS
-void writeLEDs(uint8_t first, uint8_t last){
-  uint8_t dat = 0;
-  if(LEDsOn){
-    for(int i = 0; i<8; i++){
-      dat = dat<<1;
-      if(i >= first && i <= last){
-        dat++;
-      }
-    }
-  }
-  dat = ((dat * 0x0802LU & 0x22110LU) | (dat * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
-  // sending data to shift reg
-  // digitalWrite(latchPin_LEDS, LOW);
-  // shiftOut(dataPin_LEDS, clockPin_LEDS, MSBFIRST, dat);
-  // digitalWrite(latchPin_LEDS, HIGH);
-  lowerBoard.writeLEDs(dat);
-}
-void writeLEDs(bool leds[16]){
-  uint16_t dat = 0;
-  if(LEDsOn){
-    for(int i = 0; i<16; i++){
-      dat = dat<<1;
-      if(leds[i]){
-        dat++;
-      }
-    }
-  }
-  dat = ((dat * 0x0802LU & 0x22110LU) | (dat * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
-  lowerBoard.writeLEDs(dat);
-}
-
-void turnOffLEDs(){
-  uint8_t dat = 0;
-  // sending data to shift reg
-  lowerBoard.writeLEDs(dat);
-}
-
-void restartDisplay(){
-  #ifndef HEADLESS
-  Wire.end();
-  // Wire.begin();
-  display.begin(SCREEN_ADDR,true);
-  display.display();
-  #endif
-}
-
-
-//array to hold the LED states
-//displays notes on LEDs
-void updateLEDs(){
-  uint16_t dat = 0;//00000000
-  if(LEDsOn && !screenSaverActive){
-    uint16_t viewLength = viewEnd-viewStart;
-    //move through the view, check every subDivInt
-    const uint16_t jump = viewLength/16;
-    //if there are any notes, check
-    if(seqData[activeTrack].size()>1){
-      for(uint8_t i = 0; i<16; i++){
-        uint16_t step = viewStart+i*jump;
-        if(lookupData[activeTrack][step] != 0){
-          //not sure if it should only light up if it's on the start step or nah
-          if(seqData[activeTrack][lookupData[activeTrack][step]].startPos == step){
-            //if playing or recording, and the head isn't on that step, it should be on
-            //if it is on that step, then the step should blink
-            if((playing && (playheadPos <  seqData[activeTrack][lookupData[activeTrack][step]].startPos || playheadPos > seqData[activeTrack][lookupData[activeTrack][step]].endPos)) || !playing){
-              dat = dat|(1<<i);
-            }
-          }
-        }
-      }
-    }
-  }
-  lowerBoard.writeLEDs(dat);
-}

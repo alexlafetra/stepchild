@@ -30,18 +30,18 @@ vector<uint8_t> selectMultipleTracks(String text){
 
     display.display();
     readButtons();
-    readJoystick();
-    if(itsbeen(100)){
-      if(y == 1){
+    controls.readJoystick();
+    if(utils.itsbeen(100)){
+      if(controls.joystickY == 1){
         setActiveTrack(activeTrack+1,true);
         lastTime = millis();
       }
-      if(y == -1){
+      if(controls.joystickY == -1){
         setActiveTrack(activeTrack-1,true);
         lastTime = millis();
       }
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(sel && !shift){
         sel = false;
         lastTime = millis();
@@ -203,8 +203,8 @@ void sortTracks(){
   const uint8_t y1 = 16;
   while(true){
     readButtons();
-    readJoystick();
-    if(itsbeen(200)){
+    controls.readJoystick();
+    if(utils.itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
         break;
@@ -258,21 +258,21 @@ void swapTracks(){
   unsigned short int track1 = activeTrack;
   sel = false;
   while(true){
-    if(itsbeen(100)){
-      if(y == 1){
+    if(utils.itsbeen(100)){
+      if(controls.joystickY == 1){
         swapTracks(track1,activeTrack+1);
         setActiveTrack(activeTrack+1,true);
         track1 = activeTrack;
         lastTime = millis();
       }
-      if(y == -1){
+      if(controls.joystickY == -1){
         swapTracks(track1,activeTrack-1);
         setActiveTrack(activeTrack-1,true);
         track1 = activeTrack;
         lastTime = millis();
       }
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(n){
         lastTime = millis();
         sortTracks();
@@ -284,7 +284,7 @@ void swapTracks(){
         break;
       }
     }
-    readJoystick();
+    controls.readJoystick();
     readButtons();
     display.clearDisplay();
     drawSeq(true, false, false, true, false, false, viewStart, viewEnd);

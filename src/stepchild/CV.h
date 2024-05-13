@@ -135,7 +135,7 @@ void testCVPitches(){
         printSmall_centered(64,32,stringify(pitch),1);
         printSmall_centered(64,38,stringify(CV.pitchToVoltage(pitch))+"V",1);
         display.display();
-        if(itsbeen(1000)){
+        if(utils.itsbeen(1000)){
             lastTime = millis();
             CV.writePitch(pitch);
             // writeCVGate(gate);
@@ -172,9 +172,9 @@ void MIDItoCV(){
             CV.writeGate(gate);
             CV.writePitch(pitch);
         }
-        readJoystick();
+        controls.readJoystick();
         readButtons();
-        if(itsbeen(200)){
+        if(utils.itsbeen(200)){
             if(menu_Press){
                 lastTime = millis();
                 break;
@@ -233,7 +233,7 @@ void CVEncoders(uint8_t encoderVal, uint8_t cursor){
 void CVMenu(){
     uint8_t cursor = 0;
     while(true){
-        readJoystick();
+        controls.readJoystick();
         readButtons();
         while(counterA != 0){
             CVEncoders(counterA,cursor);
@@ -243,7 +243,7 @@ void CVMenu(){
             CVEncoders(counterB,cursor);
             counterB += counterB<0?1:-1;
         }
-        if(itsbeen(200)){
+        if(utils.itsbeen(200)){
             if(menu_Press){
                 lastTime = millis();
                 menu_Press = false;

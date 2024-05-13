@@ -112,28 +112,28 @@ void drawRandMenuOptions(uint8_t which,RandomData randData){
 }
 
 void drawCoordinateBox(CoordinatePair coords){
-  if(!selBox.begun && (coords.x1 != coords.x2)){
+  if(!selBox.begun && (coords.start.x != coords.end.x)){
     //correcting bounds for view
     unsigned short int X1;
     unsigned short int X2;
     unsigned short int Y1;
     unsigned short int Y2;
 
-    if(coords.x1>coords.x2){
-      X1 = coords.x2;
-      X2 = coords.x1;
+    if(coords.start.x>coords.end.x){
+      X1 = coords.end.x;
+      X2 = coords.start.x;
     }
     else{
-      X1 = coords.x1;
-      X2 = coords.x2;
+      X1 = coords.start.x;
+      X2 = coords.end.x;
     }
-    if(coords.y1>coords.y2){
-      Y1 = coords.y2;
-      Y2 = coords.y1;
+    if(coords.start.y>coords.end.y){
+      Y1 = coords.end.y;
+      Y2 = coords.start.y;
     }
     else{
-      Y1 = coords.y1;
-      Y2 = coords.y2;
+      Y1 = coords.start.y;
+      Y2 = coords.end.y;
     }
 
     //if it's offscreen, return
@@ -171,46 +171,46 @@ void drawCoordinateBox(CoordinatePair coords){
 
 CoordinatePair selectArea_random(){
   CoordinatePair coords;
-  coords.x1 = 0;
-  coords.x2 = 0;
-  coords.y1 = 0;
-  coords.y2 = 0;
+  coords.start.x = 0;
+  coords.end.x = 0;
+  coords.start.y = 0;
+  coords.end.y = 0;
   WireFrame graphics = genRandMenuObjects(16,8,10,0.5);
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
     defaultEncoderControls();
-    if(sel && !selBox.begun && (x != 0 || y != 0)){
+    if(sel && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
       selBox.begun = true;
-      selBox.x1 = cursorPos;
-      selBox.y1 = activeTrack;
-      coords.x1 = cursorPos;
-      coords.y1 = activeTrack;
+      selBox.coords.start.x = cursorPos;
+      selBox.coords.start.y = activeTrack;
+      coords.start.x = cursorPos;
+      coords.start.y = activeTrack;
     }
     //if sel is released, and there's a selection box
     if(!sel && selBox.begun){
-      selBox.x2 = cursorPos;
-      selBox.y2 = activeTrack;
+      selBox.coords.end.x = cursorPos;
+      selBox.coords.end.y = activeTrack;
       selBox.begun = false;
-      coords.x2 = cursorPos;
-      coords.y2 = activeTrack;
+      coords.end.x = cursorPos;
+      coords.end.y = activeTrack;
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(n){
         lastTime = millis();
         return coords;
       }
       if(menu_Press){
-        coords.x1 = 0;
-        coords.x2 = 0;
-        coords.y1 = 0;
-        coords.y2 = 0;
+        coords.start.x = 0;
+        coords.end.x = 0;
+        coords.start.y = 0;
+        coords.end.y = 0;
         lastTime = millis();
         return coords;
       }
     }
-    if (itsbeen(100)) {
-      if (x == 1 && !shift) {
+    if (utils.itsbeen(100)) {
+      if (controls.joystickX == 1 && !shift) {
         //if cursor isn't on a measure marker, move it to the nearest one
         if(cursorPos%subDivInt){
           moveCursor(-cursorPos%subDivInt);
@@ -221,7 +221,7 @@ CoordinatePair selectArea_random(){
           lastTime = millis();
         }
       }
-      if (x == -1 && !shift) {
+      if (controls.joystickX == -1 && !shift) {
         if(cursorPos%subDivInt){
           moveCursor(subDivInt-cursorPos%subDivInt);
           lastTime = millis();
@@ -231,14 +231,14 @@ CoordinatePair selectArea_random(){
           lastTime = millis();
         }
       }
-      if (y == 1) {
+      if (controls.joystickY == 1) {
         if(recording)
           setActiveTrack(activeTrack + 1, false);
         else
           setActiveTrack(activeTrack + 1, true);
         lastTime = millis();
       }
-      if (y == -1) {
+      if (controls.joystickY == -1) {
         if(recording)
           setActiveTrack(activeTrack - 1, false);
         else
@@ -246,12 +246,12 @@ CoordinatePair selectArea_random(){
         lastTime = millis();
       }
     }
-    if (itsbeen(50)) {
-      if (x == 1 && shift) {
+    if (utils.itsbeen(50)) {
+      if (controls.joystickX == 1 && shift) {
         moveCursor(-1);
         lastTime = millis();
       }
-      if (x == -1 && shift) {
+      if (controls.joystickX == -1 && shift) {
         moveCursor(1);
         lastTime = millis();
       }
@@ -262,7 +262,7 @@ CoordinatePair selectArea_random(){
     drawSeq(true, false, true, false, false, false, viewStart, viewEnd);
     drawCoordinateBox(coords);
     graphics.renderDie();
-    if(coords.x1 == 0 && coords.x2 == 0 && coords.y1 == 0 && coords.y2 == 0){
+    if(coords.start.x == 0 && coords.end.x == 0 && coords.start.y == 0 && coords.end.y == 0){
       printSmall(trackDisplay,0,"select an area!",1);
     }
     else{
@@ -275,24 +275,24 @@ CoordinatePair selectArea_random(){
 void genRandom(RandomData randData){
   while(true){
     CoordinatePair coords = selectArea_random();
-    if(coords.x1 == coords.x2 && coords.y1 == coords.y2){
+    if(coords.start.x == coords.end.x && coords.start.y == coords.end.y){
       break;
     }
-    if(coords.x1>coords.x2){
-      uint16_t temp = coords.x1;
-      coords.x1 = coords.x2;
-      coords.x2 = temp;
+    if(coords.start.x>coords.end.x){
+      uint16_t temp = coords.start.x;
+      coords.start.x = coords.end.x;
+      coords.end.x = temp;
     }
-    if(coords.y1>coords.y2){
-      uint8_t temp = coords.y1;
-      coords.y1 = coords.y2;
-      coords.y2 = temp;
+    if(coords.start.y>coords.end.y){
+      uint8_t temp = coords.start.y;
+      coords.start.y = coords.end.y;
+      coords.end.y = temp;
     }
     //if you're targeting empty spaces
     if(!randData.target){
       //iterate over the tracks (inclusively)
-      for(uint8_t t = coords.y1; t<=coords.y2; t++){
-        for(uint16_t step = coords.x1; step<coords.x2; step++){
+      for(uint8_t t = coords.start.y; t<=coords.end.y; t++){
+        for(uint16_t step = coords.start.x; step<coords.end.x; step++){
           //if it's not only making notes on the grid, or if the step is on a subDiv
           if((!randData.onlyOnGrid || !(step%subDivInt)) && lookupData[t][step] == 0){
             if(random(0,100)<randData.odds){
@@ -300,8 +300,8 @@ void genRandom(RandomData randData){
               uint16_t length = random(randData.minLength,randData.maxLength+1);
               uint8_t vel = random(randData.minVel,randData.maxVel+1);
               //making sure notes won't run off the end
-              if(step+length>coords.x2){
-                length = coords.x2-step;
+              if(step+length>coords.end.x){
+                length = coords.end.x-step;
               }
               Note newNote = Note(step,step+length,vel,chance,false,false);
               makeNote(newNote, t);
@@ -318,8 +318,8 @@ void genRandom(RandomData randData){
     //if you're targeting existing notes
     else{
       //iterate over the tracks (inclusively)
-      for(uint8_t t = coords.y1; t<=coords.y2; t++){
-        for(uint16_t step = coords.x1; step<coords.x2; step++){
+      for(uint8_t t = coords.start.y; t<=coords.end.y; t++){
+        for(uint16_t step = coords.start.x; step<coords.end.x; step++){
           //ignore grid for this
           if(lookupData[t][step] != 0){
             if(random(0,100)<randData.odds){
@@ -327,8 +327,8 @@ void genRandom(RandomData randData){
               uint16_t length = random(randData.minLength,randData.maxLength+1);
               uint8_t vel = random(randData.minVel,randData.maxVel+1);
               //making sure notes won't run off the end
-              if(step+length>coords.x2){
-                length = coords.x2-step;
+              if(step+length>coords.end.x){
+                length = coords.end.x-step;
               }
               deleteNote_byID(t,lookupData[t][step]);
               Note newNote = Note(step,step+length,vel,chance,false,false);
@@ -428,25 +428,25 @@ void drawRandMenu(uint8_t whichTab){
 }
 
 bool randMenuControls(uint8_t * whichTab){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(itsbeen(200)){
-        if(x != 0){
-            if(x == -1 && (*whichTab) < 3){
+    if(utils.itsbeen(200)){
+        if(controls.joystickX != 0){
+            if(controls.joystickX == -1 && (*whichTab) < 3){
                 (*whichTab) += 3;
                 lastTime = millis();
             }
-            else if(x == 1 && (*whichTab)>2){
+            else if(controls.joystickX == 1 && (*whichTab)>2){
                 (*whichTab) -= 3;
                 lastTime = millis();
             }
         }
-        if(y != 0){
-            if(y == 1 && (*whichTab) != 5 && (*whichTab) != 2){
+        if(controls.joystickY != 0){
+            if(controls.joystickY == 1 && (*whichTab) != 5 && (*whichTab) != 2){
                 (*whichTab)++;
                 lastTime = millis();
             }
-            else if(y == -1 && (*whichTab) != 0 && (*whichTab) != 3){
+            else if(controls.joystickY == -1 && (*whichTab) != 0 && (*whichTab) != 3){
                 (*whichTab)--;
                 lastTime = millis();
             }

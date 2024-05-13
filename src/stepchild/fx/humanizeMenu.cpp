@@ -139,7 +139,7 @@ void humanizeMenu(){
   HumanizeBlob blob = HumanizeBlob(20,30);
   while(true){
     //timing, vel, chance
-    readJoystick();
+    controls.readJoystick();
     readButtons();
     if(!humanizeMenuControls(&cursor)){
       break;
@@ -210,32 +210,32 @@ void humanizeMenu(){
 }
 
 bool humanizeMenuControls(uint8_t* cursor){
-  if(itsbeen(100)){
+  if(utils.itsbeen(100)){
     //moving cursor
-    if(y != 0){
+    if(controls.joystickY != 0){
       //if cursor == 1 or 3
-      if(y == -1 && (*cursor)%2){
+      if(controls.joystickY == -1 && (*cursor)%2){
         (*cursor)--;
         lastTime = millis();
       }
       //if cursor == 0 or 2
-      else if(y == 1 && !((*cursor)%2)){
+      else if(controls.joystickY == 1 && !((*cursor)%2)){
         (*cursor)++;
         lastTime = millis();
       }
     }
-    if(x != 0){
-      if(x == -1 && (*cursor)<2){
+    if(controls.joystickX != 0){
+      if(controls.joystickX == -1 && (*cursor)<2){
         (*cursor)+=2;
         lastTime = millis();
       }
-      else if(x == 1 && (*cursor)>1){
+      else if(controls.joystickX == 1 && (*cursor)>1){
         (*cursor)-=2;
         lastTime = millis();
       }
     }
   }
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     if(menu_Press){
       lastTime = millis();
       return false;

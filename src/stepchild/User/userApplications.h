@@ -43,10 +43,10 @@ void defaultAppFunction(){
 
         //reading in controls
         readButtons();
-        readJoystick();
+        controls.readJoystick();
 
         //if it's been 200ms
-        if(itsbeen(200)){
+        if(utils.itsbeen(200)){
             //and the menu button was pressed...
             if(menu_Press){
                 //reset "itsbeen" timer

@@ -7,7 +7,7 @@
 #include "ChildOS.h"
 
 void drawPram(){
-  if(!menuIsActive || (activeMenu.menuTitle == "MENU") || (activeMenu.menuTitle == "FX") || (activeMenu.menuTitle == "EDIT" && activeMenu.coords.x1>32)){
+  if(!menuIsActive || (activeMenu.menuTitle == "MENU") || (activeMenu.menuTitle == "FX") || (activeMenu.menuTitle == "EDIT" && activeMenu.coords.start.x>32)){
     if(maxTracksShown == 5 || (menuIsActive && activeMenu.menuTitle == "MENU")){//weird graphical case where you want the pram to b big when the main menu is open
       if(!playing && !recording){
         drawPram(5,0);
@@ -381,7 +381,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
 
     //drawing selection box, since it needs to overlay stepSeq data
     if(selBox.begun){
-      selBox.displaySelBox();
+      selBox.render();
     }
     uint8_t height;
     if(endTrack == trackData.size())
@@ -444,7 +444,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
         }
         //if it's shrunk, draw it small
         else{
-          String pitch = getTrackPitchOctave(track);
+          String pitch = trackData[track].getPitchAndOctave();
           if(track%2){
             printSmall(18, y1, pitchToString(trackData[track].pitch,true,true), SSD1306_WHITE);
           }
@@ -593,16 +593,16 @@ int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String t
     drawingFunction();
     graphics.drawBinarySelectionBox(x1,y1,op1,op2,title,state);
     display.display();
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       //x to select option
-      if(x != 0){
-        if(x == 1 && state){
+      if(controls.joystickX != 0){
+        if(controls.joystickX == 1 && state){
           state = !state;
           lastTime = millis();
         }
-        else if(x == -1 && !state){
+        else if(controls.joystickX == -1 && !state){
           state = !state;
           lastTime = millis();
         }
@@ -640,15 +640,15 @@ unsigned short int horzSelectionBox(String caption, vector<String> options, unsi
       printSmall(x1+i*20,y1+10,options[i],SSD1306_WHITE);
     }
     display.display();
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(itsbeen(200)){
-      if(x != 0 || y != 0){
-        if(x == -1 && select<options.size()-1){
+    if(utils.itsbeen(200)){
+      if(controls.joystickX != 0 || controls.joystickY != 0){
+        if(controls.joystickX == -1 && select<options.size()-1){
           select++;
           time = millis();
         }
-        if(x == 1 && select>0){
+        if(controls.joystickX == 1 && select>0){
           select--;
           time = millis();
         }
@@ -1450,7 +1450,7 @@ void toggleRecordingMode(bool butWait){
   if(!recording)
     cleanupRecording(recheadPos);
   //if it's recording to the loop
-  if(recMode == ONESHOT || recMode == LOOP)
+  if(recMode == ONESHOT || recMode == LOOP_MODE)
     recheadPos = loopData[activeLoop].start;
   // else
   //   recheadPos = ONESHOT;
@@ -1499,13 +1499,6 @@ void toggleRecordingMode(bool butWait){
   }
 }
 
-bool itsbeen(int time){
-  if(millis()-lastTime >= time)
-    return true;
-  else
-    return false;
-}
-
 //moves the whole loop
 void moveLoop(int16_t amount){
   uint16_t length = loopData[activeLoop].end-loopData[activeLoop].start;
@@ -1548,13 +1541,13 @@ void toggleLoopMove(){
 }
 
 void yControls(){
-  if(itsbeen(100)){
-    if (y == 1) {
+  if(utils.itsbeen(100)){
+    if (controls.joystickY == 1) {
       setActiveTrack(activeTrack + 1, false);
       drawingNote = false;
       lastTime = millis();
     }
-    if (y == -1) {
+    if (controls.joystickY == -1) {
       setActiveTrack(activeTrack - 1, false);
       drawingNote = false;
       lastTime = millis();
@@ -1564,8 +1557,8 @@ void yControls(){
 
 //moving cursor, loop, and active track. Pass "true" to allow changing the velocity of notes
 void defaultJoystickControls(bool velocityEditingAllowed){
-  if (itsbeen(100)) {
-    if (x == 1 && !shift) {
+  if (utils.itsbeen(100)) {
+    if (controls.joystickX == 1 && !shift) {
       //if cursor isn't on a measure marker, move it to the nearest one
       if(cursorPos%subDivInt){
         moveCursor(-cursorPos%subDivInt);
@@ -1589,7 +1582,7 @@ void defaultJoystickControls(bool velocityEditingAllowed){
         setLoopPoint(cursorPos,false);
       }
     }
-    if (x == -1 && !shift) {
+    if (controls.joystickX == -1 && !shift) {
       if(cursorPos%subDivInt){
         moveCursor(subDivInt-cursorPos%subDivInt);
         lastTime = millis();
@@ -1611,8 +1604,8 @@ void defaultJoystickControls(bool velocityEditingAllowed){
       }
     }
   }
-  if(itsbeen(100)){
-    if (y == 1 && !shift && !loop_Press) {
+  if(utils.itsbeen(100)){
+    if (controls.joystickY == 1 && !shift && !loop_Press) {
       if(recording)//if you're not in normal mode, you don't want it to be loud
         setActiveTrack(activeTrack + 1, false);
       else
@@ -1620,7 +1613,7 @@ void defaultJoystickControls(bool velocityEditingAllowed){
       drawingNote = false;
       lastTime = millis();
     }
-    if (y == -1 && !shift && !loop_Press) {
+    if (controls.joystickY == -1 && !shift && !loop_Press) {
       if(recording)//if you're not in normal mode, you don't want it to be loud
         setActiveTrack(activeTrack - 1, false);
       else
@@ -1629,9 +1622,9 @@ void defaultJoystickControls(bool velocityEditingAllowed){
       lastTime = millis();
     }
   }
-  if (itsbeen(50)) {
+  if (utils.itsbeen(50)) {
     //moving
-    if (x == 1 && shift) {
+    if (controls.joystickX == 1 && shift) {
       moveCursor(-1);
       lastTime = millis();
       if(movingLoop == 2)
@@ -1641,7 +1634,7 @@ void defaultJoystickControls(bool velocityEditingAllowed){
       else if(movingLoop == 1)
         setLoopPoint(cursorPos,false);
     }
-    if (x == -1 && shift) {
+    if (controls.joystickX == -1 && shift) {
       moveCursor(1);
       lastTime = millis();
       if(movingLoop == 2)
@@ -1653,23 +1646,23 @@ void defaultJoystickControls(bool velocityEditingAllowed){
     }
     //changing vel
     if(velocityEditingAllowed){
-      if (y == 1 && shift) {
+      if (controls.joystickY == 1 && shift) {
         changeVel(-10);
         lastTime = millis();
       }
-      if (y == -1 && shift) {
+      if (controls.joystickY == -1 && shift) {
         changeVel(10);
         lastTime = millis();
       }
 
       if(getIDAtCursor()==0){
-        if(y == 1 && shift){
+        if(controls.joystickY == 1 && shift){
           defaultVel-=10;
           if(defaultVel<1)
             defaultVel = 1;
           lastTime = millis();
         }
-        if(y == -1 && shift){
+        if(controls.joystickY == -1 && shift){
           defaultVel+=10;
           if(defaultVel>127)
             defaultVel = 127;
@@ -1682,15 +1675,15 @@ void defaultJoystickControls(bool velocityEditingAllowed){
 
 void defaultSelectBoxControls(){
   //when sel is pressed and stick is moved, and there's no selection box yet, start one
-  if(sel && !selBox.begun && (x != 0 || y != 0)){
+  if(sel && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
     selBox.begun = true;
-    selBox.x1 = cursorPos;
-    selBox.y1 = activeTrack;
+    selBox.coords.start.x = cursorPos;
+    selBox.coords.start.y = activeTrack;
   }
   //if sel is released, and there's a selection box, end it and select what was in the box
   if(!sel && selBox.begun){
-    selBox.x2 = cursorPos;
-    selBox.y2 = activeTrack;
+    selBox.coords.end.x = cursorPos;
+    selBox.coords.end.y = activeTrack;
     selectBox();
     selBox.begun = false;
   }
@@ -1768,7 +1761,7 @@ void mainSequencerButtons(){
     drawingNote = false;
 
   //delete happens a liitle faster (so you can draw/erase fast)
-  if(itsbeen(75)){
+  if(utils.itsbeen(75)){
     //delete
     if(del && !shift){
       if (selectionCount > 0){
@@ -1782,7 +1775,7 @@ void mainSequencerButtons(){
       }
     }
   }
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     //new
     if(n && !drawingNote && !sel){
       if((!shift)&& (getIDAtCursor() == 0 || cursorPos != seqData[activeTrack][getIDAtCursor()].startPos)){
@@ -1842,99 +1835,20 @@ void mainSequencerButtons(){
         return;
       }
     }
-    if(track_Press){
+    if(controls.A()){
       menuIsActive = true;
       lastTime = millis();
-      track_Press = false;
+      controls.setA(false);
       constructMenu("TRK");
     }
-    if(note_Press){
+    if(controls.B()){
       lastTime = millis();
-      note_Press = false;
+      controls.setB(false);;
       menuIsActive = true;
       constructMenu("EDIT");
     }
   }
 }
-
-//sets all the buttons to 0 (useful for making the animations transition nicely)
-void clearButtons(){
-  for(int i = 0; i < 8; i++){
-    step_buttons[i] = false;
-  }
-  counterA = 0;
-  counterB = 0;
-  x = false;
-  y = false;
-  joy_Press = false;
-  n = false;
-  sel = false;
-  shift = false;
-  del = false;
-  play = false;
-  track_Press = false;
-  note_Press = false;
-  loop_Press = false;
-  copy_Press = false;
-  menu_Press = false;
-}
-
-#ifndef HEADLESS
-//checks all inputs
-bool anyActiveInputs(){
-  //normal buttons
-  digitalWrite(buttons_load,LOW);
-  digitalWrite(buttons_load,HIGH);
-  digitalWrite(buttons_clockIn, HIGH);
-  digitalWrite(buttons_clockEnable,LOW);
-  unsigned char bits_buttons = shiftIn(buttons_dataIn, buttons_clockIn, LSBFIRST);
-  digitalWrite(buttons_clockEnable, HIGH);
-
-  for(int digit = 0; digit<8; digit++){
-    if(!((bits_buttons>>digit)&1))//if any of these are high, return true
-      return true;
-  }
-
-  //stepButtons
-  if(LEDsOn){
-    digitalWrite(buttons_load,LOW);
-    digitalWrite(buttons_load,HIGH);
-    digitalWrite(buttons_clockIn, HIGH);
-    digitalWrite(buttons_clockEnable,LOW);
-    unsigned char bits_stepButtons = shiftIn(stepButtons_dataIn, buttons_clockIn, LSBFIRST);
-    digitalWrite(buttons_clockEnable, HIGH);
-  
-    for(int digit = 0; digit<8; digit++){
-      if(!((bits_stepButtons>>digit)&1))
-        return true;
-    }
-  }
-
-  readJoystick();
-  if(x || y)
-    return true;
-  //encoder presses
-  if(digitalRead(encoderA_Button) || digitalRead(encoderB_Button)){
-    return true;
-  }
-  //encoder clicks
-  if(counterA || counterB){
-    counterA = 0;
-    counterB = 0;
-    return true;
-  }
-
-  return false;
-}
-#else
-bool anyActiveInputs(){
-  readButtons();
-  if(x || y || n || shift || sel || del || loop_Press || play || copy_Press || menu_Press || counterA || counterB || note_Press || track_Press)
-    return true;
-  else
-    return false;
-}
-#endif
 
 //CHECK
 //true if pitch is being sent or received
@@ -1946,11 +1860,11 @@ bool isBeingPlayed(uint8_t pitch){
 }
 
 void stepButtons(){
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     //DJ loop selector
     if(shift){
       for(uint8_t i = 0; i<loopData.size(); i++){
-        if(step_buttons[i]){
+        if(controls.stepButton(i)){
           setActiveLoop(i);
           lastTime = millis();
           break;
@@ -1962,7 +1876,7 @@ void stepButtons(){
       //if it's in 1/4 mode
       if(!(subDivInt%3)){
         for(int i = 0; i<8; i++){
-          if(step_buttons[i]){
+          if(controls.stepButton(i)){
             uint16_t viewLength = viewEnd-viewStart;
             toggleNote(activeTrack, viewStart+i*viewLength/8, viewLength/8);
             atLeastOne = true;
@@ -1972,7 +1886,7 @@ void stepButtons(){
       //if it's in 1/3 mode, last two buttons do nothing
       else if(!(subDivInt%2)){
         for(int i = 0; i<6; i++){
-          if(step_buttons[i]){
+          if(controls.stepButton(i)){
             uint16_t viewLength = viewEnd-viewStart;
             toggleNote(activeTrack,viewStart+i*viewLength/6,viewLength/6);
             atLeastOne = true;
@@ -2035,10 +1949,10 @@ void mainSequencerEncoders(){
     }
     //changing zoom
     else{
-      if(counterA >= 1 && !track_Press){
+      if(counterA >= 1 && !controls.A()){
         zoom(true);
       }
-      if(counterA <= -1 && !track_Press){
+      if(counterA <= -1 && !controls.A()){
         zoom(false);
       }
     }
@@ -2073,8 +1987,8 @@ String enterText(String title){
   alphabet = alpha1;
   while(!done){
     readButtons();
-    readJoystick();
-    if(itsbeen(200)){
+    controls.readJoystick();
+    if(utils.itsbeen(200)){
       if(shift){
         if(alphabet[0] == "a")
           alphabet = alpha2;
@@ -2105,20 +2019,20 @@ String enterText(String title){
         lastTime = millis();
       }
     }
-    if(itsbeen(100)){
-      if(x == -1 && highlight<alphabet.size()-1){
+    if(utils.itsbeen(100)){
+      if(controls.joystickX == -1 && highlight<alphabet.size()-1){
         highlight++;
         lastTime = millis();
       }
-      if(x == 1 && highlight>0){
+      if(controls.joystickX == 1 && highlight>0){
         highlight--;
         lastTime = millis();
       }
-      if(y == -1 && highlight>=columns){
+      if(controls.joystickY == -1 && highlight>=columns){
         highlight-=columns;
         lastTime = millis();
       }
-      if(y == 1 && highlight<alphabet.size()-columns){
+      if(controls.joystickY == 1 && highlight<alphabet.size()-columns){
         highlight+=columns;
         lastTime = millis();
       }
@@ -2211,13 +2125,13 @@ void sequenceLEDs(){
 void ledPulse(uint8_t speed){
   //use abs() so that it counts DOWN when millis() overflows into the negatives
   //Multiply by 4 so that it's 'saturated' for a while --> goes on, waits, then pulses
-  analogWrite(onboard_ledPin,4*abs(int8_t(millis()/speed)));
+  analogWrite(ONBOARD_LED,4*abs(int8_t(millis()/speed)));
 }
 
 void loop() {
   // Serial.println("Hey from CPU_0");
   // Serial.flush();
-  readJoystick();
+  controls.readJoystick();
   readButtons();
 
   mainSequencerButtons();

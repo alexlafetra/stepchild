@@ -38,17 +38,17 @@ void setCursorToNearestNote(){
 }
 
 void fxListControls(uint8_t* currentQuickFunction){
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     if(loop_Press || menu_Press){
       activeMenu.page = 0;
       lastTime = millis();
     }
-    if(y != 0){
-      if(y == 1 && (*currentQuickFunction)<5){
+    if(controls.joystickY != 0){
+      if(controls.joystickY == 1 && (*currentQuickFunction)<5){
         (*currentQuickFunction)++;
         lastTime = millis();
       }
-      else if(y == -1 && (*currentQuickFunction)>0){
+      else if(controls.joystickY == -1 && (*currentQuickFunction)>0){
         (*currentQuickFunction)--;
         lastTime = millis();
       }
@@ -84,8 +84,8 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
   }
 
   //joystick
-  if(itsbeen(100)){
-    if (y == 1){
+  if(utils.itsbeen(100)){
+    if (controls.joystickY == 1){
       //highlight = 0 ==> moving notes, 1==> changing vel, 2==> changing chance, 3==> changing length
       if(activeMenu.highlight == 0){
         if(moveNotes(0,1)){
@@ -122,7 +122,7 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
       drawingNote = false;
       lastTime = millis();
     }
-    if (y == -1){
+    if (controls.joystickY == -1){
       if(activeMenu.highlight == 0){
         if(moveNotes(0,-1))
           setActiveTrack(activeTrack - 1, true);
@@ -156,8 +156,8 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
       lastTime = millis();
     }
   }
-  if(itsbeen(100)){
-    if (x == 1){
+  if(utils.itsbeen(100)){
+    if (controls.joystickX == 1){
       if(!shift){
         if(activeMenu.highlight == 1){
           //if it's not on a subDiv
@@ -205,7 +205,7 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
         }
       }
     }
-    if (x == -1){
+    if (controls.joystickX == -1){
       if(!shift){  
         //special moves (while editing notes) 
         //if it's not on a subDiv
@@ -256,13 +256,13 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
       }
     }
   }
-  if(itsbeen(200)){
-    if(menu_Press || note_Press){
+  if(utils.itsbeen(200)){
+    if(menu_Press || controls.B()){
       editingNote = false;
-      activeMenu.coords.x1 = trackDisplay-5;
-      activeMenu.coords.y1 = 0;
-      activeMenu.coords.x2 = screenWidth;
-      activeMenu.coords.y2 = headerHeight;
+      activeMenu.coords.start.x = trackDisplay-5;
+      activeMenu.coords.start.y = 0;
+      activeMenu.coords.end.x = screenWidth;
+      activeMenu.coords.end.y = headerHeight;
       slideMenuIn(1,48);
       lastTime = millis();
       return;
@@ -274,10 +274,10 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
         case 1:
         case 2:
         case 3:
-          activeMenu.coords.x1 = trackDisplay-5;
-          activeMenu.coords.y1 = 0;
-          activeMenu.coords.x2 = screenWidth;
-          activeMenu.coords.y2 = headerHeight;
+          activeMenu.coords.start.x = trackDisplay-5;
+          activeMenu.coords.start.y = 0;
+          activeMenu.coords.end.x = screenWidth;
+          activeMenu.coords.end.y = headerHeight;
           slideMenuIn(1,48);
           editingNote = false;
           lastTime = millis();
@@ -305,15 +305,15 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
 void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQuickFunction){
   //selectionBox
   //when sel is pressed and stick is moved, and there's no selection box
-  if(sel && !selBox.begun && (x != 0 || y != 0)){
+  if(sel && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
     selBox.begun = true;
-    selBox.x1 = cursorPos;
-    selBox.y1 = activeTrack;
+    selBox.coords.start.x = cursorPos;
+    selBox.coords.start.y = activeTrack;
   }
   //if sel is released, and there's a selection box
   if(!sel && selBox.begun){
-    selBox.x2 = cursorPos;
-    selBox.y2 = activeTrack;
+    selBox.coords.end.x = cursorPos;
+    selBox.coords.end.y = activeTrack;
     selectBox();
     selBox.begun = false;
   }
@@ -353,14 +353,14 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
       }
     }
     //if shifting, toggle between 1/3 and 1/4 mode
-    else while(counterB != 0 && note_Press){
+    else while(counterB != 0 && controls.B()){
       toggleTriplets();
     }
     counterB += counterB<0?1:-1;;
   }
   //joystick
-  if(itsbeen(100)){
-    if (y == 1){
+  if(utils.itsbeen(100)){
+    if (controls.joystickY == 1){
       if(shift){
         moveToNextNote_inTrack(true);
         drawingNote = false;
@@ -371,7 +371,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
         lastTime = millis();
       }
     }
-    if (y == -1){
+    if (controls.joystickY == -1){
       if(shift){
         moveToNextNote_inTrack(false);
         drawingNote = false;
@@ -383,8 +383,8 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
       }
     }
   }
-  if(itsbeen(100)){
-    if (x == 1){
+  if(utils.itsbeen(100)){
+    if (controls.joystickX == 1){
       if(!shift){
         moveToNextNote(false,false);
         lastTime = millis();
@@ -395,7 +395,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
         lastTime = millis();
       }
     }
-    if (x == -1){
+    if (controls.joystickX == -1){
       if(!shift){  
         // moveCursor(subDivInt);
         moveToNextNote(true,false);
@@ -407,7 +407,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
       }
     }
   }
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     //this is the 'move and place' key (might make sense to have it be a diff key)
     if(menu_Press){
       slideMenuOut(1,20);
@@ -416,22 +416,22 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
       lastTime = millis();
       constructMenu("MENU");
     }
-    if(note_Press){
+    if(controls.B()){
       slideMenuOut(1,20);
       menuIsActive = false;
       lastTime = millis();
-      note_Press = false;
+      controls.setB(false);
       constructMenu("MENU");
     }
-    if(track_Press){
+    if(controls.A()){
       slideMenuOut(1,20);
       lastTime = millis();
-      track_Press = false;
+      controls.setA(false);
       constructMenu("TRK");
     }
     //moving menu cursor
-    if(y != 0 && shift){
-      if(y == 1){
+    if(controls.joystickY != 0 && shift){
+      if(controls.joystickY == 1){
         if(activeMenu.highlight>0){
           activeMenu.highlight--;
           lastTime = millis();
@@ -441,7 +441,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
           lastTime = millis();
         }
       }
-      else if(y == -1){
+      else if(controls.joystickY == -1){
         if(activeMenu.highlight<6){
           activeMenu.highlight++;
           lastTime = millis();
@@ -739,10 +739,10 @@ void drawQuantBrackets(uint8_t x1, uint8_t y1){
 }
 
 void editMenu(){
-  activeMenu.coords.x1 = trackDisplay-7;
-  activeMenu.coords.y1 = 0;
-  activeMenu.coords.x2 = screenWidth;
-  activeMenu.coords.y2 = headerHeight;
+  activeMenu.coords.start.x = trackDisplay-7;
+  activeMenu.coords.start.y = 0;
+  activeMenu.coords.end.x = screenWidth;
+  activeMenu.coords.end.y = headerHeight;
   uint8_t fnWindowStart = 0;
   //value determining how many subDivs are skipped when stencilling notes
   uint8_t stencil = 1;
@@ -754,7 +754,7 @@ void editMenu(){
     drawSeq(editingNote,false,true,false,false);
     activeMenu.displayEditMenu(&stencil,fnWindowStart,currentQuickFunction);
     display.display();
-    readJoystick();
+    controls.readJoystick();
     readButtons();
     if(activeMenu.page != 0)
       fxListControls(&currentQuickFunction);
@@ -778,13 +778,13 @@ void Menu::displayEditMenu(){
   displayEditMenu(&temp,0,0);
 }
 void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQuickFunction){
-  unsigned short int menuHeight = abs(coords.y2-coords.y1);
+  unsigned short int menuHeight = abs(coords.end.y-coords.start.y);
 
   //back rect for stencil icon
-  display.drawRoundRect(-2,coords.x1-32,31,30,3,1);
+  display.drawRoundRect(-2,coords.start.x-32,31,30,3,1);
   //drawing menu box
-  display.fillRect(coords.x1,coords.y1-2, coords.x2-coords.x1+3, coords.y2-coords.y1, SSD1306_BLACK);
-  display.drawRoundRect(coords.x1,coords.y1-2, coords.x2-coords.x1+3, coords.y2-coords.y1, 3, SSD1306_WHITE);
+  display.fillRect(coords.start.x,coords.start.y-2, coords.end.x-coords.start.x+3, coords.end.y-coords.start.y, SSD1306_BLACK);
+  display.drawRoundRect(coords.start.x,coords.start.y-2, coords.end.x-coords.start.x+3, coords.end.y-coords.start.y, 3, SSD1306_WHITE);
   
   //ensuring drawSeq draws chance-notes while editing chance
   if(activeMenu.highlight == 3)
@@ -794,34 +794,34 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
 
   if(!editingNote){
     //pencil
-    display.drawBitmap(coords.x1-20,coords.y1+1+((millis()/200)%2),pen_bmp,15,15,SSD1306_WHITE);
+    display.drawBitmap(coords.start.x-20,coords.start.y+1+((millis()/200)%2),pen_bmp,15,15,SSD1306_WHITE);
     //stencil, if it's greater than 1
     // if((*stencil)!=1){
-    printSmall(coords.x1-6,coords.y1+((millis()/200)%2)+12,stringify(*stencil),SSD1306_WHITE);
+    printSmall(coords.start.x-6,coords.start.y+((millis()/200)%2)+12,stringify(*stencil),SSD1306_WHITE);
     // }
 
     //draw edit icons if the tool bar is onscreen
-    if(coords.x1<screenWidth){
+    if(coords.start.x<screenWidth){
       //move
-      drawMoveIcon(coords.x1+3,1,activeMenu.highlight==0);
+      drawMoveIcon(coords.start.x+3,1,activeMenu.highlight==0);
       //change length
-      drawLengthIcon(coords.x1+17,4,10,3,activeMenu.highlight == 1);
+      drawLengthIcon(coords.start.x+17,4,10,3,activeMenu.highlight == 1);
       //change vel
-      drawVelIcon(coords.x1+33,1,11,activeMenu.highlight == 2);
+      drawVelIcon(coords.start.x+33,1,11,activeMenu.highlight == 2);
       //change chance
-      drawChanceIcon(coords.x1+47,1,11,activeMenu.highlight == 3);
+      drawChanceIcon(coords.start.x+47,1,11,activeMenu.highlight == 3);
       //quantize
-      drawQuantIcon(coords.x1+61,1,11,activeMenu.highlight == 4);
+      drawQuantIcon(coords.start.x+61,1,11,activeMenu.highlight == 4);
       //humanize
-      drawHumanizeIcon(coords.x1+75,1,10,activeMenu.highlight == 5);
+      drawHumanizeIcon(coords.start.x+75,1,10,activeMenu.highlight == 5);
       //warp
-      drawQuickFunctionIcon(coords.x1+90,1,11,activeMenu.highlight == 6);
+      drawQuickFunctionIcon(coords.start.x+90,1,11,activeMenu.highlight == 6);
     }
 
     //arrow highlight
     String txt;
     uint8_t xLoc = 0;
-    if(coords.x1<screenWidth){
+    if(coords.start.x<screenWidth){
       switch(activeMenu.highlight){
         //moving notes
         case 0:
@@ -860,7 +860,7 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
           break;
       }
     }
-    graphics.drawArrow(coords.x1+xLoc,13+((millis()/400)%2),shift?3:4,2,shift);
+    graphics.drawArrow(coords.start.x+xLoc,13+((millis()/400)%2),shift?3:4,2,shift);
     //drawing quick function list
     if(windowStart > 0){
       display.fillRect(screenWidth-windowStart,0,windowStart,screenHeight,0);
@@ -874,37 +874,37 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
       display.drawBitmap(screenWidth-windowStart-7,(currentQuickFunction)*7+6,mouse_cursor_outline_bmp,9,15,1);
     }
     //target parameter text (just shows what param you're gonna edit)
-    display.fillRect(0,coords.x1-2,31,screenHeight-coords.x1,0);
-    // display.drawFastHLine(0,coords.x1-3,32,1);
-    display.fillRoundRect(15-txt.length()*2-3,coords.x1-6,txt.length()*4+5,7,3,SSD1306_WHITE);
-    printSmall(15-txt.length()*2,coords.x1-5,txt,SSD1306_BLACK);
+    display.fillRect(0,coords.start.x-2,31,screenHeight-coords.start.x,0);
+    // display.drawFastHLine(0,coords.start.x-3,32,1);
+    display.fillRoundRect(15-txt.length()*2-3,coords.start.x-6,txt.length()*4+5,7,3,SSD1306_WHITE);
+    printSmall(15-txt.length()*2,coords.start.x-5,txt,SSD1306_BLACK);
 
     //draw note info when you're on a note
     if(lookupData[activeTrack][cursorPos] != 0){
       Note activeNote = seqData[activeTrack][lookupData[activeTrack][cursorPos]];
       //length
-      display.fillCircle(6,coords.x1+9,3,1);
-      printSmall(5,coords.x1+7,"L",2);
-      graphics.printFractionCentered(18,coords.x1+7,stepsToMeasures(activeNote.endPos-activeNote.startPos));
+      display.fillCircle(6,coords.start.x+9,3,1);
+      printSmall(5,coords.start.x+7,"L",2);
+      graphics.printFractionCentered(18,coords.start.x+7,stepsToMeasures(activeNote.endPos-activeNote.startPos));
       //vel
-      display.fillCircle(6,coords.x1+20,3,1);
-      printSmall(5,coords.x1+18,"V",2);
-      print007SegSmall(11,coords.x1+17,stringify(activeNote.velocity),1);
+      display.fillCircle(6,coords.start.x+20,3,1);
+      printSmall(5,coords.start.x+18,"V",2);
+      print007SegSmall(11,coords.start.x+17,stringify(activeNote.velocity),1);
       //chance
-      display.fillCircle(6,coords.x1+31,3,1);
-      printSmall(5,coords.x1+29,"%",2);
-      print007SegSmall(11,coords.x1+28,stringify(activeNote.chance),1);
+      display.fillCircle(6,coords.start.x+31,3,1);
+      printSmall(5,coords.start.x+29,"%",2);
+      print007SegSmall(11,coords.start.x+28,stringify(activeNote.chance),1);
     }
     //if there's no note here...
     else{
       //note count display
-      display.fillRoundRect(4,coords.x1+11,22,7,3,SSD1306_WHITE);
-      display.fillRoundRect(4,coords.x1+26,22,7,3,SSD1306_WHITE);
+      display.fillRoundRect(4,coords.start.x+11,22,7,3,SSD1306_WHITE);
+      display.fillRoundRect(4,coords.start.x+26,22,7,3,SSD1306_WHITE);
       uint8_t noteCount = getNoteCount();
-      printSmall(9,coords.x1+5,"seq",SSD1306_WHITE);
-      printSmall(15-stringify(noteCount).length()*2,coords.x1+12,stringify(noteCount),SSD1306_BLACK);
-      printSmall(9,coords.x1+20,"trk",SSD1306_WHITE);
-      printSmall(15-stringify(seqData[activeTrack].size()-1).length()*2,coords.x1+27,stringify(seqData[activeTrack].size()-1),SSD1306_BLACK);
+      printSmall(9,coords.start.x+5,"seq",SSD1306_WHITE);
+      printSmall(15-stringify(noteCount).length()*2,coords.start.x+12,stringify(noteCount),SSD1306_BLACK);
+      printSmall(9,coords.start.x+20,"trk",SSD1306_WHITE);
+      printSmall(15-stringify(seqData[activeTrack].size()-1).length()*2,coords.start.x+27,stringify(seqData[activeTrack].size()-1),SSD1306_BLACK);
     }
   }
   //editing icons that appear when the note is being edited

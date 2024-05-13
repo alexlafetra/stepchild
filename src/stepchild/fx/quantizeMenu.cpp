@@ -118,7 +118,7 @@ void drawLittleQuantCubes(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
 }
 
 bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     if(menu_Press){
       lastTime = millis();
       return false;
@@ -188,33 +188,33 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
     }
     counterA += counterA<0?1:-1;;
   }
-  if(itsbeen(60)){
-    if(y != 0){
-      if(y == 1 && (*whichParam) == 1){
+  if(utils.itsbeen(60)){
+    if(controls.joystickY != 0){
+      if(controls.joystickY == 1 && (*whichParam) == 1){
         *whichParam = 0;
         lastTime = millis();
       }
-      else if(y == -1 && (*whichParam) == 0){
+      else if(controls.joystickY == -1 && (*whichParam) == 0){
         *whichParam = 1;
         lastTime = millis();
       }
     }
-    if(x!=0){
+    if(controls.joystickX !=0 ){
       switch(*whichParam){
         //editing quantize amount
         case 0:
           if(shift){
-            if(x == 1 && quantizeAmount>0){
+            if(controls.joystickX == 1 && quantizeAmount>0){
               quantizeAmount--;
               lastTime = millis();
             }
-            else if(x == -1 && quantizeAmount<100){
+            else if(controls.joystickX == -1 && quantizeAmount<100){
               quantizeAmount++;
               lastTime = millis();
             }
           }
           else{
-            if(x == 1){
+            if(controls.joystickX == 1){
               if(quantizeAmount>=10){
                 quantizeAmount-=10;
                 lastTime = millis();
@@ -224,7 +224,7 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
                 lastTime = millis();
               }
             }
-            else if(x == -1){
+            else if(controls.joystickX == -1){
               if(quantizeAmount<=90){
                 quantizeAmount+=10;
                 lastTime = millis();
@@ -243,11 +243,11 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
             lastTime = millis();
           }
           else{
-            if(x == -1){
+            if(controls.joystickX == -1){
               changeSubDivInt(true);
               lastTime = millis();
             }
-            else if(x == 1){
+            else if(controls.joystickX == 1){
               changeSubDivInt(false);
               lastTime = millis();
             }
@@ -297,7 +297,7 @@ void quantizeMenu(){
 
     display.display();
 
-    readJoystick();
+    controls.readJoystick();
     readButtons();
     if(!quantizeMenuControls(&whichParam,&deleteNote)){
       break;

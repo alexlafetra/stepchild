@@ -420,23 +420,22 @@ class StepchildGraphics{
   }
   void drawStar(uint8_t centerX, uint8_t centerY, uint8_t r1, uint8_t r2, uint8_t points){
     uint8_t numberOfPoints = points*2;//the actual number of points (both convex and concave vertices)
-    uint8_t coords[numberOfPoints][2];
+    Coordinate coords[numberOfPoints];
     for(uint8_t pt = 0; pt<numberOfPoints; pt++){
-      vector<uint8_t> pair;
+      Coordinate pair;
       //if it's odd, it's a convex point
       if(!(pt%2))
         pair = utils.getRadian(centerX, centerY, r1, r1, pt*360/numberOfPoints);
       else
         pair = utils.getRadian(centerX, centerY, r2, r2, pt*360/numberOfPoints);
-      coords[pt][0] = pair[0];
-      coords[pt][1] = pair[1];
+      coords[pt] = pair;
     }
     for(uint8_t pt = 0; pt<numberOfPoints; pt++){
       if(pt == numberOfPoints-1){
-        display.drawLine(coords[pt][0],coords[pt][1],coords[0][0],coords[0][1],SSD1306_WHITE);
+        display.drawLine(coords[pt].x,coords[pt].y,coords[0].x,coords[0].y,SSD1306_WHITE);
       }
       else{
-        display.drawLine(coords[pt][0],coords[pt][1],coords[pt+1][0],coords[pt+1][1],SSD1306_WHITE);
+        display.drawLine(coords[pt].x,coords[pt].y,coords[pt+1].x,coords[pt+1].y,SSD1306_WHITE);
       }
     }
   }
@@ -807,7 +806,7 @@ void drawPlayIcon(int8_t x1, int8_t y1){
 
 void drawPower(uint8_t x1, uint8_t y1){
   //check if USB is plugged in
-  bool usb = digitalRead(usbPin);
+  bool usb = digitalRead(USB_PIN);
   if(usb){
     // display.drawBitmap(x1,y1,batt_bmp,10,7,SSD1306_WHITE);
     display.drawBitmap(x1,y1+1,tiny_usb,10,4,SSD1306_WHITE);
@@ -993,7 +992,7 @@ void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmou
 
 //prints pitch with a small # and either a large or small Octave number
 void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct, bool channel, uint16_t c){
-  String s = getTrackPitchOctave(trackID)+stringify(trackData[trackID].channel)+((trackData[trackID].noteLastSent != 255)?"$":"");
+  String s = trackData[trackID].getPitchAndOctave()+stringify(trackData[trackID].channel)+((trackData[trackID].noteLastSent != 255)?"$":"");
   uint8_t offset = printPitch(xCoord, yCoord, s, bigOct, channel, c);
   offset+=4;
   //if you want to show the track channel
@@ -1570,10 +1569,39 @@ void drawOSScreen(){
   clearButtons();
   lastTime = millis();
   while(true){
-    if(itsbeen(200)&&anyActiveInputs()){
+    if(utils.itsbeen(200)&&anyActiveInputs()){
       clearButtons();
       lastTime = millis();
       return;
     }
   }
 }
+
+
+//displays notes on LEDs
+void updateLEDs(){
+  uint16_t dat = 0;//00000000
+  if(LEDsOn && !screenSaverActive){
+    uint16_t viewLength = viewEnd-viewStart;
+    //move through the view, check every subDivInt
+    const uint16_t jump = viewLength/16;
+    //if there are any notes, check
+    if(seqData[activeTrack].size()>1){
+      for(uint8_t i = 0; i<16; i++){
+        uint16_t step = viewStart+i*jump;
+        if(lookupData[activeTrack][step] != 0){
+          //not sure if it should only light up if it's on the start step or nah
+          if(seqData[activeTrack][lookupData[activeTrack][step]].startPos == step){
+            //if playing or recording, and the head isn't on that step, it should be on
+            //if it is on that step, then the step should blink
+            if((playing && (playheadPos <  seqData[activeTrack][lookupData[activeTrack][step]].startPos || playheadPos > seqData[activeTrack][lookupData[activeTrack][step]].endPos)) || !playing){
+              dat = dat|(1<<i);
+            }
+          }
+        }
+      }
+    }
+  }
+  lowerBoard.writeLEDs(dat);
+}
+

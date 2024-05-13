@@ -225,8 +225,6 @@ void deleteTrack(unsigned short int track, bool hard);
 void setTrackPitch(int, int, bool);
 void setActiveTrack(uint8_t, bool);
 vector<uint8_t> selectMultipleTracks(String);
-String getTrackPitch(int id);
-String getTrackPitchOctave(int id);
 void muteMultipleTracks(vector<uint8_t> ids);
 void toggleMute(uint16_t id);
 void swapTracks(unsigned short int track1, unsigned short int track2);
@@ -246,7 +244,6 @@ void tuneTracksToScale();
 //controls
 void clearButtons();
 void stepButtons();
-void readJoystick();
 void readButtons();
 void mainSequencerEncoders();
 bool fxMenuControls();
@@ -263,7 +260,6 @@ void defaultJoystickControls(bool);
 void defaultSelectControls();
 void defaultLoopControls();
 void defaultCopyControls();
-int8_t readEncoder(bool encoder);
 void rotaryActionA_Handler();
 void rotaryActionB_Handler();
 
@@ -327,7 +323,6 @@ uint32_t getByteCount_standAlone(String filename);
 //Misc. helper functions
 bool hasItBeenEnoughTime();
 vector<uint16_t> getSelectedNotesBoundingBox();
-bool itsbeen(int);
 vector<uint8_t> selectKeys(uint8_t startRoot);
 vector<uint8_t> genScale(uint8_t, uint8_t);
 vector<uint8_t> genScale(uint8_t, uint8_t, int8_t,uint8_t);

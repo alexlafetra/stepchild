@@ -129,7 +129,7 @@ const unsigned char trackDisplay = 32;
 //0 is one-shot recording to current loop, 1 is recording to loops as they play in sequence
 //2 is recording from seqStart to seqend
 #define ONESHOT 0
-#define LOOP 1
+#define LOOP_MODE 1
 #define LOOPSEQUENCE 2
 #define FULL 3
 
@@ -161,8 +161,8 @@ bool core1ready = false;
 
 //30000/1000 = 30 seconds
 uint16_t sleepTime = 10000;
-//120,000ms = 2min
-const uint32_t deepSleepTime = 120000;
+//60,000ms = 1min
+const unsigned long deepSleepTime = 60000;
 
 //swing vars
 //holds the amount that the notes swing

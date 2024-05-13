@@ -55,11 +55,11 @@ void gridAnimation(bool in){
 const float joystickScaleFactor = float(128)/float(1018);
 
 int16_t getJoyX(){
-  return abs(analogRead(x_Pin) * joystickScaleFactor);
+  return abs(analogRead(JOYSTICK_X) * joystickScaleFactor);
 }
 
 int16_t getJoyY(){
-  return abs(128 - constrain(analogRead(y_Pin)*joystickScaleFactor,0,128));
+  return abs(128 - constrain(analogRead(JOYSTICK_Y)*joystickScaleFactor,0,128));
 }
 
 void xyGrid(){
@@ -78,9 +78,9 @@ void xyGrid(){
     //a little averaging for smoother motion
     if(!pauseY)
       yCoord = (yCoord+getJoyY())/2;
-      // yCoord = (yCoord+abs((analogRead(y_Pin) - 5) * scaleF))/2;
+      // yCoord = (yCoord+abs((analogRead(JOYSTICK_Y) - 5) * scaleF))/2;
     if(!pauseX)
-      // xCoord = (xCoord+abs(128 - (analogRead(y_Pin) - 5) * scaleF))/2;
+      // xCoord = (xCoord+abs(128 - (analogRead(JOYSTICK_Y) - 5) * scaleF))/2;
       xCoord = (xCoord+getJoyX())/2;
 
     display.clearDisplay();
@@ -162,16 +162,16 @@ void xyGrid(){
     }
 
     readButtons();
-    readJoystick();
+    controls.readJoystick();
 
     //sending CC vals for keybinding
     if(shift){
-      if(x != 0){
+      if(controls.joystickX != 0){
         MIDI.sendCC(controlX,xCoord,channelX);
         pauseY = true;
         pauseX = false;
       }
-      else if(y != 0){
+      else if(controls.joystickY != 0){
         MIDI.sendCC(controlY,yCoord,channelY);
         pauseY = false;
         pauseX = true;
@@ -196,7 +196,7 @@ void xyGrid(){
       }
       counterB += counterB<0?1:-1;;
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
         gridAnimation(false);
@@ -206,13 +206,13 @@ void xyGrid(){
         togglePlayMode();
         lastTime = millis();
       }
-      if(track_Press){
+      if(controls.A()){
         pauseY = !pauseY;
         if(pauseY)
           pauseX = false;
         lastTime = millis();
       }
-      if(note_Press){
+      if(controls.B()){
         pauseX = !pauseX;
         if(pauseX)
           pauseY = false;

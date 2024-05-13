@@ -32,7 +32,7 @@ void console(){
 
   while(true){
     readButtons();
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
         return;

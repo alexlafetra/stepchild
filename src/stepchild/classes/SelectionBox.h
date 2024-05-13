@@ -1,83 +1,74 @@
 //Holds coordinates and a flag set when the SelectionBox has been started
 class SelectionBox{
   public:
-  uint16_t x1;
-  uint16_t y1;
-  uint16_t x2;
-  uint16_t y2;
+  CoordinatePair coords;
   bool begun;
-  SelectionBox();
-  void displaySelBox();
+
+  SelectionBox(){
+    this->begun = false;
+  }
+
+  void render(){
+    coords.end = Coordinate(cursorPos,activeTrack);
+
+    unsigned short int startX;
+    unsigned short int startY;
+    unsigned short int len;
+    unsigned short int height;
+
+    unsigned short int X1;
+    unsigned short int X2;
+    unsigned short int Y1;
+    unsigned short int Y2;
+
+    if(this->coords.start.x>this->coords.end.x){
+      X1 = this->coords.end.x;
+      X2 = this->coords.start.x;
+    }
+    else{
+      X1 = this->coords.start.x;
+      X2 = this->coords.end.x;
+    }
+    if(this->coords.start.y>this->coords.end.y){
+      Y1 = this->coords.end.y;
+      Y2 = this->coords.start.y;
+    }
+    else{
+      Y1 = this->coords.start.y;
+      Y2 = this->coords.end.y;
+    }
+
+    startX = trackDisplay+(X1-viewStart)*scale;
+    len = (X2-X1)*scale;
+
+    //if box starts before view
+    if(X1<viewStart){
+      startX = trackDisplay;//box is drawn from beggining, to this->coords.end.x
+      len = (X2-viewStart)*scale;
+    }
+    //if box ends past view
+    if(X2>viewEnd){
+      len = (viewEnd-X1)*scale;
+    }
+
+    //same, but for tracks
+    uint8_t startHeight = (menuIsActive||maxTracksShown==5)?headerHeight:8;
+    startY = (Y1-startTrack)*trackHeight+startHeight;
+    height = ((Y2+1-startTrack)*trackHeight)+startHeight - startY;
+    if(Y1<startTrack){
+      startY = startHeight;
+      height = ((Y2 - startTrack + 1)*trackHeight - startY)%(screenHeight-startHeight) + startHeight;
+    }
+    display.drawRect(startX, startY, len, height, SSD1306_WHITE);
+    display.drawRect(startX+1, startY+1, len-2, height-2, SSD1306_WHITE);
+
+    if(len>5 && height>=trackHeight){
+      display.fillRect(startX+2,startY+2, len-4, height-4, SSD1306_BLACK);
+      graphics.shadeArea(startX+2,startY+2, len-4, height-4,10);
+    }
+  }
 };
 
-SelectionBox::SelectionBox(){
-  x1 = 0;
-  y1 = 0;
-  x2 = 0;
-  y2 = 0;
-  begun = false;
-}
-
-void SelectionBox::displaySelBox(){
-  x2 = cursorPos;
-  y2 = activeTrack;
-
-  unsigned short int startX;
-  unsigned short int startY;
-  unsigned short int len;
-  unsigned short int height;
-
-  unsigned short int X1;
-  unsigned short int X2;
-  unsigned short int Y1;
-  unsigned short int Y2;
-
-  if(x1>x2){
-    X1 = x2;
-    X2 = x1;
-  }
-  else{
-    X1 = x1;
-    X2 = x2;
-  }
-  if(y1>y2){
-    Y1 = y2;
-    Y2 = y1;
-  }
-  else{
-    Y1 = y1;
-    Y2 = y2;
-  }
-
-  startX = trackDisplay+(X1-viewStart)*scale;
-  len = (X2-X1)*scale;
-
-  //if box starts before view
-  if(X1<viewStart){
-    startX = trackDisplay;//box is drawn from beggining, to x2
-    len = (X2-viewStart)*scale;
-  }
-  //if box ends past view
-  if(X2>viewEnd){
-    len = (viewEnd-X1)*scale;
-  }
-
-  //same, but for tracks
-  uint8_t startHeight = (menuIsActive||maxTracksShown==5)?headerHeight:8;
-  startY = (Y1-startTrack)*trackHeight+startHeight;
-  height = ((Y2+1-startTrack)*trackHeight)+startHeight - startY;
-  if(Y1<startTrack){
-    startY = startHeight;
-    height = ((Y2 - startTrack + 1)*trackHeight - startY)%(screenHeight-startHeight) + startHeight;
-  }
-  display.drawRect(startX, startY, len, height, SSD1306_WHITE);
-  display.drawRect(startX+1, startY+1, len-2, height-2, SSD1306_WHITE);
-
-  if(len>5 && height>=trackHeight){
-    display.fillRect(startX+2,startY+2, len-4, height-4, SSD1306_BLACK);
-    graphics.shadeArea(startX+2,startY+2, len-4, height-4,10);
-  }
-}
 
 SelectionBox selBox;
 
@@ -118,30 +109,30 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
   bool movingBetweenNotes = false;
   while(true){
     readButtons();
-    readJoystick();
+    controls.readJoystick();
     //selectionBox
     //when sel is pressed and stick is moved, and there's no selection box
-    if(sel && !selBox.begun && (x != 0 || y != 0)){
+    if(sel && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
       selBox.begun = true;
-      selBox.x1 = cursorPos;
-      selBox.y1 = activeTrack;
+      selBox.coords.start.x = cursorPos;
+      selBox.coords.start.y = activeTrack;
     }
     //if sel is released, and there's a selection box
     if(!sel && selBox.begun){
-      selBox.x2 = cursorPos;
-      selBox.y2 = activeTrack;
-      if(selBox.x1>selBox.x2){
-        unsigned short int x1_old = selBox.x1;
-        selBox.x1 = selBox.x2;
-        selBox.x2 = x1_old;
+      selBox.coords.end.x = cursorPos;
+      selBox.coords.end.y = activeTrack;
+      if(selBox.coords.start.x>selBox.coords.end.x){
+        unsigned short int x1_old = selBox.coords.start.x;
+        selBox.coords.start.x = selBox.coords.end.x;
+        selBox.coords.end.x = x1_old;
       }
-      if(selBox.y1>selBox.y2){
-        unsigned short int y1_old = selBox.y1;
-        selBox.y1 = selBox.y2;
-        selBox.y2 = y1_old;
+      if(selBox.coords.start.y>selBox.coords.end.y){
+        unsigned short int y1_old = selBox.coords.start.y;
+        selBox.coords.start.y = selBox.coords.end.y;
+        selBox.coords.end.y = y1_old;
       }
-      for(int track = selBox.y1; track<=selBox.y2; track++){
-        for(int time = selBox.x1; time<=selBox.x2; time++){
+      for(int track = selBox.coords.start.y; track<=selBox.coords.end.y; track++){
+        for(int time = selBox.coords.start.x; time<=selBox.coords.end.x; time++){
           if(lookupData[track][time] != 0){
             //if the note isn't in the vector yet, add it
             if(!isInVector(lookupData[track][time],selectedNotes[track]))
@@ -152,22 +143,22 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
       }
       selBox.begun = false;
     }
-    if(itsbeen(100)){
+    if(utils.itsbeen(100)){
       if(!movingBetweenNotes){
-        if(y == 1){
+        if(controls.joystickY == 1){
           setActiveTrack(activeTrack+1,false);
           lastTime = millis();
         }
-        if(y == -1){
+        if(controls.joystickY == -1){
           setActiveTrack(activeTrack-1,false);
           lastTime = millis();
         }
       }
     }
-    if(itsbeen(100)){
-      if(x != 0){
+    if(utils.itsbeen(100)){
+      if(controls.joystickX != 0){
         if(!movingBetweenNotes){
-          if (x == 1 && !shift) {
+          if (controls.joystickX == 1 && !shift) {
             if(cursorPos%subDivInt){
               moveCursor(-cursorPos%subDivInt);
               lastTime = millis();
@@ -177,7 +168,7 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
               lastTime = millis();
             }
           }
-          if (x == -1 && !shift) {
+          if (controls.joystickX == -1 && !shift) {
             if(cursorPos%subDivInt){
               moveCursor(subDivInt-cursorPos%subDivInt);
               lastTime = millis();
@@ -189,18 +180,18 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
           }
         }
         else{
-          if(x == 1){
+          if(controls.joystickX == 1){
             moveToNextNote(false,false);
             lastTime = millis();
           }
-          else if(x == -1){
+          else if(controls.joystickX == -1){
             moveToNextNote(true,false);
             lastTime = millis();
           }
         }
       }
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       //select
       if(sel && lookupData[activeTrack][cursorPos] != 0 && !selBox.begun){
         unsigned short int id;
@@ -273,22 +264,22 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
 //Used for the FX a lot
 bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)){
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
     defaultEncoderControls();
-    if(sel && !selBox.begun && (x != 0 || y != 0)){
+    if(sel && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
       selBox.begun = true;
-      selBox.x1 = cursorPos;
-      selBox.y1 = activeTrack;
+      selBox.coords.start.x = cursorPos;
+      selBox.coords.start.y = activeTrack;
     }
     //if sel is released, and there's a selection box
     if(!sel && selBox.begun){
-      selBox.x2 = cursorPos;
-      selBox.y2 = activeTrack;
+      selBox.coords.end.x = cursorPos;
+      selBox.coords.end.y = activeTrack;
       selBox.begun = false;
       selectBox();
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(n){
         lastTime = millis();
         return true;
@@ -309,8 +300,8 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
         lastTime = millis();
       }
     }
-    if (itsbeen(100)) {
-      if (x == 1 && !shift) {
+    if (utils.itsbeen(100)) {
+      if (controls.joystickX == 1 && !shift) {
         //if cursor isn't on a measure marker, move it to the nearest one
         if(cursorPos%subDivInt){
           moveCursor(-cursorPos%subDivInt);
@@ -321,7 +312,7 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
           lastTime = millis();
         }
       }
-      if (x == -1 && !shift) {
+      if (controls.joystickX == -1 && !shift) {
         if(cursorPos%subDivInt){
           moveCursor(subDivInt-cursorPos%subDivInt);
           lastTime = millis();
@@ -331,14 +322,14 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
           lastTime = millis();
         }
       }
-      if (y == 1) {
+      if (controls.joystickY == 1) {
         if(recording)
           setActiveTrack(activeTrack + 1, false);
         else
           setActiveTrack(activeTrack + 1, false);
         lastTime = millis();
       }
-      if (y == -1) {
+      if (controls.joystickY == -1) {
         if(recording)
           setActiveTrack(activeTrack - 1, false);
         else
@@ -346,12 +337,12 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
         lastTime = millis();
       }
     }
-    if (itsbeen(50)) {
-      if (x == 1 && shift) {
+    if (utils.itsbeen(50)) {
+      if (controls.joystickX == 1 && shift) {
         moveCursor(-1);
         lastTime = millis();
       }
-      if (x == -1 && shift) {
+      if (controls.joystickX == -1 && shift) {
         moveCursor(1);
         lastTime = millis();
       }
@@ -503,18 +494,18 @@ void selectAll() {
 }
 
 void selectBox(){
-  if(selBox.x1>selBox.x2){
-    unsigned short int x1_old = selBox.x1;
-    selBox.x1 = selBox.x2;
-    selBox.x2 = x1_old;
+  if(selBox.coords.start.x>selBox.coords.end.x){
+    unsigned short int x1_old = selBox.coords.start.x;
+    selBox.coords.start.x = selBox.coords.end.x;
+    selBox.coords.end.x = x1_old;
   }
-  if(selBox.y1>selBox.y2){
-    unsigned short int y1_old = selBox.y1;
-    selBox.y1 = selBox.y2;
-    selBox.y2 = y1_old;
+  if(selBox.coords.start.y>selBox.coords.end.y){
+    unsigned short int y1_old = selBox.coords.start.y;
+    selBox.coords.start.y = selBox.coords.end.y;
+    selBox.coords.end.y = y1_old;
   }
-  for(int track = selBox.y1; track<=selBox.y2; track++){
-    for(int time = selBox.x1; time<selBox.x2; time++){//< and not <= so it doesn't grab trailing notes
+  for(int track = selBox.coords.start.y; track<=selBox.coords.end.y; track++){
+    for(int time = selBox.coords.start.x; time<selBox.coords.end.x; time++){//< and not <= so it doesn't grab trailing notes
       if(lookupData[track][time] != 0){
         //this is a little inconsistent with how select usually works, but it allows whatever's in the box to DEFINITELY be selected.
         //it makes sense (a little) because it seems rare that you would ever need to deselect notes using the box

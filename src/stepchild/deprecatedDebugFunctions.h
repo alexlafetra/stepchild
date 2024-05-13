@@ -149,17 +149,17 @@ void debugPrintSelection(){
 
 void testJoyStick(){
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(itsbeen(200) && menu_Press){
+    if(utils.itsbeen(200) && menu_Press){
       lastTime = millis();
       return;
     }
-    float X = analogRead(x_Pin);
-    float Y = analogRead(y_Pin);
+    float X = analogRead(JOYSTICK_X);
+    float Y = analogRead(JOYSTICK_Y);
     display.clearDisplay();
-    printSmall(0,0,"X: "+stringify(X)+","+stringify(x),1);
-    printSmall(0,10,"Y: "+stringify(Y)+","+stringify(y),1);
+    printSmall(0,0,"X: "+stringify(X)+","+stringify(controls.joystickX),1);
+    printSmall(0,10,"Y: "+stringify(Y)+","+stringify(controls.joystickY),1);
     display.drawCircle(X/8.0,Y/16.0,4,1);
     display.display();
   }
@@ -327,15 +327,15 @@ void debugButtonPrint(){
     //Serial.println("menu");
 
   for(int i = 0; i<8; i++){
-    if(step_buttons[i]){
+    if(controls.stepButton(i)){
       //Serial.println("step "+stringify(i));
     }
   }
 
-  if(x != 0){
+  if(controls.joystickX != 0){
     //Serial.println("x:"+stringify(x));
   }
-  if(y != 0){
+  if(controls.joystickY != 0){
     //Serial.println("y:"+stringify(y));
   }
 }
@@ -378,7 +378,7 @@ void noBitches(){
 //prints out lookupdata
 void debugPrintLookup(){
   for(int i = 0; i<trackData.size();i++){
-    //Serial.print(stringify(i)+":"+getTrackPitch(i));
+    //Serial.print(stringify(i)+":"+trackData[i].getPitch());
     //Serial.print('|');
     for(int j = 0; j<= seqEnd; j++){
       // if(!j%subDivInt)
@@ -623,7 +623,7 @@ void playBackMenu(){
   uint8_t menuState = 0;
   while(true){
     readButtons();
-    readJoystick();
+    controls.readJoystick();
     while(counterA != 0){
       switch(menuState){
         //play
@@ -661,8 +661,8 @@ void playBackMenu(){
       }
       counterA+=counterA<0?1:-1;
     }
-    if(itsbeen(200)){
-      if(x != 0){
+    if(utils.itsbeen(200)){
+      if(controls.joystickX != 0){
         switch(menuState){
           //play
           case 1:
@@ -681,21 +681,21 @@ void playBackMenu(){
           case 3:
             switch(menuCursor){
               case 0:
-                if(x == -1 && onStop<2){
+                if(controls.joystickX == -1 && onStop<2){
                   onStop++;
                   lastTime = millis();
                 }
-                else if(x == 1 && onStop>0){
+                else if(controls.joystickX == 1 && onStop>0){
                   onStop--;
                   lastTime = millis();
                 }
                 break;
               case 1:
-                if(x == -1 && postRec<2){
+                if(controls.joystickX == -1 && postRec<2){
                   postRec++;
                   lastTime = millis();
                 }
-                else if(x == 1 && postRec>0){
+                else if(controls.joystickX == 1 && postRec>0){
                   postRec--;
                   lastTime = millis();
                 }
@@ -704,17 +704,17 @@ void playBackMenu(){
             break;
         }
       }
-      if(y != 0){
+      if(controls.joystickY != 0){
         switch(menuState){
           //switching menus
           case 0:
-            if(y == 1){
+            if(controls.joystickY == 1){
               if(buttonCursor<2){
                 buttonCursor++;
               }
               lastTime = millis();
             }
-            if(y == -1){
+            if(controls.joystickY == -1){
               if(buttonCursor>0){
                 buttonCursor--;
               }
@@ -727,11 +727,11 @@ void playBackMenu(){
           case 2:
           //stop menu
           case 3:
-            if(y == 1 && menuCursor<1){
+            if(controls.joystickY == 1 && menuCursor<1){
               menuCursor++;
               lastTime = millis();
             }
-            if(y == -1 && menuCursor>0){
+            if(controls.joystickY == -1 && menuCursor>0){
               menuCursor--;
               lastTime = millis();
             }
@@ -821,19 +821,19 @@ void recMenu(){
   // cassette.rotate(90,2);
   // cassette.xPos = 120;
   while(menuIsActive && activeMenu.menuTitle == "REC"){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(itsbeen(100)){
-      if(y != 0){
+    if(utils.itsbeen(100)){
+      if(controls.joystickY != 0){
         //if you're in priming mode
         if(whichWindow == 1){
-          if(y == -1 && activeT>0){
+          if(controls.joystickY == -1 && activeT>0){
             activeT--;
             if(activeT<yCursor)
               yCursor--;
             lastTime = millis();
           }
-          else if(y == 1 && activeT<trackData.size()-1){
+          else if(controls.joystickY == 1 && activeT<trackData.size()-1){
             activeT++;
             if(activeT>=yCursor+8)
               yCursor++;
@@ -841,19 +841,19 @@ void recMenu(){
           }
         }
         else{
-          if(y == 1 && cursor<6){
+          if(controls.joystickY == 1 && cursor<6){
             cursor++;
             lastTime = millis();
           }
-          else if(y == -1 && cursor>0){
+          else if(controls.joystickY == -1 && cursor>0){
             cursor--;
             lastTime = millis();
           }
         }
       }
     }
-    if(itsbeen(200)){
-      if(x != 0){
+    if(utils.itsbeen(200)){
+      if(controls.joystickX != 0){
         if(whichWindow){
           whichWindow = false;
           lastTime = millis();
@@ -875,7 +875,7 @@ void recMenu(){
               break;
             //count-in
             case 3:
-              if(x == 1){
+              if(controls.joystickX == 1){
                 if(shift){
                   if(recCountIn == 0)
                     waitForNoteBeforeRec = true;
@@ -896,7 +896,7 @@ void recMenu(){
                   lastTime = 0;
                 }
               }
-              else if(x == -1){
+              else if(controls.joystickX == -1){
                 if(waitForNoteBeforeRec){
                   waitForNoteBeforeRec = false;
                   recCountIn = 0;
@@ -920,7 +920,7 @@ void recMenu(){
               break;
             //rec for
             case 4:
-              if(x == 1){
+              if(controls.joystickX == 1){
                 if(shift && recForNSteps>0){
                   recForNSteps--;
                   lastTime = millis();
@@ -930,7 +930,7 @@ void recMenu(){
                   lastTime = millis();
                 }
               }
-              else if(x == -1){
+              else if(controls.joystickX == -1){
                 if(shift && recForNSteps<65535){
                   recForNSteps++;
                   lastTime = millis();
@@ -946,14 +946,14 @@ void recMenu(){
               break;
             //post-rec behavior
             case 6:
-              if(x == 1){
+              if(controls.joystickX == 1){
                 if(postRec == 2)
                   postRec = 0;
                 else
                   postRec++;
                 lastTime = millis();
               }
-              else if(x == -1){
+              else if(controls.joystickX == -1){
                 if(postRec == 0)
                   postRec = 2;
                 else
@@ -1115,7 +1115,7 @@ void Menu::displayRecMenu(uint8_t menuCursor,uint8_t start, uint8_t active){
           graphics.drawArrow(x1-2,i*8+3,2,0,false);
         }
         //print track pitch
-        printSmall(x2+10,i*8+1,getTrackPitchOctave(i+start),SSD1306_WHITE);
+        printSmall(x2+10,i*8+1,trackData[i+start].getPitchAndOctave(),SSD1306_WHITE);
         //prime icon
         if(trackData[i+start].isPrimed){
           if((millis()+i*80)%1000>500){
@@ -1216,8 +1216,8 @@ void displaySeqSerial() {
   unsigned short int id = lookupData[activeTrack][cursorPos];
   //Serial.print("\n");
   for (int track = trackData.size() - 1; track > -1; track--) {
-    //Serial.print(getTrackPitch(track));
-    int len = getTrackPitch(track).length();
+    //Serial.print(trackData[track].getPitch());
+    int len = trackData[track].getPitch().length();
     for(int i = 0; i< 5-len; i++){
       //Serial.print(" ");
     }

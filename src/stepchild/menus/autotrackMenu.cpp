@@ -387,21 +387,21 @@ void setAutotrackTrigger(uint8_t whichAT){
     display.setRotation(UPRIGHT);
 
     display.display();
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(shift || loop_Press){
         autotrackData[whichAT].gated = !autotrackData[whichAT].gated;
         lastTime = millis();
       }
-      if(x != 0){
-        if(x == -1 && trigSource<2){
+      if(controls.joystickX != 0){
+        if(controls.joystickX == -1 && trigSource<2){
           if(togglingGate)
             togglingGate = false;
           lastTime = millis();
           trigSource++;
         }
-        else if(x == 1 && trigSource>0){
+        else if(controls.joystickX == 1 && trigSource>0){
           lastTime = millis();
           trigSource--;
         }
@@ -434,14 +434,14 @@ void setAutotrackTrigger(uint8_t whichAT){
         return;
       }
     }
-    if(itsbeen(100)){
-      if(y != 0){
-        if(togglingGate && y == -1){
+    if(utils.itsbeen(100)){
+      if(controls.joystickY != 0){
+        if(togglingGate && controls.joystickY == -1){
           togglingGate = false;
           trigSource = 0;
           lastTime = millis();
         }
-        else if(y == 1){
+        else if(controls.joystickY == 1){
           switch(trigSource){
             //global
             case 0:
@@ -468,7 +468,7 @@ void setAutotrackTrigger(uint8_t whichAT){
               break;
           }
         }
-        else if(y == -1){
+        else if(controls.joystickY == -1){
           switch(trigSource){
             //global
             case 0:
@@ -510,7 +510,7 @@ void autotrackEditor(){
 
   while(true){
     readButtons();
-    readJoystick();
+    controls.readJoystick();
     if(settingRecInput){   
       //once copy press is released, after at least one param has been selected
       if(!copy_Press){
@@ -530,12 +530,12 @@ void autotrackEditor(){
         recInputSet = true;
         lastTime = millis();
       }
-      else if(x != 0){
+      else if(controls.joystickX != 0){
         autotrackData[activeAutotrack].recordFrom = 3;
         recInputSet = true;
         lastTime = millis();
       }
-      else if(y != 0){
+      else if(controls.joystickY != 0){
         autotrackData[activeAutotrack].recordFrom = 4;
         recInputSet = true;
         lastTime = millis();
@@ -574,7 +574,7 @@ void autotrackViewer(){
   // pram.scale = 1;
   while(true){
     readButtons();
-    readJoystick();
+    controls.readJoystick();
     if(!autotrackViewerControls()){
       return;
     }
@@ -867,19 +867,19 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
   }
 
   if(!recordingToAutotrack || autotrackData[activeAutotrack].recordFrom != 3){
-    if (itsbeen(50)) {
+    if (utils.itsbeen(50)) {
       //moving
-      if (x == 1 && shift) {
+      if (controls.joystickX == 1 && shift) {
         moveAutotrackCursor(-1);
         lastTime = millis();
       }
-      if (x == -1 && shift) {
+      if (controls.joystickX == -1 && shift) {
         moveAutotrackCursor(1);
         lastTime = millis();
       }
     }
-    if (itsbeen(100)) {
-      if (x == 1 && !shift) {
+    if (utils.itsbeen(100)) {
+      if (controls.joystickX == 1 && !shift) {
         //if cursor isn't on a measure marker, move it to the nearest one
         if(cursorPos%subDivInt){
           moveAutotrackCursor(-cursorPos%subDivInt);
@@ -890,7 +890,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
           lastTime = millis();
         }
       }
-      if (x == -1 && !shift) {
+      if (controls.joystickX == -1 && !shift) {
         if(cursorPos%subDivInt){
           moveAutotrackCursor(subDivInt-cursorPos%subDivInt);
           lastTime = millis();
@@ -903,9 +903,9 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
     }
   }
   if(!recordingToAutotrack || autotrackData[activeAutotrack].recordFrom != 4){
-    if(itsbeen(50)){
-      if(y != 0 && !n){
-        if(y == -1){
+    if(utils.itsbeen(50)){
+      if(controls.joystickY != 0 && !n){
+        if(controls.joystickY == -1){
           if(shift){
             changeDataPoint(1);
             lastTime = millis();
@@ -915,7 +915,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
             lastTime = millis();
           }
         }
-        if(y == 1){
+        if(controls.joystickY == 1){
           if(shift){
             changeDataPoint(-1);
             lastTime = millis();
@@ -928,7 +928,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
       }
     }
   }
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     //deleting data point(s)
     if(del){
       lastTime = millis();
@@ -993,13 +993,13 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
         selectDataPoint(cursorPos);
       lastTime = millis();
     }
-    if(track_Press){
+    if(controls.A()){
       lastTime = millis();
       int8_t param = selectCCParam_autotrack(autotrackData[activeAutotrack].parameterType);
       if(param != 255)
         autotrackData[activeAutotrack].control = param;
     }
-    if(note_Press){
+    if(controls.B()){
       lastTime = millis();
       toggleTriplets();
     }
@@ -1067,7 +1067,7 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
     }
     counterB += counterB<0?1:-1;
   }
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     //toggling DT type
     if(n){
       if(shift){
@@ -1091,13 +1091,13 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
       menu_Press = false;
       return false;
     }
-    if(track_Press){
+    if(controls.A()){
       lastTime = millis();
       uint8_t param = selectCCParam_autotrack(autotrackData[activeAutotrack].parameterType);
       if(param != 255)
         autotrackData[activeAutotrack].control = param;
     }
-    if(note_Press){
+    if(controls.B()){
       lastTime = millis();
       toggleTriplets();
     }
@@ -1117,17 +1117,17 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
   //translations (and changing Amp)
   //translation
   if(*translation){
-    if(x != 0){
+    if(controls.joystickX != 0){
       //moving by 1
-      if(shift && itsbeen(25)){
-        if(x == -1){
+      if(shift && utils.itsbeen(25)){
+        if(controls.joystickX == -1){
           if(autotrackData[activeAutotrack].phase == 0)
             autotrackData[activeAutotrack].phase = autotrackData[activeAutotrack].period;
           autotrackData[activeAutotrack].phase--;
           regenDT(activeAutotrack);
           lastTime = millis();
         }
-        else if(x == 1){
+        else if(controls.joystickX == 1){
           autotrackData[activeAutotrack].phase++;
           regenDT(activeAutotrack);
           lastTime = millis();
@@ -1139,8 +1139,8 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
       //moving by subdivInt
       //phase will always be mod by period (so it can never be more/less than per)
       //storing it in "temp" here so it doesn't underflow/overflow
-      else if(!shift && itsbeen(100)){
-        if(x == -1){
+      else if(!shift && utils.itsbeen(100)){
+        if(controls.joystickX == -1){
           int16_t temp = autotrackData[activeAutotrack].phase;
           if(temp<subDivInt)
             temp = abs(autotrackData[activeAutotrack].period-subDivInt);
@@ -1150,7 +1150,7 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
           regenDT(activeAutotrack);
           lastTime = millis();
         }
-        else if(x == 1){
+        else if(controls.joystickX == 1){
           autotrackData[activeAutotrack].phase = (autotrackData[activeAutotrack].phase+subDivInt)%autotrackData[activeAutotrack].period;
           regenDT(activeAutotrack);
           lastTime = millis();
@@ -1158,13 +1158,13 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
       }
     }
     //changing vertical translation
-    if(y != 0 && itsbeen(25)){
-      if(y == -1 && autotrackData[activeAutotrack].yPos<127){
+    if(controls.joystickY != 0 && utils.itsbeen(25)){
+      if(controls.joystickY == -1 && autotrackData[activeAutotrack].yPos<127){
         autotrackData[activeAutotrack].yPos++;
         regenDT(activeAutotrack);
         lastTime = millis();
       }
-      else if(y == 1 && autotrackData[activeAutotrack].yPos>0){
+      else if(controls.joystickY == 1 && autotrackData[activeAutotrack].yPos>0){
         autotrackData[activeAutotrack].yPos--;
         regenDT(activeAutotrack);
         lastTime = millis();
@@ -1174,44 +1174,44 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
   //transformation
   else{
     //changing amplitude
-    if(y != 0 && itsbeen(25)){
-      if(y == -1 && autotrackData[activeAutotrack].amplitude<127){
+    if(controls.joystickY != 0 && utils.itsbeen(25)){
+      if(controls.joystickY == -1 && autotrackData[activeAutotrack].amplitude<127){
         autotrackData[activeAutotrack].amplitude++;
         regenDT(activeAutotrack);
         lastTime = millis();
       }
-      else if(y == 1 && autotrackData[activeAutotrack].amplitude>-127){
+      else if(controls.joystickY == 1 && autotrackData[activeAutotrack].amplitude>-127){
         autotrackData[activeAutotrack].amplitude--;
         regenDT(activeAutotrack);
         lastTime = millis();
       }
     }
     //changing by 1
-    if(shift && itsbeen(25)){
+    if(shift && utils.itsbeen(25)){
       //changing period
-      if(x != 0){
-        if(x == -1){
+      if(controls.joystickX != 0){
+        if(controls.joystickX == -1){
           autotrackData[activeAutotrack].period++;
           regenDT(activeAutotrack);
           lastTime = millis();
         }
-        else if(x == 1 && autotrackData[activeAutotrack].period>1){
+        else if(controls.joystickX == 1 && autotrackData[activeAutotrack].period>1){
           autotrackData[activeAutotrack].period--;
           regenDT(activeAutotrack);
           lastTime = millis();
         }
       }
     }
-    else if(itsbeen(100)){
-      if(x != 0){
-        if(x == -1){
+    else if(utils.itsbeen(100)){
+      if(controls.joystickX != 0){
+        if(controls.joystickX == -1){
           if(autotrackData[activeAutotrack].period == 1)
             autotrackData[activeAutotrack].period = 0;
           autotrackData[activeAutotrack].period+=subDivInt;
           regenDT(activeAutotrack);
           lastTime = millis();
         }
-        else if(x == 1 && autotrackData[activeAutotrack].period>subDivInt){
+        else if(controls.joystickX == 1 && autotrackData[activeAutotrack].period>subDivInt){
           autotrackData[activeAutotrack].period-=subDivInt;
           regenDT(activeAutotrack);
           lastTime = millis();
@@ -1620,47 +1620,47 @@ bool autotrackViewerControls(){
     autotrackData[activeAutotrack].play(0);
   }
   //scrolling up and down
-  if(itsbeen(100)){
-    if(y != 0){
+  if(utils.itsbeen(100)){
+    if(controls.joystickY != 0){
       if(autotrackData.size() != 0){
-        if(y == -1 && activeAutotrack>0){
+        if(controls.joystickY == -1 && activeAutotrack>0){
           activeAutotrack--;
           lastTime = millis();
         }
-        if(y == 1 && activeAutotrack<autotrackData.size()-1){
+        if(controls.joystickY == 1 && activeAutotrack<autotrackData.size()-1){
           activeAutotrack++;
           lastTime = millis();
         }
       }
     }
   }
-  if(itsbeen(200)){
-    if(x != 0){
+  if(utils.itsbeen(200)){
+    if(controls.joystickX != 0){
       //changing control #
       if(!shift){
-        if(x == -1){
+        if(controls.joystickX == -1){
           autotrackData[activeAutotrack].control = moveToNextCCParam(autotrackData[activeAutotrack].control,true,autotrackData[activeAutotrack].parameterType);
           lastTime = millis();
         }
-        else if(x == 1){
+        else if(controls.joystickX == 1){
           autotrackData[activeAutotrack].control = moveToNextCCParam(autotrackData[activeAutotrack].control,false,autotrackData[activeAutotrack].parameterType);
           lastTime = millis();
         }
       }
       //changing channel #
       else{
-        if(x == -1 && autotrackData[activeAutotrack].channel<16){
+        if(controls.joystickX == -1 && autotrackData[activeAutotrack].channel<16){
           autotrackData[activeAutotrack].channel++;
           lastTime = millis();
         }
-        else if(x == 1 && autotrackData[activeAutotrack].channel>1){
+        else if(controls.joystickX == 1 && autotrackData[activeAutotrack].channel>1){
           autotrackData[activeAutotrack].channel--;
           lastTime = millis();
         }
       }
     }
   }
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     //selecting a autotrack
     if(sel){
       if(autotrackData.size()>0){
@@ -1703,8 +1703,8 @@ bool autotrackViewerControls(){
       dupeAutotrack(activeAutotrack);
       lastTime = millis();
     }
-    if(track_Press){
-      track_Press = false;
+    if(controls.A()){
+      controls.setA(false);
       uint8_t param = selectCCParam_autotrack(autotrackData[activeAutotrack].parameterType);
       if(param != 255)
         autotrackData[activeAutotrack].control = param;

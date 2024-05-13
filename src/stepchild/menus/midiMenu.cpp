@@ -85,8 +85,8 @@ void portMenu(uint8_t which){
     lastVel = lastVel + (currentVel-lastVel)/5;
 
     readButtons();
-    readJoystick();
-    if(itsbeen(200)){
+    controls.readJoystick();
+    if(utils.itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
         menu_Press = false;
@@ -111,15 +111,15 @@ void portMenu(uint8_t which){
 void thruMenu(){ //controls which midi port you're editing
   uint8_t xCursor = 1;
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(itsbeen(200)){
-      if(x != 0){
-        if(x == -1 && xCursor<4){
+    if(utils.itsbeen(200)){
+      if(controls.joystickX != 0){
+        if(controls.joystickX == -1 && xCursor<4){
           xCursor++;
           lastTime = millis();
         }
-        else if(x == 1 && xCursor>0){
+        else if(controls.joystickX == 1 && xCursor>0){
           xCursor--;
           lastTime = millis();
         }
@@ -177,9 +177,9 @@ void midiMenu(){
   uint8_t xCursor = 0;
   uint8_t yCursor = 0;
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(sel){
         lastTime = millis();
         //center menu mode
@@ -217,11 +217,11 @@ void midiMenu(){
         lastTime = millis();
       }
     }
-    if(itsbeen(200)){
-      if(y != 0){
+    if(utils.itsbeen(200)){
+      if(controls.joystickY != 0){
         //center menu mode
         if(yCursor == 0){
-          if(y == 1){
+          if(controls.joystickY == 1){
             if(xCursor == 2){
               xCursor = 0;
               yCursor = 1;
@@ -232,7 +232,7 @@ void midiMenu(){
               lastTime = millis();
             }
           }
-          if(y == -1 && xCursor>0){
+          if(controls.joystickY == -1 && xCursor>0){
             xCursor--;
             lastTime = millis();
           }
@@ -240,7 +240,7 @@ void midiMenu(){
         //midi mute mode
         else{
           //moving up
-          if(y == -1){
+          if(controls.joystickY == -1){
             //if it's on the center, jump back up to menu
             if(xCursor == 0){
               yCursor = 0;
@@ -258,7 +258,7 @@ void midiMenu(){
             }
           }
           //moving down
-          else if(y == 1){
+          else if(controls.joystickY == 1){
             if(xCursor == 1){
               xCursor = 2;
               lastTime = millis();
@@ -275,14 +275,14 @@ void midiMenu(){
         }
       }
       //x jumps you off of and back into center menu
-      if(x != 0){
+      if(controls.joystickX != 0){
         //if you were in center menu, jump off to the left or right
         if(yCursor == 0){
           yCursor = 1;
-          if(x == -1){
+          if(controls.joystickX == -1){
             xCursor = 4;
           }
-          else if(x == 1){
+          else if(controls.joystickX == 1){
             xCursor = 1;
           }
           lastTime = millis();
@@ -290,7 +290,7 @@ void midiMenu(){
         //if you're in the mute menu
         else{
           //right
-          if(x == -1){
+          if(controls.joystickX == -1){
             //go back to normal mode
             if(xCursor == 1){
               yCursor = 0;
@@ -312,7 +312,7 @@ void midiMenu(){
             }
           }
           //left
-          else if(x == 1){
+          else if(controls.joystickX == 1){
             //go back to normal mode
             if(xCursor == 4){
               yCursor = 0;
@@ -636,11 +636,11 @@ void inputMenu(){
     display.display();
 
     readButtons();
-    readJoystick();
+    controls.readJoystick();
     //controls
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       //moving xCursor
-      if(x != 0){
+      if(controls.joystickX != 0){
         xCursor = !xCursor;
         if(xCursor == 1 && yCursor>=3){
           yCursor = 2;
@@ -672,9 +672,9 @@ void inputMenu(){
       }
     }
     //moving vertical cursor
-    if(itsbeen(80)){
-      if(y != 0){
-        if(y == 1){
+    if(utils.itsbeen(80)){
+      if(controls.joystickY != 0){
+        if(controls.joystickY == 1){
           //for channel filter
           if(xCursor == 0){
             //if the cursor is already at the end of the menu, move that ish
@@ -696,7 +696,7 @@ void inputMenu(){
             }
           }
         }
-        else if(y == -1){
+        else if(controls.joystickY == -1){
           //for channel filter
           if(xCursor == 0){
             //if the cursor is already at the end of the menu, move that ish
@@ -731,11 +731,11 @@ void routeMenu(){
   //controls where each of the five menus starts
   uint8_t menuStart[5] = {0,0,0,0,0};
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(itsbeen(80)){
-      if(y != 0){
-        if(y == 1){
+    if(utils.itsbeen(80)){
+      if(controls.joystickY != 0){
+        if(controls.joystickY == 1){
           //if the cursor is already at the end of the menu, move that ish
           if(yCursor == 4 && menuStart[xCursor]<11){
             menuStart[xCursor]++;
@@ -747,7 +747,7 @@ void routeMenu(){
             lastTime = millis();
           }
         }
-        else if(y == -1){
+        else if(controls.joystickY == -1){
           //if the cursor is already at the end of the menu, move that ish
           if(yCursor == 0 && menuStart[xCursor]>0){
             menuStart[xCursor]--;
@@ -761,13 +761,13 @@ void routeMenu(){
         }
       }
     }
-    if(itsbeen(200)){
-      if(x != 0){
-        if(x == -1 && xCursor<4){
+    if(utils.itsbeen(200)){
+      if(controls.joystickX != 0){
+        if(controls.joystickX == -1 && xCursor<4){
           xCursor++;
           lastTime = millis();
         }
-        else if(x == 1 && xCursor>0){
+        else if(controls.joystickX == 1 && xCursor>0){
           xCursor--;
           lastTime = millis();
         }

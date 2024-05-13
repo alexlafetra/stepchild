@@ -273,7 +273,7 @@ void keyboard(){
   while(true){
     readButtons();
     stepButtons();//handles notes, and toggling
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
         break;

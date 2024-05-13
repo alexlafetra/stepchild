@@ -64,8 +64,8 @@ void playPCData(uint16_t timestep){
 
 void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCursor){
     if(!editingMode){
-         if (itsbeen(100)) {
-            if (x == 1 && !shift) {
+         if (utils.itsbeen(100)) {
+            if (controls.joystickX == 1 && !shift) {
                 //if cursor isn't on a measure marker, move it to the nearest one
                 if(cursorPos%subDivInt){
                     moveCursor(-cursorPos%subDivInt);
@@ -89,7 +89,7 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
                     setLoopPoint(cursorPos,false);
                 }
                 }
-                if (x == -1 && !shift) {
+                if (controls.joystickX == -1 && !shift) {
                 if(cursorPos%subDivInt){
                     moveCursor(subDivInt-cursorPos%subDivInt);
                     lastTime = millis();
@@ -111,21 +111,21 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
                 }
             }
         }
-        if(itsbeen(100)){
-            if (y == 1) {
+        if(utils.itsbeen(100)){
+            if (controls.joystickY == 1) {
                 if(activePort<4)
                     activePort++;
                 lastTime = millis();
             }
-            if (y == -1) {
+            if (controls.joystickY == -1) {
                 if(activePort>0)
                     activePort--;
                 lastTime = millis();
             }
         }
-        if (itsbeen(50)) {
+        if (utils.itsbeen(50)) {
             //moving
-            if (x == 1 && shift) {
+            if (controls.joystickX == 1 && shift) {
             moveCursor(-1);
             lastTime = millis();
             if(movingLoop == 2)
@@ -135,7 +135,7 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
             else if(movingLoop == 1)
                 setLoopPoint(cursorPos,false);
             }
-            if (x == -1 && shift) {
+            if (controls.joystickX == -1 && shift) {
             moveCursor(1);
             lastTime = millis();
             if(movingLoop == 2)
@@ -149,18 +149,18 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
     }
     //if in editing mode, jump right to PCMessages
     else{
-        if(itsbeen(100)){
-            if(x == -1){
+        if(utils.itsbeen(100)){
+            if(controls.joystickX == -1){
                 jumpCursorToPC(activePort,true,false);
                 lastTime = millis();
             }
-            else if(x == 1){
+            else if(controls.joystickX == 1){
                 jumpCursorToPC(activePort,false,false);
                 lastTime = millis();
             }
             //jumping up and down tracks
             if(shift){
-                if (y == 1) {
+                if (controls.joystickY == 1) {
                     uint8_t originalP = activePort;
                     bool success = false;
                     while(activePort<4){
@@ -179,7 +179,7 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
                         activePort = originalP;
                     lastTime = millis();
                 }
-                if (y == -1) {
+                if (controls.joystickY == -1) {
                     uint8_t originalP = activePort;
                     bool success = false;
                     while(activePort>0){
@@ -201,11 +201,11 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
             }
             //moving editing cursor
             else{
-                if(y == -1 && editingCursor > 0){
+                if(controls.joystickY == -1 && editingCursor > 0){
                     editingCursor--;
                     lastTime = millis();
                 }
-                else if(y == 1 && editingCursor < 1){
+                else if(controls.joystickY == 1 && editingCursor < 1){
                     editingCursor++;
                     lastTime = millis();
                 }
@@ -456,13 +456,13 @@ void PCEditor(){
     bool editingMessage = false;
     while(true){
         readButtons();
-        readJoystick();
+        controls.readJoystick();
         PCEditor_joystick(activePort,editingMessage,editingCursor);
         if(editingMessage)
             PCEditingEncoderControls(activePort,&editingCursor);
         else
             defaultEncoderControls();
-        if(itsbeen(200)){
+        if(utils.itsbeen(200)){
             defaultLoopControls();
             if(n){
                 makePCEvent(activePort,0,0,0,0,cursorPos);

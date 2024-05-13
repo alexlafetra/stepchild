@@ -33,15 +33,15 @@ void customLengthsMenu(){
   uint8_t startNote = 0;
   while(true){
     readButtons();
-    readJoystick();
-    if(itsbeen(200)){
+    controls.readJoystick();
+    if(utils.itsbeen(200)){
       if(sel){
         lastTime = millis();
         activeArp.uniformLength = !activeArp.uniformLength;
       }
     }
     if(activeArp.uniformLength){
-      if(itsbeen(200)){
+      if(utils.itsbeen(200)){
         if(menu_Press){
           menu_Press = false;
           lastTime = millis();
@@ -51,7 +51,7 @@ void customLengthsMenu(){
     }
     //these controls are only active if the arp is using custom lengths
     else{
-      if(itsbeen(200)){
+      if(utils.itsbeen(200)){
         if(n){
           addCustomLength(activeArp.lengths[cursorX],cursorX);
           lastTime = millis();
@@ -79,31 +79,31 @@ void customLengthsMenu(){
           lastTime = millis();
         }
       }
-      if(itsbeen(120)){
-        if(y != 0){
+      if(utils.itsbeen(120)){
+        if(controls.joystickY != 0){
           if(shift){
             activeArp.lengths[cursorX] = toggleTriplets(activeArp.lengths[cursorX]);
             lastTime = millis();
           }
           else{
-            if(y == -1){
+            if(controls.joystickY == -1){
               lastTime = millis();
               activeArp.lengths[cursorX] = changeSubDiv(true,activeArp.lengths[cursorX],false);
             }
-            else if(y == 1){
+            else if(controls.joystickY == 1){
               lastTime = millis();
               activeArp.lengths[cursorX] = changeSubDiv(false,activeArp.lengths[cursorX],false);
             }
           }
         }
       }
-      if(itsbeen(100)){
-        if(x != 0){
-          if(x == -1 && cursorX<activeArp.lengths.size()-1){
+      if(utils.itsbeen(100)){
+        if(controls.joystickX != 0){
+          if(controls.joystickX == -1 && cursorX<activeArp.lengths.size()-1){
             cursorX++;
             lastTime = millis();
           }
-          if(x == 1 && cursorX>0){
+          if(controls.joystickX == 1 && cursorX>0){
             cursorX--;
             lastTime = millis();
           }
@@ -211,10 +211,10 @@ void arpModMenu(){
   uint8_t cursor = 0;
   while(true){
     readButtons();
-    readJoystick();
-    if(itsbeen(50)){
-       if(y != 0){
-        if(y == 1){
+    controls.readJoystick();
+    if(utils.itsbeen(50)){
+       if(controls.joystickY != 0){
+        if(controls.joystickY == 1){
           switch(cursor){
             case 0:
               //editing min vel
@@ -266,14 +266,14 @@ void arpModMenu(){
               break;
             //play style
             case 4:
-              if(activeArp.playStyle<5 && itsbeen(200)){
+              if(activeArp.playStyle<5 && utils.itsbeen(200)){
                 activeArp.playStyle++;
                 lastTime = millis();
               }
               break;
           }
         }
-        else if(y == -1){
+        else if(controls.joystickY == -1){
           switch(cursor){
             case 0:
               //editing min vel
@@ -324,7 +324,7 @@ void arpModMenu(){
               lastTime = millis();
               break;
             case 4:
-              if(activeArp.playStyle>0 && itsbeen(200)){
+              if(activeArp.playStyle>0 && utils.itsbeen(200)){
                 activeArp.playStyle--;
                 lastTime = millis();
               }
@@ -333,18 +333,18 @@ void arpModMenu(){
         }
       }
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
         menu_Press = false;
         return;
       }
-      if(x != 0){
-        if(x == -1 && cursor<4){
+      if(controls.joystickX != 0){
+        if(controls.joystickX == -1 && cursor<4){
           cursor++;
           lastTime = millis();
         }
-        else if(x == 1 && cursor>0){
+        else if(controls.joystickX == 1 && cursor>0){
           cursor--;
           lastTime = millis();
         }
@@ -565,10 +565,10 @@ void arpMenu(){
 
     //controls
     readButtons();
-    readJoystick();
-    if(itsbeen(200)){
-      if(y != 0){
-        if(y == -1 && cursor>0){
+    controls.readJoystick();
+    if(utils.itsbeen(200)){
+      if(controls.joystickY != 0){
+        if(controls.joystickY == -1 && cursor>0){
           //jump from arp mode button up to length
           // if(cursor == 3){
           //   cursor = 1;
@@ -578,43 +578,43 @@ void arpMenu(){
           // }
           lastTime = millis();
         }
-        else if(y == 1 && cursor<2){
+        else if(controls.joystickY == 1 && cursor<2){
           cursor++;
           lastTime = millis();
         }
       }
-      if(x != 0){
+      if(controls.joystickX != 0){
         switch(cursor){
           //on/off
           case 0:
-            if(x == -1 && isArping){
+            if(controls.joystickX == -1 && isArping){
               isArping = false;
               lastTime = millis();
             }
-            else if(x == 1 && !isArping){
+            else if(controls.joystickX == 1 && !isArping){
               isArping = true;
               lastTime = millis();
             }
             break;
           //step lengths
           case 1:
-            if(x == 1 && activeArp.uniformLength){
+            if(controls.joystickX == 1 && activeArp.uniformLength){
               activeArp.uniformLength = false;
               lastTime = millis();
             }
-            else if(x == -1 && !activeArp.uniformLength){
+            else if(controls.joystickX == -1 && !activeArp.uniformLength){
               activeArp.uniformLength = true;
               lastTime = millis();
             }
             break;
           case 2:
-            if(x == -1){
+            if(controls.joystickX == -1){
               // cursor = 3;
               lastTime = millis();
             }
             break;
           case 3:
-            if(x == 1){
+            if(controls.joystickX == 1){
               cursor = 2;
               lastTime = millis();
             }

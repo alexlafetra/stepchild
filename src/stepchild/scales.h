@@ -73,19 +73,19 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
   bool showingScale = false;
   while (!done) {
     animOffset++;
-    readButtons_MPX();
-    readJoystick();
-    if (itsbeen(100)) {
-      if (x == -1 && selected < 11) {
+    readButtons();
+    controls.readJoystick();
+    if (utils.itsbeen(100)) {
+      if (controls.joystickX == -1 && selected < 11) {
         selected++;
         lastTime = millis();
       }
-      if (x == 1 && selected > 0) {
+      if (controls.joystickX == 1 && selected > 0) {
         selected--;
         lastTime = millis();
       }
     }
-    if (itsbeen(200)) {
+    if (utils.itsbeen(200)) {
       if (sel) {
         sel = false;
         lastTime = millis();
@@ -144,15 +144,15 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
       counterB += counterB<0?1:-1;;
     }
     //also changing root and scale, but with joystick
-    if(itsbeen(200)){
-      if(y != 0){
+    if(utils.itsbeen(200)){
+      if(controls.joystickY != 0){
         if(shift){
-          if(y == 1){
+          if(controls.joystickY == 1){
             root++;
             root%=12;
             lastTime = millis();
           }
-          else if(y == -1){
+          else if(controls.joystickY == -1){
             if(root == 0)
               root = 11;
             else
@@ -168,11 +168,11 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
             lastTime = millis();
           }
           else{
-            if(y == 1){
+            if(controls.joystickY == 1){
               activeScale++;
               lastTime = millis();
             }
-            else if(y == -1){
+            else if(controls.joystickY == -1){
               if(activeScale == 0)
                 activeScale = 11;
               else activeScale--;

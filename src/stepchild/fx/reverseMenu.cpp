@@ -3,12 +3,12 @@ CoordinatePair selectNotesAndArea(String text, void (*iconFunction)(uint8_t,uint
     //storing a copy of the current loop, so we can edit the current loop to set our bounds
     //and then reset it back to the original loop
     while(true){
-        readJoystick();
+        controls.readJoystick();
         readButtons();
         defaultSelectBoxControls();
         defaultJoystickControls(false);
         defaultEncoderControls();
-        if(itsbeen(200)){
+        if(utils.itsbeen(200)){
             defaultLoopControls();
             defaultSelectControls();
             if(menu_Press){
@@ -27,8 +27,8 @@ CoordinatePair selectNotesAndArea(String text, void (*iconFunction)(uint8_t,uint
         iconFunction(7,1,14,true);
         display.display();
     }
-    bounds.x1 = loopData[activeLoop].start;
-    bounds.x2 = loopData[activeLoop].end;
+    bounds.start.x = loopData[activeLoop].start;
+    bounds.end.x = loopData[activeLoop].end;
     return bounds;
 }
 
@@ -57,12 +57,12 @@ void reverse(){
             break;
         }
         //if no area was selected (because the user goofed)
-        if(bounds.x2-bounds.x1<1){
+        if(bounds.end.x-bounds.start.x<1){
             break;
         }
 
         //center of the "rotation"
-        uint16_t center = (bounds.x2-bounds.x1)/2+bounds.x1;
+        uint16_t center = (bounds.end.x-bounds.start.x)/2+bounds.start.x;
 
         //for each note, the distance its closest point is from center should become the -distance its farthest is from the center
         //EX: if a note starts 10 steps AFTER the centerpoint, then that note should now END 10 steps BEFORE the centerpoint
@@ -72,7 +72,7 @@ void reverse(){
             for(uint16_t n = 1; n<seqData[track].size(); n++){
                 Note note = seqData[track][n];
                 //if the note is selected & is TOTALLY within reverse bounds
-                if(note.isSelected && (note.startPos>=bounds.x1 && note.endPos<=bounds.x2)){
+                if(note.isSelected && (note.startPos>=bounds.start.x && note.endPos<=bounds.end.x)){
 
                     //get its distances from the center point
                     int16_t startDist = note.startPos - center;

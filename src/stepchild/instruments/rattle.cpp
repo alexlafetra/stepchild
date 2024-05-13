@@ -31,8 +31,8 @@ void rattle(){
         //storing last read vals so we can average and smoothe out the motion
         lastX = joyX;
         lastY = joyY;
-        joyX = ((1.0 - analogRead(x_Pin)/1024.0)+joyX)/2;
-        joyY = ((1.0 - analogRead(y_Pin)/1024.0)+joyY)/2;
+        joyX = ((1.0 - analogRead(JOYSTICK_X)/1024.0)+joyX)/2;
+        joyY = ((1.0 - analogRead(JOYSTICK_Y)/1024.0)+joyY)/2;
 
         if(linkedTo == 0){
             vel = (maxY-minY)*(joyY)+minY;
@@ -63,7 +63,7 @@ void rattle(){
         }
 
         readButtons();
-        if(itsbeen(200)){
+        if(utils.itsbeen(200)){
             if(play){
                 isPlaying = !isPlaying;
                 lastTime = millis();

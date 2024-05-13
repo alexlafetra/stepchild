@@ -353,42 +353,42 @@ void WireFrame::printVerts(){
 void WireFrame::view(){
   display.setTextColor(SSD1306_WHITE);
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(itsbeen(10)){
-      if(x != 0){
+    if(utils.itsbeen(10)){
+      if(controls.joystickX != 0){
         //pan while shifting
         if(shift){
-          if(x == 1){
+          if(controls.joystickX == 1){
             xPos--;
           }
-          else if(x == -1){
+          else if(controls.joystickX == -1){
             xPos++;
           }
           lastTime = millis();
         }
         //rotate while not shifting
         else{
-          if(x == 1){
+          if(controls.joystickX == 1){
             rotate(-3,1);
           }
-          else if(x == -1){
+          else if(controls.joystickX == -1){
             rotate(3,1);
           }
         }
         lastTime = millis();
       }
-      if(y != 0){
-        if(y == 1){
+      if(controls.joystickY != 0){
+        if(controls.joystickY == 1){
           rotate(-3,0);
         }
-        else if(y == -1){
+        else if(controls.joystickY == -1){
           rotate(3,0);
         }
         lastTime = millis();
       }
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
         return;
@@ -1766,7 +1766,7 @@ void renderTest(){
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
     // angleX = ((millis()/400)%2)-20;
     // angleY = ((millis()/400)%2)+20;
@@ -1817,7 +1817,7 @@ void renderTest(){
     if(menu_Press){
       return;
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(loop_Press){
         lastTime = millis();
         activeOption++;

@@ -39,7 +39,7 @@ void chordBuilder(){
   //2 = editing a chord
   uint8_t editorState = 0;
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
     while(counterA != 0){
       uint16_t *lengthPointer;
@@ -81,26 +81,26 @@ void chordBuilder(){
         }
       }
     }
-    if(itsbeen(150)){
-      if(y != 0){
+    if(utils.itsbeen(150)){
+      if(controls.joystickY != 0){
         lastTime = millis();
-        if(y == 1 && editorState == 0 && chordSequence.chords.size()>0){
+        if(controls.joystickY == 1 && editorState == 0 && chordSequence.chords.size()>0){
           activeChord = 0;
           editorState = 1;
         }
-        else if(y == -1 && editorState == 1){
+        else if(controls.joystickY == -1 && editorState == 1){
           editorState = 0;
         }
       }
-      if(x != 0){
+      if(controls.joystickX != 0){
         //moving between chords in the chord sequence
         if(editorState == 1){
           if(chordSequence.chords.size()>0){
-            if(x == -1 && activeChord<(chordSequence.chords.size()-1)){
+            if(controls.joystickX == -1 && activeChord<(chordSequence.chords.size()-1)){
               activeChord++;
               lastTime = millis();
             }
-            else if(x == 1 && activeChord>0){
+            else if(controls.joystickX == 1 && activeChord>0){
               activeChord--;
               lastTime = millis();
             }
@@ -109,22 +109,22 @@ void chordBuilder(){
         else if(editorState == 0 || editorState == 2){
           //if shift, move by an octave
           if(shift){
-            if(x == -1 &&keyCursor<=24){
+            if(controls.joystickX == -1 &&keyCursor<=24){
               keyCursor+=12;
               lastTime = millis();
             }
-            else if(x == 1 && keyCursor>=12){
+            else if(controls.joystickX == 1 && keyCursor>=12){
               keyCursor-=12;
               lastTime = millis();
             }
           }
           //if it's masked, it moves to the next masked note
           if(mask.size()>0){
-            if(x == -1 && maskIndex<mask.size()-1){
+            if(controls.joystickX == -1 && maskIndex<mask.size()-1){
               keyCursor = mask[maskIndex++];
               lastTime = millis();
             }
-            else if(x == 1 && maskIndex>0){
+            else if(controls.joystickX == 1 && maskIndex>0){
               keyCursor = mask[maskIndex--];
               lastTime = millis();
             }
@@ -134,11 +134,11 @@ void chordBuilder(){
               keyCursor = mask[maskIndex--];
           }
           else{
-            if(x == -1 && keyCursor<35){
+            if(controls.joystickX == -1 && keyCursor<35){
               keyCursor++;
               lastTime = millis();
             }
-            else if(x == 1 && keyCursor>0){
+            else if(controls.joystickX == 1 && keyCursor>0){
               keyCursor--;
               lastTime = millis();
             }
@@ -146,7 +146,7 @@ void chordBuilder(){
         }
       }
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(loop_Press){
         lastTime = millis();
         //gen a random sequence

@@ -3,15 +3,15 @@ void trackUtils();
 bool trackMenuControls(){
   //moving menu cursor
   if(!shift){
-    if(itsbeen(100)){
-      if(y != 0){
-        if(y == 1){
+    if(utils.itsbeen(100)){
+      if(controls.joystickY != 0){
+        if(controls.joystickY == 1){
           if(activeMenu.highlight<9 && activeMenu.highlight != 6){
             activeMenu.highlight++;
             lastTime = millis();
           }
         }
-        if(y == -1){
+        if(controls.joystickY == -1){
           if(activeMenu.highlight == 7){
             activeMenu.highlight = 3;
             lastTime = millis();
@@ -24,19 +24,19 @@ bool trackMenuControls(){
       }
     }
   }
-  if(itsbeen(100)){
-    if(shift && y != 0){
-      if(y == -1){
+  if(utils.itsbeen(100)){
+    if(shift && controls.joystickY != 0){
+      if(controls.joystickY == -1){
         setActiveTrack(activeTrack-1,true);
         lastTime = millis();
       }
-      if(y == 1){
+      if(controls.joystickY == 1){
         setActiveTrack(activeTrack+1,true);
         lastTime = millis();
       }
     }
   }
-  if(itsbeen(200)){
+  if(utils.itsbeen(200)){
     if(play){
       trackData[activeTrack].isPrimed = !trackData[activeTrack].isPrimed;
       lastTime = millis();
@@ -121,15 +121,15 @@ bool trackMenuControls(){
       lastTime = millis();
     }
   }
-  if(itsbeen(200)){
-    if(track_Press || menu_Press){
+  if(utils.itsbeen(200)){
+    if(controls.A() || menu_Press){
       slideMenuOut(1,10);
       menuIsActive = false;
       constructMenu("MENU");
       lastTime = millis();
       return false;
     }
-    if(note_Press){
+    if(controls.B()){
       slideMenuOut(1,10);
       lastTime = millis();
       constructMenu("EDIT");
@@ -137,14 +137,14 @@ bool trackMenuControls(){
     }
   }
   //menu navigation/incrementing values
-  if(itsbeen(100)){
-    if(x == -1){
+  if(utils.itsbeen(100)){
+    if(controls.joystickX == -1){
       if(activeMenu.highlight >= 4 && activeMenu.highlight <=6){
         activeMenu.highlight+=3;
         lastTime = millis();
       }
     }
-    else if(x == 1){
+    else if(controls.joystickX == 1){
       if(activeMenu.highlight >= 7 && activeMenu.highlight <= 9){
         activeMenu.highlight-=3;
         lastTime = millis();
@@ -152,7 +152,7 @@ bool trackMenuControls(){
     }
     if(activeMenu.highlight<3){
       while(counterA != 0){
-        if(counterA >= 1 || x == -1){
+        if(counterA >= 1 || controls.joystickX == -1){
           //pitch
           if(activeMenu.highlight == 0 && trackData[activeTrack].pitch<120){
             if(shift)
@@ -179,7 +179,7 @@ bool trackMenuControls(){
           }
           counterA += counterA<0?1:-1;;
         }
-        if(counterA <= -1 || x == 1){
+        if(counterA <= -1 || controls.joystickX == 1){
           //pitch
           if(activeMenu.highlight == 0 && trackData[activeTrack].pitch>0){
             if(shift)
@@ -230,7 +230,7 @@ void trackMenu(){
     if(activeMenu.page == 0)
       activeMenu.displayTrackMenu();
     display.display();
-    readJoystick();
+    controls.readJoystick();
     readButtons();
     if(!trackMenuControls()){
       break;
@@ -257,19 +257,19 @@ void trackUtils(){
   uint8_t cursor = 0;
   vector<String> options = {"edit tracks","tune 2 scale","delete empty tracks","disarm tracks w notes","sort tracks"};
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(itsbeen(100)){
-      if(y == -1 && cursor>0){
+    if(utils.itsbeen(100)){
+      if(controls.joystickY == -1 && cursor>0){
         cursor--;
         lastTime = millis();
       }
-      else if(y == 1 && cursor<(options.size()-1)){
+      else if(controls.joystickY == 1 && cursor<(options.size()-1)){
         cursor++;
         lastTime = millis();
       }
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       if(menu_Press){
         lastTime = millis();
         break;
@@ -337,7 +337,7 @@ void drawTrackMenuTopInfo(uint8_t topL){
 
 void Menu::displayTrackMenu_trackEdit(uint8_t xCursor){
   //title
-  display.setCursor((screenWidth-coords.x1)-34,7);
+  display.setCursor((screenWidth-coords.start.x)-34,7);
   display.setFont(&FreeSerifItalic9pt7b);
   display.setTextColor(SSD1306_WHITE);
   display.print("Trk");
@@ -345,12 +345,12 @@ void Menu::displayTrackMenu_trackEdit(uint8_t xCursor){
   display.setFont();
 
   //drawing menu box
-  display.fillRoundRect(coords.x1,coords.y1+12,coords.x2-coords.x1+1,coords.y2-coords.y1-11,3,SSD1306_BLACK);
-  display.drawRoundRect(coords.x1,coords.y1+12,coords.x2-coords.x1+1,coords.y2-coords.y1-11,3,SSD1306_WHITE);
+  display.fillRoundRect(coords.start.x,coords.start.y+12,coords.end.x-coords.start.x+1,coords.end.y-coords.start.y-11,3,SSD1306_BLACK);
+  display.drawRoundRect(coords.start.x,coords.start.y+12,coords.end.x-coords.start.x+1,coords.end.y-coords.start.y-11,3,SSD1306_WHITE);
   //top labels 
   const vector<String> texts = {"track","pitch","octave","channel","prime","latch","mute"};
-  printChunky(coords.x2-texts[xCursor].length()*6,coords.y1+5,texts[xCursor],1);
-  drawTrackMenuTopInfo(coords.x1);
+  printChunky(coords.end.x-texts[xCursor].length()*6,coords.start.y+5,texts[xCursor],1);
+  drawTrackMenuTopInfo(coords.start.x);
 
   //drawing menu options, and the highlight
   const uint8_t textWidth = 20;
@@ -360,73 +360,73 @@ void Menu::displayTrackMenu_trackEdit(uint8_t xCursor){
   //pitch
   String p = pitchToString(trackData[activeTrack].pitch,false,true);
   if(highlight == 0){
-    display.fillRoundRect(coords.x1+4,yPos+coords.y1+2,8+p.length()*4+12,9,4,SSD1306_WHITE);
-    display.drawChar(coords.x1+6,yPos+coords.y1+3,0x0E,SSD1306_BLACK,SSD1306_WHITE,1);
+    display.fillRoundRect(coords.start.x+4,yPos+coords.start.y+2,8+p.length()*4+12,9,4,SSD1306_WHITE);
+    display.drawChar(coords.start.x+6,yPos+coords.start.y+3,0x0E,SSD1306_BLACK,SSD1306_WHITE,1);
   }
   else
-    display.drawChar(coords.x1+6,yPos+coords.y1+3,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
-  printSmall(coords.x1+12,yPos+coords.y1+3,"$",2);//printing all the text inverse, so it turns black when highlighted
-  printSmall(coords.x1+14,yPos+coords.y1+4," = "+p,2);
+    display.drawChar(coords.start.x+6,yPos+coords.start.y+3,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
+  printSmall(coords.start.x+12,yPos+coords.start.y+3,"$",2);//printing all the text inverse, so it turns black when highlighted
+  printSmall(coords.start.x+14,yPos+coords.start.y+4," = "+p,2);
   //oct
   p = stringify(getOctave(trackData[activeTrack].pitch));
   if(highlight == 1)
-    display.fillRoundRect(coords.x1+4,yPos+coords.y1+3+textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
-  printSmall(coords.x1+6,yPos+coords.y1+4+textHeight,"/8 = "+p,2);
+    display.fillRoundRect(coords.start.x+4,yPos+coords.start.y+3+textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
+  printSmall(coords.start.x+6,yPos+coords.start.y+4+textHeight,"/8 = "+p,2);
   //channel
   p = stringify(trackData[activeTrack].channel);
   if(highlight == 2)
-    display.fillRoundRect(coords.x1+4,yPos+coords.y1+2+2*textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
-  printSmall(coords.x1+6,yPos+coords.y1+3+2*textHeight,"ch = "+p,2);
+    display.fillRoundRect(coords.start.x+4,yPos+coords.start.y+2+2*textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
+  printSmall(coords.start.x+6,yPos+coords.start.y+3+2*textHeight,"ch = "+p,2);
   
   const uint8_t col1X = 5;
   const uint8_t col2X = 19;
 
   //prime icon
-  // printSmall(coords.x1+col1X,37,"rec",1);
-  display.drawBitmap(coords.x1+col1X,38,rec_tiny,11,4,1,0);
+  // printSmall(coords.start.x+col1X,37,"rec",1);
+  display.drawBitmap(coords.start.x+col1X,38,rec_tiny,11,4,1,0);
   if(trackData[activeTrack].isPrimed){
-    // printSmall(coords.x1+2,37,"prime",1);
+    // printSmall(coords.start.x+2,37,"prime",1);
     if(millis()%1000<500)
-      display.fillCircle(coords.x1+col2X+4,39,2,SSD1306_WHITE);
+      display.fillCircle(coords.start.x+col2X+4,39,2,SSD1306_WHITE);
     else
-      display.drawCircle(coords.x1+col2X+4,39,2,SSD1306_WHITE);
+      display.drawCircle(coords.start.x+col2X+4,39,2,SSD1306_WHITE);
   }
   else{
-    display.drawCircle(coords.x1+col2X+4,39,2,SSD1306_WHITE);
+    display.drawCircle(coords.start.x+col2X+4,39,2,SSD1306_WHITE);
   }
   
   //edit
-  display.drawBitmap(coords.x1+col1X,43,track_pencil,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.start.x+col1X,43,track_pencil,11,5,SSD1306_WHITE);
   //erase
-  display.drawBitmap(coords.x1+col2X,43,track_eraser,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.start.x+col2X,43,track_eraser,11,5,SSD1306_WHITE);
   //mute
   if(trackData[activeTrack].isMuted)
-    display.drawBitmap(coords.x1+col1X,50,track_mute,11,5,SSD1306_WHITE);
+    display.drawBitmap(coords.start.x+col1X,50,track_mute,11,5,SSD1306_WHITE);
   else
-    display.drawBitmap(coords.x1+col1X,50,track_unmute,11,5,SSD1306_WHITE);
+    display.drawBitmap(coords.start.x+col1X,50,track_unmute,11,5,SSD1306_WHITE);
   //solo
-  display.drawBitmap(coords.x1+col2X,50,track_solo,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.start.x+col2X,50,track_solo,11,5,SSD1306_WHITE);
   //move
-  display.drawBitmap(coords.x1+col1X,57,track_arrows,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.start.x+col1X,57,track_arrows,11,5,SSD1306_WHITE);
   //latch
   if(trackData[activeTrack].isLatched)
-    display.drawBitmap(coords.x1+col2X+3,57,track_latch,5,5,SSD1306_WHITE);
+    display.drawBitmap(coords.start.x+col2X+3,57,track_latch,5,5,SSD1306_WHITE);
   else
-    display.drawBitmap(coords.x1+col2X+3,57,track_unlatch,5,5,SSD1306_WHITE);
+    display.drawBitmap(coords.start.x+col2X+3,57,track_unlatch,5,5,SSD1306_WHITE);
   
   //menu highlight
   if(highlight == 3)
-    graphics.drawArrow(coords.x1+25+((millis()/200)%2),39,2,1,true);
+    graphics.drawArrow(coords.start.x+25+((millis()/200)%2),39,2,1,true);
   //first column
   else if(highlight>=4 && highlight<=6)
-    display.drawRoundRect(coords.x1+3,34+7*(highlight-3),15,9,2,SSD1306_WHITE);
+    display.drawRoundRect(coords.start.x+3,34+7*(highlight-3),15,9,2,SSD1306_WHITE);
   else if(highlight>=7)
-    display.drawRoundRect(coords.x1+17,34+7*(highlight-6),15,9,2,SSD1306_WHITE);
+    display.drawRoundRect(coords.start.x+17,34+7*(highlight-6),15,9,2,SSD1306_WHITE);
 }
 
 void Menu::displayTrackMenu(){
   //corner logo
-  display.setCursor((screenWidth-coords.x1)-34,7);
+  display.setCursor((screenWidth-coords.start.x)-34,7);
   display.setFont(&FreeSerifItalic9pt7b);
   display.setTextColor(SSD1306_WHITE);
   display.print("Trk");
@@ -435,11 +435,11 @@ void Menu::displayTrackMenu(){
   // display.drawFastHLine(0,16,32,SSD1306_WHITE);
 
   //track info
-  drawTrackMenuTopInfo(coords.x1);
+  drawTrackMenuTopInfo(coords.start.x);
 
   //drawing menu box
-  display.fillRect(coords.x1,coords.y1, coords.x2-coords.x1, coords.y2-coords.y1, SSD1306_BLACK);
-  display.drawRoundRect(coords.x1,coords.y1+12, coords.x2-coords.x1+1, coords.y2-coords.y1-11, 3,SSD1306_WHITE);
+  display.fillRect(coords.start.x,coords.start.y, coords.end.x-coords.start.x, coords.end.y-coords.start.y, SSD1306_BLACK);
+  display.drawRoundRect(coords.start.x,coords.start.y+12, coords.end.x-coords.start.x+1, coords.end.y-coords.start.y-11, 3,SSD1306_WHITE);
   String s;
   switch(highlight){
     case 0:
@@ -473,7 +473,7 @@ void Menu::displayTrackMenu(){
       s = "latch";
       break;
   }
-  printChunky(coords.x2-s.length()*6,coords.y1+5,s,SSD1306_WHITE);
+  printChunky(coords.end.x-s.length()*6,coords.start.y+5,s,SSD1306_WHITE);
 
   //drawing menu options, and the highlight
   const uint8_t textWidth = 20;
@@ -483,70 +483,70 @@ void Menu::displayTrackMenu(){
   //pitch
   String p = pitchToString(trackData[activeTrack].pitch,false,true);
   if(highlight == 0){
-    display.fillRoundRect(coords.x1+4,yPos+coords.y1+2,8+p.length()*4+12,9,4,SSD1306_WHITE);
-    display.drawChar(coords.x1+6,yPos+coords.y1+3,0x0E,SSD1306_BLACK,SSD1306_WHITE,1);
+    display.fillRoundRect(coords.start.x+4,yPos+coords.start.y+2,8+p.length()*4+12,9,4,SSD1306_WHITE);
+    display.drawChar(coords.start.x+6,yPos+coords.start.y+3,0x0E,SSD1306_BLACK,SSD1306_WHITE,1);
   }
   else
-    display.drawChar(coords.x1+6,yPos+coords.y1+3,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
-  printSmall(coords.x1+12,yPos+coords.y1+3,"$",2);//printing all the text inverse, so it turns black when highlighted
-  printSmall(coords.x1+14,yPos+coords.y1+4," = "+p,2);
+    display.drawChar(coords.start.x+6,yPos+coords.start.y+3,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
+  printSmall(coords.start.x+12,yPos+coords.start.y+3,"$",2);//printing all the text inverse, so it turns black when highlighted
+  printSmall(coords.start.x+14,yPos+coords.start.y+4," = "+p,2);
   //oct
   p = stringify(getOctave(trackData[activeTrack].pitch));
   if(highlight == 1)
-    display.fillRoundRect(coords.x1+4,yPos+coords.y1+3+textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
-  printSmall(coords.x1+6,yPos+coords.y1+4+textHeight,"/8 = "+p,2);
+    display.fillRoundRect(coords.start.x+4,yPos+coords.start.y+3+textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
+  printSmall(coords.start.x+6,yPos+coords.start.y+4+textHeight,"/8 = "+p,2);
   //channel
   p = stringify(trackData[activeTrack].channel);
   if(highlight == 2)
-    display.fillRoundRect(coords.x1+4,yPos+coords.y1+2+2*textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
-  printSmall(coords.x1+6,yPos+coords.y1+3+2*textHeight,"ch = "+p,2);
+    display.fillRoundRect(coords.start.x+4,yPos+coords.start.y+2+2*textHeight,19+p.length()*4,7,4,SSD1306_WHITE);
+  printSmall(coords.start.x+6,yPos+coords.start.y+3+2*textHeight,"ch = "+p,2);
   
   const uint8_t col1X = 5;
   const uint8_t col2X = 19;
 
   //prime icon
-  // printSmall(coords.x1+col1X,37,"rec",1);
-  display.drawBitmap(coords.x1+col1X,38,rec_tiny,11,4,1,0);
+  // printSmall(coords.start.x+col1X,37,"rec",1);
+  display.drawBitmap(coords.start.x+col1X,38,rec_tiny,11,4,1,0);
   if(trackData[activeTrack].isPrimed){
-    // printSmall(coords.x1+2,37,"prime",1);
+    // printSmall(coords.start.x+2,37,"prime",1);
     if(millis()%1000<500)
-      display.fillCircle(coords.x1+col2X+4,39,2,SSD1306_WHITE);
+      display.fillCircle(coords.start.x+col2X+4,39,2,SSD1306_WHITE);
     else
-      display.drawCircle(coords.x1+col2X+4,39,2,SSD1306_WHITE);
+      display.drawCircle(coords.start.x+col2X+4,39,2,SSD1306_WHITE);
   }
   else{
-    display.drawCircle(coords.x1+col2X+4,39,2,SSD1306_WHITE);
+    display.drawCircle(coords.start.x+col2X+4,39,2,SSD1306_WHITE);
   }
 
-  // display.drawRoundRect(coords.x1+2,42,screenWidth-coords.x1-2,27,3,SSD1306_WHITE);
+  // display.drawRoundRect(coords.start.x+2,42,screenWidth-coords.start.x-2,27,3,SSD1306_WHITE);
   //edit
-  display.drawBitmap(coords.x1+col1X,43,track_pencil,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.start.x+col1X,43,track_pencil,11,5,SSD1306_WHITE);
   //erase
-  display.drawBitmap(coords.x1+col2X,43,track_eraser,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.start.x+col2X,43,track_eraser,11,5,SSD1306_WHITE);
   //mute
   if(trackData[activeTrack].isMuted)
-    display.drawBitmap(coords.x1+col1X,50,track_mute,11,5,SSD1306_WHITE);
+    display.drawBitmap(coords.start.x+col1X,50,track_mute,11,5,SSD1306_WHITE);
   else
-    display.drawBitmap(coords.x1+col1X,50,track_unmute,11,5,SSD1306_WHITE);
+    display.drawBitmap(coords.start.x+col1X,50,track_unmute,11,5,SSD1306_WHITE);
   //solo
-  display.drawBitmap(coords.x1+col2X,50,track_solo,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.start.x+col2X,50,track_solo,11,5,SSD1306_WHITE);
   //move
-  display.drawBitmap(coords.x1+col1X,57,track_arrows,11,5,SSD1306_WHITE);
+  display.drawBitmap(coords.start.x+col1X,57,track_arrows,11,5,SSD1306_WHITE);
   //latch
   if(trackData[activeTrack].isLatched)
-    display.drawBitmap(coords.x1+col2X+3,57,track_latch,5,5,SSD1306_WHITE);
+    display.drawBitmap(coords.start.x+col2X+3,57,track_latch,5,5,SSD1306_WHITE);
   else
-    display.drawBitmap(coords.x1+col2X+3,57,track_unlatch,5,5,SSD1306_WHITE);
+    display.drawBitmap(coords.start.x+col2X+3,57,track_unlatch,5,5,SSD1306_WHITE);
   
   //menu highlight
   if(highlight == 3)
-    graphics.drawArrow(coords.x1+28+((millis()/200)%2),39,2,1,true);
+    graphics.drawArrow(coords.start.x+28+((millis()/200)%2),39,2,1,true);
   //first column
   else if(highlight>=4 && highlight<=6){
-    display.drawRoundRect(coords.x1+3,34+7*(highlight-3),15,9,2,SSD1306_WHITE);
+    display.drawRoundRect(coords.start.x+3,34+7*(highlight-3),15,9,2,SSD1306_WHITE);
   }
   else if(highlight>=7){
-    display.drawRoundRect(coords.x1+17,34+7*(highlight-6),15,9,2,SSD1306_WHITE);
+    display.drawRoundRect(coords.start.x+17,34+7*(highlight-6),15,9,2,SSD1306_WHITE);
   }
 }
 
@@ -693,7 +693,7 @@ void drawTrackInfo(uint8_t xCursor){
         graphics.drawArrow(3+((millis()/200)%2),y1+7,2,0,true);
       //note
       else if(xCursor == 1){
-        if(getTrackPitch(track).length()>1)
+        if(trackData[track].getPitch().length()>1)
           display.drawRoundRect(sideWidth+(xCursor-1)*10+3, y1+2, 15, trackHeight+2, 3, SSD1306_WHITE);
         else
           display.drawRoundRect(sideWidth+(xCursor-1)*10+3, y1+2, 10, trackHeight+2, 3, SSD1306_WHITE);
@@ -730,7 +730,7 @@ void drawTrackInfo(uint8_t xCursor){
 
     //all the track info...
     //pitch, oct, and channel
-    printSmall(sideWidth+6,  y1+5, getTrackPitch(track), SSD1306_WHITE);//pitch
+    printSmall(sideWidth+6,  y1+5, trackData[track].getPitch(), SSD1306_WHITE);//pitch
 
     if(getOctave(trackData[track].pitch)>=10)
       printSmall(sideWidth+16, y1+5, stringify(getOctave(trackData[track].pitch)), SSD1306_WHITE);//octave
@@ -779,27 +779,27 @@ void trackEditMenu(){
   String text2;
   vector<uint8_t> selectedTracks;
   while(true){
-    readJoystick();
+    controls.readJoystick();
     readButtons();
-    if(itsbeen(150)){
+    if(utils.itsbeen(150)){
       //moving thru tracks
-      if(y != 0){
-        if (y == 1) {
+      if(controls.joystickY != 0){
+        if (controls.joystickY == 1) {
           setActiveTrack(activeTrack + 1, true);
           lastTime = millis();
         }
-        if (y == -1) {
+        if (controls.joystickY == -1) {
           setActiveTrack(activeTrack - 1, true);
           lastTime = millis();
         }
       }
     }
-    if(itsbeen(200)){
+    if(utils.itsbeen(200)){
       //moving thru params
-      if(x != 0){
+      if(controls.joystickX != 0){
         //changing params
         if(shift){
-          if(x == 1){
+          if(controls.joystickX == 1){
             switch(xCursor){
               //note
               case 1:
@@ -851,7 +851,7 @@ void trackEditMenu(){
                 break;
             }
           }
-          else if(x == -1){
+          else if(controls.joystickX == -1){
             switch(xCursor){
               //note
               case 1:
@@ -905,11 +905,11 @@ void trackEditMenu(){
           }
         }
         else{
-          if(x == 1 && xCursor > 0){
+          if(controls.joystickX == 1 && xCursor > 0){
             xCursor--;
             lastTime = millis();
           }
-          else if(x == -1 && xCursor<6){
+          else if(controls.joystickX == -1 && xCursor<6){
             xCursor++;
             lastTime = millis();
           }
@@ -1084,7 +1084,7 @@ void trackEditMenu(){
             break;
         }
       }
-      if(menu_Press || track_Press){
+      if(menu_Press || controls.A()){
         // menuIsActive = false;
         // constructMenu("MENU");
         for(uint8_t track = 0; track<trackData.size(); track++){
@@ -1092,7 +1092,7 @@ void trackEditMenu(){
         }
         lastTime = millis();
         menu_Press = false;
-        track_Press = false;
+        controls.setA(false);;
         return;
       }
     }

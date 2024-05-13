@@ -41,27 +41,27 @@ Menu::Menu(){
   highlight = 0;
   menuTitle = "test";
   page = 0;
-  coords.x1 = 0;
-  coords.y1 = 0;
-  coords.x2 = screenWidth;
-  coords.y2 = screenHeight;
+  coords.start.x = 0;
+  coords.start.y = 0;
+  coords.end.x = screenWidth;
+  coords.end.y = screenHeight;
 }
 
 Menu::Menu(int16_t x1, int16_t y1, int16_t x2, int16_t y2){
   highlight = 0;
   menuTitle = "MENU";
   page = 0;
-  coords.x1 = x1;
-  coords.y1 = y1;
-  coords.x2 = x2;
-  coords.y2 = y2;
+  coords.start.x = x1;
+  coords.start.y = y1;
+  coords.end.x = x2;
+  coords.end.y = y2;
 }
 
 Menu::Menu(int16_t x1, int16_t y1, int16_t x2, int16_t y2, String title){
-  coords.x1 = x1;
-  coords.y1 = y1;
-  coords.x2 = x2;
-  coords.y2 = y2;
+  coords.start.x = x1;
+  coords.start.y = y1;
+  coords.end.x = x2;
+  coords.end.y = y2;
   highlight = 0;
   menuTitle = title;
   page = 0;
@@ -102,57 +102,57 @@ void slideMenuIn(int fromWhere, int speed){
     //store original coords
     CoordinatePair originalCoords = activeMenu.coords;
     //then, offset the menu coordinates
-    int8_t offset = screenWidth-activeMenu.coords.x1;
-    activeMenu.coords.x1+=offset;
-    activeMenu.coords.x2+=offset;
+    int8_t offset = screenWidth-activeMenu.coords.start.x;
+    activeMenu.coords.start.x+=offset;
+    activeMenu.coords.end.x+=offset;
     //continuously move the menu coords and display it, until it reaches original position
-    while(activeMenu.coords.x1>originalCoords.x1){
-      activeMenu.coords.x1-=speed;
-      activeMenu.coords.x2-=speed;
-      if(activeMenu.coords.x1<originalCoords.x1){
-        activeMenu.coords.x1=originalCoords.x1;
-        activeMenu.coords.x2=originalCoords.x2;
+    while(activeMenu.coords.start.x>originalCoords.start.x){
+      activeMenu.coords.end.x-=speed;
+      activeMenu.coords.end.x-=speed;
+      if(activeMenu.coords.start.x<originalCoords.start.x){
+        activeMenu.coords.start.x=originalCoords.start.x;
+        activeMenu.coords.end.x=originalCoords.end.x;
       }
       displaySeq();
       // delay(20);
     }
-    activeMenu.coords.x1 = originalCoords.x1;
-    activeMenu.coords.x2 = originalCoords.x2;
+    activeMenu.coords.start.x = originalCoords.start.x;
+    activeMenu.coords.end.x = originalCoords.end.x;
   }
   //from the bottom
   else if(fromWhere == 0){
     //store original coords
     CoordinatePair originalCoords = activeMenu.coords;
     //then, offset the menu coordinates
-    int8_t offset = screenHeight-activeMenu.coords.y1;
-    activeMenu.coords.y1+=offset;
-    activeMenu.coords.y2+=offset;
+    int8_t offset = screenHeight-activeMenu.coords.start.y;
+    activeMenu.coords.start.y+=offset;
+    activeMenu.coords.end.y+=offset;
     //continuously move the menu coords and display it, until it reaches original position
-    while(activeMenu.coords.y1>originalCoords.y1){
-      activeMenu.coords.y1-=speed;
-      activeMenu.coords.y2-=speed;
-      if(activeMenu.coords.y1<originalCoords.y1){
-        activeMenu.coords.y1=originalCoords.y1;
-        activeMenu.coords.y2=originalCoords.y2;
+    while(activeMenu.coords.start.y>originalCoords.start.y){
+      activeMenu.coords.start.y-=speed;
+      activeMenu.coords.end.y-=speed;
+      if(activeMenu.coords.start.y<originalCoords.start.y){
+        activeMenu.coords.start.y=originalCoords.start.y;
+        activeMenu.coords.end.y=originalCoords.end.y;
       }
       displaySeq();
       // delay(20);
     }
-    activeMenu.coords.y1 = originalCoords.y1;
-    activeMenu.coords.y2 = originalCoords.y2;
+    activeMenu.coords.start.y = originalCoords.start.y;
+    activeMenu.coords.end.y = originalCoords.end.y;
   }
 }
 
 //same thang, but in reverse
 void slideMenuOut(int toWhere, int speed){
   if(toWhere == 1){//sliding out to the left side
-    while(activeMenu.coords.x1<screenWidth){
-      activeMenu.coords.x1+=speed;
-      activeMenu.coords.x2+=speed;
+    while(activeMenu.coords.start.x<screenWidth){
+      activeMenu.coords.start.x+=speed;
+      activeMenu.coords.end.x+=speed;
       //make sure x bounds don't glitch out/overflow  (don't think this is necessary, leaving it for legacy/in case you find a menu that bugs)
       //Using this makes some menus slide a lil' ugly
-      // if(activeMenu.coords.x2>screenWidth){
-      //   activeMenu.coords.x2 = screenWidth;
+      // if(activeMenu.coords.end.x>screenWidth){
+      //   activeMenu.coords.end.x = screenWidth;
       // }
       displaySeq();
       drawPram(5,0);
@@ -160,12 +160,12 @@ void slideMenuOut(int toWhere, int speed){
   }
   //to the bottom
   else if(toWhere == 0){
-    while(activeMenu.coords.y1<screenHeight){
-      activeMenu.coords.y1+=speed;
-      activeMenu.coords.y2+=speed;
+    while(activeMenu.coords.start.y<screenHeight){
+      activeMenu.coords.start.y+=speed;
+      activeMenu.coords.end.y+=speed;
       //make sure y bounds don't glitch out
-      if(activeMenu.coords.y2>screenHeight){
-        activeMenu.coords.y2 = screenHeight;
+      if(activeMenu.coords.end.y>screenHeight){
+        activeMenu.coords.end.y = screenHeight;
       }
       displaySeq();
       drawPram(5,0);

@@ -587,14 +587,14 @@ void displayWindow(void)
         //drawing leds
         int w, h;
         glfwGetWindowSize(window, &w, &h);
-        for(int i = 0; i<8; i++){
+        for(int i = 0; i<16; i++){
             if(leds[i]){
                 glColor3f(1.0,0.0,0.0); //red
             }
             else{
                 glColor3f(0.0,0.0,0.0); //dark
             }
-            glCircle(w/8*i+w/16,10,10,10);
+            glCircle(w/16*i+w/16,(i%2)?10:30,10,10);
         }
         glFlush();
         glfwSwapBuffers(window);

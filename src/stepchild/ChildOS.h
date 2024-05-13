@@ -3,42 +3,6 @@
 //- switched out the adafruit GFX library for the pico optimized one
 //- turned off Sysex in the MIDI library
 
-const uint8_t Screen_SDA = 8;
-const uint8_t Screen_SCL = 9;
-
-//ENCODERS
-const unsigned char encoderA_Button = 17;
-const unsigned char note_clk_Pin = 18;
-const unsigned char note_data_Pin = 19;
-
-const unsigned char encoderB_Button = 20;
-const unsigned char track_clk_Pin = 21;
-const unsigned char track_data_Pin = 22;
-
-//SHIFT REGISTERS
-// const unsigned char dataPin_LEDS = 9;//V0.4
-const unsigned char dataPin_LEDS = 7;
-const unsigned char latchPin_LEDS = 10;
-const unsigned char clockPin_LEDS = 11;
-
-const unsigned char buttons_clockEnable = 16;
-const unsigned char buttons_dataIn = 13;
-const unsigned char buttons_load = 14;
-const unsigned char buttons_clockIn = 15;
-//doubling up on load, clockin, and clockenable (since i'll read from them simultaneously)
-const unsigned char stepButtons_dataIn = 12;
-
-//JOYSTICK
-const unsigned char y_Pin = 26;
-const unsigned char x_Pin = 27;
-
-//MISC. HARDWARE
-const unsigned char Vpin = 29;
-const unsigned char usbPin = 24;
-
-const unsigned char ledPin = 6;
-const unsigned char onboard_ledPin = 25;
-
 #ifndef HEADLESS
   #include <vector>
   #include <algorithm>
@@ -113,8 +77,9 @@ class WireFrame;
 class Note;
 class Track;
 class Autotrack;
-class SelectionBox;
 struct CoordinatePair;
+struct Coordinate;
+class SelectionBox;
 
 //Data variables -------------------------------------------
 unsigned short int copyPos[2];//stores the coordinates of the cursor when copying
@@ -170,23 +135,21 @@ GlobalModifiers globalModifiers;
 #include "global.h"
 
 //button defs and reading functions
+#include "lowerBoard.h"
 #include "hardware.h"
+
+//common helper functions/utilities
+//string utilities for parsing musical data
+#include "utils.h"
 // #include "buttons.h"
 
 //classes
 #include "classes/WireFrame.h"//wireframe stuff
 #include "classes/PlayList.h"
-#include "classes/CoordinatePair.h"
 #include "classes/Menu.h"
 #include "classes/Note.h"
 #include "classes/Track.h"
 #include "classes/Knob.h"
-
-#include "lowerBoard.h"
-
-//string utilities for parsing musical data
-#include "stringUtils.h"
-#include "utils.h"
 
 //original ChildOS fonts
 #include "fonts/7_segment.cpp"
@@ -207,14 +170,14 @@ Knob controlKnobs[16];
 //These need to be referenced after Autotracks are defined
 void rotaryActionA_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  counterA += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)?readEncoder(0)*4:readEncoder(0);
+  counterA += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)?controls.readEncoder(0)*4:controls.readEncoder(0);
   if(recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)
     waitingToReceiveANote = false;
 }
 
 void rotaryActionB_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  counterB += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)?readEncoder(1)*4:readEncoder(1);
+  counterB += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)?controls.readEncoder(1)*4:controls.readEncoder(1);
   if(recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)
     waitingToReceiveANote = false;
 }
