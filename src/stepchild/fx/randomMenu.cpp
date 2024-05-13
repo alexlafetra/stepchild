@@ -180,15 +180,15 @@ CoordinatePair selectArea_random(){
     controls.readJoystick();
     readButtons();
     defaultEncoderControls();
-    if(sel && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
+    if(controls.SELECT()  && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
       selBox.begun = true;
       selBox.coords.start.x = cursorPos;
       selBox.coords.start.y = activeTrack;
       coords.start.x = cursorPos;
       coords.start.y = activeTrack;
     }
-    //if sel is released, and there's a selection box
-    if(!sel && selBox.begun){
+    //if controls.SELECT()  is released, and there's a selection box
+    if(!controls.SELECT()  && selBox.begun){
       selBox.coords.end.x = cursorPos;
       selBox.coords.end.y = activeTrack;
       selBox.begun = false;
@@ -196,11 +196,11 @@ CoordinatePair selectArea_random(){
       coords.end.y = activeTrack;
     }
     if(utils.itsbeen(200)){
-      if(n){
+      if(controls.NEW()){
         lastTime = millis();
         return coords;
       }
-      if(menu_Press){
+      if(controls.MENU()){
         coords.start.x = 0;
         coords.end.x = 0;
         coords.start.y = 0;
@@ -210,7 +210,7 @@ CoordinatePair selectArea_random(){
       }
     }
     if (utils.itsbeen(100)) {
-      if (controls.joystickX == 1 && !shift) {
+      if (controls.joystickX == 1 && !controls.SHIFT()) {
         //if cursor isn't on a measure marker, move it to the nearest one
         if(cursorPos%subDivInt){
           moveCursor(-cursorPos%subDivInt);
@@ -221,7 +221,7 @@ CoordinatePair selectArea_random(){
           lastTime = millis();
         }
       }
-      if (controls.joystickX == -1 && !shift) {
+      if (controls.joystickX == -1 && !controls.SHIFT()) {
         if(cursorPos%subDivInt){
           moveCursor(subDivInt-cursorPos%subDivInt);
           lastTime = millis();
@@ -247,11 +247,11 @@ CoordinatePair selectArea_random(){
       }
     }
     if (utils.itsbeen(50)) {
-      if (controls.joystickX == 1 && shift) {
+      if (controls.joystickX == 1 && controls.SHIFT()) {
         moveCursor(-1);
         lastTime = millis();
       }
-      if (controls.joystickX == -1 && shift) {
+      if (controls.joystickX == -1 && controls.SHIFT()) {
         moveCursor(1);
         lastTime = millis();
       }
@@ -451,11 +451,11 @@ bool randMenuControls(uint8_t * whichTab){
                 lastTime = millis();
             }
         }
-        if(menu_Press){
+        if(controls.MENU()){
             lastTime = millis();
             return false;
         }
-      if(n){
+      if(controls.NEW()){
         lastTime = millis();
         genRandom(randomData);
       }
@@ -466,7 +466,7 @@ bool randMenuControls(uint8_t * whichTab){
         //length
         case 0:
           if(counterA >= 1){
-            if(shift)
+            if(controls.SHIFT())
               (randomData.minLength)++;
             else{
               randomData.minLength = changeSubDiv(true,randomData.minLength,false);
@@ -475,7 +475,7 @@ bool randMenuControls(uint8_t * whichTab){
               randomData.minLength = 96;
           }
           else if(counterA <= -1){
-            if(shift && randomData.minLength>1)
+            if(controls.SHIFT() && randomData.minLength>1)
               (randomData.minLength)--;
             else
               randomData.minLength = changeSubDiv(false,randomData.minLength,false);
@@ -487,7 +487,7 @@ bool randMenuControls(uint8_t * whichTab){
         //odds
         case 1:
           if(counterA >= 1){
-            if(shift)
+            if(controls.SHIFT())
               (randomData.odds)++;
             else
               (randomData.odds)+=10;
@@ -495,7 +495,7 @@ bool randMenuControls(uint8_t * whichTab){
               randomData.odds = 100;
           }
           else if(counterA <= -1){
-            if(shift)
+            if(controls.SHIFT())
               (randomData.odds)--;
             else
               (randomData.odds)-=10;
@@ -507,7 +507,7 @@ bool randMenuControls(uint8_t * whichTab){
       //chance
         case 2:
           if(counterA >= 1){
-            if(shift)
+            if(controls.SHIFT())
               (randomData.minChance)++;
             else{
               if(randomData.minChance == 1)
@@ -519,7 +519,7 @@ bool randMenuControls(uint8_t * whichTab){
               randomData.minChance = 100;
           }
           else if(counterA <= -1){
-            if(shift && randomData.minChance>1)
+            if(controls.SHIFT() && randomData.minChance>1)
               (randomData.minChance)--;
             else if(randomData.minChance>16)
               (randomData.minChance) -= 16;
@@ -539,7 +539,7 @@ bool randMenuControls(uint8_t * whichTab){
         //vel
         case 4:
           if(counterA >= 1){
-            if(shift)
+            if(controls.SHIFT())
               (randomData.minVel)++;
             else{
               if(randomData.minVel == 1)
@@ -551,7 +551,7 @@ bool randMenuControls(uint8_t * whichTab){
               randomData.minVel = 127;
           }
           else if(counterA <= -1){
-            if(shift && randomData.minVel>1)
+            if(controls.SHIFT() && randomData.minVel>1)
               (randomData.minVel)--;
             else if(randomData.minVel>16)
              (randomData.minVel) -= 16;
@@ -577,7 +577,7 @@ bool randMenuControls(uint8_t * whichTab){
         case 0:
         {
           if(counterB >= 1){
-            if(shift)
+            if(controls.SHIFT())
               (randomData.maxLength)++;
             else{
               randomData.maxLength = changeSubDiv(true,randomData.maxLength,false);
@@ -586,7 +586,7 @@ bool randMenuControls(uint8_t * whichTab){
               randomData.maxLength = 96;
           }
           else if(counterB <= -1){
-            if(shift && randomData.maxLength>1)
+            if(controls.SHIFT() && randomData.maxLength>1)
               (randomData.maxLength)--;
             else
               randomData.maxLength = changeSubDiv(false,randomData.maxLength,false);
@@ -599,7 +599,7 @@ bool randMenuControls(uint8_t * whichTab){
         //odds
         case 1:
           if(counterB >= 1){
-            if(shift)
+            if(controls.SHIFT())
               (randomData.odds)++;
             else
               (randomData.odds)+=10;
@@ -607,7 +607,7 @@ bool randMenuControls(uint8_t * whichTab){
               randomData.odds = 100;
           }
           else if(counterB <= -1){
-            if(shift)
+            if(controls.SHIFT())
               (randomData.odds)--;
             else
               (randomData.odds)-=10;
@@ -619,7 +619,7 @@ bool randMenuControls(uint8_t * whichTab){
         //chance
         case 2:
           if(counterB >= 1){
-            if(shift)
+            if(controls.SHIFT())
               (randomData.maxChance)++;
             else{
               if(randomData.maxChance == 1)
@@ -632,7 +632,7 @@ bool randMenuControls(uint8_t * whichTab){
               randomData.maxChance = 100;
           }
           else if(counterB <= -1){
-            if(shift && randomData.maxChance>1)
+            if(controls.SHIFT() && randomData.maxChance>1)
               (randomData.maxChance)--;
             else if(randomData.maxChance>10)
               (randomData.maxChance) -= 10;
@@ -651,7 +651,7 @@ bool randMenuControls(uint8_t * whichTab){
         //velocity
         case 4:
           if(counterB >= 1){
-            if(shift)
+            if(controls.SHIFT())
               randomData.maxVel++;
             else{
               if(randomData.maxVel == 1)
@@ -663,7 +663,7 @@ bool randMenuControls(uint8_t * whichTab){
               randomData.maxVel = 127;
           }
           else if(counterB <= -1){
-            if(shift && randomData.maxVel>1)
+            if(controls.SHIFT() && randomData.maxVel>1)
              (randomData.maxVel)--;
             else if(randomData.maxVel>16)
               (randomData.maxVel) -= 16;

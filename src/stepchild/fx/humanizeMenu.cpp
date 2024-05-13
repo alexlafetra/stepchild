@@ -236,11 +236,11 @@ bool humanizeMenuControls(uint8_t* cursor){
     }
   }
   if(utils.itsbeen(200)){
-    if(menu_Press){
+    if(controls.MENU()){
       lastTime = millis();
       return false;
     }
-    if(n){
+    if(controls.NEW()){
         lastTime = millis();
         while(true){
             if(selectNotes("humanize",drawHumanizeIcon)){
@@ -259,7 +259,7 @@ bool humanizeMenuControls(uint8_t* cursor){
       //changing subDiv
       if((*cursor) == 2){
         //if shifting, toggle between 1/3 and 1/4 mode
-        if(shift){
+        if(controls.SHIFT()){
           toggleTriplets();
         }
         else if(counterA >= 1){
@@ -272,7 +272,7 @@ bool humanizeMenuControls(uint8_t* cursor){
       }
       else{
         if(counterA >= 1 && ((*humanizerParameters.get(*cursor))<100)){
-          if(shift){
+          if(controls.SHIFT()){
             (*humanizerParameters.get(*cursor))++;
           }
           else{
@@ -283,7 +283,7 @@ bool humanizeMenuControls(uint8_t* cursor){
           }
         }
         if(counterA <= -1 && (*humanizerParameters.get(*cursor))>0){
-          if(shift){
+          if(controls.SHIFT()){
             (*humanizerParameters.get(*cursor))--;
           }
           else{
@@ -298,7 +298,7 @@ bool humanizeMenuControls(uint8_t* cursor){
   }
   while(counterB != 0){
     //if shifting, toggle between 1/3 and 1/4 mode
-    if(shift){
+    if(controls.SHIFT()){
       toggleTriplets();
     }
     else if(counterB >= 1){

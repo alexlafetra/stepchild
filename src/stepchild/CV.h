@@ -175,7 +175,7 @@ void MIDItoCV(){
         controls.readJoystick();
         readButtons();
         if(utils.itsbeen(200)){
-            if(menu_Press){
+            if(controls.MENU()){
                 lastTime = millis();
                 break;
             }
@@ -244,12 +244,12 @@ void CVMenu(){
             counterB += counterB<0?1:-1;
         }
         if(utils.itsbeen(200)){
-            if(menu_Press){
+            if(controls.MENU()){
                 lastTime = millis();
-                menu_Press = false;
+                controls.setMENU(false) ;
                 break;
             }
-            if(play){
+            if(controls.PLAY()){
                 lastTime = millis();
                 togglePlayMode();
             }

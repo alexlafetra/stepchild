@@ -420,7 +420,7 @@ void Adafruit_SSD1306::ssd1306_commandList(const uint8_t *c, uint8_t n) {
     wire->beginTransmission(i2caddr);
     WIRE_WRITE((uint8_t)0x00); // Co = 0, D/C = 0
     uint16_t bytesOut = 1;
-    while (n--) {
+    while controls.NEW()--) {
       if (bytesOut >= WIRE_MAX) {
         wire->endTransmission();
         wire->beginTransmission(i2caddr);
@@ -433,7 +433,7 @@ void Adafruit_SSD1306::ssd1306_commandList(const uint8_t *c, uint8_t n) {
     wire->endTransmission();
   } else { // SPI -- transaction started in calling function
     SSD1306_MODE_COMMAND
-    while (n--)
+    while controls.NEW()--)
       SPIwrite(pgm_read_byte(c++));
   }
 }
@@ -712,7 +712,7 @@ void Adafruit_SSD1306::drawFastHLine(int16_t x, int16_t y, int16_t w,
     x = WIDTH - x - 1;
     break;
   case 2:
-    // 180 degree rotation, invert x and y, then shift y around for height.
+    // 180 degree rotation, invert x and y, then controls.SHIFT() y around for height.
     x = WIDTH - x - 1;
     y = HEIGHT - y - 1;
     x -= (w - 1);
@@ -814,7 +814,7 @@ void Adafruit_SSD1306::drawFastVLine(int16_t x, int16_t y, int16_t h,
     x -= (h - 1);
     break;
   case 2:
-    // 180 degree rotation, invert x and y, then shift y around for height.
+    // 180 degree rotation, invert x and y, then controls.SHIFT() y around for height.
     x = WIDTH - x - 1;
     y = HEIGHT - y - 1;
     y -= (h - 1);

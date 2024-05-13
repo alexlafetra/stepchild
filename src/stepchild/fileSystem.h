@@ -70,7 +70,6 @@ void sendFileName(String filename){
   //Serial.print('\n'+filename+'\n');
 }
 
-
 //returns Bytes of a file (must be called within LittleFS)
 uint32_t getByteCount(String filename){
   uint32_t byteCount = 0;

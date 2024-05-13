@@ -358,7 +358,7 @@ void WireFrame::view(){
     if(utils.itsbeen(10)){
       if(controls.joystickX != 0){
         //pan while shifting
-        if(shift){
+        if(controls.SHIFT()){
           if(controls.joystickX == 1){
             xPos--;
           }
@@ -389,7 +389,7 @@ void WireFrame::view(){
       }
     }
     if(utils.itsbeen(200)){
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
         return;
       }
@@ -1814,17 +1814,17 @@ void renderTest(){
     display.print("mem:");
 //    display.print(rp2040.getUsedHeap());
     display.display();
-    if(menu_Press){
+    if(controls.MENU()){
       return;
     }
     if(utils.itsbeen(200)){
-      if(loop_Press){
+      if(controls.LOOP()){
         lastTime = millis();
         activeOption++;
         if(activeOption>=meshes.size())
           activeOption = 0;
       }
-      if(del){
+      if(controls.DELETE()){
         lastTime = millis();
         justOne = !justOne;
       }

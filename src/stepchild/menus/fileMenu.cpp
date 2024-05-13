@@ -90,16 +90,16 @@ vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
   }
   if(utils.itsbeen(200)){
     //back to normal mode
-    if(menu_Press){
+    if(controls.MENU()){
       lastTime = millis();
       activeMenu.highlight = activeMenu.page;
       activeMenu.page = 0;
       openFolderAnimation(w,30);
     }
     //selecting an option
-    if(sel){
+    if(controls.SELECT() ){
       lastTime = millis();
-      sel = false;
+      controls.setSELECT(false);
       switch(activeMenu.highlight){
         //overwrite
         case 1:
@@ -132,7 +132,7 @@ vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
         case 3:
           exportSeqFileToSerial_standAlone(filenames[activeMenu.page]);
           break;
-        //delete
+        //del
         case 4:
         {
           String filename = filenames[activeMenu.page];
@@ -176,21 +176,21 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
     }
   }
   if(utils.itsbeen(200)){
-    if(menu_Press){
+    if(controls.MENU()){
       lastTime = millis();
       return false;
     }
-    if(n){
-      if(shift){
+    if(controls.NEW()){
+      if(controls.SHIFT()){
         dumpFilesToSerial();
       }
       else{
       }
     }
     if(filenames.size()>0){
-      if(sel){
+      if(controls.SELECT() ){
         lastTime = millis();
-        sel = false;
+        controls.setSELECT(false);
         if(filenames[activeMenu.highlight] == "*New*"){
           String fileName = enterText("filename?");
           if(fileName != "default"){
@@ -212,18 +212,18 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
           return true;
         }
       }
-      if(del){
+      if(controls.DELETE()){
         lastTime = millis();
-        del = false;
+        controls.setDELETE(false);
         String filename = filenames[activeMenu.highlight];
         deleteSeqFile(filename);
         filenames = loadFiles();
         if(filenames.size() == 0)
           activeMenu.highlight = 0;
       }
-      if(copy_Press){
+      if(controls.COPY()){
         lastTime = millis();
-        copy_Press = false;
+        controls.setCOPY(false);
         String filename = filenames[activeMenu.highlight];
         duplicateSeqFile(filename);
         filenames = loadFiles();

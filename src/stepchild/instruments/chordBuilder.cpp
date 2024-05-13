@@ -51,7 +51,7 @@ void chordBuilder(){
         lengthPointer = &length;
       }
       //changing length
-      if(!shift){
+      if(!controls.SHIFT()){
         if(counterA >= 1 && (*lengthPointer)<96){
           (*lengthPointer)+=subDivInt;
           if((*lengthPointer)>96){
@@ -69,7 +69,7 @@ void chordBuilder(){
       }
     }
     while(counterB != 0){
-      if(!shift){   
+      if(!controls.SHIFT()){   
         if(counterB >= 1){
           changeSubDivInt(true);
           counterB += counterB<0?1:-1;;
@@ -107,8 +107,8 @@ void chordBuilder(){
           }
         }
         else if(editorState == 0 || editorState == 2){
-          //if shift, move by an octave
-          if(shift){
+          //if controls.SHIFT(), move by an octave
+          if(controls.SHIFT()){
             if(controls.joystickX == -1 &&keyCursor<=24){
               keyCursor+=12;
               lastTime = millis();
@@ -147,10 +147,10 @@ void chordBuilder(){
       }
     }
     if(utils.itsbeen(200)){
-      if(loop_Press){
+      if(controls.LOOP()){
         lastTime = millis();
         //gen a random sequence
-        if(shift){
+        if(controls.SHIFT()){
           //always adds 4 random notes to the selection
           pressedKeys = genRandomChord(mask,pressedKeys,pressedKeys.size()+4,octave);
         }
@@ -170,12 +170,12 @@ void chordBuilder(){
         }
       }
       //selecting/deselecting notes
-      if(sel){
+      if(controls.SELECT() ){
         //making new chord
         if(editorState == 0 || editorState == 2){
           lastTime = millis();
           //deselect all notes
-          if(shift){
+          if(controls.SHIFT()){
             vector<uint8_t> temp;
             pressedKeys.swap(temp);
           }
@@ -219,12 +219,12 @@ void chordBuilder(){
         }
       }
       //making a chord
-      if(n){
+      if(controls.NEW()){
         //new chord mode
         if(editorState == 0){
           lastTime = millis();
           //commit chord
-          if(shift){
+          if(controls.SHIFT()){
             chordSequence.commit();
             menuIsActive = false;
             constructMenu("MENU");
@@ -269,7 +269,7 @@ void chordBuilder(){
           }
         }
       }
-      if(del){
+      if(controls.DELETE()){
         if(editorState == 1){
           chordSequence.remove(activeChord);
           lastTime = millis();
@@ -278,7 +278,7 @@ void chordBuilder(){
           chordSequence.chords.size() > 0 ? activeChord-- : activeChord = 0;
         }
       }
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
         if(editorState == 0 || editorState == 1){
           return;

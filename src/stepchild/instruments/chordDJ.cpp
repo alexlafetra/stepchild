@@ -101,7 +101,7 @@ QChord editChord(QChord& originalChord){
   while(true){
     controls.readJoystick();
     readButtons();
-    if(controls.joystickX != 0 && ((!shift && utils.itsbeen(50)) || (shift && utils.itsbeen(150)))){
+    if(controls.joystickX != 0 && ((!controls.SHIFT() && utils.itsbeen(50)) || (controls.SHIFT() && utils.itsbeen(150)))){
         if(controls.joystickX == -1 && keyCursor<12*octave+35){
             keyCursor++;
             lastTime = millis();
@@ -111,13 +111,13 @@ QChord editChord(QChord& originalChord){
             lastTime = millis();
         }
     }
-    if(play && !playedChord){
+    if(controls.PLAY() && !playedChord){
         for(uint8_t i = 0; i<pressedKeys.size(); i++){
             MIDI.noteOn(pressedKeys[i]+octave*12,100,1);
         }
         playedChord = true;
     }
-    else if(playedChord && !play){
+    else if(playedChord && !controls.PLAY()){
         for(uint8_t i = 0; i<pressedKeys.size(); i++){
             MIDI.noteOff(pressedKeys[i]+octave*12,100,1);
         }
@@ -125,7 +125,7 @@ QChord editChord(QChord& originalChord){
     }
 
     if(utils.itsbeen(200)){
-        if(loop_Press){
+        if(controls.LOOP()){
             lastTime = millis();
             //if there's no mask, make one
             //(mask uses highlit note as root)
@@ -141,11 +141,11 @@ QChord editChord(QChord& originalChord){
             }
         }
         //selecting/deselecting notes
-        if(sel){
+        if(controls.SELECT() ){
             //making new chord
             lastTime = millis();
             //deselect all notes
-            if(shift){
+            if(controls.SHIFT()){
                 vector<uint8_t> temp;
                 pressedKeys.swap(temp);
             }
@@ -167,7 +167,7 @@ QChord editChord(QChord& originalChord){
             }
         }
         //making a chord
-        if(n || menu_Press){
+        if(controls.NEW() || controls.MENU()){
             lastTime = millis();
             return QChord(pressedKeys);
         }
@@ -255,18 +255,18 @@ void insertChordIntoSequence(QChord chord){
         while(counterA != 0){
             //changing zoom
             if(counterA >= 1){
-                if(shift && (length<(192-subDivInt))){
+                if(controls.SHIFT() && (length<(192-subDivInt))){
                     length+=subDivInt;
                 }
-                else if(!shift){
+                else if(!controls.SHIFT()){
                     zoom(true);
                 }
             }
             if(counterA <= -1){
-                if(shift && (length-subDivInt)>0){
+                if(controls.SHIFT() && (length-subDivInt)>0){
                     length-=subDivInt;
                 }
-                else if(!shift){
+                else if(!controls.SHIFT()){
                     zoom(false);
                 }
             }
@@ -274,7 +274,7 @@ void insertChordIntoSequence(QChord chord){
         }
         while(counterB != 0){
             //if shifting, toggle between 1/3 and 1/4 mode
-            if(shift){
+            if(controls.SHIFT()){
                 toggleTriplets();
             }
             else if(counterB >= 1){
@@ -288,11 +288,11 @@ void insertChordIntoSequence(QChord chord){
         }
         if(utils.itsbeen(200)){
             //quit
-            if(menu_Press){
+            if(controls.MENU()){
                 lastTime = millis();
                 break;
             }
-            if(n){
+            if(controls.NEW()){
                 lastTime = millis();
                 insertChordAt(cursorPos,length,activeTrack,chord,channel,velocity);
                 selBox.begun = false;
@@ -310,7 +310,7 @@ void insertChordIntoSequence(QChord chord){
 }
 
 void chordDJ(){
-    //at most, 16 QChords that can be toggled by the step buttons (w/shift for the second 8)
+    //at most, 16 QChords that can be toggled by the step buttons (w/controls.SHIFT() for the second 8)
     //init with the major and minor chords in C
     vector<QChord> chords = initChordDjList(1,50);
     uint8_t vel = 100;
@@ -355,19 +355,19 @@ void chordDJ(){
         controls.readJoystick();
 
         //while shifting, set the active chord to whatever keys are held
-        if(shift){
+        if(controls.SHIFT()){
             chords[activeChord] = getChordFromPlaylist();
         }
         if(utils.itsbeen(200)){
             //Exiting
-            if(menu_Press){
+            if(controls.MENU()){
                 lastTime = millis();
                 if(binarySelectionBox(64,32,"no","yes","exit?",&drawSeq) == 1){
                     break;
                 }
             }
             //Editing a chord
-            if(sel){
+            if(controls.SELECT() ){
                 lastTime = millis();
                 chords[activeChord] = editChord(chords[activeChord]);
             }
@@ -383,7 +383,7 @@ void chordDJ(){
                 }
             }
             //Committing a chord to the main sequence
-            if(n){
+            if(controls.NEW()){
                 lastTime = millis();
                 insertChordIntoSequence(chords[activeChord]);
             }
@@ -391,7 +391,7 @@ void chordDJ(){
         //checking step buttons to see if a chord should be played
         for(uint8_t i = 0; i<chords.size(); i++){
             if(i<8){
-                if(!shift && controls.stepButton(i)){
+                if(!controls.SHIFT() && controls.stepButton(i)){
                     chords[i].play(vel,channel);
                 }
                 else{
@@ -399,7 +399,7 @@ void chordDJ(){
                 }
             }
             else{
-                if(shift && controls.stepButton(i-8)){
+                if(controls.SHIFT() && controls.stepButton(i-8)){
                     chords[i].play(vel,channel);
                 }
                 else{

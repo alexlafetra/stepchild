@@ -154,7 +154,7 @@ void xyGrid(){
     display.display();
 
     //if you're not keybinding, keep sending vals
-    if(!shift){
+    if(!controls.SHIFT()){
       MIDI.sendCC(controlX,xCoord,channelX);
       MIDI.sendCC(controlY,yCoord,channelY);
       pauseX = false;
@@ -165,7 +165,7 @@ void xyGrid(){
     controls.readJoystick();
 
     //sending CC vals for keybinding
-    if(shift){
+    if(controls.SHIFT()){
       if(controls.joystickX != 0){
         MIDI.sendCC(controlX,xCoord,channelX);
         pauseY = true;
@@ -197,12 +197,12 @@ void xyGrid(){
       counterB += counterB<0?1:-1;;
     }
     if(utils.itsbeen(200)){
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
         gridAnimation(false);
         return;
       }
-      if(play){
+      if(controls.PLAY()){
         togglePlayMode();
         lastTime = millis();
       }

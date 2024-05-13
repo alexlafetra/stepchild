@@ -164,12 +164,12 @@ void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numbe
           pressed = true;
         }
         if(pressed){
-          if(pad == keyboardPitch && shift){//so that you can see the keyboard pitch when shifting through
+          if(pad == keyboardPitch && controls.SHIFT()){//so that you can see the keyboard pitch when shifting through
             drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i+2, width, thickness, width-4, xSlant,0);
           }
           else
             drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i+2, width, thickness, width-4, xSlant,2);
-          if(shift){
+          if(controls.SHIFT()){
             display.setCursor(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i-1,yStart+(width-4+ySpacing)*i+2);
             display.setTextColor(SSD1306_BLACK);
             // display.print(pitchToString(pad,false,true));
@@ -178,12 +178,12 @@ void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numbe
           }
         }
         else{
-          if(pad == keyboardPitch && shift){//so that you can see the keyboard pitch when shifting through
+          if(pad == keyboardPitch && controls.SHIFT()){//so that you can see the keyboard pitch when shifting through
             drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i, width, thickness, width-4, xSlant,0);
           }
           else
             drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i, width, thickness, width-4, xSlant,1);
-          if(shift){
+          if(controls.SHIFT()){
             display.setCursor(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i-1,yStart+(width-4+ySpacing)*i+2);
             display.print(pitchToString(pad,false,true));
           }
@@ -192,7 +192,7 @@ void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numbe
       }
     }
   }
-  if(shift){
+  if(controls.SHIFT()){
     display.setCursor(0,0);
     display.setTextSize(2);
     display.print(getOctave(keyboardPitch));
@@ -274,7 +274,7 @@ void keyboard(){
     readButtons();
     stepButtons();//handles notes, and toggling
     if(utils.itsbeen(200)){
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
         break;
       }

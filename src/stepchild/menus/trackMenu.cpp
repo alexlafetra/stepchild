@@ -2,7 +2,7 @@ void trackUtils();
 
 bool trackMenuControls(){
   //moving menu cursor
-  if(!shift){
+  if(!controls.SHIFT()){
     if(utils.itsbeen(100)){
       if(controls.joystickY != 0){
         if(controls.joystickY == 1){
@@ -25,7 +25,7 @@ bool trackMenuControls(){
     }
   }
   if(utils.itsbeen(100)){
-    if(shift && controls.joystickY != 0){
+    if(controls.SHIFT() && controls.joystickY != 0){
       if(controls.joystickY == -1){
         setActiveTrack(activeTrack-1,true);
         lastTime = millis();
@@ -37,12 +37,12 @@ bool trackMenuControls(){
     }
   }
   if(utils.itsbeen(200)){
-    if(play){
+    if(controls.PLAY()){
       trackData[activeTrack].isPrimed = !trackData[activeTrack].isPrimed;
       lastTime = millis();
     }
-    if(sel){
-      sel = false;
+    if(controls.SELECT() ){
+      controls.setSELECT(false);
       lastTime = millis();
       switch(activeMenu.highlight){
         //tune
@@ -55,7 +55,7 @@ bool trackMenuControls(){
           break;
         case 3:
           trackData[activeTrack].isPrimed = !trackData[activeTrack].isPrimed;
-          if(shift){
+          if(controls.SHIFT()){
             for(uint8_t track = 0; track<trackData.size(); track++){
               trackData[track].isPrimed = trackData[activeTrack].isPrimed;
             }
@@ -67,7 +67,7 @@ bool trackMenuControls(){
           break;
         //mute
         case 5:
-          if(shift){
+          if(controls.SHIFT()){
             muteMultipleTracks(selectMultipleTracks(stringify("Mute which?")));
           }
           else{
@@ -80,7 +80,7 @@ bool trackMenuControls(){
           break;
         //erase
         case 7:
-          if(shift){
+          if(controls.SHIFT()){
             eraseMultipleTracks(selectMultipleTracks(stringify("Erase which?")));
           }
           else{
@@ -95,7 +95,7 @@ bool trackMenuControls(){
         case 9:
           trackData[activeTrack].isLatched = !trackData[activeTrack].isLatched;
           //latch all tracks
-          if(shift){
+          if(controls.SHIFT()){
             for(int track = 0; track<trackData.size(); track++){
               trackData[track].isLatched = trackData[activeTrack].isLatched;
             }
@@ -103,18 +103,18 @@ bool trackMenuControls(){
           break;
       }
     }
-    if(del){
-      if(!shift){
+    if(controls.DELETE()){
+      if(!controls.SHIFT()){
         lastTime = millis();
         deleteTrack(activeTrack);
       }
-      else if(shift){
+      else if(controls.SHIFT()){
         lastTime = millis();
         deleteEmptyTracks();
       }
     }
-    if(n){
-      if(shift)
+    if(controls.NEW()){
+      if(controls.SHIFT())
         dupeTrack(activeTrack);
       else
         addTrack(trackData[activeTrack].pitch+1,true);
@@ -122,7 +122,7 @@ bool trackMenuControls(){
     }
   }
   if(utils.itsbeen(200)){
-    if(controls.A() || menu_Press){
+    if(controls.A() || controls.MENU()){
       slideMenuOut(1,10);
       menuIsActive = false;
       constructMenu("MENU");
@@ -155,7 +155,7 @@ bool trackMenuControls(){
         if(counterA >= 1 || controls.joystickX == -1){
           //pitch
           if(activeMenu.highlight == 0 && trackData[activeTrack].pitch<120){
-            if(shift)
+            if(controls.SHIFT())
               transposeAllPitches(1);
             else
               setTrackPitch(activeTrack,trackData[activeTrack].pitch+1,true);
@@ -163,7 +163,7 @@ bool trackMenuControls(){
           }
           //octave
           else if(activeMenu.highlight == 1 && trackData[activeTrack].pitch<108){
-            if(shift)
+            if(controls.SHIFT())
               transposeAllPitches(12);
             else
               setTrackPitch(activeTrack,trackData[activeTrack].pitch+12,true);
@@ -171,7 +171,7 @@ bool trackMenuControls(){
           }
           //channel
           else if(activeMenu.highlight == 2 && trackData[activeTrack].channel<16){
-            if(shift)
+            if(controls.SHIFT())
               transposeAllChannels(1);
             else
               setTrackChannel(activeTrack,trackData[activeTrack].channel+1,true);
@@ -182,7 +182,7 @@ bool trackMenuControls(){
         if(counterA <= -1 || controls.joystickX == 1){
           //pitch
           if(activeMenu.highlight == 0 && trackData[activeTrack].pitch>0){
-            if(shift)
+            if(controls.SHIFT())
               transposeAllPitches(-1);
             else
               setTrackPitch(activeTrack,trackData[activeTrack].pitch-1,true);
@@ -190,7 +190,7 @@ bool trackMenuControls(){
           }
           //octave
           else if(activeMenu.highlight == 1 && trackData[activeTrack].pitch>11){
-            if(shift)
+            if(controls.SHIFT())
               transposeAllPitches(-12);
             else
               setTrackPitch(activeTrack,trackData[activeTrack].pitch-12,true);
@@ -198,7 +198,7 @@ bool trackMenuControls(){
           }
           //channel
           else if(activeMenu.highlight == 2 && trackData[activeTrack].channel>1){
-            if(shift)
+            if(controls.SHIFT())
               transposeAllChannels(-1);
             else
               setTrackChannel(activeTrack,trackData[activeTrack].channel-1,true);
@@ -238,7 +238,7 @@ void trackMenu(){
   }
 }
 
-//shows options for edit, tune tracks, delete empty tracks, and disarm tracks w/ notes
+//shows options for edit, tune tracks, del empty tracks, and disarm tracks w/ notes
 void drawTrackUtils(uint8_t cursor,vector<String> options){
   const uint8_t x1 = 0;
   const uint8_t y1 = headerHeight;
@@ -255,7 +255,7 @@ void drawTrackUtils(uint8_t cursor,vector<String> options){
 
 void trackUtils(){
   uint8_t cursor = 0;
-  vector<String> options = {"edit tracks","tune 2 scale","delete empty tracks","disarm tracks w notes","sort tracks"};
+  vector<String> options = {"edit tracks","tune 2 scale","del empty tracks","disarm tracks w notes","sort tracks"};
   while(true){
     controls.readJoystick();
     readButtons();
@@ -270,11 +270,11 @@ void trackUtils(){
       }
     }
     if(utils.itsbeen(200)){
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
         break;
       }
-      if(sel){
+      if(controls.SELECT() ){
         lastTime = millis();
         switch(cursor){
           case 0:
@@ -798,7 +798,7 @@ void trackEditMenu(){
       //moving thru params
       if(controls.joystickX != 0){
         //changing params
-        if(shift){
+        if(controls.SHIFT()){
           if(controls.joystickX == 1){
             switch(xCursor){
               //note
@@ -915,7 +915,7 @@ void trackEditMenu(){
           }
         }
       }
-      if(n){
+      if(controls.NEW()){
         addTrack(trackData[activeTrack].pitch);
         setActiveTrack(trackData.size()-1,false);
         lastTime = millis();
@@ -1027,12 +1027,12 @@ void trackEditMenu(){
         }
         counterA += counterA<0?1:-1;
       }
-      if(sel){
+      if(controls.SELECT() ){
         switch(xCursor){
           //if it's on track, select
           case 0:
             //toggles selection on all
-            if(shift){
+            if(controls.SHIFT()){
               trackData[activeTrack].isSelected = !trackData[activeTrack].isSelected;
               for(uint8_t track = 0; track<trackData.size(); track++){
                 trackData[track].isSelected = trackData[activeTrack].isSelected;
@@ -1047,7 +1047,7 @@ void trackEditMenu(){
           //if it's on primed
           case 4:
             //toggles prime on all
-            if(shift){
+            if(controls.SHIFT()){
               trackData[activeTrack].isPrimed = !trackData[activeTrack].isPrimed;
               for(uint8_t track = 0; track<trackData.size(); track++){
                 trackData[track].isPrimed = trackData[activeTrack].isPrimed;
@@ -1066,7 +1066,7 @@ void trackEditMenu(){
           //if it's on latch
           case 5:
             //toggles prime on all
-            if(shift){
+            if(controls.SHIFT()){
               trackData[activeTrack].isLatched = !trackData[activeTrack].isLatched;
               for(uint8_t track = 0; track<trackData.size(); track++){
                 trackData[track].isLatched = trackData[activeTrack].isLatched;
@@ -1084,14 +1084,14 @@ void trackEditMenu(){
             break;
         }
       }
-      if(menu_Press || controls.A()){
+      if(controls.MENU() || controls.A()){
         // menuIsActive = false;
         // constructMenu("MENU");
         for(uint8_t track = 0; track<trackData.size(); track++){
           trackData[track].isSelected = false;
         }
         lastTime = millis();
-        menu_Press = false;
+        controls.setMENU(false) ;
         controls.setA(false);;
         return;
       }

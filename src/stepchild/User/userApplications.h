@@ -48,7 +48,7 @@ void defaultAppFunction(){
         //if it's been 200ms
         if(utils.itsbeen(200)){
             //and the menu button was pressed...
-            if(menu_Press){
+            if(controls.MENU()){
                 //reset "itsbeen" timer
                 lastTime = millis();
                 //and break out of the while loop

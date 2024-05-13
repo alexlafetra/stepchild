@@ -6,12 +6,6 @@
 #define LB_ADDR 0x28 //0101000
 
 /*
-
-Address of the CAP1214 is 7 bits: 0101000
-and then either a 1 or a 0: 0 for writing, 1 for reading
-*/
-
-/*
 Super helpful thread from working with the MPR121 w/ Wire.h
 https://forum.arduino.cc/t/how-to-read-a-register-value-using-the-wire-library/206123/2
 */

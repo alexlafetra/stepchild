@@ -11,12 +11,12 @@ CoordinatePair selectNotesAndArea(String text, void (*iconFunction)(uint8_t,uint
         if(utils.itsbeen(200)){
             defaultLoopControls();
             defaultSelectControls();
-            if(menu_Press){
+            if(controls.MENU()){
                 lastTime = millis();
                 clearSelection();
                 break;
             }
-            if(n){
+            if(controls.NEW()){
                 lastTime = millis();
                 break;
             }
@@ -85,7 +85,7 @@ void reverse(){
                     //deselect the note (because it always comes selected)
                     note.isSelected = false;
 
-                    //delete the old note
+                    //del the old note
                     deleteNote_byID(track,n);
 
                     //place the new note

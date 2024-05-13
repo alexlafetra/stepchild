@@ -111,14 +111,14 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
     readButtons();
     controls.readJoystick();
     //selectionBox
-    //when sel is pressed and stick is moved, and there's no selection box
-    if(sel && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
+    //when controls.SELECT()  is pressed and stick is moved, and there's no selection box
+    if(controls.SELECT()  && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
       selBox.begun = true;
       selBox.coords.start.x = cursorPos;
       selBox.coords.start.y = activeTrack;
     }
-    //if sel is released, and there's a selection box
-    if(!sel && selBox.begun){
+    //if controls.SELECT()  is released, and there's a selection box
+    if(!controls.SELECT()  && selBox.begun){
       selBox.coords.end.x = cursorPos;
       selBox.coords.end.y = activeTrack;
       if(selBox.coords.start.x>selBox.coords.end.x){
@@ -158,7 +158,7 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
     if(utils.itsbeen(100)){
       if(controls.joystickX != 0){
         if(!movingBetweenNotes){
-          if (controls.joystickX == 1 && !shift) {
+          if (controls.joystickX == 1 && !controls.SHIFT()) {
             if(cursorPos%subDivInt){
               moveCursor(-cursorPos%subDivInt);
               lastTime = millis();
@@ -168,7 +168,7 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
               lastTime = millis();
             }
           }
-          if (controls.joystickX == -1 && !shift) {
+          if (controls.joystickX == -1 && !controls.SHIFT()) {
             if(cursorPos%subDivInt){
               moveCursor(subDivInt-cursorPos%subDivInt);
               lastTime = millis();
@@ -193,11 +193,11 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
     }
     if(utils.itsbeen(200)){
       //select
-      if(sel && lookupData[activeTrack][cursorPos] != 0 && !selBox.begun){
+      if(controls.SELECT()  && lookupData[activeTrack][cursorPos] != 0 && !selBox.begun){
         unsigned short int id;
         id = lookupData[activeTrack][cursorPos];
-        if(shift){
-          //delete old vec
+        if(controls.SHIFT()){
+          //del old vec
           vector<vector<uint8_t>> temp;
           temp.resize(trackData.size());
           selectedNotes = temp;
@@ -221,17 +221,17 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
         }
         lastTime = millis();
       }
-      if(del){
+      if(controls.DELETE()){
         lastTime = millis();
         selectedNotes.clear();
         break;
       }
-      if(n){
-        n = false;
+      if(controls.NEW()){
+        controls.setNEW(false);
         lastTime = millis();
         break;
       }
-      if(loop_Press){
+      if(controls.LOOP()){
         lastTime = millis();
         movingBetweenNotes = !movingBetweenNotes;
       }
@@ -267,30 +267,30 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
     controls.readJoystick();
     readButtons();
     defaultEncoderControls();
-    if(sel && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
+    if(controls.SELECT()  && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
       selBox.begun = true;
       selBox.coords.start.x = cursorPos;
       selBox.coords.start.y = activeTrack;
     }
-    //if sel is released, and there's a selection box
-    if(!sel && selBox.begun){
+    //if controls.SELECT()  is released, and there's a selection box
+    if(!controls.SELECT()  && selBox.begun){
       selBox.coords.end.x = cursorPos;
       selBox.coords.end.y = activeTrack;
       selBox.begun = false;
       selectBox();
     }
     if(utils.itsbeen(200)){
-      if(n){
+      if(controls.NEW()){
         lastTime = millis();
         return true;
       }
-      if(menu_Press){
+      if(controls.MENU()){
         clearSelection();
         lastTime = millis();
         return false;
       }
-      if(sel){
-        if(shift){
+      if(controls.SELECT() ){
+        if(controls.SHIFT()){
           clearSelection();
           toggleSelectNote(activeTrack,getIDAtCursor(),false);
         }
@@ -301,7 +301,7 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
       }
     }
     if (utils.itsbeen(100)) {
-      if (controls.joystickX == 1 && !shift) {
+      if (controls.joystickX == 1 && !controls.SHIFT()) {
         //if cursor isn't on a measure marker, move it to the nearest one
         if(cursorPos%subDivInt){
           moveCursor(-cursorPos%subDivInt);
@@ -312,7 +312,7 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
           lastTime = millis();
         }
       }
-      if (controls.joystickX == -1 && !shift) {
+      if (controls.joystickX == -1 && !controls.SHIFT()) {
         if(cursorPos%subDivInt){
           moveCursor(subDivInt-cursorPos%subDivInt);
           lastTime = millis();
@@ -338,11 +338,11 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
       }
     }
     if (utils.itsbeen(50)) {
-      if (controls.joystickX == 1 && shift) {
+      if (controls.joystickX == 1 && controls.SHIFT()) {
         moveCursor(-1);
         lastTime = millis();
       }
-      if (controls.joystickX == -1 && shift) {
+      if (controls.joystickX == -1 && controls.SHIFT()) {
         moveCursor(1);
         lastTime = millis();
       }

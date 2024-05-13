@@ -152,8 +152,8 @@ bool mainMenuControls(){
     }
   }
   if(utils.itsbeen(200)){
-    if(menu_Press){
-      if(shift){
+    if(controls.MENU()){
+      if(controls.SHIFT()){
         slideMenuOut(0,20);
         lastTime = millis();
         constructMenu("DEBUG");
@@ -165,18 +165,18 @@ bool mainMenuControls(){
         return false;
       }
     }
-    if(loop_Press){
+    if(controls.LOOP()){
       lastTime = millis();
       loopMenu();
     }
-    if(n){
+    if(controls.NEW()){
       lastTime = millis();
       slideMenuOut(0,20);
       constructMenu("FX");
       fxMenu();
     }
-    if(sel){
-      sel = false;
+    if(controls.SELECT() ){
+      controls.setSELECT(false);
       lastTime = millis();
       switch(activeMenu.highlight){
         //autotracks
@@ -198,7 +198,7 @@ bool mainMenuControls(){
         //quicksave
         case 4:
           //if you're shifting, load most recent backup
-          if(shift){
+          if(controls.SHIFT()){
             loadBackup();
           }
           else{

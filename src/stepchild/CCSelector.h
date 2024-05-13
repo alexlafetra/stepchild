@@ -322,8 +322,8 @@ uint8_t selectCCParam_autotrack(uint8_t which){
           lastTime = millis();
         }
       }
-      if(sel){
-        sel = false;
+      if(controls.SELECT() ){
+        controls.setSELECT(false);
         lastTime = millis();
         //if it's no longer an internal track, 
         autotrackData[activeAutotrack].parameterType = which;
@@ -336,8 +336,8 @@ uint8_t selectCCParam_autotrack(uint8_t which){
         else
           return targetParam;
       }
-      if(menu_Press){
-        menu_Press = false;
+      if(controls.MENU()){
+        controls.setMENU(false) ;
         lastTime = millis();
         return autotrackData[activeAutotrack].control;
       }

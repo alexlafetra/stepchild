@@ -46,8 +46,6 @@
   volatile int16_t counterB;
 #endif
 
-bool n,sel,shift,del,play,loop_Press,copy_Press,menu_Press;
-
 //Holds all the hardware input functions (and the headless overloads)
 //Accessed like Stepchild.buttons.buttonState(LOOP)?
 //or just buttons.play(), buttons.loop()
@@ -86,7 +84,7 @@ class StepchildHardwareInput{
     pinMode(B_CLOCK, INPUT_PULLUP);
     pinMode(B_DATA, INPUT_PULLUP);
 
-    //button bit shift reg
+    //button bit controls.SHIFT() reg
     pinMode(BUTTONS_DATA, INPUT);
     pinMode(BUTTONS_LOAD, OUTPUT);
     pinMode(BUTTONS_CLOCK_IN, OUTPUT);
@@ -357,7 +355,7 @@ class StepchildHardwareInput{
 StepchildHardwareInput controls;
 
 bool justOneButton(){
-  int score = n+sel+shift+del+loop_Press+play+copy_Press+menu_Press+controls.A()+controls.B();
+  int score = controls.NEW()+controls.SELECT() +controls.SHIFT()+controls.DELETE()+controls.LOOP()+controls.PLAY()+controls.COPY()+controls.MENU()+controls.A()+controls.B();
   if(score == 1)
     return true;
   else
@@ -393,14 +391,14 @@ void readButtons_MPX(){
   }
 
   //setting each button accordingly
-  n = !buttons[7];
-  shift = !buttons[6];
-  sel = !buttons[5];
-  del = !buttons[4];
-  loop_Press = !buttons[3];
-  play = !buttons[2];
-  copy_Press = !buttons[1];
-  menu_Press = !buttons[0];
+  controls.setNEW(!buttons[7]);
+  controls.setSHIFT(!buttons[6]);
+  controls.setSELECT(!buttons[5]);
+  controls.setDELETE(!buttons[4]);
+  controls.setLOOP(!buttons[3]);
+  controls.setPLAY(!buttons[2]);
+  controls.setCOPY(!buttons[1]);
+  controls.setMENU(!buttons[0]);
 }
 
 #else
@@ -411,14 +409,14 @@ void readButtons_MPX(){
     catch(...){
         cout<<"oh shit";
     }
-    n = newKeyVal;
-    shift = shiftKeyVal;
-    sel = selectKeyVal;
-    del = deleteKeyVal;
-    loop_Press = loopKeyVal;
-    play = playKeyVal;
-    copy_Press = copyKeyVal;
-    menu_Press = menuKeyVal;
+    controls.setNEW(newKeyVal);
+    controls.setSHIFT(shiftKeyVal);
+    controls.setSELECT(selectKeyVal);
+    controls.setDELETE(deleteKeyVal);
+    controls.setLOOP(loopKeyVal);
+    controls.setPLAY(playKeyVal);
+    controls.setCOPY(copyKeyVal);
+    controls.setMENU(menuKeyVal);
 
     for(uint8_t i = 0; i<8; i++){
       controls.setStepButton(i,headlessStepButtons[i]);
@@ -434,13 +432,13 @@ void readButtons(){
 }
 #else
 void readButtons(){
-  controls.setB(encAPRESS);
-  controls.setA(encBPRESS);
-  encAPRESS = 0;
-  encBPRESS = 0;
-  readButtons_MPX();
+   controls.setB(encAPRESS);
+   controls.setA(encBPRESS);
+   encAPRESS = 0;
+   encBPRESS = 0;
+   readButtons_MPX();
 
-  // controls.readButtons();
+//  controls.readButtons();
 }
 #endif
 
@@ -585,7 +583,7 @@ void writeLEDs(uint8_t first, uint8_t last){
     }
   }
   dat = ((dat * 0x0802LU & 0x22110LU) | (dat * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
-  // sending data to shift reg
+  // sending data to controls.SHIFT() reg
   // digitalWrite(latchPin_LEDS, LOW);
   // shiftOut(dataPin_LEDS, clockPin_LEDS, MSBFIRST, dat);
   // digitalWrite(latchPin_LEDS, HIGH);
@@ -607,7 +605,7 @@ void writeLEDs(bool leds[16]){
 
 void turnOffLEDs(){
   uint8_t dat = 0;
-  // sending data to shift reg
+  // sending data to controls.SHIFT() reg
   lowerBoard.writeLEDs(dat);
 }
 
@@ -621,16 +619,16 @@ void clearButtons(){
   counterB = 0;
   controls.joystickX = false;
   controls.joystickY = false;
-  n = false;
-  sel = false;
-  shift = false;
-  del = false;
-  play = false;
-  controls.setA(false);;
-  controls.setB(false);;
-  loop_Press = false;
-  copy_Press = false;
-  menu_Press = false;
+  controls.setA(false);
+  controls.setB(false);
+  controls.setNEW(false);
+  controls.setSHIFT(false);
+  controls.setSELECT(false);
+  controls.setDELETE(false);
+  controls.setLOOP(false);
+  controls.setPLAY(false);
+  controls.setCOPY(false);
+  controls.setMENU(false) ;
 }
 
 #ifndef HEADLESS
@@ -683,7 +681,7 @@ bool anyActiveInputs(){
 #else
 bool anyActiveInputs(){
   readButtons();
-  if(controls.joystickX || controls.joystickY || n || shift || sel || del || loop_Press || play || copy_Press || menu_Press || counterA || counterB || controls.B() || controls.A())
+  if(controls.joystickX || controls.joystickY || controls.NEW() || controls.SHIFT() || controls.SELECT()  || controls.DELETE() || controls.LOOP() || controls.PLAY() || controls.COPY() || controls.MENU() || counterA || counterB || controls.B() || controls.A())
     return true;
   else
     return false;

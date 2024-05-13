@@ -82,7 +82,7 @@ void strum(uint8_t type, uint8_t sortBy, uint16_t amount, int8_t variation){
         //move each note 
         for(uint16_t note = 0; note<selectedNoteIDs.size(); note++){
 
-            //copy note then delete it
+            //copy note then del it
             Note newNote = selectedNoteIDs[note].getNote();
             deleteNote_byID(selectedNoteIDs[note].track,selectedNoteIDs[note].id);
 
@@ -155,7 +155,7 @@ void strumMenu(){
             switch(cursor){
                 //amount (delay)
                 case 0:
-                    if(shift)
+                    if(controls.SHIFT())
                         toggleTriplets(amount);
                     else
                         amount = changeSubDiv(counterA>0,amount,false);
@@ -182,7 +182,7 @@ void strumMenu(){
             switch(cursor){
                 //amount (delay)
                 case 0:
-                    if(shift)
+                    if(controls.SHIFT())
                         toggleTriplets(amount);
                     else
                         amount = changeSubDiv(counterB>0,amount,false);
@@ -207,11 +207,11 @@ void strumMenu(){
             counterB += counterB<0?1:-1;
         }
         if(utils.itsbeen(200)){
-            if(menu_Press){
+            if(controls.MENU()){
                 lastTime = millis();
                 break;
             }
-            if(n){
+            if(controls.NEW()){
                 lastTime = millis();
                 strum(sortType, sortValue, amount, randomness);
             }

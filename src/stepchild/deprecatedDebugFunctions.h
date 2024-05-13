@@ -151,7 +151,7 @@ void testJoyStick(){
   while(true){
     controls.readJoystick();
     readButtons();
-    if(utils.itsbeen(200) && menu_Press){
+    if(utils.itsbeen(200) && controls.MENU()){
       lastTime = millis();
       return;
     }
@@ -248,8 +248,8 @@ void keyListen() {
       defaultPitch++;
         displaySeqSerial();
       break;
-    case 'd'://deleting the selected note(s)
-      //Serial.print("attempting to delete ");
+    case 'd'://controls.DELETE()eting the selected note(s)
+      //Serial.print("attempting to del ");
       if (selectionCount > 0) {
         //Serial.print("all selected notes...\n");
         deleteSelected();
@@ -309,21 +309,21 @@ void keyListen() {
   }
 }
 void debugButtonPrint(){
-  if(n)
+  if(controls.NEW())
     //Serial.println("n");
-  if(sel)
-    //Serial.println("sel");
-  if(shift)
-    //Serial.println("shift");
-  if(del)
-    //Serial.println("del");
-  if(loop_Press)
+  if(controls.SELECT() )
+    //Serial.println("controls.SELECT() ");
+  if(controls.SHIFT())
+    //Serial.println("controls.SHIFT()");
+  if(controls.DELETE())
+    //Serial.println("controls.DELETE()");
+  if(controls.LOOP())
     //Serial.println("loop");
-  if(play)
+  if(controls.PLAY())
     //Serial.println("play");
-  if(copy_Press)
+  if(controls.COPY())
     //Serial.println("copy");
-  if(menu_Press)
+  if(controls.MENU())
     //Serial.println("menu");
 
   for(int i = 0; i<8; i++){
@@ -738,7 +738,7 @@ void playBackMenu(){
             break;  
         }
       }
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
         //go back to menu-select
         if(menuState){
@@ -747,11 +747,11 @@ void playBackMenu(){
         }
         //or break out of menu
         else{
-          menu_Press = false;
+          controls.setMENU(false) ;
           return;
         }
       }
-      if(sel){
+      if(controls.SELECT() ){
         lastTime = millis();
         switch(menuState){
           //selecting a menu
@@ -876,7 +876,7 @@ void recMenu(){
             //count-in
             case 3:
               if(controls.joystickX == 1){
-                if(shift){
+                if(controls.SHIFT()){
                   if(recCountIn == 0)
                     waitForNoteBeforeRec = true;
                   else{
@@ -903,7 +903,7 @@ void recMenu(){
                   lastTime = millis();
                 }
                 else{
-                  if(shift && recCountIn<65535){
+                  if(controls.SHIFT() && recCountIn<65535){
                     recCountIn++;
                     lastTime = millis();
                   }
@@ -921,7 +921,7 @@ void recMenu(){
             //rec for
             case 4:
               if(controls.joystickX == 1){
-                if(shift && recForNSteps>0){
+                if(controls.SHIFT() && recForNSteps>0){
                   recForNSteps--;
                   lastTime = millis();
                 }
@@ -931,7 +931,7 @@ void recMenu(){
                 }
               }
               else if(controls.joystickX == -1){
-                if(shift && recForNSteps<65535){
+                if(controls.SHIFT() && recForNSteps<65535){
                   recForNSteps++;
                   lastTime = millis();
                 }
@@ -964,10 +964,10 @@ void recMenu(){
           }
         }
       }
-      if(sel){
+      if(controls.SELECT() ){
         if(whichWindow){
           trackData[activeT].isPrimed = !trackData[activeT].isPrimed;
-          if(shift){
+          if(controls.SHIFT()){
             for(int i = 0; i<trackData.size(); i++){
               trackData[i].isPrimed = trackData[activeT].isPrimed;
             }
@@ -982,7 +982,7 @@ void recMenu(){
           }
         }
       }
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
         break;
       }

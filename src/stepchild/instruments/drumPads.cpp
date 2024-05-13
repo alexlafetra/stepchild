@@ -25,21 +25,21 @@ void drumPad(){
     }
     //play/rec
     if(utils.itsbeen(200)){
-      if(play && !recording){
-        if(!shift){
+      if(controls.PLAY() && !recording){
+        if(!controls.SHIFT()){
           lastTime = millis();
           togglePlayMode();
         }
-        else if(shift){
+        else if(controls.SHIFT()){
           lastTime = millis();
           toggleRecordingMode(waitForNoteBeforeRec);
         }
       }
-      if(play && recording){
+      if(controls.PLAY() && recording){
         lastTime = millis();
         toggleRecordingMode(waitForNoteBeforeRec);
       }
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
         break;
       }

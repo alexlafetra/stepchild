@@ -159,11 +159,11 @@ void rain(){
     readButtons();
     controls.readJoystick();
     if(utils.itsbeen(200)){
-      if(play){
+      if(controls.PLAY()){
         lastTime = millis();
         isPlaying = !isPlaying;
       }
-      if(n){
+      if(controls.NEW()){
         lastTime = millis();
         pitchList = selectKeys(startPitch);
         lastTime = millis();
@@ -186,7 +186,7 @@ void rain(){
         }
         //A changes the width/spread
         while(counterA != 0){
-          if(shift){
+          if(controls.SHIFT()){
             if(counterA>0 && startPitch<127){
               startPitch++;
             }
@@ -214,11 +214,11 @@ void rain(){
           lastTime = millis();
         }
         if(utils.itsbeen(200)){
-          if(shift){
+          if(controls.SHIFT()){
             lastTime = millis();
             menuState = !menuState;
           }
-          if(menu_Press){
+          if(controls.MENU()){
             lastTime = millis();
             menuState = !menuState;
           }
@@ -322,7 +322,7 @@ void rain(){
           }
         }
         if(utils.itsbeen(200)){
-          if(sel){
+          if(controls.SELECT() ){
             lastTime = millis();
             switch(cursor){
               case 0:
@@ -343,7 +343,7 @@ void rain(){
                 return;
             }
           }
-          if(menu_Press){
+          if(controls.MENU()){
             if(menuState && cursor != 5){
               cursor = 5;
               lastTime = millis();
@@ -414,7 +414,7 @@ void rain(){
       const uint8_t y1 = 2;
       display.fillRoundRect(-2-menuOffset,y1-2,menuWidth,57,3,0);
       display.drawRoundRect(-2-menuOffset,y1-2,menuWidth,57,3,1);
-      printSmall(-menuOffset,y1,"$"+pitchToString(startPitch,false,true)+"[sel]",1);
+      printSmall(-menuOffset,y1,"$"+pitchToString(startPitch,false,true)+"[controls.SELECT() ]",1);
       printSmall(-menuOffset,y1+spacing,"octaves:",1);
       printSmall(2-menuOffset,y1+spacing*2,stringify(minOct)+" to "+stringify(maxOct),1);
       printSmall(-menuOffset,y1+spacing*3,"vel:",1);

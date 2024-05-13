@@ -72,24 +72,50 @@ using namespace std;
 #endif
 
 //class prototypes
+
+//Objects for storing data
 class Knob;
 class WireFrame;
 class Note;
 class Track;
 class Autotrack;
+class SelectionBox;
+class ProgramChange;
+class Arp;
+class Menu;
+class NoteID;
+
+//Objects for accessing stepchild functions
+class StepchildCV;
+class StepchildSequence;//unfinished
+class StepchildGraphics;
+class StepchildHardwareInput;
+class StepchildUtilities;
+class StepchildMIDI;
+class LowerBoard;
+
+//objects specifically used for menus, apps
+class ConsoleLog;
+class PlayList;
+class Chord;
+class Progression;
+class Humanizer;
+class HumanizeBlob;
+class QChord;
+class Moon;
+class Planet;
+class SolarSystem;
+class Raindrop;
+
+//structs
 struct CoordinatePair;
 struct Coordinate;
-class SelectionBox;
-
-//Data variables -------------------------------------------
-unsigned short int copyPos[2];//stores the coordinates of the cursor when copying
-vector<vector<uint16_t> > lookupData; //char map of notes; 0 = no note, 1-665,535 = noteID
-vector<vector<Note>> seqData;//making a 2D vec, number of rows = tracks, number of columns = usable notes, and stores Note objects
-vector<vector<Note>> copyBuffer;//stores copied notes
-//holds all the autotracks
-vector<Autotrack> autotrackData;
-vector<Track> trackData;//holds the tracks in the sequence
-
+struct CCData;
+struct NoteData;
+struct PolarVertex2D;
+struct NoteTrackPair;
+struct EchoData;
+struct RandomData;
 //Stores loop data as start,end,reps,and type
 struct Loop{
   //The start of the Loop (in steps)
@@ -110,9 +136,6 @@ struct Loop{
   */
 };
 vector<Loop> loopData;
-
-unsigned short int animOffset = 0;//for animating curves
-
 //each of the modifiers stores a channel, and a value
 //the parameter gets modified
 //gets added to notes in the vel modifier channel
@@ -124,6 +147,20 @@ struct GlobalModifiers{
 };
 
 GlobalModifiers globalModifiers;
+
+
+//Data variables -------------------------------------------
+unsigned short int copyPos[2];//stores the coordinates of the cursor when copying
+vector<vector<uint16_t> > lookupData; //char map of notes; 0 = no note, 1-665,535 = noteID
+vector<vector<Note>> seqData;//making a 2D vec, number of rows = tracks, number of columns = usable notes, and stores Note objects
+vector<vector<Note>> copyBuffer;//stores copied notes
+//holds all the autotracks
+vector<Autotrack> autotrackData;
+vector<Track> trackData;//holds the tracks in the sequence
+
+
+
+unsigned short int animOffset = 0;//for animating curves
 
 //bitmaps for graphics
 #include "bitmaps.h"
@@ -141,7 +178,6 @@ GlobalModifiers globalModifiers;
 //common helper functions/utilities
 //string utilities for parsing musical data
 #include "utils.h"
-// #include "buttons.h"
 
 //classes
 #include "classes/WireFrame.h"//wireframe stuff
@@ -233,7 +269,6 @@ void rotaryActionB_Handler(){
 
 #include "trackEditing.h"
 #include "fileSystem.h"
-#include "setup.h"
 #include "screenSavers.h"
 #include "recording.h"
 #include "keyboard.h"
@@ -242,3 +277,4 @@ void rotaryActionB_Handler(){
 
 #include "TBA_Features.h"
 #include "deprecatedDebugFunctions.h"
+#include "everything.h"

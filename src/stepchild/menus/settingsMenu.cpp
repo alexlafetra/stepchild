@@ -185,8 +185,8 @@ void settingsMenu(){
             break;
         }
       }
-      if(menu_Press){
-        menu_Press = false;
+      if(controls.MENU()){
+        controls.setMENU(false) ;
         lastTime = millis();
         // constructMenu("MENU");
         return;
@@ -198,11 +198,11 @@ void settingsMenu(){
             //changing screen brightness
             if(xCursor == 8){
               if(counterA<0){
-                if(shift && screenBrightness>0){
+                if(controls.SHIFT() && screenBrightness>0){
                   screenBrightness--;
                   changedBrightness = true;
                 }
-                else if(!shift && screenBrightness>16){
+                else if(!controls.SHIFT() && screenBrightness>16){
                   screenBrightness-=16;
                   changedBrightness = true;
                 }
@@ -212,7 +212,7 @@ void settingsMenu(){
                 }
               }
               else if(counterA>0){
-                if(shift && screenBrightness<255){
+                if(controls.SHIFT() && screenBrightness<255){
                   screenBrightness++;
                   changedBrightness = true;
                 }
@@ -234,7 +234,7 @@ void settingsMenu(){
         display.ssd1306_command(SSD1306_SETCONTRAST);
         display.ssd1306_command(screenBrightness);
       }
-      if(sel){
+      if(controls.SELECT() ){
         switch(menuTab){
           //seq
           case 0:
@@ -269,10 +269,10 @@ void settingsMenu(){
               case 6:{
                 lastTime = millis();
                 int8_t choice = 1;
-                //if there are notes that will be deleted
+                //if there are notes that will be deld
                 uint16_t countedNotes = countNotesInRange(seqEnd-96,seqEnd);
                 if(countedNotes)
-                  choice = binarySelectionBox(64,32,"naur","sure","this will delete "+stringify(countedNotes)+" note(s), ok?",displaySettingsMenu_selectionBox);
+                  choice = binarySelectionBox(64,32,"naur","sure","this will del "+stringify(countedNotes)+" note(s), ok?",displaySettingsMenu_selectionBox);
                 if(choice == 1){
                   removeTimeFromSeq(96,seqEnd-96);
                 }
@@ -289,7 +289,7 @@ void settingsMenu(){
                 break;
               //load/write to flash
               case 9:
-                if(shift){
+                if(controls.SHIFT()){
                   loadSettings();
                   lastTime = millis();
                 }
@@ -438,7 +438,7 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
         //save
         case 9:
           graphics.drawArrow(116,50+((millis()/400)%2),2,3,true);
-          graphics.drawLabel(116,43,shift?"load":"save",true);
+          graphics.drawLabel(116,43,controls.SHIFT()?"load":"save",true);
           break;
       }
     }

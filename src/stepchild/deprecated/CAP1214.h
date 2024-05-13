@@ -6,9 +6,9 @@ class CAP1214{
 			CAP1214_BTN_STATUS_2	= 0x04,
 			CAP1214_SLIDER_POS		= 0x06,/**< Slider position, Volumetric Data.*/
 			CAP1214_VOLUM_STEP		= 0x09,
-			CAP1214_DELTA_COUNT		= 0x10,/**< [0x10 -> 0x1D] Sensor Input Delta Count. Stores the delta count for CSx (0x10 = CS1, 0x1D = CS14)*/
+			CAP1214_DELTA_COUNT		= 0x10,/**< [0x10 -> 0x1D] Sensor Input Delta Count. Stores the controls.DELETE()ta count for CSx (0x10 = CS1, 0x1D = CS14)*/
 			CAP1214_QUEUE_CTRL		= 0x1E,
-			CAP1214_DATA_SENSITIV	= 0x1F,/**< Sensitivity Control Controls the sensitivity of the threshold and delta counts and data scaling of the base counts*/
+			CAP1214_DATA_SENSITIV	= 0x1F,/**< Sensitivity Control Controls the sensitivity of the threshold and controls.DELETE()ta counts and data scaling of the base counts*/
 			CAP1214_GLOBAL_CONFIG	= 0x20,
 			CAP1214_SENSOR_ENABLE	= 0x21,/**< Sensor Input Enable Controls whether the capacitive touch sensor inputs are sampled*/
 			CAP1214_BTN_CONFIG		= 0x22,
@@ -17,7 +17,7 @@ class CAP1214{
 			CAP1214_FRCE_CALIB		= 0x26, //Recalibrates 0-7
 			CAP1214_IRQ_ENABLE_1	= 0x27,
 			CAP1214_IRQ_ENABLE_2	= 0x28,
-			CAP1214_SENSOR_THRES	= 0x30,/**< [30h -> 37h] Sensor Input Threshold. Stores the delta count threshold to determine a touch for Capacitive Touch Sensor Input x (30h = 1, 37h = 8)*/
+			CAP1214_SENSOR_THRES	= 0x30,/**< [30h -> 37h] Sensor Input Threshold. Stores the controls.DELETE()ta count threshold to determine a touch for Capacitive Touch Sensor Input x (30h = 1, 37h = 8)*/
 			CAP1214_GLOBAL_CONFIG_2	= 0x40,/**Controls whether or not sliders are active*/
       CAP1214_FRCE_CALIB_2  = 0x46, // Recalibrates 8-14
       CAP1214_LED_STATUS_1 = 0x60,
@@ -55,14 +55,14 @@ class CAP1214{
     /*
     Sensitivity values are between 0 (most sensitive) and 111b (7)
     0 = 128x, 1 = 64x, 2 = 32x, 3 = 16x, 4 = 8x, 5 = 4x, 6 = 2x, 7 = 1x
-    The data sensitivity byte is stored as (4 bits for sensitivity) (4 bits for the base shift)
-    This method only updates sensitivity! Datasheets says most applications shouldn't need to update the base shift values
+    The data sensitivity byte is stored as (4 bits for sensitivity) (4 bits for the base controls.SHIFT())
+    This method only updates sensitivity! Datasheets says most applications shouldn't need to update the base controls.SHIFT() values
     */
     void setSensitivity(unsigned char val){
       //bounds check
       if(val>7)
         val = 7;
-      //Combine value with the default base shift value, so that you don't overwrite it w something weird
+      //Combine value with the default base controls.SHIFT() value, so that you don't overwrite it w something weird
       this->writeByteToRegister(CAP1214_DATA_SENSITIV,(val<<4)|0b1111);
       
     }
@@ -111,7 +111,7 @@ class CAP1214{
       /*
       buttons1 is [UP,   DOWN,   CS6,  CS5,  CS4, CS3, CS2, CS1]
       buttons2 is [CS14, CS13,  cS12, CS11, CS10, cS9, CS8, CS7]
-      So we need to shift buttons1 to get rid of up/down flags, then concatenate both bytes, then shift them back!
+      So we need to controls.SHIFT() buttons1 to get rid of up/down flags, then concatenate both bytes, then controls.SHIFT() them back!
       This gives us [0,1,2,3,4,5,6,7,8,9,10,11,12,13,NA,NA].
       */
       unsigned short int buttonsBoth = ((buttons1 & 0b00111111)) | (buttons2<<6);

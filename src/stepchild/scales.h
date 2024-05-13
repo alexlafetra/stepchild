@@ -86,18 +86,18 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
       }
     }
     if (utils.itsbeen(200)) {
-      if (sel) {
-        sel = false;
+      if (controls.SELECT() ) {
+        controls.setSELECT(false);
         lastTime = millis();
         keys[selected] = !keys[selected];
       }
-      if(n){
-        n = false;
+      if(controls.NEW()){
+          controls.setNEW(false);
         lastTime = millis();
         done = true;
       }
-      if(menu_Press){
-        menu_Press = false;
+      if(controls.MENU()){
+        controls.setMENU(false) ;
         lastTime = millis();
         done = true;
       }
@@ -146,7 +146,7 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
     //also changing root and scale, but with joystick
     if(utils.itsbeen(200)){
       if(controls.joystickY != 0){
-        if(shift){
+        if(controls.SHIFT()){
           if(controls.joystickY == 1){
             root++;
             root%=12;

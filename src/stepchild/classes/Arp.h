@@ -366,7 +366,7 @@ void Arp::setOrder() {
 void drawArpStepLengths(uint8_t xStart, uint8_t yStart, uint8_t startNote, uint8_t xCursor, bool selected){
   if(activeArp.uniformLength){
     graphics.drawCenteredBanner(64,20,"using uniform steps of "+stepsToMeasures(activeArp.arpSubDiv));
-    graphics.drawLabel(64,32,"[sel] to toggle custom steps",true);
+    graphics.drawLabel(64,32,"[controls.SELECT() ] to toggle custom steps",true);
   }
   uint8_t spacing = 3;
   uint8_t thickness = (screenWidth-8)/activeArp.lengths.size()-spacing;

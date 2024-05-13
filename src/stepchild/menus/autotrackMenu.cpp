@@ -107,7 +107,7 @@ void dupeAutotrack(uint8_t which){
 }
 
 void deleteAutotrack(uint8_t track){
-  //only delete tracks if there'll be one left over
+  //only del tracks if there'll be one left over
   vector<Autotrack> temp;
   for(uint8_t i = 0; i<autotrackData.size(); i++){
     if(i != track)
@@ -136,7 +136,7 @@ void selectDataPoint(uint16_t index){
         temp.push_back(autotrackData[activeAutotrack].selectedPoints[i]);
       }
     }
-    //if it was already selected, swap vectors with temp to delete it from the selection
+    //if it was already selected, swap vectors with temp to del it from the selection
     if(alreadySelected){
       autotrackData[activeAutotrack].selectedPoints.swap(temp);
     }
@@ -390,7 +390,7 @@ void setAutotrackTrigger(uint8_t whichAT){
     controls.readJoystick();
     readButtons();
     if(utils.itsbeen(200)){
-      if(shift || loop_Press){
+      if(controls.SHIFT() || controls.LOOP()){
         autotrackData[whichAT].gated = !autotrackData[whichAT].gated;
         lastTime = millis();
       }
@@ -406,7 +406,7 @@ void setAutotrackTrigger(uint8_t whichAT){
           trigSource--;
         }
       }
-      if(sel){
+      if(controls.SELECT() ){
         lastTime = millis();  
         if(togglingGate){
           autotrackData[whichAT].gated = !autotrackData[whichAT].gated;
@@ -429,7 +429,7 @@ void setAutotrackTrigger(uint8_t whichAT){
           return;
         }
       }
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
         return;
       }
@@ -513,7 +513,7 @@ void autotrackEditor(){
     controls.readJoystick();
     if(settingRecInput){   
       //once copy press is released, after at least one param has been selected
-      if(!copy_Press){
+      if(!controls.COPY()){
         recInputSet = false;
         settingRecInput = false;
       }   
@@ -553,7 +553,7 @@ void autotrackEditor(){
           return;
         }
       }
-      if(shift){
+      if(controls.SHIFT()){
         MIDI.sendCC(autotrackData[activeAutotrack].control,127,autotrackData[activeAutotrack].channel);      
       }
     }
@@ -610,7 +610,7 @@ void selectDataPoint(uint16_t index, bool state){
         temp.push_back(autotrackData[activeAutotrack].selectedPoints[i]);
       }
     }
-    //if it was already selected, and you don't want it to be, delete it
+    //if it was already selected, and you don't want it to be, del it
     if(!state){
       autotrackData[activeAutotrack].selectedPoints.swap(temp);
     }
@@ -635,7 +635,7 @@ void selectDataPoint(uint16_t index, bool state){
 void deleteDataPoint(uint16_t point, uint8_t track){
   //if the track and point are in bounds
   if(track<autotrackData.size() && point <= seqEnd){
-    //deleting data stored there
+    //controls.DELETE()eting data stored there
     autotrackData[track].data[point] = 255;
     //deselecting it (maybe it's better to not deselect it? idk)
     selectDataPoint(point, false);
@@ -823,7 +823,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
   //zoom/subdiv zoom
   while(counterA != 0 && !recordingToAutotrack){
     //changing zoom
-    if(!shift){
+    if(!controls.SHIFT()){
       if(counterA >= 1){
           zoom(true);
         }
@@ -846,7 +846,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
     counterA += counterA<0?1:-1;
   }
   while(counterB != 0 && !recordingToAutotrack){
-    if(!shift){   
+    if(!controls.SHIFT()){   
       if(counterB >= 1){
         changeSubDivInt(true);
       }
@@ -869,17 +869,17 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
   if(!recordingToAutotrack || autotrackData[activeAutotrack].recordFrom != 3){
     if (utils.itsbeen(50)) {
       //moving
-      if (controls.joystickX == 1 && shift) {
+      if (controls.joystickX == 1 && controls.SHIFT()) {
         moveAutotrackCursor(-1);
         lastTime = millis();
       }
-      if (controls.joystickX == -1 && shift) {
+      if (controls.joystickX == -1 && controls.SHIFT()) {
         moveAutotrackCursor(1);
         lastTime = millis();
       }
     }
     if (utils.itsbeen(100)) {
-      if (controls.joystickX == 1 && !shift) {
+      if (controls.joystickX == 1 && !controls.SHIFT()) {
         //if cursor isn't on a measure marker, move it to the nearest one
         if(cursorPos%subDivInt){
           moveAutotrackCursor(-cursorPos%subDivInt);
@@ -890,7 +890,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
           lastTime = millis();
         }
       }
-      if (controls.joystickX == -1 && !shift) {
+      if (controls.joystickX == -1 && !controls.SHIFT()) {
         if(cursorPos%subDivInt){
           moveAutotrackCursor(subDivInt-cursorPos%subDivInt);
           lastTime = millis();
@@ -904,9 +904,9 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
   }
   if(!recordingToAutotrack || autotrackData[activeAutotrack].recordFrom != 4){
     if(utils.itsbeen(50)){
-      if(controls.joystickY != 0 && !n){
+      if(controls.joystickY != 0 && !controls.NEW()){
         if(controls.joystickY == -1){
-          if(shift){
+          if(controls.SHIFT()){
             changeDataPoint(1);
             lastTime = millis();
           }
@@ -916,7 +916,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
           }
         }
         if(controls.joystickY == 1){
-          if(shift){
+          if(controls.SHIFT()){
             changeDataPoint(-1);
             lastTime = millis();
           }
@@ -929,11 +929,11 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
     }
   }
   if(utils.itsbeen(200)){
-    //deleting data point(s)
-    if(del){
+    //controls.DELETE()eting data point(s)
+    if(controls.DELETE()){
       lastTime = millis();
-      //deleting all selected points
-      if(shift){
+      //controls.DELETE()eting all selected points
+      if(controls.SHIFT()){
         while(autotrackData[activeAutotrack].selectedPoints.size()>0){
           deleteDataPoint(autotrackData[activeAutotrack].selectedPoints[0],activeAutotrack);
         }
@@ -941,8 +941,8 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
       else
         deleteDataPoint(cursorPos,activeAutotrack);
     }
-    if(play){
-      if(shift || recording){
+    if(controls.PLAY()){
+      if(controls.SHIFT() || recording){
         lastTime = millis();
         recordingToAutotrack = true;
         recentCC.val = 0;
@@ -955,9 +955,9 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
         lastTime = millis();
       }
     }
-    if(n){
+    if(controls.NEW()){
       //set data track type back to 0
-      if(shift){
+      if(controls.SHIFT()){
         autotrackData[activeAutotrack].type = 0;
         lastTime = millis();
       }
@@ -970,8 +970,8 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
         lastTime = millis();
       }
     }
-    if(loop_Press){
-      if(shift){
+    if(controls.LOOP()){
+      if(controls.SHIFT()){
         (*interpType)++;
         if((*interpType)>2)
           *interpType = 0;
@@ -982,9 +982,9 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
         smoothSelectedPoints(*interpType);
       }
     }
-    if(sel){
+    if(controls.SELECT() ){
       //deselect all data points
-      if(shift){
+      if(controls.SHIFT()){
         vector<uint16_t> temp;
         autotrackData[activeAutotrack].selectedPoints.swap(temp);
       }
@@ -1003,12 +1003,12 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
       lastTime = millis();
       toggleTriplets();
     }
-    if(menu_Press){
+    if(controls.MENU()){
       lastTime = millis();
-      menu_Press = false;
+      controls.setMENU(false) ;
       return false;
     }
-    if(copy_Press){
+    if(controls.COPY()){
       *settingRecInput = true;
       //by default, set it to midi input
       autotrackData[activeAutotrack].recordFrom = 0;
@@ -1020,12 +1020,12 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
   return true;
 }
 
-//x is change period, y is change amplitude, shift x is change phase, shift y is vertically translate
+//x is change period, y is change amplitude, controls.SHIFT() x is change phase, controls.SHIFT() y is vertically translate
 bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
   //zoom/subdiv zoom (this is the same to the normal DT editor)
   while(counterA != 0){
     //changing zoom
-    if(!shift){
+    if(!controls.SHIFT()){
       if(counterA >= 1){
           zoom(true);
         }
@@ -1048,12 +1048,12 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
     counterA += counterA<0?1:-1;
   }
   while(counterB != 0){
-    if(!shift){   
-      if(counterB >= 1 && !shift){
+    if(!controls.SHIFT()){   
+      if(counterB >= 1 && !controls.SHIFT()){
         changeSubDivInt(true);
       }
       //changing subdivint
-      if(counterB <= -1 && !shift){
+      if(counterB <= -1 && !controls.SHIFT()){
         changeSubDivInt(false);
       }
     }
@@ -1069,8 +1069,8 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
   }
   if(utils.itsbeen(200)){
     //toggling DT type
-    if(n){
-      if(shift){
+    if(controls.NEW()){
+      if(controls.SHIFT()){
         lastTime = millis();
         autotrackData[activeAutotrack].type = 0;
       }
@@ -1082,13 +1082,13 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
         regenDT(activeAutotrack);
       }
     }
-    if(play){
+    if(controls.PLAY()){
       togglePlayMode();
       lastTime = millis();
     }
-    if(menu_Press){
+    if(controls.MENU()){
       lastTime = millis();
-      menu_Press = false;
+      controls.setMENU(false) ;
       return false;
     }
     if(controls.A()){
@@ -1102,12 +1102,12 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
       toggleTriplets();
     }
     //swapping modes
-    if(loop_Press){
+    if(controls.LOOP()){
       (*translation) = !(*translation);
       lastTime = millis();
     }
     //Toggling to 'listen for controls' mode
-    if(copy_Press){
+    if(controls.COPY()){
       *settingRecInput = true;
     }
     else{
@@ -1119,7 +1119,7 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
   if(*translation){
     if(controls.joystickX != 0){
       //moving by 1
-      if(shift && utils.itsbeen(25)){
+      if(controls.SHIFT() && utils.itsbeen(25)){
         if(controls.joystickX == -1){
           if(autotrackData[activeAutotrack].phase == 0)
             autotrackData[activeAutotrack].phase = autotrackData[activeAutotrack].period;
@@ -1139,7 +1139,7 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
       //moving by subdivInt
       //phase will always be mod by period (so it can never be more/less than per)
       //storing it in "temp" here so it doesn't underflow/overflow
-      else if(!shift && utils.itsbeen(100)){
+      else if(!controls.SHIFT() && utils.itsbeen(100)){
         if(controls.joystickX == -1){
           int16_t temp = autotrackData[activeAutotrack].phase;
           if(temp<subDivInt)
@@ -1187,7 +1187,7 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
       }
     }
     //changing by 1
-    if(shift && utils.itsbeen(25)){
+    if(controls.SHIFT() && utils.itsbeen(25)){
       //changing period
       if(controls.joystickX != 0){
         if(controls.joystickX == -1){
@@ -1508,7 +1508,7 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     animOffset%=18;
 
     //menu info
-    if(shift){
+    if(controls.SHIFT()){
       printParam(16,2,autotrackData[activeAutotrack].control,true,autotrackData[activeAutotrack].parameterType,true);
       graphics.printChannel(16,12,autotrackData[activeAutotrack].channel,true);
       display.drawChar(3,2+sin(millis()/50),0x0E,1,0,1);
@@ -1615,8 +1615,8 @@ bool autotrackViewerControls(){
     }
     counterA += counterA<0?1:-1;
   }
-  //sending CC message when shift is held
-  if(shift && autotrackData.size()>activeAutotrack){
+  //sending CC message when controls.SHIFT() is held
+  if(controls.SHIFT() && autotrackData.size()>activeAutotrack){
     autotrackData[activeAutotrack].play(0);
   }
   //scrolling up and down
@@ -1637,7 +1637,7 @@ bool autotrackViewerControls(){
   if(utils.itsbeen(200)){
     if(controls.joystickX != 0){
       //changing control #
-      if(!shift){
+      if(!controls.SHIFT()){
         if(controls.joystickX == -1){
           autotrackData[activeAutotrack].control = moveToNextCCParam(autotrackData[activeAutotrack].control,true,autotrackData[activeAutotrack].parameterType);
           lastTime = millis();
@@ -1662,21 +1662,21 @@ bool autotrackViewerControls(){
   }
   if(utils.itsbeen(200)){
     //selecting a autotrack
-    if(sel){
+    if(controls.SELECT() ){
       if(autotrackData.size()>0){
         lastTime = millis();
         autotrackEditor();
       }
     }
-    if(n){
+    if(controls.NEW()){
       if(autotrackData.size() == 0)
         createAutotrack(0);
       else
         createAutotrack(0,(autotrackData[autotrackData.size()-1].control>=127)?0:(autotrackData[autotrackData.size()-1].control+1));
       lastTime = millis();
     }
-    if(del){
-      if(shift && activeAutotrack<autotrackData.size()){
+    if(controls.DELETE()){
+      if(controls.SHIFT() && activeAutotrack<autotrackData.size()){
         autotrackData[activeAutotrack].isActive = !autotrackData[activeAutotrack].isActive;
         lastTime = millis();
       }
@@ -1685,12 +1685,12 @@ bool autotrackViewerControls(){
         lastTime = millis();
       }
     }
-    if(menu_Press){
+    if(controls.MENU()){
       lastTime = millis();
       return false;
     }
-    if(play){
-      if(shift && activeAutotrack<autotrackData.size()){
+    if(controls.PLAY()){
+      if(controls.SHIFT() && activeAutotrack<autotrackData.size()){
         autotrackData[activeAutotrack].isPrimed = !autotrackData[activeAutotrack].isPrimed;
         lastTime = millis();
       }
@@ -1699,7 +1699,7 @@ bool autotrackViewerControls(){
         lastTime = millis();
       }
     }
-    if(copy_Press){
+    if(controls.COPY()){
       dupeAutotrack(activeAutotrack);
       lastTime = millis();
     }
@@ -1710,7 +1710,7 @@ bool autotrackViewerControls(){
         autotrackData[activeAutotrack].control = param;
       lastTime = millis();
     }
-    if(loop_Press && activeAutotrack<autotrackData.size()){
+    if(controls.LOOP() && activeAutotrack<autotrackData.size()){
       lastTime = millis();
       setAutotrackTrigger(activeAutotrack);
     }
@@ -1763,7 +1763,7 @@ void drawAutotrackViewer(uint8_t firstTrack){
           drawCurveIcon(12,currentHeight+14,autotrackData[activeAutotrack].type,animOffset);
           
           //if shifting, draw note icon
-          if(shift)
+          if(controls.SHIFT())
             display.drawChar(120-(firstTrack?8:1)+sin(millis()/50),0,0x0E,1,0,1);    
           //if not, print track number        
           else

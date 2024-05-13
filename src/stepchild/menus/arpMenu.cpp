@@ -35,15 +35,15 @@ void customLengthsMenu(){
     readButtons();
     controls.readJoystick();
     if(utils.itsbeen(200)){
-      if(sel){
+      if(controls.SELECT() ){
         lastTime = millis();
         activeArp.uniformLength = !activeArp.uniformLength;
       }
     }
     if(activeArp.uniformLength){
       if(utils.itsbeen(200)){
-        if(menu_Press){
-          menu_Press = false;
+        if(controls.MENU()){
+          controls.setMENU(false) ;
           lastTime = millis();
           return;
         }
@@ -52,15 +52,15 @@ void customLengthsMenu(){
     //these controls are only active if the arp is using custom lengths
     else{
       if(utils.itsbeen(200)){
-        if(n){
+        if(controls.NEW()){
           addCustomLength(activeArp.lengths[cursorX],cursorX);
           lastTime = millis();
         }
-        if(sel){
+        if(controls.SELECT() ){
           activeArp.uniformLength = !activeArp.uniformLength;
           lastTime = millis();
         }
-        if(del && activeArp.lengths.size()>1){
+        if(controls.DELETE() && activeArp.lengths.size()>1){
           deleteCustomLength(cursorX);
           lastTime = millis();
           while(startNote+7>=activeArp.lengths.size()&& activeArp.lengths.size()>8){
@@ -69,19 +69,19 @@ void customLengthsMenu(){
           while(cursorX>=activeArp.lengths.size())
             cursorX--;
         }
-        if(menu_Press){
+        if(controls.MENU()){
           lastTime = millis();
-          menu_Press = false;
+          controls.setMENU(false) ;
           break;
         }
-        if(sel){
+        if(controls.SELECT() ){
           selected = !selected;
           lastTime = millis();
         }
       }
       if(utils.itsbeen(120)){
         if(controls.joystickY != 0){
-          if(shift){
+          if(controls.SHIFT()){
             activeArp.lengths[cursorX] = toggleTriplets(activeArp.lengths[cursorX]);
             lastTime = millis();
           }
@@ -218,7 +218,7 @@ void arpModMenu(){
           switch(cursor){
             case 0:
               //editing min vel
-              if(shift){
+              if(controls.SHIFT()){
                 if(activeArp.minVelMod<117)
                   activeArp.minVelMod+=10;
                 else
@@ -250,7 +250,7 @@ void arpModMenu(){
               break;
             //pitch
             case 3:
-              if(shift){
+              if(controls.SHIFT()){
                 if(activeArp.minPitchMod<117)
                   activeArp.minPitchMod+=10;
                 else
@@ -277,7 +277,7 @@ void arpModMenu(){
           switch(cursor){
             case 0:
               //editing min vel
-              if(shift){
+              if(controls.SHIFT()){
                 if(activeArp.minVelMod>10)
                   activeArp.minVelMod-=10;
                 else
@@ -309,7 +309,7 @@ void arpModMenu(){
               break;
             //pitch
             case 3:
-              if(shift){
+              if(controls.SHIFT()){
                 if(activeArp.minPitchMod>10)
                   activeArp.minPitchMod-=10;
                 else
@@ -334,9 +334,9 @@ void arpModMenu(){
       }
     }
     if(utils.itsbeen(200)){
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
-        menu_Press = false;
+        controls.setMENU(false) ;
         return;
       }
       if(controls.joystickX != 0){
@@ -349,7 +349,7 @@ void arpModMenu(){
           lastTime = millis();
         }
       }
-      if(del){
+      if(controls.DELETE()){
         switch(cursor){
           case 0:
             activeArp.maxVelMod = 0;
@@ -621,7 +621,7 @@ void arpMenu(){
             break;
         }
       }
-      if(sel){
+      if(controls.SELECT() ){
         switch(cursor){
           //on/off
           case 0:
@@ -645,19 +645,19 @@ void arpMenu(){
         }
       }
       //'hold' locks notes that are currently in the arp
-      if(copy_Press){
+      if(controls.COPY()){
         activeArp.holding = !activeArp.holding;
         lastTime = millis();
       }
       //swap between external/internal input
-      if(play || n){
+      if(controls.PLAY() || controls.NEW()){
         activeArp.source++;
         activeArp.source%=3;
         lastTime = millis();
       }
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
-        menu_Press = false;
+        controls.setMENU(false) ;
         break;
       }
       while(counterA != 0){
@@ -667,7 +667,7 @@ void arpMenu(){
             counterA += counterA<0?1:-1;;
             break;
           case 1:
-            if(shift){
+            if(controls.SHIFT()){
               activeArp.arpSubDiv = toggleTriplets(activeArp.arpSubDiv);
               counterA += counterA<0?1:-1;;
             }

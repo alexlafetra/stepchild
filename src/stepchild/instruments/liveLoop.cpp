@@ -53,8 +53,8 @@ void liveLoop(){
         defaultJoystickControls(false);
         defaultSelectBoxControls();
         if(utils.itsbeen(75)){
-            //delete
-            if(del){
+            //del
+            if(controls.DELETE()){
                 if (selectionCount > 0){
                     deleteSelected();
                     lastTime = millis();
@@ -69,14 +69,14 @@ void liveLoop(){
             defaultSelectControls();
             defaultCopyControls();
             defaultLoopControls();
-            if(menu_Press){
+            if(controls.MENU()){
                 lastTime = millis();
                 if(binarySelectionBox(64,32,"no","yes","exit?",&drawSeq) == 1){
                     break;
                 }
             }
-            //hold shift to set the most recent note received to the trigger note
-            if(shift && !play){
+            //hold controls.SHIFT() to set the most recent note received to the trigger note
+            if(controls.SHIFT() && !controls.PLAY()){
                 if(recentNote.pitch<=127){
                     startStopTriggerNote = recentNote.pitch;
                     recentNote.pitch = 255;
@@ -84,9 +84,9 @@ void liveLoop(){
                 }
             }
             //get ready to record, but wait for note
-            if(play){
-                //if shift is held, and you're not already recording
-                if(!recording && shift){
+            if(controls.PLAY()){
+                //if controls.SHIFT() is held, and you're not already recording
+                if(!recording && controls.SHIFT()){
                     lastTime = millis();
                     //clear selected notes, so you don't warp 'em
                     clearSelection();

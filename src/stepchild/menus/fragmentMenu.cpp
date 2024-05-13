@@ -31,7 +31,7 @@ void fragmentMenu(){
     readButtons();
     controls.readJoystick();
     if(utils.itsbeen(200)){
-      if(menu_Press){
+      if(controls.MENU()){
         menuIsActive = false;
         constructMenu("MENU");
         lastTime = millis();
@@ -47,7 +47,7 @@ void fragmentMenu(){
     if(utils.itsbeen(100) && x != 0){
       lastTime = millis();
       if(controls.joystickX == 1 && timeS != -screenWidth/2){//last part is so it doesn't 'bounce'
-        if(shift){
+        if(controls.SHIFT()){
           timeS--;
         }
         else{
@@ -60,7 +60,7 @@ void fragmentMenu(){
         }
       }
       if(controls.joystickX == -1){
-        if(shift){
+        if(controls.SHIFT()){
           timeS++;
         }
         else{
@@ -81,8 +81,8 @@ void fragmentMenu(){
       }
     }
     if(utils.itsbeen(200)){
-      //scrolling thru the menu, when shift isn't held
-      if(controls.joystickY != 0 && !shift){
+      //scrolling thru the menu, when controls.SHIFT() isn't held
+      if(controls.joystickY != 0 && !controls.SHIFT()){
         if(controls.joystickY == 1){
           activeMenu.moveMenuCursor(true);
           lastTime = millis();
@@ -92,12 +92,12 @@ void fragmentMenu(){
           lastTime = millis();
         }
       }
-      if(sel){
-        if(!shift){
+      if(controls.SELECT() ){
+        if(!controls.SHIFT()){
           fragmentData[2][1] = timeS+64;
           lastTime = millis();
         }
-        else if(shift){
+        else if(controls.SHIFT()){
           fragmentData[2][2] = timeS+64;
           lastTime = millis();
         }
@@ -109,7 +109,7 @@ void fragmentMenu(){
           fragmentData[2][2] = max;
         }
       }
-      if(play){
+      if(controls.PLAY()){
         togglePlayMode();
         lastTime = millis();
       }
@@ -117,7 +117,7 @@ void fragmentMenu(){
     //encoder A changes minimums and maximums (while shifting)
     while(counterA != 0){
       //changing minimums
-      if(!shift){
+      if(!controls.SHIFT()){
         if(counterA >= 1){
           //changing min length
           if(activeMenu.options[activeMenu.highlight] == "size"){
@@ -153,7 +153,7 @@ void fragmentMenu(){
           }
           //changing min start
           else if(activeMenu.options[activeMenu.highlight] == "entry"){
-            if(!shift && fragmentData[2][1]>subDivInt){
+            if(!controls.SHIFT() && fragmentData[2][1]>subDivInt){
               fragmentData[2][1]-=subDivInt;
             }
           }
@@ -168,14 +168,14 @@ void fragmentMenu(){
         }
       }
       //changing maximums
-      else if(shift){
+      else if(controls.SHIFT()){
         if(counterA >= 1){
           //changing max length
           if(activeMenu.options[activeMenu.highlight] == "size"){
             if(fragmentData[0][2]*fragmentSubDiv<=maxLengthVal-fragmentSubDiv){
               fragmentData[0][2]++;
             }
-            else if(!shift && fragmentData[0][2]<maxLengthVal-subDivInt){
+            else if(!controls.SHIFT() && fragmentData[0][2]<maxLengthVal-subDivInt){
               fragmentData[0][2]+=subDivInt;
             }
           }
@@ -186,10 +186,10 @@ void fragmentMenu(){
           }
           //changing min start
           else if(activeMenu.options[activeMenu.highlight] == "entry"){
-            if(shift && fragmentData[2][2]<seqEnd){
+            if(controls.SHIFT() && fragmentData[2][2]<seqEnd){
               fragmentData[2][2]++;
             }
-            else if(!shift && fragmentData[2][2]<seqEnd-subDivInt){
+            else if(!controls.SHIFT() && fragmentData[2][2]<seqEnd-subDivInt){
               fragmentData[2][2]+=subDivInt;
             }
           }
@@ -229,15 +229,15 @@ void fragmentMenu(){
     }
     //changing subDivInt
     while(counterB != 0 && activeMenu.options[activeMenu.highlight] == "div"){
-      if(counterB <= -1 && !shift){
+      if(counterB <= -1 && !controls.SHIFT()){
         changeFragmentSubDivInt(true);
       }
       //changing subdivint
-      if(counterB >= 1 && !shift){
+      if(counterB >= 1 && !controls.SHIFT()){
         changeFragmentSubDivInt(false);
       }
       //if shifting, toggle between 1/3 and 1/4 mode
-      else while(counterB != 0 && shift){
+      else while(counterB != 0 && controls.SHIFT()){
         toggleFragmentTriplets();
       }
       counterB += counterB<0?1:-1;;

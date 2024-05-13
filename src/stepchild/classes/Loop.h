@@ -100,24 +100,24 @@ uint16_t getLongestLoop(){
 //just your normal editing controls, but you can't move the view past the loop
 bool viewLoopControls(uint8_t which){
   //selectionBox
-  //when sel is pressed and stick is moved, and there's no selection box
-  if(sel && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
+  //when controls.SELECT()  is pressed and stick is moved, and there's no selection box
+  if(controls.SELECT()  && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
     selBox.begun = true;
     selBox.coords.start.x = cursorPos;
     selBox.coords.start.y = activeTrack;
   }
-  //if sel is released, and there's a selection box
-  if(!sel && selBox.begun){
+  //if controls.SELECT()  is released, and there's a selection box
+  if(!controls.SELECT()  && selBox.begun){
     selBox.coords.end.x = cursorPos;
     selBox.coords.end.y = activeTrack;
     selectBox();
     selBox.begun = false;
   }
-  if(!n)
+  if(!controls.NEW())
     drawingNote = false;
   mainSequencerEncoders();
   if (utils.itsbeen(100)) {
-    if (controls.joystickX == 1 && !shift) {
+    if (controls.joystickX == 1 && !controls.SHIFT()) {
       //if cursor isn't on a measure marker, move it to the nearest one
       if(cursorPos%subDivInt){
         if(!movingLoop)
@@ -147,7 +147,7 @@ bool viewLoopControls(uint8_t which){
         setLoopPoint(cursorPos,false);
       }
     }
-    if (controls.joystickX == -1 && !shift) {
+    if (controls.joystickX == -1 && !controls.SHIFT()) {
       if(cursorPos%subDivInt){
         if(!movingLoop)
           moveCursorWithinLoop(subDivInt-cursorPos%subDivInt,which);
@@ -176,7 +176,7 @@ bool viewLoopControls(uint8_t which){
     }
   }
   if(utils.itsbeen(100)){
-    if (controls.joystickY == 1 && !shift && !loop_Press) {
+    if (controls.joystickY == 1 && !controls.SHIFT() && !controls.LOOP()) {
       if(recording)//if you're not in normal mode, you don't want it to be loud
         setActiveTrack(activeTrack + 1, false);
       else
@@ -184,7 +184,7 @@ bool viewLoopControls(uint8_t which){
       drawingNote = false;
       lastTime = millis();
     }
-    if (controls.joystickY == -1 && !shift && !loop_Press) {
+    if (controls.joystickY == -1 && !controls.SHIFT() && !controls.LOOP()) {
       if(recording)//if you're not in normal mode, you don't want it to be loud
         setActiveTrack(activeTrack - 1, false);
       else
@@ -195,7 +195,7 @@ bool viewLoopControls(uint8_t which){
   }
   if (utils.itsbeen(50)) {
     //moving
-    if (controls.joystickX == 1 && shift) {
+    if (controls.joystickX == 1 && controls.SHIFT()) {
       if(!movingLoop)
         moveCursorWithinLoop(-1,which);
       else
@@ -208,7 +208,7 @@ bool viewLoopControls(uint8_t which){
       else if(movingLoop == 1)
         setLoopPoint(cursorPos,false);
     }
-    if (controls.joystickX == -1 && shift) {
+    if (controls.joystickX == -1 && controls.SHIFT()) {
       if(!movingLoop)
         moveCursorWithinLoop(1,which);
       else
@@ -222,23 +222,23 @@ bool viewLoopControls(uint8_t which){
         loopData[activeLoop].end = cursorPos;
     }
     //changing vel
-    if (controls.joystickY == 1 && shift) {
+    if (controls.joystickY == 1 && controls.SHIFT()) {
       changeVel(-10);
       lastTime = millis();
     }
-    if (controls.joystickY == -1 && shift) {
+    if (controls.joystickY == -1 && controls.SHIFT()) {
       changeVel(10);
       lastTime = millis();
     }
 
     if(lookupData[activeTrack][cursorPos]==0){
-      if(controls.joystickY == 1 && shift){
+      if(controls.joystickY == 1 && controls.SHIFT()){
         defaultVel-=10;
         if(defaultVel<1)
           defaultVel = 1;
         lastTime = millis();
       }
-      if(controls.joystickY == -1 && shift){
+      if(controls.joystickY == -1 && controls.SHIFT()){
         defaultVel+=10;
         if(defaultVel>127)
           defaultVel = 127;
@@ -246,10 +246,10 @@ bool viewLoopControls(uint8_t which){
       }
     }
   }
-  //delete happens a liitle faster (so you can draw/erase fast)
+  //del happens a liitle faster (so you can draw/erase fast)
   if(utils.itsbeen(75)){
-    //delete
-    if(del && !shift){
+    //del
+    if(controls.DELETE() && !controls.SHIFT()){
       if (selectionCount > 0){
         deleteSelected();
         lastTime = millis();
@@ -262,27 +262,27 @@ bool viewLoopControls(uint8_t which){
   }
   if(utils.itsbeen(200)){
     //new
-    if(n && !controls.A() && !drawingNote && !sel){
-      if((!shift)&&(lookupData[activeTrack][cursorPos] == 0 || cursorPos != seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos)){
+    if(controls.NEW() && !controls.A() && !drawingNote && !controls.SELECT() ){
+      if((!controls.SHIFT())&&(lookupData[activeTrack][cursorPos] == 0 || cursorPos != seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos)){
         makeNote(activeTrack,cursorPos,subDivInt,true);
         drawingNote = true;
         lastTime = millis();
         moveCursorWithinLoop(subDivInt,which);
       }
-      if(shift){
+      if(controls.SHIFT()){
         addTrack(defaultPitch, defaultChannel);
         lastTime = millis();
       }
     }
     //select
-    if(sel && !selBox.begun){
+    if(controls.SELECT()  && !selBox.begun){
       uint16_t id = lookupData[activeTrack][cursorPos];
       //select all
-      if(n){
+      if(controls.NEW()){
         selectAll();
       }
       //select only one
-      else if(shift){
+      else if(controls.SHIFT()){
         clearSelection();
         toggleSelectNote(activeTrack, id, false);
       }
@@ -292,24 +292,24 @@ bool viewLoopControls(uint8_t which){
       }
       lastTime = millis();
     }
-    if(del && shift){
+    if(controls.DELETE() && controls.SHIFT()){
       muteNote(activeTrack, lookupData[activeTrack][cursorPos], true);
       lastTime = millis();
     }
 
     //Modes: play, listen, and record
-    if(play && !shift && !recording){
+    if(controls.PLAY() && !controls.SHIFT() && !recording){
       togglePlayMode();
       lastTime = millis();
     }
-    //if play+shift, or if play and it's already recording
-    if((play && shift) || (play && recording)){
+    //if play+controls.SHIFT(), or if play and it's already recording
+    if((controls.PLAY() && controls.SHIFT()) || (controls.PLAY() && recording)){
       toggleRecordingMode(waitForNoteBeforeRec);
       lastTime = millis();
     }
  
     //loop
-    if(loop_Press){
+    if(controls.LOOP()){
       //if you're not moving a loop, start
       if(movingLoop == 0){
         //if you're on the start, move the start
@@ -333,20 +333,20 @@ bool viewLoopControls(uint8_t which){
       }
     }
     //menu press
-    if(menu_Press){
-      if(shift){
+    if(controls.MENU()){
+      if(controls.SHIFT()){
         lastTime = millis();
         return false;
       }
       else{
         lastTime = millis();
-        menu_Press = false;
+        controls.setMENU(false) ;
         return false;
       }
     }
     //copy/pasate
-    if(copy_Press){
-      if(shift)
+    if(controls.COPY()){
+      if(controls.SHIFT())
         paste();
       else{
         copy();
@@ -451,7 +451,7 @@ void loopMenu(){
       //changing loop type and iterations
       if(controls.joystickX != 0){
         //iterations
-        if(!shift){
+        if(!controls.SHIFT()){
           if(controls.joystickX == -1){
             loopData[targetL].reps++;
             lastTime = millis();
@@ -474,7 +474,7 @@ void loopMenu(){
         }
       }
       //copying a loop
-      if(copy_Press && !shift){
+      if(controls.COPY() && !controls.SHIFT()){
         loopStored = true;
         storedLoop.start = loopData[targetL].start;
         storedLoop.end = loopData[targetL].end;
@@ -484,32 +484,32 @@ void loopMenu(){
         lastTime = millis();
       }
       //pasting loop
-      if(copy_Press && shift && loopStored){
+      if(controls.COPY() && controls.SHIFT() && loopStored){
         insertLoop(targetL,storedLoop);
         lastTime = millis();
       }
-      //deleting a loop
-      if(del && loopData.size()>1){
+      //controls.DELETE()eting a loop
+      if(controls.DELETE() && loopData.size()>1){
         deleteLoop(targetL);
         if(targetL>=loopData.size())
           targetL--;
         lastTime = millis();
       }
       //playing
-      if(play){
+      if(controls.PLAY()){
         setActiveLoop(targetL);
         togglePlayMode();
         lastTime = millis();
       }
       //new loop
-      if(n){
+      if(controls.NEW()){
         dupeLoop(targetL);
         targetL++;
         lastTime = millis();
       }
       //infinite loop toggle
-      if(loop_Press){
-        if(!shift){
+      if(controls.LOOP()){
+        if(!controls.SHIFT()){
           isLooping = !isLooping;
           lastTime = millis();
         }
@@ -519,20 +519,20 @@ void loopMenu(){
         }
       }
       //select loop
-      if(sel){
+      if(controls.SELECT() ){
         lastTime = millis();
-        sel = false;
+        controls.setSELECT(false);
         uint8_t tempType = loopData[targetL].type;
         setLoopToInfinite(targetL);
         viewLoop(targetL);
         loopData[targetL].type = tempType;
       }
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
-        menu_Press = false;
+        controls.setMENU(false) ;
         return;
       }
-      if(shift && !copy_Press && controls.joystickX == 0){
+      if(controls.SHIFT() && !controls.COPY() && controls.joystickX == 0){
         showingPreview = !showingPreview;
         lastTime = millis();
       }
@@ -578,7 +578,7 @@ void loopMenu(){
     else{
       display.drawRoundRect(screenWidth-7,43,13,23,3,1);
       display.setRotation(SIDEWAYS_L);
-      printSmall(0,screenWidth-5,"shift",1);
+      printSmall(0,screenWidth-5,"controls.SHIFT()",1);
       display.setRotation(UPRIGHT);
     }
 
@@ -1007,7 +1007,7 @@ void deleteLoop(uint8_t id){
       }
     }
     loopData.swap(tempVec);
-    //if activeLoop was the loop that got deleted, or above it
+    //if activeLoop was the loop that got deld, or above it
     //decrement it's id so it reads correct (and existing) data
     if(activeLoop>=loopData.size()){  
       activeLoop = loopData.size()-1;

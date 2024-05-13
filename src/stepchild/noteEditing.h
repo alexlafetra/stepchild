@@ -4,7 +4,7 @@ void truncateNote(int track, int time) {
   int id = lookupData[track][time];
   if(id == 0 || id >= seqData[track].size())
     return;
-  //if the note is only 1 step long, j delete it
+  //if the note is only 1 step long, j del it
   if(seqData[track][id].endPos == seqData[track][id].startPos+1){
     deleteNote_byID(track,id);
     return;
@@ -40,7 +40,7 @@ void deleteNote_byID(int track, int targetNoteID){
       }
     }
     temp.swap(seqData[track]);
-    //since we deleted it from seqData, we need to update all the lookup values that are now 'off' by 1. Any value that's higher than the deleted note's ID should be decremented.
+    //since we deld it from seqData, we need to update all the lookup values that are now 'off' by 1. Any value that's higher than the deld note's ID should be decremented.
     if(seqData[track].size()-1>0){
       for (uint16_t step = 0; step < lookupData[track].size(); step++) {
         if (lookupData[track][step] > targetNoteID) { //if there's a higher note and if there are still notes to be changed
@@ -62,7 +62,7 @@ void deleteNote() {
 
 void deleteSelected(){
   if(selectionCount>0){
-    if(binarySelectionBox(64,32,"nah","yea","delete "+stringify(selectionCount)+((selectionCount == 1)?stringify(" note?"):stringify(" notes?")),drawSeq)){
+    if(binarySelectionBox(64,32,"nah","yea","del "+stringify(selectionCount)+((selectionCount == 1)?stringify(" note?"):stringify(" notes?")),drawSeq)){
       for(uint8_t track = 0; track<trackData.size(); track++){
         for(uint16_t note = 0; note<seqData[track].size(); note++){
           if(seqData[track][note].isSelected){
@@ -223,16 +223,16 @@ void changeChance(int noteID, int track, int amount){
 //It would be nice if this could be accessed from somewhere other than the settings menu?
 //insert or cut time from the seq
 //cursor+new inserts time
-//cursor+del deletes time
+//cursor+controls.DELETE() dels time
 //selbox+new duplicates time
-//selbox+del deletes time
+//selbox+controls.DELETE() dels time
 //selbox stays until new selbox is made
 void cutInsertTime(){
   while(true){
     readButtons();
     controls.readJoystick();
     if(utils.itsbeen(200)){
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
         return;
       }
@@ -274,15 +274,15 @@ void addTimeToSeq(uint16_t amount, uint16_t insertPoint){
 }
 
 void removeTimeFromSeq(uint16_t amount, uint16_t insertPoint){
-  //if you're trying to delete more than (or as much as) exists! just return
+  //if you're trying to del more than (or as much as) exists! just return
   if(amount>=seqEnd)
     return;
-  //if you're trying to delete more than exists between insertpoint --> seqEnd,
+  //if you're trying to del more than exists between insertpoint --> seqEnd,
   //then set amount to everything there
   if(insertPoint+amount>seqEnd){
     amount = seqEnd-insertPoint;
   }
-  //move through 'deleted' area and clear out notes
+  //move through 'deld' area and clear out notes
   for(uint8_t t = 0; t<trackData.size(); t++){
     //if there are no notes, skip this track
     if(seqData[t].size() == 1)
@@ -297,14 +297,14 @@ void removeTimeFromSeq(uint16_t amount, uint16_t insertPoint){
           //break bc you know that was the last note
           break;
         }
-        //if it's in the delete area, delete it
+        //if it's in the del area, del it
         else if(seqData[t][id].startPos>insertPoint && seqData[t][id].startPos<=insertPoint+amount){
           deleteNote_byID(t,id);
         }
       }
     }
   }
-  //move notes that fall beyond the delete area
+  //move notes that fall beyond the del area
   for(uint8_t t = 0; t<trackData.size(); t++){
     //if there're no notes, skip this track
     if(seqData[t].size() == 1)

@@ -3,7 +3,7 @@ void quantizeSelectedNotes(bool deleteNote){
     for(uint8_t track = 0; track<seqData.size(); track++){
       for(uint16_t note = 1; note<seqData[track].size(); note++){
         if(seqData[track][note].isSelected){
-          //if a note was deleted (when quantize fails)
+          //if a note was deld (when quantize fails)
           if(!quantizeNote(track,note,deleteNote)){
             note = 1;
           }
@@ -21,7 +21,7 @@ void quantize(bool move_the_cursor,bool deleteNote){
     for(uint8_t track = 0; track<seqData.size(); track++){
       for(uint16_t note = 1; note<seqData[track].size(); note++){
         if(seqData[track][note].isSelected){
-          //if a note was deleted (when quantize fails)
+          //if a note was deld (when quantize fails)
           if(!quantizeNote(track,note,deleteNote)){
             note = 1;
           }
@@ -40,7 +40,7 @@ bool quantizeNote(uint8_t track, uint16_t id, bool deleteNote){
   return quantizeNote(track,id, false, deleteNote);
 }
 
-//will attempt to quantize a note, or delete it if it can't be quantized
+//will attempt to quantize a note, or del it if it can't be quantized
 bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote){
   if(id == 0){
     return false;
@@ -52,7 +52,7 @@ bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote){
   if(d1<=d2){
     distance = d1*(float(quantizeAmount)/float(100));
     if(!moveNote(id,track,track,seqData[track][id].startPos-distance)){
-      //if you can't move it, delete it
+      //if you can't move it, del it
       if(deleteNote)
         deleteNote_byID(track,id);
       return false;
@@ -65,10 +65,10 @@ bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote){
   else{
     distance = d2*(float(quantizeAmount)/float(100));
     if(!moveNote(id,track,track,seqData[track][id].startPos+distance)){
-      //if you can't move it, delete it
+      //if you can't move it, del it
       if(deleteNote)
         deleteNote_byID(track,id);
-      // //Serial.println("deleting note: "+stringify(id));
+      // //Serial.println("controls.DELETE()eting note: "+stringify(id));
       return false;
     }
     else if(move){
@@ -119,11 +119,11 @@ void drawLittleQuantCubes(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
 
 bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
   if(utils.itsbeen(200)){
-    if(menu_Press){
+    if(controls.MENU()){
       lastTime = millis();
       return false;
     }
-    if(n){
+    if(controls.NEW()){
       lastTime = millis();
       while(true){
         if(selectNotes("quantize",drawLittleQuantCubes)){
@@ -134,22 +134,22 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
         }
       }
     }
-    if(sel){
+    if(controls.SELECT() ){
       lastTime = millis();
       (*deleteNote) = !(*deleteNote);
     }
   }
   //changing subDivInt
   while(counterB != 0){
-    if(counterB >= 1 && !shift){
+    if(counterB >= 1 && !controls.SHIFT()){
       changeSubDivInt(true);
     }
     //changing subdivint
-    if(counterB <= -1 && !shift){
+    if(counterB <= -1 && !controls.SHIFT()){
       changeSubDivInt(false);
     }
     //if shifting, toggle between 1/3 and 1/4 mode
-    else while(counterB != 0 && shift){
+    else while(counterB != 0 && controls.SHIFT()){
       toggleTriplets();
     }
     counterB += counterB<0?1:-1;;
@@ -161,7 +161,7 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
   while(counterA != 0){
     if(counterA >= 1){
       if(quantizeAmount < 100){
-        if(shift)
+        if(controls.SHIFT())
           quantizeAmount++;
         else{
           quantizeAmount+=5;
@@ -173,7 +173,7 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
     }
     if(counterA <= -1){
       if(quantizeAmount>0){
-        if(shift)
+        if(controls.SHIFT())
           quantizeAmount--;
         else{
           quantizeAmount-=5;
@@ -203,7 +203,7 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
       switch(*whichParam){
         //editing quantize amount
         case 0:
-          if(shift){
+          if(controls.SHIFT()){
             if(controls.joystickX == 1 && quantizeAmount>0){
               quantizeAmount--;
               lastTime = millis();
@@ -238,7 +238,7 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
           break;
         //changing subDivInt
         case 1:
-          if(shift){
+          if(controls.SHIFT()){
             toggleTriplets();
             lastTime = millis();
           }
@@ -276,8 +276,8 @@ void quantizeMenu(){
     printSmall(28,6,q,1);
 
     //draw swing indicator
-    // printSmall(90,6,deleteNote?"delete":"leave",1);
-    graphics.drawLabel(100,1,deleteNote?"delete":"leave",1);
+    // printSmall(90,6,deleteNote?"del":"leave",1);
+    graphics.drawLabel(100,1,deleteNote?"del":"leave",1);
     printSmall_centered(100,8,"collisions",1);
     printSmall(0,53,"quantize",1);
 

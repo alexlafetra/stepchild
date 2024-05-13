@@ -87,20 +87,20 @@ void portMenu(uint8_t which){
     readButtons();
     controls.readJoystick();
     if(utils.itsbeen(200)){
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
-        menu_Press = false;
+        controls.setMENU(false) ;
         return;
       }
-      if(del){
+      if(controls.DELETE()){
         lastTime = millis();
         MIDI.muteMidiPort(which);
       }
-      if(n){
+      if(controls.NEW()){
         lastTime = millis();
         MIDI.unmuteMidiPort(which);
       }
-      if(sel){
+      if(controls.SELECT() ){
         MIDI.toggleMidiPort(which);
         lastTime = millis();
       }
@@ -124,14 +124,14 @@ void thruMenu(){ //controls which midi port you're editing
           lastTime = millis();
         }
       }
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
-        menu_Press = false;
+        controls.setMENU(false) ;
         break;
       }
-      if(sel){
+      if(controls.SELECT() ){
         bool isActive = MIDI.toggleThru(xCursor);
-        if(shift){
+        if(controls.SHIFT()){
           for(int i = 0; i<5; i++){
             MIDI.setThru(i, isActive);
           }
@@ -180,7 +180,7 @@ void midiMenu(){
     controls.readJoystick();
     readButtons();
     if(utils.itsbeen(200)){
-      if(sel){
+      if(controls.SELECT() ){
         lastTime = millis();
         //center menu mode
         if(yCursor == 0){
@@ -204,15 +204,15 @@ void midiMenu(){
           lastTime = millis();
         }
       }
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
         break;
       }
-      if(play){
+      if(controls.PLAY()){
         lastTime = millis();
         togglePlayMode();
       }
-      if(del && yCursor == 0){
+      if(controls.DELETE() && yCursor == 0){
         MIDI.muteMidiPort(xCursor);
         lastTime = millis();
       }
@@ -648,13 +648,13 @@ void inputMenu(){
         lastTime = millis();
       }
       //exit
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
-        menu_Press = false;
+        controls.setMENU(false) ;
         break;
       }
-      if(sel){
-        if(shift){
+      if(controls.SELECT() ){
+        if(controls.SHIFT()){
 
         }
         else{
@@ -772,15 +772,15 @@ void routeMenu(){
           lastTime = millis();
         }
       }
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
-        menu_Press = false;
+        controls.setMENU(false) ;
         break;
       }
-      if(sel){
+      if(controls.SELECT() ){
         bool isActive = MIDI.toggleMidiChannel(yCursor+menuStart[xCursor]+1,xCursor);
         // //Serial.println("toggling "+stringify(yCursor+menuStart[xCursor])+" on out "+stringify(xCursor));
-        if(shift){
+        if(controls.SHIFT()){
           for(int i = 0; i<16; i++){
             MIDI.setMidiChannel(i+1,xCursor,isActive);
           }

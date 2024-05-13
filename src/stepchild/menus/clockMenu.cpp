@@ -25,7 +25,7 @@ void drawSwingCurve(int8_t xPos, int8_t yPos){
   if(!swung){
     printSmall(xPos+(screenWidth-xPos)/2-6,42,"off",1);
     if(millis()%1000>500){
-      printSmall(xPos+(screenWidth-xPos)/2-10,54,"[sel]",1);
+      printSmall(xPos+(screenWidth-xPos)/2-10,54,"[controls.SELECT() ]",1);
     }
     display.drawFastVLine(xPos,16,48,1);
     display.drawFastHLine(xPos,16,screenWidth-xPos,1);
@@ -212,11 +212,11 @@ void clockMenu(){
     readButtons();
     controls.readJoystick();
     if(utils.itsbeen(200)){
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
         break;
       }
-      if(play){
+      if(controls.PLAY()){
         togglePlayMode();
         lastTime = millis();
       }
@@ -234,7 +234,7 @@ void clockMenu(){
           lastTime = millis();
         }
       }
-      if(sel){
+      if(controls.SELECT() ){
         if(cursor == 1 || cursor == 2){
           swung = !swung;
           lastTime = millis();
@@ -250,7 +250,7 @@ void clockMenu(){
         switch(cursor){
           //bpm
           case 0:
-            if(!shift)
+            if(!controls.SHIFT())
               setBpm(bpm+10);
             else
               setBpm(bpm+1);
@@ -265,7 +265,7 @@ void clockMenu(){
           case 1:
             if(!swung)
               break;
-            if(!shift){
+            if(!controls.SHIFT()){
               swingVal+=MicroSperTimeStep/10;
             }
             else{
@@ -284,7 +284,7 @@ void clockMenu(){
         switch(cursor){
           //bpm
           case 0:
-            if(!shift)
+            if(!controls.SHIFT())
               setBpm(bpm-10);
             else
               setBpm(bpm-1);
@@ -300,7 +300,7 @@ void clockMenu(){
           case 1:
             if(!swung)
               break;
-            if(!shift){
+            if(!controls.SHIFT()){
               swingVal-=MicroSperTimeStep/10;
             }
             else{
@@ -327,7 +327,7 @@ void clockMenu(){
           case 2:
             if(!swung)
               break;
-            if(shift && swingSubDiv<768)
+            if(controls.SHIFT() && swingSubDiv<768)
               swingSubDiv++;
             else if(swingSubDiv%24)
               swingSubDiv+=24-swingSubDiv%24;
@@ -345,7 +345,7 @@ void clockMenu(){
           case 2:
             if(!swung)
               break;
-            if(shift && swingSubDiv>1)
+            if(controls.SHIFT() && swingSubDiv>1)
               swingSubDiv--;
             else if(swingSubDiv%24){
               swingSubDiv-=swingSubDiv%24;
@@ -397,7 +397,7 @@ void tapBpm(){
     }
     readButtons();
     controls.readJoystick();
-    if(menu_Press){
+    if(controls.MENU()){
       lastTime = millis();
       break;
     }
@@ -421,7 +421,7 @@ void tapBpm(){
     }
     while(counterA != 0){
       if(counterA >= 1){
-        if(shift){
+        if(controls.SHIFT()){
           setBpm(bpm+1);
         }
         else{
@@ -429,7 +429,7 @@ void tapBpm(){
         }
       }
       if(counterA <= -1){
-        if(shift){
+        if(controls.SHIFT()){
           setBpm(bpm-1);
         }
         else{

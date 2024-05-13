@@ -194,11 +194,11 @@ bool echoMenuControls(uint8_t* cursor){
     }
   }
   if(utils.itsbeen(200)){
-    if(menu_Press){
+    if(controls.MENU()){
       lastTime = millis();
       return false;
     }
-    if(n){
+    if(controls.NEW()){
       lastTime = millis();
       while(true){
         //echo selected notes
@@ -216,7 +216,7 @@ bool echoMenuControls(uint8_t* cursor){
   while(counterA != 0){//if there's data for this option
     if(counterA >= 1){
       if((*cursor) == 0 && echoData.delay<96){
-        if(shift)
+        if(controls.SHIFT())
           echoData.delay++;
         else
           echoData.delay*=2;
@@ -226,7 +226,7 @@ bool echoMenuControls(uint8_t* cursor){
       else if((*cursor) == 1)
         echoData.repeats++;
       else if((*cursor) == 2){
-        if(shift && echoData.decay<100)
+        if(controls.SHIFT() && echoData.decay<100)
           echoData.decay++;
         else if(echoData.decay<=90)
           echoData.decay+=10;
@@ -234,7 +234,7 @@ bool echoMenuControls(uint8_t* cursor){
     }
     else if(counterA <= -1){
       if((*cursor) == 0){
-        if(shift && echoData.delay>0)
+        if(controls.SHIFT() && echoData.delay>0)
           echoData.delay--;
         else if(echoData.delay>=2)
           echoData.delay/=2;
@@ -242,7 +242,7 @@ bool echoMenuControls(uint8_t* cursor){
       else if((*cursor) == 1 &&  echoData.repeats > 1)
         echoData.repeats--;
       else if((*cursor) == 2){
-        if(shift && echoData.decay>2)
+        if(controls.SHIFT() && echoData.decay>2)
           echoData.decay--;
         else if(echoData.decay>=11)
           echoData.decay-=10;

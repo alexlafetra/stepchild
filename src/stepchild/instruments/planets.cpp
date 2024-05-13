@@ -151,7 +151,7 @@ void testSolarSystem(){
       }
     }
     if(utils.itsbeen(200)){
-      if(menu_Press){
+      if(controls.MENU()){
         return;
       }
     }

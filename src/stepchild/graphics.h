@@ -996,7 +996,7 @@ void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct
   uint8_t offset = printPitch(xCoord, yCoord, s, bigOct, channel, c);
   offset+=4;
   //if you want to show the track channel
-  if(shift || (menuIsActive && activeMenu.menuTitle == "TRK")){
+  if(controls.SHIFT() || (menuIsActive && activeMenu.menuTitle == "TRK")){
     String sx = ":";
     sx += stringify(trackData[trackID].channel);
     // if(trackData[trackID].isLatched){

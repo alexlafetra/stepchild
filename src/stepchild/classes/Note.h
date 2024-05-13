@@ -64,7 +64,7 @@ bool moveSelectedNotes(int xOffset,int yOffset){
   //grab all the selected notes
   for(uint8_t track = 0; track<seqData.size(); track++){
     for(uint16_t note = 1; note<seqData[track].size(); note++){
-      //if the note is selected, push it into the buffer and then delete it
+      //if the note is selected, push it into the buffer and then del it
       if(seqData[track][note].isSelected){
         selectedNotes[track].push_back(seqData[track][note]);
         deleteNote(track, seqData[track][note].startPos);
@@ -103,7 +103,7 @@ bool moveSelectedNotes(int xOffset,int yOffset){
   return true;
 }
 
-//this one doesn't check for self collision! use it only if the note you're trying to move is already deleted
+//this one doesn't check for self collision! use it only if the note you're trying to move is already deld
 bool checkNoteMove(Note targetNote, int track, int newTrack, int newStart){
   unsigned short int length = targetNote.endPos-targetNote.startPos;
   //checking bounds

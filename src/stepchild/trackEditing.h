@@ -42,22 +42,22 @@ vector<uint8_t> selectMultipleTracks(String text){
       }
     }
     if(utils.itsbeen(200)){
-      if(sel && !shift){
-        sel = false;
+      if(controls.SELECT()  && !controls.SHIFT()){
+        controls.setSELECT(false);
         lastTime = millis();
         trackData[activeTrack].isSelected = !trackData[activeTrack].isSelected;
       }
       //toggle the selection on all of them
-      if(shift && sel){
-        n = false;
+      if(controls.SHIFT() && controls.SELECT() ){
+        controls.setNEW(false);
         lastTime = millis();
         trackData[activeTrack].isSelected = !trackData[activeTrack].isSelected;
         for(int i = 0; i<trackData.size(); i++){
           trackData[i].isSelected = trackData[activeTrack].isSelected;
         }
       }
-      if(n && !shift){
-        n = false;
+      if(controls.NEW() && !controls.SHIFT()){
+        controls.setNEW(false);
         lastTime = millis();
         //adding all the selected tracks to the list
         for(int i = 0; i<trackData.size(); i++){
@@ -68,7 +68,7 @@ vector<uint8_t> selectMultipleTracks(String text){
         }
         break;
       }
-      if(del || menu_Press){
+      if(controls.DELETE() || controls.MENU()){
         lastTime = millis();
         for(uint8_t track = 0; track<trackData.size(); track++){
           trackData[track].isSelected = false;
@@ -205,11 +205,11 @@ void sortTracks(){
     readButtons();
     controls.readJoystick();
     if(utils.itsbeen(200)){
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
         break;
       }
-      if(n || sel){
+      if(controls.NEW() || controls.SELECT() ){
         sortTrackData(sortType,sortTarget);
         lastTime = millis();
         break;
@@ -256,7 +256,7 @@ void sortTracks(){
 void swapTracks(){
   // slideMenuOut(1,7);
   unsigned short int track1 = activeTrack;
-  sel = false;
+  controls.setSELECT(false);
   while(true){
     if(utils.itsbeen(100)){
       if(controls.joystickY == 1){
@@ -273,13 +273,13 @@ void swapTracks(){
       }
     }
     if(utils.itsbeen(200)){
-      if(n){
+      if(controls.NEW()){
         lastTime = millis();
         sortTracks();
       }
-      if(sel || menu_Press){
-        sel = false;
-        menu_Press = false;
+      if(controls.SELECT()  || controls.MENU()){
+        controls.setSELECT(false);
+        controls.setMENU(false) ;
         lastTime = millis();
         break;
       }
@@ -314,8 +314,8 @@ void deleteEmptyTracks(){
 }
 
 //CHECK do you need to update trackID's??? idk if this will cause problems
-//deletes the track AND notes stored within it (from seqData and lookupData)
-//as long as you delete tracks from the back, i think this is okay
+//dels the track AND notes stored within it (from seqData and lookupData)
+//as long as you del tracks from the back, i think this is okay
 void deleteTrack(unsigned short int track){
   deleteTrack(track,false);
 }
@@ -324,7 +324,7 @@ void deleteTrack(unsigned short int track, bool hard, bool askFirst){
   int choice = 1;
   if(askFirst && seqData[track].size()-1>0){
     vector<String> ops = {"nay","yeah"};                                                                                    //this is == 2 instead of 1 because seqData[track] always has the default note
-    choice = binarySelectionBox(64,32,"nay","yeah","delete track w/"+stringify(seqData[track].size()-1)+(seqData[track].size() == 2?" note?":" notes?"),drawSeq);
+    choice = binarySelectionBox(64,32,"nay","yeah","del track w/"+stringify(seqData[track].size()-1)+(seqData[track].size() == 2?" note?":" notes?"),drawSeq);
   }
   if(choice == 1){
     if(trackData.size() == 1 && !hard){
@@ -343,7 +343,7 @@ void deleteTrack(unsigned short int track, bool hard, bool askFirst){
 
     eraseTrack(track);
 
-    //making new data without the deleted track
+    //making new data without the deld track
     vector<Track> tempTrackData;
     vector<vector<Note>> tempSeqData;
     vector<vector<uint16_t>> tempLookupData;
@@ -366,7 +366,7 @@ void deleteTrack(unsigned short int track, bool hard, bool askFirst){
 void deleteTrack(unsigned short int track, bool hard){
   deleteTrack(track, hard, true);
 }
-//deletes all tracks
+//dels all tracks
 void deleteAllTracks(){
   while(trackData.size()>0){
     deleteTrack(0,true,false);
@@ -599,7 +599,7 @@ void eraseTrack(int track) {
     lookupData[track][i] = 0;
   }
 }
-//erases notes, but doesn't delete track
+//erases notes, but doesn't del track
 void eraseTrack() {
   eraseTrack(activeTrack);
 }
@@ -675,7 +675,7 @@ void deleteDuplicateEmptyTracks(){
     for(uint8_t t2 = 0; t2<trackData.size(); t2++){
       if(t2 == t)
         continue;
-      //if a track has the same pitch, channel, and is empty, delete it
+      //if a track has the same pitch, channel, and is empty, del it
       if(trackData[t].pitch == trackData[t2].pitch &&
          trackData[t].channel == trackData[t2].channel &&
          seqData[t2].size() == 1){

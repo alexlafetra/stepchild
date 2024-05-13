@@ -64,11 +64,11 @@ void rattle(){
 
         readButtons();
         if(utils.itsbeen(200)){
-            if(play){
+            if(controls.PLAY()){
                 isPlaying = !isPlaying;
                 lastTime = millis();
             }
-            if(menu_Press){
+            if(controls.MENU()){
                 lastTime = millis();
                 break;
             }

@@ -65,7 +65,7 @@ void playPCData(uint16_t timestep){
 void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCursor){
     if(!editingMode){
          if (utils.itsbeen(100)) {
-            if (controls.joystickX == 1 && !shift) {
+            if (controls.joystickX == 1 && !controls.SHIFT()) {
                 //if cursor isn't on a measure marker, move it to the nearest one
                 if(cursorPos%subDivInt){
                     moveCursor(-cursorPos%subDivInt);
@@ -89,7 +89,7 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
                     setLoopPoint(cursorPos,false);
                 }
                 }
-                if (controls.joystickX == -1 && !shift) {
+                if (controls.joystickX == -1 && !controls.SHIFT()) {
                 if(cursorPos%subDivInt){
                     moveCursor(subDivInt-cursorPos%subDivInt);
                     lastTime = millis();
@@ -125,7 +125,7 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
         }
         if (utils.itsbeen(50)) {
             //moving
-            if (controls.joystickX == 1 && shift) {
+            if (controls.joystickX == 1 && controls.SHIFT()) {
             moveCursor(-1);
             lastTime = millis();
             if(movingLoop == 2)
@@ -135,7 +135,7 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
             else if(movingLoop == 1)
                 setLoopPoint(cursorPos,false);
             }
-            if (controls.joystickX == -1 && shift) {
+            if (controls.joystickX == -1 && controls.SHIFT()) {
             moveCursor(1);
             lastTime = millis();
             if(movingLoop == 2)
@@ -159,7 +159,7 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
                 lastTime = millis();
             }
             //jumping up and down tracks
-            if(shift){
+            if(controls.SHIFT()){
                 if (controls.joystickY == 1) {
                     uint8_t originalP = activePort;
                     bool success = false;
@@ -423,7 +423,7 @@ void PCEditingEncoderControls(uint8_t activePort,uint8_t* editingCursor){
         if((*editingCursor) == 1)
             (*editingCursor) = 0;
         if(counterB<0){
-            if(shift){
+            if(controls.SHIFT()){
                 if(PCData[activePort][targetPC].val>10)
                     PCData[activePort][targetPC].val-=10;
                 else
@@ -435,7 +435,7 @@ void PCEditingEncoderControls(uint8_t activePort,uint8_t* editingCursor){
             }
         }
         if(counterB>0){
-            if(shift){
+            if(controls.SHIFT()){
                 if(PCData[activePort][targetPC].val<117)
                     PCData[activePort][targetPC].val+=10;
                 else
@@ -464,11 +464,11 @@ void PCEditor(){
             defaultEncoderControls();
         if(utils.itsbeen(200)){
             defaultLoopControls();
-            if(n){
+            if(controls.NEW()){
                 makePCEvent(activePort,0,0,0,0,cursorPos);
                 lastTime = millis();
             }
-            if(menu_Press){
+            if(controls.MENU()){
                 lastTime = millis();
                 if(editingMessage){
                     editingMessage = false;
@@ -477,19 +477,19 @@ void PCEditor(){
                     break;
                 }
             }
-            if(del){
+            if(controls.DELETE()){
                 deletePCEvent(activePort,cursorPos);
                 editingMessage = false;
                 lastTime = millis();
             }
-            if(sel){
+            if(controls.SELECT() ){
                 if(!editingMessage && cursorOnPC(activePort))
                     editingMessage = true;
                 else
                     editingMessage = false;
                 lastTime = millis();
             }
-            if(play){
+            if(controls.PLAY()){
                 togglePlayMode();
                 lastTime = millis();
             }

@@ -173,10 +173,10 @@ void knobs(){
       // Serial.flush();
       while(counterB != 0){
         if(counterB >= 1){
-          controlKnobs[activeKnobA].increment(shift?1:8);
+          controlKnobs[activeKnobA].increment(controls.SHIFT()?1:8);
         }
         else if(counterB <= -1){
-          controlKnobs[activeKnobA].increment(shift?-1:int8_t(-8));
+          controlKnobs[activeKnobA].increment(controls.SHIFT()?-1:int8_t(-8));
         }
         controlKnobs[activeKnobA].send();
         // counterB += counterB<0?1:-1;;
@@ -184,10 +184,10 @@ void knobs(){
       }
       while(counterA != 0){
         if(counterA >= 1){
-          controlKnobs[activeKnobB+8].increment(shift?1:8);
+          controlKnobs[activeKnobB+8].increment(controls.SHIFT()?1:8);
         }
         else if(counterA <= -1){
-          controlKnobs[activeKnobB+8].increment(shift?-1:int8_t(-8));
+          controlKnobs[activeKnobB+8].increment(controls.SHIFT()?-1:int8_t(-8));
         }
         controlKnobs[activeKnobB+8].send();
         counterA += counterA<0?1:-1;
@@ -232,19 +232,19 @@ void knobs(){
       }
     }
     if(utils.itsbeen(200)){
-      if(sel){
+      if(controls.SELECT() ){
         selected = !selected;
         lastTime = millis();
       }
-      if(shift){
+      if(controls.SHIFT()){
         activeRow = activeRow?1:0;
         lastTime = millis();
       }
-      if(play){
+      if(controls.PLAY()){
         xyMode = !xyMode;
         lastTime = millis();
       }
-      if(menu_Press){
+      if(controls.MENU()){
         lastTime = millis();
         if(selected){
           selected = false;

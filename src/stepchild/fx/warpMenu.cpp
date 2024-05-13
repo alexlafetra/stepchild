@@ -29,15 +29,15 @@ CoordinatePair selectArea_warp(bool AorB){
     controls.readJoystick();
     readButtons();
     defaultEncoderControls();
-    if(sel && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
+    if(controls.SELECT()  && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
       selBox.begun = true;
       selBox.coords.start.x = cursorPos;
       selBox.coords.start.y = activeTrack;
       coords.start.x = cursorPos;
       coords.start.y = activeTrack;
     }
-    //if sel is released, and there's a selection box
-    if(!sel && selBox.begun){
+    //if controls.SELECT()  is released, and there's a selection box
+    if(!controls.SELECT()  && selBox.begun){
       selBox.coords.end.x = cursorPos;
       selBox.coords.end.y = activeTrack;
       selBox.begun = false;
@@ -45,11 +45,11 @@ CoordinatePair selectArea_warp(bool AorB){
       coords.end.y = activeTrack;
     }
     if(utils.itsbeen(200)){
-      if(n){
+      if(controls.NEW()){
         lastTime = millis();
         return coords;
       }
-      if(menu_Press){
+      if(controls.MENU()){
         coords.start.x = 0;
         coords.end.x = 0;
         coords.start.y = 0;
@@ -59,7 +59,7 @@ CoordinatePair selectArea_warp(bool AorB){
       }
     }
     if (utils.itsbeen(100)) {
-      if (controls.joystickX == 1 && !shift) {
+      if (controls.joystickX == 1 && !controls.SHIFT()) {
         //if cursor isn't on a measure marker, move it to the nearest one
         if(cursorPos%subDivInt){
           moveCursor(-cursorPos%subDivInt);
@@ -70,7 +70,7 @@ CoordinatePair selectArea_warp(bool AorB){
           lastTime = millis();
         }
       }
-      if (controls.joystickX == -1 && !shift) {
+      if (controls.joystickX == -1 && !controls.SHIFT()) {
         if(cursorPos%subDivInt){
           moveCursor(subDivInt-cursorPos%subDivInt);
           lastTime = millis();
@@ -96,11 +96,11 @@ CoordinatePair selectArea_warp(bool AorB){
       }
     }
     if (utils.itsbeen(50)) {
-      if (controls.joystickX == 1 && shift) {
+      if (controls.joystickX == 1 && controls.SHIFT()) {
         moveCursor(-1);
         lastTime = millis();
       }
-      if (controls.joystickX == -1 && shift) {
+      if (controls.joystickX == -1 && controls.SHIFT()) {
         moveCursor(1);
         lastTime = millis();
       }
@@ -176,7 +176,7 @@ bool warpAintoB(CoordinatePair A, CoordinatePair B, bool onlySelected){
                 continue;
               }
 
-              //deleting old note
+              //controls.DELETE()eting old note
               deleteNote_byID(track,noteID);
               //make sure to decrement noteID! so you don't warp the same note twice or skip a note
               noteID--;

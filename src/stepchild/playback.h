@@ -1,4 +1,3 @@
-
 void playTrack(uint8_t track, uint16_t timestep){
   //if there's no note, skip to the next track
   if (lookupData[track][timestep] == 0){

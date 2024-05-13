@@ -645,13 +645,13 @@ bool fxMenuControls(){
     }
   }
   if(utils.itsbeen(200)){
-    if(menu_Press){
+    if(controls.MENU()){
       lastTime = millis();
       slideMenuOut(0,20);
       return false;
     }
-    if(sel){
-      sel = false;
+    if(controls.SELECT() ){
+      controls.setSELECT(false);
       lastTime = millis();
       fxApplicationFunctions[activeMenu.highlight]();
     }

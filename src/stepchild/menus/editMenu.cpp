@@ -39,7 +39,7 @@ void setCursorToNearestNote(){
 
 void fxListControls(uint8_t* currentQuickFunction){
   if(utils.itsbeen(200)){
-    if(loop_Press || menu_Press){
+    if(controls.LOOP() || controls.MENU()){
       activeMenu.page = 0;
       lastTime = millis();
     }
@@ -54,9 +54,9 @@ void fxListControls(uint8_t* currentQuickFunction){
       }
     }
     //selecting an FX
-    if(sel){
+    if(controls.SELECT() ){
       lastTime = millis();
-      sel = false;
+      controls.setSELECT(false);
       fxApplicationFunctions[*currentQuickFunction]();
     }
   }
@@ -94,21 +94,21 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
       }
       //vel
       else if(activeMenu.highlight == 2){
-        if(shift)
+        if(controls.SHIFT())
           changeVel(-8);
         else
           moveToNextNote_inTrack(true);
       }
       //chance
       else if(activeMenu.highlight == 3){
-        if(shift)
+        if(controls.SHIFT())
           changeChance(-5);
         else
           moveToNextNote_inTrack(true);
       }
       //quant
       else if(activeMenu.highlight == 4){
-        if(shift && quantizeAmount>0){
+        if(controls.SHIFT() && quantizeAmount>0){
           quantizeAmount--;
         }
         else{
@@ -128,20 +128,20 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
           setActiveTrack(activeTrack - 1, true);
       }
       else if(activeMenu.highlight == 2){
-        if(shift)
+        if(controls.SHIFT())
           changeVel(8);
         else
           moveToNextNote_inTrack(false);
       }
       else if(activeMenu.highlight == 3){
-        if(shift)
+        if(controls.SHIFT())
           changeChance(5);
         else
           moveToNextNote_inTrack(false);
       }
       //quant
       else if(activeMenu.highlight == 4){
-        if(shift && quantizeAmount<100){
+        if(controls.SHIFT() && quantizeAmount<100){
           quantizeAmount++;
         }
         else{
@@ -158,7 +158,7 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
   }
   if(utils.itsbeen(100)){
     if (controls.joystickX == 1){
-      if(!shift){
+      if(!controls.SHIFT()){
         if(activeMenu.highlight == 1){
           //if it's not on a subDiv
           if(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos%subDivInt)
@@ -206,7 +206,7 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
       }
     }
     if (controls.joystickX == -1){
-      if(!shift){  
+      if(!controls.SHIFT()){  
         //special moves (while editing notes) 
         //if it's not on a subDiv
         if(activeMenu.highlight == 1){
@@ -257,7 +257,7 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
     }
   }
   if(utils.itsbeen(200)){
-    if(menu_Press || controls.B()){
+    if(controls.MENU() || controls.B()){
       editingNote = false;
       activeMenu.coords.start.x = trackDisplay-5;
       activeMenu.coords.start.y = 0;
@@ -267,7 +267,7 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
       lastTime = millis();
       return;
     }
-    if(loop_Press){
+    if(controls.LOOP()){
       switch(activeMenu.highlight){
         //in move/length/vel/chance mode, "loop" just toggles editing
         case 0:
@@ -294,7 +294,7 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
           break;
         case 6:
           lastTime = millis();
-          loop_Press = false;
+          controls.setLOOP(false);
           fxApplicationFunctions[*currentQuickFunction]();
           break;
       }
@@ -304,25 +304,25 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
 
 void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQuickFunction){
   //selectionBox
-  //when sel is pressed and stick is moved, and there's no selection box
-  if(sel && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
+  //when controls.SELECT()  is pressed and stick is moved, and there's no selection box
+  if(controls.SELECT()  && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
     selBox.begun = true;
     selBox.coords.start.x = cursorPos;
     selBox.coords.start.y = activeTrack;
   }
-  //if sel is released, and there's a selection box
-  if(!sel && selBox.begun){
+  //if controls.SELECT()  is released, and there's a selection box
+  if(!controls.SELECT()  && selBox.begun){
     selBox.coords.end.x = cursorPos;
     selBox.coords.end.y = activeTrack;
     selectBox();
     selBox.begun = false;
   }
-  if(!n){
+  if(!controls.NEW()){
     drawingNote = false;
   }
-  //encoderA changes zoom AND +shift changes the stencil
+  //encoderA changes zoom AND +controls.SHIFT() changes the stencil
   while(counterA != 0){
-    if(!shift){
+    if(!controls.SHIFT()){
       //changing zoom
       if(counterA >= 1){
           zoom(true);
@@ -343,12 +343,12 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
   }
   //encoder B steps through menu options AND increments them by one (unlike joystick) when shifted
   while(counterB != 0){
-    if(!shift){
-      if(counterB >= 1 && !shift){
+    if(!controls.SHIFT()){
+      if(counterB >= 1 && !controls.SHIFT()){
         changeSubDivInt(true);
       }
       //changing subdivint
-      if(counterB <= -1 && !shift){
+      if(counterB <= -1 && !controls.SHIFT()){
         changeSubDivInt(false);
       }
     }
@@ -361,7 +361,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
   //joystick
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1){
-      if(shift){
+      if(controls.SHIFT()){
         moveToNextNote_inTrack(true);
         drawingNote = false;
         lastTime = millis();
@@ -372,7 +372,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
       }
     }
     if (controls.joystickY == -1){
-      if(shift){
+      if(controls.SHIFT()){
         moveToNextNote_inTrack(false);
         drawingNote = false;
         lastTime = millis();
@@ -385,18 +385,18 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
   }
   if(utils.itsbeen(100)){
     if (controls.joystickX == 1){
-      if(!shift){
+      if(!controls.SHIFT()){
         moveToNextNote(false,false);
         lastTime = millis();
       }
-      //shift
+      //controls.SHIFT()
       else if(activeMenu.highlight>0){
         activeMenu.highlight--;
         lastTime = millis();
       }
     }
     if (controls.joystickX == -1){
-      if(!shift){  
+      if(!controls.SHIFT()){  
         // moveCursor(subDivInt);
         moveToNextNote(true,false);
         lastTime = millis();
@@ -409,7 +409,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
   }
   if(utils.itsbeen(200)){
     //this is the 'move and place' key (might make sense to have it be a diff key)
-    if(menu_Press){
+    if(controls.MENU()){
       slideMenuOut(1,20);
       editingNote = false;
       menuIsActive = false;
@@ -430,7 +430,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
       constructMenu("TRK");
     }
     //moving menu cursor
-    if(controls.joystickY != 0 && shift){
+    if(controls.joystickY != 0 && controls.SHIFT()){
       if(controls.joystickY == 1){
         if(activeMenu.highlight>0){
           activeMenu.highlight--;
@@ -452,8 +452,8 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
         }
       }
     }
-    if(loop_Press){
-      if(shift){
+    if(controls.LOOP()){
+      if(controls.SHIFT()){
         switch(activeMenu.highlight){
           //quantize
           case 4:
@@ -468,7 +468,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
             //trigger fx selection
             activeMenu.page = 1;
             lastTime = millis();
-            loop_Press = false;
+            controls.setLOOP(false);
             break;
         }
       }
@@ -476,7 +476,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
         //if it's a quickFX
         if(activeMenu.highlight == 6){
           //trigger fx
-          loop_Press = false;
+          controls.setLOOP(false);
           lastTime = millis();
           activeMenu.page = 1;
         }
@@ -491,8 +491,8 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
         }
       }
     }
-    if(n && !drawingNote && !sel){
-      if(shift){
+    if(controls.NEW() && !drawingNote && !controls.SELECT() ){
+      if(controls.SHIFT()){
         lastTime = millis();
         stencilNotes(*stencil);
       }
@@ -503,15 +503,15 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
       //   moveCursor(subDivInt);
       // }
     }
-    if(sel && !selBox.begun){
+    if(controls.SELECT()  && !selBox.begun){
       unsigned short int id;
       id = lookupData[activeTrack][cursorPos];
       //select all
-      if(n){
+      if(controls.NEW()){
         selectAll();
       }
       //select only one
-      else if(shift){
+      else if(controls.SHIFT()){
         clearSelection();
         toggleSelectNote(activeTrack, id, false);
       }
@@ -521,8 +521,8 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
       }
       lastTime = millis();
     }
-    if(del){
-      if(shift){
+    if(controls.DELETE()){
+      if(controls.SHIFT()){
         muteNote(activeTrack, lookupData[activeTrack][cursorPos], true);
         lastTime = millis();
       }
@@ -534,16 +534,16 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
       }
       lastTime = millis();
     }
-    if(play){
-      if(shift)
+    if(controls.PLAY()){
+      if(controls.SHIFT())
         toggleRecordingMode(waitForNoteBeforeRec);
       else
         togglePlayMode();
       lastTime = millis();
     }
-    if(copy_Press){
+    if(controls.COPY()){
       lastTime = millis();
-      if(shift)
+      if(controls.SHIFT())
         paste();
       else
         copy();
@@ -860,7 +860,7 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
           break;
       }
     }
-    graphics.drawArrow(coords.start.x+xLoc,13+((millis()/400)%2),shift?3:4,2,shift);
+    graphics.drawArrow(coords.start.x+xLoc,13+((millis()/400)%2),controls.SHIFT()?3:4,2,controls.SHIFT());
     //drawing quick function list
     if(windowStart > 0){
       display.fillRect(screenWidth-windowStart,0,windowStart,screenHeight,0);

@@ -109,7 +109,7 @@ bool isLooping = true;//controls whether or not the sequence loops at all
 //0 is off, 1 is start, -1 is end, 2 is both
 int8_t movingLoop = 0;
 
-unsigned short int viewStart;//where the view ends, usually moves by measures but shift lets it move one at a time
+unsigned short int viewStart;//where the view ends, usually moves by measures but controls.SHIFT() lets it move one at a time
 unsigned short int viewEnd;//where the view ends
 
 //you could get rid of this! just use lookupData[0].size()

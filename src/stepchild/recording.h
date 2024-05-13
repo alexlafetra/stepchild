@@ -58,16 +58,16 @@ void writeNoteOff(unsigned short int step, uint8_t pitch, uint8_t channel){
   }
 }
 
-//continues notes that were started, and deletes notes in their way
+//continues notes that were started, and dels notes in their way
 void continueStep(unsigned short int step){
   for(int track = 0; track<trackData.size(); track++){
     if(trackData[track].isPrimed){
       if(trackData[track].noteLastSent != 255){
         int id = seqData[track].size()-1;
         if(id>0){
-          //if there's a different note at this step, delete it
+          //if there's a different note at this step, del it
           if(lookupData[track][step] != 0 && lookupData[track][step] != id){
-            //if it's in overwrite mode, delete the conflicting note
+            //if it's in overwrite mode, del the conflicting note
             if(overwriteRecording){
               deleteNote(track, step);
               id = seqData[track].size()-1;

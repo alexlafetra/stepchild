@@ -250,7 +250,7 @@ const unsigned char epd_bitmap_small_aster []  = {
 const unsigned char epd_bitmap_small_mult []  = {
 	0x00, 0xa0, 0x40, 0xa0, 0x00
 };
-// 'delta', 7x7px
+// 'controls.DELETE()ta', 7x7px
 const unsigned char epd_bitmap_small_delta []  = {
 	0x18, 0x18, 0x2c, 0x2c, 0x44, 0x46, 0xfe
 };
@@ -964,7 +964,7 @@ void printSmall(int x, int y, String text, uint16_t c){
       case '|':
         display.drawBitmap(x+4*letter,y,small_font[62],3,5,c);
         break;
-      //delta
+      //controls.DELETE()ta
       // case '~':
       //   display.drawBitmap(x,y-2,small_font[63],7,7,c);
       //   x+=4;
