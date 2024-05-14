@@ -16,7 +16,8 @@ enum FileFormatCode{
   CLOCK_SOURCE,
   REC_MODE,
   REC_TRIGGER,
-  SLEEP_TIME
+  SLEEP_TIME,
+  SCREEN_BRIGHTNESS
 };
 
 const FileFormatCode sequenceFileHeader[] = {
@@ -35,29 +36,11 @@ const FileFormatCode settingsFileHeader[] = {
   CLOCK_SOURCE,
   REC_MODE,
   REC_TRIGGER,
-  SLEEP_TIME
+  SLEEP_TIME,
+  SCREEN_BRIGHTNESS
 };
 
 #ifndef HEADLESS
-//returns a byteCount as a more recognizeable value, like 7kB or 5mB
-String bytesToString(uint32_t bytes){
-  //if it's less than 500, print bytes as-is
-  if(bytes<500){
-    return stringify(bytes)+"B";
-  }
-  //probably never going to go over this
-  else if(bytes<500000){
-    //divide by 100 so the decimal value is now in the 1's place
-    bytes/= 100;
-    String byteCount = stringify(bytes);
-    byteCount += byteCount[byteCount.length()-1];
-    byteCount[byteCount.length()-2] = '.';
-    return byteCount+"kB";
-  }
-  else{
-    return "bruh";
-  }
-}
 
 //sends the number of bytes in the file
 void sendByteCount(String filename){
@@ -88,24 +71,6 @@ uint32_t getByteCount_standAlone(String filename){
   return byteCount;
 }
 
-//this makes notes without updating the noteCount, and doesn't check bounds n stuff
-void loadNote(int id, int track, int start, int velocity, bool isMuted, int chance, int end, bool selected){
-  Note newNoteOn(start, end, velocity, chance, isMuted, false);
-  newNoteOn.isSelected = selected;
-  if(selected){
-    selectionCount++;
-  }
-  loadNote(newNoteOn, track);
-}
-
-void loadNote(Note newNote, uint8_t track){
-  //adding to seqData
-  seqData[track].push_back(newNote);
-  //adding to lookupData
-  for (uint16_t i =  newNote.startPos; i < newNote.endPos; i++) { //sets id
-    lookupData[track][i] = seqData[track].size()-1;
-  }
-}
 //flash mem
 void flashTest(){
   char totalNotes;
@@ -212,16 +177,16 @@ void writeSeqFile(String filename){
         }
         break;}
       case CLOCK_DATA:{
-        uint8_t bpmBytes[2] = {uint8_t(bpm>>8),uint8_t(bpm)};
+        uint8_t bpmBytes[2] = {uint8_t(sequenceClock.BPM>>8),uint8_t(sequenceClock.BPM)};
         seqFile.write(bpmBytes,2);
         //swing amount
-        uint8_t swingAmountBytes[2] = {uint8_t(swingVal>>8),uint8_t(swingVal)};
+        uint8_t swingAmountBytes[2] = {uint8_t(sequenceClock.swingAmplitude>>8),uint8_t(sequenceClock.swingAmplitude)};
         seqFile.write(swingAmountBytes,2);
         //swing subDiv
-        uint8_t swingSubDivBytes[2] = {uint8_t(swingSubDiv>>8),uint8_t(swingSubDiv)};
+        uint8_t swingSubDivBytes[2] = {uint8_t(sequenceClock.swingSubDiv>>8),uint8_t(sequenceClock.swingSubDiv)};
         seqFile.write(swingSubDivBytes,2);
         //swing on/off
-        uint8_t swingByte[1] = {uint8_t(swung)};
+        uint8_t swingByte[1] = {uint8_t(sequenceClock.isSwinging)};
         seqFile.write(swingByte,1);
         break;}
       case MIDI_PORT_DATA:{
@@ -255,11 +220,6 @@ void writeSeqFile(String filename){
     }
   }
   LittleFS.end();
-}
-
-//helper function for writing bytes to the serial buffer
-void writeBytesToSerial(uint8_t* byteArray, uint16_t numberOfBytes){
-  Serial.write(byteArray,numberOfBytes);
 }
 
 void writeCurrentSeqToSerial(bool waitForResponse){
@@ -337,17 +297,17 @@ void writeCurrentSeqToSerial(bool waitForResponse){
         break;}
       case CLOCK_DATA:{
         //writing clock data
-        //bpm
-        uint8_t bpmBytes[2] = {uint8_t(bpm>>8),uint8_t(bpm)};
+        //sequenceClock.BPM
+        uint8_t bpmBytes[2] = {uint8_t(sequenceClock.BPM>>8),uint8_t(sequenceClock.BPM)};
         writeBytesToSerial(bpmBytes,2);
         //swing amount
-        uint8_t swingAmountBytes[2] = {uint8_t(swingVal>>8),uint8_t(swingVal)};
+        uint8_t swingAmountBytes[2] = {uint8_t(sequenceClock.swingAmplitude>>8),uint8_t(sequenceClock.swingAmplitude)};
         writeBytesToSerial(swingAmountBytes,2);
         //swing subDiv
-        uint8_t swingSubDivBytes[2] = {uint8_t(swingSubDiv>>8),uint8_t(swingSubDiv)};
+        uint8_t swingSubDivBytes[2] = {uint8_t(sequenceClock.swingSubDiv>>8),uint8_t(sequenceClock.swingSubDiv)};
         writeBytesToSerial(swingSubDivBytes,2);
         //swing on/off
-        uint8_t swingByte[1] = {uint8_t(swung)};
+        uint8_t swingByte[1] = {uint8_t(sequenceClock.isSwinging)};
         writeBytesToSerial(swingByte,1);
         break;}
       case MIDI_PORT_DATA:{
@@ -654,11 +614,10 @@ void loadSeqFile(String filename){
           seqFile.read(swingAmountBytes,2);
           seqFile.read(swingSubDivBytes,2);
           seqFile.read(swingByte,1);
-          bpm = uint16_t(bpmBytes[0]<<8) + uint16_t(bpmBytes[1]);
-          setBpm(bpm);
-          swingVal = uint16_t(swingAmountBytes[0]<<8) + uint16_t(swingAmountBytes[1]);
-          swingSubDiv = uint16_t(swingSubDivBytes[0]<<8) + uint16_t(swingSubDivBytes[1]);
-          swung = swingByte[0];
+          sequenceClock.setBPM(uint16_t(bpmBytes[0]<<8) + uint16_t(bpmBytes[1]));
+          sequenceClock.swingAmplitude = uint16_t(swingAmountBytes[0]<<8) + uint16_t(swingAmountBytes[1]);
+          sequenceClock.swingSubDiv = uint16_t(swingSubDivBytes[0]<<8) + uint16_t(swingSubDivBytes[1]);
+          sequenceClock.isSwinging = swingByte[0];
           break;}
         case MIDI_PORT_DATA:{
           //loading routing/thru data
@@ -807,6 +766,10 @@ void writeCurrentSettingsToFile(){
         uint8_t idleTime[2] = {uint8_t(sleepTime>>8),uint8_t(sleepTime)};
         f.write(idleTime,2);
         break;}
+      case SCREEN_BRIGHTNESS:{
+        uint8_t brightness[1] = {screenBrightness};
+        f.write(brightness,1);
+        break;}
     }
   }
   f.close();
@@ -849,6 +812,15 @@ void loadSavedSettingsFromFile(){
         f.read(idleTime,2);
         sleepTime = (uint16_t(idleTime[0])<<8) | idleTime[1];
         break;}
+      case SCREEN_BRIGHTNESS:{
+        uint8_t brightness[1];
+        f.read(brightness,1);
+        if(screenBrightness != brightness[0]){
+          display.ssd1306_command(SSD1306_SETCONTRAST);
+          display.ssd1306_command(screenBrightness);
+          screenBrightness = brightness[0];
+        }
+        break;}
     }
   }
   LittleFS.end();
@@ -877,9 +849,9 @@ void loadSettings(){
   void writeSeqFile(String fname){
     return;
   }
-  void writeBytesToSerial(uint8_t* byteArray, uint16_t number){
-    return;
-  }
+//  void writeBytesToSerial(uint8_t* byteArray, uint16_t number){
+//    return;
+//  }
   void writeCurrentSeqToSerial(bool w){
     return;
   }

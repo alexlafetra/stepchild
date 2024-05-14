@@ -13,7 +13,7 @@ void drawPram(){
     }
     else{
       if(!playing && !recording){
-        if(onBeat(2,30))
+        if(sequenceClock.onBeat(2,30))
           display.drawBitmap(8,1,tinyPram,7,7,SSD1306_WHITE);
         else
           display.drawBitmap(8,0,tinyPram,7,7,SSD1306_WHITE);
@@ -148,7 +148,7 @@ void drawTopIcons(){
   }
 
   //swing icon
-  if(swung){
+  if(sequenceClock.isSwinging){
     graphics.drawPendulum(x1+2,0,7,millis()/2,1);
     x1+=10;
   }
@@ -709,13 +709,13 @@ void handleInternalCC(uint8_t ccNumber, uint8_t val, uint8_t channel, uint8_t yP
       //this can at MOST change the pitch by 2 octaves up or down, so a span of 48 notes
       globalModifiers.pitch[1] = float(val)/float(127) * 48 - 24;
       break;
-    //bpm
+    //sequenceClock.BPM
     case 3:
-      setBpm(float(val)*2);
+      sequenceClock.setBPM(float(val)*2);
       break;
     //swing amount
     case 4:
-      swingVal += val-63;
+      sequenceClock.swingAmplitude += val-63;
     //track channel
     case 5:
       break;
@@ -758,7 +758,7 @@ void initSeq(int tracks, int length) {
   defaultChannel = 1;
   defaultPitch = 36;
 
-  bpm = 120;
+  sequenceClock.setBPM(120);
   // seqStart = 0;
   //default is 4 measures = 24*4*4=384
   //1 measure  = 96
@@ -788,7 +788,7 @@ void initSeq(int tracks, int length) {
   //cursor jump is locked to this division
   defaultVel = 127;
 
-  MicroSperTimeStep = round(2500000/bpm);
+  sequenceClock.uSecPerStep = round(2500000/sequenceClock.BPM);
 
   seqData.resize(tracks);
   lookupData.resize(tracks);
@@ -1378,7 +1378,7 @@ void togglePlayMode(){
     MIDI0.setHandleStop(handleStop_playing);
     #endif
 
-    startTime = micros();
+    sequenceClock.startTime = micros();
     if(isArping){
       activeArp.start();
     }
@@ -1483,7 +1483,7 @@ void toggleRecordingMode(bool butWait){
     MIDI0.setHandleStop(handleStop_recording);
     MIDI0.setHandleControlChange(handleCC_Recording);
     #endif
-    startTime = micros();
+    sequenceClock.startTime = micros();
   }
   else{//go back to normal mode
     setNormalMode();
@@ -2117,7 +2117,7 @@ void ledPulse(uint8_t speed){
 void playingLoop(){
   //internal timing
   if(clockSource == INTERNAL_CLOCK){
-    if(hasItBeenEnoughTime(playheadPos)){
+    if(sequenceClock.hasItBeenEnoughTime(playheadPos)){
       MIDI.sendClock();
       playStep(playheadPos);
       playheadPos++;

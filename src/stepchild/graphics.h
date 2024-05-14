@@ -789,7 +789,7 @@ void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask,
 }
 
 void drawPram(uint8_t x1, uint8_t y1){
-  if(onBeat(2,30))
+  if(sequenceClock.onBeat(2,30))
     display.drawBitmap(x1,y1+1,carriage_bmp,14,15,SSD1306_WHITE);
   else
     display.drawBitmap(x1,y1,carriage_bmp,14,15,SSD1306_WHITE);

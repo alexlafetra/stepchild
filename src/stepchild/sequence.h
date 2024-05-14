@@ -1,47 +1,503 @@
-
 //Providing all the data and functions that the stepchild needs to run the sequence, but none of the graphics
 class StepchildSequence{
     public:
-    vector<Note> noteData;
-    vector<vector<uint16_t>> lookupData;
+    vector<vector<uint16_t>> lookupTable;
+    vector<vector<Note>> noteData;
+    vector<Track> trackData;
 
-    uint16_t activeTrack;
-    uint16_t cursorPos;
-    uint16_t playheadPos;
-    uint16_t recheadPos;
+    uint16_t activeTrack = 0;
+    uint16_t cursorPos = 0;
+    uint16_t playheadPos = 0;
+    uint16_t recheadPos = 0;
 
     vector<Loop> loopData;
-    uint8_t activeLoop;
-    uint8_t isLooping;
+    uint8_t activeLoop = 0;
+    uint8_t isLooping = true;
 
-    uint16_t bpm;
-
-    uint16_t length;//seqEnd became length
+    uint16_t sequenceLength;//seqEnd became length
     uint16_t viewStart;
     uint16_t viewEnd;
 
-    uint8_t subDivInt;
+    uint8_t subDivInt = 24;
 
     uint8_t playState;
-    uint8_t defaultChannel;
-    uint8_t defaultPitch;
-    uint8_t defaultVel;
+    uint8_t defaultChannel = 1;
+    uint8_t defaultPitch = 36;
+    uint8_t defaultVel = 127;
+
+    uint16_t selectionCount = 0;
+
+    enum NoteProperty{
+        VELOCITY,
+        CHANCE,
+        PITCH
+    };
+
     StepchildSequence(){}
-
+    /*
+    ----------------------------------------------------------
+                        Utilities
+    ----------------------------------------------------------
+    */
+    //creates a sequence object with default values
     void init(uint8_t numberOfTracks,uint16_t length){
-
-        this->defaultChannel = 1;
-        this->defaultPitch = 36;
-        this->defaultVel = 127;
-        this->length = length;
+        //What should happen if length<192?
+        this->sequenceLength = length;
         this->viewStart = 0;
         this->viewEnd = 192;
-        this->subDivInt = 24;
 
+        //make the default loop
         Loop firstLoop = Loop(0,96,0,0);
         this->loopData.push_back(firstLoop);
+
+        //reset to 120 bpm
+        sequenceClock.setBPM(120);
+
+        //resize data arrays to number of tracks
+        this->lookupTable.resize(numberOfTracks);
+        this->noteData.resize(numberOfTracks);
+
+        //clear out trackData
+        this->trackData = {};
+        //pitch var so that all the tracks count up from this (weird bc the order the tracks are drawn in is high->low)
+        uint8_t pitch = this->defaultPitch + numberOfTracks-1;
+        for(uint8_t i = 0; i<numberOfTracks; i++){
+            //add a track on the lookupdata
+            this->lookupTable[i].resize(sequenceLength+1,0);
+            this->noteData[i] = {Note()};
+            this->trackData.push_back(Track(pitch,this->defaultChannel));
+            pitch--;
+        }
     }
     void init(){
+        this->init(16,768);
+    }
+    Note noteAt(uint8_t track, uint16_t step){
+        return this->noteData[track][this->lookupTable[track][step]];
+    }
+    Note noteAtCursor(){
+        return this->noteAt(this->activeTrack,this->cursorPos);
+    }
+    uint16_t IDAt(uint8_t track, uint16_t step){
+        return this->lookupTable[track][step];
+    }
+    uint16_t IDAtCursor(){
+        return this->IDAt(this->activeTrack,this->cursorPos);
+    }
+    /*
+    ----------------------------------------------------------
+                        LOADING NOTES
+    ----------------------------------------------------------
+    */
+    //adds a note w/o checking for overlaps
+    //Only use this when loading notes from a file into a blank sequence
+    void loadNote(Note newNote, uint8_t track){
+        this->noteData[track].push_back(newNote);
+        if(newNote.isSelected)
+            this->selectionCount++;
+        //adding to lookupData
+        for (uint16_t i =  newNote.startPos; i < newNote.endPos; i++) { //sets id
+            this->lookupTable[track][i] = this->noteData[track].size()-1;
+        }
+    }
+    void loadNote(uint16_t id, uint8_t track, uint16_t start, uint8_t velocity, bool isMuted, uint8_t chance, uint16_t end, bool selected){
+        Note newNoteOn(start, end, velocity, chance, isMuted, false);
+        this->loadNote(newNoteOn, track);
+    }
+    /*
+    ----------------------------------------------------------
+                        DELETING NOTES
+    ----------------------------------------------------------
+    */
+    //Deletes a note on a given track with a given ID
+    void deleteNote_byID(uint8_t track, uint16_t targetNoteID){
+        //if there's a note/something here, and it's in data
+        if (targetNoteID != 0 && targetNoteID <= this->noteData[track].size()) {
+            //clearing note from this->lookupTable
+            for (int i = this->noteData[track][targetNoteID].startPos; i < this->noteData[track][targetNoteID].endPos; i++) {
+                this->lookupTable[track][i] = 0;
+            }
+            //lowering selectionCount
+            if(this->noteData[track][targetNoteID].isSelected && this->selectionCount>0)
+                this->selectionCount--;
+            //erasing note from this->noteData
+            //make a copy of the this->noteData[track] vector which excludes the note
+            //hopefully, this does a better job of freeing memory
+            //swapping it like this! this is so the memory is free'd up again
+            vector<Note> temp = {Note()};
+            for(int i = 1; i<=this->noteData[track].size()-1; i++){
+            if(i != targetNoteID){//if it's not the target note, or an empty spot, copy it to the temp vector
+                temp.push_back(this->noteData[track][i]);
+            }
+            }
+            temp.swap(this->noteData[track]);
+            //since we del'd it from this->noteData, we need to update all the lookup values that are now 'off' by 1. Any value that's higher than the del'd note's ID should be decremented.
+            if(this->noteData[track].size()-1>0){
+                for (uint16_t step = 0; step < this->lookupTable[track].size(); step++) {
+                    if (this->lookupTable[track][step] > targetNoteID) //if there's a higher note and if there are still notes to be changed
+                        this->lookupTable[track][step] -= 1;
+                }
+            }
+        }
+    }
+    //deletes a note at a specific time/place
+    void deleteNote(uint8_t track, uint16_t time){
+        this->deleteNote_byID(track,this->IDAt(track,time));
+    }
+    //deletes a note at the current track/cursor position
+    void deleteNote(){
+        this->deleteNote_byID(this->activeTrack,this->IDAtCursor());
+    }
+    void deleteSelected(){
+        if(this->selectionCount>0){
+            if(binarySelectionBox(64,32,"nah","yea","del "+stringify(selectionCount)+((selectionCount == 1)?stringify(" note?"):stringify(" notes?")),drawSeq)){
+                for(uint8_t track = 0; track<this->trackData.size(); track++){
+                    for(uint16_t note = 0; note<this->noteData[track].size(); note++){
+                        if(this->noteData[track][note].isSelected){
+                            this->deleteNote_byID(track, note);
+                            (note == 0) ? note = 0: note--;
+                        }
+                        //if you've already checked all the selected notes
+                        if(this->selectionCount == 0)
+                            break;
+                    }
+                }
+            }
+        }
+    }
+    /*
+    ----------------------------------------------------------
+                        CREATING NOTES
+    ----------------------------------------------------------
+    Lots of these are redundant/deprecated overloads... go thru em and get rid of them!
+    */
+    void makeNote(Note newNoteOn, int track, bool loudly){
+        //if you're placing it on the end of the seq, just return
+        if(newNoteOn.startPos == this->sequenceLength)
+            return;
+        //if there's a 0 where the note is going to go, or if there's not a zero BUT it's also not the start of that other note
+        if (this->lookupTable[track][newNoteOn.startPos] == 0 || newNoteOn.startPos != this->noteAt(this->activeTrack,newNoteOn.startPos).startPos) { //if there's no note there
+            if (this->lookupTable[track][newNoteOn.startPos] != 0) {
+                this->truncateNote(track, newNoteOn.startPos);
+            }
+            if(newNoteOn.isSelected){
+                this->selectionCount++;
+            }
+            unsigned short int id = this->noteData[track].size();
+            this->lookupTable[track][newNoteOn.startPos] = id;//set noteID in this->lookupTable to the index of the new note
+            for (int i = newNoteOn.startPos+1; i < newNoteOn.endPos; i++) { //sets id
+                if (this->lookupTable[track][i] == 0 && i<this->sequenceLength)
+                    this->lookupTable[track][i] = id;
+                else { //if there's something there, then set the end to the step before it
+                    newNoteOn.endPos = i;
+                    break;
+                }
+            }
+            this->noteData[track].push_back(newNoteOn);
+            if (loudly) {
+                MIDI.noteOn(this->trackData[track].pitch, newNoteOn.velocity, this->trackData[track].channel);
+                MIDI.noteOff(this->trackData[track].pitch, 0, this->trackData[track].channel);
+            }
+        }
+    }
+    void makeNote(int track, int time, int length, int velocity, int chance, bool mute, bool select, bool loudly){
+        Note newNoteOn(time, (time + length-1), velocity, chance, mute, select);
+        this->makeNote(newNoteOn,track,loudly);
+    }
+    void makeNote(Note newNoteOn, uint8_t track){
+        this->makeNote(newNoteOn,track,false);
+    }
+    void makeNote(uint8_t track, uint16_t time, uint16_t length, uint8_t velocity, uint8_t chance, bool loudly){
+        Note newNoteOn(time, (time + length-1), velocity, chance, false, false);
+        this->makeNote(newNoteOn,track,false);
+    }
+    //this one is for quickly placing a ntoe at the cursor, on the active track
+    void makeNote(int track, int time, int length, bool loudly) {
+        Note newNote(time,time+length,this->defaultVel,100,false,false);
+        this->makeNote(newNote,track,loudly);
+    }
+    void makeNote(uint16_t length, bool loudly) {
+        Note newNote(this->cursorPos,this->cursorPos+length,this->defaultVel,100,false,false);
+        this->makeNote(newNote,this->activeTrack,false);
+    }
+    //draws notes every "count" subDivs, from viewStart to viewEnd
+    //this is a super useful idea for sequencing, but currently only used by the edit menu
+    void stencilNotes(uint8_t count){
+        for(uint16_t i = this->viewStart; i<this->viewEnd; i+=(this->subDivInt*count)){
+            //if there's no note there or if it's not the beginning of a note
+            if(this->lookupTable[this->activeTrack][i] == 0 || (this->cursorPos != this->noteAtCursor().startPos))
+                this->makeNote(this->activeTrack, i, this->subDivInt*count+1, this->defaultVel, 100, false);
+        }
+    }
 
+    //checks if there's a note first, and if there is it deletes it/if not it places one
+    void toggleNote(uint8_t track, uint16_t step, uint16_t length){
+        //if there's no note/no start there, make a note
+        if(this->lookupTable[track][step] == 0 || (this->lookupTable[track][step] != 0 && this->noteAt(track,step).startPos != step)){
+            if(!playing && !recording)
+                makeNote(track, step, length, true);
+            else
+                makeNote(track, step, length, false);
+        }
+        //if there IS a note there, delete it
+        else if(step == this->noteAt(track,step).startPos)
+            deleteNote(track, step);
+    }
+    /*
+    ----------------------------------------------------------
+                        EDITING NOTES
+    ----------------------------------------------------------
+    */
+   //edits a single note
+    void editNoteProperty_byID(uint16_t id, uint8_t track, int8_t amount, NoteProperty which){
+        switch(which){
+            case VELOCITY:{
+                uint8_t vel = this->noteData[track][id].velocity;
+                vel += amount;
+                if(vel>=127)
+                    this->noteData[track][id].velocity = 127;
+                else if(vel<0)
+                    this->noteData[track][id].velocity = 0;
+                else
+                    this->noteData[track][id].velocity = vel;
+            }
+            case PITCH:{
+
+            }
+            case CHANCE:{
+                int8_t chance = this->noteData[track][id].chance;
+                chance += amount;
+                if(chance>=100)
+                    this->noteData[track][id].chance = 100;
+                else if(chance<0)
+                    this->noteData[track][id].chance = 0;
+                else
+                    this->noteData[track][id].chance = chance;
+            }
+        }
+    }
+    //edits all selected notes
+    void editNotePropertyOfSelectedNotes(int8_t amount, NoteProperty which){
+        for(uint8_t track = 0; track<this->trackData.size(); track++){
+            for(uint16_t note = this->noteData[track].size()-1; note>0; note--){
+                if(this->noteData[track][note].isSelected){
+                    this->editNoteProperty_byID(note,track, amount, which);
+                }
+            }
+        }
+    }
+
+    //edits a note, and all selected notes, checking to make sure it doesn't double-edit
+    void editNoteAndSelected(int8_t amount, NoteProperty which){
+        if(this->selectionCount>0){
+            this->editNotePropertyOfSelectedNotes(amount,which);
+            //only edit this note if it's not selected, so you don't double-edit it
+            if(!this->noteAtCursor().isSelected)
+                this->editNoteProperty_byID(this->IDAtCursor(), this->activeTrack, amount, which);
+        }
+        else
+            this->editNoteProperty_byID(this->IDAtCursor(), this->activeTrack, amount, which);
+    }
+
+    //called by main controls, edits all selected notes
+    void changeVel(int8_t amount){
+        this->editNoteAndSelected(amount,VELOCITY);
+    }
+    void changeChance(int amount){
+        this->editNoteAndSelected(amount,CHANCE);
+    }
+
+    //changes JUST a specific note
+    void changeChance_byID(uint16_t id, uint8_t track, int8_t amount){
+        this->editNoteProperty_byID(id, track, amount, CHANCE);
+    }
+    void changeVel_byID(uint16_t id, uint8_t track, int8_t amount){
+        this->editNoteProperty_byID(id, track, amount, VELOCITY);
+    }
+
+    void muteNote(uint8_t track, uint16_t id, bool toggle){
+        if(id != 0){
+            if(toggle)
+                this->noteData[track][id].muted = !this->noteData[track][id].muted;
+            else
+                this->noteData[track][id].muted = true;
+        }
+    }
+    void unmuteNote(uint8_t track, uint16_t id, bool toggle){
+        if(id != 0){
+            if(toggle)
+                this->noteData[track][id].muted = !this->noteData[track][id].muted;
+            else
+                this->noteData[track][id].muted = false;
+        }
+    }
+    
+    //mutes/unmutes all selected notes
+    void setMuteStateOfSelectedNotes(bool state){
+        uint16_t count = 0;
+        for(uint8_t track = 0; track<this->noteData.size(); track++){
+            for(uint16_t note = 1; note<this->noteData[track].size(); note++){
+                if(this->noteData[track][note].isSelected){
+                    this->noteData[track][note].muted = state;
+                    count++;
+                }
+                if(count>=this->selectionCount){
+                    return;
+                }
+            }
+        }
+    }
+    void muteSelectedNotes(){
+        this->setMuteStateOfSelectedNotes(true);
+    }
+    void unmuteSelectedNotes(){
+        this->setMuteStateOfSelectedNotes(false);
+    }
+
+    //cuts a note short at a specific time
+    void truncateNote(uint8_t track, uint16_t atTime){
+        uint16_t id = this->lookupTable[track][atTime];
+        if(id == 0 || id >= this->noteData[track].size())
+            return;
+        //if the note is only 1 step long, j del it
+        if(this->noteData[track][id].endPos == this->noteData[track][id].startPos+1){
+            this->deleteNote_byID(track,id);
+            return;
+        }
+        //if not, then shorten the note and its tail from the lookupTable
+        this->noteData[track][id].endPos = atTime;
+        for(uint16_t i = atTime; i<this->noteData[track][id].endPos; i++){
+            this->lookupTable[track][i] = 0;
+        }
+    }
+    bool checkNoteMove(Note targetNote, int track, int newTrack, int newStart){
+        unsigned short int length = targetNote.endPos-targetNote.startPos;
+        //checking bounds
+        if(newStart<0 || newStart>this->sequenceLength || newTrack>=this->trackData.size() || newTrack<0)
+            return false;
+        //checking lookupData
+        for(uint16_t start = newStart; start < newStart+length; start++){
+            //for moving horizontally within one track
+            if(track == newTrack && this->lookupTable[newTrack][start] != 0)
+                return false;
+            //for vertical kinds of movement, where you won't collide with yourself
+            else if(this->lookupTable[newTrack][start] != 0)
+                return false;
+        }
+        return true;
+    }
+    bool checkNoteMove(uint16_t id, uint8_t track, uint8_t newTrack, uint16_t newStart){
+        Note targetNote = this->noteData[track][id];
+        return this->checkNoteMove(targetNote,track,newTrack,newStart);
+    }
+    //moves a note
+    bool moveNote(uint16_t id, uint8_t track, uint8_t newTrack, uint16_t newStart){
+        //if there's room
+        if(checkNoteMove(id, track, newTrack, newStart)){
+            Note targetNote = this->noteData[track][id];
+            uint16_t length = targetNote.endPos-targetNote.startPos;
+            //clear out old note
+            this->deleteNote(track, targetNote.startPos);
+            //make room
+            this->makeNote(newTrack, newStart, length+1, targetNote.velocity, targetNote.chance, targetNote.muted, targetNote.isSelected, false);
+            return true;
+        }
+        else return false;
+    }
+    /*
+    ----------------------------------------------------------
+                        EDITING SEQ
+    ----------------------------------------------------------
+    */
+    void addTimeToSeq(uint16_t amount, uint16_t insertPoint){
+        //make sure it doesn't overflow the uint16_t length
+        if(this->sequenceLength+amount>65535)
+            return;
+        this->sequenceLength+=amount;
+        //move through notes that appear AFTER the insert point and move them back
+        //sweeping from old seq end (there should be no notes after that)-->insertPoint
+        for(uint8_t t = 0; t<this->trackData.size(); t++){
+            //extend lookupdata
+            this->lookupTable[t].resize(this->sequenceLength,0);
+            for(uint16_t i = this->sequenceLength-amount; i>insertPoint; i--){
+            uint16_t id = this->IDAt(t,i);
+            //if there's a note there
+            if(id != 0){
+                //if it starts after the insert point, move the whole note
+                if(this->noteData[t][id].startPos>insertPoint){
+                    //set i to old beginning of note (so you definitely don't hit it twice)
+                    i = this->noteData[t][id].startPos;
+                    this->moveNote(id,t,t,this->noteData[t][id].startPos+amount);
+                }
+                //if the insert point intersects it somehow, truncate it
+                else{
+                    this->truncateNote(t,insertPoint);
+                    //break bc that was the last note
+                    break;
+                }
+            }
+            }
+        }
+    }
+    void removeTimeFromSeq(uint16_t amount, uint16_t insertPoint){
+        //if you're trying to del more than (or as much as) exists! just return
+        if(amount>=this->sequenceLength)
+            return;
+        //if you're trying to del more than exists between insertpoint --> seqEnd,
+        //then set amount to everything there
+        if(insertPoint+amount>this->sequenceLength){
+            amount = this->sequenceLength-insertPoint;
+        }
+        //move through 'deld' area and clear out notes
+        for(uint8_t t = 0; t<trackData.size(); t++){
+            //if there are no notes, skip this track
+            if(this->noteData[t].size() == 1)
+                continue;
+            for(uint16_t i = insertPoint+1; i<insertPoint+amount; i++){
+                uint16_t id = this->lookupTable[t][i];
+                //if there's a note there
+                if(id != 0){
+                    //if it starts before/at insert point, truncate it
+                    if(this->noteData[t][id].startPos<=insertPoint){
+                        truncateNote(t,insertPoint);
+                        //break bc you know that was the last note
+                        break;
+                    }
+                    //if it's in the del area, del it
+                    else if(this->noteData[t][id].startPos>insertPoint && this->noteData[t][id].startPos<=insertPoint+amount){
+                        deleteNote_byID(t,id);
+                    }
+                }
+            }
+        }
+        //move notes that fall beyond the del area
+        for(uint8_t t = 0; t<trackData.size(); t++){
+            //if there're no notes, skip this track
+            if(this->noteData[t].size() == 1)
+                continue;
+            for(uint16_t i = insertPoint+amount; i<this->sequenceLength; i++){
+                uint16_t id = this->lookupTable[t][i];
+                //if there's a note here, move it back by amount
+                if(id != 0){
+                    this->moveNote(id,t,t,this->noteData[t][id].startPos-amount);
+                    i = this->noteData[t][id].endPos-1;
+                }
+            }
+            //resize lookupData
+            this->lookupTable[t].resize(this->sequenceLength-amount);
+        }
+        this->sequenceLength -= amount;
+        //fixing loop point positions
+        for(uint8_t loop = 0; loop<loopData.size(); loop++){
+            //if start or end are past seqend, set to seqend
+            if(loopData[loop].start>this->sequenceLength)
+                loopData[loop].start = this->sequenceLength;
+            if(loopData[loop].end>this->sequenceLength)
+                loopData[loop].end = this->sequenceLength;
+        }
+        //make sure view stays within seq
+        checkView();
     }
 };
+
+StepchildSequence sequence;

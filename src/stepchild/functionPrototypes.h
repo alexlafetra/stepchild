@@ -285,7 +285,6 @@ void moveToNextNote(bool forward,bool endSnap);
 bool areThereAnyNotes();
 bool areThereMoreNotes(bool);
 void setCursorToNearestNote();
-void setBpm(int newBpm);
 void checkView();
 void turnOffLEDs();
 void checkAutotracks();
@@ -321,7 +320,6 @@ void writeCurrentSettingsToFile();
 uint32_t getByteCount_standAlone(String filename);
 
 //Misc. helper functions
-bool hasItBeenEnoughTime();
 vector<uint16_t> getSelectedNotesBoundingBox();
 vector<uint8_t> selectKeys(uint8_t startRoot);
 vector<uint8_t> genScale(uint8_t, uint8_t);
@@ -355,7 +353,6 @@ bool isSending();
 bool isReceivingOrSending();
 String getInterval(int root, int pitch);
 void moveView(int16_t val);
-bool onBeat(int subDiv, int fudge);
 void setNormalMode();
 String enterText(String title);
 void bootscreen();

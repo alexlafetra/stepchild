@@ -248,7 +248,7 @@ class StepchildHardwareInput{
   bool stepButton(uint8_t which){
     return (1<<which)&(this->stepButtons);
   }
-  //returns true if any are pressed (used for the bpm tap function)
+  //returns true if any are pressed (used for the sequenceClock.BPM tap function)
   bool anyStepButtons(){
     return this->stepButtons;
   }
@@ -423,9 +423,10 @@ void readButtons_MPX(){
 
 #ifndef HEADLESS
 void readButtons(){
-  controls.setA(digitalRead(A_BUTTON));
-  controls.setB(digitalRead(B_BUTTON));
-  readButtons_MPX();
+  // controls.setA(digitalRead(A_BUTTON));
+  // controls.setB(digitalRead(B_BUTTON));
+  // readButtons_MPX();
+  controls.readButtons();
 }
 #else
 void readButtons(){

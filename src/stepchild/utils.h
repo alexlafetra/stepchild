@@ -82,6 +82,33 @@ String decimalToNumeral(int dec){
   return numeral;
 }
 
+//returns a byteCount as a more recognizeable value, like 7kB or 5mB
+String bytesToString(uint32_t bytes){
+  //if it's less than 500, print bytes as-is
+  if(bytes<500){
+    return stringify(bytes)+"B";
+  }
+  //probably never going to go over this
+  else if(bytes<500000){
+    //divide by 100 so the decimal value is now in the 1's place
+    bytes/= 100;
+    String byteCount = stringify(bytes);
+    byteCount += byteCount[byteCount.length()-1];
+    byteCount[byteCount.length()-2] = '.';
+    return byteCount+"kB";
+  }
+  else{
+    return "bruh";
+  }
+}
+
+//helper function for writing bytes to the serial buffer
+void writeBytesToSerial(uint8_t* byteArray, uint16_t numberOfBytes){
+#ifndef HEADLESS
+  Serial.write(byteArray,numberOfBytes);
+#endif
+}
+
 //returns the pitch in english AND in either sharp, or flat form
 String pitchToString(uint8_t input, bool oct, bool sharps){
   String pitch;

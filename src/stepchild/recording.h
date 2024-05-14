@@ -126,7 +126,7 @@ void handleClock_playing(){
 
 void handleStart_playing(){
   hasStarted = true;
-  startTime = micros();
+  sequenceClock.startTime = micros();
 }
 
 void handleClock_recording(){
@@ -135,7 +135,7 @@ void handleClock_recording(){
 
 void handleStart_recording(){
   hasStarted = true;
-  startTime = micros();
+  sequenceClock.startTime = micros();
   if(waitForNoteBeforeRec && waitingToReceiveANote){
     waitingToReceiveANote = false;
   }
@@ -258,8 +258,8 @@ void cleanupRecording(uint16_t stopTime){
 void recordingLoop(){
   MIDI.read();
   if(clockSource == INTERNAL_CLOCK){
-    if(hasItBeenEnoughTime(recheadPos)){
-      timeLastStepPlayed = micros();
+    if(sequenceClock.hasItBeenEnoughTime(recheadPos)){
+      sequenceClock.timeLastStepPlayed = micros();
       checkAutotracks();
       //if it's not in wait mode, or if it is but a note has been received
       if(!waitForNoteBeforeRec || !waitingToReceiveANote){

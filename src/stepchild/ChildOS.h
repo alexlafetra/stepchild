@@ -177,7 +177,6 @@ unsigned short int animOffset = 0;//for animating curves
 
 //program boolean flags and global data, constants
 #include "clock.h"
-#include "sequence.h"
 #include "global.h"
 
 //button defs and reading functions
@@ -195,6 +194,9 @@ unsigned short int animOffset = 0;//for animating curves
 #include "classes/Note.h"
 #include "classes/Track.h"
 #include "classes/Knob.h"
+
+#include "temp.h"
+#include "sequence.h"
 
 //original ChildOS fonts
 #include "fonts/7_segment.cpp"
@@ -282,7 +284,6 @@ void rotaryActionB_Handler(){
 #include "recording.h"
 #include "keyboard.h"
 #include "CCSelector.h"
-#include "noteEditing.h"
 
 #include "TBA_Features.h"
 #include "deprecatedDebugFunctions.h"

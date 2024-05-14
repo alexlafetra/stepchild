@@ -83,10 +83,10 @@ Arp activeArp;
 
 
 bool Arp::hasItBeenEnoughTime() {
-  if (swung) {
-    if ((micros() - Arp::timeLastStepPlayed) >= (MicroSperTimeStep + swingOffset(stepCount))) {
-      if (!(stepCount % swingSubDiv)) {
-        Arp::offBy = (micros() - Arp::startTime) % MicroSperTimeStep;
+  if (sequenceClock.isSwinging) {
+    if ((micros() - Arp::timeLastStepPlayed) >= (sequenceClock.uSecPerStep + sequenceClock.swingOffset(stepCount))) {
+      if (!(stepCount % sequenceClock.swingSubDiv)) {
+        Arp::offBy = (micros() - Arp::startTime) % sequenceClock.uSecPerStep;
       }
       if (Arp::offBy == 0)
         Arp::startTime = micros();
@@ -96,8 +96,8 @@ bool Arp::hasItBeenEnoughTime() {
       return false;
   }
   else {
-    if (micros() - Arp::timeLastStepPlayed + Arp::offBy >= MicroSperTimeStep) {
-      Arp::offBy = (micros() - Arp::startTime) % MicroSperTimeStep;
+    if (micros() - Arp::timeLastStepPlayed + Arp::offBy >= sequenceClock.uSecPerStep) {
+      Arp::offBy = (micros() - Arp::startTime) % sequenceClock.uSecPerStep;
       timeLastStepPlayed = micros();
       if (Arp::offBy == 0)
         Arp::startTime = micros();

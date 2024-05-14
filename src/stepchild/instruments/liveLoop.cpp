@@ -16,11 +16,11 @@ void exitRecAndStartPlaying(uint8_t& layerCount){
     isLooping = true;
     lastTime = millis();
     //on the first layer
-    //adjust the bpm so that it feels like it's playing at the same speed
+    //adjust the sequenceClock.BPM so that it feels like it's playing at the same speed
     if(layerCount == 0){
         float timeScale = float(B.end.x-B.start.x)/float(A.end.x-A.start.x);
-        uint16_t newBPM = bpm*timeScale;
-        setBpm(newBPM);
+        uint16_t newBPM = sequenceClock.BPM*timeScale;
+        sequenceClock.setBPM(newBPM);
     }
     //disarm all the tracks that were just written to
     // disarmTracksWithNotes();

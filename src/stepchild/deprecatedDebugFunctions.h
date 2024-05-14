@@ -415,19 +415,19 @@ void debugFillTrack(int division) {
 
 void debugTestSwing(){
   long int i;
-  swingSubDiv = 24;//whole note swing
+  sequenceClock.swingSubDiv = 24;//whole note swing
   long int  time;
   while(true){
-    float t = swingOffset(i);
+    float t = sequenceClock.swingOffset(i);
     i++;
     //Serial.print("step: ");
     //Serial.println(i);
     //Serial.print("swing offset: ");
     //Serial.println(t);
     //Serial.print("w/o swing: ");
-    //Serial.println(MicroSperTimeStep);
+    //Serial.println(sequenceClock.uSecPerStep);
     //Serial.print("w/swing: ");
-    //Serial.println(t+MicroSperTimeStep);
+    //Serial.println(t+sequenceClock.uSecPerStep);
     i%=96;
   }
 }
