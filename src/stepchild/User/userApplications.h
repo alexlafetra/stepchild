@@ -42,7 +42,7 @@ void defaultAppFunction(){
         //put your continuous code down here!
 
         //reading in controls
-        readButtons();
+        controls.readButtons();
         controls.readJoystick();
 
         //if it's been 200ms

@@ -44,7 +44,7 @@ int16_t humanizeNote(uint8_t track, uint16_t id){
     return 0;
   }
   //position
-  int16_t positionOffset = float(subDivInt*humanizerParameters.timingAmount)/float(100);
+  int16_t positionOffset = float(sequence.subDivision*humanizerParameters.timingAmount)/float(100);
   positionOffset = random(-positionOffset,positionOffset);
   //velocity
   int8_t velOffset = float(127*humanizerParameters.velocityAmount)/float(100);
@@ -52,24 +52,24 @@ int16_t humanizeNote(uint8_t track, uint16_t id){
   //chance
   int8_t chanceOffset = random(-humanizerParameters.chanceAmount,humanizerParameters.chanceAmount);
   if(velOffset != 0){
-    changeVel(id,track,velOffset);
+    sequence.changeVel_byID(id,track,velOffset);
   }
   if(chanceOffset != 0){
-    changeChance(id, track, chanceOffset);
+      sequence.changeChance_byID(id, track, chanceOffset);
   }
   //position offset last so the id doesn't change
   if(positionOffset != 0){
-    moveNote(id,track,track,seqData[track][id].startPos+positionOffset);
+    sequence.moveNote(id,track,track,sequence.noteData[track][id].startPos+positionOffset);
   }
   return positionOffset;
 }
 
 void humanizeSelectedNotes(){
   //humanizing selected notes
-  if(selectionCount>0){
-    for(uint8_t track = 0; track<seqData.size(); track++){
-      for(uint16_t note = 1; note<seqData[track].size(); note++){
-        if(seqData[track][note].isSelected){
+  if(sequence.selectionCount>0){
+    for(uint8_t track = 0; track<sequence.noteData.size(); track++){
+      for(uint16_t note = 1; note<sequence.noteData[track].size(); note++){
+        if(sequence.noteData[track][note].isSelected){
           humanizeNote(track,note);
         }
       }
@@ -80,8 +80,8 @@ void humanizeSelectedNotes(){
 void humanize(bool move){
   humanizeSelectedNotes();
   //quantizing the note at the cursor
-  if(lookupData[activeTrack][cursorPos] != 0){
-    int16_t amount = humanizeNote(activeTrack,lookupData[activeTrack][cursorPos]);
+  if(sequence.IDAtCursor() != 0){
+    int16_t amount = humanizeNote(sequence.activeTrack,sequence.IDAtCursor());
     moveCursor(amount);
   }
 }
@@ -140,7 +140,7 @@ void humanizeMenu(){
   while(true){
     //timing, vel, chance
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(!humanizeMenuControls(&cursor)){
       break;
     }
@@ -153,7 +153,7 @@ void humanizeMenu(){
     }
     print7SegSmall(3,9,q+"%",1);
       
-    String s = stepsToMeasures(subDivInt);
+    String s = stepsToMeasures(sequence.subDivision);
     graphics.printFraction_small(screenWidth-s.length()*4,11,s);
 
     //velocity amount
@@ -197,7 +197,7 @@ void humanizeMenu(){
     printSmall(115,1,"div",2);
     printSmall(2,46,"vel",2);
     printSmall(123,46,"%",2);
-    blob.jiggle(float(humanizerParameters.velocityAmount+1)/10.0,float(humanizerParameters.chanceAmount)/10.0,float(humanizerParameters.timingAmount)/500.0+1, 10.0*float(subDivInt)/24.0);
+    blob.jiggle(float(humanizerParameters.velocityAmount+1)/10.0,float(humanizerParameters.chanceAmount)/10.0,float(humanizerParameters.timingAmount)/500.0+1, 10.0*float(sequence.subDivision)/24.0);
     //title
     // display.fillRoundRect(77,0,54,9,3,1);
     // printCursive(79,1,"humanize",0);

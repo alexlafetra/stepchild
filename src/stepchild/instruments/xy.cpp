@@ -65,6 +65,10 @@ int16_t getJoyY(){
 void xyGrid(){
   int16_t xCoord = getJoyX();
   int16_t yCoord = getJoyY();
+
+  int8_t offsetX = 0;
+  int8_t offsetY = 0;
+
   uint8_t controlX = 1;
   uint8_t controlY = 2;
 
@@ -77,11 +81,11 @@ void xyGrid(){
   while(true){
     //a little averaging for smoother motion
     if(!pauseY)
-      yCoord = (yCoord+getJoyY())/2;
+      yCoord = (yCoord+getJoyY())/2+offsetY;
       // yCoord = (yCoord+abs((analogRead(JOYSTICK_Y) - 5) * scaleF))/2;
     if(!pauseX)
       // xCoord = (xCoord+abs(128 - (analogRead(JOYSTICK_Y) - 5) * scaleF))/2;
-      xCoord = (xCoord+getJoyX())/2;
+      xCoord = (xCoord+getJoyX())/2+offsetX;
 
     display.clearDisplay();
     //rec/play icon
@@ -119,16 +123,20 @@ void xyGrid(){
       graphics.drawDottedLineV(64,0,64,3);
     if(!pauseX)
       graphics.drawDottedLineH(32,96,32,3);
-    display.fillCircle(xCoord/2+34,64 - yCoord/2,3,SSD1306_WHITE);
-    display.drawCircle(xCoord/2+34,64 - yCoord/2,5,SSD1306_WHITE);
-
+    
+    //drawing the cursor
+    // display.drawCircle(xCoord/2+34,64 - yCoord/2,5,SSD1306_WHITE);
+    // display.fillCircle(xCoord/2+34,64 - yCoord/2,3,SSD1306_WHITE);
+    display.drawFastHLine(xCoord/2+31,64 - yCoord/2,2,1);
+    display.drawFastHLine(xCoord/2+36,64 - yCoord/2,2,1);
+    display.drawFastVLine(xCoord/2+34,61 - yCoord/2,2,1);
+    display.drawFastVLine(xCoord/2+34,66 - yCoord/2,2,1);
 
     //printing values
-    printSmall(40,57,"<"+stringify(xCoord)+">",SSD1306_WHITE);
+    printSmall(40,57,"<"+stringify(channelX)+">",SSD1306_WHITE);
     display.setRotation(1);
-    printSmall(7,34,"<"+stringify(yCoord)+">",SSD1306_WHITE);
+    printSmall(7,34,"<"+stringify(channelY)+">",SSD1306_WHITE);
     display.drawBitmap(8,26,ch_tiny,6,3,1);
-    // printSmall(5,26,"Value",SSD1306_WHITE);
     display.setRotation(UPRIGHT);
 
     //printing controller numbers
@@ -136,7 +144,6 @@ void xyGrid(){
     display.setRotation(3);
     display.drawBitmap(8,26,cc_tiny,5,3,1);
     printSmall(7,34,"<"+stringify(controlY)+">",SSD1306_WHITE);
-    // printSmall(5,26,"Controller",SSD1306_WHITE);
     display.setRotation(UPRIGHT);
 
     //x and y
@@ -151,6 +158,13 @@ void xyGrid(){
     display.setRotation(UPRIGHT);
     display.setFont();
 
+    //bar graphs
+    graphics.drawBarGraphV(0,0,8,64,float(xCoord)/float(127));
+    graphics.drawBarGraphV(120,0,8,64,float(yCoord)/float(127));
+
+    if(playing)
+      drawPlayIcon(10+(millis()/200)%2,2);
+
     display.display();
 
     //if you're not keybinding, keep sending vals
@@ -161,7 +175,7 @@ void xyGrid(){
       pauseY = false;
     }
 
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
 
     //sending CC vals for keybinding
@@ -179,20 +193,35 @@ void xyGrid(){
     }
 
     while(controls.counterA != 0){
-      if(controls.counterA >= 1 && controlY<127){
-        controlY++;
+      //if shift is held, change channel
+      if(controls.SHIFT()){
+        if(controls.counterA >= 1 && channelY<16)
+          channelY++;
+        else if(controls.counterA <= -1 && channelY>0)
+          channelY--;
       }
-      else if(controls.counterA <= -1 && controlY>0){
-        controlY--;
+      //if not, change which CC val is sent
+      else{
+        if(controls.counterA >= 1 && controlY<127)
+          controlY++;
+        else if(controls.counterA <= -1 && controlY>0)
+          controlY--;
       }
       controls.counterA += controls.counterA<0?1:-1;;
     }
     while(controls.counterB != 0){
-      if(controls.counterB >= 1 && controlX<127){
-        controlX++;
+      //if shift is held, change channel
+      if(controls.SHIFT()){
+        if(controls.counterB >= 1 && channelX<16)
+          channelX++;
+        else if(controls.counterB <= -1 && channelX>0)
+          channelX--;
       }
-      else if(controls.counterB <= -1 && controlX>0){
-        controlX--;
+      else{
+        if(controls.counterB >= 1 && controlX<127)
+          controlX++;
+        else if(controls.counterB <= -1 && controlX>0)
+          controlX--;
       }
       controls.counterB += controls.counterB<0?1:-1;;
     }
@@ -201,6 +230,12 @@ void xyGrid(){
         lastTime = millis();
         gridAnimation(false);
         return;
+      }
+      //set offsets
+      if(controls.LOOP()){
+        lastTime = millis();
+        offsetX = 64-xCoord;
+        offsetY = 64-yCoord;
       }
       if(controls.PLAY()){
         togglePlayMode();

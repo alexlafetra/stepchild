@@ -22,9 +22,11 @@ public:
   uint8_t repMod;
   uint8_t maxPitchMod;
   uint8_t minPitchMod;
-  unsigned char playheadPos;  //tw0 values, 0 is the step and 1 is what range it's in
+  uint8_t playheadPos;
   uint8_t playStyle;
   uint8_t lastPitchSent;
+  
+  bool isActive;
   bool playing;
   bool uniformLength;
   bool holding;
@@ -79,7 +81,7 @@ Arp::Arp() {
   minPitchMod = 0;
 }
 
-Arp activeArp;
+Arp arp;
 
 
 bool Arp::hasItBeenEnoughTime() {
@@ -234,13 +236,13 @@ void Arp::playstep() {
 //range
 void Arp::grabNotesFromTracks(bool sending) {
   notes.erase(notes.begin(), notes.end());
-  for (int track = 0; track < trackData.size(); track++) {
+  for (int track = 0; track < sequence.trackData.size(); track++) {
     if (sending) {
-      if (trackData[track].noteLastSent != 255) {
-        notes.push_back(trackData[track].noteLastSent);
+      if (sequence.trackData[track].noteLastSent != 255) {
+        notes.push_back(sequence.trackData[track].noteLastSent);
       }
     } else
-      notes.push_back(trackData[track].pitch);
+      notes.push_back(sequence.trackData[track].pitch);
   }
 }
 
@@ -288,7 +290,7 @@ void Arp::debugPrintArp() {
 }
 
 bool compareArpNotes(uint8_t id1, uint8_t id2) {
-  return activeArp.notes[id1] > activeArp.notes[id2];
+  return arp.notes[id1] > arp.notes[id2];
 }
 
 bool randomSort(uint8_t id1, uint8_t id2) {
@@ -364,30 +366,30 @@ void Arp::setOrder() {
 }
 
 void drawArpStepLengths(uint8_t xStart, uint8_t yStart, uint8_t startNote, uint8_t xCursor, bool selected){
-  if(activeArp.uniformLength){
-    graphics.drawCenteredBanner(64,20,"using uniform steps of "+stepsToMeasures(activeArp.arpSubDiv));
+  if(arp.uniformLength){
+    graphics.drawCenteredBanner(64,20,"using uniform steps of "+stepsToMeasures(arp.arpSubDiv));
     graphics.drawLabel(64,32,"[controls.SELECT() ] to toggle custom steps",true);
   }
   uint8_t spacing = 3;
-  uint8_t thickness = (screenWidth-8)/activeArp.lengths.size()-spacing;
-  if(activeArp.lengths.size()>=8){
+  uint8_t thickness = (screenWidth-8)/arp.lengths.size()-spacing;
+  if(arp.lengths.size()>=8){
     thickness = (screenWidth-12)/8-spacing;
   }
   uint8_t height;
   for(uint8_t i = 0; i<8; i++){
     //only draw blocks for lengths that exist (in case there are less than 16)
     //also, only draw blocks that will still be on screen
-    if(i<activeArp.lengths.size()){
-      height = float(activeArp.lengths[i+startNote])*float(64-23)/float(96);
+    if(i<arp.lengths.size()){
+      height = float(arp.lengths[i+startNote])*float(64-23)/float(96);
       //drawing filled rect for steps that correspond to currently
       //held notes
-      if(i + startNote<activeArp.notes.size())
+      if(i + startNote<arp.notes.size())
         display.fillRect(9+(spacing+thickness)*i,screenHeight-height-7, thickness, height,SSD1306_WHITE);
       //and empty rects for steps that don't
       else
         display.drawRect(9+(spacing+thickness)*i,screenHeight-height-7, thickness, height,SSD1306_WHITE);
       //highlighting the step that's currently playing
-      if(activeArp.playing && (i+startNote == activeArp.activeNote)){
+      if(arp.playing && (i+startNote == arp.activeNote)){
         // display.fillRect(9+(spacing+thickness)*i,screenHeight-6,thickness,6,1);
         display.drawRect(7+(spacing+thickness)*i,screenHeight-height-9, thickness+4, height+4,SSD1306_WHITE);
       }
@@ -395,13 +397,13 @@ void drawArpStepLengths(uint8_t xStart, uint8_t yStart, uint8_t startNote, uint8
       //step the cursor is on
       if(i == xCursor-startNote){
         graphics.drawArrow(9+(spacing+thickness)*i+thickness/2,screenHeight-height-10+2*((millis()/200)%2),3,3,true);
-        printSmall(8+(spacing+thickness)*i+thickness/2-stepsToMeasures(activeArp.lengths[i+startNote]).length()*2+2,screenHeight-height-21+2*((millis()/200)%2),stepsToMeasures(activeArp.lengths[i+startNote]),SSD1306_WHITE);
+        printSmall(8+(spacing+thickness)*i+thickness/2-stepsToMeasures(arp.lengths[i+startNote]).length()*2+2,screenHeight-height-21+2*((millis()/200)%2),stepsToMeasures(arp.lengths[i+startNote]),SSD1306_WHITE);
       }
       //if there are steps offscreen
       if(startNote>0){
         graphics.drawArrow(2+2*((millis()/200)%2),61,2,1,true);
       }
-      if(activeArp.lengths.size()>startNote+8){
+      if(arp.lengths.size()>startNote+8){
         graphics.drawArrow(screenWidth-2-2*((millis()/200)%2),61,2,0,true);
       }
     }

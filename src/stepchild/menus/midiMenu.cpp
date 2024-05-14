@@ -84,7 +84,7 @@ void portMenu(uint8_t which){
     //update lastVel, incrementing it towards the currentVel
     lastVel = lastVel + (currentVel-lastVel)/5;
 
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     if(utils.itsbeen(200)){
       if(controls.MENU()){
@@ -112,7 +112,7 @@ void thruMenu(){ //controls which midi port you're editing
   uint8_t xCursor = 1;
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(utils.itsbeen(200)){
       if(controls.joystickX != 0){
         if(controls.joystickX == -1 && xCursor<4){
@@ -178,7 +178,7 @@ void midiMenu(){
   uint8_t yCursor = 0;
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(utils.itsbeen(200)){
       if(controls.SELECT() ){
         lastTime = millis();
@@ -337,9 +337,9 @@ void midiMenu(){
     }
     //getting active channels/pitches to draw note icons
     vector<vector<uint8_t>> activeChannels;
-    for(uint8_t track = 0; track<trackData.size(); track++){
-      if(trackData[track].noteLastSent != 255)
-        activeChannels.push_back({trackData[track].channel,trackData[track].noteLastSent});
+    for(uint8_t track = 0; track<sequence.trackData.size(); track++){
+      if(sequence.trackData[track].noteLastSent != 255)
+        activeChannels.push_back({sequence.trackData[track].channel,sequence.trackData[track].noteLastSent});
     }
 
     display.clearDisplay();
@@ -629,7 +629,7 @@ void inputMenu(){
     }
     display.display();
 
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     //controls
     if(utils.itsbeen(200)){
@@ -726,7 +726,7 @@ void routeMenu(){
   uint8_t menuStart[5] = {0,0,0,0,0};
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(utils.itsbeen(80)){
       if(controls.joystickY != 0){
         if(controls.joystickY == 1){

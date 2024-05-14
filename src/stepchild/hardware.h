@@ -1,5 +1,7 @@
 /*
-      Pin Definitions
+--------------------------------------
+          Pin Definitions
+--------------------------------------
 */
 
 //I2C bus for the LB and screen
@@ -7,37 +9,155 @@
 #define I2C_SCL 9
 
 //buttons/inputs
-#define NEW_BUTTON 0
-#define SHIFT_BUTTON 1
-#define SELECT_BUTTON 2
-#define DELETE_BUTTON 3
-#define LOOP_BUTTON 4
-#define PLAY_BUTTON 5
-#define COPY_BUTTON 6
-#define MENU_BUTTON 7
+/*
+  These vals don't correspond to hardware pins; they're the bit place value of each buttons' state
+  As stored by the controls.mainButtons byte
+*/
+#define NEW_BUTTON 7
+#define SHIFT_BUTTON 6
+#define SELECT_BUTTON 5
+#define DELETE_BUTTON 4
+#define LOOP_BUTTON 3
+#define PLAY_BUTTON 2
+#define COPY_BUTTON 1
+#define MENU_BUTTON 0
 
 #define STEPBUTTONS_DATA 12
+#define LOWERBOARD_INTERRUPT_PIN 3//unused as of rn
 #define BUTTONS_DATA 13
 #define BUTTONS_LOAD 14
 #define BUTTONS_CLOCK_IN 15
 #define BUTTONS_CLOCK_ENABLE 16
 
 //Encoders
-#define A_BUTTON 17
-#define A_CLOCK 18
-#define A_DATA 19
-#define B_BUTTON 20
-#define B_CLOCK 21
-#define B_DATA 22
+#define B_BUTTON 17
+#define B_CLOCK 18
+#define B_DATA 19
+#define A_BUTTON 20
+#define A_CLOCK 21
+#define A_DATA 22
 
 //Joystick
-#define JOYSTICK_X 26
-#define JOYSTICK_Y 27
+#define JOYSTICK_X 27
+#define JOYSTICK_Y 26
 
 //Misc. Hardware
 #define VOLTAGE_PIN 29
 #define USB_PIN 24
 #define ONBOARD_LED 25
+
+/*
+--------------------------------------
+          Button Inputs
+--------------------------------------
+*/
+
+#ifndef HEADLESS
+#include "libraries/MCP23017/src/MCP23017.cpp"
+
+/*
+Super helpful thread from working with the MPR121 w/ Wire.h
+https://forum.arduino.cc/t/how-to-read-a-register-value-using-the-wire-library/206123/2
+*/
+
+/*
+	These addresses are hardware defined by pulling A0, A1, A2 pins high&low on the
+	LowerBoard PCB. 
+					|A0|A1|A2|
+	LED MCP23017:	 1	0  0
+	Button MCP23017: 0  1  0
+
+	As per the MCP23017 datasheet, the I2C addresses are encoded as
+	7-bit addresses:
+	0100{A2,A1,A0}
+
+	so the LEDs:
+	0b0100001
+	and the Buttons:
+	0b0100010
+*/
+
+#define MCP23017_LED_ADDR 0b0100001
+#define MCP23017_BUTTON_ADDR 0b0100010
+
+class LowerBoard{
+  public:
+  MCP23017 LEDs = MCP23017(MCP23017_LED_ADDR,Wire);
+  MCP23017 Buttons = MCP23017(MCP23017_BUTTON_ADDR,Wire);
+  LowerBoard(){}
+  unsigned short int readButtons(){
+    // uint8_t buttonsA = this->Buttons.readRegister(MCP23017Register::GPIO_A);
+    // uint8_t buttonsB = this->Buttons.readRegister(MCP23017Register::GPIO_B);
+
+    // return uint16_t(buttonsB)<<8 | uint16_t(buttonsA);
+    return 0;
+  }
+  void writeLEDs(unsigned short int state){
+    // //swap led 6 and 7, bc of a wiring fuckup!
+    // uint8_t led6 = 0b00100000 & uint8_t(state);
+    // uint8_t led7 = 0b01000000 & uint8_t(state);
+    // if(led6)
+    //   state |= 0b0000000001000000;
+    // else
+    //   state &= 0b1111111110111111;
+    // if(led7)
+    //   state |= 0b0000000000100000;
+    // else
+    //   state &= 0b1111111111011111;
+
+    // //Bank A is LEDs 8-15
+    //   uint8_t bankAState = uint8_t(state>>8);
+    // this->LEDs.writeRegister(MCP23017Register::GPIO_A,bankAState);
+
+    // //Bank B is LEDs 0-7
+    // uint8_t bankBState = uint8_t(state);
+    // this->LEDs.writeRegister(MCP23017Register::GPIO_B,bankBState);
+  }
+  void reset(){}
+  void initialize(){
+  // //default startup control state
+	// this->LEDs.writeRegister(MCP23017Register::IOCON, 0b00100000);
+	// //setting both banks of IO to outputs
+	// this->LEDs.writeRegister(MCP23017Register::IODIR_A, 0b00000000);
+	// this->LEDs.writeRegister(MCP23017Register::IODIR_B, 0b00000000);
+	// //writing the GPIO pins to high, which set the values the Output Latch Registers will turn on&off
+	// this->LEDs.writeRegister(MCP23017Register::GPIO_A,0b11111111);
+	// this->LEDs.writeRegister(MCP23017Register::GPIO_B,0b11111111);
+
+	// //default startup settings
+	// this->Buttons.writeRegister(MCP23017Register::IOCON, 0b00100000);
+	// //Setting all GPIO's to inputs
+	// this->Buttons.writeRegister(MCP23017Register::IODIR_A, 0b11111111);
+	// this->Buttons.writeRegister(MCP23017Register::IODIR_B, 0b11111111);
+	// //Disabling internal pullup resistors (since we have a pulldown resistor)
+	// // this->Buttons.writeRegister(MCP23017Register::GPPU_A, 0b00000000);
+	// // this->Buttons.writeRegister(MCP23017Register::GPPU_B, 0b00000000);
+	// this->Buttons.writeRegister(MCP23017Register::GPPU_A, 0b11111111);
+	// this->Buttons.writeRegister(MCP23017Register::GPPU_B, 0b11111111);
+
+	// this->Buttons.writeRegister(MCP23017Register::GPIO_A,0b11111111);
+	// this->Buttons.writeRegister(MCP23017Register::GPIO_B,0b11111111);
+
+  }
+  void test(){
+    // uint8_t i = 0;
+    // uint16_t oldState = 0;
+    // while(true){
+    //   // uint16_t state = this->readButtons();
+    //   uint16_t state = this->Buttons.read();
+    //   this->writeLEDs(state);
+
+    //   i++;
+    //   i%=16;
+    // }
+  }
+};
+
+LowerBoard lowerBoard;
+#else
+DummyLowerBoard lowerBoard;
+#endif
+
 
 //Holds all the hardware input functions (and the headless overloads)
 //Accessed like Stepchild.buttons.buttonState(LOOP)?
@@ -107,6 +227,10 @@ class StepchildHardwareInput{
     digitalWrite(BUTTONS_CLOCK_ENABLE,LOW);
     this->mainButtons = shiftIn(BUTTONS_DATA, BUTTONS_CLOCK_IN, LSBFIRST);
     digitalWrite(BUTTONS_CLOCK_ENABLE, HIGH);
+
+    //invert logic values bc low voltage ==> button is pressed
+    this->mainButtons = ~this->mainButtons;
+
     #else
     int temp[8] = {newKeyVal,shiftKeyVal,selectKeyVal,deleteKeyVal,loopKeyVal,playKeyVal,copyKeyVal,menuKeyVal};
     uint8_t states = 0;
@@ -132,8 +256,6 @@ class StepchildHardwareInput{
     #else
     this->setB(encAPRESS);
     this->setA(encBPRESS);
-    // encAPRESS = 0;
-    // encBPRESS = 0;
     #endif
   }
   void readJoystick(){
@@ -141,19 +263,19 @@ class StepchildHardwareInput{
     //X
     float val = analogRead(JOYSTICK_X);
     if(val<24)
-      this->joystickX = -1;
-    if(val>1000)
       this->joystickX = 1;
+    else if(val>1000)
+      this->joystickX = -1;
     else
       this->joystickX = 0;
     //Y
     val = analogRead(JOYSTICK_Y);
     if(val<24)
-      this->joystickX = -1;
-    if(val>1000)
-      this->joystickX = 1;
+      this->joystickY = -1;
+    else if(val>1000)
+      this->joystickY = 1;
     else
-      this->joystickX = 0;
+      this->joystickY = 0;
     #else
     this->joystickX = xKeyVal;
     this->joystickY = yKeyVal;
@@ -180,6 +302,16 @@ class StepchildHardwareInput{
     this->readStepButtons();
     //reading joystick
     this->readJoystick();
+  }
+  void debugPrintButtons(){
+    Serial.println("-- main buttons --");
+    for(uint8_t i = 0; i<8; i++){
+      Serial.print((this->mainButtons>>i)&1);
+    }
+    Serial.print("\n");
+    Serial.println("X:"+stringify(this->joystickX)+" ("+stringify(analogRead(JOYSTICK_X))+")");
+    Serial.println("Y:"+stringify(this->joystickY)+" ("+stringify(analogRead(JOYSTICK_Y))+")");
+    Serial.flush();
   }
   // This is called by hardware interrupts on the encoder pins
   //The hardware interrupt function is in childOS.h! void rotaryActionA_Handler() and void rotaryActionB_Handler()
@@ -225,14 +357,14 @@ class StepchildHardwareInput{
     if (lrsum == 4)
     {
         lrsum = 0;
-        return -1;
+        return 1;
     }
 
     /* encoder in the neutral state - anti-clockwise rotation*/
     if (lrsum == -4)
     {
         lrsum = 0;
-        return 1;
+        return -1;
     }
 
     // An impossible rotation has been detected - ignore the movement
@@ -292,13 +424,18 @@ class StepchildHardwareInput{
     return this->mainButtonState(MENU_BUTTON);
   }
 
+  bool anyActiveInputs(){
+    this->readButtons();
+    this->readJoystick();
+    return (this->mainButtons || this->encoderButtons || this->joystickX || this->joystickY);
+  }
+
   /*
     Setting Button States
   */
 
-  //These probably shouldn't need to be used much but they're here for completeness and so
+  //These probably shouldn't need to be used much, but they're here for completeness and so
   //The headless mode can set them
-  
   void setA(bool val){
     if(val)
       this->encoderButtons |= 0b00000010;
@@ -386,7 +523,6 @@ void readButtons_MPX(){
       controls.setStepButton(digit,0);
     }
   }
-
   //setting each button accordingly
   controls.setNEW(!buttons[7]);
   controls.setSHIFT(!buttons[6]);
@@ -418,25 +554,6 @@ void readButtons_MPX(){
     for(uint8_t i = 0; i<8; i++){
       controls.setStepButton(i,headlessStepButtons[i]);
     }
-}
-#endif
-
-#ifndef HEADLESS
-void readButtons(){
-  // controls.setA(digitalRead(A_BUTTON));
-  // controls.setB(digitalRead(B_BUTTON));
-  // readButtons_MPX();
-  controls.readButtons();
-}
-#else
-void readButtons(){
-  //  controls.setB(encAPRESS);
-  //  controls.setA(encBPRESS);
-  //  encAPRESS = 0;
-  //  encBPRESS = 0;
-  //  readButtons_MPX();
-
- controls.readButtons();
 }
 #endif
 
@@ -519,7 +636,7 @@ void enterSleepMode(){
   while(sleeping){
     long time  = millis();
     sleep_ms(1000);
-    if(anyActiveInputs()){
+    if(controls.anyActiveInputs()){
       sleeping = false;
     }
     // //Serial.println("sleeping...");

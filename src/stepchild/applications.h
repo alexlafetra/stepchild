@@ -686,7 +686,7 @@ void fxMenu(){
     printItalic(103,13,"FX",1);
     display.display();
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(!fxMenuControls()){
       break;
     }

@@ -2,8 +2,8 @@
 class Track {
   public:
 
-  uint8_t pitch; //for storing which midi note the track sends and receives
-  uint8_t channel;//for storing midi channels
+  uint8_t pitch = 36; //for storing which midi note the track sends and receives
+  uint8_t channel = 1;//for storing midi channels
   uint8_t muteGroup;
   //255 if no note is being sent, pitch val if currently sending
   uint8_t noteLastSent;//if a note is currently being sent
@@ -15,8 +15,6 @@ class Track {
 
   //constructor for each track
   Track() {
-    pitch = defaultPitch;//c1 to start
-    channel = defaultChannel;
     isSelected = false;
     isLatched = false;
     isPrimed = true;

@@ -354,7 +354,7 @@ void WireFrame::view(){
   display.setTextColor(SSD1306_WHITE);
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(utils.itsbeen(10)){
       if(controls.joystickX != 0){
         //pan while shifting
@@ -1767,7 +1767,7 @@ void renderTest(){
   display.setTextSize(1);
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     // angleX = ((millis()/400)%2)-20;
     // angleY = ((millis()/400)%2)+20;
     // angleZ = 2*((millis()/400)%2)-20;

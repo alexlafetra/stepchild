@@ -28,7 +28,7 @@ void fragmentMenu(){
   while(menuIsActive){
     h = 80;
     k = 30;
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     if(utils.itsbeen(200)){
       if(controls.MENU()){
@@ -76,8 +76,8 @@ void fragmentMenu(){
       if(timeS<-screenWidth/2){
         timeS = -screenWidth/2;
       }
-      if(timeS+64>seqEnd){
-        timeS = seqEnd-64;
+      if(timeS+64>sequence.sequenceLength){
+        timeS = sequence.sequenceLength-64;
       }
     }
     if(utils.itsbeen(200)){
@@ -131,8 +131,8 @@ void fragmentMenu(){
           }
           //changing min start
           else if(activeMenu.options[activeMenu.highlight] == "entry"){
-            if(fragmentData[2][1]<seqEnd-subDivInt){
-              fragmentData[2][1]+=subDivInt;
+            if(fragmentData[2][1]<sequence.sequenceLength-sequence.subDivision){
+              fragmentData[2][1]+=sequence.subDivision;
             }
           }
           else if(activeMenu.options[activeMenu.highlight] == "state"){
@@ -153,8 +153,8 @@ void fragmentMenu(){
           }
           //changing min start
           else if(activeMenu.options[activeMenu.highlight] == "entry"){
-            if(!controls.SHIFT() && fragmentData[2][1]>subDivInt){
-              fragmentData[2][1]-=subDivInt;
+            if(!controls.SHIFT() && fragmentData[2][1]>sequence.subDivision){
+              fragmentData[2][1]-=sequence.subDivision;
             }
           }
           else if(activeMenu.options[activeMenu.highlight] == "state"){
@@ -175,8 +175,8 @@ void fragmentMenu(){
             if(fragmentData[0][2]*fragmentSubDiv<=maxLengthVal-fragmentSubDiv){
               fragmentData[0][2]++;
             }
-            else if(!controls.SHIFT() && fragmentData[0][2]<maxLengthVal-subDivInt){
-              fragmentData[0][2]+=subDivInt;
+            else if(!controls.SHIFT() && fragmentData[0][2]<maxLengthVal-sequence.subDivision){
+              fragmentData[0][2]+=sequence.subDivision;
             }
           }
           //changing min reps
@@ -186,11 +186,11 @@ void fragmentMenu(){
           }
           //changing min start
           else if(activeMenu.options[activeMenu.highlight] == "entry"){
-            if(controls.SHIFT() && fragmentData[2][2]<seqEnd){
+            if(controls.SHIFT() && fragmentData[2][2]<sequence.sequenceLength){
               fragmentData[2][2]++;
             }
-            else if(!controls.SHIFT() && fragmentData[2][2]<seqEnd-subDivInt){
-              fragmentData[2][2]+=subDivInt;
+            else if(!controls.SHIFT() && fragmentData[2][2]<sequence.sequenceLength-sequence.subDivision){
+              fragmentData[2][2]+=sequence.subDivision;
             }
           }
           else if(activeMenu.options[activeMenu.highlight] == "state"){
@@ -227,7 +227,7 @@ void fragmentMenu(){
       }
       controls.counterA += controls.counterA<0?1:-1;
     }
-    //changing subDivInt
+    //changing sequence.subDivision
     while(controls.counterB != 0 && activeMenu.options[activeMenu.highlight] == "div"){
       if(controls.counterB <= -1 && !controls.SHIFT()){
         changeFragmentSubDivInt(true);
@@ -271,7 +271,7 @@ void fragmentMenu(){
       //display timeline when selecting the start
       for(int lineStep = 0; lineStep<screenWidth; lineStep++){
         //if it's within the seq
-        if((lineStep+timeS)<=seqEnd&&(lineStep+timeS)>=0){
+        if((lineStep+timeS)<=sequence.sequenceLength&&(lineStep+timeS)>=0){
           if(playing){
             timeS = playheadPos - 64;
             if(lineStep+timeS == playheadPos){
@@ -283,7 +283,7 @@ void fragmentMenu(){
             display.drawPixel(lineStep,xStart,SSD1306_WHITE);
           }
           //if it's on a subDiv
-          if(!((lineStep+timeS)%subDivInt)){
+          if(!((lineStep+timeS)%sequence.subDivision)){
             display.drawLine(lineStep,xStart-1,lineStep,xStart+1,SSD1306_WHITE);
           }
           //if it's on a measure

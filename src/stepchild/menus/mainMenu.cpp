@@ -70,7 +70,7 @@ void animateIcon(WireFrame* w){
     //loop
     case 1:
       // loopArrowAnimation(w);
-      if(isLooping)
+      if(sequence.isLooping)
         w -> rotate(3,1);
       break;
     //keys
@@ -258,7 +258,7 @@ void drawMainMenuLabel(){
       break;
     //instruments
     case 2:
-      text = "INST";
+      text = "APPS";
       break;
     //settings
     case 3:
@@ -307,7 +307,7 @@ void mainMenu(){
   while(true){
     //controls
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(!mainMenuControls())
       break;
     

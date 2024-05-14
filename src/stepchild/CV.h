@@ -81,10 +81,10 @@ class StepchildCV{
         }
         this->gateState = false;
         //if a track is sending a pitch, 
-        for(uint8_t i = 0; i<trackData.size(); i++){
-            if(trackData[i].noteLastSent != 255){
+        for(uint8_t i = 0; i<sequence.trackData.size(); i++){
+            if(sequence.trackData[i].noteLastSent != 255){
                 this->gateState = true;
-                this->currentPitch = trackData[i].noteLastSent;
+                this->currentPitch = sequence.trackData[i].noteLastSent;
             }
         }
         //if the gate was off, and a pitch is on, write CVGate on
@@ -173,7 +173,7 @@ void MIDItoCV(){
             CV.writePitch(pitch);
         }
         controls.readJoystick();
-        readButtons();
+        controls.readButtons();
         if(utils.itsbeen(200)){
             if(controls.MENU()){
                 lastTime = millis();
@@ -234,7 +234,7 @@ void CVMenu(){
     uint8_t cursor = 0;
     while(true){
         controls.readJoystick();
-        readButtons();
+        controls.readButtons();
         while(controls.counterA != 0){
             CVEncoders(controls.counterA,cursor);
             controls.counterA += controls.counterA<0?1:-1;

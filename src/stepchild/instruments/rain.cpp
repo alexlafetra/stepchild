@@ -156,7 +156,7 @@ void rain(){
   while(true){
     //controls
     //--------------------
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     if(utils.itsbeen(200)){
       if(controls.PLAY()){

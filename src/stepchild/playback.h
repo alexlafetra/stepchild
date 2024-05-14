@@ -1,11 +1,11 @@
 void playTrack(uint8_t track, uint16_t timestep){
   //if there's no note, skip to the next track
-  if (lookupData[track][timestep] == 0){
-    if(trackData[track].noteLastSent != 255){//if the track was sending, send a note off
-      if(!isArping || activeArp.source == 0 )//if the arp is off, or if it's just listening to notes from outside the seq
-        MIDI.noteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
-      sentNotes.subNote(trackData[track].noteLastSent);
-      trackData[track].noteLastSent = 255;
+  if (sequence.lookupTable[track][timestep] == 0){
+    if(sequence.trackData[track].noteLastSent != 255){//if the track was sending, send a note off
+      if(!arp.isActive || arp.source == 0 )//if the arp is off, or if it's just listening to notes from outside the seq
+        MIDI.noteOff(sequence.trackData[track].noteLastSent, 0, sequence.trackData[track].channel);
+      sentNotes.subNote(sequence.trackData[track].noteLastSent);
+      sequence.trackData[track].noteLastSent = 255;
       triggerAutotracks(track,false);
     }
     return;
@@ -13,24 +13,24 @@ void playTrack(uint8_t track, uint16_t timestep){
   //if there's a note there
   else{
     //if it's the start of the note, or if the track wasn't sending already
-    if(timestep == seqData[track][lookupData[track][timestep]].startPos || trackData[track].noteLastSent == 255){ //if it's the start
+    if(timestep == sequence.noteData[track][sequence.lookupTable[track][timestep]].startPos || sequence.trackData[track].noteLastSent == 255){ //if it's the start
       //if it's not muted
-      if(!seqData[track][lookupData[track][timestep]].muted){
+      if(!sequence.noteData[track][sequence.lookupTable[track][timestep]].muted){
         //if the track was already sending a note, send note off
-        if(trackData[track].noteLastSent != 255){
-          if(!isArping || activeArp.source == 0)
-            MIDI.noteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
-          trackData[track].noteLastSent = 255;
+        if(sequence.trackData[track].noteLastSent != 255){
+          if(!arp.isActive || arp.source == 0)
+            MIDI.noteOff(sequence.trackData[track].noteLastSent, 0, sequence.trackData[track].channel);
+          sequence.trackData[track].noteLastSent = 255;
           triggerAutotracks(track,false);
         }
         //modifying chance value and pitch value and vel
-        int16_t chance = seqData[track][lookupData[track][timestep]].chance;
-        int16_t pitch = trackData[track].pitch;
-        int16_t vel = seqData[track][lookupData[track][timestep]].velocity;
+        int16_t chance = sequence.noteData[track][sequence.lookupTable[track][timestep]].chance;
+        int16_t pitch = sequence.trackData[track].pitch;
+        int16_t vel = sequence.noteData[track][sequence.lookupTable[track][timestep]].velocity;
         //if the channel matches, or if the modifier is global
 
         //adjusting chance
-        if(trackData[track].channel == globalModifiers.chance[0] || globalModifiers.chance[0] == 0){
+        if(sequence.trackData[track].channel == globalModifiers.chance[0] || globalModifiers.chance[0] == 0){
           chance += globalModifiers.chance[1];
           if(chance<0)
             chance = 0;
@@ -39,7 +39,7 @@ void playTrack(uint8_t track, uint16_t timestep){
         }
 
         //adjusting pitch
-        if(trackData[track].channel == globalModifiers.pitch[0] || globalModifiers.pitch[0] == 0){ 
+        if(sequence.trackData[track].channel == globalModifiers.pitch[0] || globalModifiers.pitch[0] == 0){ 
           pitch += globalModifiers.pitch[1];
           if(pitch<0)
             pitch = 0;
@@ -48,7 +48,7 @@ void playTrack(uint8_t track, uint16_t timestep){
         }
 
         //adjusting vel
-        if(trackData[track].channel == globalModifiers.velocity[0] || globalModifiers.velocity[0] == 0){
+        if(sequence.trackData[track].channel == globalModifiers.velocity[0] || globalModifiers.velocity[0] == 0){
           vel += globalModifiers.velocity[1];
           if(vel<0)
             vel = 0;
@@ -58,23 +58,23 @@ void playTrack(uint8_t track, uint16_t timestep){
         //if chance is 100%
         if(chance > random(100)){
           //if it's part of a muteGroup
-          if(trackData[track].muteGroup!=0){
-            muteGroups(track, trackData[track].muteGroup);
+          if(sequence.trackData[track].muteGroup!=0){
+            muteGroups(track, sequence.trackData[track].muteGroup);
           }
-          if(!isArping || activeArp.source == 0)
-            MIDI.noteOn(pitch, vel, trackData[track].channel);
-          trackData[track].noteLastSent = pitch;
-          if(trackData[track].isLatched){
-            if(!isArping || activeArp.source == 0)
-              MIDI.noteOff(pitch, 0, trackData[track].channel);
+          if(!arp.isActive || arp.source == 0)
+            MIDI.noteOn(pitch, vel, sequence.trackData[track].channel);
+          sequence.trackData[track].noteLastSent = pitch;
+          if(sequence.trackData[track].isLatched){
+            if(!arp.isActive || arp.source == 0)
+              MIDI.noteOff(pitch, 0, sequence.trackData[track].channel);
           }
-          sentNotes.addNote(pitch,vel,trackData[track].channel);
+          sentNotes.addNote(pitch,vel,sequence.trackData[track].channel);
           triggerAutotracks(track,true);
           return;
         }
         //if the note fails to fire, set the pitch flag anyway so the sequencer knows not to try and play it again
         else{
-          trackData[track].noteLastSent = pitch;
+          sequence.trackData[track].noteLastSent = pitch;
         }
       }
     }
@@ -103,9 +103,9 @@ void playDT(uint8_t dt, uint16_t timestep){
 void playStep(uint16_t timestep) {
   playPCData(timestep);
   //playing each track
-  for (int track = 0; track < trackData.size(); track++) {
+  for (int track = 0; track < sequence.trackData.size(); track++) {
     //if it's unmuted or solo'd, play it
-    if(!trackData[track].isMuted || trackData[track].isSolo)
+    if(!sequence.trackData[track].isMuted || sequence.trackData[track].isSolo)
       playTrack(track,timestep);
   }
   //playing autotracks too
@@ -165,13 +165,13 @@ void sendThruOff(uint8_t channel, uint8_t note){
 
 //stops all midi sends, clears playlist
 void stop(){
-  for(int track = 0; track<trackData.size(); track++){
-    if(trackData[track].noteLastSent != 255){
-      MIDI.noteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
-      trackData[track].noteLastSent = 255;
+  for(int track = 0; track<sequence.trackData.size(); track++){
+    if(sequence.trackData[track].noteLastSent != 255){
+      MIDI.noteOff(sequence.trackData[track].noteLastSent, 0, sequence.trackData[track].channel);
+      sequence.trackData[track].noteLastSent = 255;
     }
     else{
-      MIDI.noteOff(trackData[track].pitch, 0, trackData[track].channel);
+      MIDI.noteOff(sequence.trackData[track].pitch, 0, sequence.trackData[track].channel);
     }
   }
   sentNotes.clear();

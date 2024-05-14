@@ -10,9 +10,9 @@
 */
 
 void exampleFunction(){
-    for(uint8_t track = 0; track<trackData.size(); track++){
-        for(uint16_t note = 1; note<seqData[track].size(); note+=2){
-            seqData[track][note].velocity = 64;
+    for(uint8_t track = 0; track<sequence.trackData.size(); track++){
+        for(uint16_t note = 1; note<sequence.noteData[track].size(); note+=2){
+            sequence.noteData[track][note].velocity = 64;
         } 
     }
 }

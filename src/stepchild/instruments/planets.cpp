@@ -133,7 +133,7 @@ void testSolarSystem(){
   system.angle = -15;
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(controls.joystickX != 0){
       if(controls.joystickX == 1){
         system.rotate(-1,1);

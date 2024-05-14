@@ -141,7 +141,7 @@ void knobs(){
     display.clearDisplay();
     drawKnobs(activeKnobA,activeKnobB,activeRow,16,selected,ccType,valA,valB,xyMode);
     display.display();
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     //changing cc/channel
     if(selected){

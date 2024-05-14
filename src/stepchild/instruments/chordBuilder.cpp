@@ -40,7 +40,7 @@ void chordBuilder(){
   uint8_t editorState = 0;
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     while(controls.counterA != 0){
       uint16_t *lengthPointer;
       //switch so you can edit the new length val, or the length of an existing chord
@@ -53,16 +53,16 @@ void chordBuilder(){
       //changing length
       if(!controls.SHIFT()){
         if(controls.counterA >= 1 && (*lengthPointer)<96){
-          (*lengthPointer)+=subDivInt;
+          (*lengthPointer)+=sequence.subDivision;
           if((*lengthPointer)>96){
             (*lengthPointer) = 96;
           }
           controls.counterA += controls.counterA<0?1:-1;;
         }
-        if(controls.counterA <= -1 && (*lengthPointer)>subDivInt){
-          (*lengthPointer)-=subDivInt;
-          if((*lengthPointer)<subDivInt){
-            (*lengthPointer) = subDivInt;
+        if(controls.counterA <= -1 && (*lengthPointer)>sequence.subDivision){
+          (*lengthPointer)-=sequence.subDivision;
+          if((*lengthPointer)<sequence.subDivision){
+            (*lengthPointer) = sequence.subDivision;
           }
           controls.counterA += controls.counterA<0?1:-1;;  
         }
@@ -304,10 +304,10 @@ void chordBuilder(){
       display.fillRoundRect(111,30,21,30,3,SSD1306_BLACK);
       display.drawRoundRect(111,30,21,30,3,SSD1306_WHITE);
 
-      //display subDivInt
-      String text = stepsToMeasures(subDivInt);
+      //display sequence.subDivision
+      String text = stepsToMeasures(sequence.subDivision);
       printSmall(103,37,"~",SSD1306_WHITE);
-      graphics.printFractionCentered(121,36,stepsToMeasures(subDivInt));
+      graphics.printFractionCentered(121,36,stepsToMeasures(sequence.subDivision));
       
       //length
       text = stepsToMeasures(length);

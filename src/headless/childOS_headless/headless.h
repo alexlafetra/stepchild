@@ -592,7 +592,7 @@ void displayWindow(void)
             else{
                 glColor3f(0.0,0.0,0.0); //dark
             }
-            glCircle(w/16*i+w/16,(i%2)?10:30,10,10);
+            glCircle(w/16*i+w/16,(i%2)?10:30,10,20);
         }
         glFlush();
         glfwSwapBuffers(window);

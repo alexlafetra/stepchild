@@ -100,7 +100,7 @@ void drawRandMenuOptions(uint8_t which,RandomData randData){
       if(randData.onlyOnGrid){
         printArp_wiggly(x1,y1+10,"On Grid",1);
         printSmall_centered(64,y1+25,"locked to grid:",1);
-        graphics.printFraction_small_centered(62,y1+35,stepsToMeasures(subDivInt));
+        graphics.printFraction_small_centered(62,y1+35,stepsToMeasures(sequence.subDivision));
       }
       else{
         printArp_wiggly(x1-4,y1+10,"Off Grid",1);
@@ -137,15 +137,15 @@ void drawCoordinateBox(CoordinatePair coords){
     }
 
     //if it's offscreen, return
-    if(X2<=viewStart || X1>=viewEnd || Y1 > startTrack+maxTracksShown || Y2<startTrack){
+    if(X2<=sequence.viewStart || X1>=sequence.viewEnd || Y1 > startTrack+maxTracksShown || Y2<startTrack){
       return;
     }
 
-    if(X1<viewStart){
-      X1 = viewStart;
+    if(X1<sequence.viewStart){
+      X1 = sequence.viewStart;
     }
-    if(X2>viewEnd){
-      X2 = viewEnd;
+    if(X2>sequence.viewEnd){
+      X2 = sequence.viewEnd;
     }
     if(Y1<startTrack){
       Y1 = startTrack;
@@ -153,8 +153,8 @@ void drawCoordinateBox(CoordinatePair coords){
     if(Y2>(startTrack+maxTracksShown)){
       Y2 = startTrack+maxTracksShown;
     }
-    uint8_t startX = trackDisplay+(X1-viewStart)*scale;
-    uint8_t length = (X2-X1)*scale;
+    uint8_t startX = trackDisplay+(X1-sequence.viewStart)*sequence.viewScale;
+    uint8_t length = (X2-X1)*sequence.viewScale;
     // uint8_t startHeight = maxTracksShown==5?headerHeight:8;
     uint8_t startHeight = headerHeight;
     uint8_t startY = (Y1-startTrack)*trackHeight+startHeight;
@@ -178,22 +178,22 @@ CoordinatePair selectArea_random(){
   WireFrame graphics = genRandMenuObjects(16,8,10,0.5);
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     defaultEncoderControls();
     if(controls.SELECT()  && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
       selBox.begun = true;
-      selBox.coords.start.x = cursorPos;
-      selBox.coords.start.y = activeTrack;
-      coords.start.x = cursorPos;
-      coords.start.y = activeTrack;
+      selBox.coords.start.x = sequence.cursorPos;
+      selBox.coords.start.y = sequence.activeTrack;
+      coords.start.x = sequence.cursorPos;
+      coords.start.y = sequence.activeTrack;
     }
     //if controls.SELECT()  is released, and there's a selection box
     if(!controls.SELECT()  && selBox.begun){
-      selBox.coords.end.x = cursorPos;
-      selBox.coords.end.y = activeTrack;
+      selBox.coords.end.x = sequence.cursorPos;
+      selBox.coords.end.y = sequence.activeTrack;
       selBox.begun = false;
-      coords.end.x = cursorPos;
-      coords.end.y = activeTrack;
+      coords.end.x = sequence.cursorPos;
+      coords.end.y = sequence.activeTrack;
     }
     if(utils.itsbeen(200)){
       if(controls.NEW()){
@@ -212,37 +212,37 @@ CoordinatePair selectArea_random(){
     if (utils.itsbeen(100)) {
       if (controls.joystickX == 1 && !controls.SHIFT()) {
         //if cursor isn't on a measure marker, move it to the nearest one
-        if(cursorPos%subDivInt){
-          moveCursor(-cursorPos%subDivInt);
+        if(sequence.cursorPos%sequence.subDivision){
+          moveCursor(-sequence.cursorPos%sequence.subDivision);
           lastTime = millis();
         }
         else{
-          moveCursor(-subDivInt);
+          moveCursor(-sequence.subDivision);
           lastTime = millis();
         }
       }
       if (controls.joystickX == -1 && !controls.SHIFT()) {
-        if(cursorPos%subDivInt){
-          moveCursor(subDivInt-cursorPos%subDivInt);
+        if(sequence.cursorPos%sequence.subDivision){
+          moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
           lastTime = millis();
         }
         else{
-          moveCursor(subDivInt);
+          moveCursor(sequence.subDivision);
           lastTime = millis();
         }
       }
       if (controls.joystickY == 1) {
         if(recording)
-          setActiveTrack(activeTrack + 1, false);
+          setActiveTrack(sequence.activeTrack + 1, false);
         else
-          setActiveTrack(activeTrack + 1, true);
+          setActiveTrack(sequence.activeTrack + 1, true);
         lastTime = millis();
       }
       if (controls.joystickY == -1) {
         if(recording)
-          setActiveTrack(activeTrack - 1, false);
+          setActiveTrack(sequence.activeTrack - 1, false);
         else
-          setActiveTrack(activeTrack - 1, true);
+          setActiveTrack(sequence.activeTrack - 1, true);
         lastTime = millis();
       }
     }
@@ -259,7 +259,7 @@ CoordinatePair selectArea_random(){
     graphics.rotate(1,0);
     graphics.rotate(1,1);
     display.clearDisplay();
-    drawSeq(true, false, true, false, false, false, viewStart, viewEnd);
+    drawSeq(true, false, true, false, false, false, sequence.viewStart, sequence.viewEnd);
     drawCoordinateBox(coords);
     graphics.renderDie();
     if(coords.start.x == 0 && coords.end.x == 0 && coords.start.y == 0 && coords.end.y == 0){
@@ -294,7 +294,7 @@ void genRandom(RandomData randData){
       for(uint8_t t = coords.start.y; t<=coords.end.y; t++){
         for(uint16_t step = coords.start.x; step<coords.end.x; step++){
           //if it's not only making notes on the grid, or if the step is on a subDiv
-          if((!randData.onlyOnGrid || !(step%subDivInt)) && lookupData[t][step] == 0){
+          if((!randData.onlyOnGrid || !(step%sequence.subDivision)) && sequence.lookupTable[t][step] == 0){
             if(random(0,100)<randData.odds){
               uint8_t chance = random(randData.minChance,randData.maxChance+1);
               uint16_t length = random(randData.minLength,randData.maxLength+1);
@@ -304,7 +304,7 @@ void genRandom(RandomData randData){
                 length = coords.end.x-step;
               }
               Note newNote = Note(step,step+length,vel,chance,false,false);
-              makeNote(newNote, t);
+              sequence.makeNote(newNote, t);
               step = newNote.endPos-1;
               //if it's not on grid, move a random amount forward
             }
@@ -321,7 +321,7 @@ void genRandom(RandomData randData){
       for(uint8_t t = coords.start.y; t<=coords.end.y; t++){
         for(uint16_t step = coords.start.x; step<coords.end.x; step++){
           //ignore grid for this
-          if(lookupData[t][step] != 0){
+          if(sequence.lookupTable[t][step] != 0){
             if(random(0,100)<randData.odds){
               uint8_t chance = random(randData.minChance,randData.maxChance+1);
               uint16_t length = random(randData.minLength,randData.maxLength+1);
@@ -330,9 +330,9 @@ void genRandom(RandomData randData){
               if(step+length>coords.end.x){
                 length = coords.end.x-step;
               }
-              deleteNote_byID(t,lookupData[t][step]);
+              sequence.deleteNote_byID(t,sequence.lookupTable[t][step]);
               Note newNote = Note(step,step+length,vel,chance,false,false);
-              makeNote(newNote, t);
+              sequence.makeNote(newNote, t);
               step = newNote.endPos-1;
             }
           }
@@ -429,7 +429,7 @@ void drawRandMenu(uint8_t whichTab){
 
 bool randMenuControls(uint8_t * whichTab){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(utils.itsbeen(200)){
         if(controls.joystickX != 0){
             if(controls.joystickX == -1 && (*whichTab) < 3){

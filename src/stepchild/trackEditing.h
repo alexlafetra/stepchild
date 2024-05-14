@@ -1,43 +1,43 @@
 //unarms any tracks with notes on them
 void disarmTracksWithNotes(){
-  for(uint8_t i = 0; i<trackData.size(); i++){
-    if(seqData[i].size()>1){
-      trackData[i].isPrimed = false;
+  for(uint8_t i = 0; i<sequence.trackData.size(); i++){
+    if(sequence.noteData[i].size()>1){
+      sequence.trackData[i].isPrimed = false;
     }
   }
 }
 
 vector<uint8_t> selectMultipleTracks(String text){
   //clearing out the selected tracks
-  for(int i = 0; i<trackData.size(); i++){
-    if(trackData[i].isSelected){
-      trackData[i].isSelected = false;
+  for(int i = 0; i<sequence.trackData.size(); i++){
+    if(sequence.trackData[i].isSelected){
+      sequence.trackData[i].isSelected = false;
     }
   }
   //to hold the id's and return
   vector<uint8_t> selection;
   while(true){
     display.clearDisplay();
-    drawSeq(true, false, false, false, true, false, viewStart, viewEnd);
+    drawSeq(true, false, false, false, true, false, sequence.viewStart, sequence.viewEnd);
     printSmall(screenWidth-text.length()*4,0,text,1);
 
     display.setCursor(0,7);
     display.setFont(&FreeSerifItalic9pt7b);
     display.setTextColor(SSD1306_WHITE);
     display.print("Trk");
-    display.print(stringify(activeTrack+1));
+    display.print(stringify(sequence.activeTrack+1));
     display.setFont();
 
     display.display();
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     if(utils.itsbeen(100)){
       if(controls.joystickY == 1){
-        setActiveTrack(activeTrack+1,true);
+        setActiveTrack(sequence.activeTrack+1,true);
         lastTime = millis();
       }
       if(controls.joystickY == -1){
-        setActiveTrack(activeTrack-1,true);
+        setActiveTrack(sequence.activeTrack-1,true);
         lastTime = millis();
       }
     }
@@ -45,33 +45,33 @@ vector<uint8_t> selectMultipleTracks(String text){
       if(controls.SELECT()  && !controls.SHIFT()){
         controls.setSELECT(false);
         lastTime = millis();
-        trackData[activeTrack].isSelected = !trackData[activeTrack].isSelected;
+        sequence.trackData[sequence.activeTrack].isSelected = !sequence.trackData[sequence.activeTrack].isSelected;
       }
       //toggle the selection on all of them
       if(controls.SHIFT() && controls.SELECT() ){
         controls.setNEW(false);
         lastTime = millis();
-        trackData[activeTrack].isSelected = !trackData[activeTrack].isSelected;
-        for(int i = 0; i<trackData.size(); i++){
-          trackData[i].isSelected = trackData[activeTrack].isSelected;
+        sequence.trackData[sequence.activeTrack].isSelected = !sequence.trackData[sequence.activeTrack].isSelected;
+        for(int i = 0; i<sequence.trackData.size(); i++){
+          sequence.trackData[i].isSelected = sequence.trackData[sequence.activeTrack].isSelected;
         }
       }
       if(controls.NEW() && !controls.SHIFT()){
         controls.setNEW(false);
         lastTime = millis();
         //adding all the selected tracks to the list
-        for(int i = 0; i<trackData.size(); i++){
-          if(trackData[i].isSelected){
+        for(int i = 0; i<sequence.trackData.size(); i++){
+          if(sequence.trackData[i].isSelected){
             selection.push_back(i);
-            trackData[i].isSelected = false;
+            sequence.trackData[i].isSelected = false;
           }
         }
         break;
       }
       if(controls.DELETE() || controls.MENU()){
         lastTime = millis();
-        for(uint8_t track = 0; track<trackData.size(); track++){
-          trackData[track].isSelected = false;
+        for(uint8_t track = 0; track<sequence.trackData.size(); track++){
+          sequence.trackData[track].isSelected = false;
         }
         selection.clear();
         break;
@@ -87,14 +87,14 @@ vector<uint8_t> selectMultipleTracks(){
 }
 
 void muteTrack(unsigned short int id){
-  trackData[id].isMuted = true;
+  sequence.trackData[id].isMuted = true;
 }
 void unmuteTrack(uint16_t id){
-  trackData[id].isMuted = false;
+  sequence.trackData[id].isMuted = false;
 }
 
 void toggleMute(uint16_t id){
-  trackData[id].isMuted = !trackData[id].isMuted;
+  sequence.trackData[id].isMuted = !sequence.trackData[id].isMuted;
 }
 
 void muteMultipleTracks(vector<uint8_t> ids){
@@ -104,27 +104,27 @@ void muteMultipleTracks(vector<uint8_t> ids){
 }
 
 void soloTrack(unsigned short int id){
-  for(int track = 0; track<trackData.size(); track++){
+  for(int track = 0; track<sequence.trackData.size(); track++){
     if(track != id){
       muteTrack(track);
-      trackData[track].isSolo = false;
+      sequence.trackData[track].isSolo = false;
     }
     else 
-      trackData[id].isSolo = true;
+      sequence.trackData[id].isSolo = true;
   }
 }
 
 void unsoloTrack(uint16_t id){
-  for(int track = 0; track<trackData.size(); track++){
+  for(int track = 0; track<sequence.trackData.size(); track++){
     if(track != id)
       unmuteTrack(track);
     else
-      trackData[id].isSolo = false;
+      sequence.trackData[id].isSolo = false;
   }
 }
 
 void toggleSolo(uint16_t id){
-  if(trackData[id].isSolo)
+  if(sequence.trackData[id].isSolo)
     unsoloTrack(id);
   else
     soloTrack(id);
@@ -138,19 +138,19 @@ void eraseMultipleTracks(vector<uint8_t> ids){
 
 void swapTracks(unsigned short int track1, unsigned short int track2){
   //making sure the tracks are real
-  if(track1 < trackData.size() && track2 < trackData.size() && track1>=0 && track2 >= 0){
+  if(track1 < sequence.trackData.size() && track2 < sequence.trackData.size() && track1>=0 && track2 >= 0){
     //swapping track data
-    Track old_activeTrack = trackData[track1];
-    trackData[track1] = trackData[track2];
-    trackData[track2] = old_activeTrack;
+    Track old_activeTrack = sequence.trackData[track1];
+    sequence.trackData[track1] = sequence.trackData[track2];
+    sequence.trackData[track2] = old_activeTrack;
     //swapping lookupData
-    vector<unsigned short int> old_lookupData = lookupData[track1];
-    lookupData[track1] = lookupData[track2];
-    lookupData[track2] = old_lookupData;
+    vector<unsigned short int> old_lookupTable = sequence.lookupTable[track1];
+    sequence.lookupTable[track1] = sequence.lookupTable[track2];
+    sequence.lookupTable[track2] = old_lookupTable;
     //swapping sequence data
-    vector<Note> old_seqData = seqData[track1];
-    seqData[track1] = seqData[track2];
-    seqData[track2] = old_seqData;
+    vector<Note> old_noteData = sequence.noteData[track1];
+    sequence.noteData[track1] = sequence.noteData[track2];
+    sequence.noteData[track2] = old_noteData;
   }
 }
 
@@ -164,20 +164,20 @@ bool sortTracksByChannel(Track t1, Track t2){
 bool compareNoteCount(Track a, Track b){
   // uint8_t trackIndexA;
   // uint8_t trackIndexB;
-  // for(uint8_t i = 0; i<trackData.size(); i++){
-  //   if(trackData[i] == a)
+  // for(uint8_t i = 0; i<sequence.trackData.size(); i++){
+  //   if(sequence.trackData[i] == a)
   //     trackIndexA = i;
-  //   if(trackData[i] == b)
+  //   if(sequence.trackData[i] == b)
   //     trackIndexB = i;
   // }
-  // return (seqData[trackIndexA].size()>seqData[trackIndexB].size())
+  // return (sequence.noteData[trackIndexA].size()>sequence.noteData[trackIndexB].size())
   return true;
 }
 
 void sortTrackData(uint8_t type,uint8_t target){
   //type is either 0 (ascending) or 1 (descending)
   //target is either pitch, channel, or the number of notes
-  vector<Track> tempData = trackData;
+  vector<Track> tempData = sequence.trackData;
   switch(target){
     case 0:
       sort(tempData.begin(),tempData.end(),sortTracksByPitch);
@@ -191,7 +191,7 @@ void sortTrackData(uint8_t type,uint8_t target){
   }
   if(type)
     reverse(tempData.begin(),tempData.end());
-  trackData = tempData;
+  sequence.trackData = tempData;
 }
 
 void sortTracks(){
@@ -202,7 +202,7 @@ void sortTracks(){
   const uint8_t x1 = 28;
   const uint8_t y1 = 16;
   while(true){
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     if(utils.itsbeen(200)){
       if(controls.MENU()){
@@ -228,7 +228,7 @@ void sortTracks(){
       controls.counterA+=controls.counterA<0?1:-1;
     }
     display.clearDisplay();
-    drawSeq(true, false, false, true, false, false, viewStart, viewEnd);
+    drawSeq(true, false, false, true, false, false, sequence.viewStart, sequence.viewEnd);
     display.fillRoundRect(x1,y1,85,37,3,0);
     display.drawRoundRect(x1,y1,85,37,3,1);
     printSmall(x1+2,y1+2,"sort by ",1);
@@ -255,20 +255,20 @@ void sortTracks(){
 }
 void swapTracks(){
   // slideMenuOut(1,7);
-  unsigned short int track1 = activeTrack;
+  unsigned short int track1 = sequence.activeTrack;
   controls.setSELECT(false);
   while(true){
     if(utils.itsbeen(100)){
       if(controls.joystickY == 1){
-        swapTracks(track1,activeTrack+1);
-        setActiveTrack(activeTrack+1,true);
-        track1 = activeTrack;
+        swapTracks(track1,sequence.activeTrack+1);
+        setActiveTrack(sequence.activeTrack+1,true);
+        track1 = sequence.activeTrack;
         lastTime = millis();
       }
       if(controls.joystickY == -1){
-        swapTracks(track1,activeTrack-1);
-        setActiveTrack(activeTrack-1,true);
-        track1 = activeTrack;
+        swapTracks(track1,sequence.activeTrack-1);
+        setActiveTrack(sequence.activeTrack-1,true);
+        track1 = sequence.activeTrack;
         lastTime = millis();
       }
     }
@@ -285,9 +285,9 @@ void swapTracks(){
       }
     }
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     display.clearDisplay();
-    drawSeq(true, false, false, true, false, false, viewStart, viewEnd);
+    drawSeq(true, false, false, true, false, false, sequence.viewStart, sequence.viewEnd);
     display.fillRect(70,0,16,16,0);
     if(millis()%1000 >= 500){
       display.drawBitmap(70,0,arrow_1_bmp,16,16,SSD1306_WHITE);
@@ -303,18 +303,18 @@ void swapTracks(){
 }
 
 void deleteEmptyTracks(){
-  for(int i = 0; i<trackData.size(); i++){
-    if(seqData[i].size()-1 == 0 && trackData.size()>1){
+  for(int i = 0; i<sequence.trackData.size(); i++){
+    if(sequence.noteData[i].size()-1 == 0 && sequence.trackData.size()>1){
       deleteTrack(i);
       i--;
     }
   }
-  if(activeTrack>=trackData.size())
-    activeTrack = trackData.size()-1;
+  if(sequence.activeTrack>=sequence.trackData.size())
+    sequence.activeTrack = sequence.trackData.size()-1;
 }
 
 //CHECK do you need to update trackID's??? idk if this will cause problems
-//dels the track AND notes stored within it (from seqData and lookupData)
+//dels the track AND notes stored within it (from sequence.noteData and sequence.lookupTable)
 //as long as you del tracks from the back, i think this is okay
 void deleteTrack(unsigned short int track){
   deleteTrack(track,false);
@@ -322,23 +322,23 @@ void deleteTrack(unsigned short int track){
 
 void deleteTrack(unsigned short int track, bool hard, bool askFirst){
   int choice = 1;
-  if(askFirst && seqData[track].size()-1>0){
-    vector<String> ops = {"nay","yeah"};                                                                                    //this is == 2 instead of 1 because seqData[track] always has the default note
-    choice = binarySelectionBox(64,32,"nay","yeah","del track w/"+stringify(seqData[track].size()-1)+(seqData[track].size() == 2?" note?":" notes?"),drawSeq);
+  if(askFirst && sequence.noteData[track].size()-1>0){
+    vector<String> ops = {"nay","yeah"};                                                                                    //this is == 2 instead of 1 because sequence.noteData[track] always has the default note
+    choice = binarySelectionBox(64,32,"nay","yeah","del track w/"+stringify(sequence.noteData[track].size()-1)+(sequence.noteData[track].size() == 2?" note?":" notes?"),drawSeq);
   }
   if(choice == 1){
-    if(trackData.size() == 1 && !hard){
+    if(sequence.trackData.size() == 1 && !hard){
       eraseTrack(track);
       return;
     }
     //if the end track is within view
-    if(endTrack == trackData.size()){
+    if(endTrack == sequence.trackData.size()){
       endTrack--;
       if(startTrack>0)
         startTrack--;
     }
-    if(activeTrack == track && activeTrack>0){
-      activeTrack--;
+    if(sequence.activeTrack == track && sequence.activeTrack>0){
+      sequence.activeTrack--;
     }
 
     eraseTrack(track);
@@ -347,19 +347,19 @@ void deleteTrack(unsigned short int track, bool hard, bool askFirst){
     vector<Track> tempTrackData;
     vector<vector<Note>> tempSeqData;
     vector<vector<uint16_t>> tempLookupData;
-    for(uint8_t t = 0; t<trackData.size(); t++){
+    for(uint8_t t = 0; t<sequence.trackData.size(); t++){
       if(t != track){
-        tempTrackData.push_back(trackData[t]);
-        tempSeqData.push_back(seqData[t]);
-        tempLookupData.push_back(lookupData[t]);
+        tempTrackData.push_back(sequence.trackData[t]);
+        tempSeqData.push_back(sequence.noteData[t]);
+        tempLookupData.push_back(sequence.lookupTable[t]);
       }
     }
-    trackData.swap(tempTrackData);
-    seqData.swap(tempSeqData);
-    lookupData.swap(tempLookupData);
-    // trackData.erase(trackData.begin() + track);
-    // seqData.erase(seqData.begin() + track);
-    // lookupData.erase(lookupData.begin() + track);
+    sequence.trackData.swap(tempTrackData);
+    sequence.noteData.swap(tempSeqData);
+    sequence.lookupTable.swap(tempLookupData);
+    // sequence.trackData.erase(sequence.trackData.begin() + track);
+    // sequence.noteData.erase(sequence.noteData.begin() + track);
+    // sequence.lookupTable.erase(sequence.lookupTable.begin() + track);
   }
 }
 
@@ -368,7 +368,7 @@ void deleteTrack(unsigned short int track, bool hard){
 }
 //dels all tracks
 void deleteAllTracks(){
-  while(trackData.size()>0){
+  while(sequence.trackData.size()>0){
     deleteTrack(0,true,false);
   }
 }
@@ -377,15 +377,15 @@ void shrinkTracks(){
   isShrunk = !isShrunk;
   //if it's already shrunk, toggle it
   if(!isShrunk){
-    if(trackData.size()>6){
+    if(sequence.trackData.size()>6){
         maxTracksShown = 6;
         startTrack = 0;
         endTrack = 5;
       }
     else{
-      maxTracksShown = trackData.size();
+      maxTracksShown = sequence.trackData.size();
       startTrack = 0;
-      endTrack = trackData.size()-1;
+      endTrack = sequence.trackData.size()-1;
     }
     // headerHeight = 16;
   }
@@ -400,41 +400,41 @@ void shrinkTracks(){
 }
 
 void transposeAllChannels(int increment){
-  for(int i = 0; i<trackData.size(); i++){
-    if(i == activeTrack)
-      setTrackChannel(i,trackData[i].channel+increment,true);//only the active track makes a noise
+  for(int i = 0; i<sequence.trackData.size(); i++){
+    if(i == sequence.activeTrack)
+      setTrackChannel(i,sequence.trackData[i].channel+increment,true);//only the active track makes a noise
     else
-      setTrackChannel(i,trackData[i].channel+increment,false);//quiet bc it'd be crazy
+      setTrackChannel(i,sequence.trackData[i].channel+increment,false);//quiet bc it'd be crazy
   }
 }
 
 void setTrackChannel(int track, int channel, bool loud){
   if(channel>=1 && channel<=16){
-    MIDI.noteOff(trackData[track].pitch,0,trackData[track].channel);
-    trackData[track].channel = channel;
+    MIDI.noteOff(sequence.trackData[track].pitch,0,sequence.trackData[track].channel);
+    sequence.trackData[track].channel = channel;
     if(loud){
-      MIDI.noteOn(trackData[track].pitch,63,trackData[track].channel);
-      MIDI.noteOff(trackData[track].pitch,0,trackData[track].channel);
+      MIDI.noteOn(sequence.trackData[track].pitch,63,sequence.trackData[track].channel);
+      MIDI.noteOff(sequence.trackData[track].pitch,0,sequence.trackData[track].channel);
     }
   }
 }
 
 void transposeAllPitches(int increment){
-  for(int i = 0; i<trackData.size(); i++){
-    if(i == activeTrack)
-      setTrackPitch(i,trackData[i].pitch+increment,true);//only the active track makes a noise
+  for(int i = 0; i<sequence.trackData.size(); i++){
+    if(i == sequence.activeTrack)
+      setTrackPitch(i,sequence.trackData[i].pitch+increment,true);//only the active track makes a noise
     else
-      setTrackPitch(i,trackData[i].pitch+increment,false);//quiet bc it'd be crazy
+      setTrackPitch(i,sequence.trackData[i].pitch+increment,false);//quiet bc it'd be crazy
   }
 }
 
 void setTrackPitch(int track, int note, bool loud) {
   if(note>=0 && note<=120){
-    MIDI.noteOff(trackData[track].pitch,0,trackData[track].channel);
-    trackData[track].pitch = note;
+    MIDI.noteOff(sequence.trackData[track].pitch,0,sequence.trackData[track].channel);
+    sequence.trackData[track].pitch = note;
     if(loud){
-      MIDI.noteOn(trackData[track].pitch,63,trackData[track].channel);
-      MIDI.noteOff(trackData[track].pitch,0,trackData[track].channel);
+      MIDI.noteOn(sequence.trackData[track].pitch,63,sequence.trackData[track].channel);
+      MIDI.noteOff(sequence.trackData[track].pitch,0,sequence.trackData[track].channel);
     }
   }
 }
@@ -443,23 +443,23 @@ void setTrackPitch(int track, int note, bool loud) {
 
 //above index is an INCLUSIVE lower bound!
 int getTrackWithPitch_above(uint8_t pitch, uint8_t aboveIndex){
-  for(int i=aboveIndex ; i<trackData.size();i++){
-    if(trackData[i].pitch == pitch)
+  for(int i=aboveIndex ; i<sequence.trackData.size();i++){
+    if(sequence.trackData[i].pitch == pitch)
       return i;
   }
   return 0;
 }
 //returns id of track with a specific pitch, returns -1 if track doesn't exist
 int getTrackWithPitch(int pitch, int channel){
-  for(int i=0;i<trackData.size();i++){
-    if(trackData[i].pitch == pitch && trackData[i].channel == channel)
+  for(int i=0;i<sequence.trackData.size();i++){
+    if(sequence.trackData[i].pitch == pitch && sequence.trackData[i].channel == channel)
       return i;
   }
   return -1;
 }
 int getTrackWithPitch(int pitch){
-  for(int i=0;i<trackData.size();i++){
-    if(trackData[i].pitch == pitch)
+  for(int i=0;i<sequence.trackData.size();i++){
+    if(sequence.trackData[i].pitch == pitch)
       return i;
   }
   return -1;
@@ -474,61 +474,61 @@ int makeTrackWithPitch(int pitch, int channel){
 }
 
 void addTrack(Track newTrack, bool loudly){
-  if(trackData.size()<255){
-    trackData.push_back(newTrack);
+  if(sequence.trackData.size()<255){
+    sequence.trackData.push_back(newTrack);
 
-    //widening lookupData
-    lookupData.resize(trackData.size());
+    //widening sequence.lookupTable
+    sequence.lookupTable.resize(sequence.trackData.size());
     //filling with 0
-    lookupData[trackData.size()-1].resize(seqEnd,0);
+    sequence.lookupTable[sequence.trackData.size()-1].resize(sequence.sequenceLength,0);
 
-    //widening seqData
-    seqData.resize(trackData.size());
-    seqData[trackData.size()-1] = {Note()};
-    activeTrack = trackData.size()-1;
+    //widening sequence.noteData
+    sequence.noteData.resize(sequence.trackData.size());
+    sequence.noteData[sequence.trackData.size()-1] = {Note()};
+    sequence.activeTrack = sequence.trackData.size()-1;
 
     if(loudly){
-      MIDI.noteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
-      MIDI.noteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOn(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
+      MIDI.noteOff(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
     }
   }
 }
 void addTrack_noMove(Track newTrack, bool loudly){
-  if(trackData.size()<255){
-    trackData.push_back(newTrack);
+  if(sequence.trackData.size()<255){
+    sequence.trackData.push_back(newTrack);
 
-    //widening lookupData
-    lookupData.resize(trackData.size());
+    //widening sequence.lookupTable
+    sequence.lookupTable.resize(sequence.trackData.size());
     //filling with 0
-    lookupData[trackData.size()-1].resize(seqEnd,0);
+    sequence.lookupTable[sequence.trackData.size()-1].resize(sequence.sequenceLength,0);
 
-    //widening seqData
-    seqData.resize(trackData.size());
-    seqData[trackData.size()-1] = {Note()};
+    //widening sequence.noteData
+    sequence.noteData.resize(sequence.trackData.size());
+    sequence.noteData[sequence.trackData.size()-1] = {Note()};
 
     if(loudly){
-      MIDI.noteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
-      MIDI.noteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOn(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
+      MIDI.noteOff(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
     }
   }
 }
 
-//this function should add a new row to the seqData, and lookupData initialized with 64 zeroes
+//this function should add a new row to the sequence.noteData, and sequence.lookupTable initialized with 64 zeroes
 void addTrack(uint8_t pitch, uint8_t channel, bool latch, uint8_t muteGroup, bool primed, bool loudly){
-  if(trackData.size()<255){
+  if(sequence.trackData.size()<255){
     Track newTrack(pitch, channel);
     newTrack.isLatched = latch;
     newTrack.muteGroup = muteGroup;
     newTrack.isPrimed = primed;
-    trackData.push_back(newTrack);//adding track to vector data
-    seqData.resize(trackData.size()); //adding row to seqData
-    lookupData.resize(trackData.size()); //adding a row to the lookupData vector, to store lookupID's for notes in this track
-    lookupData[trackData.size()-1].resize(seqEnd, 0);//adding all the columns the track holds to the lookupData
-    seqData[trackData.size()-1] = {Note()};//setting the note data for the new track to the default blank data
-    activeTrack = trackData.size()-1;
+    sequence.trackData.push_back(newTrack);//adding track to vector data
+    sequence.noteData.resize(sequence.trackData.size()); //adding row to sequence.noteData
+    sequence.lookupTable.resize(sequence.trackData.size()); //adding a row to the sequence.lookupTable vector, to store lookupID's for notes in this track
+    sequence.lookupTable[sequence.trackData.size()-1].resize(sequence.sequenceLength, 0);//adding all the columns the track holds to the sequence.lookupTable
+    sequence.noteData[sequence.trackData.size()-1] = {Note()};//setting the note data for the new track to the default blank data
+    sequence.activeTrack = sequence.trackData.size()-1;
     if(loudly){
-      MIDI.noteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
-      MIDI.noteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOn(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
+      MIDI.noteOff(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
     }
   }
 }
@@ -536,27 +536,27 @@ void addTrack(unsigned char pitch, unsigned char channel, bool loudly) {
   addTrack(pitch, channel, false, 0, true, loudly);
 }
 void addTrack(unsigned char pitch) {
-  addTrack(pitch, defaultChannel, false);
+  addTrack(pitch, sequence.defaultChannel, false);
 }
 void addTrack(unsigned char pitch, bool loudly) {
-  addTrack(pitch, defaultChannel, loudly);
+  addTrack(pitch, sequence.defaultChannel, loudly);
 }
 
 //returns the index of the new track
 int16_t addTrack_return(unsigned short int pitch, unsigned short int channel, bool loudly) {
-  if(trackData.size()<256){
+  if(sequence.trackData.size()<256){
     Track newTrack(pitch, channel);
-    trackData.push_back(newTrack);
-    seqData.resize(trackData.size());
-    lookupData.resize(trackData.size());
-    lookupData[trackData.size()-1].resize(seqEnd, 0);
-    seqData[trackData.size()-1] = {Note()};
-    activeTrack = trackData.size()-1;
+    sequence.trackData.push_back(newTrack);
+    sequence.noteData.resize(sequence.trackData.size());
+    sequence.lookupTable.resize(sequence.trackData.size());
+    sequence.lookupTable[sequence.trackData.size()-1].resize(sequence.sequenceLength, 0);
+    sequence.noteData[sequence.trackData.size()-1] = {Note()};
+    sequence.activeTrack = sequence.trackData.size()-1;
     if(loudly){
-      MIDI.noteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
-      MIDI.noteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOn(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
+      MIDI.noteOff(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
     }
-    return (activeTrack);
+    return (sequence.activeTrack);
   }
   else{
     return -1;
@@ -564,19 +564,19 @@ int16_t addTrack_return(unsigned short int pitch, unsigned short int channel, bo
 }
 
 int16_t insertTrack_return(unsigned short int pitch, unsigned short int channel, bool loudly, uint8_t loc){
-  if(trackData.size()<256){
+  if(sequence.trackData.size()<256){
     Track newTrack(pitch, channel);
-    trackData.insert(trackData.begin()+loc,newTrack);
-    seqData.resize(trackData.size());
-    lookupData.resize(trackData.size());
-    lookupData[trackData.size()-1].resize(seqEnd, 0);
-    seqData[trackData.size()-1] = {Note()};
-    activeTrack = trackData.size()-1;
+    sequence.trackData.insert(sequence.trackData.begin()+loc,newTrack);
+    sequence.noteData.resize(sequence.trackData.size());
+    sequence.lookupTable.resize(sequence.trackData.size());
+    sequence.lookupTable[sequence.trackData.size()-1].resize(sequence.sequenceLength, 0);
+    sequence.noteData[sequence.trackData.size()-1] = {Note()};
+    sequence.activeTrack = sequence.trackData.size()-1;
     if(loudly){
-      MIDI.noteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
-      MIDI.noteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOn(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
+      MIDI.noteOff(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
     }
-    return (activeTrack);
+    return (sequence.activeTrack);
   }
   else{
     return -1;
@@ -584,28 +584,28 @@ int16_t insertTrack_return(unsigned short int pitch, unsigned short int channel,
 }
 
 void dupeTrack(unsigned short int track){
-  if(trackData.size()<256){
-    Track newTrack = trackData[track];
-    trackData.push_back(newTrack);
-    lookupData.push_back(lookupData[track]);
-    seqData.push_back(seqData[track]);
+  if(sequence.trackData.size()<256){
+    Track newTrack = sequence.trackData[track];
+    sequence.trackData.push_back(newTrack);
+    sequence.lookupTable.push_back(sequence.lookupTable[track]);
+    sequence.noteData.push_back(sequence.noteData[track]);
   }
 }
 
 void eraseTrack(int track) {
-  seqData[track].resize(1);
-  for (int i = 0; i < seqEnd; i++) {
+  sequence.noteData[track].resize(1);
+  for (int i = 0; i < sequence.sequenceLength; i++) {
     clearSelection(track, i);
-    lookupData[track][i] = 0;
+    sequence.lookupTable[track][i] = 0;
   }
 }
 //erases notes, but doesn't del track
 void eraseTrack() {
-  eraseTrack(activeTrack);
+  eraseTrack(sequence.activeTrack);
 }
 
 void setTrackToNearestPitch(vector<uint8_t>pitches,int track,bool allowDuplicates){
-  int oldPitch = trackData[track].pitch;
+  int oldPitch = sequence.trackData[track].pitch;
   int pitchDistance = 127;
   int closestPitch;
   int octaveOffset = 12*getOctave(oldPitch);
@@ -622,8 +622,8 @@ void setTrackToNearestPitch(vector<uint8_t>pitches,int track,bool allowDuplicate
   //if no duplicates are allowed, check to see if there are any other tracks
   //with this pitch
   if(!allowDuplicates){
-    for(uint8_t t = 0; t<trackData.size(); t++){
-      if(t!=track && trackData[t].pitch == pitches[closestPitch]+octaveOffset){
+    for(uint8_t t = 0; t<sequence.trackData.size(); t++){
+      if(t!=track && sequence.trackData[t].pitch == pitches[closestPitch]+octaveOffset){
         return;
       }
     }
@@ -633,7 +633,7 @@ void setTrackToNearestPitch(vector<uint8_t>pitches,int track,bool allowDuplicate
 
 //this one won't double up on a pitch
 void setTrackToNearestUniquePitch(vector<uint8_t>pitches,int track){
-  int oldPitch = trackData[track].pitch;
+  int oldPitch = sequence.trackData[track].pitch;
   int pitchDistance = 127;
   int closestPitch;
   int octaveOffset = 12*getOctave(oldPitch);
@@ -671,14 +671,14 @@ void setTrackToNearestUniquePitch(vector<uint8_t>pitches,int track){
 }
 
 void deleteDuplicateEmptyTracks(){
-  for(uint8_t t = 0; t<trackData.size(); t++){
-    for(uint8_t t2 = 0; t2<trackData.size(); t2++){
+  for(uint8_t t = 0; t<sequence.trackData.size(); t++){
+    for(uint8_t t2 = 0; t2<sequence.trackData.size(); t2++){
       if(t2 == t)
         continue;
       //if a track has the same pitch, channel, and is empty, del it
-      if(trackData[t].pitch == trackData[t2].pitch &&
-         trackData[t].channel == trackData[t2].channel &&
-         seqData[t2].size() == 1){
+      if(sequence.trackData[t].pitch == sequence.trackData[t2].pitch &&
+         sequence.trackData[t].channel == sequence.trackData[t2].channel &&
+         sequence.noteData[t2].size() == 1){
         deleteTrack(t2);
       }
     }

@@ -74,8 +74,8 @@ uint32_t getByteCount_standAlone(String filename){
 //flash mem
 void flashTest(){
   char totalNotes;
-  for(int i = 0; i<trackData.size(); i++){
-    totalNotes += seqData[i].size()-1;
+  for(int i = 0; i<sequence.trackData.size(); i++){
+    totalNotes += sequence.noteData[i].size()-1;
   }
 
   LittleFS.begin();
@@ -120,25 +120,25 @@ void writeSeqFile(String filename){
     switch(data){
       case SEQ_DATA:{
         uint8_t start[2] = {0,0};
-        uint8_t end[2] = {uint8_t(seqEnd>>8),uint8_t(seqEnd)};
+        uint8_t end[2] = {uint8_t(sequence.sequenceLength>>8),uint8_t(sequence.sequenceLength)};
         seqFile.write(start,2);
         seqFile.write(end,2);
         break;}
       case TRACK_AND_NOTE_DATA:{
-        uint8_t t[1] = {uint8_t(trackData.size())};
+        uint8_t t[1] = {uint8_t(sequence.trackData.size())};
         seqFile.write(t,1);
-        for(int track = 0; track<trackData.size(); track++){
+        for(int track = 0; track<sequence.trackData.size(); track++){
           //(noteCount1)(noteCount2),(pitch),(channel),(latched),(muteGroup),(primed)
-          uint8_t trackDat[7] = {uint8_t((seqData[track].size()-1)>>8),uint8_t(seqData[track].size()-1),uint8_t(trackData[track].pitch),uint8_t(trackData[track].channel),uint8_t(trackData[track].isLatched),uint8_t(trackData[track].muteGroup),uint8_t(trackData[track].isPrimed)};
+          uint8_t trackDat[7] = {uint8_t((sequence.noteData[track].size()-1)>>8),uint8_t(sequence.noteData[track].size()-1),uint8_t(sequence.trackData[track].pitch),uint8_t(sequence.trackData[track].channel),uint8_t(sequence.trackData[track].isLatched),uint8_t(sequence.trackData[track].muteGroup),uint8_t(sequence.trackData[track].isPrimed)};
           seqFile.write(trackDat,7);
         }
-        for(int track = 0; track<trackData.size(); track++){
-          for(int note = 1; note < seqData[track].size(); note++){
+        for(int track = 0; track<sequence.trackData.size(); track++){
+          for(int note = 1; note < sequence.noteData[track].size(); note++){
             //notes are stored start, end,
             //and then vel, chance, selected, muted
             //                              first 8 bits                          last 8 bits
-            uint8_t notePosData[4] = {uint8_t(seqData[track][note].startPos>>8),uint8_t(seqData[track][note].startPos),uint8_t(seqData[track][note].endPos>>8),uint8_t(seqData[track][note].endPos)};
-            uint8_t noteData[4] = {uint8_t(seqData[track][note].velocity), uint8_t(seqData[track][note].chance), uint8_t(seqData[track][note].isSelected), uint8_t(seqData[track][note].muted)};
+            uint8_t notePosData[4] = {uint8_t(sequence.noteData[track][note].startPos>>8),uint8_t(sequence.noteData[track][note].startPos),uint8_t(sequence.noteData[track][note].endPos>>8),uint8_t(sequence.noteData[track][note].endPos)};
+            uint8_t noteData[4] = {uint8_t(sequence.noteData[track][note].velocity), uint8_t(sequence.noteData[track][note].chance), uint8_t(sequence.noteData[track][note].isSelected), uint8_t(sequence.noteData[track][note].muted)};
             seqFile.write(notePosData,4);
             seqFile.write(noteData,4);
           }
@@ -163,14 +163,14 @@ void writeSeqFile(String filename){
         break;}
       case LOOP_DATA:{
         //writing loop data
-        uint8_t numberOfLoops[1] = {uint8_t(loopData.size())}; 
+        uint8_t numberOfLoops[1] = {uint8_t(sequence.loopData.size())}; 
         seqFile.write(numberOfLoops,1);
         //loops are stored as
         //(number of loops),(start1),(start2),(end1),(end2),(iterations),(style)
-        for(uint8_t loop = 0; loop<loopData.size(); loop++){
-          uint8_t start[2] = {uint8_t(loopData[loop].start>>8),uint8_t(loopData[loop].start)};
-          uint8_t end[2] = {uint8_t(loopData[loop].end>>8),uint8_t(loopData[loop].end)};
-          uint8_t loopDat[2] = {uint8_t(loopData[loop].reps),uint8_t(loopData[loop].type)};
+        for(uint8_t loop = 0; loop<sequence.loopData.size(); loop++){
+          uint8_t start[2] = {uint8_t(sequence.loopData[loop].start>>8),uint8_t(sequence.loopData[loop].start)};
+          uint8_t end[2] = {uint8_t(sequence.loopData[loop].end>>8),uint8_t(sequence.loopData[loop].end)};
+          uint8_t loopDat[2] = {uint8_t(sequence.loopData[loop].reps),uint8_t(sequence.loopData[loop].type)};
           seqFile.write(start,2);
           seqFile.write(end,2);
           seqFile.write(loopDat,2);
@@ -229,28 +229,28 @@ void writeCurrentSeqToSerial(bool waitForResponse){
     switch(data){
       case SEQ_DATA:{
         uint8_t start[2] = {0,0};
-        uint8_t end[2] = {uint8_t(seqEnd>>8),uint8_t(seqEnd)};
+        uint8_t end[2] = {uint8_t(sequence.sequenceLength>>8),uint8_t(sequence.sequenceLength)};
         writeBytesToSerial(start,2);
         writeBytesToSerial(end,2);
         break;}
       case TRACK_AND_NOTE_DATA:{
         //writing track info
         //(number of tracks)
-        uint8_t t[1] = {uint8_t(trackData.size())};
+        uint8_t t[1] = {uint8_t(sequence.trackData.size())};
         writeBytesToSerial(t,1);
-        for(int track = 0; track<trackData.size(); track++){
+        for(int track = 0; track<sequence.trackData.size(); track++){
           //(noteCount1)(noteCount2),(pitch),(channel),(latched),(muteGroup),(primed)
-          uint8_t trackDat[7] = {uint8_t((seqData[track].size()-1)>>8),uint8_t(seqData[track].size()-1),uint8_t(trackData[track].pitch),uint8_t(trackData[track].channel),uint8_t(trackData[track].isLatched),uint8_t(trackData[track].muteGroup),uint8_t(trackData[track].isPrimed)};
+          uint8_t trackDat[7] = {uint8_t((sequence.noteData[track].size()-1)>>8),uint8_t(sequence.noteData[track].size()-1),uint8_t(sequence.trackData[track].pitch),uint8_t(sequence.trackData[track].channel),uint8_t(sequence.trackData[track].isLatched),uint8_t(sequence.trackData[track].muteGroup),uint8_t(sequence.trackData[track].isPrimed)};
           writeBytesToSerial(trackDat,7);
         }
         //writing note info
-        for(int track = 0; track<trackData.size(); track++){
-          for(int note = 1; note < seqData[track].size(); note++){
+        for(int track = 0; track<sequence.trackData.size(); track++){
+          for(int note = 1; note < sequence.noteData[track].size(); note++){
             //notes are stored start, end,
             //and then vel, chance, selected, muted
             //                              first 8 bits                          last 8 bites
-            uint8_t notePosData[4] = {uint8_t(seqData[track][note].startPos>>8),uint8_t(seqData[track][note].startPos),uint8_t(seqData[track][note].endPos>>8),uint8_t(seqData[track][note].endPos)};
-            uint8_t noteData[4] = {uint8_t(seqData[track][note].velocity), uint8_t(seqData[track][note].chance), uint8_t(seqData[track][note].isSelected), uint8_t(seqData[track][note].muted)};
+            uint8_t notePosData[4] = {uint8_t(sequence.noteData[track][note].startPos>>8),uint8_t(sequence.noteData[track][note].startPos),uint8_t(sequence.noteData[track][note].endPos>>8),uint8_t(sequence.noteData[track][note].endPos)};
+            uint8_t noteData[4] = {uint8_t(sequence.noteData[track][note].velocity), uint8_t(sequence.noteData[track][note].chance), uint8_t(sequence.noteData[track][note].isSelected), uint8_t(sequence.noteData[track][note].muted)};
             writeBytesToSerial(notePosData,4);
             writeBytesToSerial(noteData,4);
           }
@@ -280,15 +280,15 @@ void writeCurrentSeqToSerial(bool waitForResponse){
         break;}
       case LOOP_DATA:{
         //writing loop data
-        uint8_t numberOfLoops[1] = {uint8_t(loopData.size())}; 
+        uint8_t numberOfLoops[1] = {uint8_t(sequence.loopData.size())}; 
         writeBytesToSerial(numberOfLoops,1);
-        if(loopData.size()>0){
+        if(sequence.loopData.size()>0){
           //loops are stored as
           //(number of loops),(start1),(start2),(end1),(end2),(iterations),(style)
-          for(uint8_t loop = 0; loop<loopData.size(); loop++){
-            uint8_t start[2] = {uint8_t(loopData[loop].start>>8),uint8_t(loopData[loop].start)};
-            uint8_t end[2] = {uint8_t(loopData[loop].end>>8),uint8_t(loopData[loop].end)};
-            uint8_t loopDat[2] = {uint8_t(loopData[loop].reps),uint8_t(loopData[loop].type)};
+          for(uint8_t loop = 0; loop<sequence.loopData.size(); loop++){
+            uint8_t start[2] = {uint8_t(sequence.loopData[loop].start>>8),uint8_t(sequence.loopData[loop].start)};
+            uint8_t end[2] = {uint8_t(sequence.loopData[loop].end>>8),uint8_t(sequence.loopData[loop].end)};
+            uint8_t loopDat[2] = {uint8_t(sequence.loopData[loop].reps),uint8_t(sequence.loopData[loop].type)};
             writeBytesToSerial(start,2);
             writeBytesToSerial(end,2);
             writeBytesToSerial(loopDat,2);
@@ -508,7 +508,7 @@ void loadSeqFile(String filename){
   File seqFile = LittleFS.open(path,"r");
   if(seqFile){
     //replacing sequence with empty data
-    newSeq();
+    sequence.erase();
     for(FileFormatCode data:sequenceFileHeader){
       switch(data){
         case SEQ_DATA:{
@@ -518,7 +518,7 @@ void loadSeqFile(String filename){
           seqFile.read(start,2);
           seqFile.read(end,2);
           // seqStart = (uint16_t(start[0])<<8)+uint16_t(start[1]);
-          seqEnd = (uint16_t(end[0])<<8)+uint16_t(end[1]);
+          sequence.sequenceLength = (uint16_t(end[0])<<8)+uint16_t(end[1]);
           break;}
         case TRACK_AND_NOTE_DATA:{
           //loading tracks
@@ -542,7 +542,7 @@ void loadSeqFile(String filename){
           }
 
           //loading notes
-          for(int track = 0; track<trackData.size(); track++){
+          for(int track = 0; track<sequence.trackData.size(); track++){
             for(int note = 0; note<noteCount[track]; note++){
               //notes are stored start, end,
               //and then vel, chance, selected, muted
@@ -551,7 +551,7 @@ void loadSeqFile(String filename){
               seqFile.read(notePosData,4);
               seqFile.read(noteData,4);
               uint16_t notePos[2] = {uint16_t((notePosData[0]<<8)+notePosData[1]),uint16_t((notePosData[2]<<8)+notePosData[3])};
-              loadNote(note+1, track, notePos[0], noteData[0], noteData[3], noteData[1], notePos[1], noteData[2]);
+              sequence.loadNote(note+1, track, notePos[0], noteData[0], noteData[3], noteData[1], notePos[1], noteData[2]);
             }
           }
           break;}
@@ -602,7 +602,7 @@ void loadSeqFile(String filename){
             loopDat.type = loopInfo[1];
             newLoopData.push_back(loopDat);
           }
-          loopData.swap(newLoopData);
+          sequence.loopData.swap(newLoopData);
           break;}
         case CLOCK_DATA:{
           //loading clock data

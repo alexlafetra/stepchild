@@ -73,7 +73,7 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
   bool showingScale = false;
   while (!done) {
     animOffset++;
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     if (utils.itsbeen(100)) {
       if (controls.joystickX == -1 && selected < 11) {

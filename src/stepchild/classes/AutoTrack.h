@@ -50,7 +50,7 @@ class Autotrack{
 
 Autotrack::Autotrack(){
   data.push_back(63);
-  for(uint16_t i = 1; i<seqEnd; i++){
+  for(uint16_t i = 1; i<sequence.sequenceLength; i++){
     data.push_back(255);
   }
   control = 1;
@@ -65,7 +65,7 @@ Autotrack::Autotrack(){
 
 Autotrack::Autotrack(uint8_t t){
   data.push_back(63);
-  for(uint16_t i = 1; i<seqEnd; i++){
+  for(uint16_t i = 1; i<sequence.sequenceLength; i++){
     data.push_back(255);
   }
   control = 1;
@@ -113,7 +113,7 @@ void triggerAutotracks(uint8_t trackID, bool state){
         break;
       case channel:
         //if it's a targeted autotrack
-        if(autotrackData[i].triggerTarget == trackData[trackID].channel){
+        if(autotrackData[i].triggerTarget == sequence.trackData[trackID].channel){
           //triggering it on
           if(state){
             autotrackData[i].isActive = true;
@@ -139,7 +139,7 @@ void Autotrack::setTrigger(TriggerSource trigSource, uint8_t trigTarget){
       break;
     case track:
       isActive = false;
-      if(trigTarget<trackData.size())
+      if(trigTarget<sequence.trackData.size())
         triggerTarget = trigTarget;
       else
         triggerTarget = 0;

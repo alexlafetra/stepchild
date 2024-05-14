@@ -13,22 +13,38 @@ void setup() {
   //doing the same to the screen twoWire connection
   Wire.setSDA(I2C_SDA);
   Wire.setSCL(I2C_SCL);
+  #endif
   
+  MIDI.start();
+
+  #ifndef HEADLESS
   //starting serial monitor output @ 9600baud
   Serial.begin(9600);
 
   //start the display and throw an error if it doesn't work
   //(probably not very helpful)
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR)) {
-    Serial.println("Display won't turn on!");
-    Serial.flush();
   }
+  //Set the display rotation (which is ~technically~ upside down)
+  display.setRotation(UPRIGHT);
+  //turn text wrapping off, so our menus look ok
+  display.setTextWrap(false);
 
   // these two string must be exactly 32 chars long
   //                                   01234567890123456789012345678912
   USBDevice.setManufacturerDescriptor("Unsound Systems                 ");
   USBDevice.setProductDescriptor     ("Stepchild V1.0                  ");
 
+  #endif
+
+
+  // CV.init()
+
+  //setting up the pinouts
+  controls.init();
+  lowerBoard.initialize();
+
+  #ifndef HEADLESS
   //wait for tinyUSB to connect, if the USB port is connected (not sure if this is necessary, need to test)
   if(tud_connected()){
     while (!TinyUSBDevice.mounted()) {
@@ -37,22 +53,13 @@ void setup() {
   }
   #endif
 
-  MIDI.start();
-  //Set the display rotation (which is ~technically~ upside down)
-  display.setRotation(UPRIGHT);
-  //turn text wrapping off, so our menus look ok
-  display.setTextWrap(false);
-
-  // CV.init()
-
-  //setting up the pinouts
-  controls.init();
-  lowerBoard.initialize();
-
   //seeding random number generator
   srand(1);
+  //load settings
+  loadSettings();
   //setting up sequence w/ 16 tracks, 768 steps
-  initSeq(16,768);
+  sequence.init(16,768);
+
   //turn off LEDs (since they might be in some random configuration)
   turnOffLEDs();
   //set the control knobs up w/ default values
@@ -77,7 +84,7 @@ void setup1() {
 
 void loop() {
   controls.readJoystick();
-  readButtons();
+  controls.readButtons();
   mainSequencerButtons();
   stepButtons();
   mainSequencerEncoders();
@@ -100,7 +107,7 @@ void loop1(){
   else{
     defaultLoop();
   }
-  if(isArping){
+  if(arp.isActive){
     arpLoop();
   }
   ledPulse(16);

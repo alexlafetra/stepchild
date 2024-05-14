@@ -9,7 +9,7 @@ class SelectionBox{
   }
 
   void render(){
-    coords.end = Coordinate(cursorPos,activeTrack);
+    coords.end = Coordinate(sequence.cursorPos,sequence.activeTrack);
 
     unsigned short int startX;
     unsigned short int startY;
@@ -38,17 +38,17 @@ class SelectionBox{
       Y2 = this->coords.end.y;
     }
 
-    startX = trackDisplay+(X1-viewStart)*scale;
-    len = (X2-X1)*scale;
+    startX = trackDisplay+(X1-sequence.viewStart)*sequence.viewScale;
+    len = (X2-X1)*sequence.viewScale;
 
     //if box starts before view
-    if(X1<viewStart){
+    if(X1<sequence.viewStart){
       startX = trackDisplay;//box is drawn from beggining, to this->coords.end.x
-      len = (X2-viewStart)*scale;
+      len = (X2-sequence.viewStart)*sequence.viewScale;
     }
     //if box ends past view
-    if(X2>viewEnd){
-      len = (viewEnd-X1)*scale;
+    if(X2>sequence.viewEnd){
+      len = (sequence.viewEnd-X1)*sequence.viewScale;
     }
 
     //same, but for tracks
@@ -76,11 +76,11 @@ SelectionBox selBox;
 //returns a 2D vector containing a row for each track and a copy of each note that's currently selected on each track
 vector<vector<Note>> grabSelectedNotes(){
     vector<vector<Note>> list;
-    for(uint8_t track = 0; track<trackData.size(); track++){
+    for(uint8_t track = 0; track<sequence.trackData.size(); track++){
         vector<Note> selectedNotesOnTrack;
-        for(uint16_t note = 1; note<seqData[track].size(); note++){
-            if(seqData[track][note].isSelected){
-                selectedNotesOnTrack.push_back(seqData[track][note]);
+        for(uint16_t note = 1; note<sequence.noteData[track].size(); note++){
+            if(sequence.noteData[track][note].isSelected){
+                selectedNotesOnTrack.push_back(sequence.noteData[track][note]);
             }
         }
         list.push_back(selectedNotesOnTrack);
@@ -89,12 +89,12 @@ vector<vector<Note>> grabSelectedNotes(){
 }
 vector<vector<Note>> grabAndDeleteSelectedNotes(){
     vector<vector<Note>> list;
-    for(uint8_t track = 0; track<trackData.size(); track++){
+    for(uint8_t track = 0; track<sequence.trackData.size(); track++){
         vector<Note> selectedNotesOnTrack;
-        for(uint16_t note = 1; note<seqData[track].size(); note++){
-          if(seqData[track][note].isSelected){
-            selectedNotesOnTrack.push_back(seqData[track][note]);
-            deleteNote_byID(track,note);
+        for(uint16_t note = 1; note<sequence.noteData[track].size(); note++){
+          if(sequence.noteData[track][note].isSelected){
+            selectedNotesOnTrack.push_back(sequence.noteData[track][note]);
+            sequence.deleteNote_byID(track,note);
           }
         }
         list.push_back(selectedNotesOnTrack);
@@ -104,23 +104,23 @@ vector<vector<Note>> grabAndDeleteSelectedNotes(){
 
 vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
   vector<vector<uint8_t>> selectedNotes;
-  selectedNotes.resize(trackData.size());
+  selectedNotes.resize(sequence.trackData.size());
   menuIsActive = false;
   bool movingBetweenNotes = false;
   while(true){
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     //selectionBox
     //when controls.SELECT()  is pressed and stick is moved, and there's no selection box
     if(controls.SELECT()  && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
       selBox.begun = true;
-      selBox.coords.start.x = cursorPos;
-      selBox.coords.start.y = activeTrack;
+      selBox.coords.start.x = sequence.cursorPos;
+      selBox.coords.start.y = sequence.activeTrack;
     }
     //if controls.SELECT()  is released, and there's a selection box
     if(!controls.SELECT()  && selBox.begun){
-      selBox.coords.end.x = cursorPos;
-      selBox.coords.end.y = activeTrack;
+      selBox.coords.end.x = sequence.cursorPos;
+      selBox.coords.end.y = sequence.activeTrack;
       if(selBox.coords.start.x>selBox.coords.end.x){
         unsigned short int x1_old = selBox.coords.start.x;
         selBox.coords.start.x = selBox.coords.end.x;
@@ -133,11 +133,11 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
       }
       for(int track = selBox.coords.start.y; track<=selBox.coords.end.y; track++){
         for(int time = selBox.coords.start.x; time<=selBox.coords.end.x; time++){
-          if(lookupData[track][time] != 0){
+          if(sequence.lookupTable[track][time] != 0){
             //if the note isn't in the vector yet, add it
-            if(!isInVector(lookupData[track][time],selectedNotes[track]))
-              selectedNotes[track].push_back(lookupData[track][time]);
-            time = seqData[track][lookupData[track][time]].endPos;
+            if(!isInVector(sequence.lookupTable[track][time],selectedNotes[track]))
+              selectedNotes[track].push_back(sequence.lookupTable[track][time]);
+            time = sequence.noteData[track][sequence.lookupTable[track][time]].endPos;
           }
         }
       }
@@ -146,11 +146,11 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
     if(utils.itsbeen(100)){
       if(!movingBetweenNotes){
         if(controls.joystickY == 1){
-          setActiveTrack(activeTrack+1,false);
+          setActiveTrack(sequence.activeTrack+1,false);
           lastTime = millis();
         }
         if(controls.joystickY == -1){
-          setActiveTrack(activeTrack-1,false);
+          setActiveTrack(sequence.activeTrack-1,false);
           lastTime = millis();
         }
       }
@@ -159,22 +159,22 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
       if(controls.joystickX != 0){
         if(!movingBetweenNotes){
           if (controls.joystickX == 1 && !controls.SHIFT()) {
-            if(cursorPos%subDivInt){
-              moveCursor(-cursorPos%subDivInt);
+            if(sequence.cursorPos%sequence.subDivision){
+              moveCursor(-sequence.cursorPos%sequence.subDivision);
               lastTime = millis();
             }
             else{
-              moveCursor(-subDivInt);
+              moveCursor(-sequence.subDivision);
               lastTime = millis();
             }
           }
           if (controls.joystickX == -1 && !controls.SHIFT()) {
-            if(cursorPos%subDivInt){
-              moveCursor(subDivInt-cursorPos%subDivInt);
+            if(sequence.cursorPos%sequence.subDivision){
+              moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
               lastTime = millis();
             }
             else{
-              moveCursor(subDivInt);
+              moveCursor(sequence.subDivision);
               lastTime = millis();
             }
           }
@@ -193,30 +193,30 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
     }
     if(utils.itsbeen(200)){
       //select
-      if(controls.SELECT()  && lookupData[activeTrack][cursorPos] != 0 && !selBox.begun){
+      if(controls.SELECT()  && sequence.IDAtCursor() != 0 && !selBox.begun){
         unsigned short int id;
-        id = lookupData[activeTrack][cursorPos];
+        id = sequence.IDAtCursor();
         if(controls.SHIFT()){
           //del old vec
           vector<vector<uint8_t>> temp;
-          temp.resize(trackData.size());
+          temp.resize(sequence.trackData.size());
           selectedNotes = temp;
-          selectedNotes[activeTrack].push_back(lookupData[activeTrack][cursorPos]);
+          selectedNotes[sequence.activeTrack].push_back(sequence.IDAtCursor());
         }
         else{
           //if the note isn't in the vector yet, add it
-          if(!isInVector(lookupData[activeTrack][cursorPos],selectedNotes[activeTrack]))
-            selectedNotes[activeTrack].push_back(lookupData[activeTrack][cursorPos]);
+          if(!isInVector(sequence.IDAtCursor(),selectedNotes[sequence.activeTrack]))
+            selectedNotes[sequence.activeTrack].push_back(sequence.IDAtCursor());
           //if it is, remove it
           else{
             vector<uint8_t> temp;
-            for(int i = 0; i<selectedNotes[activeTrack].size(); i++){
+            for(int i = 0; i<selectedNotes[sequence.activeTrack].size(); i++){
               //push back all the notes that aren't the one the cursor is on
-              if(selectedNotes[activeTrack][i] != lookupData[activeTrack][cursorPos]){
-                temp.push_back(selectedNotes[activeTrack][i]);
+              if(selectedNotes[sequence.activeTrack][i] != sequence.IDAtCursor()){
+                temp.push_back(selectedNotes[sequence.activeTrack][i]);
               }
             }
-            selectedNotes[activeTrack] = temp;
+            selectedNotes[sequence.activeTrack] = temp;
           }
         }
         lastTime = millis();
@@ -251,7 +251,7 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
     //draw a note bracket on any note that's been added to the selection
     for(int track = 0; track<selectedNotes.size(); track++){
       for(int note = 0; note<selectedNotes[track].size(); note++){
-        graphics.drawNoteBracket(seqData[track][selectedNotes[track][note]],track);
+        graphics.drawNoteBracket(sequence.noteData[track][selectedNotes[track][note]],track);
       }
     }
     display.display();
@@ -265,17 +265,17 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
 bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)){
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     defaultEncoderControls();
     if(controls.SELECT()  && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
       selBox.begun = true;
-      selBox.coords.start.x = cursorPos;
-      selBox.coords.start.y = activeTrack;
+      selBox.coords.start.x = sequence.cursorPos;
+      selBox.coords.start.y = sequence.activeTrack;
     }
     //if controls.SELECT()  is released, and there's a selection box
     if(!controls.SELECT()  && selBox.begun){
-      selBox.coords.end.x = cursorPos;
-      selBox.coords.end.y = activeTrack;
+      selBox.coords.end.x = sequence.cursorPos;
+      selBox.coords.end.y = sequence.activeTrack;
       selBox.begun = false;
       selectBox();
     }
@@ -292,10 +292,10 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
       if(controls.SELECT() ){
         if(controls.SHIFT()){
           clearSelection();
-          toggleSelectNote(activeTrack,getIDAtCursor(),false);
+          toggleSelectNote(sequence.activeTrack,sequence.IDAtCursor(),false);
         }
         else{
-          toggleSelectNote(activeTrack,getIDAtCursor(),true);
+          toggleSelectNote(sequence.activeTrack,sequence.IDAtCursor(),true);
         }
         lastTime = millis();
       }
@@ -303,37 +303,37 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
     if (utils.itsbeen(100)) {
       if (controls.joystickX == 1 && !controls.SHIFT()) {
         //if cursor isn't on a measure marker, move it to the nearest one
-        if(cursorPos%subDivInt){
-          moveCursor(-cursorPos%subDivInt);
+        if(sequence.cursorPos%sequence.subDivision){
+          moveCursor(-sequence.cursorPos%sequence.subDivision);
           lastTime = millis();
         }
         else{
-          moveCursor(-subDivInt);
+          moveCursor(-sequence.subDivision);
           lastTime = millis();
         }
       }
       if (controls.joystickX == -1 && !controls.SHIFT()) {
-        if(cursorPos%subDivInt){
-          moveCursor(subDivInt-cursorPos%subDivInt);
+        if(sequence.cursorPos%sequence.subDivision){
+          moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
           lastTime = millis();
         }
         else{
-          moveCursor(subDivInt);
+          moveCursor(sequence.subDivision);
           lastTime = millis();
         }
       }
       if (controls.joystickY == 1) {
         if(recording)
-          setActiveTrack(activeTrack + 1, false);
+          setActiveTrack(sequence.activeTrack + 1, false);
         else
-          setActiveTrack(activeTrack + 1, false);
+          setActiveTrack(sequence.activeTrack + 1, false);
         lastTime = millis();
       }
       if (controls.joystickY == -1) {
         if(recording)
-          setActiveTrack(activeTrack - 1, false);
+          setActiveTrack(sequence.activeTrack - 1, false);
         else
-          setActiveTrack(activeTrack - 1, false);
+          setActiveTrack(sequence.activeTrack - 1, false);
         lastTime = millis();
       }
     }
@@ -348,12 +348,12 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
       }
     }
     display.clearDisplay();
-    drawSeq(true, false, true, false, false, false, viewStart, viewEnd);
-    if(!selectionCount){
+    drawSeq(true, false, true, false, false, false, sequence.viewStart, sequence.viewEnd);
+    if(!sequence.selectionCount){
       printSmall(trackDisplay,0,"select notes to "+text,1);
     }
     else{
-      printSmall(trackDisplay,0,"[n] to "+text+" "+stringify(selectionCount)+(selectionCount == 1?" note":" notes"),1);
+      printSmall(trackDisplay,0,"[n] to "+text+" "+stringify(sequence.selectionCount)+(sequence.selectionCount == 1?" note":" notes"),1);
     }
     iconFunction(7,1,14,true);
     display.display();
@@ -363,11 +363,11 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
 vector<uint16_t> getSelectedNotesBoundingBox(){
   //stored as xStart,yStart,xEnd,yEnd
   //(initially store it as dramatic as possible)
-  vector<uint16_t> bounds = {seqEnd,(uint16_t)trackData.size(),0,0};
+  vector<uint16_t> bounds = {sequence.sequenceLength,(uint16_t)sequence.trackData.size(),0,0};
   uint16_t checkedNotes = 0;
-  for(uint8_t track = 0; track<seqData.size(); track++){
-    for(uint16_t note = 1; note<seqData[track].size(); note++){
-      if(seqData[track][note].isSelected){
+  for(uint8_t track = 0; track<sequence.noteData.size(); track++){
+    for(uint16_t note = 1; note<sequence.noteData[track].size(); note++){
+      if(sequence.noteData[track][note].isSelected){
         //if it's the new highest track
         if(track<bounds[1])
           bounds[1] = track;
@@ -375,15 +375,15 @@ vector<uint16_t> getSelectedNotesBoundingBox(){
         if(track>bounds[3])
           bounds[3] = track;
         //if it's the new earliest note
-        if(seqData[track][note].startPos<bounds[0])
-          bounds[0] = seqData[track][note].startPos;
+        if(sequence.noteData[track][note].startPos<bounds[0])
+          bounds[0] = sequence.noteData[track][note].startPos;
         //if it's the new latest note
-        if(seqData[track][note].endPos>bounds[2])
-          bounds[2] = seqData[track][note].endPos;
+        if(sequence.noteData[track][note].endPos>bounds[2])
+          bounds[2] = sequence.noteData[track][note].endPos;
 
         //if you've checked all the selected notes, return
         checkedNotes++;
-        if(checkedNotes == selectionCount)
+        if(checkedNotes == sequence.selectionCount)
           return bounds;
       }
     }
@@ -394,11 +394,11 @@ vector<uint16_t> getSelectedNotesBoundingBox(){
 vector<uint8_t> getTracksWithSelectedNotes(){
   vector<uint8_t> list;
   uint16_t count;
-  if(selectionCount>0){
-    for(uint8_t track = 0; track<trackData.size(); track++){
-      for(uint16_t note = 1; note<seqData[track].size(); note++){
+  if(sequence.selectionCount>0){
+    for(uint8_t track = 0; track<sequence.trackData.size(); track++){
+      for(uint16_t note = 1; note<sequence.noteData[track].size(); note++){
         //once you find a selected note, jump to the next track
-        if(seqData[track][note].isSelected){
+        if(sequence.noteData[track][note].isSelected){
           list.push_back(track);
           track++;
           note = 1;
@@ -410,23 +410,23 @@ vector<uint8_t> getTracksWithSelectedNotes(){
 }
 
 void clearSelection(int track, int time) {
-  if(lookupData[track][time] != 0 && seqData[track][lookupData[track][time]].isSelected){
-    selectionCount--;
-    seqData[track][lookupData[track][time]].isSelected = false;
+  if(sequence.lookupTable[track][time] != 0 && sequence.noteData[track][sequence.lookupTable[track][time]].isSelected){
+    sequence.selectionCount--;
+    sequence.noteData[track][sequence.lookupTable[track][time]].isSelected = false;
   }
 }
 
 void clearSelection(){
-  if(selectionCount>0){
-    for(int track = 0; track<trackData.size(); track++){
-      if(selectionCount<=0)
+  if(sequence.selectionCount>0){
+    for(int track = 0; track<sequence.trackData.size(); track++){
+      if(sequence.selectionCount<=0)
           return;
-      for(int note = seqData[track].size()-1; note>0; note--){
-        if(selectionCount<=0)
+      for(int note = sequence.noteData[track].size()-1; note>0; note--){
+        if(sequence.selectionCount<=0)
           return;
-        if(seqData[track][note].isSelected){
-          seqData[track][note].isSelected = false;
-          selectionCount--;
+        if(sequence.noteData[track][note].isSelected){
+          sequence.noteData[track][note].isSelected = false;
+          sequence.selectionCount--;
         }
       }
     }
@@ -434,17 +434,17 @@ void clearSelection(){
 }
 
 void deselectNote(uint8_t track, uint16_t id){
-  if(seqData[track][id].isSelected){
-    selectionCount--;
-    seqData[track][id].isSelected = false;
+  if(sequence.noteData[track][id].isSelected){
+    sequence.selectionCount--;
+    sequence.noteData[track][id].isSelected = false;
   }
 }
 
 void selectNotesInTrack(uint8_t track){
-  for(uint16_t note = 1; note<seqData.size(); note++){
-    if(!seqData[track][note].isSelected){
-      seqData[track][note].isSelected = true;
-      selectionCount++;
+  for(uint16_t note = 1; note<sequence.noteData.size(); note++){
+    if(!sequence.noteData[track][note].isSelected){
+      sequence.noteData[track][note].isSelected = true;
+      sequence.selectionCount++;
     }
   }
 }
@@ -452,10 +452,10 @@ void selectNotesInTrack(uint8_t track){
 //select a note
 void selectNote(uint8_t track, uint16_t id){
   //if it's already selected
-  if(seqData[track][id].isSelected)
+  if(sequence.noteData[track][id].isSelected)
     return;
-  seqData[track][id].isSelected = true;
-  selectionCount++;
+  sequence.noteData[track][id].isSelected = true;
+  sequence.selectionCount++;
 }
 
 //togglet a note's selection state  by it's track and ID
@@ -464,14 +464,14 @@ void toggleSelectNote(uint8_t track, uint16_t id, bool additive){
     if(!id){
       return;
     }
-    if(!additive&&!seqData[track][id].isSelected){
+    if(!additive&&!sequence.noteData[track][id].isSelected){
       clearSelection();
       selectNote(track,id);
     }
     else{
-      if(seqData[track][id].isSelected && selectionCount>0)
+      if(sequence.noteData[track][id].isSelected && sequence.selectionCount>0)
         deselectNote(track,id);
-      else if(!seqData[track][id].isSelected){
+      else if(!sequence.noteData[track][id].isSelected){
         selectNote(track,id);
       }
     }
@@ -479,15 +479,15 @@ void toggleSelectNote(uint8_t track, uint16_t id, bool additive){
 
 
 void selectAllNotesInTrack(){
-  for(uint16_t i = 1; i<seqData[activeTrack].size();i++){
-    selectNote(activeTrack, i);
+  for(uint16_t i = 1; i<sequence.noteData[sequence.activeTrack].size();i++){
+    selectNote(sequence.activeTrack, i);
   }
 }
 
 //selects all notes in a sequence, or in a track (or at a timestep maybe? not sure if that'd be useful for flow)
 void selectAll() {
-  for(uint8_t track = 0; track<trackData.size(); track++){
-    for(uint16_t id = 1; id<seqData[track].size(); id++){
+  for(uint8_t track = 0; track<sequence.trackData.size(); track++){
+    for(uint16_t id = 1; id<sequence.noteData[track].size(); id++){
       selectNote(track,id);
     }
   }
@@ -506,119 +506,124 @@ void selectBox(){
   }
   for(int track = selBox.coords.start.y; track<=selBox.coords.end.y; track++){
     for(int time = selBox.coords.start.x; time<selBox.coords.end.x; time++){//< and not <= so it doesn't grab trailing notes
-      if(lookupData[track][time] != 0){
+      if(sequence.lookupTable[track][time] != 0){
         //this is a little inconsistent with how select usually works, but it allows whatever's in the box to DEFINITELY be selected.
         //it makes sense (a little) because it seems rare that you would ever need to deselect notes using the box
-        selectNote(track, lookupData[track][time]);
-        time = seqData[track][lookupData[track][time]].endPos-1;
+        selectNote(track, sequence.lookupTable[track][time]);
+        time = sequence.noteData[track][sequence.lookupTable[track][time]].endPos-1;
       }
     }
   }
 }
 
 
-void copy(){
-  if(selectionCount == 0) 
-    return;
-  //making sure buffer has enough 'columns' to store the notes from each track
-  //clearing copybuffer
-  vector<vector<Note>>temp1;
-  vector<Note> temp2 = {};
-  for(int i = 0; i<trackData.size(); i++){
-    temp1.push_back(temp2);
-  }
-  copyBuffer.swap(temp1);
+//holds the copied note data
+class ClipBoard{
+  public:
 
-  copyPos[0] = activeTrack;
-  copyPos[1] = cursorPos;
+  Coordinate relativeCursorPosition;
+  vector<vector<Note>> buffer;
 
-  uint16_t numberOfNotes = 0;
+  ClipBoard(){};
 
-  //add all selected notes to the copy buffer
-  if(selectionCount>0){
-    for(int track = 0; track<trackData.size(); track++){
-      for(int note = 1; note<=seqData[track].size()-1; note++){// <= bc notes aren't 0 indexed
-        if(seqData[track][note].isSelected){
-          copyBuffer[track].push_back(seqData[track][note]);
-          numberOfNotes++;
+  void copy(){
+    //if no notes are selected, return
+    if(!sequence.selectionCount)
+      return;
+    
+    //clear out old copy buffer
+    vector<vector<Note>> temp1;
+    temp1.resize(sequence.trackData.size());
+    this->buffer.swap(temp1);
+    //get the new relative cursor pos
+    this->relativeCursorPosition = Coordinate(sequence.cursorPos,sequence.activeTrack);
+
+    uint16_t numberOfNotes = 0;
+
+    //add all selected notes to the copy buffer
+    if(sequence.selectionCount>0){
+      for(int track = 0; track<sequence.trackData.size(); track++){
+        for(int note = 1; note<=sequence.noteData[track].size()-1; note++){// <= bc notes aren't 0 indexed
+          if(sequence.noteData[track][note].isSelected){
+            this->buffer[track].push_back(sequence.noteData[track][note]);
+            numberOfNotes++;
+          }
         }
       }
+      clearSelection();
     }
-    clearSelection();
-  }
-  //or if there's a target note, but it's not selected
-  else if(lookupData[activeTrack][cursorPos] != 0){
-    copyBuffer[activeTrack].push_back(seqData[activeTrack][lookupData[activeTrack][cursorPos]]);
-    numberOfNotes = 1;
-  }
-  menuText = "copied "+stringify(numberOfNotes)+((stringify(numberOfNotes)=="1")?" note":" notes");
-}
-
-void copyLoop(){
-  //clear copyBuffer
-  while(copyBuffer.size()>0){
-    copyBuffer.pop_back();
-  }
-  //making sure buffer has enough 'columns' to store the notes from each track
-  copyBuffer.resize(trackData.size());
-  //treat copying the loop like you're copying it from the start of the loop
-  copyPos[0] = 0;
-  copyPos[1] = loopData[activeLoop].start;
-  //add all selected notes to the copy buffer
-  if(loopData[activeLoop].end-loopData[activeLoop].start>0){
-    for(int track = 0; track<trackData.size(); track++){
-      for(int step = loopData[activeLoop].start; step<=loopData[activeLoop].end; step++){// <= bc notes aren't 0 indexed
-        if(lookupData[track][step] != 0){
-          copyBuffer[track].push_back(seqData[track][lookupData[track][step]]);
-          //move to the end of the note, so it's not double-counted
-          step = seqData[track][lookupData[track][step]].endPos;
-        }
-      }
+    //or if there's a target note, but it's not selected
+    else if(sequence.IDAtCursor() != 0){
+      this->buffer[sequence.activeTrack].push_back(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()]);
+      numberOfNotes = 1;
     }
+    menuText = "copied "+stringify(numberOfNotes)+((stringify(numberOfNotes)=="1")?" note":" notes");
   }
-}
-
-//pastes copybuffer
-void paste(){
-  if(copyBuffer.size()>0){
-    uint16_t pastedNotes;
-    //offset of all the notes (relative to where they were copied from)
-    int yOffset = activeTrack - copyPos[0];
-    int xOffset = cursorPos - copyPos[1];
-    //moves through each track and note in copyBuffer, places a note at those positions in the seq
-    for(int tracks = 0; tracks<copyBuffer.size(); tracks++){//for each track in the copybuffer
-      if(copyBuffer[tracks].size()>0 && tracks+yOffset>=0 && tracks+yOffset<trackData.size()){//if there's a note stored for this track, and it'd be copied according to the new activeTrack
-        for(int notes = 0; notes<copyBuffer[tracks].size(); notes++){
-          if(copyBuffer[tracks][notes].startPos + xOffset<= seqEnd){
-            //if the note will be copied to someWhere within the seqence, make note
-            int start = xOffset+copyBuffer[tracks][notes].startPos;
-            int end = xOffset+copyBuffer[tracks][notes].endPos;
-            int track = tracks+yOffset;
-            unsigned char vel = copyBuffer[tracks][notes].velocity;
-            unsigned char chance = copyBuffer[tracks][notes].chance;
-            bool mute = copyBuffer[tracks][notes].muted;
-            //if note ends past seq, truncate it
-            if(end>seqEnd){
-              end = seqEnd;
-            }
-            //if note begins before seq, but also extends into seq, truncate it
-            if(start<0 && end>0){
-              start = 0;
-            }
-            else if(start<0 && end<=0){
-              continue;
-            }
-            if(track<0||track>=trackData.size()){
-              continue;
-            }
-            Note newNoteOn(start,end, vel, chance, mute, true);
-            makeNote(newNoteOn,track,false);
-            pastedNotes++;
+  void copyLoop(){
+    //clear copyBuffer
+    while(this->buffer.size()>0){
+      this->buffer.pop_back();
+    }
+    //making sure buffer has enough 'columns' to store the notes from each track
+    this->buffer.resize(sequence.trackData.size());
+    //treat copying the loop like you're copying it from the start of the loop
+    this->relativeCursorPosition = Coordinate(sequence.loopData[sequence.activeLoop].start,0);
+    //add all selected notes to the copy buffer
+    if(sequence.loopData[sequence.activeLoop].end-sequence.loopData[sequence.activeLoop].start>0){
+      for(int track = 0; track<sequence.trackData.size(); track++){
+        for(int step = sequence.loopData[sequence.activeLoop].start; step<=sequence.loopData[sequence.activeLoop].end; step++){// <= bc notes aren't 0 indexed
+          if(sequence.lookupTable[track][step] != 0){
+            this->buffer[track].push_back(sequence.noteData[track][sequence.lookupTable[track][step]]);
+            //move to the end of the note, so it's not double-counted
+            step = sequence.noteData[track][sequence.lookupTable[track][step]].endPos;
           }
         }
       }
     }
-  menuText = "pasted "+stringify(pastedNotes)+((stringify(pastedNotes)=="1")?" note":" notes");
   }
-}
+  void paste(){
+    if(this->buffer.size()>0){
+      uint16_t pastedNotes;
+      //offset of all the notes (relative to where they were copied from)
+      int yOffset = sequence.activeTrack - this->relativeCursorPosition.y;
+      int xOffset = sequence.cursorPos - this->relativeCursorPosition.x;
+      //moves through each track and note in copyBuffer, places a note at those positions in the seq
+      for(int tracks = 0; tracks<this->buffer.size(); tracks++){//for each track in the copybuffer
+        if(this->buffer[tracks].size()>0 && tracks+yOffset>=0 && tracks+yOffset<sequence.trackData.size()){//if there's a note stored for this track, and it'd be copied according to the new sequence.activeTrack
+          for(int notes = 0; notes<this->buffer[tracks].size(); notes++){
+            if(this->buffer[tracks][notes].startPos + xOffset<= sequence.sequenceLength){
+              //if the note will be copied to someWhere within the seqence, make note
+              int start = xOffset+this->buffer[tracks][notes].startPos;
+              int end = xOffset+this->buffer[tracks][notes].endPos;
+              int track = tracks+yOffset;
+              unsigned char vel = this->buffer[tracks][notes].velocity;
+              unsigned char chance = this->buffer[tracks][notes].chance;
+              bool mute = this->buffer[tracks][notes].muted;
+
+              Note newNote = this->buffer[tracks][notes];
+              newNote.startPos += xOffset;
+              newNote.endPos += xOffset;
+
+              //if note ends past seq, truncate it
+              if(newNote.endPos>sequence.sequenceLength)
+                newNote.endPos = sequence.sequenceLength;
+              //if note begins before seq, but also extends into seq, truncate it
+              if(newNote.startPos<0 && newNote.endPos>0)
+                newNote.startPos = 0;
+              else if(newNote.startPos<0 && newNote.endPos<=0)
+                continue;
+              if(track<0||track>=sequence.trackData.size())
+                continue;
+              sequence.makeNote(newNote,track,false);
+              pastedNotes++;
+            }
+          }
+        }
+      }
+      menuText = "pasted "+stringify(pastedNotes)+((stringify(pastedNotes)=="1")?" note":" notes");
+    }
+  }
+};
+
+ClipBoard clipboard;
 

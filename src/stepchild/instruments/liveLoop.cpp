@@ -7,13 +7,13 @@
 */
 
 void exitRecAndStartPlaying(uint8_t& layerCount){
-    CoordinatePair A = CoordinatePair(loopData[activeLoop].start,recheadPos);
-    CoordinatePair B = CoordinatePair(loopData[activeLoop].start,loopData[activeLoop].end);
+    CoordinatePair A = CoordinatePair(sequence.loopData[sequence.activeLoop].start,recheadPos);
+    CoordinatePair B = CoordinatePair(sequence.loopData[sequence.activeLoop].start,sequence.loopData[sequence.activeLoop].end);
     //make sure to call this first, so that the recording is cleaned up
     togglePlayMode();
     //only warp selected notes
     warpAintoB(A,B,true);
-    isLooping = true;
+    sequence.isLooping = true;
     lastTime = millis();
     //on the first layer
     //adjust the sequenceClock.BPM so that it feels like it's playing at the same speed
@@ -31,7 +31,7 @@ void exitRecAndStartPlaying(uint8_t& layerCount){
 
 void liveLoop(){
     //save loop!
-    Loop originalLoop = loopData[activeLoop];
+    Loop originalLoop = sequence.loopData[sequence.activeLoop];
     uint8_t originalRecMode = recMode;
     menuIsActive = false;
     recMode = FULL;
@@ -47,7 +47,7 @@ void liveLoop(){
     uint8_t layerCount = 0;
     clearSelection();
     while(true){
-        readButtons();
+        controls.readButtons();
         controls.readJoystick();
         mainSequencerEncoders();
         defaultJoystickControls(false);
@@ -55,12 +55,12 @@ void liveLoop(){
         if(utils.itsbeen(75)){
             //del
             if(controls.DELETE()){
-                if (selectionCount > 0){
-                    deleteSelected();
+                if (sequence.selectionCount > 0){
+                    sequence.deleteSelected();
                     lastTime = millis();
                 }
-                else if(getIDAtCursor() != 0){
-                    deleteNote(activeTrack,cursorPos);
+                else if(sequence.IDAtCursor() != 0){
+                    sequence.deleteNote(sequence.activeTrack,sequence.cursorPos);
                     lastTime = millis();
                 }
             }
@@ -112,7 +112,7 @@ void liveLoop(){
         }
         //drawing display
         display.clearDisplay();
-        drawSeq(true,false,true,false,false,false,viewStart,viewEnd);
+        drawSeq(true,false,true,false,false,false,sequence.viewStart,sequence.viewEnd);
         // display.fillRoundRect(-5,-5,39,22,5,0);
         display.fillRect(0,0,32,16,0);
         // display.drawRoundRect(-5,-5,39,22,5,1);
@@ -143,5 +143,5 @@ void liveLoop(){
     }
     menuIsActive = true;
     recMode = originalRecMode;
-    loopData[activeLoop] = originalLoop;
+    sequence.loopData[sequence.activeLoop] = originalLoop;
 }

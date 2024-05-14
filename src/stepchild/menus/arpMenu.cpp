@@ -2,29 +2,29 @@ void drawArpMenu(uint8_t cursor);
 
 void deleteCustomLength(uint8_t which){
   vector <uint8_t> newNotes;
-  for(uint8_t i = 0; i<activeArp.lengths.size(); i++){
+  for(uint8_t i = 0; i<arp.lengths.size(); i++){
     if(i != which){
-      newNotes.push_back(activeArp.lengths[i]);
+      newNotes.push_back(arp.lengths[i]);
     }
   }
-  activeArp.lengths.swap(newNotes);
+  arp.lengths.swap(newNotes);
 }
 
 void swapCustomLengths(uint8_t which1, uint8_t which2){
-  uint8_t temp = activeArp.lengths[which1];
-  activeArp.lengths[which1] = activeArp.lengths[which2];
-  activeArp.lengths[which2] = temp;
+  uint8_t temp = arp.lengths[which1];
+  arp.lengths[which1] = arp.lengths[which2];
+  arp.lengths[which2] = temp;
 }
 
 void addCustomLength(uint8_t size, uint8_t where){
   vector <uint8_t> newNotes;
-  for(uint8_t i = 0; i<activeArp.lengths.size(); i++){
+  for(uint8_t i = 0; i<arp.lengths.size(); i++){
     if(i == where){
       newNotes.push_back(size);
     }
-    newNotes.push_back(activeArp.lengths[i]);
+    newNotes.push_back(arp.lengths[i]);
   }
-  activeArp.lengths.swap(newNotes);
+  arp.lengths.swap(newNotes);
 }
 
 void customLengthsMenu(){
@@ -32,15 +32,15 @@ void customLengthsMenu(){
   bool selected = false;
   uint8_t startNote = 0;
   while(true){
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     if(utils.itsbeen(200)){
       if(controls.SELECT() ){
         lastTime = millis();
-        activeArp.uniformLength = !activeArp.uniformLength;
+        arp.uniformLength = !arp.uniformLength;
       }
     }
-    if(activeArp.uniformLength){
+    if(arp.uniformLength){
       if(utils.itsbeen(200)){
         if(controls.MENU()){
           controls.setMENU(false) ;
@@ -53,20 +53,20 @@ void customLengthsMenu(){
     else{
       if(utils.itsbeen(200)){
         if(controls.NEW()){
-          addCustomLength(activeArp.lengths[cursorX],cursorX);
+          addCustomLength(arp.lengths[cursorX],cursorX);
           lastTime = millis();
         }
         if(controls.SELECT() ){
-          activeArp.uniformLength = !activeArp.uniformLength;
+          arp.uniformLength = !arp.uniformLength;
           lastTime = millis();
         }
-        if(controls.DELETE() && activeArp.lengths.size()>1){
+        if(controls.DELETE() && arp.lengths.size()>1){
           deleteCustomLength(cursorX);
           lastTime = millis();
-          while(startNote+7>=activeArp.lengths.size()&& activeArp.lengths.size()>8){
+          while(startNote+7>=arp.lengths.size()&& arp.lengths.size()>8){
             startNote--;
           }
-          while(cursorX>=activeArp.lengths.size())
+          while(cursorX>=arp.lengths.size())
             cursorX--;
         }
         if(controls.MENU()){
@@ -82,24 +82,24 @@ void customLengthsMenu(){
       if(utils.itsbeen(120)){
         if(controls.joystickY != 0){
           if(controls.SHIFT()){
-            activeArp.lengths[cursorX] = toggleTriplets(activeArp.lengths[cursorX]);
+            arp.lengths[cursorX] = toggleTriplets(arp.lengths[cursorX]);
             lastTime = millis();
           }
           else{
             if(controls.joystickY == -1){
               lastTime = millis();
-              activeArp.lengths[cursorX] = changeSubDiv(true,activeArp.lengths[cursorX],false);
+              arp.lengths[cursorX] = changeSubDiv(true,arp.lengths[cursorX],false);
             }
             else if(controls.joystickY == 1){
               lastTime = millis();
-              activeArp.lengths[cursorX] = changeSubDiv(false,activeArp.lengths[cursorX],false);
+              arp.lengths[cursorX] = changeSubDiv(false,arp.lengths[cursorX],false);
             }
           }
         }
       }
       if(utils.itsbeen(100)){
         if(controls.joystickX != 0){
-          if(controls.joystickX == -1 && cursorX<activeArp.lengths.size()-1){
+          if(controls.joystickX == -1 && cursorX<arp.lengths.size()-1){
             cursorX++;
             lastTime = millis();
           }
@@ -129,40 +129,40 @@ void drawModBoxes(uint8_t cursor){
   String text;
   const uint8_t mid = 32;
   //vel is special, needs a top and a bottom
-  int8_t start = mid-activeArp.maxVelMod/10;
-  int8_t end = mid+activeArp.minVelMod/10;
+  int8_t start = mid-arp.maxVelMod/10;
+  int8_t end = mid+arp.minVelMod/10;
   int8_t length = end-start;
   display.fillRect(3,start,7,length,1);
-  printSmall_centered(7,end+3,stringify(64-activeArp.minVelMod/2),1);
-  printSmall_centered(7,start-7,stringify(activeArp.maxVelMod/2),1);
+  printSmall_centered(7,end+3,stringify(64-arp.minVelMod/2),1);
+  printSmall_centered(7,start-7,stringify(arp.maxVelMod/2),1);
   if(cursor == 0){
     graphics.drawArrow(6,end+8+(millis()/200)%2,3,2,true);
     text = "velocity";
   }
   
   //chance
-  display.fillRect(13,mid+13-activeArp.chanceMod/4,7,activeArp.chanceMod/4,1);
-  printSmall_centered(17,mid+7-activeArp.chanceMod/4,stringify(activeArp.chanceMod),1);
+  display.fillRect(13,mid+13-arp.chanceMod/4,7,arp.chanceMod/4,1);
+  printSmall_centered(17,mid+7-arp.chanceMod/4,stringify(arp.chanceMod),1);
   if(cursor == 1){
     graphics.drawArrow(16,mid+15+(millis()/200)%2,3,2,true);
     text = "chance";
   }
 
   //reps
-  display.fillRect(23,mid+13-activeArp.repMod/4,7,activeArp.repMod/4,1);
-  printSmall_centered(27,mid+7-activeArp.repMod/4,stringify(activeArp.repMod),1);
+  display.fillRect(23,mid+13-arp.repMod/4,7,arp.repMod/4,1);
+  printSmall_centered(27,mid+7-arp.repMod/4,stringify(arp.repMod),1);
   if(cursor == 2){
     graphics.drawArrow(26,mid+15+(millis()/200)%2,3,2,true);
     text = "repeats";
   }
 
   //pitch is also special, needs a top and a bottom
-  start = mid - activeArp.maxPitchMod/10;
-  end = mid + activeArp.minPitchMod/10;
+  start = mid - arp.maxPitchMod/10;
+  end = mid + arp.minPitchMod/10;
   length = end - start;
   display.fillRect(33,start,7,length,1);
-  printSmall_centered(37,end+3,stringify(-activeArp.minPitchMod/16),1);
-  printSmall_centered(37,start-7,stringify(activeArp.maxPitchMod/16),1);
+  printSmall_centered(37,end+3,stringify(-arp.minPitchMod/16),1);
+  printSmall_centered(37,start-7,stringify(arp.maxPitchMod/16),1);
   if(cursor == 3){
     graphics.drawArrow(36,end+8+(millis()/200)%2,3,2,true);
     text = "octave";
@@ -170,12 +170,12 @@ void drawModBoxes(uint8_t cursor){
 
   //play order
   if(cursor == 4){
-    start = mid-(activeArp.playStyle)*12-5;
+    start = mid-(arp.playStyle)*12-5;
     for(uint8_t i = 0; i<6; i++){
       drawArpModeIcon(44,start+i*12,i,1);
     }
     graphics.drawArrow(56+(millis()/200)%2,mid,3,1,true);
-    switch(activeArp.playStyle){
+    switch(arp.playStyle){
       case 5:
         text = "random";
         break;
@@ -197,7 +197,7 @@ void drawModBoxes(uint8_t cursor){
     }
   }
   else{
-    drawArpModeIcon(44,mid-5,activeArp.playStyle,1);
+    drawArpModeIcon(44,mid-5,arp.playStyle,1);
   }
   display.setRotation(3);
   printSmall(16,60,text,1);
@@ -210,7 +210,7 @@ void drawModBoxes(uint8_t cursor){
 void arpModMenu(){
   uint8_t cursor = 0;
   while(true){
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     if(utils.itsbeen(50)){
        if(controls.joystickY != 0){
@@ -219,55 +219,55 @@ void arpModMenu(){
             case 0:
               //editing min vel
               if(controls.SHIFT()){
-                if(activeArp.minVelMod<117)
-                  activeArp.minVelMod+=10;
+                if(arp.minVelMod<117)
+                  arp.minVelMod+=10;
                 else
-                  activeArp.minVelMod = 127;
+                  arp.minVelMod = 127;
               }
               else{
-                if(activeArp.maxVelMod>10)
-                  activeArp.maxVelMod-=10;
+                if(arp.maxVelMod>10)
+                  arp.maxVelMod-=10;
                 else
-                  activeArp.maxVelMod = 0;
+                  arp.maxVelMod = 0;
               }
               lastTime = millis();
               break;
             case 1:
               //editing chance
-              if(activeArp.chanceMod>10)
-                activeArp.chanceMod-=10;
+              if(arp.chanceMod>10)
+                arp.chanceMod-=10;
               else
-                activeArp.chanceMod=0;
+                arp.chanceMod=0;
               lastTime = millis();
               break;
             case 2:
               //editing repeats
-              if(activeArp.repMod>10)
-                activeArp.repMod-=10;
+              if(arp.repMod>10)
+                arp.repMod-=10;
               else
-                activeArp.repMod = 0;
+                arp.repMod = 0;
               lastTime = millis();
               break;
             //pitch
             case 3:
               if(controls.SHIFT()){
-                if(activeArp.minPitchMod<117)
-                  activeArp.minPitchMod+=10;
+                if(arp.minPitchMod<117)
+                  arp.minPitchMod+=10;
                 else
-                  activeArp.minPitchMod = 127;
+                  arp.minPitchMod = 127;
               }
               else{
-                if(activeArp.maxPitchMod>10)
-                  activeArp.maxPitchMod-=10;
+                if(arp.maxPitchMod>10)
+                  arp.maxPitchMod-=10;
                 else
-                  activeArp.maxPitchMod = 0;
+                  arp.maxPitchMod = 0;
               }
               lastTime = millis();
               break;
             //play style
             case 4:
-              if(activeArp.playStyle<5 && utils.itsbeen(200)){
-                activeArp.playStyle++;
+              if(arp.playStyle<5 && utils.itsbeen(200)){
+                arp.playStyle++;
                 lastTime = millis();
               }
               break;
@@ -278,54 +278,54 @@ void arpModMenu(){
             case 0:
               //editing min vel
               if(controls.SHIFT()){
-                if(activeArp.minVelMod>10)
-                  activeArp.minVelMod-=10;
+                if(arp.minVelMod>10)
+                  arp.minVelMod-=10;
                 else
-                  activeArp.minVelMod = 0;
+                  arp.minVelMod = 0;
               }
               else{
-                if(activeArp.maxVelMod<117)
-                  activeArp.maxVelMod+=10;
+                if(arp.maxVelMod<117)
+                  arp.maxVelMod+=10;
                 else
-                  activeArp.maxVelMod = 127;
+                  arp.maxVelMod = 127;
               }
               lastTime = millis();
               break;
             //editing chance
             case 1:
-              if(activeArp.chanceMod<90)
-                activeArp.chanceMod+=10;
+              if(arp.chanceMod<90)
+                arp.chanceMod+=10;
               else
-                activeArp.chanceMod = 100;
+                arp.chanceMod = 100;
               lastTime = millis();
               break;
             //editing repeats
             case 2:
-              if(activeArp.repMod<90)
-                activeArp.repMod+=10;
+              if(arp.repMod<90)
+                arp.repMod+=10;
               else
-                activeArp.repMod = 100;
+                arp.repMod = 100;
               lastTime = millis();
               break;
             //pitch
             case 3:
               if(controls.SHIFT()){
-                if(activeArp.minPitchMod>10)
-                  activeArp.minPitchMod-=10;
+                if(arp.minPitchMod>10)
+                  arp.minPitchMod-=10;
                 else
-                  activeArp.minPitchMod = 0;
+                  arp.minPitchMod = 0;
               }
               else{
-                if(activeArp.maxPitchMod<117)
-                  activeArp.maxPitchMod+=10;
+                if(arp.maxPitchMod<117)
+                  arp.maxPitchMod+=10;
                 else
-                  activeArp.maxPitchMod = 127;
+                  arp.maxPitchMod = 127;
               }
               lastTime = millis();
               break;
             case 4:
-              if(activeArp.playStyle>0 && utils.itsbeen(200)){
-                activeArp.playStyle--;
+              if(arp.playStyle>0 && utils.itsbeen(200)){
+                arp.playStyle--;
                 lastTime = millis();
               }
               break;
@@ -352,25 +352,25 @@ void arpModMenu(){
       if(controls.DELETE()){
         switch(cursor){
           case 0:
-            activeArp.maxVelMod = 0;
-            activeArp.minVelMod = 0;
+            arp.maxVelMod = 0;
+            arp.minVelMod = 0;
             lastTime = millis();
             break;
           case 1:
-            activeArp.chanceMod = 100;
+            arp.chanceMod = 100;
             lastTime = millis();
             break;
           case 2:
-            activeArp.repMod = 0;
+            arp.repMod = 0;
             lastTime = millis();
             break;
           case 3:
-            activeArp.maxPitchMod = 0;
-            activeArp.minPitchMod = 0;
+            arp.maxPitchMod = 0;
+            arp.minPitchMod = 0;
             lastTime = millis();
             break;
           case 4:
-            activeArp.playStyle = 0;
+            arp.playStyle = 0;
             lastTime = millis();
             break;
         }
@@ -379,51 +379,51 @@ void arpModMenu(){
         switch(cursor){
           //min vel
           case 0:
-            if(controls.counterA < 0 && activeArp.minVelMod<127){
-              activeArp.minVelMod++;
+            if(controls.counterA < 0 && arp.minVelMod<127){
+              arp.minVelMod++;
             }
-            else if(controls.counterA > 0 && activeArp.minVelMod>0){
-              activeArp.minVelMod--;
+            else if(controls.counterA > 0 && arp.minVelMod>0){
+              arp.minVelMod--;
             }
             controls.counterA += controls.counterA<0?1:-1;
             break;
           //chance
           case 1:
-            if(controls.counterA > 0 && activeArp.chanceMod<100){
-              activeArp.chanceMod++;
+            if(controls.counterA > 0 && arp.chanceMod<100){
+              arp.chanceMod++;
             }
-            else if(controls.counterA < 0 && activeArp.chanceMod>0){
-              activeArp.chanceMod--;
+            else if(controls.counterA < 0 && arp.chanceMod>0){
+              arp.chanceMod--;
             }
             controls.counterA += controls.counterA<0?1:-1;
             break;
           //reps
           case 2:
-            if(controls.counterA > 0 && activeArp.repMod<100){
-              activeArp.repMod++;
+            if(controls.counterA > 0 && arp.repMod<100){
+              arp.repMod++;
             }
-            else if(controls.counterA < 0 && activeArp.repMod>0){
-              activeArp.repMod--;
+            else if(controls.counterA < 0 && arp.repMod>0){
+              arp.repMod--;
             }
             controls.counterA += controls.counterA<0?1:-1;
             break;
           case 3:
-            if(controls.counterA < 0 && activeArp.minPitchMod<127){
-              activeArp.minPitchMod++;
+            if(controls.counterA < 0 && arp.minPitchMod<127){
+              arp.minPitchMod++;
             }
-            else if(controls.counterA > 0 && activeArp.minPitchMod>0){
-              activeArp.minPitchMod--;
+            else if(controls.counterA > 0 && arp.minPitchMod>0){
+              arp.minPitchMod--;
             }
             controls.counterA += controls.counterA<0?1:-1;
             break;
           case 4:
             if(controls.counterA < 0){
-              if(activeArp.playStyle > 0)
-                activeArp.playStyle--;
+              if(arp.playStyle > 0)
+                arp.playStyle--;
             }
             else{
-              if(activeArp.playStyle < 5)
-                activeArp.playStyle++;
+              if(arp.playStyle < 5)
+                arp.playStyle++;
             }
             controls.counterA += controls.counterA<0?1:-1;
             break;
@@ -432,11 +432,11 @@ void arpModMenu(){
       while(controls.counterB != 0){
         switch(cursor){
           case 0:
-            if(controls.counterB > 0 && activeArp.maxVelMod<127){
-              activeArp.maxVelMod++;
+            if(controls.counterB > 0 && arp.maxVelMod<127){
+              arp.maxVelMod++;
             }
-            else if(controls.counterB < 0 && activeArp.maxVelMod>0){
-              activeArp.maxVelMod--;
+            else if(controls.counterB < 0 && arp.maxVelMod>0){
+              arp.maxVelMod--;
             }
             controls.counterB += controls.counterB<0?1:-1;
             break;
@@ -447,11 +447,11 @@ void arpModMenu(){
             controls.counterB = 0;
             break;
           case 3:
-            if(controls.counterB > 0 && activeArp.maxPitchMod<127){
-              activeArp.maxPitchMod++;
+            if(controls.counterB > 0 && arp.maxPitchMod<127){
+              arp.maxPitchMod++;
             }
-            else if(controls.counterB < 0 && activeArp.maxPitchMod>0){
-              activeArp.maxPitchMod--;
+            else if(controls.counterB < 0 && arp.maxPitchMod>0){
+              arp.maxPitchMod--;
             }
             controls.counterB += controls.counterB<0?1:-1;
             break;
@@ -472,41 +472,41 @@ void drawArpModeIcon(uint8_t x1, int8_t y1, uint8_t which,uint16_t c){
 
 void drawArpMenu(uint8_t cursor){
   //last note played
-  String lastNote = pitchToString(activeArp.lastPitchSent,true,true);
+  String lastNote = pitchToString(arp.lastPitchSent,true,true);
   printPitch(115,0,lastNote,false,false, 1);
-  if(activeArp.holding && millis()%800>400){
+  if(arp.holding && millis()%800>400){
     printSmall(106,9,"[HOLD]",1);
   }
-  else if(!activeArp.holding){
+  else if(!arp.holding){
     printSmall(110,9,"cpy 2",1);
       printSmall(112,15,"hold",1);
   }
   const uint8_t y1 = 15;
   //on/off
-  drawSlider(0,y1,"on","off",!isArping);
+  drawSlider(0,y1,"on","off",!arp.isActive);
 
   //step lengths
-  String stepLength = activeArp.uniformLength?stepsToMeasures(activeArp.arpSubDiv):"custom";
-  drawSlider(0,y1+20,"custom","uniform",activeArp.uniformLength);
+  String stepLength = arp.uniformLength?stepsToMeasures(arp.arpSubDiv):"custom";
+  drawSlider(0,y1+20,"custom","uniform",arp.uniformLength);
   printSmall(0,y1+14,"length:" + stepLength,1);
 
   //modulation
   printArp(0,52,"MOD",1);
 
-  fillSquareVertically(20,50,11,float(activeArp.maxVelMod*100)/float(127));
+  fillSquareVertically(20,50,11,float(arp.maxVelMod*100)/float(127));
   printSmall(24,53,"v",2);
 
-  fillSquareVertically(33,50,11,float(activeArp.chanceMod));
+  fillSquareVertically(33,50,11,float(arp.chanceMod));
   printSmall(37,53,"%",2);
 
-  fillSquareVertically(46,50,11,float(activeArp.repMod*100)/float(127));
+  fillSquareVertically(46,50,11,float(arp.repMod*100)/float(127));
   printSmall(50,53,"x",2);
 
-  fillSquareVertically(59,50,11,float(activeArp.maxPitchMod*100)/float(127));
+  fillSquareVertically(59,50,11,float(arp.maxPitchMod*100)/float(127));
   printSmall(63,53,"$",2);
 
   //arp mode icon
-  drawArpModeIcon(72,50,activeArp.playStyle,1);
+  drawArpModeIcon(72,50,arp.playStyle,1);
 
   switch(cursor){
     case 0:
@@ -520,11 +520,11 @@ void drawArpMenu(uint8_t cursor){
       break;
   }
   //channel icon
-  drawSmallChannelIcon(93,1,activeArp.channel);
+  drawSmallChannelIcon(93,1,arp.channel);
 
   //input icon
   printSmall(50,1,"src:",1);
-  switch(activeArp.source){
+  switch(arp.source){
     //external
     case 0:
       display.drawBitmap(64,0,tiny_midi_bmp,7,7,1);
@@ -564,7 +564,7 @@ void arpMenu(){
     display.display();
 
     //controls
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     if(utils.itsbeen(200)){
       if(controls.joystickY != 0){
@@ -587,23 +587,23 @@ void arpMenu(){
         switch(cursor){
           //on/off
           case 0:
-            if(controls.joystickX == -1 && isArping){
-              isArping = false;
+            if(controls.joystickX == -1 && arp.isActive){
+              arp.isActive = false;
               lastTime = millis();
             }
-            else if(controls.joystickX == 1 && !isArping){
-              isArping = true;
+            else if(controls.joystickX == 1 && !arp.isActive){
+              arp.isActive = true;
               lastTime = millis();
             }
             break;
           //step lengths
           case 1:
-            if(controls.joystickX == 1 && activeArp.uniformLength){
-              activeArp.uniformLength = false;
+            if(controls.joystickX == 1 && arp.uniformLength){
+              arp.uniformLength = false;
               lastTime = millis();
             }
-            else if(controls.joystickX == -1 && !activeArp.uniformLength){
-              activeArp.uniformLength = true;
+            else if(controls.joystickX == -1 && !arp.uniformLength){
+              arp.uniformLength = true;
               lastTime = millis();
             }
             break;
@@ -625,7 +625,7 @@ void arpMenu(){
         switch(cursor){
           //on/off
           case 0:
-            isArping = !isArping;
+            arp.isActive = !arp.isActive;
             lastTime = millis();
             break;
           //step lengths
@@ -638,21 +638,21 @@ void arpMenu(){
             arpModMenu();
             break;
           case 3:
-            // activeArp.playStyle++;
-            // activeArp.playStyle%=6;
+            // arp.playStyle++;
+            // arp.playStyle%=6;
             // lastTime = millis();
             break;
         }
       }
       //'hold' locks notes that are currently in the arp
       if(controls.COPY()){
-        activeArp.holding = !activeArp.holding;
+        arp.holding = !arp.holding;
         lastTime = millis();
       }
       //swap between external/internal input
       if(controls.PLAY() || controls.NEW()){
-        activeArp.source++;
-        activeArp.source%=3;
+        arp.source++;
+        arp.source%=3;
         lastTime = millis();
       }
       if(controls.MENU()){
@@ -663,47 +663,47 @@ void arpMenu(){
       while(controls.counterA != 0){
         switch(cursor){
           case 0:
-            isArping = !isArping;
+            arp.isActive = !arp.isActive;
             controls.counterA += controls.counterA<0?1:-1;;
             break;
           case 1:
             if(controls.SHIFT()){
-              activeArp.arpSubDiv = toggleTriplets(activeArp.arpSubDiv);
+              arp.arpSubDiv = toggleTriplets(arp.arpSubDiv);
               controls.counterA += controls.counterA<0?1:-1;;
             }
             else{
               if(controls.counterA > 0){
-                activeArp.arpSubDiv = changeSubDiv(true,activeArp.arpSubDiv,false);
+                arp.arpSubDiv = changeSubDiv(true,arp.arpSubDiv,false);
                 controls.counterA += controls.counterA<0?1:-1;;
               }
               else{
-                activeArp.arpSubDiv = changeSubDiv(false,activeArp.arpSubDiv,false);
+                arp.arpSubDiv = changeSubDiv(false,arp.arpSubDiv,false);
                 controls.counterA += controls.counterA<0?1:-1;;
               }
             }
             break;
           case 2:
             if(controls.counterA > 0){
-              activeArp.playStyle++;
-              if(activeArp.playStyle == 6)
-                activeArp.playStyle = 0;
+              arp.playStyle++;
+              if(arp.playStyle == 6)
+                arp.playStyle = 0;
             }
             else if(controls.counterA < 0){
-              if(activeArp.playStyle == 0)
-                activeArp.playStyle = 5;
+              if(arp.playStyle == 0)
+                arp.playStyle = 5;
               else
-                activeArp.playStyle--;
+                arp.playStyle--;
             }
             controls.counterA += controls.counterA<0?1:-1;;
             break;
         }
       }
       while(controls.counterB != 0){
-        if(controls.counterB < 0 && activeArp.channel>1){
-          activeArp.channel--;
+        if(controls.counterB < 0 && arp.channel>1){
+          arp.channel--;
         }
-        else if(controls.counterB > 0 && activeArp.channel<16){
-          activeArp.channel++;
+        else if(controls.counterB > 0 && arp.channel<16){
+          arp.channel++;
         }
         lastTime = millis();
         controls.counterB += controls.counterB<0?1:-1;;

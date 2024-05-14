@@ -4,7 +4,7 @@
 #define RETURN 3
 #define INFINITE 4
 
-// vector<Loop> loopData;
+// vector<Loop> sequence.loopData;
 
 void printLoopTitle(uint8_t, uint8_t);
 void drawLoopBlocksVertically(int,int,int);
@@ -13,11 +13,11 @@ void drawLoopInfo(uint8_t x1, uint8_t y1, uint8_t whichLoop);
 
 void moveCursorWithinLoop(int amount, uint8_t whichLoop){
   //if the cursor is going to move before the loop
-  if(amount<0 && (cursorPos + amount)<loopData[whichLoop].start)
-    moveCursor(cursorPos - loopData[whichLoop].start);
+  if(amount<0 && (sequence.cursorPos + amount)<sequence.loopData[whichLoop].start)
+    moveCursor(sequence.cursorPos - sequence.loopData[whichLoop].start);
   //if the cursor is going to move past the loop
-  else if(amount>0 && (cursorPos+amount)>=loopData[whichLoop].end)
-    moveCursor(loopData[whichLoop].end-cursorPos);
+  else if(amount>0 && (sequence.cursorPos+amount)>=sequence.loopData[whichLoop].end)
+    moveCursor(sequence.loopData[whichLoop].end-sequence.cursorPos);
   //if not, then it's moving within the loop
   else
     moveCursor(amount);
@@ -25,7 +25,7 @@ void moveCursorWithinLoop(int amount, uint8_t whichLoop){
 
 bool isWithinLoop(int val, int loop, int amount, bool inclusive){
   if(!inclusive){
-    if(val<(loopData[loop].end-amount) && val>(loopData[loop].start+amount)){
+    if(val<(sequence.loopData[loop].end-amount) && val>(sequence.loopData[loop].start+amount)){
       return true;
     }
     else{
@@ -33,7 +33,7 @@ bool isWithinLoop(int val, int loop, int amount, bool inclusive){
     }
   }
   else{
-    if(val<=(loopData[loop].end-amount) && val>=(loopData[loop].start+amount)){
+    if(val<=(sequence.loopData[loop].end-amount) && val>=(sequence.loopData[loop].start+amount)){
       return true;
     }
     else{
@@ -44,53 +44,53 @@ bool isWithinLoop(int val, int loop, int amount, bool inclusive){
 
 void insertLoop(int afterThis, Loop newLoop){
   vector<Loop> tempData;
-  for(int i = 0; i<loopData.size(); i++){
-    tempData.push_back(loopData[i]);
+  for(int i = 0; i<sequence.loopData.size(); i++){
+    tempData.push_back(sequence.loopData[i]);
     if(i == afterThis)
       tempData.push_back(newLoop);
   }
-  loopData.swap(tempData);
+  sequence.loopData.swap(tempData);
 }
 
 void dupeLoop(int loop){
   vector<Loop> tempData;
-  for(int i = 0; i<loopData.size(); i++){
-    tempData.push_back(loopData[i]);
+  for(int i = 0; i<sequence.loopData.size(); i++){
+    tempData.push_back(sequence.loopData[i]);
     if(i == loop)
-      tempData.push_back(loopData[i]);
+      tempData.push_back(sequence.loopData[i]);
   }
-  loopData.swap(tempData);
+  sequence.loopData.swap(tempData);
 }
 
 void setLoopPoint(int32_t start, bool which){
   //set start
   if(which){
-    if(start<=loopData[activeLoop].end && start>=0)
-      loopData[activeLoop].start = start;
+    if(start<=sequence.loopData[sequence.activeLoop].end && start>=0)
+      sequence.loopData[sequence.activeLoop].start = start;
     else if(start < 0)
-      loopData[activeLoop].start = 0;
-    else if(start>loopData[activeLoop].end)
-      loopData[activeLoop].start = loopData[activeLoop].end;
-    loopData[activeLoop].start = loopData[activeLoop].start;
-    menuText = "loop start: "+stepsToPosition(loopData[activeLoop].start,true);
+      sequence.loopData[sequence.activeLoop].start = 0;
+    else if(start>sequence.loopData[sequence.activeLoop].end)
+      sequence.loopData[sequence.activeLoop].start = sequence.loopData[sequence.activeLoop].end;
+    sequence.loopData[sequence.activeLoop].start = sequence.loopData[sequence.activeLoop].start;
+    menuText = "loop start: "+stepsToPosition(sequence.loopData[sequence.activeLoop].start,true);
   }
   //set end
   else{
-    if(start>=loopData[activeLoop].start && start <= seqEnd)
-      loopData[activeLoop].end = start;
-    else if(start>seqEnd)
-      loopData[activeLoop].end = seqEnd;
-    else if(start<loopData[activeLoop].start)
-      loopData[activeLoop].end = loopData[activeLoop].start;
-    loopData[activeLoop].end = loopData[activeLoop].end;
-    menuText = "loop end: "+stepsToPosition(loopData[activeLoop].end,true);
+    if(start>=sequence.loopData[sequence.activeLoop].start && start <= sequence.sequenceLength)
+      sequence.loopData[sequence.activeLoop].end = start;
+    else if(start>sequence.sequenceLength)
+      sequence.loopData[sequence.activeLoop].end = sequence.sequenceLength;
+    else if(start<sequence.loopData[sequence.activeLoop].start)
+      sequence.loopData[sequence.activeLoop].end = sequence.loopData[sequence.activeLoop].start;
+    sequence.loopData[sequence.activeLoop].end = sequence.loopData[sequence.activeLoop].end;
+    menuText = "loop end: "+stepsToPosition(sequence.loopData[sequence.activeLoop].end,true);
   }
 }
 
 uint16_t getLongestLoop(){
   uint16_t longestLength = 0;
-  for(uint8_t i = 0; i<loopData.size(); i++){
-    uint16_t l = loopData[i].end - loopData[i].start;
+  for(uint8_t i = 0; i<sequence.loopData.size(); i++){
+    uint16_t l = sequence.loopData[i].end - sequence.loopData[i].start;
     if(l>longestLength)
       longestLength = l;
   }
@@ -103,13 +103,13 @@ bool viewLoopControls(uint8_t which){
   //when controls.SELECT()  is pressed and stick is moved, and there's no selection box
   if(controls.SELECT()  && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
     selBox.begun = true;
-    selBox.coords.start.x = cursorPos;
-    selBox.coords.start.y = activeTrack;
+    selBox.coords.start.x = sequence.cursorPos;
+    selBox.coords.start.y = sequence.activeTrack;
   }
   //if controls.SELECT()  is released, and there's a selection box
   if(!controls.SELECT()  && selBox.begun){
-    selBox.coords.end.x = cursorPos;
-    selBox.coords.end.y = activeTrack;
+    selBox.coords.end.x = sequence.cursorPos;
+    selBox.coords.end.y = sequence.activeTrack;
     selectBox();
     selBox.begun = false;
   }
@@ -119,76 +119,76 @@ bool viewLoopControls(uint8_t which){
   if (utils.itsbeen(100)) {
     if (controls.joystickX == 1 && !controls.SHIFT()) {
       //if cursor isn't on a measure marker, move it to the nearest one
-      if(cursorPos%subDivInt){
+      if(sequence.cursorPos%sequence.subDivision){
         if(!movingLoop)
-          moveCursorWithinLoop(-cursorPos%subDivInt,which);
+          moveCursorWithinLoop(-sequence.cursorPos%sequence.subDivision,which);
         else
-          moveCursor(-cursorPos%subDivInt);
+          moveCursor(-sequence.cursorPos%sequence.subDivision);
         lastTime = millis();
         //moving entire loop
         if(movingLoop == 2)
-          moveLoop(-cursorPos%subDivInt);
+          moveLoop(-sequence.cursorPos%sequence.subDivision);
       }
       else{
         if(!movingLoop)
-          moveCursorWithinLoop(-subDivInt,which);
+          moveCursorWithinLoop(-sequence.subDivision,which);
         else
-          moveCursor(-subDivInt);
+          moveCursor(-sequence.subDivision);
         lastTime = millis();
         //moving entire loop
         if(movingLoop == 2)
-          moveLoop(-subDivInt);
+          moveLoop(-sequence.subDivision);
       }
       //moving loop start/end
       if(movingLoop == -1){
-        setLoopPoint(cursorPos,true);
+        setLoopPoint(sequence.cursorPos,true);
       }
       else if(movingLoop == 1){
-        setLoopPoint(cursorPos,false);
+        setLoopPoint(sequence.cursorPos,false);
       }
     }
     if (controls.joystickX == -1 && !controls.SHIFT()) {
-      if(cursorPos%subDivInt){
+      if(sequence.cursorPos%sequence.subDivision){
         if(!movingLoop)
-          moveCursorWithinLoop(subDivInt-cursorPos%subDivInt,which);
+          moveCursorWithinLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision,which);
         else
-          moveCursor(subDivInt-cursorPos%subDivInt);
+          moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
         lastTime = millis();
         if(movingLoop == 2)
-          moveLoop(subDivInt-cursorPos%subDivInt);
+          moveLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
       }
       else{
         if(!movingLoop)
-          moveCursorWithinLoop(subDivInt,which);
+          moveCursorWithinLoop(sequence.subDivision,which);
         else
-          moveCursor(subDivInt);
+          moveCursor(sequence.subDivision);
         lastTime = millis();
         if(movingLoop == 2)
-          moveLoop(subDivInt);
+          moveLoop(sequence.subDivision);
       }
       //moving loop start/end
       if(movingLoop == -1){
-        setLoopPoint(cursorPos,true);
+        setLoopPoint(sequence.cursorPos,true);
       }
       else if(movingLoop == 1){
-        setLoopPoint(cursorPos,false);
+        setLoopPoint(sequence.cursorPos,false);
       }
     }
   }
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1 && !controls.SHIFT() && !controls.LOOP()) {
       if(recording)//if you're not in normal mode, you don't want it to be loud
-        setActiveTrack(activeTrack + 1, false);
+        setActiveTrack(sequence.activeTrack + 1, false);
       else
-        setActiveTrack(activeTrack + 1, true);
+        setActiveTrack(sequence.activeTrack + 1, true);
       drawingNote = false;
       lastTime = millis();
     }
     if (controls.joystickY == -1 && !controls.SHIFT() && !controls.LOOP()) {
       if(recording)//if you're not in normal mode, you don't want it to be loud
-        setActiveTrack(activeTrack - 1, false);
+        setActiveTrack(sequence.activeTrack - 1, false);
       else
-        setActiveTrack(activeTrack - 1, true);
+        setActiveTrack(sequence.activeTrack - 1, true);
       drawingNote = false;
       lastTime = millis();
     }
@@ -204,9 +204,9 @@ bool viewLoopControls(uint8_t which){
       if(movingLoop == 2)
         moveLoop(-1);
       else if(movingLoop == -1)
-        setLoopPoint(cursorPos,true);
+        setLoopPoint(sequence.cursorPos,true);
       else if(movingLoop == 1)
-        setLoopPoint(cursorPos,false);
+        setLoopPoint(sequence.cursorPos,false);
     }
     if (controls.joystickX == -1 && controls.SHIFT()) {
       if(!movingLoop)
@@ -217,31 +217,31 @@ bool viewLoopControls(uint8_t which){
       if(movingLoop == 2)
         moveLoop(1);
       else if(movingLoop == -1)
-        loopData[activeLoop].start = cursorPos;
+        sequence.loopData[sequence.activeLoop].start = sequence.cursorPos;
       else if(movingLoop == 1)
-        loopData[activeLoop].end = cursorPos;
+        sequence.loopData[sequence.activeLoop].end = sequence.cursorPos;
     }
     //changing vel
     if (controls.joystickY == 1 && controls.SHIFT()) {
-      changeVel(-10);
+      sequence.changeVel(-10);
       lastTime = millis();
     }
     if (controls.joystickY == -1 && controls.SHIFT()) {
-      changeVel(10);
+      sequence.changeVel(10);
       lastTime = millis();
     }
 
-    if(lookupData[activeTrack][cursorPos]==0){
+    if(sequence.IDAtCursor()==0){
       if(controls.joystickY == 1 && controls.SHIFT()){
-        defaultVel-=10;
-        if(defaultVel<1)
-          defaultVel = 1;
+        sequence.defaultVel-=10;
+        if(sequence.defaultVel<1)
+          sequence.defaultVel = 1;
         lastTime = millis();
       }
       if(controls.joystickY == -1 && controls.SHIFT()){
-        defaultVel+=10;
-        if(defaultVel>127)
-          defaultVel = 127;
+        sequence.defaultVel+=10;
+        if(sequence.defaultVel>127)
+          sequence.defaultVel = 127;
         lastTime = millis();
       }
     }
@@ -250,12 +250,12 @@ bool viewLoopControls(uint8_t which){
   if(utils.itsbeen(75)){
     //del
     if(controls.DELETE() && !controls.SHIFT()){
-      if (selectionCount > 0){
-        deleteSelected();
+      if (sequence.selectionCount > 0){
+        sequence.deleteSelected();
         lastTime = millis();
       }
-      else if(lookupData[activeTrack][cursorPos] != 0){
-        deleteNote(activeTrack,cursorPos);
+      else if(sequence.IDAtCursor() != 0){
+        sequence.deleteNote(sequence.activeTrack,sequence.cursorPos);
         lastTime = millis();
       }
     }
@@ -263,20 +263,20 @@ bool viewLoopControls(uint8_t which){
   if(utils.itsbeen(200)){
     //new
     if(controls.NEW() && !controls.A() && !drawingNote && !controls.SELECT() ){
-      if((!controls.SHIFT())&&(lookupData[activeTrack][cursorPos] == 0 || cursorPos != seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos)){
-        makeNote(activeTrack,cursorPos,subDivInt,true);
+      if((!controls.SHIFT())&&(sequence.IDAtCursor() == 0 || sequence.cursorPos != sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos)){
+        sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision,true);
         drawingNote = true;
         lastTime = millis();
-        moveCursorWithinLoop(subDivInt,which);
+        moveCursorWithinLoop(sequence.subDivision,which);
       }
       if(controls.SHIFT()){
-        addTrack(defaultPitch, defaultChannel);
+        addTrack(sequence.defaultPitch, sequence.defaultChannel);
         lastTime = millis();
       }
     }
     //select
     if(controls.SELECT()  && !selBox.begun){
-      uint16_t id = lookupData[activeTrack][cursorPos];
+      uint16_t id = sequence.IDAtCursor();
       //select all
       if(controls.NEW()){
         selectAll();
@@ -284,16 +284,16 @@ bool viewLoopControls(uint8_t which){
       //select only one
       else if(controls.SHIFT()){
         clearSelection();
-        toggleSelectNote(activeTrack, id, false);
+        toggleSelectNote(sequence.activeTrack, id, false);
       }
       //normal select
       else{
-        toggleSelectNote(activeTrack, id, true);          
+        toggleSelectNote(sequence.activeTrack, id, true);          
       }
       lastTime = millis();
     }
     if(controls.DELETE() && controls.SHIFT()){
-      muteNote(activeTrack, lookupData[activeTrack][cursorPos], true);
+      sequence.muteNote(sequence.activeTrack, sequence.IDAtCursor(), true);
       lastTime = millis();
     }
 
@@ -313,11 +313,11 @@ bool viewLoopControls(uint8_t which){
       //if you're not moving a loop, start
       if(movingLoop == 0){
         //if you're on the start, move the start
-        if(cursorPos == loopData[activeLoop].start){
+        if(sequence.cursorPos == sequence.loopData[sequence.activeLoop].start){
           movingLoop = -1;
         }
         //if you're on the end
-        else if(cursorPos == loopData[activeLoop].end){
+        else if(sequence.cursorPos == sequence.loopData[sequence.activeLoop].end){
           movingLoop = 1;
         }
         //if you're not on either, move the whole loop
@@ -347,9 +347,9 @@ bool viewLoopControls(uint8_t which){
     //copy/pasate
     if(controls.COPY()){
       if(controls.SHIFT())
-        paste();
+        clipboard.paste();
       else{
-        copy();
+        clipboard.copy();
       }
       lastTime = millis();
     }
@@ -358,20 +358,20 @@ bool viewLoopControls(uint8_t which){
 }
 
 void viewLoop(uint8_t which){
-  setCursor(loopData[which].start);
+  setCursor(sequence.loopData[which].start);
   setActiveLoop(which);
   String tempText;
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(!viewLoopControls(which))
       return;
     tempText = menuText;
     menuText = "loop-"+stringify(which)+" "+menuText;
     display.clearDisplay();
-    // drawSeq(true,true,true,false,false,true,loopData[which].start,loopData[which].end*scale);
-    drawSeq(true,true,true,false,false,true,viewStart,viewEnd);
-    // drawSeq(true,true,true,false,false,true,loopData[which].start>viewStart?loopData[which].start:viewStart,loopData[which].end<viewEnd?loopData[which].end:viewEnd);
+    // drawSeq(true,true,true,false,false,true,sequence.loopData[which].start,sequence.loopData[which].end*scale);
+    drawSeq(true,true,true,false,false,true,sequence.viewStart,sequence.viewEnd);
+    // drawSeq(true,true,true,false,false,true,sequence.loopData[which].start>sequence.viewStart?sequence.loopData[which].start:sequence.viewStart,sequence.loopData[which].end<sequence.viewEnd?sequence.loopData[which].end:sequence.viewEnd);
     display.display();
     menuText = tempText;
   }
@@ -380,15 +380,15 @@ const uint8_t maxLoopsShown = 6;
 
 void loopMenu(){
   uint8_t xStart = 32;
-  uint8_t targetL = activeLoop;
-  uint8_t dispStart = activeLoop;
+  uint8_t targetL = sequence.activeLoop;
+  uint8_t dispStart = sequence.activeLoop;
   int blockZoom = getLongestLoop()/30;
   bool showingPreview = false;
   Loop storedLoop;
-  storedLoop.start = loopData[targetL].start;
-  storedLoop.end = loopData[targetL].end;
-  storedLoop.reps = loopData[targetL].reps;
-  storedLoop.type = loopData[targetL].type;
+  storedLoop.start = sequence.loopData[targetL].start;
+  storedLoop.end = sequence.loopData[targetL].end;
+  storedLoop.reps = sequence.loopData[targetL].reps;
+  storedLoop.type = sequence.loopData[targetL].type;
   bool loopStored = false;
   WireFrame w = makeLoopArrows(0);
   w.xPos = 64;
@@ -396,38 +396,38 @@ void loopMenu(){
   w.scale = 4.0;
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     //changing the loop iterations
     while(controls.counterA != 0){
       if(controls.counterA>0){
-        loopData[targetL].reps++;
+        sequence.loopData[targetL].reps++;
       }
       else{
-        if(loopData[targetL].reps != 0)
-          loopData[targetL].reps--;
+        if(sequence.loopData[targetL].reps != 0)
+          sequence.loopData[targetL].reps--;
       }
       controls.counterA += controls.counterA<0?1:-1;
     }
     //changing the loop type
     while(controls.counterB != 0){
       if(controls.counterB>0){
-        if(loopData[targetL].type<4)
-          loopData[targetL].type++;
+        if(sequence.loopData[targetL].type<4)
+          sequence.loopData[targetL].type++;
         else
-          loopData[targetL].type = 0;
+          sequence.loopData[targetL].type = 0;
       }
       else{
-        if(loopData[targetL].type>0)
-          loopData[targetL].type--;
+        if(sequence.loopData[targetL].type>0)
+          sequence.loopData[targetL].type--;
         else
-          loopData[targetL].type = 4;
+          sequence.loopData[targetL].type = 4;
       }
       controls.counterB += controls.counterB<0?1:-1;
     }
     if(utils.itsbeen(100)){
       if(controls.joystickY != 0){
         if(controls.joystickY == 1){
-          if(targetL<loopData.size()-1){
+          if(targetL<sequence.loopData.size()-1){
             targetL++;
           }
         }
@@ -441,7 +441,7 @@ void loopMenu(){
     }
     if(utils.itsbeen(200)){
       // step buttons loop selecting
-      for(uint8_t i = 0; i<loopData.size(); i++){
+      for(uint8_t i = 0; i<sequence.loopData.size(); i++){
         if(controls.stepButton(i)){
           setActiveLoop(i);
           lastTime = millis();
@@ -453,22 +453,22 @@ void loopMenu(){
         //iterations
         if(!controls.SHIFT()){
           if(controls.joystickX == -1){
-            loopData[targetL].reps++;
+            sequence.loopData[targetL].reps++;
             lastTime = millis();
           }
-          else if(controls.joystickX == 1 && loopData[targetL].reps>0){
-            loopData[targetL].reps--;
+          else if(controls.joystickX == 1 && sequence.loopData[targetL].reps>0){
+            sequence.loopData[targetL].reps--;
             lastTime = millis();
           }
         }
         //loop type
         else{
-          if(controls.joystickX == -1 && loopData[targetL].type<3){
-            loopData[targetL].type++;
+          if(controls.joystickX == -1 && sequence.loopData[targetL].type<3){
+            sequence.loopData[targetL].type++;
             lastTime = millis();
           }
-          if(controls.joystickX == 1 && loopData[targetL].type>0){
-            loopData[targetL].type--;
+          if(controls.joystickX == 1 && sequence.loopData[targetL].type>0){
+            sequence.loopData[targetL].type--;
             lastTime = millis();
           }
         }
@@ -476,10 +476,10 @@ void loopMenu(){
       //copying a loop
       if(controls.COPY() && !controls.SHIFT()){
         loopStored = true;
-        storedLoop.start = loopData[targetL].start;
-        storedLoop.end = loopData[targetL].end;
-        storedLoop.reps = loopData[targetL].reps;
-        storedLoop.type = loopData[targetL].type;
+        storedLoop.start = sequence.loopData[targetL].start;
+        storedLoop.end = sequence.loopData[targetL].end;
+        storedLoop.reps = sequence.loopData[targetL].reps;
+        storedLoop.type = sequence.loopData[targetL].type;
 
         lastTime = millis();
       }
@@ -489,9 +489,9 @@ void loopMenu(){
         lastTime = millis();
       }
       //controls.DELETE()eting a loop
-      if(controls.DELETE() && loopData.size()>1){
+      if(controls.DELETE() && sequence.loopData.size()>1){
         deleteLoop(targetL);
-        if(targetL>=loopData.size())
+        if(targetL>=sequence.loopData.size())
           targetL--;
         lastTime = millis();
       }
@@ -510,7 +510,7 @@ void loopMenu(){
       //infinite loop toggle
       if(controls.LOOP()){
         if(!controls.SHIFT()){
-          isLooping = !isLooping;
+          sequence.isLooping = !sequence.isLooping;
           lastTime = millis();
         }
         else{
@@ -522,10 +522,10 @@ void loopMenu(){
       if(controls.SELECT() ){
         lastTime = millis();
         controls.setSELECT(false);
-        uint8_t tempType = loopData[targetL].type;
+        uint8_t tempType = sequence.loopData[targetL].type;
         setLoopToInfinite(targetL);
         viewLoop(targetL);
-        loopData[targetL].type = tempType;
+        sequence.loopData[targetL].type = tempType;
       }
       if(controls.MENU()){
         lastTime = millis();
@@ -548,7 +548,7 @@ void loopMenu(){
     }
 
     //rotating background arrows while looping is active
-    if(isLooping){
+    if(sequence.isLooping){
       w.rotate(-1,2);
     }
 
@@ -593,7 +593,7 @@ void drawLoopInfo(uint8_t x1, uint8_t y1, uint8_t whichLoop){
   //type of loop (random, random of same size)
   String playType;
   //style
-  switch(loopData[whichLoop].type){
+  switch(sequence.loopData[whichLoop].type){
     case 0:
       playType = "next";
       break;
@@ -613,7 +613,7 @@ void drawLoopInfo(uint8_t x1, uint8_t y1, uint8_t whichLoop){
   display.fillRoundRect(x1-3,y1-2,screenWidth-x1+5,9,3,0);
   display.drawRoundRect(x1-3,y1-2,screenWidth-x1+5,9,3,1);
   printSmall(x1,y1,"after:"+playType,1);
-  String reps = stringify(loopData[whichLoop].reps+1)+(loopData[whichLoop].reps==0?"rep":"reps");
+  String reps = stringify(sequence.loopData[whichLoop].reps+1)+(sequence.loopData[whichLoop].reps==0?"rep":"reps");
   display.setRotation(SIDEWAYS_L);
   printSmall(screenHeight-8-reps.length()*4,screenWidth-5,reps,1);
   display.setRotation(UPRIGHT);
@@ -668,7 +668,7 @@ void drawLoopArrow(uint8_t x1, uint8_t y1, uint8_t l, uint8_t h, uint8_t type, u
 }
 
 void printLoopTitle(uint8_t x1, uint8_t y1){
-  if(isLooping){
+  if(sequence.isLooping){
     display.setRotation(SIDEWAYS_R);
     display.drawBitmap(screenHeight-y1-5,screenWidth-x1-9-((millis()/200)%2),loop_parenth,5,9,SSD1306_WHITE);
     display.setRotation(SIDEWAYS_L);
@@ -694,8 +694,8 @@ void printLoopTitle(uint8_t x1, uint8_t y1){
 
 vector<uint8_t> getTracksWithNotes(){
   vector<uint8_t> list;
-  for(uint8_t track = 0; track<trackData.size(); track++){
-    if(seqData[track].size()>1)
+  for(uint8_t track = 0; track<sequence.trackData.size(); track++){
+    if(sequence.noteData[track].size()>1)
       list.push_back(track);
   }
   return list;
@@ -705,8 +705,8 @@ vector<uint8_t> getTracksWithNotesInLoop(uint8_t loop){
   vector<uint8_t> list1 = getTracksWithNotes();
   vector<uint8_t> list2;
   for(uint8_t track = 0; track<list1.size(); track++){
-    for(uint16_t i = loopData[loop].start; i<loopData[loop].end; i++){
-      if(lookupData[list1[track]][i] != 0){
+    for(uint16_t i = sequence.loopData[loop].start; i<sequence.loopData[loop].end; i++){
+      if(sequence.lookupTable[list1[track]][i] != 0){
         list2.push_back(list1[track]);
         break;
       }
@@ -720,7 +720,7 @@ void drawLoopPreview(uint8_t x1, uint8_t y1, uint8_t loop){
   display.fillRoundRect(x1-2,y1-15,37,37,3,0);
   display.drawRoundRect(x1-2,y1-15,37,37,3,1);
   //scale
-  float s = float(32)/float(loopData[loop].end-loopData[loop].start);
+  float s = float(32)/float(sequence.loopData[loop].end-sequence.loopData[loop].start);
 
   //figure out how many tracks to draw
   vector<uint8_t> tracksWithNotes = getTracksWithNotesInLoop(loop);
@@ -752,20 +752,20 @@ void drawLoopPreview(uint8_t x1, uint8_t y1, uint8_t loop){
     //move through each step of the loop
     for(uint8_t tr = 0; tr<tracksWithNotes.size(); tr++){
       uint8_t t = tracksWithNotes[tr];
-      for(uint16_t i = loopData[loop].start; i<loopData[loop].end; i++){
+      for(uint16_t i = sequence.loopData[loop].start; i<sequence.loopData[loop].end; i++){
         //if i finds the start positino of a note
-        if(lookupData[t][i] != 0 && i == seqData[t][lookupData[t][i]].startPos){
+        if(sequence.lookupTable[t][i] != 0 && i == sequence.noteData[t][sequence.lookupTable[t][i]].startPos){
           //get scaled length
-          uint16_t length = (seqData[t][lookupData[t][i]].endPos - seqData[t][lookupData[t][i]].startPos+1);
+          uint16_t length = (sequence.noteData[t][sequence.lookupTable[t][i]].endPos - sequence.noteData[t][sequence.lookupTable[t][i]].startPos+1);
           //draw line representing note
-          display.drawFastHLine(x1+float(i-loopData[loop].start)*s,y1+tr,length*s,SSD1306_WHITE);
-          i = seqData[t][lookupData[t][i]].endPos;
+          display.drawFastHLine(x1+float(i-sequence.loopData[loop].start)*s,y1+tr,length*s,SSD1306_WHITE);
+          i = sequence.noteData[t][sequence.lookupTable[t][i]].endPos;
         }
       }
     }
     //drawing playhead, if it's in view
-    if(playing && playheadPos>loopData[loop].start && playheadPos<loopData[loop].end){
-      display.drawFastVLine(x1+(playheadPos-loopData[loop].start)*s,y1-1,tracksWithNotes.size()+2,SSD1306_WHITE);
+    if(playing && playheadPos>sequence.loopData[loop].start && playheadPos<sequence.loopData[loop].end){
+      display.drawFastVLine(x1+(playheadPos-sequence.loopData[loop].start)*s,y1-1,tracksWithNotes.size()+2,SSD1306_WHITE);
     }
   }
   //if there are no notes
@@ -773,10 +773,10 @@ void drawLoopPreview(uint8_t x1, uint8_t y1, uint8_t loop){
     printSmall(x1+3,y1,"[Empty]",SSD1306_WHITE);
   }
 
-  graphics.printFraction_small_centered(x1+18,y1-18,stepsToMeasures(loopData[loop].end - loopData[loop].start));
+  graphics.printFraction_small_centered(x1+18,y1-18,stepsToMeasures(sequence.loopData[loop].end - sequence.loopData[loop].start));
   display.setRotation(SIDEWAYS_L);
-  printSmall(screenHeight-y1+8,x1,stepsToPosition(loopData[loop].start,true),1);
-  printSmall(screenHeight-y1+8,x1+27,stepsToPosition(loopData[loop].end,true),1);
+  printSmall(screenHeight-y1+8,x1,stepsToPosition(sequence.loopData[loop].start,true),1);
+  printSmall(screenHeight-y1+8,x1+27,stepsToPosition(sequence.loopData[loop].end,true),1);
   display.setRotation(UPRIGHT);
 }
 
@@ -788,36 +788,36 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
   //drawing all the loops
   //starts from -1 so you draw one "before" loop (just for looks)
   for(int8_t loop = -1; loop<maxLoopsShown+1; loop++){
-    if(loop+firstLoop<loopData.size()){
+    if(loop+firstLoop<sequence.loopData.size()){
       //number
       printSmall(xStart-15,yStart+(loopHeight+3)*loop+2,stringify(loop+firstLoop+1),SSD1306_WHITE);
 
       //scale is 1:12, so every 1/4 note is 2px
-      int length = (loopData[loop+firstLoop].end-loopData[loop+firstLoop].start)/z;
-      int shade = (loopData[loop+firstLoop].start+loopData[loop+firstLoop].end+loop+firstLoop)%12+2;
+      int length = (sequence.loopData[loop+firstLoop].end-sequence.loopData[loop+firstLoop].start)/z;
+      int shade = (sequence.loopData[loop+firstLoop].start+sequence.loopData[loop+firstLoop].end+loop+firstLoop)%12+2;
 
       //clearing background
       display.fillRect(xStart, yStart+(loopHeight+3)*loop, length, loopHeight, 0);
 
       //play progress
-      if(playing && loop+firstLoop == activeLoop)
-        display.fillRect(xStart, yStart+(loopHeight+3)*loop, float(length)*float(playheadPos-loopData[activeLoop].start)/float(loopData[activeLoop].end-loopData[activeLoop].start), loopHeight, SSD1306_WHITE);
+      if(playing && loop+firstLoop == sequence.activeLoop)
+        display.fillRect(xStart, yStart+(loopHeight+3)*loop, float(length)*float(playheadPos-sequence.loopData[sequence.activeLoop].start)/float(sequence.loopData[sequence.activeLoop].end-sequence.loopData[sequence.activeLoop].start), loopHeight, SSD1306_WHITE);
 
       //loop block
       display.drawRect(xStart, yStart+(loopHeight+3)*loop, length, loopHeight, 1);
-      if(isLooping)
+      if(sequence.isLooping)
         graphics.shadeArea(xStart, yStart+(loopHeight+3)*loop, length, loopHeight,shade);
       
       uint8_t x1 = xStart+length+3;
 
       //active loop note
-      if(loop+firstLoop == activeLoop){
+      if(loop+firstLoop == sequence.activeLoop){
         //highlight arrow
-        if(highlight == activeLoop){
+        if(highlight == sequence.activeLoop){
           graphics.drawArrow(xStart-9+((millis()/200)%2)+2, yStart+(loopHeight+3)*loop+4,2,0,true);
         }
         //loop types
-        switch(loopData[activeLoop].type){
+        switch(sequence.loopData[sequence.activeLoop].type){
           //normal
           case 0:
             display.drawBitmap(x1,yStart+(loopHeight+3)*loop,down_arrow_bmp,7,7,SSD1306_WHITE);
@@ -849,18 +849,18 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
             break;
         }
         //length
-        x1+=graphics.printFraction_small(x1,yStart+(loopHeight+3)*loop+1,stepsToMeasures(loopData[activeLoop].end-loopData[activeLoop].start))+2;
+        x1+=graphics.printFraction_small(x1,yStart+(loopHeight+3)*loop+1,stepsToMeasures(sequence.loopData[sequence.activeLoop].end-sequence.loopData[sequence.activeLoop].start))+2;
         if(playing){
           //play/iterations
-          printSmall(x1,yStart+(loopHeight+3)*loop+1, "("+stringify(loopCount)+"/"+stringify(loopData[activeLoop].reps+1)+")", SSD1306_WHITE);
-          x1+=4*(stringify(loopCount).length()+stringify(loopData[activeLoop].reps+1).length()+3);
+          printSmall(x1,yStart+(loopHeight+3)*loop+1, "("+stringify(sequence.loopCount)+"/"+stringify(sequence.loopData[sequence.activeLoop].reps+1)+")", SSD1306_WHITE);
+          x1+=4*(stringify(sequence.loopCount).length()+stringify(sequence.loopData[sequence.activeLoop].reps+1).length()+3);
         }
         else{
           // play * iterations
           graphics.drawArrow(x1+2,yStart+(loopHeight+3)*loop+3,2,0,true);
           x1+=4;
-          printSmall(x1,yStart+(loopHeight+3)*loop+1, "|"+stringify(loopData[activeLoop].reps+1), SSD1306_WHITE);
-          x1+=4*(stringify(loopData[activeLoop].reps+1).length()+1)+1;
+          printSmall(x1,yStart+(loopHeight+3)*loop+1, "|"+stringify(sequence.loopData[sequence.activeLoop].reps+1), SSD1306_WHITE);
+          x1+=4*(stringify(sequence.loopData[sequence.activeLoop].reps+1).length()+1)+1;
         }
         //note icon
         printSmall(x1,yStart+(loopHeight+3)*loop+2+((millis()/200)%2), "$", SSD1306_WHITE);
@@ -871,7 +871,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
         //highlight arrow
         graphics.drawArrow(xStart-9+((millis()/200)%2)+2, yStart+(loopHeight+3)*loop+4,2,0,true);
         //loop types
-        switch(loopData[highlight].type){
+        switch(sequence.loopData[highlight].type){
           //normal
           case 0:
             display.drawBitmap(x1,yStart+(loopHeight+3)*loop,down_arrow_bmp,7,7,SSD1306_WHITE);
@@ -903,20 +903,20 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
             break;
         }
         //length
-        x1+=graphics.printFraction_small(x1,yStart+(loopHeight+3)*loop+1,stepsToMeasures(loopData[highlight].end-loopData[highlight].start))+2;
+        x1+=graphics.printFraction_small(x1,yStart+(loopHeight+3)*loop+1,stepsToMeasures(sequence.loopData[highlight].end-sequence.loopData[highlight].start))+2;
         // play symbol
         graphics.drawArrow(x1+2,yStart+(loopHeight+3)*loop+3,2,0,true);
         x1+=4;
         // iterations
-        printSmall(x1,yStart+(loopHeight+3)*loop+1, "|"+stringify(loopData[highlight].reps+1), SSD1306_WHITE);
-        x1+=4*(stringify(loopData[highlight].reps+1).length()+1);
+        printSmall(x1,yStart+(loopHeight+3)*loop+1, "|"+stringify(sequence.loopData[highlight].reps+1), SSD1306_WHITE);
+        x1+=4*(stringify(sequence.loopData[highlight].reps+1).length()+1);
       }
       //if there is a return loop offscreen
       //draw a return line from the first loop (or top of screen) down
-      for(uint8_t l = firstLoop+maxLoopsShown-1; l<loopData.size(); l++){
+      for(uint8_t l = firstLoop+maxLoopsShown-1; l<sequence.loopData.size(); l++){
         //if there is a return loop offscreen
         //or if the last loop is normal, and offscreen
-        if(loopData[l].type == RETURN || (l == loopData.size()-1 && loopData[l].type == NORMAL)){
+        if(sequence.loopData[l].type == RETURN || (l == sequence.loopData.size()-1 && sequence.loopData[l].type == NORMAL)){
           //if the first loop is off screen too
           //just draw a vertical line
           if(firstLoop>0){
@@ -932,7 +932,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
         }
       }
       //drawing loop connectors
-      switch(loopData[loop+firstLoop].type){
+      switch(sequence.loopData[loop+firstLoop].type){
         //normal loop
         case 0:
           //if it's the last loop on screen, but there are more loops
@@ -940,9 +940,9 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
 
           }
           //if it's the last loop in the sequence, make it a return
-          else if(loop+firstLoop == loopData.size()-1){
+          else if(loop+firstLoop == sequence.loopData.size()-1){
             //if there's just one loop, draw it as an infinite loop (j so it looks nice)
-            if(loopData.size() == 1)
+            if(sequence.loopData.size() == 1)
               drawLoopArrow(xStart,yStart+(loopHeight+3)*loop+loopHeight/2,length,loopHeight+3,1,loop+firstLoop);
             else
               drawLoopArrow(xStart,yStart+(loopHeight+3)*loop+loopHeight/2,length,loopHeight+3,2,loop+firstLoop);
@@ -973,20 +973,20 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
 }
 
 void setActiveLoop(unsigned int id){
-  if(id<loopData.size() && id >=0){
-    activeLoop = id;
-    loopCount = 0;
+  if(id<sequence.loopData.size() && id >=0){
+    sequence.activeLoop = id;
+    sequence.loopCount = 0;
   }
 }
 
 void addLoop(){
   Loop newLoop;
-  newLoop.start = loopData[activeLoop].start;
-  newLoop.end = loopData[activeLoop].end;
-  newLoop.reps = loopData[activeLoop].reps;
-  newLoop.type = loopData[activeLoop].type;
-  loopData.push_back(newLoop);
-  setActiveLoop(loopData.size()-1);
+  newLoop.start = sequence.loopData[sequence.activeLoop].start;
+  newLoop.end = sequence.loopData[sequence.activeLoop].end;
+  newLoop.reps = sequence.loopData[sequence.activeLoop].reps;
+  newLoop.type = sequence.loopData[sequence.activeLoop].type;
+  sequence.loopData.push_back(newLoop);
+  setActiveLoop(sequence.loopData.size()-1);
 }
 
 void addLoop(unsigned short int start, unsigned short int end, unsigned short int iter, unsigned short int type){
@@ -995,105 +995,105 @@ void addLoop(unsigned short int start, unsigned short int end, unsigned short in
   newLoop.end = end;
   newLoop.reps = iter;
   newLoop.type = type;
-  loopData.push_back(newLoop);
+  sequence.loopData.push_back(newLoop);
 }
 
 void deleteLoop(uint8_t id){
-  if(loopData.size() > 1 && loopData.size()>id){//if there's more than one loop, and id is in loopData
+  if(sequence.loopData.size() > 1 && sequence.loopData.size()>id){//if there's more than one loop, and id is in sequence.loopData
     vector<Loop> tempVec;
-    for(int i = 0; i<loopData.size(); i++){
+    for(int i = 0; i<sequence.loopData.size(); i++){
       if(i!=id){
-        tempVec.push_back(loopData[i]);
+        tempVec.push_back(sequence.loopData[i]);
       }
     }
-    loopData.swap(tempVec);
-    //if activeLoop was the loop that got deld, or above it
+    sequence.loopData.swap(tempVec);
+    //if sequence.activeLoop was the loop that got deld, or above it
     //decrement it's id so it reads correct (and existing) data
-    if(activeLoop>=loopData.size()){  
-      activeLoop = loopData.size()-1;
+    if(sequence.activeLoop>=sequence.loopData.size()){  
+      sequence.activeLoop = sequence.loopData.size()-1;
     }
   }
-  setActiveLoop(activeLoop);
+  setActiveLoop(sequence.activeLoop);
 }
 
 void toggleLoop(){
-  isLooping = !isLooping;
+  sequence.isLooping = !sequence.isLooping;
 }
 
 void setLoopToInfinite(uint8_t targetL){
   //if it's already a 3, set it to 0
-  if(loopData[targetL].type == INFINITE){
-    loopData[targetL].type = NORMAL;
+  if(sequence.loopData[targetL].type == INFINITE){
+    sequence.loopData[targetL].type = NORMAL;
   }
   //if not, set this loop to 3
   else{
-    loopData[targetL].type = INFINITE;
+    sequence.loopData[targetL].type = INFINITE;
   }
   //set all other inf loops to 0
-  for(uint8_t l = 0; l<loopData.size(); l++){
+  for(uint8_t l = 0; l<sequence.loopData.size(); l++){
     if(l != targetL){
-      if(loopData[l].type == INFINITE)
-        loopData[l].type = NORMAL;
+      if(sequence.loopData[l].type == INFINITE)
+        sequence.loopData[l].type = NORMAL;
     }
   }
 }
 
 //moves to the next loop in loopSeq
 void nextLoop(){
-  loopCount = 0;
-  if(loopData.size()>1){
-    switch(loopData[activeLoop].type){
+  sequence.loopCount = 0;
+  if(sequence.loopData.size()>1){
+    switch(sequence.loopData[sequence.activeLoop].type){
       case NORMAL:
         //move to next loop
-        if(activeLoop < loopData.size()-1)
-          activeLoop++;
+        if(sequence.activeLoop < sequence.loopData.size()-1)
+          sequence.activeLoop++;
         else
-          activeLoop = 0;
+          sequence.activeLoop = 0;
         if(playing)
-          playheadPos = loopData[activeLoop].start;
+          playheadPos = sequence.loopData[sequence.activeLoop].start;
         if(recording)
-          recheadPos = loopData[activeLoop].start;
+          recheadPos = sequence.loopData[sequence.activeLoop].start;
         break;
       case RANDOM:{
-        activeLoop = random(0,loopData.size());
+        sequence.activeLoop = random(0,sequence.loopData.size());
         if(playing)
-          playheadPos = loopData[activeLoop].start;
+          playheadPos = sequence.loopData[sequence.activeLoop].start;
         if(recording)
-          recheadPos = loopData[activeLoop].start;
+          recheadPos = sequence.loopData[sequence.activeLoop].start;
         break;}
       case RANDOM_SAME:{
         //move to next loop
-        if(activeLoop < loopData.size()-1)
-          activeLoop++;
+        if(sequence.activeLoop < sequence.loopData.size()-1)
+          sequence.activeLoop++;
         else
-          activeLoop = 0;
+          sequence.activeLoop = 0;
         //if rnd of same size mode, choose a random loop
-        int currentLength = loopData[activeLoop].end - loopData[activeLoop].start;
+        int currentLength = sequence.loopData[sequence.activeLoop].end - sequence.loopData[sequence.activeLoop].start;
         vector<uint8_t> similarLoops;
-        for(int i = 0; i<loopData.size(); i++){
-          int len = loopData[i].end-loopData[i].start;
+        for(int i = 0; i<sequence.loopData.size(); i++){
+          int len = sequence.loopData[i].end-sequence.loopData[i].start;
           if(len == currentLength){
             similarLoops.push_back(i);
           }
         }
-        activeLoop = similarLoops[random(0,similarLoops.size())];
+        sequence.activeLoop = similarLoops[random(0,similarLoops.size())];
         if(playing)
-          playheadPos = loopData[activeLoop].start;
+          playheadPos = sequence.loopData[sequence.activeLoop].start;
         if(recording)
-          recheadPos = loopData[activeLoop].start;
+          recheadPos = sequence.loopData[sequence.activeLoop].start;
         break;}
       case RETURN:{
-        activeLoop = 0;
+        sequence.activeLoop = 0;
         if(playing)
-          playheadPos = loopData[activeLoop].start;
+          playheadPos = sequence.loopData[sequence.activeLoop].start;
         if(recording)
-          recheadPos = loopData[activeLoop].start;
+          recheadPos = sequence.loopData[sequence.activeLoop].start;
         break;}
       case INFINITE:{
         if(playing)
-          playheadPos = loopData[activeLoop].start;
+          playheadPos = sequence.loopData[sequence.activeLoop].start;
         if(recording)
-          recheadPos = loopData[activeLoop].start;
+          recheadPos = sequence.loopData[sequence.activeLoop].start;
         break;}
     }
   }
@@ -1102,12 +1102,12 @@ void nextLoop(){
 
 //cuts notes off when loop repeats, then starts new note at beginning
 void cutLoop(){
-  for(int i = 0; i<trackData.size(); i++){
-    if(trackData[i].noteLastSent != 255){
-      seqData[i][seqData[i].size()-1].endPos = loopData[activeLoop].end;
+  for(int i = 0; i<sequence.trackData.size(); i++){
+    if(sequence.trackData[i].noteLastSent != 255){
+      sequence.noteData[i][sequence.noteData[i].size()-1].endPos = sequence.loopData[sequence.activeLoop].end;
       //if it's about to loop again (if it's a one-shot recording, there's no need to make a new note)
       if(recMode != ONESHOT)
-        writeNoteOn(loopData[activeLoop].start,trackData[i].pitch,seqData[i][seqData[i].size()-1].velocity,trackData[i].channel);
+        writeNoteOn(sequence.loopData[sequence.activeLoop].start,sequence.trackData[i].pitch,sequence.noteData[i][sequence.noteData[i].size()-1].velocity,sequence.trackData[i].channel);
     }
   }
 }
@@ -1115,38 +1115,38 @@ void cutLoop(){
 //this checks loops bounds, moves to next loop, and cuts loop
 void checkLoop(){
   if(playing){
-    if (playheadPos > loopData[activeLoop].end-1) { //if the timestep is past the end of the loop, loop it to the start
-      loopCount++;
-      if(loopCount > loopData[activeLoop].reps){
+    if (playheadPos > sequence.loopData[sequence.activeLoop].end-1) { //if the timestep is past the end of the loop, loop it to the start
+      sequence.loopCount++;
+      if(sequence.loopCount > sequence.loopData[sequence.activeLoop].reps){
         nextLoop();
       }
-      playheadPos = loopData[activeLoop].start;
-      if(!isLooping)
+      playheadPos = sequence.loopData[sequence.activeLoop].start;
+      if(!sequence.isLooping)
         togglePlayMode();
     }
   }
   else if(recording){
     //one-shot record to current loop, without looping
     if(recMode == ONESHOT){
-      if(recheadPos>=loopData[activeLoop].end){
+      if(recheadPos>=sequence.loopData[sequence.activeLoop].end){
         toggleRecordingMode(waitForNoteBeforeRec);
       }
     }
     //record to one loop over and over again
     else if(recMode == LOOP_MODE){
-      if(recheadPos>=loopData[activeLoop].end){
-        recheadPos = loopData[activeLoop].start;
+      if(recheadPos>=sequence.loopData[sequence.activeLoop].end){
+        recheadPos = sequence.loopData[sequence.activeLoop].start;
       }
     }
     //record to loops as they play in sequence
     else if(recMode == LOOPSEQUENCE){
-      if(recheadPos>=loopData[activeLoop].end){
+      if(recheadPos>=sequence.loopData[sequence.activeLoop].end){
         cutLoop();
-        loopCount++;
-        if(loopData[activeLoop].reps>=loopCount){
+        sequence.loopCount++;
+        if(sequence.loopData[sequence.activeLoop].reps>=sequence.loopCount){
           nextLoop();
         }
-        recheadPos = loopData[activeLoop].start;
+        recheadPos = sequence.loopData[sequence.activeLoop].start;
       }
     }
   }

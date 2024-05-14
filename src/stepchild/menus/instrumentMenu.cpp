@@ -49,7 +49,7 @@ void selectInstrumentMenu(){
   lastTime = millis();
   uint8_t cursor = 0;
   while(true){
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     if(utils.itsbeen(100)){
       if(controls.joystickX != 0){

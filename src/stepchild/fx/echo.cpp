@@ -15,7 +15,7 @@ void echoMenu(){
   uint8_t cursor = 0;
   // echoAnimation();
   while(true){
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     if(!echoMenuControls(&cursor)){
       return;
@@ -31,7 +31,7 @@ void echoNote(int track, int id){
   int delay = echoData.delay;
   int decay = echoData.decay;
   int repeats = echoData.repeats;
-  Note targetNote = seqData[track][id];
+  Note targetNote = sequence.noteData[track][id];
   for(int i = 0; i<repeats; i++){
     Note echoNote = targetNote;
     echoNote.isSelected = false;
@@ -40,7 +40,7 @@ void echoNote(int track, int id){
     echoNote.endPos += offset;
     echoNote.velocity *= pow(float(decay)/float(100),i+1);
     if(echoNote.velocity>0)
-      makeNote(echoNote,track);
+      sequence.makeNote(echoNote,track);
     else{
       return;
     }
@@ -49,12 +49,12 @@ void echoNote(int track, int id){
 
 void echoSelectedNotes(){
   //if no notes are selected, just return
-  if(!selectionCount){
+  if(!sequence.selectionCount){
     return;
   }
-  for(uint8_t track = 0; track<trackData.size(); track++){
-    for(uint8_t note = 1; note<seqData[track].size(); note++){
-      if(seqData[track][note].isSelected){
+  for(uint8_t track = 0; track<sequence.trackData.size(); track++){
+    for(uint8_t note = 1; note<sequence.noteData[track].size(); note++){
+      if(sequence.noteData[track][note].isSelected){
         echoNote(track,note);
       }
     }

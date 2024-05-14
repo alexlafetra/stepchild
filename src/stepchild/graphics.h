@@ -454,6 +454,14 @@ class StepchildGraphics{
     display.fillRect(xStart,yStart,percentage,thickness,SSD1306_WHITE);
     display.drawRect(xStart+1,yStart+1,length-2,thickness-2,SSD1306_BLACK);
   }
+  void drawBarGraphV(uint8_t xStart, uint8_t yStart, uint8_t thickness, uint8_t height, float progress){
+    float percentFull = progress*height;
+    display.fillRect(xStart,yStart,thickness,height,0);
+    display.drawRect(xStart,yStart,thickness,height,1);
+    display.fillRect(xStart,yStart+height-percentFull,thickness,percentFull,1);
+    display.drawRect(xStart+1,yStart+1,thickness-2,height-2,0);
+
+  }
   //Draws percentage bar showing how full the sequence is
   void drawSequenceMemoryBar(uint8_t x1, uint8_t y1, uint8_t length){
     float free = rp2040.getFreeHeap();
@@ -539,7 +547,7 @@ class StepchildGraphics{
     y1++;
     length-=2;
     height-=2;
-    if(x1>=viewStart){
+    if(x1>=sequence.viewStart){
       //topL
       display.drawLine(x1-2-offset,y1-2-offset,x1+1-offset,y1-2-offset,SSD1306_WHITE);
       display.drawLine(x1-2-offset,y1-2-offset,x1-2-offset,y1+1-offset,SSD1306_WHITE);
@@ -547,7 +555,7 @@ class StepchildGraphics{
       display.drawLine(x1-2-offset,y1+height+2+offset,x1+1-offset,y1+height+2+offset,SSD1306_WHITE);
       display.drawLine(x1-2-offset,y1+height+2+offset,x1-2-offset,y1+height-1+offset,SSD1306_WHITE);
     }
-    if(x1+length<=viewEnd){
+    if(x1+length<=sequence.viewEnd){
       //topR
       display.drawLine(x1+length+2+offset,y1-2-offset,x1+length-1+offset,y1-2-offset,SSD1306_WHITE);
       display.drawLine(x1+length+2+offset,y1-2-offset,x1+length+2+offset,y1+1-offset,SSD1306_WHITE);
@@ -562,15 +570,15 @@ class StepchildGraphics{
   }
 
   void drawNoteBracket(Note note, int track){
-    this->drawNoteBracket(trackDisplay+(note.startPos-viewStart)*scale,headerHeight+(track-startTrack)*trackHeight,(note.endPos-note.startPos+1)*scale,trackHeight);
+    this->drawNoteBracket(trackDisplay+(note.startPos-sequence.viewStart)*sequence.viewScale,headerHeight+(track-startTrack)*trackHeight,(note.endPos-note.startPos+1)*sequence.viewScale,trackHeight);
   }
 
   void drawSelectionBracket(){
     vector<uint16_t> bounds  = getSelectedNotesBoundingBox();
     //if the left side is in view
-    if(bounds[0]>=viewStart){
+    if(bounds[0]>=sequence.viewStart){
       //if the top L corner is in view
-      uint8_t x1 = (bounds[0]-viewStart)*scale+trackDisplay-((millis()/200)%2);
+      uint8_t x1 = (bounds[0]-sequence.viewStart)*sequence.viewScale+trackDisplay-((millis()/200)%2);
       if(bounds[1]>=startTrack){
         //y coord relative to the view
         uint8_t y1 = (bounds[1]-startTrack)*trackHeight+headerHeight-((millis()/200)%2);
@@ -590,8 +598,8 @@ class StepchildGraphics{
       }
     }
     //if the right corner is in view
-    if(bounds[2]<viewEnd){
-      uint8_t x1 = (bounds[2]-viewStart)*scale+trackDisplay+((millis()/200)%2)+1;
+    if(bounds[2]<sequence.viewEnd){
+      uint8_t x1 = (bounds[2]-sequence.viewStart)*sequence.viewScale+trackDisplay+((millis()/200)%2)+1;
       //top R corner
       if(bounds[1]>=startTrack){
         uint8_t y1 = (bounds[1]-startTrack)*trackHeight+headerHeight-((millis()/200)%2);
@@ -804,6 +812,17 @@ void drawPlayIcon(int8_t x1, int8_t y1){
   }
 }
 
+//draws/fills a triangle circumscribed by a circle w/ radius r
+//super janky
+void fillCircumscribedTriangle(int8_t x1, int8_t y1, uint8_t r){
+  Coordinate A = Coordinate(x1,y1-r);
+  uint8_t a = r/2;
+  float b = r*0.866;
+  Coordinate B = Coordinate(x1-b,y1+a);
+  Coordinate C = Coordinate(x1+b,y1+a);
+  display.fillTriangle(A.x,A.y,B.x,B.y,C.x,C.y,1);
+}
+
 void drawPower(uint8_t x1, uint8_t y1){
   //check if USB is plugged in
   bool usb = digitalRead(USB_PIN);
@@ -861,7 +880,7 @@ void drawNote(uint16_t id, uint8_t track, unsigned short int x1, unsigned short 
         display.fillRect(x1+1, y1+1, len-1, height-2, SSD1306_WHITE);
       }
       //line at the end, if there's something at the end
-      if(lookupData[track][seqData[track][id].endPos] != 0)
+      if(sequence.lookupTable[track][sequence.noteData[track][id].endPos] != 0)
         display.drawFastVLine(x1+len,y1+1,height-2,SSD1306_BLACK);
     }
     //if it's muted
@@ -992,14 +1011,14 @@ void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmou
 
 //prints pitch with a small # and either a large or small Octave number
 void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct, bool channel, uint16_t c){
-  String s = trackData[trackID].getPitchAndOctave()+stringify(trackData[trackID].channel)+((trackData[trackID].noteLastSent != 255)?"$":"");
+  String s = sequence.trackData[trackID].getPitchAndOctave()+stringify(sequence.trackData[trackID].channel)+((sequence.trackData[trackID].noteLastSent != 255)?"$":"");
   uint8_t offset = printPitch(xCoord, yCoord, s, bigOct, channel, c);
   offset+=4;
   //if you want to show the track channel
   if(controls.SHIFT() || (menuIsActive && activeMenu.menuTitle == "TRK")){
     String sx = ":";
-    sx += stringify(trackData[trackID].channel);
-    // if(trackData[trackID].isLatched){
+    sx += stringify(sequence.trackData[trackID].channel);
+    // if(sequence.trackData[trackID].isLatched){
     //   sx += "<";
     // }
     // display.drawBitmap(xCoord+offset+2,yCoord,ch_tiny,6,3,1);
@@ -1007,7 +1026,7 @@ void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct
     offset+=sx.length()*4;
   }
   //if you want to show the track "primed" status for recording
-  if(recording && trackData[trackID].isPrimed){
+  if(recording && sequence.trackData[trackID].isPrimed){
     if((millis()+trackID*10)%1000>500){
       display.fillCircle(trackDisplay-5,yCoord+1,2,1);
     }
@@ -1569,7 +1588,7 @@ void drawOSScreen(){
   clearButtons();
   lastTime = millis();
   while(true){
-    if(utils.itsbeen(200)&&anyActiveInputs()){
+    if(utils.itsbeen(200)&&controls.anyActiveInputs()){
       clearButtons();
       lastTime = millis();
       return;
@@ -1582,19 +1601,19 @@ void drawOSScreen(){
 void updateLEDs(){
   uint16_t dat = 0;//00000000
   if(LEDsOn && !screenSaverActive){
-    uint16_t viewLength = viewEnd-viewStart;
-    //move through the view, check every subDivInt
+    uint16_t viewLength = sequence.viewEnd-sequence.viewStart;
+    //move through the view, check every sequence.subDivision
     const uint16_t jump = viewLength/16;
     //if there are any notes, check
-    if(seqData[activeTrack].size()>1){
+    if(sequence.noteData[sequence.activeTrack].size()>1){
       for(uint8_t i = 0; i<16; i++){
-        uint16_t step = viewStart+i*jump;
-        if(lookupData[activeTrack][step] != 0){
+        uint16_t step = sequence.viewStart+i*jump;
+        if(sequence.lookupTable[sequence.activeTrack][step] != 0){
           //not sure if it should only light up if it's on the start step or nah
-          if(seqData[activeTrack][lookupData[activeTrack][step]].startPos == step){
+          if(sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][step]].startPos == step){
             //if playing or recording, and the head isn't on that step, it should be on
             //if it is on that step, then the step should blink
-            if((playing && (playheadPos <  seqData[activeTrack][lookupData[activeTrack][step]].startPos || playheadPos > seqData[activeTrack][lookupData[activeTrack][step]].endPos)) || !playing){
+            if((playing && (playheadPos <  sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][step]].startPos || playheadPos > sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][step]].endPos)) || !playing){
               dat = dat|(1<<i);
             }
           }

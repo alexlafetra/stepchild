@@ -1,7 +1,7 @@
 void drumPad(){
   drumPadAnimation(screenWidth-25,5,36,16, true);
   while(true){
-    readButtons();
+    controls.readButtons();
     stepButtons();//handles notes, and toggling
     //midi messages from encoders when in keys/drumpads mode
     while(controls.counterA != 0){
@@ -14,12 +14,12 @@ void drumPad(){
       controls.counterA += controls.counterA<0?1:-1;
     }
     while(controls.counterB != 0){
-      if(controls.counterB >= 1 && defaultChannel<16){
-        defaultChannel++;
+      if(controls.counterB >= 1 && sequence.defaultChannel<16){
+        sequence.defaultChannel++;
         controls.counterB += controls.counterB<0?1:-1;;
       }
-      else if(controls.counterB <= -1 && defaultChannel>0){
-        defaultChannel--;
+      else if(controls.counterB <= -1 && sequence.defaultChannel>0){
+        sequence.defaultChannel--;
         controls.counterB += controls.counterB<0?1:-1;;
       }
     }

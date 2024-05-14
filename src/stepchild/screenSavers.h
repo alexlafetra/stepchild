@@ -7,7 +7,7 @@ void deepSleep(){
     turnOffLEDs();
     while(true){
       delay(1);
-      if(anyActiveInputs()){
+      if(controls.anyActiveInputs()){
         lastTime = millis();
         break;
       }
@@ -21,7 +21,7 @@ void deepSleep(){
     display.clearDisplay();
     display.display();
     while(true){
-        if(anyActiveInputs){
+        if(controls.anyActiveInputs){
             break;
         }
     }
@@ -58,11 +58,8 @@ void screenSaver_cassette(){
     // else{
     //   done = false;
     // }
-    if(anyActiveInputs()){
+    if(controls.anyActiveInputs()){
       lastTime = millis();
-      return;
-    }
-    else if(utils.itsbeen(sleepTime) && done){
       return;
     }
   }
@@ -109,11 +106,8 @@ void screenSaver_ripples(){
     // else{
     //   done = false;
     // }
-    if(anyActiveInputs()){
+    if(controls.anyActiveInputs()){
       lastTime = millis();
-      return;
-    }
-    else if(utils.itsbeen(sleepTime) && done){
       return;
     }
   }
@@ -137,11 +131,8 @@ void screenSaver_moon(){
     drawMoon(phase, waxing);
     display.display();
     counter+=waxing?1:-1;;
-    if(anyActiveInputs()){
+    if(controls.anyActiveInputs()){
       lastTime = millis();
-      return;
-    }
-    else if(utils.itsbeen(sleepTime) && done){
       return;
     }
   }
@@ -155,11 +146,8 @@ void screenSaver_template(){
     //put your rendering code here!
     display.display();
     //checking if any buttons are pressed and breaking out of the loop if so
-    if(anyActiveInputs()){
+    if(controls.anyActiveInputs()){
       lastTime = millis();
-      return;
-    }
-    else if(utils.itsbeen(sleepTime) && done){
       return;
     }
   }
@@ -189,11 +177,8 @@ void screenSaver_prams(){
     //Serial.println(prams.size());
 
     //checking if any buttons are pressed and breaking out of the loop if so
-    if(anyActiveInputs()){
+    if(controls.anyActiveInputs()){
       lastTime = millis();
-      return;
-    }
-    else if(utils.itsbeen(sleepTime)){
       return;
     }
   }
@@ -222,11 +207,8 @@ void screenSaver_droplets(){
     display.display();
     drops.swap(temp);
     //checking if any buttons are pressed and breaking out of the loop if so
-    if(anyActiveInputs()){
+    if(controls.anyActiveInputs()){
       lastTime = millis();
-      return;
-    }
-    else if(utils.itsbeen(sleepTime)){
       return;
     }
   }
@@ -240,11 +222,8 @@ void screenSaver_keys(){
     drawKeys(0,5,getOctave(keyboardPitch),14,true);//always start on a C, for simplicity
     display.display();
     //checking if any buttons are pressed and breaking out of the loop if so
-    if(anyActiveInputs()){
+    if(controls.anyActiveInputs()){
       lastTime = millis();
-      return;
-    }
-    else if(utils.itsbeen(sleepTime) && done){
       return;
     }
   }
@@ -272,11 +251,8 @@ void screenSaver_text(){
       textStart = 0;
     }
     //checking if any buttons are pressed and breaking out of the loop if so
-    if(anyActiveInputs()){
+    if(controls.anyActiveInputs()){
       lastTime = millis();
-      return;
-    }
-    else if(utils.itsbeen(sleepTime) && done){
       return;
     }
   }
@@ -286,8 +262,8 @@ void screenSaver_text(){
 //https://www.youtube.com/watch?v=5IfB819O7qg
 void screenSaver_playing(){
   while(true){
-    readButtons();
-    if(anyActiveInputs()){
+    controls.readButtons();
+    if(controls.anyActiveInputs()){
       lastTime = millis();
       break;
     }
@@ -295,8 +271,8 @@ void screenSaver_playing(){
     display.drawFastVLine(64,0,64,1);
     // graphics.drawDottedLineH(64,0,64,2);
     vector<uint8_t> trackIDsWithPitches;
-    for(uint8_t i = 0; i<trackData.size(); i++){
-      if(seqData[i].size()>1){
+    for(uint8_t i = 0; i<sequence.trackData.size(); i++){
+      if(sequence.noteData[i].size()>1){
         trackIDsWithPitches.push_back(i);
       }
     }
@@ -307,8 +283,8 @@ void screenSaver_playing(){
           continue;
         if(track>8)
           break;
-        if(lookupData[track][start+step]){
-          Note note = seqData[track][lookupData[track][start+step]];
+        if(sequence.lookupTable[track][start+step]){
+          Note note = sequence.noteData[track][sequence.lookupTable[track][start+step]];
           if(note.startPos == (start+step)){
             if(playheadPos<note.endPos && playheadPos>=note.startPos)
               display.fillRect(step,track*8,note.endPos-note.startPos,7,1);
@@ -328,15 +304,16 @@ void screenSaver_playing(){
   }
 }
 
+
 void screenSaver(){
   //vector that holds all the screen savers
   if(playing || recording){
     screenSaver_playing();
+    return;
   }
+  //running a random screen saver from the list
   vector<void (*)()> screenSaverList = {screenSaver_prams,screenSaver_droplets,screenSaver_cassette,screenSaver_ripples,screenSaver_text};
-  uint8_t which = random(0,screenSaverList.size());
-  //running the screen saver
-  screenSaverList[which]();
+  screenSaverList[random(0,screenSaverList.size())]();
 }
 
 void screenSaverCheck(){

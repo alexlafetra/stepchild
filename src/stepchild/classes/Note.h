@@ -17,9 +17,9 @@ class Note {
 
 //default constructor
 Note::Note() {
-  startPos = cursorPos;
-  endPos = cursorPos + subDivInt;
-  velocity = defaultVel;
+  startPos = 0;
+  endPos = 24;
+  velocity = 127;
   isSelected = false;
   chance = 100;
   muted = false;
@@ -42,7 +42,7 @@ Note::Note(unsigned short int xPos, unsigned short int xEnd, unsigned char vel){
 }
 Note::Note(unsigned short int xPos, unsigned char vel, unsigned char odds){
   startPos = xPos;
-  endPos = xPos + subDivInt;
+  endPos = xPos + 24;//1/4 note by default
   velocity = vel;
   isSelected = false;
   chance = odds;

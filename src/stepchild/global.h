@@ -37,13 +37,10 @@ bool recording = false;
 
 bool gotClock = false;
 bool hasStarted = false;
-bool isArping = false;
 bool menuIsActive = false;
 bool displayingVel = true;//get rid of this
 bool drawingNote = false;
 bool pitchesOrNumbers = true;
-
-bool pramOffset = 1;
 
 #define INTERNAL_CLOCK 1
 #define EXTERNAL_CLOCK 0
@@ -70,35 +67,12 @@ bool isFragmenting = false;
 
 bool editingNote = false;
 
-uint16_t cursorPos; //cursor position (before playing)
-uint8_t activeLoop;//loop that's currently active
-uint8_t activeTrack; //sets which track you're editing, you'll only be able to edit one at a time
-uint8_t subDivInt;//sets where the divider bars are in the console output
-//cursor jump is locked to this division
-
-uint8_t activeAutotrack;
-
-//counts up for each iteration of a loop
-uint8_t loopCount;//controls how many times sequence has looped
-bool isLooping = true;//controls whether or not the sequence loops at all
-
 //lets you drag the loop indicators around
 //0 is off, 1 is start, -1 is end, 2 is both
 int8_t movingLoop = 0;
 
-unsigned short int viewStart;//where the view ends, usually moves by measures but controls.SHIFT() lets it move one at a time
-unsigned short int viewEnd;//where the view ends
-
-//you could get rid of this! just use lookupData[0].size()
-unsigned short int seqEnd;
-
-float scale = 0.5;//HEY this needs to match the initial viewEnd call, otherwise it'll be all fucked up
-//basically, viewEnd * scale = 96;
-
 unsigned short int playheadPos;
 unsigned short int recheadPos;
-
-uint16_t selectionCount = 0;
 
 const unsigned char headerHeight = 16;
 const unsigned char trackDisplay = 32;
@@ -134,13 +108,10 @@ uint8_t endTrack;
 bool core1ready = false;
 
 //30000/1000 = 30 seconds
-uint16_t sleepTime = 10000;
+//uint16_t sleepTime = 30000;
+uint16_t sleepTime = 1000;
 //60,000ms = 1min
 const unsigned long deepSleepTime = 60000;
-
-unsigned char defaultPitch;
-unsigned char defaultChannel;
-unsigned char defaultVel;//default velocity;
 
 unsigned char keyboardPitch = 36;//holds the lowest key the keyboard is playing
 

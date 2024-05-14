@@ -4,7 +4,7 @@ CoordinatePair selectNotesAndArea(String text, void (*iconFunction)(uint8_t,uint
     //and then reset it back to the original loop
     while(true){
         controls.readJoystick();
-        readButtons();
+        controls.readButtons();
         defaultSelectBoxControls();
         defaultJoystickControls(false);
         defaultEncoderControls();
@@ -22,13 +22,13 @@ CoordinatePair selectNotesAndArea(String text, void (*iconFunction)(uint8_t,uint
             }
         }
         display.clearDisplay();
-        drawSeq(true, false, true, false, false, true, viewStart, viewEnd);
+        drawSeq(true, false, true, false, false, true, sequence.viewStart, sequence.viewEnd);
         printSmall(trackDisplay,0,text,1);
         iconFunction(7,1,14,true);
         display.display();
     }
-    bounds.start.x = loopData[activeLoop].start;
-    bounds.end.x = loopData[activeLoop].end;
+    bounds.start.x = sequence.loopData[sequence.activeLoop].start;
+    bounds.end.x = sequence.loopData[sequence.activeLoop].end;
     return bounds;
 }
 
@@ -48,12 +48,12 @@ void reverse(){
     //this is for making it transition nicely from the fx menu
     //but it doesn't play well with the edit menu :(
     // slideMenuOut(0,20);
-    Loop tempLoop = loopData[activeLoop];
+    Loop tempLoop = sequence.loopData[sequence.activeLoop];
     while(true){
         clearSelection();
         CoordinatePair bounds = selectNotesAndArea("Sel notes + bounds to rev",drawRevIcon);
         //if no notes were selected (because the user backed out, or goofed)
-        if(selectionCount == 0){
+        if(sequence.selectionCount == 0){
             break;
         }
         //if no area was selected (because the user goofed)
@@ -68,9 +68,9 @@ void reverse(){
         //EX: if a note starts 10 steps AFTER the centerpoint, then that note should now END 10 steps BEFORE the centerpoint
     
         //iterate over notes
-        for(uint8_t track = 0; track<seqData.size(); track++){
-            for(uint16_t n = 1; n<seqData[track].size(); n++){
-                Note note = seqData[track][n];
+        for(uint8_t track = 0; track<sequence.noteData.size(); track++){
+            for(uint16_t n = 1; n<sequence.noteData[track].size(); n++){
+                Note note = sequence.noteData[track][n];
                 //if the note is selected & is TOTALLY within reverse bounds
                 if(note.isSelected && (note.startPos>=bounds.start.x && note.endPos<=bounds.end.x)){
 
@@ -86,15 +86,15 @@ void reverse(){
                     note.isSelected = false;
 
                     //del the old note
-                    deleteNote_byID(track,n);
+                    sequence.deleteNote_byID(track,n);
 
                     //place the new note
-                    makeNote(note,track);
+                    sequence.makeNote(note,track);
                 }
             }
         }
     }
     
     //reset the loop points to the loop we stored in the beginning
-    loopData[activeLoop] = tempLoop;
+    sequence.loopData[sequence.activeLoop] = tempLoop;
 }

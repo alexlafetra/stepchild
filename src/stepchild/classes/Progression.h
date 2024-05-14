@@ -175,7 +175,7 @@ void Progression::commit(){
   // delay(10);
   //for knowing which tracks are 'new'
   //so we don't add a bunch of notes to old tracks
-  uint8_t trackOffset = trackData.size();
+  uint8_t trackOffset = sequence.trackData.size();
   //make a new track for each unique pitch
   for(uint8_t i = 0; i<uniquePitches.size(); i++){
     addTrack_noMove(Track(uniquePitches[i],1), false);
@@ -192,9 +192,9 @@ void Progression::commit(){
       uint8_t track = getTrackWithPitch_above(chords[i].intervals[j]+chords[i].root,trackOffset);
       // delay(10);
       Note newNote = Note(writeHead,writeHead+chords[i].length,127,100,false,false);
-      makeNote(newNote,track,false);
-      // activeTrack = track;
-      if(writeHead>=seqEnd)
+      sequence.makeNote(newNote,track,false);
+      // sequence.activeTrack = track;
+      if(writeHead>=sequence.sequenceLength)
         return;
     }
     writeHead+=chords[i].length;

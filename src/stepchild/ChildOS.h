@@ -142,7 +142,7 @@ struct Loop{
   this->type = t;
  }
 };
-vector<Loop> loopData;
+// vector<Loop> loopData;
 //each of the modifiers stores a channel, and a value
 //the parameter gets modified
 //gets added to notes in the vel modifier channel
@@ -157,15 +157,10 @@ GlobalModifiers globalModifiers;
 
 
 //Data variables -------------------------------------------
-unsigned short int copyPos[2];//stores the coordinates of the cursor when copying
-vector<vector<uint16_t> > lookupData; //char map of notes; 0 = no note, 1-665,535 = noteID
-vector<vector<Note>> seqData;//making a 2D vec, number of rows = tracks, number of columns = usable notes, and stores Note objects
-vector<vector<Note>> copyBuffer;//stores copied notes
+// unsigned short int copyPos[2];//stores the coordinates of the cursor when copying
+// vector<vector<Note>> copyBuffer;//stores copied notes
 //holds all the autotracks
 vector<Autotrack> autotrackData;
-vector<Track> trackData;//holds the tracks in the sequence
-
-
 
 unsigned short int animOffset = 0;//for animating curves
 
@@ -180,7 +175,6 @@ unsigned short int animOffset = 0;//for animating curves
 #include "global.h"
 
 //button defs and reading functions
-#include "lowerBoard.h"
 #include "hardware.h"
 
 //common helper functions/utilities
@@ -195,7 +189,6 @@ unsigned short int animOffset = 0;//for animating curves
 #include "classes/Track.h"
 #include "classes/Knob.h"
 
-#include "temp.h"
 #include "sequence.h"
 
 //original ChildOS fonts
@@ -217,15 +210,15 @@ Knob controlKnobs[16];
 //These need to be referenced after Autotracks are defined
 void rotaryActionA_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  controls.counterA += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)?controls.readEncoder(0)*4:controls.readEncoder(0);
-  if(recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 1)
+  controls.counterA += (recordingToAutotrack && autotrackData[sequence.activeAutotrack].recordFrom == 1)?controls.readEncoder(0)*4:controls.readEncoder(0);
+  if(recordingToAutotrack && autotrackData[sequence.activeAutotrack].recordFrom == 1)
     waitingToReceiveANote = false;
 }
 
 void rotaryActionB_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  controls.counterB += (recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)?controls.readEncoder(1)*4:controls.readEncoder(1);
-  if(recordingToAutotrack && autotrackData[activeAutotrack].recordFrom == 2)
+  controls.counterB += (recordingToAutotrack && autotrackData[sequence.activeAutotrack].recordFrom == 2)?controls.readEncoder(1)*4:controls.readEncoder(1);
+  if(recordingToAutotrack && autotrackData[sequence.activeAutotrack].recordFrom == 2)
     waitingToReceiveANote = false;
 }
 
@@ -286,5 +279,4 @@ void rotaryActionB_Handler(){
 #include "CCSelector.h"
 
 #include "TBA_Features.h"
-#include "deprecatedDebugFunctions.h"
 #include "everything.h"

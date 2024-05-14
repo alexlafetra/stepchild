@@ -100,7 +100,7 @@ QChord editChord(QChord& originalChord){
 
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(controls.joystickX != 0 && ((!controls.SHIFT() && utils.itsbeen(50)) || (controls.SHIFT() && utils.itsbeen(150)))){
         if(controls.joystickX == -1 && keyCursor<12*octave+35){
             keyCursor++;
@@ -231,40 +231,40 @@ QChord getChordFromPlaylist(){
 void insertChordAt(uint16_t timestep,uint16_t length, uint8_t trackLoc, QChord chord, uint8_t channel, uint8_t velocity){
     for(uint8_t i = 0; i<chord.intervals.size(); i++){
         int16_t trackID = insertTrack_return(chord.intervals[i]+chord.octave()*12,channel,false, trackLoc);
-        makeNote(trackID,timestep,length,velocity,100,false,false,false);
+        sequence.makeNote(trackID,timestep,length,velocity,100,false,false,false);
     }
 }
 
 void insertChordIntoSequence(QChord chord){
-    uint16_t length = subDivInt;
+    uint16_t length = sequence.subDivision;
     uint8_t channel = 1;
     uint8_t velocity = 127;
     selBox.begun = true;
     while(true){
-        readButtons();
+        controls.readButtons();
         controls.readJoystick();
         defaultJoystickControls(false);
 
-        selBox.coords.start.x = cursorPos+length;
-        selBox.coords.start.y = activeTrack+chord.intervals.size();
-        if(selBox.coords.end.y>=trackData.size()){
-            selBox.coords.end.y = trackData.size()-1;
+        selBox.coords.start.x = sequence.cursorPos+length;
+        selBox.coords.start.y = sequence.activeTrack+chord.intervals.size();
+        if(selBox.coords.end.y>=sequence.trackData.size()){
+            selBox.coords.end.y = sequence.trackData.size()-1;
         }
 
         //Encoders
         while(controls.counterA != 0){
             //changing zoom
             if(controls.counterA >= 1){
-                if(controls.SHIFT() && (length<(192-subDivInt))){
-                    length+=subDivInt;
+                if(controls.SHIFT() && (length<(192-sequence.subDivision))){
+                    length+=sequence.subDivision;
                 }
                 else if(!controls.SHIFT()){
                     zoom(true);
                 }
             }
             if(controls.counterA <= -1){
-                if(controls.SHIFT() && (length-subDivInt)>0){
-                    length-=subDivInt;
+                if(controls.SHIFT() && (length-sequence.subDivision)>0){
+                    length-=sequence.subDivision;
                 }
                 else if(!controls.SHIFT()){
                     zoom(false);
@@ -294,13 +294,13 @@ void insertChordIntoSequence(QChord chord){
             }
             if(controls.NEW()){
                 lastTime = millis();
-                insertChordAt(cursorPos,length,activeTrack,chord,channel,velocity);
+                insertChordAt(sequence.cursorPos,length,sequence.activeTrack,chord,channel,velocity);
                 selBox.begun = false;
                 break;
             }
         }
         display.clearDisplay();
-        drawSeq(true,false,true,false,false,false,viewStart,viewEnd);
+        drawSeq(true,false,true,false,false,false,sequence.viewStart,sequence.viewEnd);
         display.fillRect(0,0,55,15,0);
         display.drawRect(0,0,55,15,1);
         printSmall(0,0,"[Sh]+[B] for +/-",1);
@@ -351,7 +351,7 @@ void chordDJ(){
             }
         }
         display.display();
-        readButtons();
+        controls.readButtons();
         controls.readJoystick();
 
         //while shifting, set the active chord to whatever keys are held

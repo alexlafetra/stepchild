@@ -62,7 +62,7 @@ void rattle(){
             timeSinceLastNote = millis();
         }
 
-        readButtons();
+        controls.readButtons();
         if(utils.itsbeen(200)){
             if(controls.PLAY()){
                 isPlaying = !isPlaying;

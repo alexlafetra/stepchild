@@ -12,8 +12,8 @@ NoteID::NoteID(uint8_t t, uint16_t i){
     id = i;
 }
 Note NoteID::getNote(){
-    return seqData[track][id];
+    return sequence.noteData[track][id];
 }
 uint8_t NoteID::getPitch(){
-    return trackData[track].pitch;
+    return sequence.trackData[track].pitch;
 }

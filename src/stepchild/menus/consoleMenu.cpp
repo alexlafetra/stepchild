@@ -31,7 +31,7 @@ void console(){
   const uint8_t maxLines = 8;
 
   while(true){
-    readButtons();
+    controls.readButtons();
     if(utils.itsbeen(200)){
       if(controls.MENU()){
         lastTime = millis();

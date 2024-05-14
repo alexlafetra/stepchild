@@ -1,84 +1,152 @@
-//Misc. unused code, that might be useful in the future
-void drawCurlyBracket(int16_t x1, uint8_t y1, uint8_t length,uint8_t height,bool start, bool end){
-  //left leg
-  if(start){
-    display.drawFastVLine(x1,y1-height,height,SSD1306_WHITE);
-    display.drawPixel(x1+1,y1-height-1,SSD1306_WHITE);
-    //left top
-    display.drawFastHLine(x1+2,y1-height-2,length/2-3,SSD1306_WHITE);
-  }
-  //if start is out of view
-  else{
-    display.drawFastHLine(trackDisplay,y1-height-2,length/2-3-(viewStart-x1),SSD1306_WHITE);
-  }
-  //middle
-  display.drawPixel(x1+length/2-1,y1-height-1,SSD1306_WHITE);
-  display.drawFastVLine(x1+length/2,y1-height-4,3,SSD1306_WHITE);
-  display.drawPixel(x1+length/2+1,y1-height-1,SSD1306_WHITE);
-  //right top
-  display.drawFastHLine(x1+length/2+2,y1-height-2,length/2-3,SSD1306_WHITE);
-  //right leg
-  display.drawPixel(x1+length-1,y1-height-1,SSD1306_WHITE);
-  display.drawFastVLine(x1+length,y1-height,height,SSD1306_WHITE);
+void debugDumpRegisters(MCP23017 mcp){
+  	uint8_t conf = mcp.readRegister(MCP23017Register::IODIR_A);
+	Serial.print("IODIR_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+	
+	conf = mcp.readRegister(MCP23017Register::IODIR_B);
+	Serial.print("IODIR_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::IPOL_A);
+	Serial.print("IPOL_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::IPOL_B);
+	Serial.print("IPOL_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::GPINTEN_A);
+	Serial.print("GPINTEN_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::GPINTEN_B);
+	Serial.print("GPINTEN_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::DEFVAL_A);
+	Serial.print("DEFVAL_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::DEFVAL_B);
+	Serial.print("DEFVAL_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::INTCON_A);
+	Serial.print("INTCON_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::INTCON_B);
+	Serial.print("INTCON_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::IOCON);
+	Serial.print("IOCON : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	//conf = mcp.readRegister(IOCONB);
+	//Serial.print("IOCONB : ");
+	//Serial.print(conf, BIN);
+	//Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::GPPU_A);
+	Serial.print("GPPU_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::GPPU_B);
+	Serial.print("GPPU_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::INTF_A);
+	Serial.print("INTF_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::INTF_B);
+	Serial.print("INTF_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::INTCAP_A);
+	Serial.print("INTCAP_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::INTCAP_B);
+	Serial.print("INTCAP_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::GPIO_A);
+	Serial.print("GPIO_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::GPIO_B);
+	Serial.print("GPIO_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::OLAT_A);
+	Serial.print("OLAT_A : ");
+	Serial.print(conf, BIN);
+	Serial.println();
+
+	conf = mcp.readRegister(MCP23017Register::OLAT_B);
+	Serial.print("OLAT_B : ");
+	Serial.print(conf, BIN);
+	Serial.println();
 }
 
-void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation){
-  switch(rotation){
-    //down
-    case 0:
-      drawCurlyBracket(x1,y1,length,height,start,end);
-      break;
-    //up
-    case 1:
-      display.setRotation(UPSIDEDOWN);
-      drawCurlyBracket(screenWidth-x1,screenHeight-y1,length,height,start,end);
-      display.setRotation(UPRIGHT);
-      break;
-    //right
-    case 2:
-      display.setRotation(1);
-      drawCurlyBracket(y1,x1,height,length,start,end);
-      display.setRotation(UPRIGHT);
-      break;
-  }
-}
 
 //Debug -------------------------------------------------------------------------
 //counts notes
 void debugNoteCount() {
   int totalNotes = 0;
-  for (int i = 0; i < trackData.size(); i++) {
-    totalNotes += seqData[i].size()-1;
+  for (int i = 0; i < sequence.trackData.size(); i++) {
+    totalNotes += sequence.noteData[i].size()-1;
   }
   //Serial.print(totalNotes + " notes stored in memory\n");
 }
 
 //prints the selection buffer, doe
 void debugPrint() {
-  //Serial.println("Printing out seqData...");
-  for(int i = 0; i<trackData.size(); i++){
-    for(int j = 1; j<seqData[i].size()-1; j++){
+  //Serial.println("Printing out sequence.noteData...");
+  for(int i = 0; i<sequence.trackData.size(); i++){
+    for(int j = 1; j<sequence.noteData[i].size()-1; j++){
       //Serial.println("+------------+");
       //Serial.print("id: ");
       //Serial.println(j);
       //Serial.print("start: ");
-      //Serial.println(seqData[i][j].startPos);
+      //Serial.println(sequence.noteData[i][j].startPos);
       //Serial.print("end: ");
-      //Serial.println(seqData[i][j].endPos);
+      //Serial.println(sequence.noteData[i][j].endPos);
     }
   }
   //Serial.print("total notes on this track: ");
-  //Serial.print(int(seqData[activeTrack].size()-1));
+  //Serial.print(int(sequence.noteData[sequence.activeTrack].size()-1));
   //Serial.print("total notes in the sequence: ");
   int totalNotes = 0;
-  for (int i = 0; i < trackData.size(); i++) {
-    totalNotes = totalNotes + seqData[i].size()-1;
+  for (int i = 0; i < sequence.trackData.size(); i++) {
+    totalNotes = totalNotes + sequence.noteData[i].size()-1;
   }
   //Serial.print(totalNotes);
   //Serial.print("\nNotes in data: ");
   totalNotes = 0;
-  for (int i = 0; i < trackData.size(); i++) {
-    totalNotes = seqData[i].size() - 1 + totalNotes;
+  for (int i = 0; i < sequence.trackData.size(); i++) {
+    totalNotes = sequence.noteData[i].size() - 1 + totalNotes;
   }
   //Serial.print(totalNotes);
 }
@@ -97,9 +165,9 @@ void printByte(uint8_t b){
 //fills sequence with notes
 void debugFillSeq() {
   //Serial.print("filling with notes\n");
-  for (int i = 0; i < trackData.size(); i++) {
+  for (int i = 0; i < sequence.trackData.size(); i++) {
     for (int j = 0; j < 254; j++) {
-      makeNote(i, j, subDivInt, 0);
+      sequence.makeNote(i, j, sequence.subDivision, 0);
     }
   }
   debugNoteCount();
@@ -109,12 +177,12 @@ void debugFillSeq() {
 void debugPrintMem(bool verby){
   if(verby){
     //Serial.print("tracks:");
-    //Serial.println(seqData.size());
+    //Serial.println(sequence.noteData.size());
     //Serial.print("notes:");
-    for(int i = 0; i<trackData.size(); i++){
+    for(int i = 0; i<sequence.trackData.size(); i++){
       //Serial.print(i);
       //Serial.print(" - ");
-      //Serial.println(seqData[i].size());
+      //Serial.println(sequence.noteData[i].size());
     }
   }
   //Serial.print("free:");
@@ -129,18 +197,18 @@ void debugPrintMem(bool verby){
 
 void debugPrintSelection(){
   //Serial.print("#:");
-  //Serial.println(selectionCount);
-  for(int track = 0; track<trackData.size(); track++){
-    for(int note = 1; note<=seqData[track].size()-1; note++){
-      if(seqData[track][note].isSelected){
+  //Serial.println(sequence.selectionCount);
+  for(int track = 0; track<sequence.trackData.size(); track++){
+    for(int note = 1; note<=sequence.noteData[track].size()-1; note++){
+      if(sequence.noteData[track][note].isSelected){
         //Serial.print("note ");
         //Serial.print(note);
         //Serial.print(" on track ");
         //Serial.println(track);
         //Serial.print("[");
-        //Serial.print(seqData[track][note].startPos);
+        //Serial.print(sequence.noteData[track][note].startPos);
         //Serial.print(",");
-        //Serial.print(seqData[track][note].endPos);
+        //Serial.print(sequence.noteData[track][note].endPos);
         //Serial.println("]");
       }
     }
@@ -150,7 +218,7 @@ void debugPrintSelection(){
 void testJoyStick(){
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(utils.itsbeen(200) && controls.MENU()){
       lastTime = millis();
       return;
@@ -173,7 +241,7 @@ void keyListen() {
   key = Serial.read();
   switch (key) {
     case 'k':
-      activeArp.start();
+      arp.start();
       break;
     case 'z':
       debugPrintSelection();
@@ -184,7 +252,7 @@ void keyListen() {
       // fragmentMenu();
       break;
     case 'C':
-      copy();
+      clipboard.copy();
       break;
     case 'N':
       constructMenu("EDIT");
@@ -204,14 +272,14 @@ void keyListen() {
       //Serial.println(track);
       break;
     case '.'://>
-      moveCursor(subDivInt);
+      moveCursor(sequence.subDivision);
       displaySeqSerial();
       break;
     case 'f':
       debugPrintLookup();
       break;
     case ','://<
-      moveCursor(-subDivInt);
+      moveCursor(-sequence.subDivision);
       displaySeqSerial();
       break;
     case '>'://precise movement
@@ -224,19 +292,19 @@ void keyListen() {
       break;
     case 'n':
       //Serial.print("writing a note...\n");
-      makeNote(activeTrack, cursorPos, subDivInt, 1); //default makes an 8th note
+      sequence.makeNote(sequence.activeTrack, sequence.cursorPos, sequence.subDivision, 1); //default makes an 8th note
       displaySeqSerial();
       break;
     case ']':
-      setActiveTrack(activeTrack - 1, false);
+      setActiveTrack(sequence.activeTrack - 1, false);
         displaySeqSerial();
       break;
     case '[':
-      setActiveTrack(activeTrack + 1, false);
+      setActiveTrack(sequence.activeTrack + 1, false);
         displaySeqSerial();
       break;
     case 's'://select a note
-        toggleSelectNote(activeTrack,getIDAtCursor(),true);
+        toggleSelectNote(sequence.activeTrack,sequence.IDAtCursor(),true);
         displaySeqSerial();
       break;
     case 'p'://debug print selected notes
@@ -244,19 +312,19 @@ void keyListen() {
         // displaySeqSerial();
       break;
     case 't': //add track (tricky! big moment if this works first time) LMAO
-      addTrack(defaultPitch);
-      defaultPitch++;
+      addTrack(sequence.defaultPitch);
+      sequence.defaultPitch++;
         displaySeqSerial();
       break;
     case 'd'://controls.DELETE()eting the selected note(s)
       //Serial.print("attempting to del ");
-      if (selectionCount > 0) {
+      if (sequence.selectionCount > 0) {
         //Serial.print("all selected notes...\n");
-        deleteSelected();
+        sequence.deleteSelected();
       }
       else {
         //Serial.print("1 note...\n");
-        deleteNote();
+        sequence.deleteNote();
       }
       displaySeqSerial();
       break;
@@ -283,11 +351,11 @@ void keyListen() {
     case 'a'://selects all in track
       break;
     case ';':
-      loopData[activeLoop].end -= 16;
+      sequence.loopData[sequence.activeLoop].end -= 16;
         displaySeqSerial();
       break;
     case '\'':
-      loopData[activeLoop].end += 16;
+      sequence.loopData[sequence.activeLoop].end += 16;
     case 'r':
       toggleRecordingMode(waitForNoteBeforeRec);
       break;
@@ -377,17 +445,17 @@ void noBitches(){
 
 //prints out lookupdata
 void debugPrintLookup(){
-  for(int i = 0; i<trackData.size();i++){
-    //Serial.print(stringify(i)+":"+trackData[i].getPitch());
+  for(int i = 0; i<sequence.trackData.size();i++){
+    //Serial.print(stringify(i)+":"+sequence.trackData[i].getPitch());
     //Serial.print('|');
-    for(int j = 0; j<= seqEnd; j++){
-      // if(!j%subDivInt)
+    for(int j = 0; j<= sequence.sequenceLength; j++){
+      // if(!j%sequence.subDivision)
       //   //Serial.print('|');
-      if(lookupData[i][j]==0){
+      if(sequence.lookupTable[i][j]==0){
         //Serial.print('-');
       }
       else{
-        //Serial.print(lookupData[i][j]);
+        //Serial.print(sequence.lookupTable[i][j]);
       }
     }
     //Serial.println('|');
@@ -395,10 +463,10 @@ void debugPrintLookup(){
 }
 
 void debugFillSequence(){
-  for(uint16_t step = 0; step<seqEnd; step++){
+  for(uint16_t step = 0; step<sequence.sequenceLength; step++){
     Note debugNote(step,step,127,100,false,false);
-    for(uint8_t track = 0; track<trackData.size(); track++){
-      makeNote(debugNote,track,false);
+    for(uint8_t track = 0; track<sequence.trackData.size(); track++){
+      sequence.makeNote(debugNote,track,false);
     }
   }
 }
@@ -409,7 +477,7 @@ void debugFillTrack(int division) {
   //Serial.print(division);
   //Serial.print(" slices...\n");
   for (int j = 0; j < 254; j += division) {
-    makeNote(activeTrack, j, subDivInt, 0);
+    sequence.makeNote(sequence.activeTrack, j, sequence.subDivision, 0);
   }
 }
 
@@ -429,20 +497,6 @@ void debugTestSwing(){
     //Serial.print("w/swing: ");
     //Serial.println(t+sequenceClock.uSecPerStep);
     i%=96;
-  }
-}
-void debugPrintCopyBuffer(){
-  for(int track = 0; track<trackData.size(); track++){
-    for(int i = 0; i<copyBuffer[track].size(); i++){
-      //Serial.print("note ");
-      //Serial.println(i);
-      //Serial.print("s:");
-      //Serial.println(copyBuffer[track][i].startPos);
-      //Serial.print("e:");
-      //Serial.println(copyBuffer[track][i].endPos);
-      //Serial.print("on track:");
-      //Serial.println(track);
-    }
   }
 }
 
@@ -534,7 +588,7 @@ void printPlaybackOptions(uint8_t which, uint8_t cursor, bool active){
     case 1:
       printSmall(x1,y1+1,"loop:",1);
       //loop on/off
-      if(isLooping){
+      if(sequence.isLooping){
         printSmall(x1+24,y1+1,"on",1);
       }
       else{
@@ -552,7 +606,7 @@ void printPlaybackOptions(uint8_t which, uint8_t cursor, bool active){
       if(active){
         switch(cursor){
           case 0:
-            display.fillRoundRect(x1+22,y1-1,isLooping?11:15,9,3,2);
+            display.fillRoundRect(x1+22,y1-1,sequence.isLooping?11:15,9,3,2);
             graphics.drawArrow(x1+37+((millis()/200)%2),y1+3,3,1,false);
             break;
           case 1:
@@ -622,7 +676,7 @@ void playBackMenu(){
   //0 is switching between menus, 1 is play, 2 is rec, 3 is stop
   uint8_t menuState = 0;
   while(true){
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     while(controls.counterA != 0){
       switch(menuState){
@@ -630,7 +684,7 @@ void playBackMenu(){
         case 1:
           switch(menuCursor){
             case 0:
-              isLooping = !isLooping;
+              sequence.isLooping = !sequence.isLooping;
               break;
             case 1:
               clockSource = !clockSource;
@@ -668,7 +722,7 @@ void playBackMenu(){
           case 1:
             switch(menuCursor){
               case 0:
-                isLooping = !isLooping;
+                sequence.isLooping = !sequence.isLooping;
                 lastTime = millis();
                 break;
               case 1:
@@ -822,7 +876,7 @@ void recMenu(){
   // cassette.xPos = 120;
   while(menuIsActive && activeMenu.menuTitle == "REC"){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(utils.itsbeen(100)){
       if(controls.joystickY != 0){
         //if you're in priming mode
@@ -833,7 +887,7 @@ void recMenu(){
               yCursor--;
             lastTime = millis();
           }
-          else if(controls.joystickY == 1 && activeT<trackData.size()-1){
+          else if(controls.joystickY == 1 && activeT<sequence.trackData.size()-1){
             activeT++;
             if(activeT>=yCursor+8)
               yCursor++;
@@ -966,10 +1020,10 @@ void recMenu(){
       }
       if(controls.SELECT() ){
         if(whichWindow){
-          trackData[activeT].isPrimed = !trackData[activeT].isPrimed;
+          sequence.trackData[activeT].isPrimed = !sequence.trackData[activeT].isPrimed;
           if(controls.SHIFT()){
-            for(int i = 0; i<trackData.size(); i++){
-              trackData[i].isPrimed = trackData[activeT].isPrimed;
+            for(int i = 0; i<sequence.trackData.size(); i++){
+              sequence.trackData[i].isPrimed = sequence.trackData[activeT].isPrimed;
             }
           }
           lastTime = millis();
@@ -1097,7 +1151,7 @@ void Menu::displayRecMenu(uint8_t menuCursor,uint8_t start, uint8_t active){
     if(start>0){
       graphics.drawArrow(x1-8,2+((millis()/400)%2),2,2,true);
     }
-    if(start+8<trackData.size()){
+    if(start+8<sequence.trackData.size()){
       graphics.drawArrow(x1-8,62-((millis()/400)%2),2,3,true);
     }
     display.setRotation(1);
@@ -1108,16 +1162,16 @@ void Menu::displayRecMenu(uint8_t menuCursor,uint8_t start, uint8_t active){
     display.drawFastVLine(x1,0,screenHeight,SSD1306_WHITE);
     //drawing each track
     for(uint8_t i = 0; i<8; i++){
-      if(i+start<trackData.size()){
+      if(i+start<sequence.trackData.size()){
         uint8_t x2 = x1+3;
         if(i+start == active){
           x2-=2+((millis()/200)%2);
           graphics.drawArrow(x1-2,i*8+3,2,0,false);
         }
         //print track pitch
-        printSmall(x2+10,i*8+1,trackData[i+start].getPitchAndOctave(),SSD1306_WHITE);
+        printSmall(x2+10,i*8+1,sequence.trackData[i+start].getPitchAndOctave(),SSD1306_WHITE);
         //prime icon
-        if(trackData[i+start].isPrimed){
+        if(sequence.trackData[i+start].isPrimed){
           if((millis()+i*80)%1000>500){
             display.fillCircle(x2+5,i*8+3,3,SSD1306_WHITE);
           }
@@ -1135,47 +1189,47 @@ void Menu::displayRecMenu(uint8_t menuCursor,uint8_t start, uint8_t active){
 
 //DEPRECATED! i don't think i'll use this in any of the loop stuff
 void drawLoopTimeLine(int xStart, int yStart){
-  for(int step = 0; step <= seqEnd; step++){
+  for(int step = 0; step <= sequence.sequenceLength; step++){
     //if the step can be seen
-    if(step*scale+xStart<screenWidth && step*scale+xStart>0){
+    if(step*sequence.viewScale+xStart<screenWidth && step*sequence.viewScale+xStart>0){
       //draw a pixel every other
       if(!(step%2))
-        display.drawPixel(step*scale+xStart,yStart,SSD1306_WHITE);
+        display.drawPixel(step*sequence.viewScale+xStart,yStart,SSD1306_WHITE);
       //for the playhead
       if(step == playheadPos && playing){
-        display.drawRoundRect(step*scale+xStart,yStart-5,step*scale+xStart+3,yStart+5,3,SSD1306_WHITE);
+        display.drawRoundRect(step*sequence.viewScale+xStart,yStart-5,step*sequence.viewScale+xStart+3,yStart+5,3,SSD1306_WHITE);
       }
-      //if it's on a subDivInt
-      if(!(step%subDivInt)){
-        display.drawFastVLine(step*scale+xStart,yStart-3,6,SSD1306_WHITE);
+      //if it's on a sequence.subDivision
+      if(!(step%sequence.subDivision)){
+        display.drawFastVLine(step*sequence.viewScale+xStart,yStart-3,6,SSD1306_WHITE);
       }
       if(!(step%96)){
-        display.drawFastVLine(step*scale+xStart,yStart-5,10,SSD1306_WHITE);
+        display.drawFastVLine(step*sequence.viewScale+xStart,yStart-5,10,SSD1306_WHITE);
       }
-      if(step == seqEnd+1){
-        display.setCursor(step*scale+xStart,yStart-3);
+      if(step == sequence.sequenceLength+1){
+        display.setCursor(step*sequence.viewScale+xStart,yStart-3);
         display.print(")");
       }
       if(step == 0-1){
-        display.setCursor(step*scale+xStart-4,yStart-3);
+        display.setCursor(step*sequence.viewScale+xStart-4,yStart-3);
         display.print("(");
       }
       //drawing the loop start/ends
         //check if a loop starts or ends there, and if it does, draw it
-      //loop through all loopData
+      //loop through all sequence.loopData
       int flagHeight = 3;
-      for(int loop = 0; loop<loopData.size(); loop++){
+      for(int loop = 0; loop<sequence.loopData.size(); loop++){
         //if the loop starts here
-        if(step == loopData[loop].start){
-          display.drawFastVLine(step*scale+xStart,yStart,(loop+1)*8,SSD1306_WHITE);
-          display.fillTriangle(xStart+scale*step, yStart-(loop+1)*5,step*scale+xStart, yStart-(loop+1)*5-flagHeight,step*scale+xStart+flagHeight, xStart-(loop+1)*5-flagHeight,SSD1306_WHITE);
-          if(loopData.size()-1 == loop){//if it's the top loop
-            display.setCursor(step*scale+xStart, yStart-(loop+1)*8);
+        if(step == sequence.loopData[loop].start){
+          display.drawFastVLine(step*sequence.viewScale+xStart,yStart,(loop+1)*8,SSD1306_WHITE);
+          display.fillTriangle(xStart+sequence.viewScale*step, yStart-(loop+1)*5,step*sequence.viewScale+xStart, yStart-(loop+1)*5-flagHeight,step*sequence.viewScale+xStart+flagHeight, xStart-(loop+1)*5-flagHeight,SSD1306_WHITE);
+          if(sequence.loopData.size()-1 == loop){//if it's the top loop
+            display.setCursor(step*sequence.viewScale+xStart, yStart-(loop+1)*8);
           }
           else{
-            display.setCursor(step*scale+xStart, yStart-(loop+1)*8);
+            display.setCursor(step*sequence.viewScale+xStart, yStart-(loop+1)*8);
           }
-          if(loop == activeLoop){
+          if(loop == sequence.activeLoop){
             display.print("{");
             display.print(loop);
             display.print("}");
@@ -1185,10 +1239,10 @@ void drawLoopTimeLine(int xStart, int yStart){
           }
         }
         //if the loop ends here
-        if(step == loopData[loop].end){
-          display.drawLine(step*scale+xStart, yStart-(loop+1)*5, step*scale+xStart,yStart, SSD1306_WHITE);
-          display.drawTriangle(step*scale+xStart, yStart-(loop+1)*5,step*scale+xStart, yStart-(loop+1)*5-flagHeight,step*scale+xStart-flagHeight, yStart-(loop+1)*5-flagHeight,SSD1306_WHITE);
-          display.setCursor(step*scale+xStart+9, yStart-(loop+1)*8);
+        if(step == sequence.loopData[loop].end){
+          display.drawLine(step*sequence.viewScale+xStart, yStart-(loop+1)*5, step*sequence.viewScale+xStart,yStart, SSD1306_WHITE);
+          display.drawTriangle(step*sequence.viewScale+xStart, yStart-(loop+1)*5,step*sequence.viewScale+xStart, yStart-(loop+1)*5-flagHeight,step*sequence.viewScale+xStart-flagHeight, yStart-(loop+1)*5-flagHeight,SSD1306_WHITE);
+          display.setCursor(step*sequence.viewScale+xStart+9, yStart-(loop+1)*8);
           display.print("{");
           display.print(loop);
           display.print("}");
@@ -1198,42 +1252,42 @@ void drawLoopTimeLine(int xStart, int yStart){
   }
 }
 void serialDispLoopData(){
-  //Serial.print("activeLoop: ");
-  //Serial.println(activeLoop);
-  //Serial.print("loopData[activeLoop].start:");
-  //Serial.println(loopData[activeLoop].start);
-  //Serial.print("loopData[activeLoop].end:");
-  //Serial.println(loopData[activeLoop].end);
+  //Serial.print("sequence.activeLoop: ");
+  //Serial.println(sequence.activeLoop);
+  //Serial.print("sequence.loopData[sequence.activeLoop].start:");
+  //Serial.println(sequence.loopData[sequence.activeLoop].start);
+  //Serial.print("sequence.loopData[sequence.activeLoop].end:");
+  //Serial.println(sequence.loopData[sequence.activeLoop].end);
   //Serial.print("iterations:");
-  //Serial.println(loopData[activeLoop].reps);
+  //Serial.println(sequence.loopData[sequence.activeLoop].reps);
   //Serial.print("count:");
-  //Serial.println(loopCount);
+  //Serial.println(sequence.loopCount);
 }
 
-//displays notes in all tracks from viewStart -> viewEnd
+//displays notes in all tracks from sequence.viewStart -> sequence.viewEnd
 void displaySeqSerial() {
   // return;
-  unsigned short int id = lookupData[activeTrack][cursorPos];
+  unsigned short int id = sequence.IDAtCursor();
   //Serial.print("\n");
-  for (int track = trackData.size() - 1; track > -1; track--) {
-    //Serial.print(trackData[track].getPitch());
-    int len = trackData[track].getPitch().length();
+  for (int track = sequence.trackData.size() - 1; track > -1; track--) {
+    //Serial.print(sequence.trackData[track].getPitch());
+    int len = sequence.trackData[track].getPitch().length();
     for(int i = 0; i< 5-len; i++){
       //Serial.print(" ");
     }
     //Serial.print("(");
-    //Serial.print(trackData[track].pitch);//prints the pitch before each track
+    //Serial.print(sequence.trackData[track].pitch);//prints the pitch before each track
     //Serial.print(")");
-    for (int note = viewStart; note < viewEnd*scale; note++) {
-      if (!(note % subDivInt)) { //if note is a multiple of subDivInt, print a divider
+    for (int note = sequence.viewStart; note < sequence.viewEnd*sequence.viewScale; note++) {
+      if (!(note % sequence.subDivision)) { //if note is a multiple of sequence.subDivision, print a divider
         //Serial.print("|");
       }
       //if no note
-      if (lookupData[track][note] == 0) {
-        if (note == cursorPos) { //if the cursor is there
+      if (sequence.lookupTable[track][note] == 0) {
+        if (note == sequence.cursorPos) { //if the cursor is there
           //Serial.print("#");
         }
-        else if (track == activeTrack) { //if the track is active
+        else if (track == sequence.activeTrack) { //if the track is active
           //Serial.print("=");
         }
         else {
@@ -1241,17 +1295,17 @@ void displaySeqSerial() {
         }
       }//if there's a tail_ID
       //if there is a note
-      if (lookupData[track][note] != 0) {
-        if (note == cursorPos && track == activeTrack) { //if the cursor is on it and the track is active
-          if (seqData[track][lookupData[track][note]].isSelected) {
+      if (sequence.lookupTable[track][note] != 0) {
+        if (note == sequence.cursorPos && track == sequence.activeTrack) { //if the cursor is on it and the track is active
+          if (sequence.noteData[track][sequence.lookupTable[track][note]].isSelected) {
             //Serial.print("{S}");
           }
           else {
             //Serial.print("[N]");
           }
         }
-        else if (track == activeTrack) { //if the track is active
-          if (seqData[track][lookupData[track][note]].isSelected) {
+        else if (track == sequence.activeTrack) { //if the track is active
+          if (sequence.noteData[track][sequence.lookupTable[track][note]].isSelected) {
             //Serial.print("s");
           }
           else {
@@ -1259,7 +1313,7 @@ void displaySeqSerial() {
           }
         }
         else { //default display of a note
-          if (seqData[track][lookupData[track][note]].isSelected) {
+          if (sequence.noteData[track][sequence.lookupTable[track][note]].isSelected) {
             //Serial.print("s");
           }
           else {

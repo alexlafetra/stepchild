@@ -90,7 +90,7 @@ void settingsMenu(){
   WireFrame gear = getSettingsMenuWireFrame(menuTab);
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(utils.itsbeen(200)){
       if(controls.joystickY != 0){
         if(xCursor == 0){
@@ -270,18 +270,18 @@ void settingsMenu(){
                 lastTime = millis();
                 int8_t choice = 1;
                 //if there are notes that will be deld
-                uint16_t countedNotes = countNotesInRange(seqEnd-96,seqEnd);
+                uint16_t countedNotes = countNotesInRange(sequence.sequenceLength-96,sequence.sequenceLength);
                 if(countedNotes)
                   choice = binarySelectionBox(64,32,"naur","sure","this will del "+stringify(countedNotes)+" note(s), ok?",displaySettingsMenu_selectionBox);
                 if(choice == 1){
-                  removeTimeFromSeq(96,seqEnd-96);
+                    sequence.removeTimeFromSeq(96,sequence.sequenceLength-96);
                 }
                 lastTime = millis();
                 }
                 break;
               //add time
               case 7:
-                addTimeToSeq(96,seqEnd);
+                    sequence.addTimeToSeq(96,sequence.sequenceLength);
                 lastTime = millis();
                 break;
               //brightness
@@ -395,8 +395,8 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
       graphics.drawLabel(x1+50,y1+36,recMode?"continuous":"1-shot",true);
       
       //length
-      printSmall(x1+3,y1+48,"length -- "+stepsToMeasures(seqEnd),1);
-      printSmall(x1+2,y1+56,"("+stringify(seqEnd)+" steps)",1);
+      printSmall(x1+3,y1+48,"length -- "+stepsToMeasures(sequence.sequenceLength),1);
+      printSmall(x1+2,y1+56,"("+stringify(sequence.sequenceLength)+" steps)",1);
       graphics.drawArrow(x1-12,y1+54,6,1,cursor == 6);
       graphics.drawArrow(x1+56,y1+54,6,0,cursor == 7);
 

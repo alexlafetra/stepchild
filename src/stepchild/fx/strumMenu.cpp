@@ -37,9 +37,9 @@ vector<NoteID> sortNotes(vector<NoteID> ids, uint8_t sortBy, uint8_t type){
 
 vector<NoteID> grabSelectedNotesAsNoteIDs(){
     vector<NoteID> notes;
-    for(uint8_t i = 0; i<seqData.size(); i++){
-        for(uint8_t j = 1; j<seqData[i].size(); j++){
-            if(seqData[i][j].isSelected){
+    for(uint8_t i = 0; i<sequence.noteData.size(); i++){
+        for(uint8_t j = 1; j<sequence.noteData[i].size(); j++){
+            if(sequence.noteData[i][j].isSelected){
                 NoteID newNote = NoteID(i,j);
                 notes.push_back(newNote);
             }
@@ -64,7 +64,7 @@ void strum(uint8_t type, uint8_t sortBy, uint16_t amount, int8_t variation){
         vector<NoteID> selectedNoteIDs = grabSelectedNotesAsNoteIDs();
 
         //find the note that starts first
-        uint16_t earliest = lookupData[0].size();
+        uint16_t earliest = sequence.lookupTable[0].size();
         uint16_t earliestID = selectedNoteIDs.size();
         for(uint16_t note = 0; note<selectedNoteIDs.size(); note++){
             if(selectedNoteIDs[note].getNote().startPos<earliest){
@@ -84,7 +84,7 @@ void strum(uint8_t type, uint8_t sortBy, uint16_t amount, int8_t variation){
 
             //copy note then del it
             Note newNote = selectedNoteIDs[note].getNote();
-            deleteNote_byID(selectedNoteIDs[note].track,selectedNoteIDs[note].id);
+            sequence.deleteNote_byID(selectedNoteIDs[note].track,selectedNoteIDs[note].id);
 
             //generate offset
             int16_t offset = (variation == 0)?amount:(float(random(-variation,variation))/100.0 * amount + amount);
@@ -93,7 +93,7 @@ void strum(uint8_t type, uint8_t sortBy, uint16_t amount, int8_t variation){
             uint16_t length = newNote.getLength()-1;
             newNote.startPos = earliest;
             newNote.endPos = newNote.startPos+length;
-            makeNote(newNote,selectedNoteIDs[note].track);
+            sequence.makeNote(newNote,selectedNoteIDs[note].track);
 
             //move the starting position forward
             earliest+=offset;
@@ -150,7 +150,7 @@ void strumMenu(){
     vector<NoteID> ids;
     while(true){
         controls.readJoystick();
-        readButtons();
+        controls.readButtons();
         while(controls.counterA != 0){
             switch(cursor){
                 //amount (delay)

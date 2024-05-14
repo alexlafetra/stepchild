@@ -13,12 +13,17 @@ class StepchildSequence{
     vector<Loop> loopData;
     uint8_t activeLoop = 0;
     uint8_t isLooping = true;
+    uint8_t loopCount;
 
-    uint16_t sequenceLength;//seqEnd became length
+    vector<Autotrack> autotrackData;
+    uint8_t activeAutotrack;
+
+    uint16_t sequenceLength;
     uint16_t viewStart;
     uint16_t viewEnd;
+    float viewScale = 0.5;
 
-    uint8_t subDivInt = 24;
+    uint8_t subDivision = 24;
 
     uint8_t playState;
     uint8_t defaultChannel = 1;
@@ -32,6 +37,8 @@ class StepchildSequence{
         CHANCE,
         PITCH
     };
+
+
 
     StepchildSequence(){}
     /*
@@ -71,6 +78,18 @@ class StepchildSequence{
     }
     void init(){
         this->init(16,768);
+    }
+    //swaps all the data vars in the sequence for new, blank data
+    void erase(){
+        this->selectionCount = 0;
+        vector<vector<uint16_t>> newLookupData;
+        newLookupData.swap(this->lookupTable);
+        vector<vector<Note>> newSeqData;
+        newSeqData.swap(this->noteData);
+        vector<Track> newTrackData;
+        newTrackData.swap(this->trackData);
+        vector<Autotrack> newAutotrackData;
+        newAutotrackData.swap(this->autotrackData);
     }
     Note noteAt(uint8_t track, uint16_t step){
         return this->noteData[track][this->lookupTable[track][step]];
@@ -223,10 +242,10 @@ class StepchildSequence{
     //draws notes every "count" subDivs, from viewStart to viewEnd
     //this is a super useful idea for sequencing, but currently only used by the edit menu
     void stencilNotes(uint8_t count){
-        for(uint16_t i = this->viewStart; i<this->viewEnd; i+=(this->subDivInt*count)){
+        for(uint16_t i = this->viewStart; i<this->viewEnd; i+=(this->subDivision*count)){
             //if there's no note there or if it's not the beginning of a note
             if(this->lookupTable[this->activeTrack][i] == 0 || (this->cursorPos != this->noteAtCursor().startPos))
-                this->makeNote(this->activeTrack, i, this->subDivInt*count+1, this->defaultVel, 100, false);
+                this->makeNote(this->activeTrack, i, this->subDivision*count+1, this->defaultVel, 100, false);
         }
     }
 
@@ -248,7 +267,8 @@ class StepchildSequence{
                         EDITING NOTES
     ----------------------------------------------------------
     */
-   //edits a single note
+
+    //edits a single note
     void editNoteProperty_byID(uint16_t id, uint8_t track, int8_t amount, NoteProperty which){
         switch(which){
             case VELOCITY:{
@@ -404,6 +424,64 @@ class StepchildSequence{
         }
         else return false;
     }
+    bool moveSelectedNotes(int16_t xOffset, int8_t yOffset){
+        //to temporarily store all the notes
+        vector<vector<Note>> selectedNotes;
+        selectedNotes.resize(this->noteData.size());
+
+        //grab all the selected notes
+        for(uint8_t track = 0; track<this->noteData.size(); track++){
+            for(uint16_t note = 1; note<this->noteData[track].size(); note++){
+                //if the note is selected, push it into the buffer and then del it
+                if(this->noteData[track][note].isSelected){
+                    selectedNotes[track].push_back(this->noteData[track][note]);
+                    this->deleteNote(track, this->noteData[track][note].startPos);
+                    note--;
+                }
+                if(this->selectionCount==0)
+                    break;
+            }
+            if(this->selectionCount==0)
+                break;
+        }
+        //check each note in the buffer to see if it's a valid move
+        for(uint8_t track = 0; track<selectedNotes.size(); track++){
+            for(uint16_t note = 0; note<selectedNotes[track].size(); note++){
+                //if it hits a single bad note, then remake all the notes and exit
+                if(!this->checkNoteMove(selectedNotes[track][note],track,track+yOffset,selectedNotes[track][note].startPos+xOffset)){
+                    for(uint8_t track2 = 0; track2<selectedNotes.size(); track2++){
+                        for(uint16_t note2  = 0; note2<selectedNotes[track2].size(); note2++){
+                            //remake old note
+                            this->makeNote(selectedNotes[track2][note2],track2,false);
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        //if all notes pass the check... move em!
+        for(uint8_t track = 0; track<selectedNotes.size(); track++){
+            for(uint16_t note = 0; note<selectedNotes[track].size(); note++){
+                unsigned short int length = selectedNotes[track][note].endPos-selectedNotes[track][note].startPos;
+                this->makeNote(track+yOffset, selectedNotes[track][note].startPos+xOffset, length+1, selectedNotes[track][note].velocity, selectedNotes[track][note].chance, selectedNotes[track][note].muted, selectedNotes[track][note].isSelected, false);
+            }
+        }
+        return true;
+    }
+    //this should move the note the cursor is on (if any)
+    bool moveNotes(int16_t xAmount, int8_t yAmount){
+        if(this->selectionCount == 0){
+            if(this->IDAtCursor() != 0){
+                bool worked = this->moveNote(this->IDAtCursor(),this->activeTrack,this->activeTrack+yAmount,this->noteData[this->activeTrack][this->IDAtCursor()].startPos+xAmount);
+                return worked;
+            }
+            else return false;
+        }
+        else{
+            bool worked = this->moveSelectedNotes(xAmount,yAmount);
+            return worked;
+        }
+    }
     /*
     ----------------------------------------------------------
                         EDITING SEQ
@@ -443,7 +521,7 @@ class StepchildSequence{
         //if you're trying to del more than (or as much as) exists! just return
         if(amount>=this->sequenceLength)
             return;
-        //if you're trying to del more than exists between insertpoint --> seqEnd,
+        //if you're trying to del more than exists between insertpoint --> sequence.sequenceLength,
         //then set amount to everything there
         if(insertPoint+amount>this->sequenceLength){
             amount = this->sequenceLength-insertPoint;

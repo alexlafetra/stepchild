@@ -1,9 +1,9 @@
 void muteGroups(int callingTrack, int group){
-  for(int track = 0; track<trackData.size(); track++){
-    if(track != callingTrack && trackData[track].muteGroup == group && trackData[track].noteLastSent != 255){
-      MIDI.noteOff(trackData[track].noteLastSent,0,trackData[track].channel);
-      sentNotes.subNote(trackData[track].noteLastSent);
-      trackData[track].noteLastSent = 255;
+  for(int track = 0; track<sequence.trackData.size(); track++){
+    if(track != callingTrack && sequence.trackData[track].muteGroup == group && sequence.trackData[track].noteLastSent != 255){
+      MIDI.noteOff(sequence.trackData[track].noteLastSent,0,sequence.trackData[track].channel);
+      sentNotes.subNote(sequence.trackData[track].noteLastSent);
+      sequence.trackData[track].noteLastSent = 255;
     }
   }
 }

@@ -35,29 +35,29 @@ void drawSwingCurve(int8_t xPos, int8_t yPos){
   //starting point is the viewstart, end point is viewend
   float oldPoint = 0;
   uint16_t mid = (yPos);
-  for(float i = viewStart; i<viewEnd; i+=0.5){
+  for(float i = sequence.viewStart; i<sequence.viewEnd; i+=0.5){
     float y1 = float(22.0*sequenceClock.swingOffset(i))/sequenceClock.uSecPerStep;
     if(y1<0)
-      graphics.shadeLineV(xPos+(i-viewStart)*scale,mid+ceil(y1),-ceil(y1),2);
+      graphics.shadeLineV(xPos+(i-sequence.viewStart)*sequence.viewScale,mid+ceil(y1),-ceil(y1),2);
     else
-      graphics.shadeLineV(xPos+(i-viewStart)*scale,mid,ceil(y1),2);
-    if(i == viewStart)
+      graphics.shadeLineV(xPos+(i-sequence.viewStart)*sequence.viewScale,mid,ceil(y1),2);
+    if(i == sequence.viewStart)
         display.drawLine(xPos,oldPoint+yPos+1,xPos,y1+yPos+1,SSD1306_WHITE);
     else
-      display.drawLine(xPos+(i-0.5-viewStart)*scale,oldPoint+yPos+1,xPos+(i-viewStart)*scale,y1+yPos+1,SSD1306_WHITE);
+      display.drawLine(xPos+(i-0.5-sequence.viewStart)*sequence.viewScale,oldPoint+yPos+1,xPos+(i-sequence.viewStart)*sequence.viewScale,y1+yPos+1,SSD1306_WHITE);
     oldPoint = y1;
   }
 
   //loop points
-  if(isInView(loopData[activeLoop].start)){
-    display.drawFastVLine(trackDisplay + (loopData[activeLoop].start)*scale,16,screenHeight-16,SSD1306_WHITE);
+  if(isInView(sequence.loopData[sequence.activeLoop].start)){
+    display.drawFastVLine(trackDisplay + (sequence.loopData[sequence.activeLoop].start)*sequence.viewScale,16,screenHeight-16,SSD1306_WHITE);
   }
-  if(isInView(loopData[activeLoop].end)){
-    display.drawFastVLine(trackDisplay + (loopData[activeLoop].end)*scale,16,screenHeight-16,SSD1306_WHITE);
+  if(isInView(sequence.loopData[sequence.activeLoop].end)){
+    display.drawFastVLine(trackDisplay + (sequence.loopData[sequence.activeLoop].end)*sequence.viewScale,16,screenHeight-16,SSD1306_WHITE);
   }
   //playhead
   if(playing || recording){
-    display.drawFastVLine(trackDisplay + ((playing ? playheadPos:recheadPos)-viewStart)*scale,16,screenHeight-16,SSD1306_WHITE);
+    display.drawFastVLine(trackDisplay + ((playing ? playheadPos:recheadPos)-sequence.viewStart)*sequence.viewScale,16,screenHeight-16,SSD1306_WHITE);
   }
   display.drawFastHLine(xPos,16,screenWidth-xPos,1);
 }
@@ -209,7 +209,7 @@ void clockMenu(){
     tVal = micros();
     // angle+=180/24;
 
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     if(utils.itsbeen(200)){
       if(controls.MENU()){
@@ -395,7 +395,7 @@ void tapBpm(){
       leds[activeLED] = 1;
       writeLEDs(leds);
     }
-    readButtons();
+    controls.readButtons();
     controls.readJoystick();
     if(controls.MENU()){
       lastTime = millis();

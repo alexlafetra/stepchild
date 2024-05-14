@@ -130,7 +130,6 @@ void drawArpModeIcon(uint8_t x1, int8_t y1, uint8_t which,uint16_t c);
 void drawWarpIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim);
 void drawSmallChannelIcon(uint8_t x1, uint8_t y1, uint8_t ch);
 
-
 //Menus
 void saveMenu();
 void settingsMenu();
@@ -158,44 +157,20 @@ void slideMenuOut(int fromWhere, int8_t speed);
 void strumMenu();
 
 //Note editing
-void makeNote(int, bool);
-void makeNote(int, int, int, bool);
-void makeNote(int, int, int, int, int, bool, bool, bool);
-void deleteNote();
-void deleteNote_byID(int track, int targetNoteID);
-bool moveNote(int, int, int, int);
-bool moveNotes(int xAmount, int yAmount);
-void changeVel(int amount);
-void deleteNote(int track, int time);
-
-void muteNote(unsigned short int track, unsigned short int id, bool toggle);
 void echoNote(int track, int id);
 void echoTrack(int track);
-void changeChance(int amount);
 void changeNoteLength_jumpToEnds(int16_t amount);
 void quantize(bool move_the_cursor,bool deleteNote);
 void humanize(bool move);
-void stencilNotes(uint8_t count);
 int16_t changeNoteLength(int val, unsigned short int track, unsigned short int id);
 int16_t changeNoteLength(int amount);
 void changeNoteLengthSelected(int amount);
-void loadNote(int id, int track, int start, int velocity, bool isMuted, int chance, int end, bool selected);
-void changeVelSelected(int amount);
-void changeVel(int amount);
-void changeVel(int id, int track, int amount);
-void changeChance(int amount);
-void changeChance(int noteID, int track, int amount);
-void changeChanceSelected(int amount);
-bool checkNoteMove(int id, int track, int newTrack, int newStart);
+
 void quantizeSelectedNotes(bool deleteNote);
 bool quantizeNote(uint8_t track, uint16_t id, bool deleteNote);
 bool quantizeNote(uint8_t track, uint16_t id,bool move,bool deleteNote);
-void makeNote(Note newNoteOn, int track, bool loudly);
-void makeNote(Note newNoteOn, int track);
-void loadNote(Note newNote, uint8_t track);
-bool checkNoteMove(Note targetNote, int track, int newTrack, int newStart);
+
 vector<vector<Note>> grabAndDeleteSelectedNotes();
-void deleteSelected();
 void selectAll(bool, bool, bool);
 void selectAll();
 void selectAll(bool);
@@ -244,7 +219,6 @@ void tuneTracksToScale();
 //controls
 void clearButtons();
 void stepButtons();
-void readButtons();
 void mainSequencerEncoders();
 bool fxMenuControls();
 bool echoMenuControls(uint8_t* cursor);
@@ -252,7 +226,6 @@ void saveMenuControls();
 bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote);
 bool humanizeMenuControls(uint8_t* cursor);
 bool mainMenuControls();
-bool anyActiveInputs();
 void yControls();
 void defaultEncoderControls();
 void defaultSelectBoxControls();
@@ -266,20 +239,14 @@ void rotaryActionB_Handler();
 
 //sequence
 void zoom(bool);
-void initSeq(int tracks, int length);
-void initSeq();
 bool isInView(int);
 void updateLookupData_track(unsigned short int);
 int16_t moveCursor(int moveAmount);
 void selectBox();
 void togglePlayMode();
 void toggleRecordingMode(bool);
-void copy();
-void paste();
 void setCursor(uint16_t loc);
-void removeTimeFromSeq(uint16_t amount, uint16_t insertPoint);
-void addTimeToSeq(uint16_t amount, uint16_t insertPoint);
-void cutInsertTime();
+// void cutInsertTime();
 void moveToNextNote_inTrack(bool up);
 void moveToNextNote(bool forward,bool endSnap);
 bool areThereAnyNotes();
@@ -356,7 +323,6 @@ void moveView(int16_t val);
 void setNormalMode();
 String enterText(String title);
 void bootscreen();
-uint16_t getIDAtCursor();
 uint8_t countChar(String text,unsigned char c);
 void filterOutUnisonNotes(vector<uint8_t>& notes);
 bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote);
@@ -364,7 +330,6 @@ void disarmTracksWithNotes();
 uint8_t countDigits_byte(uint8_t number);
 uint16_t getNoteCount();
 String bytesToString(uint32_t bytes);
-void newSeq();
 void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct, bool channel, uint16_t c);
 
 //Graphics

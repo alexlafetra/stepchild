@@ -103,7 +103,7 @@ void webInterface(){
         drawLogo(0,10);
         console.print(6,24);
         display.display();
-        readButtons();
+        controls.readButtons();
         if(utils.itsbeen(200)){
             if(controls.MENU()){
                 lastTime = millis();

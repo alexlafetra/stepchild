@@ -27,22 +27,22 @@ CoordinatePair selectArea_warp(bool AorB){
   coords.end.y = 0;
   while(true){
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     defaultEncoderControls();
     if(controls.SELECT()  && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
       selBox.begun = true;
-      selBox.coords.start.x = cursorPos;
-      selBox.coords.start.y = activeTrack;
-      coords.start.x = cursorPos;
-      coords.start.y = activeTrack;
+      selBox.coords.start.x = sequence.cursorPos;
+      selBox.coords.start.y = sequence.activeTrack;
+      coords.start.x = sequence.cursorPos;
+      coords.start.y = sequence.activeTrack;
     }
     //if controls.SELECT()  is released, and there's a selection box
     if(!controls.SELECT()  && selBox.begun){
-      selBox.coords.end.x = cursorPos;
-      selBox.coords.end.y = activeTrack;
+      selBox.coords.end.x = sequence.cursorPos;
+      selBox.coords.end.y = sequence.activeTrack;
       selBox.begun = false;
-      coords.end.x = cursorPos;
-      coords.end.y = activeTrack;
+      coords.end.x = sequence.cursorPos;
+      coords.end.y = sequence.activeTrack;
     }
     if(utils.itsbeen(200)){
       if(controls.NEW()){
@@ -61,37 +61,37 @@ CoordinatePair selectArea_warp(bool AorB){
     if (utils.itsbeen(100)) {
       if (controls.joystickX == 1 && !controls.SHIFT()) {
         //if cursor isn't on a measure marker, move it to the nearest one
-        if(cursorPos%subDivInt){
-          moveCursor(-cursorPos%subDivInt);
+        if(sequence.cursorPos%sequence.subDivision){
+          moveCursor(-sequence.cursorPos%sequence.subDivision);
           lastTime = millis();
         }
         else{
-          moveCursor(-subDivInt);
+          moveCursor(-sequence.subDivision);
           lastTime = millis();
         }
       }
       if (controls.joystickX == -1 && !controls.SHIFT()) {
-        if(cursorPos%subDivInt){
-          moveCursor(subDivInt-cursorPos%subDivInt);
+        if(sequence.cursorPos%sequence.subDivision){
+          moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
           lastTime = millis();
         }
         else{
-          moveCursor(subDivInt);
+          moveCursor(sequence.subDivision);
           lastTime = millis();
         }
       }
       if (controls.joystickY == 1) {
         if(recording)
-          setActiveTrack(activeTrack + 1, false);
+          setActiveTrack(sequence.activeTrack + 1, false);
         else
-          setActiveTrack(activeTrack + 1, true);
+          setActiveTrack(sequence.activeTrack + 1, true);
         lastTime = millis();
       }
       if (controls.joystickY == -1) {
         if(recording)
-          setActiveTrack(activeTrack - 1, false);
+          setActiveTrack(sequence.activeTrack - 1, false);
         else
-          setActiveTrack(activeTrack - 1, true);
+          setActiveTrack(sequence.activeTrack - 1, true);
         lastTime = millis();
       }
     }
@@ -106,7 +106,7 @@ CoordinatePair selectArea_warp(bool AorB){
       }
     }
     display.clearDisplay();
-    drawSeq(true, false, true, false, false, false, viewStart, viewEnd);
+    drawSeq(true, false, true, false, false, false, sequence.viewStart, sequence.viewEnd);
     drawCoordinateBox(coords);
     if(coords.start.x == 0 && coords.end.x == 0 && coords.start.y == 0 && coords.end.y == 0){
       printSmall(trackDisplay,0,"warp",1);
@@ -158,13 +158,13 @@ bool warpAintoB(CoordinatePair A, CoordinatePair B, bool onlySelected){
   //to  the start of coordinatePair B * the scaleFactor
 
   vector<NoteTrackPair> newNotes;
-  for(uint8_t track = 0; track<trackData.size(); track++){
-      for(uint8_t noteID = 1; noteID<seqData[track].size(); noteID++){
+  for(uint8_t track = 0; track<sequence.trackData.size(); track++){
+      for(uint8_t noteID = 1; noteID<sequence.noteData[track].size(); noteID++){
           //if the note starts SOMEWHERE within A, warp it!
           //you might want to change this/add an option
           //to ONLY warp notes that are entirely contained within A
-          if(seqData[track][noteID].startPos>=A.start.x && seqData[track][noteID].startPos<A.end.x && ((onlySelected && seqData[track][noteID].isSelected) || !onlySelected)){
-              Note targetNote = seqData[track][noteID];
+          if(sequence.noteData[track][noteID].startPos>=A.start.x && sequence.noteData[track][noteID].startPos<A.end.x && ((onlySelected && sequence.noteData[track][noteID].isSelected) || !onlySelected)){
+              Note targetNote = sequence.noteData[track][noteID];
               uint16_t oldLength = targetNote.getLength();
               uint16_t distanceFromStartOfA = targetNote.startPos - A.start.x;
 
@@ -177,11 +177,11 @@ bool warpAintoB(CoordinatePair A, CoordinatePair B, bool onlySelected){
               }
 
               //controls.DELETE()eting old note
-              deleteNote_byID(track,noteID);
+              sequence.deleteNote_byID(track,noteID);
               //make sure to decrement noteID! so you don't warp the same note twice or skip a note
               noteID--;
 
-              // makeNote(newNote,track,false);
+              // sequence.makeNote(newNote,track,false);
               // newNote.push_back(newNote);
               NoteTrackPair newNT(newNote,track);
               newNotes.push_back(newNT);
@@ -190,7 +190,7 @@ bool warpAintoB(CoordinatePair A, CoordinatePair B, bool onlySelected){
   }
   //iterating over the newNotes vector and making each note
   for(uint8_t note = 0; note<newNotes.size(); note++){
-    makeNote(newNotes[note].note,newNotes[note].trackID,false);
+    sequence.makeNote(newNotes[note].note,newNotes[note].trackID,false);
   }
   return true;
 }
@@ -215,7 +215,7 @@ void warp(){
     if(B.isVertical())
       break;
     //only warps selected notes, if any are selected
-    if(!warpAintoB(A,B,selectionCount != 0)){
+    if(!warpAintoB(A,B,sequence.selectionCount != 0)){
       break;
     }
   }

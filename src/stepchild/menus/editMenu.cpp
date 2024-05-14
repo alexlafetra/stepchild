@@ -5,19 +5,19 @@
 //compare trackDistance * trackHeight to stepDistance * scale
 float getDistanceFromNoteToCursor(Note note,uint8_t track){
   //if the start of the note is closer than the end
-  return sqrt(pow(activeTrack - track,2)+pow(((abs(note.startPos-cursorPos)<abs(note.endPos-cursorPos))?(note.startPos-cursorPos):(note.endPos-cursorPos)),2));
+  return sqrt(pow(sequence.activeTrack - track,2)+pow(((abs(note.startPos-sequence.cursorPos)<abs(note.endPos-sequence.cursorPos))?(note.startPos-sequence.cursorPos):(note.endPos-sequence.cursorPos)),2));
 }
 
 void setCursorToNearestNote(){
-  const float maxPossibleDist = seqEnd*scale+trackData.size()*trackHeight;
+  const float maxPossibleDist = sequence.sequenceLength*sequence.viewScale+sequence.trackData.size()*trackHeight;
   float minDist = maxPossibleDist;
   int minTrack;
   int minNote;
-  for(int track = 0; track<seqData.size(); track++){
-    for(int note = 1; note<seqData[track].size(); note++){
+  for(int track = 0; track<sequence.noteData.size(); track++){
+    for(int note = 1; note<sequence.noteData[track].size(); note++){
       // //Serial.println("checking n:"+stringify(note)+" t:"+stringify(track));
       // Serial.flush();
-      float distance = getDistanceFromNoteToCursor(seqData[track][note],track);
+      float distance = getDistanceFromNoteToCursor(sequence.noteData[track][note],track);
       if(distance<minDist){
         minTrack = track;
         minNote = note;
@@ -32,7 +32,7 @@ void setCursorToNearestNote(){
   // //Serial.println("setting cursor...");
   // Serial.flush();
   if(minDist != maxPossibleDist){
-    setCursor((seqData[minTrack][minNote].startPos<cursorPos)?seqData[minTrack][minNote].startPos:seqData[minTrack][minNote].endPos-1);
+    setCursor((sequence.noteData[minTrack][minNote].startPos<sequence.cursorPos)?sequence.noteData[minTrack][minNote].startPos:sequence.noteData[minTrack][minNote].endPos-1);
     setActiveTrack(minTrack,false);
   }
 }
@@ -67,17 +67,17 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
     //changing vel
     if(activeMenu.highlight == 2){
       if(controls.counterB<0)
-        changeVel(-1);
+        sequence.changeVel(-1);
       else{
-        changeVel(1);
+        sequence.changeVel(1);
       }
     }
     //changing chance
     else if(activeMenu.highlight == 3){
       if(controls.counterB<0)
-        changeChance(-1);
+          sequence.changeChance(-1);
       else{
-        changeChance(1);
+          sequence.changeChance(1);
       }
     }
     controls.counterB += controls.counterB<0?1:-1;;
@@ -88,21 +88,21 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
     if (controls.joystickY == 1){
       //highlight = 0 ==> moving notes, 1==> changing vel, 2==> changing chance, 3==> changing length
       if(activeMenu.highlight == 0){
-        if(moveNotes(0,1)){
-          setActiveTrack(activeTrack + 1, true);
+        if(sequence.moveNotes(0,1)){
+          setActiveTrack(sequence.activeTrack + 1, true);
         }
       }
       //vel
       else if(activeMenu.highlight == 2){
         if(controls.SHIFT())
-          changeVel(-8);
+          sequence.changeVel(-8);
         else
           moveToNextNote_inTrack(true);
       }
       //chance
       else if(activeMenu.highlight == 3){
         if(controls.SHIFT())
-          changeChance(-5);
+            sequence.changeChance(-5);
         else
           moveToNextNote_inTrack(true);
       }
@@ -124,18 +124,18 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
     }
     if (controls.joystickY == -1){
       if(activeMenu.highlight == 0){
-        if(moveNotes(0,-1))
-          setActiveTrack(activeTrack - 1, true);
+        if(sequence.moveNotes(0,-1))
+          setActiveTrack(sequence.activeTrack - 1, true);
       }
       else if(activeMenu.highlight == 2){
         if(controls.SHIFT())
-          changeVel(8);
+          sequence.changeVel(8);
         else
           moveToNextNote_inTrack(false);
       }
       else if(activeMenu.highlight == 3){
         if(controls.SHIFT())
-          changeChance(5);
+            sequence.changeChance(5);
         else
           moveToNextNote_inTrack(false);
       }
@@ -161,24 +161,24 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
       if(!controls.SHIFT()){
         if(activeMenu.highlight == 1){
           //if it's not on a subDiv
-          if(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos%subDivInt)
-            changeNoteLength_jumpToEnds(-(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos%subDivInt));
+          if(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos%sequence.subDivision)
+            changeNoteLength_jumpToEnds(-(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos%sequence.subDivision));
           //if it is
           else
-            changeNoteLength_jumpToEnds(-subDivInt);
+            changeNoteLength_jumpToEnds(-sequence.subDivision);
           lastTime = millis();
         }
         else if(activeMenu.highlight == 0){
           //if it's not on a subDiv
-          if(seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos%subDivInt){
-            if(moveNotes(-(seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos%subDivInt),0)){
-              moveCursor(seqData[activeTrack][seqData[activeTrack].size()-1].startPos-cursorPos);
+          if(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos%sequence.subDivision){
+            if(sequence.moveNotes(-(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos%sequence.subDivision),0)){
+              moveCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].startPos-sequence.cursorPos);
               lastTime = millis();
             }
           }
           else{
-            if(moveNotes(-subDivInt,0)){
-              moveCursor(-subDivInt);
+            if(sequence.moveNotes(-sequence.subDivision,0)){
+              moveCursor(-sequence.subDivision);
               lastTime = millis();
             }
           }
@@ -190,7 +190,7 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
       }
       else{
         if(activeMenu.highlight == 0){
-          if(moveNotes(-1,0)){
+          if(sequence.moveNotes(-1,0)){
             moveCursor(-1);
             lastTime = millis();
           }
@@ -210,25 +210,25 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
         //special moves (while editing notes) 
         //if it's not on a subDiv
         if(activeMenu.highlight == 1){
-          if(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos%subDivInt){     
-            changeNoteLength_jumpToEnds(subDivInt-(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos%subDivInt));
+          if(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos%sequence.subDivision){     
+            changeNoteLength_jumpToEnds(sequence.subDivision-(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos%sequence.subDivision));
             lastTime = millis();
           }
           else{
-            changeNoteLength_jumpToEnds(subDivInt);
+            changeNoteLength_jumpToEnds(sequence.subDivision);
             lastTime = millis();
           }
         }
         else if(activeMenu.highlight == 0){
-          if(seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos%subDivInt){     
-            if(moveNotes(subDivInt-seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos%subDivInt,0)){
-              moveCursor(seqData[activeTrack][seqData[activeTrack].size()-1].startPos-cursorPos);
+          if(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos%sequence.subDivision){     
+            if(sequence.moveNotes(sequence.subDivision-sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos%sequence.subDivision,0)){
+              moveCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].startPos-sequence.cursorPos);
               lastTime = millis();
             }
           }
           else{
-            if(moveNotes(subDivInt,0)){
-              moveCursor(subDivInt);
+            if(sequence.moveNotes(sequence.subDivision,0)){
+              moveCursor(sequence.subDivision);
               lastTime = millis();
             }
           }
@@ -240,7 +240,7 @@ void editMenuControls_editing(uint8_t* currentQuickFunction){
       }
       else{
         if(activeMenu.highlight == 0){
-          if(moveNotes(1,0)){
+          if(sequence.moveNotes(1,0)){
             moveCursor(1);
             lastTime = millis();
           }
@@ -307,13 +307,13 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
   //when controls.SELECT()  is pressed and stick is moved, and there's no selection box
   if(controls.SELECT()  && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
     selBox.begun = true;
-    selBox.coords.start.x = cursorPos;
-    selBox.coords.start.y = activeTrack;
+    selBox.coords.start.x = sequence.cursorPos;
+    selBox.coords.start.y = sequence.activeTrack;
   }
   //if controls.SELECT()  is released, and there's a selection box
   if(!controls.SELECT()  && selBox.begun){
-    selBox.coords.end.x = cursorPos;
-    selBox.coords.end.y = activeTrack;
+    selBox.coords.end.x = sequence.cursorPos;
+    selBox.coords.end.y = sequence.activeTrack;
     selectBox();
     selBox.begun = false;
   }
@@ -367,7 +367,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
         lastTime = millis();
       }
       else{
-        setActiveTrack(activeTrack+1,false);
+        setActiveTrack(sequence.activeTrack+1,false);
         lastTime = millis();
       }
     }
@@ -378,7 +378,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
         lastTime = millis();
       }
       else{
-        setActiveTrack(activeTrack-1,false);
+        setActiveTrack(sequence.activeTrack-1,false);
         lastTime = millis();
       }
     }
@@ -397,7 +397,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
     }
     if (controls.joystickX == -1){
       if(!controls.SHIFT()){  
-        // moveCursor(subDivInt);
+        // moveCursor(sequence.subDivision);
         moveToNextNote(true,false);
         lastTime = millis();
       }
@@ -482,7 +482,7 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
         }
         //if there are ANY notes jump into edit mode
         else if(areThereAnyNotes()){
-          if(lookupData[activeTrack][cursorPos] == 0){
+          if(sequence.IDAtCursor() == 0){
             setCursorToNearestNote();
           }
           editingNote = true;
@@ -494,18 +494,18 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
     if(controls.NEW() && !drawingNote && !controls.SELECT() ){
       if(controls.SHIFT()){
         lastTime = millis();
-        stencilNotes(*stencil);
+        sequence.stencilNotes(*stencil);
       }
-      // if(lookupData[activeTrack][cursorPos] == 0 || cursorPos != seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos){
-      //   makeNote(activeTrack,cursorPos,subDivInt,true);
+      // if(sequence.IDAtCursor() == 0 || sequence.cursorPos != sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos){
+      //   sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision,true);
       //   drawingNote = true;
       //   lastTime = millis();
-      //   moveCursor(subDivInt);
+      //   moveCursor(sequence.subDivision);
       // }
     }
     if(controls.SELECT()  && !selBox.begun){
       unsigned short int id;
-      id = lookupData[activeTrack][cursorPos];
+      id = sequence.IDAtCursor();
       //select all
       if(controls.NEW()){
         selectAll();
@@ -513,24 +513,24 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
       //select only one
       else if(controls.SHIFT()){
         clearSelection();
-        toggleSelectNote(activeTrack, id, false);
+        toggleSelectNote(sequence.activeTrack, id, false);
       }
       //normal select
       else{
-        toggleSelectNote(activeTrack, id, true);          
+        toggleSelectNote(sequence.activeTrack, id, true);          
       }
       lastTime = millis();
     }
     if(controls.DELETE()){
       if(controls.SHIFT()){
-        muteNote(activeTrack, lookupData[activeTrack][cursorPos], true);
+          sequence.muteNote(sequence.activeTrack, sequence.IDAtCursor(), true);
         lastTime = millis();
       }
       else{
-        if(selectionCount>0){
-          deleteSelected();
+        if(sequence.selectionCount>0){
+            sequence.deleteSelected();
         }
-        deleteNote();
+        sequence.deleteNote();
       }
       lastTime = millis();
     }
@@ -544,9 +544,9 @@ void editMenuControls_normal(uint8_t* stencil, bool editing, uint8_t* currentQui
     if(controls.COPY()){
       lastTime = millis();
       if(controls.SHIFT())
-        paste();
+        clipboard.paste();
       else
-        copy();
+        clipboard.copy();
     }
   }
 }
@@ -755,7 +755,7 @@ void editMenu(){
     activeMenu.displayEditMenu(&stencil,fnWindowStart,currentQuickFunction);
     display.display();
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(activeMenu.page != 0)
       fxListControls(&currentQuickFunction);
     else if(editingNote)
@@ -880,8 +880,8 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
     printSmall(15-txt.length()*2,coords.start.x-5,txt,SSD1306_BLACK);
 
     //draw note info when you're on a note
-    if(lookupData[activeTrack][cursorPos] != 0){
-      Note activeNote = seqData[activeTrack][lookupData[activeTrack][cursorPos]];
+    if(sequence.IDAtCursor() != 0){
+      Note activeNote = sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()];
       //length
       display.fillCircle(6,coords.start.x+9,3,1);
       printSmall(5,coords.start.x+7,"L",2);
@@ -904,7 +904,7 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
       printSmall(9,coords.start.x+5,"seq",SSD1306_WHITE);
       printSmall(15-stringify(noteCount).length()*2,coords.start.x+12,stringify(noteCount),SSD1306_BLACK);
       printSmall(9,coords.start.x+20,"trk",SSD1306_WHITE);
-      printSmall(15-stringify(seqData[activeTrack].size()-1).length()*2,coords.start.x+27,stringify(seqData[activeTrack].size()-1),SSD1306_BLACK);
+      printSmall(15-stringify(sequence.noteData[sequence.activeTrack].size()-1).length()*2,coords.start.x+27,stringify(sequence.noteData[sequence.activeTrack].size()-1),SSD1306_BLACK);
     }
   }
   //editing icons that appear when the note is being edited
@@ -920,25 +920,25 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
         else{
           display.drawBitmap(6,0,arrow_3_bmp,16,16,SSD1306_WHITE);
         }
-        if(lookupData[activeTrack][cursorPos] != 0){
+        if(sequence.IDAtCursor() != 0){
           //location points
-          printSmall(56,1,stepsToPosition(seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos,true)+","+stepsToPosition(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos,true),SSD1306_WHITE);
+          printSmall(56,1,stepsToPosition(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos,true)+","+stepsToPosition(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos,true),SSD1306_WHITE);
         }
         txt = "MOVE";
         break;
       //changing length
       case 1:
         drawLengthIcon(4,6,16,6,true);
-        if(lookupData[activeTrack][cursorPos] != 0){
-          graphics.printFraction(66,3,stepsToMeasures(seqData[activeTrack][lookupData[activeTrack][cursorPos]].endPos-seqData[activeTrack][lookupData[activeTrack][cursorPos]].startPos));
+        if(sequence.IDAtCursor() != 0){
+          graphics.printFraction(66,3,stepsToMeasures(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos-sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos));
         }
         txt = "LENGTH";
         break;
       //vel
       case 2:
-        if(lookupData[activeTrack][cursorPos] != 0){
-          printSmall(50,1,"v:"+stringify(seqData[activeTrack][lookupData[activeTrack][cursorPos]].velocity),SSD1306_WHITE);
-          fillSquareDiagonally(8,0,15,float(seqData[activeTrack][lookupData[activeTrack][cursorPos]].velocity*100)/float(127));
+        if(sequence.IDAtCursor() != 0){
+          printSmall(50,1,"v:"+stringify(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].velocity),SSD1306_WHITE);
+          fillSquareDiagonally(8,0,15,float(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].velocity*100)/float(127));
           printSmall(14,5,"v",2);
         }
         else{
@@ -951,9 +951,9 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
         break;
       //chance
       case 3:
-        if(lookupData[activeTrack][cursorPos] != 0){
-          printSmall(63,1,stringify(seqData[activeTrack][lookupData[activeTrack][cursorPos]].chance)+"%",SSD1306_WHITE);
-          fillSquareDiagonally(8,0,15,float(seqData[activeTrack][lookupData[activeTrack][cursorPos]].chance));
+        if(sequence.IDAtCursor() != 0){
+          printSmall(63,1,stringify(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].chance)+"%",SSD1306_WHITE);
+          fillSquareDiagonally(8,0,15,float(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].chance));
           printSmall(14,5,"%",2);
         }
         else{
@@ -973,7 +973,7 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
 
         //amount
         printSmall(70,1,stringify(quantizeAmount)+"%",1);
-        graphics.printFraction(60,3,stepsToMeasures(subDivInt));
+        graphics.printFraction(60,3,stepsToMeasures(sequence.subDivision));
         printSmall(104,0,"[sh]+L",1);
         // printSmall(84,0,"[menu] back",1);
         break;
@@ -998,10 +998,10 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
         break;
     }
     //draw moving brackets
-    if(lookupData[activeTrack][cursorPos] != 0)
-      graphics.drawNoteBracket(seqData[activeTrack][lookupData[activeTrack][cursorPos]],activeTrack);
+    if(sequence.IDAtCursor() != 0)
+      graphics.drawNoteBracket(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()],sequence.activeTrack);
     //or draw brackets around the selection
-    if(selectionCount > 0)
+    if(sequence.selectionCount > 0)
       graphics.drawSelectionBracket();
 
     //drawing edit param info

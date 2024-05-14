@@ -1,8 +1,8 @@
 void quantizeSelectedNotes(bool deleteNote){
-  if(selectionCount>0){
-    for(uint8_t track = 0; track<seqData.size(); track++){
-      for(uint16_t note = 1; note<seqData[track].size(); note++){
-        if(seqData[track][note].isSelected){
+  if(sequence.selectionCount>0){
+    for(uint8_t track = 0; track<sequence.noteData.size(); track++){
+      for(uint16_t note = 1; note<sequence.noteData[track].size(); note++){
+        if(sequence.noteData[track][note].isSelected){
           //if a note was deld (when quantize fails)
           if(!quantizeNote(track,note,deleteNote)){
             note = 1;
@@ -14,13 +14,13 @@ void quantizeSelectedNotes(bool deleteNote){
 }
 void quantize(bool move_the_cursor,bool deleteNote){
   //quantizing selected notes
-  if(selectionCount>0){
-    if(!seqData[activeTrack][lookupData[activeTrack][cursorPos]].isSelected){
-      quantizeNote(activeTrack,lookupData[activeTrack][cursorPos],deleteNote);
+  if(sequence.selectionCount>0){
+    if(!sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].isSelected){
+      quantizeNote(sequence.activeTrack,sequence.IDAtCursor(),deleteNote);
     }
-    for(uint8_t track = 0; track<seqData.size(); track++){
-      for(uint16_t note = 1; note<seqData[track].size(); note++){
-        if(seqData[track][note].isSelected){
+    for(uint8_t track = 0; track<sequence.noteData.size(); track++){
+      for(uint16_t note = 1; note<sequence.noteData[track].size(); note++){
+        if(sequence.noteData[track][note].isSelected){
           //if a note was deld (when quantize fails)
           if(!quantizeNote(track,note,deleteNote)){
             note = 1;
@@ -30,9 +30,9 @@ void quantize(bool move_the_cursor,bool deleteNote){
     }
   }
   //quantizing the note at the cursor
-  else if(lookupData[activeTrack][cursorPos] != 0){
-    uint16_t id = lookupData[activeTrack][cursorPos];
-    quantizeNote(activeTrack,lookupData[activeTrack][cursorPos],move_the_cursor,deleteNote);
+  else if(sequence.IDAtCursor() != 0){
+    uint16_t id = sequence.IDAtCursor();
+    quantizeNote(sequence.activeTrack,sequence.IDAtCursor(),move_the_cursor,deleteNote);
   }
 }
 
@@ -45,16 +45,16 @@ bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote){
   if(id == 0){
     return false;
   }
-  uint32_t d1 = seqData[track][id].startPos%subDivInt;
-  uint32_t d2 = subDivInt-d1;
+  uint32_t d1 = sequence.noteData[track][id].startPos%sequence.subDivision;
+  uint32_t d2 = sequence.subDivision-d1;
   uint16_t distance;
   //move to the left
   if(d1<=d2){
     distance = d1*(float(quantizeAmount)/float(100));
-    if(!moveNote(id,track,track,seqData[track][id].startPos-distance)){
+    if(!sequence.moveNote(id,track,track,sequence.noteData[track][id].startPos-distance)){
       //if you can't move it, del it
       if(deleteNote)
-        deleteNote_byID(track,id);
+        sequence.deleteNote_byID(track,id);
       return false;
     }
     else if(move){
@@ -64,10 +64,10 @@ bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote){
   //move to the right
   else{
     distance = d2*(float(quantizeAmount)/float(100));
-    if(!moveNote(id,track,track,seqData[track][id].startPos+distance)){
+    if(!sequence.moveNote(id,track,track,sequence.noteData[track][id].startPos+distance)){
       //if you can't move it, del it
       if(deleteNote)
-        deleteNote_byID(track,id);
+        sequence.deleteNote_byID(track,id);
       // //Serial.println("controls.DELETE()eting note: "+stringify(id));
       return false;
     }
@@ -79,7 +79,7 @@ bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote){
 }
 
 void drawSubDivBackground(){
-  for(int16_t i = 0; i<96; i+=subDivInt){
+  for(int16_t i = 0; i<96; i+=sequence.subDivision){
     display.drawFastVLine(float(i)/float(96)*screenWidth,16,32,1);
   }
 }
@@ -139,7 +139,7 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
       (*deleteNote) = !(*deleteNote);
     }
   }
-  //changing subDivInt
+  //changing sequence.subDivision
   while(controls.counterB != 0){
     if(controls.counterB >= 1 && !controls.SHIFT()){
       changeSubDivInt(true);
@@ -236,7 +236,7 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
             }
           }
           break;
-        //changing subDivInt
+        //changing sequence.subDivision
         case 1:
           if(controls.SHIFT()){
             toggleTriplets();
@@ -272,7 +272,7 @@ void quantizeMenu(){
     }
     print7SegSmall(90,53,q+"%",1);
     //draw subDiv
-    q = stepsToMeasures(subDivInt);
+    q = stepsToMeasures(sequence.subDivision);
     printSmall(28,6,q,1);
 
     //draw swing indicator
@@ -298,7 +298,7 @@ void quantizeMenu(){
     display.display();
 
     controls.readJoystick();
-    readButtons();
+    controls.readButtons();
     if(!quantizeMenuControls(&whichParam,&deleteNote)){
       break;
     }

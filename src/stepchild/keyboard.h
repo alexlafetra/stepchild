@@ -22,7 +22,7 @@ void drawKeys(uint8_t xStart,uint8_t yStart,uint8_t octave,uint8_t numberOfKeys,
       }
     }
     else{
-      if(activeArp.playing && activeArp.lastPitchSent%12 == key){
+      if(arp.playing && arp.lastPitchSent%12 == key){
         pressed = true;
       }
     }
@@ -271,7 +271,7 @@ void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t nu
 void keyboard(){
   keyboardAnimation(0,5,0,14,true);
   while(true){
-    readButtons();
+    controls.readButtons();
     stepButtons();//handles notes, and toggling
     if(utils.itsbeen(200)){
       if(controls.MENU()){
@@ -290,12 +290,12 @@ void keyboard(){
       controls.counterA += controls.counterA<0?1:-1;
     }
     while(controls.counterB != 0){
-      if(controls.counterB >= 1 && defaultChannel<16){
-        defaultChannel++;
+      if(controls.counterB >= 1 && sequence.defaultChannel<16){
+        sequence.defaultChannel++;
         controls.counterB += controls.counterB<0?1:-1;;
       }
-      else if(controls.counterB <= -1 && defaultChannel>0){
-        defaultChannel--;
+      else if(controls.counterB <= -1 && sequence.defaultChannel>0){
+        sequence.defaultChannel--;
         controls.counterB += controls.counterB<0?1:-1;;
       }
     }
