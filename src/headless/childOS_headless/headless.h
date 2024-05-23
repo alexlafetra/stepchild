@@ -618,4 +618,4 @@ void Display::display(void){
     delay(20);
 }
 
-#include "../../stepchild/stepchild.ino"
+#include "../../stepchild/include/stepchild.ino"
