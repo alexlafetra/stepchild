@@ -13,7 +13,7 @@ void deepSleep(){
       }
     }
     display.ssd1306_command(SSD1306_DISPLAYON);
-    updateLEDs();
+    sequence.updateLEDs();
   }
 }
 #else

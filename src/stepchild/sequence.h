@@ -79,6 +79,12 @@ class StepchildSequence{
     void init(){
         this->init(16,768);
     }
+    bool isQuarterGrid(){
+        return !(this->subDivision%3);
+    }
+    bool isTripletGrid(){
+        return !(this->subDivision%2);
+    }
     //swaps all the data vars in the sequence for new, blank data
     void erase(){
         this->selectionCount = 0;
@@ -92,13 +98,17 @@ class StepchildSequence{
         newAutotrackData.swap(this->autotrackData);
     }
     Note noteAt(uint8_t track, uint16_t step){
-        return this->noteData[track][this->lookupTable[track][step]];
+        if(this->lookupTable[track][step]<this->noteData[track].size())
+            return this->noteData[track][this->lookupTable[track][step]];
+        else return this->noteData[track][0];
     }
     Note noteAtCursor(){
         return this->noteAt(this->activeTrack,this->cursorPos);
     }
     uint16_t IDAt(uint8_t track, uint16_t step){
-        return this->lookupTable[track][step];
+        if(step<this->sequenceLength)
+            return this->lookupTable[track][step];
+        else return 0;
     }
     uint16_t IDAtCursor(){
         return this->IDAt(this->activeTrack,this->cursorPos);
@@ -131,7 +141,7 @@ class StepchildSequence{
     //Deletes a note on a given track with a given ID
     void deleteNote_byID(uint8_t track, uint16_t targetNoteID){
         //if there's a note/something here, and it's in data
-        if (targetNoteID != 0 && targetNoteID <= this->noteData[track].size()) {
+        if (targetNoteID > 0 && targetNoteID < this->noteData[track].size()) {
             //clearing note from this->lookupTable
             for (int i = this->noteData[track][targetNoteID].startPos; i < this->noteData[track][targetNoteID].endPos; i++) {
                 this->lookupTable[track][i] = 0;
@@ -162,10 +172,12 @@ class StepchildSequence{
     //deletes a note at a specific time/place
     void deleteNote(uint8_t track, uint16_t time){
         this->deleteNote_byID(track,this->IDAt(track,time));
+        this->updateLEDs();
     }
     //deletes a note at the current track/cursor position
     void deleteNote(){
         this->deleteNote_byID(this->activeTrack,this->IDAtCursor());
+        this->updateLEDs();
     }
     void deleteSelected(){
         if(this->selectionCount>0){
@@ -183,6 +195,7 @@ class StepchildSequence{
                 }
             }
         }
+        this->updateLEDs();
     }
     /*
     ----------------------------------------------------------
@@ -190,21 +203,19 @@ class StepchildSequence{
     ----------------------------------------------------------
     Lots of these are redundant/deprecated overloads... go thru em and get rid of them!
     */
-    void makeNote(Note newNoteOn, int track, bool loudly){
+    void makeNote(Note newNoteOn, uint8_t track, bool loudly){
         //if you're placing it on the end of the seq, just return
         if(newNoteOn.startPos == this->sequenceLength)
             return;
         //if there's a 0 where the note is going to go, or if there's not a zero BUT it's also not the start of that other note
         if (this->lookupTable[track][newNoteOn.startPos] == 0 || newNoteOn.startPos != this->noteAt(this->activeTrack,newNoteOn.startPos).startPos) { //if there's no note there
-            if (this->lookupTable[track][newNoteOn.startPos] != 0) {
+            if (this->lookupTable[track][newNoteOn.startPos] != 0)
                 this->truncateNote(track, newNoteOn.startPos);
-            }
-            if(newNoteOn.isSelected){
+            if(newNoteOn.isSelected)
                 this->selectionCount++;
-            }
-            unsigned short int id = this->noteData[track].size();
+            uint16_t id = this->noteData[track].size();
             this->lookupTable[track][newNoteOn.startPos] = id;//set noteID in this->lookupTable to the index of the new note
-            for (int i = newNoteOn.startPos+1; i < newNoteOn.endPos; i++) { //sets id
+            for (uint16_t i = newNoteOn.startPos+1; i < newNoteOn.endPos; i++) { //sets id
                 if (this->lookupTable[track][i] == 0 && i<this->sequenceLength)
                     this->lookupTable[track][i] = id;
                 else { //if there's something there, then set the end to the step before it
@@ -218,6 +229,7 @@ class StepchildSequence{
                 MIDI.noteOff(this->trackData[track].pitch, 0, this->trackData[track].channel);
             }
         }
+        this->updateLEDs();
     }
     void makeNote(int track, int time, int length, int velocity, int chance, bool mute, bool select, bool loudly){
         Note newNoteOn(time, (time + length-1), velocity, chance, mute, select);
@@ -231,8 +243,8 @@ class StepchildSequence{
         this->makeNote(newNoteOn,track,false);
     }
     //this one is for quickly placing a ntoe at the cursor, on the active track
-    void makeNote(int track, int time, int length, bool loudly) {
-        Note newNote(time,time+length,this->defaultVel,100,false,false);
+    void makeNote(uint8_t track, uint16_t time, uint16_t length, bool loudly) {
+        Note newNote(time,(time+length),this->defaultVel,100,false,false);
         this->makeNote(newNote,track,loudly);
     }
     void makeNote(uint16_t length, bool loudly) {
@@ -254,13 +266,13 @@ class StepchildSequence{
         //if there's no note/no start there, make a note
         if(this->lookupTable[track][step] == 0 || (this->lookupTable[track][step] != 0 && this->noteAt(track,step).startPos != step)){
             if(!playing && !recording)
-                makeNote(track, step, length, true);
+                this->makeNote(track, step, length, true);
             else
-                makeNote(track, step, length, false);
+                this->makeNote(track, step, length, false);
         }
         //if there IS a note there, delete it
         else if(step == this->noteAt(track,step).startPos)
-            deleteNote(track, step);
+            this->deleteNote(track, step);
     }
     /*
     ----------------------------------------------------------
@@ -384,11 +396,13 @@ class StepchildSequence{
             this->deleteNote_byID(track,id);
             return;
         }
-        //if not, then shorten the note and its tail from the lookupTable
-        this->noteData[track][id].endPos = atTime;
+
+        //remove note from the lookupTable
         for(uint16_t i = atTime; i<this->noteData[track][id].endPos; i++){
             this->lookupTable[track][i] = 0;
         }
+        //set the note end to the new cut point
+        this->noteData[track][id].endPos = atTime;
     }
     bool checkNoteMove(Note targetNote, int track, int newTrack, int newStart){
         unsigned short int length = targetNote.endPos-targetNote.startPos;
@@ -575,6 +589,37 @@ class StepchildSequence{
         }
         //make sure view stays within seq
         checkView();
+    }
+    /*
+    ----------------------------------------------------------
+                            Graphics??
+    ----------------------------------------------------------
+    */
+   //displays notes on LEDs
+    void updateLEDs(){
+        uint16_t dat = 0;//00000000
+        if(LEDsOn && !screenSaverActive){
+            uint16_t viewLength = this->viewEnd-this->viewStart;
+            //move through the view, check every this->subDivision
+            const uint16_t jump = (viewLength/16);
+            //if there are any notes, check
+            if(this->noteData[this->activeTrack].size()>1){
+                for(uint8_t i = 0; i<16; i++){
+                    uint16_t step = this->viewStart+i*jump;
+                    if(this->lookupTable[this->activeTrack][step] != 0){
+                        //not sure if it should only light up if it's on the start step or nah
+                        if(this->noteData[this->activeTrack][this->lookupTable[this->activeTrack][step]].startPos == step){
+                            //if playing or recording, and the head isn't on that step, it should be on
+                            //if it is on that step, then the step should blink
+                            if((playing && (playheadPos <  this->noteData[this->activeTrack][this->lookupTable[this->activeTrack][step]].startPos || playheadPos > this->noteData[this->activeTrack][this->lookupTable[this->activeTrack][step]].endPos)) || !playing){
+                                dat = dat|(1<<i);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        lowerBoard.writeLEDs(dat);
     }
 };
 

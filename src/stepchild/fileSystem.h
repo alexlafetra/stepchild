@@ -648,7 +648,7 @@ void loadSeqFile(String filename){
     }
     seqFile.close();
     LittleFS.end();
-    updateLEDs();
+    sequence.updateLEDs();
     setActiveTrack(0,false);
   }
   else{

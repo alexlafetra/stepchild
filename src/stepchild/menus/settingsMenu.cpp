@@ -247,7 +247,7 @@ void settingsMenu(){
               //leds on/off
               case 2:
                 LEDsOn = !LEDsOn;
-                updateLEDs();
+                sequence.updateLEDs();
                 lastTime = millis();
                 break;
               case 3:

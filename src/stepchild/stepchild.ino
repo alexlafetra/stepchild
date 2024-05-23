@@ -72,12 +72,14 @@ void setup() {
   core0ready = true;
   lastTime = millis();
   bootscreen_2();
-  updateLEDs();
+  sequence.updateLEDs();
+  // lowerBoard.test();
 }
 
 //CPU 1 Setup
 void setup1() {
   core1ready = true;
+  //wait for core0 to initialize the sequence
   while(!core0ready){
   }
 }

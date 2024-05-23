@@ -85,71 +85,56 @@ class LowerBoard{
   MCP23017 LEDs = MCP23017(MCP23017_LED_ADDR,Wire);
   MCP23017 Buttons = MCP23017(MCP23017_BUTTON_ADDR,Wire);
   LowerBoard(){}
-  unsigned short int readButtons(){
-    // uint8_t buttonsA = this->Buttons.readRegister(MCP23017Register::GPIO_A);
-    // uint8_t buttonsB = this->Buttons.readRegister(MCP23017Register::GPIO_B);
-
-    // return uint16_t(buttonsB)<<8 | uint16_t(buttonsA);
-    return 0;
+  uint16_t readButtons(){
+    return ~this->Buttons.read();
   }
   void writeLEDs(unsigned short int state){
-    // //swap led 6 and 7, bc of a wiring fuckup!
-    // uint8_t led6 = 0b00100000 & uint8_t(state);
-    // uint8_t led7 = 0b01000000 & uint8_t(state);
-    // if(led6)
-    //   state |= 0b0000000001000000;
-    // else
-    //   state &= 0b1111111110111111;
-    // if(led7)
-    //   state |= 0b0000000000100000;
-    // else
-    //   state &= 0b1111111111011111;
+    // Bank A is LEDs 8-15
+    uint8_t bankAState = uint8_t(state>>8);
+    this->LEDs.writeRegister(MCP23017Register::GPIO_A,bankAState);
 
-    // //Bank A is LEDs 8-15
-    //   uint8_t bankAState = uint8_t(state>>8);
-    // this->LEDs.writeRegister(MCP23017Register::GPIO_A,bankAState);
-
-    // //Bank B is LEDs 0-7
-    // uint8_t bankBState = uint8_t(state);
-    // this->LEDs.writeRegister(MCP23017Register::GPIO_B,bankBState);
+    //Bank B is LEDs 0-7
+    uint8_t bankBState = uint8_t(state);
+    this->LEDs.writeRegister(MCP23017Register::GPIO_B,bankBState);
   }
   void reset(){}
   void initialize(){
-  // //default startup control state
-	// this->LEDs.writeRegister(MCP23017Register::IOCON, 0b00100000);
-	// //setting both banks of IO to outputs
-	// this->LEDs.writeRegister(MCP23017Register::IODIR_A, 0b00000000);
-	// this->LEDs.writeRegister(MCP23017Register::IODIR_B, 0b00000000);
-	// //writing the GPIO pins to high, which set the values the Output Latch Registers will turn on&off
-	// this->LEDs.writeRegister(MCP23017Register::GPIO_A,0b11111111);
-	// this->LEDs.writeRegister(MCP23017Register::GPIO_B,0b11111111);
+    //default startup control state
+    this->LEDs.writeRegister(MCP23017Register::IOCON, 0b00100000);
+    //setting both banks of IO to outputs
+    this->LEDs.writeRegister(MCP23017Register::IODIR_A, 0b00000000);
+    this->LEDs.writeRegister(MCP23017Register::IODIR_B, 0b00000000);
+    //writing the GPIO pins to high, which set the values the Output Latch Registers will turn on&off
+    this->LEDs.writeRegister(MCP23017Register::GPIO_A,0b11111111);
+    this->LEDs.writeRegister(MCP23017Register::GPIO_B,0b11111111);
 
-	// //default startup settings
-	// this->Buttons.writeRegister(MCP23017Register::IOCON, 0b00100000);
-	// //Setting all GPIO's to inputs
-	// this->Buttons.writeRegister(MCP23017Register::IODIR_A, 0b11111111);
-	// this->Buttons.writeRegister(MCP23017Register::IODIR_B, 0b11111111);
-	// //Disabling internal pullup resistors (since we have a pulldown resistor)
-	// // this->Buttons.writeRegister(MCP23017Register::GPPU_A, 0b00000000);
-	// // this->Buttons.writeRegister(MCP23017Register::GPPU_B, 0b00000000);
-	// this->Buttons.writeRegister(MCP23017Register::GPPU_A, 0b11111111);
-	// this->Buttons.writeRegister(MCP23017Register::GPPU_B, 0b11111111);
+    //default startup settings
+    this->Buttons.writeRegister(MCP23017Register::IOCON, 0b00100000);
+    //Setting all button GPIO's to inputs
+    this->Buttons.writeRegister(MCP23017Register::IODIR_A, 0b11111111);
+    this->Buttons.writeRegister(MCP23017Register::IODIR_B, 0b11111111);
 
-	// this->Buttons.writeRegister(MCP23017Register::GPIO_A,0b11111111);
-	// this->Buttons.writeRegister(MCP23017Register::GPIO_B,0b11111111);
+    //Enabling internal pullup resistors
+    this->Buttons.writeRegister(MCP23017Register::GPPU_A, 0b11111111);
+    this->Buttons.writeRegister(MCP23017Register::GPPU_B, 0b11111111);
 
+    this->Buttons.writeRegister(MCP23017Register::GPIO_A,0b11111111);
+    this->Buttons.writeRegister(MCP23017Register::GPIO_B,0b11111111);
   }
   void test(){
-    // uint8_t i = 0;
-    // uint16_t oldState = 0;
-    // while(true){
-    //   // uint16_t state = this->readButtons();
-    //   uint16_t state = this->Buttons.read();
-    //   this->writeLEDs(state);
-
-    //   i++;
-    //   i%=16;
-    // }
+    uint16_t theLastWrite = millis();
+    while(true){
+      // uint16_t state = this->readButtons();
+      uint16_t state = this->Buttons.read();
+      this->writeLEDs(~state);
+      if((millis()-theLastWrite) > 1000){
+        Serial.println(state,BIN);
+        theLastWrite = millis();
+      }
+      display.clearDisplay();
+      printSmall(0,0,String(state),1);
+      display.display();
+    }
   }
 };
 
@@ -378,7 +363,7 @@ class StepchildHardwareInput{
 
   //returns a specific stepbutton state from the stored stepButtons var
   bool stepButton(uint8_t which){
-    return (1<<which)&(this->stepButtons);
+    return (this->stepButtons>>which)&1;
   }
   //returns true if any are pressed (used for the sequenceClock.BPM tap function)
   bool anyStepButtons(){
@@ -426,8 +411,9 @@ class StepchildHardwareInput{
 
   bool anyActiveInputs(){
     this->readButtons();
+    this->readStepButtons();
     this->readJoystick();
-    return (this->mainButtons || this->encoderButtons || this->joystickX || this->joystickY);
+    return (this->mainButtons || this->encoderButtons || this->joystickX || this->joystickY || this->stepButtons);
   }
 
   /*
@@ -495,67 +481,6 @@ bool justOneButton(){
   else
     return false;
 }
-
-#ifndef HEADLESS
-void readButtons_MPX(){
-  bool buttons[8];
-  digitalWrite(BUTTONS_LOAD,LOW);
-  digitalWrite(BUTTONS_LOAD,HIGH);
-  digitalWrite(BUTTONS_CLOCK_IN, HIGH);
-  digitalWrite(BUTTONS_CLOCK_ENABLE,LOW);
-  unsigned char bits_buttons = shiftIn(BUTTONS_DATA, BUTTONS_CLOCK_IN, LSBFIRST);
-  digitalWrite(BUTTONS_CLOCK_ENABLE, HIGH);
-
-  //grabbing values from the byte
-  for(int digit = 0; digit<8; digit++){
-    buttons[digit] = (bits_buttons>>digit)&1;
-  }
-
-  if(LEDsOn){
-    uint8_t capButtons = lowerBoard.readButtons();
-    for(uint8_t digit = 0; digit<8; digit++){
-      controls.setStepButton(digit,(capButtons>>digit)&1); 
-    }
-    lowerBoard.reset();
-  }
-  else{
-    for(uint8_t digit = 0; digit<8; digit++){
-      controls.setStepButton(digit,0);
-    }
-  }
-  //setting each button accordingly
-  controls.setNEW(!buttons[7]);
-  controls.setSHIFT(!buttons[6]);
-  controls.setSELECT(!buttons[5]);
-  controls.setDELETE(!buttons[4]);
-  controls.setLOOP(!buttons[3]);
-  controls.setPLAY(!buttons[2]);
-  controls.setCOPY(!buttons[1]);
-  controls.setMENU(!buttons[0]);
-}
-
-#else
-void readButtons_MPX(){
-    try{
-        glfwPollEvents();
-    }
-    catch(...){
-        cout<<"oh shit";
-    }
-    controls.setNEW(newKeyVal);
-    controls.setSHIFT(shiftKeyVal);
-    controls.setSELECT(selectKeyVal);
-    controls.setDELETE(deleteKeyVal);
-    controls.setLOOP(loopKeyVal);
-    controls.setPLAY(playKeyVal);
-    controls.setCOPY(copyKeyVal);
-    controls.setMENU(menuKeyVal);
-
-    for(uint8_t i = 0; i<8; i++){
-      controls.setStepButton(i,headlessStepButtons[i]);
-    }
-}
-#endif
 
 void resetEncoders(){
   controls.counterA = 0;
@@ -737,60 +662,3 @@ void clearButtons(){
   controls.setCOPY(false);
   controls.setMENU(false) ;
 }
-
-#ifndef HEADLESS
-//checks all inputs
-bool anyActiveInputs(){
-  //normal buttons
-  digitalWrite(BUTTONS_LOAD,LOW);
-  digitalWrite(BUTTONS_LOAD,HIGH);
-  digitalWrite(BUTTONS_CLOCK_IN, HIGH);
-  digitalWrite(BUTTONS_CLOCK_ENABLE,LOW);
-  unsigned char bits_buttons = shiftIn(BUTTONS_DATA, BUTTONS_CLOCK_IN, LSBFIRST);
-  digitalWrite(BUTTONS_CLOCK_ENABLE, HIGH);
-
-  for(int digit = 0; digit<8; digit++){
-    if(!((bits_buttons>>digit)&1))//if any of these are high, return true
-      return true;
-  }
-
-  //stepButtons
-  if(LEDsOn){
-    digitalWrite(BUTTONS_LOAD,LOW);
-    digitalWrite(BUTTONS_LOAD,HIGH);
-    digitalWrite(BUTTONS_CLOCK_IN, HIGH);
-    digitalWrite(BUTTONS_CLOCK_ENABLE,LOW);
-    unsigned char bits_stepButtons = shiftIn(STEPBUTTONS_DATA, BUTTONS_CLOCK_IN, LSBFIRST);
-    digitalWrite(BUTTONS_CLOCK_ENABLE, HIGH);
-  
-    for(int digit = 0; digit<8; digit++){
-      if(!((bits_stepButtons>>digit)&1))
-        return true;
-    }
-  }
-
-  controls.readJoystick();
-  if(controls.joystickX || controls.joystickY)
-    return true;
-  //encoder presses
-  if(digitalRead(A_BUTTON) || digitalRead(B_BUTTON)){
-    return true;
-  }
-  //encoder clicks
-  if(controls.counterA || controls.counterB){
-    controls.counterA = 0;
-    controls.counterB = 0;
-    return true;
-  }
-
-  return false;
-}
-#else
-bool anyActiveInputs(){
-  readButtons();
-  if(controls.joystickX || controls.joystickY || controls.NEW() || controls.SHIFT() || controls.SELECT()  || controls.DELETE() || controls.LOOP() || controls.PLAY() || controls.COPY() || controls.MENU() || controls.counterA || controls.counterB || controls.B() || controls.A())
-    return true;
-  else
-    return false;
-}
-#endif

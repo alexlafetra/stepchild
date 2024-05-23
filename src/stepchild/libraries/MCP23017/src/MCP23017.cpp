@@ -121,7 +121,13 @@ void MCP23017::writeRegister(MCP23017Register reg, uint8_t value)
 	_bus->beginTransmission(_deviceAddr);
 	_bus->write(static_cast<uint8_t>(reg));
 	_bus->write(value);
-	// _bus->endTransmission();
+	/*
+		error = 1 ==> buffer too small for data
+		= 2 ==> received NACK on transmit of address
+		= 3 ==> received NACK on transmit of data
+		= 4 ==> other error
+		= 5 ==> timeout
+	*/
 	unsigned char error = _bus->endTransmission();
 	if(error){
         Serial.print("Something went wrong while talking to MCP23017! Code ");
@@ -135,8 +141,13 @@ void MCP23017::writeRegister(MCP23017Register reg, uint8_t portA, uint8_t portB)
 	_bus->write(static_cast<uint8_t>(reg));
 	_bus->write(portA);
 	_bus->write(portB);
-	// _bus->endTransmission();
-	unsigned char error = _bus->endTransmission();
+	/*
+		error = 1 ==> buffer too small for data
+		= 2 ==> received NACK on transmit of address
+		= 3 ==> received NACK on transmit of data
+		= 4 ==> other error
+		= 5 ==> timeout
+	*/	unsigned char error = _bus->endTransmission();
 	if(error){
         Serial.print("Something went wrong while talking to MCP23017! Code ");
         Serial.println(error);

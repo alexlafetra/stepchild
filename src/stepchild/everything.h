@@ -564,7 +564,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
   }
 
   if(playing || recording)
-    updateLEDs();
+    sequence.updateLEDs();
 }
 
 
@@ -768,7 +768,7 @@ void setActiveTrack(uint8_t newActiveTrack, bool loudly) {
       }
     }
   }
-  updateLEDs();
+  sequence.updateLEDs();
   menuText = pitchToString(sequence.trackData[sequence.activeTrack].pitch,true,true);
 }
 
@@ -928,7 +928,7 @@ int16_t moveCursor(int moveAmount){
     moveView(sequence.cursorPos - (sequence.viewEnd-sequence.subDivision));
   }
   //update the LEDs
-  updateLEDs();
+  sequence.updateLEDs();
   menuText = ((moveAmount>0)?(stepsToPosition(sequence.cursorPos,true)+">>"):("<<"+stepsToPosition(sequence.cursorPos,true)));
   return amt;
 }
@@ -1174,7 +1174,7 @@ void zoom(bool in){
   checkView();
   changeSubDivInt(in);
   moveCursorIntoView();
-  updateLEDs();
+  sequence.updateLEDs();
   menuText = stepsToMeasures(sequence.viewStart)+"<-->"+stepsToMeasures(sequence.viewEnd)+"(~"+stepsToMeasures(sequence.subDivision)+")";
 }
 bool areThereAnyNotes(){
@@ -1680,7 +1680,7 @@ void mainSequencerButtons(){
       }
       else if(sequence.IDAtCursor() != 0){
         sequence.deleteNote(sequence.activeTrack,sequence.cursorPos);
-        updateLEDs();
+        sequence.updateLEDs();
         lastTime = millis();
       }
     }
@@ -1779,26 +1779,27 @@ void stepButtons(){
       bool atLeastOne = false;
       //if it's in 1/4 mode
       if(!(sequence.subDivision%3)){
-        for(int i = 0; i<8; i++){
+        for(int i = 0; i<16; i++){
           if(controls.stepButton(i)){
             uint16_t viewLength = sequence.viewEnd-sequence.viewStart;
-            sequence.toggleNote(sequence.activeTrack, sequence.viewStart+i*viewLength/8, viewLength/8);
+            sequence.toggleNote(sequence.activeTrack, sequence.viewStart+i*viewLength/16,viewLength/8);
             atLeastOne = true;
           }
         }
       }
       //if it's in 1/3 mode, last two buttons do nothing
       else if(!(sequence.subDivision%2)){
-        for(int i = 0; i<6; i++){
+        for(int i = 0; i<12; i++){
           if(controls.stepButton(i)){
             uint16_t viewLength = sequence.viewEnd-sequence.viewStart;
-            sequence.toggleNote(sequence.activeTrack,sequence.viewStart+i*viewLength/6,viewLength/6);
+            sequence.toggleNote(sequence.activeTrack,sequence.viewStart+i*viewLength/12,viewLength/6);
             atLeastOne = true;
           }
         }
       }
       if(atLeastOne){
         lastTime = millis();
+        sequence.updateLEDs();
       }
     }
   }

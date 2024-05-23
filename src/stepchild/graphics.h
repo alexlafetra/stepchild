@@ -1596,31 +1596,3 @@ void drawOSScreen(){
   }
 }
 
-
-//displays notes on LEDs
-void updateLEDs(){
-  uint16_t dat = 0;//00000000
-  if(LEDsOn && !screenSaverActive){
-    uint16_t viewLength = sequence.viewEnd-sequence.viewStart;
-    //move through the view, check every sequence.subDivision
-    const uint16_t jump = viewLength/16;
-    //if there are any notes, check
-    if(sequence.noteData[sequence.activeTrack].size()>1){
-      for(uint8_t i = 0; i<16; i++){
-        uint16_t step = sequence.viewStart+i*jump;
-        if(sequence.lookupTable[sequence.activeTrack][step] != 0){
-          //not sure if it should only light up if it's on the start step or nah
-          if(sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][step]].startPos == step){
-            //if playing or recording, and the head isn't on that step, it should be on
-            //if it is on that step, then the step should blink
-            if((playing && (playheadPos <  sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][step]].startPos || playheadPos > sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][step]].endPos)) || !playing){
-              dat = dat|(1<<i);
-            }
-          }
-        }
-      }
-    }
-  }
-  lowerBoard.writeLEDs(dat);
-}
-

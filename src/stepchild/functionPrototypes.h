@@ -335,7 +335,6 @@ void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct
 //Graphics
 void bootscreen_2();
 void alert(String text, int time);
-void updateLEDs();
 void writeLEDs(uint8_t led, bool state);
 void writeLEDs(uint8_t first, uint8_t last);
 void writeLEDs(bool leds[16]);
