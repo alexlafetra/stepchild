@@ -1,8 +1,9 @@
 .VSCodeCounter
 **/.DS_Store
-src/headless/childOS_headless/.DS_Store
+code/headless/childOS_headless/.DS_Store
 .VSCodeCounter
-.vcdoe
+.vscode
 todo.md
-bugs.md
 site/
+.gitattributes
+.gitignore
