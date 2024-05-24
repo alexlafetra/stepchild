@@ -52,9 +52,6 @@
 --------------------------------------
 */
 
-#ifndef HEADLESS
-#include "libraries/MCP23017/src/MCP23017.cpp"
-
 /*
 Super helpful thread from working with the MPR121 w/ Wire.h about using i2c SOCs
 https://forum.arduino.cc/t/how-to-read-a-register-value-using-the-wire-library/206123/2
@@ -80,6 +77,11 @@ https://forum.arduino.cc/t/how-to-read-a-register-value-using-the-wire-library/2
 #define MCP23017_LED_ADDR 0b0100001 //33 or 0x41
 #define MCP23017_BUTTON_ADDR 0b0100010 //34 or 0x42
 
+//use the headless control code if you're building the headless mode
+#ifdef HEADLESS
+#include "../../headless/childOS_headless/HeadlessControls.h"
+#else
+#include "libraries/MCP23017/src/MCP23017.cpp"
 class LowerBoard{
   public:
   MCP23017 LEDs = MCP23017(MCP23017_LED_ADDR,Wire);
@@ -139,8 +141,6 @@ class LowerBoard{
     }
   }
 };
-#endif
-
 
 //Holds all the hardware input functions (and the headless overloads)
 //Accessed like Stepchild.buttons.buttonState(LOOP)?
@@ -159,17 +159,12 @@ class StepchildHardwareInput{
   int8_t joystickX = 0;
   int8_t joystickY = 0;
 
-  #ifndef HEADLESS
   LowerBoard lowerBoard;
-  #else
-  DummyLowerBoard lowerBoard;
-  #endif
 
   //this should probably do all the hardware inits, and get passed a "settings" struct with the pins
   StepchildHardwareInput(){}
 
   void init(){
-    #ifndef HEADLESS
     //joystick analog inputs
     pinMode(JOYSTICK_X, INPUT);
     pinMode(JOYSTICK_Y, INPUT);
@@ -198,7 +193,8 @@ class StepchildHardwareInput{
     attachInterrupt(A_DATA,rotaryActionA_Handler, CHANGE);
     attachInterrupt(B_CLOCK,rotaryActionB_Handler, CHANGE);
     attachInterrupt(B_DATA,rotaryActionB_Handler, CHANGE);
-    #endif
+
+    this->lowerBoard.initialize();
   }
 
   /*
@@ -208,7 +204,6 @@ class StepchildHardwareInput{
   //stored as members of the hardware input class
 
   void readMainButtons(){
-    #ifndef HEADLESS
     //Shifting in the 8 main button values from the MPX
     digitalWrite(BUTTONS_LOAD,LOW);
     digitalWrite(BUTTONS_LOAD,HIGH);
@@ -219,17 +214,6 @@ class StepchildHardwareInput{
 
     //invert logic values bc low voltage ==> button is pressed
     this->mainButtons = ~this->mainButtons;
-
-    #else
-    int temp[8] = {newKeyVal,shiftKeyVal,selectKeyVal,deleteKeyVal,loopKeyVal,playKeyVal,copyKeyVal,menuKeyVal};
-    uint8_t states = 0;
-    for(uint8_t i = 0; i<8;i++){
-      states |= temp[7-i]<<i;
-    }
-    this->mainButtons = states;
-    this->counterA += headlessCounterA;
-    this->counterB += headlessCounterB;
-    #endif
   }
   void readStepButtons(){
     //Headless mode condition isn't needed! The headless lower board class
@@ -240,15 +224,9 @@ class StepchildHardwareInput{
       this->stepButtons = 0;
   }
   void readEncoderButtons(){
-    #ifndef HEADLESS
     this->encoderButtons = (0|(digitalRead(A_BUTTON)<<1|digitalRead(B_BUTTON)));
-    #else
-    this->setB(encAPRESS);
-    this->setA(encBPRESS);
-    #endif
   }
   void readJoystick(){
-    #ifndef HEADLESS
     //X
     float val = analogRead(JOYSTICK_X);
     if(val<24)
@@ -265,23 +243,9 @@ class StepchildHardwareInput{
       this->joystickY = 1;
     else
       this->joystickY = 0;
-    #else
-    this->joystickX = xKeyVal;
-    this->joystickY = yKeyVal;
-    #endif
   }
   //reads in all the inputs!
   void readButtons(){
-    #ifdef HEADLESS
-    headlessCounterA = this->counterA;
-    headlessCounterB = this->counterB;
-    try{
-      glfwPollEvents();
-    }
-    catch(...){
-        cout<<"oh shit";
-    }
-    #endif
     //reading in main button states
     this->readMainButtons();
     //reading in encoder press states
@@ -495,26 +459,26 @@ class StepchildHardwareInput{
   //turns on a range of LEDs
   void writeLEDs(uint8_t first, uint8_t last){
     uint16_t data = 0;
-    // for(uint8_t i = 0; i<16; i++){
-    //   data = data<<1;
-    //   if(i >= first && i <= last){
-    //     data++;
-    //   }
-    // }
-    // data = ((data * 0x0802LU & 0x22110LU) | (data * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
+    for(uint8_t i = 0; i<(last-first); i++){
+      data |= 1<<(first+i);
+    }
     this->writeLEDs(data);
+  }
+  void turnOffLEDs(){
+    this->lowerBoard.writeLEDs(0);
+  }
+  //cycles one LED on, moving it from left to right. delayTimeMS sets the speed of the cycle in milliseconds.
+  void cycleLEDs(uint16_t delayTimeMs){
+    uint8_t which = (millis()/delayTimeMs)%16;
+    uint16_t state = 1<<which;
+    this->writeLEDs(state);
   }
 };
 
 StepchildHardwareInput controls;
 
-bool justOneButton(){
-  int score = controls.NEW()+controls.SELECT() +controls.SHIFT()+controls.DELETE()+controls.LOOP()+controls.PLAY()+controls.COPY()+controls.MENU()+controls.A()+controls.B();
-  if(score == 1)
-    return true;
-  else
-    return false;
-}
+#endif
+
 
 void restartSerial(unsigned int baud){
   Serial.end();
@@ -566,19 +530,14 @@ void leaveSleepMode(){
   rp2040.resumeOtherCore();
   // rp2040.restartCore1(); <-- this also breaks it
   while(!core1ready){//wait for core1
-    // //Serial.println("waiting");
-    // Serial.flush();
   }
-  // //Serial.println("ready");
-  // Serial.flush();
-  return;
 }
 void enterSleepMode(){
   //turn off power consuming things
   display.clearDisplay();
   display.display();
   controls.clearButtons();
-  turnOffLEDs();
+  controls.turnOffLEDs();
   
   sleeping = true;
   //wait for core1 to sleep
@@ -615,24 +574,4 @@ float getBattLevel(){
   //But if they're 1.2v batts VSYS is ~3.6;
   float val = float(analogRead(VOLTAGE_PIN))*BATTSCALE;
   return val;
-}
-
-// void writeLEDs(bool leds[16]){
-//   uint16_t dat = 0;
-//   if(LEDsOn){
-//     for(int i = 0; i<16; i++){
-//       dat = dat<<1;
-//       if(leds[i]){
-//         dat++;
-//       }
-//     }
-//   }
-//   dat = ((dat * 0x0802LU & 0x22110LU) | (dat * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
-//   controls.lowerBoard.writeLEDs(dat);
-// }
-
-void turnOffLEDs(){
-  uint8_t dat = 0;
-  // sending data to controls.SHIFT() reg
-  controls.lowerBoard.writeLEDs(dat);
 }

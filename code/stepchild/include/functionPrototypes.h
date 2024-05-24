@@ -253,7 +253,6 @@ bool areThereAnyNotes();
 bool areThereMoreNotes(bool);
 void setCursorToNearestNote();
 void checkView();
-void turnOffLEDs();
 void checkAutotracks();
 
 //Loops

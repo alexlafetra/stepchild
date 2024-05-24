@@ -338,7 +338,10 @@ int playKeyVal;//c
 int copyKeyVal;//v
 int menuKeyVal;//b
 
-#include "headlessLowerBoard.h"
+bool leds[16] = {false,false,false,false,false,false,false,false,
+                 false,false,false,false,false,false,false,false};
+bool headlessStepButtons[16] = {false,false,false,false,false,false,false,false,
+                                false,false,false,false,false,false,false,false};
 
 void shiftOut(int dataPin, int clockPin, int style, int data){
     for(uint8_t i = 0; i<8; i++){

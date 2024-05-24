@@ -1423,7 +1423,7 @@ void bootscreen(){
     controls.writeLEDs(ledData);
     frameCount+=4;
   }
-  turnOffLEDs();
+  controls.turnOffLEDs();
 }
 
 void helloChild_1(){
@@ -1578,7 +1578,7 @@ void bootscreen_2(){
     controls.writeLEDs(0b1111111111111111>>(16-(frameCount/8)));
     frameCount+=2;
   }
-  turnOffLEDs();
+  controls.turnOffLEDs();
 }
 
 void drawOSScreen(){

@@ -30,19 +30,17 @@ void setup() {
   //turn text wrapping off, so our menus look ok
   display.setTextWrap(false);
 
-  // these two string must be exactly 32 chars long
-  //                                   01234567890123456789012345678912
+  // these two strings must be exactly 32 characters long:
+  //                                   0123456789ABCDEF0123456789ABCDEF
   USBDevice.setManufacturerDescriptor("Unsound Systems                 ");
   USBDevice.setProductDescriptor     ("Stepchild V1.0                  ");
-
   #endif
 
 
   // CV.init()
 
-  //setting up the pinouts
+  //setting up the pinouts and the lower board
   controls.init();
-  controls.lowerBoard.initialize();
 
   #ifndef HEADLESS
   //wait for tinyUSB to connect, if the USB port is connected (not sure if this is necessary, need to test)
@@ -61,19 +59,17 @@ void setup() {
   sequence.init(16,768);
 
   //turn off LEDs (since they might be in some random configuration)
-  turnOffLEDs();
+  controls.turnOffLEDs();
   //set the control knobs up w/ default values
   for(uint8_t i = 0; i<16; i++){
     controlKnobs[i].cc = i+1;
   }
-  controls.counterA = 0;
-  controls.counterB = 0;
+
   setNormalMode();
   core0ready = true;
   lastTime = millis();
   bootscreen_2();
   sequence.updateLEDs();
-  // controls.lowerBoard.test();
 }
 
 //CPU 1 Setup

@@ -476,5 +476,5 @@ void rain(){
       sort(pitchList.begin(),pitchList.end());
     }
   }
-  turnOffLEDs();
+  controls.turnOffLEDs();
 }
