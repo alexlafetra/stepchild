@@ -1,4 +1,4 @@
-<!-- ![Gif of the Stepchild Rotating](images/stepchild.gif) -->
+<!-- ![Gif of the Stepchild Rotating](assets/stepchild.gif) -->
 
 <p align="center">
   <img src="manual/images/stepchild.gif" />
@@ -19,7 +19,7 @@ The Stepchild has the capability to record and playback sequences of MIDI data w
 
 <!-- links to social media, reddit, website -->
 
-![Image](images/stepchild_disassembled.jpg)
+![Image](assets/stepchild_disassembled.jpg)
 
 <!-- capabilities -->
 ### Overview:
@@ -32,7 +32,7 @@ I currently sell the Stepchild over at the [official site](https://alexlafetra.g
 
 The Stepchild has 4 hardware MIDI out ports and 1 hardware MIDI In port, supporting both 3.5mm TRS and the original 5-pin-DIN connector MIDI standard, as well as USB MIDI in/out using the Pi Pico's microUSB port. In total, up to 8 instruments and 1 computer can be connected to output channels from the Stepchild on 4 separate hardware ports.
 
-![Image of the stepchild](images/stepchild_assembly.jpg)
+![Image of the stepchild](assets/stepchild_assembly.jpg)
 
 
 The heart of the Stepchild is a Raspberry Pi Pico, which is a cheap, accessible microcontroller. The electronics of the Stepchild are split into two boards; on the top board, the Pico drives a monochrome 128x64 OLED screen, 8 main buttons, two rotary encoders, and an XY joystick. The bottom board holds the 8 step-buttons and indicator LEDs. The Stepchild also exposes 3 extra pins for CV
@@ -106,7 +106,7 @@ As of version 1.0, ChildOS has a powerful sequencer, looper, and Automation func
 
 The Stepchild uses [LittleFS]() to set aside 1MB of the Pico's onboard flash memory to store settings and sequence files. [ChildOS Interface](https://github.com/alexlafetra/childOSInterface) is a standalone Java app that lets you download saved files from the Stepchild, or to <i>convert</i> .child files to .MIDI files that can be played back in a DAW. 
 
-![Exploded View](images/exploded.png)
+![Exploded View](assets/exploded.png)
 
 # Features Under Construction
 
