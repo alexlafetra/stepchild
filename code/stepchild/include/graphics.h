@@ -536,40 +536,38 @@ class StepchildGraphics{
     }
   }
   //bracket around a note
-  void drawNoteBracket(int x1, int y1, int length, int height, bool animated){
-    float offset;
-    if(animated){
-      offset = ((millis()/400)%2);
-    }
-    else
-      offset = 0;
+  void drawNoteBracket(uint16_t x1, uint8_t y1, uint16_t length, uint8_t height, bool animated){
+    // Serial.println("vs: "+stringify(sequence.viewStart));
+    // Serial.println("x: "+stringify(x1));
+    // Serial.println("y: "+stringify(y1));
+    uint8_t offset = animated?((millis()/400)%2):0;
     x1++;
     y1++;
     length-=2;
     height-=2;
-    if(x1>=sequence.viewStart){
+    // if(x1>=sequence.viewStart){
       //topL
       display.drawLine(x1-2-offset,y1-2-offset,x1+1-offset,y1-2-offset,SSD1306_WHITE);
       display.drawLine(x1-2-offset,y1-2-offset,x1-2-offset,y1+1-offset,SSD1306_WHITE);
       //bottomL
       display.drawLine(x1-2-offset,y1+height+2+offset,x1+1-offset,y1+height+2+offset,SSD1306_WHITE);
       display.drawLine(x1-2-offset,y1+height+2+offset,x1-2-offset,y1+height-1+offset,SSD1306_WHITE);
-    }
-    if(x1+length<=sequence.viewEnd){
+    // }
+    // if(x1+length<=sequence.viewEnd){
       //topR
       display.drawLine(x1+length+2+offset,y1-2-offset,x1+length-1+offset,y1-2-offset,SSD1306_WHITE);
       display.drawLine(x1+length+2+offset,y1-2-offset,x1+length+2+offset,y1+1-offset,SSD1306_WHITE);
       //bottomR
       display.drawLine(x1+length+2+offset,y1+height+2+offset,x1+length-1+offset,y1+height+2+offset,SSD1306_WHITE);
       display.drawLine(x1+length+2+offset,y1+height+2+offset,x1+length+2+offset,y1+height-1+offset,SSD1306_WHITE);
-    }
+    // }
   }
 
-  void drawNoteBracket(int x1, int y1, int length, int height){
+  void drawNoteBracket(uint16_t x1, uint8_t y1, uint16_t length, uint8_t height){
     this->drawNoteBracket(x1, y1, length, height, true);
   }
 
-  void drawNoteBracket(Note note, int track){
+  void drawNoteBracket(Note note, uint8_t track){
     this->drawNoteBracket(trackDisplay+(note.startPos-sequence.viewStart)*sequence.viewScale,headerHeight+(track-startTrack)*trackHeight,(note.endPos-note.startPos+1)*sequence.viewScale,trackHeight);
   }
 
@@ -1419,7 +1417,7 @@ void bootscreen(){
     pram.rotate(5,1);
     // writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
     uint16_t ledData = 0b1111111111111111;
-    ledData>>(15-frameCount/8);
+    ledData>>(16-frameCount/8);
     controls.writeLEDs(ledData);
     frameCount+=4;
   }
@@ -1575,7 +1573,7 @@ void bootscreen_2(){
     }
     display.display();
     // writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
-    controls.writeLEDs(0b1111111111111111>>(16-(frameCount/8)));
+    controls.writeLEDs(0b1111111111111111>>(15-(frameCount/8)));
     frameCount+=2;
   }
   controls.turnOffLEDs();

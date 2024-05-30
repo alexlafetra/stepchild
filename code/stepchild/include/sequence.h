@@ -7,8 +7,10 @@ class StepchildSequence{
 
     uint16_t activeTrack = 0;
     uint16_t cursorPos = 0;
-    uint16_t playheadPos = 0;
-    uint16_t recheadPos = 0;
+
+    //Not implemented yet! Still using global vars
+    uint16_t readHead = 0; 
+    uint16_t writeHead = 0;
 
     vector<Loop> loopData;
     uint8_t activeLoop = 0;
@@ -25,7 +27,13 @@ class StepchildSequence{
 
     uint8_t subDivision = 24;
 
-    uint8_t playState;
+    enum PlayState{
+        PLAY,
+        RECORD,
+        LIVELOOP
+    };
+
+    PlayState playState;
     uint8_t defaultChannel = 1;
     uint8_t defaultPitch = 36;
     uint8_t defaultVel = 127;
@@ -37,8 +45,6 @@ class StepchildSequence{
         CHANCE,
         PITCH
     };
-
-
 
     StepchildSequence(){}
     /*
@@ -496,6 +502,28 @@ class StepchildSequence{
             return worked;
         }
     }
+    //slices a note into N equal pieces
+    void chopNote(uint8_t track, uint16_t step, uint8_t pieces){
+        if(!this->IDAt(track,step))
+            return;
+        Note targetNote = this->noteAt(track,step);
+        uint16_t length = targetNote.endPos - targetNote.startPos;
+        //if the length is too short to cut, don't
+        if(!(length/pieces))
+            return;
+        
+        //the new length of each sub note
+        uint16_t newLength = length/pieces;
+
+        //start on the second note, since the first one is already there (it just needs to be truncated)
+        for(uint16_t N = 1; N<pieces; N++){
+            //if you're about to make the last note, set newLength to be equal to the remaining length
+            if(N == pieces-1)
+                this->makeNote(track,targetNote.startPos+N*newLength,length - N*newLength,false);
+            else
+                this->makeNote(track,targetNote.startPos+N*newLength,newLength,false);
+        }
+    }
     /*
     ----------------------------------------------------------
                         EDITING SEQ
@@ -611,8 +639,8 @@ class StepchildSequence{
                         if(this->noteData[this->activeTrack][this->lookupTable[this->activeTrack][step]].startPos == step){
                             //if playing or recording, and the head isn't on that step, it should be on
                             //if it is on that step, then the step should blink
-                            if((playing && (playheadPos <  this->noteData[this->activeTrack][this->lookupTable[this->activeTrack][step]].startPos || playheadPos > this->noteData[this->activeTrack][this->lookupTable[this->activeTrack][step]].endPos)) || !playing){
-                                dat = dat|(1<<i);
+                            if(!playing || ((playheadPos < this->noteAt(this->activeTrack,step).startPos) || (playheadPos > this->noteAt(this->activeTrack,step).endPos))){
+                                dat |= (1<<i);
                             }
                         }
                     }

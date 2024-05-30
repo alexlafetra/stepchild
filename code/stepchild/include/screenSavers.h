@@ -313,4 +313,5 @@ void screenSaverCheck(){
       deepSleep();
     }
   }
+  sequence.updateLEDs();
 }

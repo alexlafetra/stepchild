@@ -86,12 +86,20 @@ class LowerBoard{
   public:
   MCP23017 LEDs = MCP23017(MCP23017_LED_ADDR,Wire);
   MCP23017 Buttons = MCP23017(MCP23017_BUTTON_ADDR,Wire);
+  //stores LED State so you don't double-update
+  uint16_t LEDState = 0;
   LowerBoard(){}
   uint16_t readButtons(){
     //inverted bc of pullup resitors! Button pins read LOW when switches (buttons) are closed (pressed)
     return ~this->Buttons.read();
   }
   void writeLEDs(unsigned short int state){
+    //if it's a redundant write, ignore it
+    if(state == this->LEDState)
+      return;
+    else
+      this->LEDState = state;
+
     // Bank A is LEDs 8-15
     uint8_t bankAState = uint8_t(state>>8);
     this->LEDs.writeRegister(MCP23017Register::GPIO_A,bankAState);

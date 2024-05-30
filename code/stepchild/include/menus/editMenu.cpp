@@ -999,7 +999,7 @@ void Menu::displayEditMenu(uint8_t* stencil,uint8_t windowStart,uint8_t currentQ
     }
     //draw moving brackets
     if(sequence.IDAtCursor() != 0)
-      graphics.drawNoteBracket(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()],sequence.activeTrack);
+      graphics.drawNoteBracket(sequence.noteAtCursor(),sequence.activeTrack);
     //or draw brackets around the selection
     if(sequence.selectionCount > 0)
       graphics.drawSelectionBracket();

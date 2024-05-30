@@ -1686,14 +1686,24 @@ void mainSequencerButtons(){
   if(utils.itsbeen(200)){
     //new
     if(controls.NEW() && !drawingNote && !controls.SELECT() ){
-      if((!controls.SHIFT())&& (sequence.IDAtCursor() == 0 || sequence.cursorPos != sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos)){
+      if(controls.SHIFT()){
+        //if there's no note starting here, make a new note 1/2 the subdiv
+        if((sequence.IDAtCursor() == 0 || sequence.cursorPos != sequence.noteAtCursor().startPos)){
+          sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision/2,true);
+          moveCursor(sequence.subDivision/2);
+          drawingNote = true;
+          lastTime = millis();
+        }
+        //if there is a note here, cut it in half/thirds (depending on if you're in triplet mode or not)
+        else{
+          sequence.chopNote(sequence.activeTrack,sequence.cursorPos,sequence.isQuarterGrid()?2:3);
+          lastTime = millis();
+        }
+      }
+      else if(!controls.SHIFT() && (sequence.IDAtCursor() == 0 || sequence.cursorPos != sequence.noteAtCursor().startPos)){
         sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision,true);
         moveCursor(sequence.subDivision);
         drawingNote = true;
-        lastTime = millis();
-      }
-      if(controls.SHIFT()){
-        addTrack(sequence.defaultPitch, sequence.defaultChannel);
         lastTime = millis();
       }
     }

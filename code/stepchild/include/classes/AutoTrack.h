@@ -43,17 +43,13 @@ class Autotrack{
 
     vector<uint16_t> selectedPoints;
     Autotrack();
-    Autotrack(uint8_t);
+    Autotrack(uint8_t,uint16_t);
     void sendData(uint16_t);
     void play(uint16_t);
     void setTrigger(TriggerSource trigSource, uint8_t trigTarget);
 };
 
 Autotrack::Autotrack(){
-  data.push_back(63);
-  for(uint16_t i = 1; i<sequence.sequenceLength; i++){
-    data.push_back(255);
-  }
   control = 1;
   channel = 1;
   type = 0;
@@ -64,9 +60,9 @@ Autotrack::Autotrack(){
   period = 96;
 }
 
-Autotrack::Autotrack(uint8_t t){
+Autotrack::Autotrack(uint8_t t, uint16_t length){
   data.push_back(63);
-  for(uint16_t i = 1; i<sequence.sequenceLength; i++){
+  for(uint16_t i = 1; i<length; i++){
     data.push_back(255);
   }
   control = 1;
@@ -80,6 +76,8 @@ Autotrack::Autotrack(uint8_t t){
 }
 
 void Autotrack::sendData(uint16_t timestep){
+  if(!data.size())
+    return;
   //bounds check for timestep --> timestep will "loop" around if bigger than data
   if(timestep>=data.size())
     timestep%=data.size();

@@ -73,18 +73,18 @@ void changeDataPoint(int8_t amount){
 }
 
 void createAutotrack(uint8_t type){
-  Autotrack newData(type);
+  Autotrack newData(type,sequence.sequenceLength);
   sequence.autotrackDataTest.push_back(newData);
 }
 
 void createAutotrack(uint8_t type, uint8_t cont){
-  Autotrack newData(type);
+  Autotrack newData(type,sequence.sequenceLength);
   newData.control = cont;
   sequence.autotrackDataTest.push_back(newData);
 }
 
 void createAutotrack(uint8_t cont, uint8_t chan, uint8_t isOn, vector<uint8_t> points,uint8_t pType){
-  Autotrack newData(0);
+  Autotrack newData(0,sequence.sequenceLength);
   newData.control = cont;
   newData.channel = chan;
   newData.isActive = isOn;
