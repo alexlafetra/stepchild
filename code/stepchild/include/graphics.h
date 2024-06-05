@@ -129,7 +129,7 @@ class StepchildGraphics{
     uint8_t length = (maxLength*4+3)*2;
 
     display.fillRect(x1-length/2,y1-height/2,length,height,SSD1306_BLACK);
-    drawSlider(x1-length/2,y1-height/2,length,height,state);
+    this->drawSlider(x1-length/2,y1-height/2,length,height,state);
     printSmall(x1-length/4-op1.length()*2+1,y1-2,op1,2);
     printSmall(x1+length/4-op2.length()*2,y1-2,op2,2);
     if(title.length()>0){
@@ -472,6 +472,7 @@ class StepchildGraphics{
     this->drawBarGraphH(x1,y1,5,length,percentageUsed);
     printSmall(x1-12,y1,"mem",1);
   }
+
   #define RIGHT 0
   #define LEFT 1
   #define UP 2
@@ -537,30 +538,23 @@ class StepchildGraphics{
   }
   //bracket around a note
   void drawNoteBracket(uint16_t x1, uint8_t y1, uint16_t length, uint8_t height, bool animated){
-    // Serial.println("vs: "+stringify(sequence.viewStart));
-    // Serial.println("x: "+stringify(x1));
-    // Serial.println("y: "+stringify(y1));
     uint8_t offset = animated?((millis()/400)%2):0;
     x1++;
     y1++;
     length-=2;
     height-=2;
-    // if(x1>=sequence.viewStart){
-      //topL
-      display.drawLine(x1-2-offset,y1-2-offset,x1+1-offset,y1-2-offset,SSD1306_WHITE);
-      display.drawLine(x1-2-offset,y1-2-offset,x1-2-offset,y1+1-offset,SSD1306_WHITE);
-      //bottomL
-      display.drawLine(x1-2-offset,y1+height+2+offset,x1+1-offset,y1+height+2+offset,SSD1306_WHITE);
-      display.drawLine(x1-2-offset,y1+height+2+offset,x1-2-offset,y1+height-1+offset,SSD1306_WHITE);
-    // }
-    // if(x1+length<=sequence.viewEnd){
-      //topR
-      display.drawLine(x1+length+2+offset,y1-2-offset,x1+length-1+offset,y1-2-offset,SSD1306_WHITE);
-      display.drawLine(x1+length+2+offset,y1-2-offset,x1+length+2+offset,y1+1-offset,SSD1306_WHITE);
-      //bottomR
-      display.drawLine(x1+length+2+offset,y1+height+2+offset,x1+length-1+offset,y1+height+2+offset,SSD1306_WHITE);
-      display.drawLine(x1+length+2+offset,y1+height+2+offset,x1+length+2+offset,y1+height-1+offset,SSD1306_WHITE);
-    // }
+    //topL
+    display.drawLine(x1-2-offset,y1-2-offset,x1+1-offset,y1-2-offset,SSD1306_WHITE);
+    display.drawLine(x1-2-offset,y1-2-offset,x1-2-offset,y1+1-offset,SSD1306_WHITE);
+    //bottomL
+    display.drawLine(x1-2-offset,y1+height+2+offset,x1+1-offset,y1+height+2+offset,SSD1306_WHITE);
+    display.drawLine(x1-2-offset,y1+height+2+offset,x1-2-offset,y1+height-1+offset,SSD1306_WHITE);
+    //topR
+    display.drawLine(x1+length+2+offset,y1-2-offset,x1+length-1+offset,y1-2-offset,SSD1306_WHITE);
+    display.drawLine(x1+length+2+offset,y1-2-offset,x1+length+2+offset,y1+1-offset,SSD1306_WHITE);
+    //bottomR
+    display.drawLine(x1+length+2+offset,y1+height+2+offset,x1+length-1+offset,y1+height+2+offset,SSD1306_WHITE);
+    display.drawLine(x1+length+2+offset,y1+height+2+offset,x1+length+2+offset,y1+height-1+offset,SSD1306_WHITE);
   }
 
   void drawNoteBracket(uint16_t x1, uint8_t y1, uint16_t length, uint8_t height){
@@ -651,12 +645,7 @@ class StepchildGraphics{
     float x1;
     float y1;
     x1 = h + a * cos(radians(val))/float(2.4);
-    // if (val > 180) {
-      // y1 = k - a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
-    // }
-    // else {
-      y1 = k + a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
-    // }
+    y1 = k + a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
     display.drawLine(x1,y1,h,k,SSD1306_WHITE);
     display.fillCircle(x1,y1,r,SSD1306_BLACK);
     display.drawCircle(x1,y1,r,SSD1306_WHITE);
@@ -679,185 +668,198 @@ class StepchildGraphics{
       this->drawLabel_outline(x1,y1,text);
     }
   }
+  //Draws a yes/no slider
+  void drawSlider(uint8_t x1, uint8_t y1, uint8_t w, uint8_t h, bool state){
+    display.fillRect(x1,y1,w,h,0);
+    display.drawRect(x1,y1,w,h,SSD1306_WHITE);
+    if(state){
+      display.fillRect(x1+w/2,y1+2,w/2-2,h-4,SSD1306_WHITE);
+    }
+    else{
+      display.fillRect(x1+2,y1+2,w/2-2,h-4,SSD1306_WHITE);
+    }
+  }
+  //draws a yes/no slider w/two text labels
+  void drawSlider(uint8_t x1, uint8_t y1, String a, String b, bool state){
+    uint8_t length = a.length()*4+b.length()*4+9;
+    //if length is odd, add 1
+    length+=(length%2)?1:0;
+    this->drawSlider(x1,y1,length,11,state);
+    printSmall_centered(x1+length/4+2,y1+3,a,2);
+    printSmall_centered(x1+3*length/4,y1+3,b,2);
+  }
+
+  void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask, uint8_t activeKey,uint8_t octave){
+    //white keys
+    const uint8_t keyWidth = 5;
+    const uint8_t wKeyHeight = 13;
+    const uint8_t wKeyPattern[21] = {0, 2, 4, 5, 7,9 ,11,
+                                    12,14,16,17,19,21,23,
+                                    24,26,28,29,31,33,35};
+    //black keys
+    const uint8_t bKeyHeight = 8;
+    const uint8_t bKeyPattern[15] = {1, 3, 6, 8,10,
+                                    13,15,18,20,22,
+                                    25,27,30,32,34};
+    String text = pitchToString(activeKey,false,true);
+    //these 'patterns' help reference the actual note value from the iterator i'm using to draw them
+    //the reason i'm doing this in realtime, not with a bitmap, is so i can animate
+    //keypresses and (maybe) even change which keys are displayed at all    
+    //first draw white keys
+    for(uint8_t i = 0; i<21; i++){
+      //pixel indicating it's in the chord
+      if(isInVector(wKeyPattern[i]+12*octave,pressList))
+        display.drawPixel(i*(keyWidth+1)+2,y1+15,SSD1306_WHITE);
+      //draw cursor indicator
+      if(wKeyPattern[i]+12*octave == activeKey){
+        this->drawArrow(i*(keyWidth+1)+2,y1+17+((millis()/200)%2),3,2,true);
+        printSmall(i*(keyWidth+1)+2-text.length()*2,y1+22+((millis()/200)%2),text,SSD1306_WHITE);
+      }
+
+      //if there's no mask, or if the key is in the mask
+      if(mask.size() == 0 || isInVector(wKeyPattern[i]+12*octave,mask)){
+        //if it's pressed, draw it blinking
+        if(isInVector(wKeyPattern[i]+12*octave,pressList)){
+          if(millis()%800>400)
+            display.drawRect(i*(keyWidth+1),y1-1,keyWidth,wKeyHeight+1,SSD1306_WHITE);
+          else
+            display.fillRect(i*(keyWidth+1),y1-1,keyWidth,wKeyHeight+1,SSD1306_WHITE);
+          //if it's highlighted
+          if(wKeyPattern[i]+12*octave == activeKey)
+            display.drawRect(i*(keyWidth+1),y1-1,keyWidth,wKeyHeight+1,SSD1306_WHITE);
+        }
+        else{
+          //if it's highlighted
+          if(wKeyPattern[i]+12*octave == activeKey)
+            display.drawRect(i*(keyWidth+1),y1-1,keyWidth,wKeyHeight+1,SSD1306_WHITE);
+          else
+            display.fillRect(i*(keyWidth+1),y1,keyWidth,wKeyHeight,SSD1306_WHITE);
+        }
+      }
+    }
+    //then draw black keys
+    uint8_t xPos = 3;
+    for(uint8_t i = 0; i<15; i++){
+      //pixel indicating it's in the chord
+      if(isInVector(bKeyPattern[i]+12*octave,pressList))
+        display.drawPixel(xPos+2,y1+15,SSD1306_WHITE);
+      //draw cursor indicator
+      if(bKeyPattern[i]+12*octave == activeKey){
+        this->drawArrow(xPos+2,y1+17+((millis()/200)%2),3,2,false);
+        printSmall(xPos+2-text.length()*2,y1+22+((millis()/200)%2),text,SSD1306_WHITE);
+      }
+
+      if(mask.size() == 0 || isInVector(bKeyPattern[i]+12*octave,mask)){
+        if(isInVector(bKeyPattern[i]+12*octave,pressList) || bKeyPattern[i]+12*octave == activeKey){
+          display.fillRect(xPos,y1,keyWidth,bKeyHeight,SSD1306_BLACK);
+          //if it's pressed
+          if(isInVector(bKeyPattern[i]+12*octave,pressList)){
+            if(millis()%800>400){
+              display.fillRect(xPos+1,y1,keyWidth-2,bKeyHeight-1,SSD1306_WHITE);
+            }
+          }
+          else
+            display.fillRect(xPos+1,y1,keyWidth-2,bKeyHeight-1,SSD1306_WHITE);
+          display.drawRect(xPos-1,y1-1,keyWidth+2,bKeyHeight+2,SSD1306_WHITE);
+
+        }
+        else{
+          display.fillRect(xPos,y1,keyWidth,bKeyHeight,SSD1306_BLACK);
+          display.drawRect(xPos-1,y1-1,keyWidth+2,bKeyHeight+2,SSD1306_WHITE);
+        }
+      }
+      //if it's a D# or a Bb, you're about to jump
+      if(abs(bKeyPattern[i]%12) == 3 || abs(bKeyPattern[i]%12) == 10)
+        xPos+= 2*(keyWidth+1); 
+      //if it's not, just increment like normal
+      else
+        xPos+= 1+keyWidth;
+    }
+  }
+
+  void drawFullKeyBed(vector<uint8_t> pressList, vector<uint8_t> mask, uint8_t activeKey,uint8_t octave){
+    this->drawFullKeyBed(16,pressList,mask,activeKey,octave);
+  }
+  //draws the pram icon, bouncing to the beat of the sequence
+  void drawPram(uint8_t x1, uint8_t y1){
+    if(sequenceClock.onBeat(2,30))
+      display.drawBitmap(x1,y1+1,carriage_bmp,14,15,SSD1306_WHITE);
+    else
+      display.drawBitmap(x1,y1,carriage_bmp,14,15,SSD1306_WHITE);
+  }
+  void drawPram(){
+    if(!menuIsActive || (activeMenu.menuTitle == "MENU") || (activeMenu.menuTitle == "FX") || (activeMenu.menuTitle == "EDIT" && activeMenu.coords.start.x>32)){
+      if(maxTracksShown == 5 || (menuIsActive && activeMenu.menuTitle == "MENU")){//weird graphical case where you want the pram to b big when the main menu is open
+        if(!playing && !recording){
+          this->drawPram(5,0);
+        }
+        else if(playing || recording){
+          //if the playhead/rechead is on a subdiv, bounce the pram 
+          display.drawBitmap(5,!((playheadPos%24/12)%2),carriage_bmp,14,15,SSD1306_WHITE);
+        }
+      }
+      else{
+        if(!playing && !recording){
+          if(sequenceClock.onBeat(2,30))
+            display.drawBitmap(8,1,tinyPram,7,7,SSD1306_WHITE);
+          else
+            display.drawBitmap(8,0,tinyPram,7,7,SSD1306_WHITE);
+        }
+        //pram bounces faster
+        else if(playing || recording){
+          //if the playhead/rechead is on a subdiv, bounce the pram
+          display.drawBitmap(8,!((playheadPos%24/12)%2),tinyPram,7,7,SSD1306_WHITE);
+        }
+      }
+    }
+  }
+  //draws a play icon shaded according to the sequence clock state
+  void drawPlayIcon(int8_t x1, int8_t y1){
+    if(clockSource == EXTERNAL_CLOCK && !gotClock){
+      display.drawTriangle(x1,y1+6,x1,y1,x1+6,y1+3,SSD1306_WHITE);
+    }
+    else{
+      display.fillTriangle(x1,y1+6,x1,y1,x1+6,y1+3,SSD1306_WHITE);
+    }
+  }
+  //draws the power icon corresponding to USB/batt and batt level
+  void drawPower(uint8_t x1, uint8_t y1){
+    //check if USB is plugged in
+    bool usb = digitalRead(USB_PIN);
+    if(usb){
+      display.drawBitmap(x1,y1+1,tiny_usb,10,4,SSD1306_WHITE);
+    }
+    else{
+      display.drawBitmap(x1,y1,batt_bmp,10,7,SSD1306_WHITE);
+      float batt = getBattLevel();
+      //for printing batt level to the screen
+      //input ranges from ~1.8 (lowest the Pico can run on) to 3.6v (with 3AA's @ 1.2v)
+      //so the range is 1.8, thus u gotta do 6 increments of 0.3, 1.8 --> 
+      if(batt<=1.8){
+      }
+      else if(batt<2.1){
+        display.fillRect(x1+2,y1+2,1,3,SSD1306_WHITE);
+      }
+      else if(batt<2.4){
+        display.fillRect(x1+2,y1+2,2,3,SSD1306_WHITE);
+      }
+      else if(batt<2.7){
+        display.fillRect(x1+2,y1+2,3,3,SSD1306_WHITE);
+      }
+      else if(batt<3.0){
+        display.fillRect(x1+2,y1+2,4,3,SSD1306_WHITE);
+      }
+      else if(batt<3.3){
+        display.fillRect(x1+2,y1+2,5,3,SSD1306_WHITE);
+      }
+      else{
+        display.fillRect(x1+2,y1+2,6,3,SSD1306_WHITE);
+      }
+    }
+  }
 };
 
 StepchildGraphics graphics;
-
-void drawSlider(uint8_t x1, uint8_t y1, uint8_t w, uint8_t h, bool state){
-  display.fillRect(x1,y1,w,h,0);
-  display.drawRect(x1,y1,w,h,SSD1306_WHITE);
-  if(state){
-    display.fillRect(x1+w/2,y1+2,w/2-2,h-4,SSD1306_WHITE);
-  }
-  else{
-    display.fillRect(x1+2,y1+2,w/2-2,h-4,SSD1306_WHITE);
-  }
-}
-void drawSlider(uint8_t x1, uint8_t y1, String a, String b, bool state){
-  uint8_t length = a.length()*4+b.length()*4+9;
-  //if length is odd, add 1
-  length+=(length%2)?1:0;
-  drawSlider(x1,y1,length,11,state);
-  printSmall_centered(x1+length/4+2,y1+3,a,2);
-  printSmall_centered(x1+3*length/4,y1+3,b,2);
-}
-
-void drawFullKeyBed(vector<uint8_t> pressList, vector<uint8_t> mask, uint8_t activeKey,uint8_t octave){
-  drawFullKeyBed(16,pressList,mask,activeKey,octave);
-}
-
-void drawFullKeyBed(uint8_t y1, vector<uint8_t> pressList, vector<uint8_t> mask, uint8_t activeKey,uint8_t octave){
-  //white keys
-  const uint8_t keyWidth = 5;
-  const uint8_t wKeyHeight = 13;
-  const uint8_t wKeyPattern[21] = {0, 2, 4, 5, 7,9 ,11,
-                                  12,14,16,17,19,21,23,
-                                  24,26,28,29,31,33,35};
-  //black keys
-  const uint8_t bKeyHeight = 8;
-  const uint8_t bKeyPattern[15] = {1, 3, 6, 8,10,
-                                  13,15,18,20,22,
-                                  25,27,30,32,34};
-  String text = pitchToString(activeKey,false,true);
-  //these 'patterns' help reference the actual note value from the iterator i'm using to draw them
-  //the reason i'm doing this in realtime, not with a bitmap, is so i can animate
-  //keypresses and (maybe) even change which keys are displayed at all    
-  //first draw white keys
-  for(uint8_t i = 0; i<21; i++){
-    //pixel indicating it's in the chord
-    if(isInVector(wKeyPattern[i]+12*octave,pressList))
-      display.drawPixel(i*(keyWidth+1)+2,y1+15,SSD1306_WHITE);
-    //draw cursor indicator
-    if(wKeyPattern[i]+12*octave == activeKey){
-      graphics.drawArrow(i*(keyWidth+1)+2,y1+17+((millis()/200)%2),3,2,true);
-      printSmall(i*(keyWidth+1)+2-text.length()*2,y1+22+((millis()/200)%2),text,SSD1306_WHITE);
-    }
-
-    //if there's no mask, or if the key is in the mask
-    if(mask.size() == 0 || isInVector(wKeyPattern[i]+12*octave,mask)){
-      //if it's pressed, draw it blinking
-      if(isInVector(wKeyPattern[i]+12*octave,pressList)){
-        if(millis()%800>400)
-          display.drawRect(i*(keyWidth+1),y1-1,keyWidth,wKeyHeight+1,SSD1306_WHITE);
-        else
-          display.fillRect(i*(keyWidth+1),y1-1,keyWidth,wKeyHeight+1,SSD1306_WHITE);
-        //if it's highlighted
-        if(wKeyPattern[i]+12*octave == activeKey)
-          display.drawRect(i*(keyWidth+1),y1-1,keyWidth,wKeyHeight+1,SSD1306_WHITE);
-      }
-      else{
-        //if it's highlighted
-        if(wKeyPattern[i]+12*octave == activeKey)
-          display.drawRect(i*(keyWidth+1),y1-1,keyWidth,wKeyHeight+1,SSD1306_WHITE);
-        else
-          display.fillRect(i*(keyWidth+1),y1,keyWidth,wKeyHeight,SSD1306_WHITE);
-      }
-    }
-  }
-  //then draw black keys
-  uint8_t xPos = 3;
-  for(uint8_t i = 0; i<15; i++){
-    //pixel indicating it's in the chord
-    if(isInVector(bKeyPattern[i]+12*octave,pressList))
-      display.drawPixel(xPos+2,y1+15,SSD1306_WHITE);
-    //draw cursor indicator
-    if(bKeyPattern[i]+12*octave == activeKey){
-      graphics.drawArrow(xPos+2,y1+17+((millis()/200)%2),3,2,false);
-      printSmall(xPos+2-text.length()*2,y1+22+((millis()/200)%2),text,SSD1306_WHITE);
-    }
-
-    if(mask.size() == 0 || isInVector(bKeyPattern[i]+12*octave,mask)){
-      if(isInVector(bKeyPattern[i]+12*octave,pressList) || bKeyPattern[i]+12*octave == activeKey){
-        display.fillRect(xPos,y1,keyWidth,bKeyHeight,SSD1306_BLACK);
-        //if it's pressed
-        if(isInVector(bKeyPattern[i]+12*octave,pressList)){
-          if(millis()%800>400){
-            display.fillRect(xPos+1,y1,keyWidth-2,bKeyHeight-1,SSD1306_WHITE);
-          }
-        }
-        else
-          display.fillRect(xPos+1,y1,keyWidth-2,bKeyHeight-1,SSD1306_WHITE);
-        display.drawRect(xPos-1,y1-1,keyWidth+2,bKeyHeight+2,SSD1306_WHITE);
-
-      }
-      else{
-        display.fillRect(xPos,y1,keyWidth,bKeyHeight,SSD1306_BLACK);
-        display.drawRect(xPos-1,y1-1,keyWidth+2,bKeyHeight+2,SSD1306_WHITE);
-      }
-    }
-    //if it's a D# or a Bb, you're about to jump
-    if(abs(bKeyPattern[i]%12) == 3 || abs(bKeyPattern[i]%12) == 10)
-      xPos+= 2*(keyWidth+1); 
-    //if it's not, just increment like normal
-    else
-      xPos+= 1+keyWidth;
-  }
-}
-
-void drawPram(uint8_t x1, uint8_t y1){
-  if(sequenceClock.onBeat(2,30))
-    display.drawBitmap(x1,y1+1,carriage_bmp,14,15,SSD1306_WHITE);
-  else
-    display.drawBitmap(x1,y1,carriage_bmp,14,15,SSD1306_WHITE);
-}
-
-void drawPlayIcon(int8_t x1, int8_t y1){
-  if(clockSource == EXTERNAL_CLOCK && !gotClock){
-    display.drawTriangle(x1,y1+6,x1,y1,x1+6,y1+3,SSD1306_WHITE);
-  }
-  else{
-    display.fillTriangle(x1,y1+6,x1,y1,x1+6,y1+3,SSD1306_WHITE);
-  }
-}
-
-//draws/fills a triangle circumscribed by a circle w/ radius r
-//super janky
-void fillCircumscribedTriangle(int8_t x1, int8_t y1, uint8_t r){
-  Coordinate A = Coordinate(x1,y1-r);
-  uint8_t a = r/2;
-  float b = r*0.866;
-  Coordinate B = Coordinate(x1-b,y1+a);
-  Coordinate C = Coordinate(x1+b,y1+a);
-  display.fillTriangle(A.x,A.y,B.x,B.y,C.x,C.y,1);
-}
-
-void drawPower(uint8_t x1, uint8_t y1){
-  //check if USB is plugged in
-  bool usb = digitalRead(USB_PIN);
-  if(usb){
-    // display.drawBitmap(x1,y1,batt_bmp,10,7,SSD1306_WHITE);
-    display.drawBitmap(x1,y1+1,tiny_usb,10,4,SSD1306_WHITE);
-  }
-  else{
-    display.drawBitmap(x1,y1,batt_bmp,10,7,SSD1306_WHITE);
-    float batt = getBattLevel();
-    //for printing batt level to the screen
-    // String lvl = stringify(batt);
-    // printSmall(x1-lvl.length()*4,y1+1,lvl,1);
-    //input ranges from ~1.8 (lowest the Pico can run on) to 3.6v (with 3AA's @ 1.2v)
-    //so the range is 1.8, thus u gotta do 6 increments of 0.3, 1.8 --> 
-    if(batt<=1.8){
-    }
-    else if(batt<2.1){
-      display.fillRect(x1+2,y1+2,1,3,SSD1306_WHITE);
-    }
-    else if(batt<2.4){
-      display.fillRect(x1+2,y1+2,2,3,SSD1306_WHITE);
-    }
-    else if(batt<2.7){
-      display.fillRect(x1+2,y1+2,3,3,SSD1306_WHITE);
-    }
-    else if(batt<3.0){
-      display.fillRect(x1+2,y1+2,4,3,SSD1306_WHITE);
-    }
-    else if(batt<3.3){
-      display.fillRect(x1+2,y1+2,5,3,SSD1306_WHITE);
-    }
-    else{
-      display.fillRect(x1+2,y1+2,6,3,SSD1306_WHITE);
-    }
-  }
-}
 
 //draws dashed note (MAKE THIS FASTER!)
 void drawNote(uint16_t id, uint8_t track, unsigned short int x1, unsigned short int y1, unsigned short int len, unsigned short int height, unsigned short int shade, bool isSelected, bool mute){
@@ -865,7 +867,6 @@ void drawNote(uint16_t id, uint8_t track, unsigned short int x1, unsigned short 
   if(len>=3){
     if(!mute){
       if(shade != 1){//so it does this faster
-        // display.fillRect(x1,y1,len,height,SSD1306_BLACK);//clearing out the note area
         display.fillRect(x1+1, y1+1, len-1, height-2, SSD1306_BLACK);//clearing out the note area
         for(int j = 1; j<height-2; j++){//shading the note...
           for(int i = x1+1;i+j%shade<x1+len-1; i+=shade){
@@ -902,7 +903,9 @@ void drawNote(uint16_t id, uint8_t track, unsigned short int x1, unsigned short 
 }
 
 void drawNote_vel(uint16_t id, uint8_t track, unsigned short int xStart, unsigned short int yStart, unsigned short int length, unsigned short int height, unsigned short int vel, bool isSelected, bool isMuted){
-  if(vel>125)
+  if(vel == 0 || isMuted)
+    drawNote(id, track, xStart,yStart,length,height,1,isSelected,true);
+  else if(vel>125)
     drawNote(id, track, xStart,yStart,length,height,1,isSelected,isMuted);
   else if(vel>110)
     drawNote(id, track, xStart,yStart,length,height,2,isSelected,isMuted);
@@ -928,8 +931,6 @@ void drawNote_vel(uint16_t id, uint8_t track, unsigned short int xStart, unsigne
     drawNote(id, track, xStart,yStart,length,height,12,isSelected,isMuted);
   else if(vel>0)
     drawNote(id, track, xStart,yStart,length,height,13,isSelected,isMuted);
-  else if(vel == 0)
-    drawNote(id, track, xStart,yStart,length,height,1,isSelected,true);
 }
 
 void drawNote_chance(uint16_t id, uint8_t track, unsigned short int xStart, unsigned short int yStart, unsigned short int length, unsigned short int height, unsigned short int chance, bool isSelected, bool isMuted){
@@ -969,10 +970,7 @@ void fillSquareVertically(uint8_t x0, uint8_t y0, uint8_t width, uint8_t fillAmo
 //fill amount is a percent
 void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmount){
   display.drawRect(x0,y0,width,width,SSD1306_WHITE);
-  //fillAmount = lines/width
   uint8_t maxLine = float(fillAmount)/float(100)*width*sqrt(2);
-  // if(fillAmount == 1)
-  //   maxLine++;
   for(uint8_t line = 0; line<maxLine; line++){
     //bottom right
     int8_t x1 = x0+2+line;
@@ -996,13 +994,7 @@ void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmou
       y1 = y0+2;
     if(x2>x0+width-2)
       x2 = x0+width-2;
-    // //Serial.println("x1:"+stringify(x1));
-    // //Serial.println("y1:"+stringify(y1));
-    // //Serial.println("x2:"+stringify(x2));
-    // //Serial.println("y2:"+stringify(y2));
     display.drawLine(x1,y1,x2,y2,SSD1306_WHITE);
-    // //Serial.println("line:"+stringify(line));
-    // //Serial.println("w:"+stringify(width));
   }
 }
 
@@ -1529,6 +1521,7 @@ void helloChild_5(){
   }
   delay(500);
 }
+
 void drawLogo(uint8_t x1, uint8_t y1){
   display.setTextSize(2);
   printItalic(x1,y1,"child",1);
@@ -1540,6 +1533,7 @@ void drawLogo(uint8_t x1, uint8_t y1){
   display.print("OS");
   display.setFont();
 }
+
 void bootscreen_2(){
   uint16_t frameCount = 0;
   display.setTextColor(SSD1306_WHITE);

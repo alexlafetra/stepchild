@@ -157,10 +157,10 @@ void printParam_centered(uint8_t which, uint8_t xPos, uint8_t yPos, uint8_t para
       p = getCCParameterName(param);
       break;
     case 1:
-      p = getMKIIParameterName(param,sequence.autotrackDataTest[which].channel);
+      p = getMKIIParameterName(param,sequence.autotrackData[which].channel);
       break;
     case 2:
-      p = getStepchildCCParameterName(param,sequence.autotrackDataTest[which].channel);
+      p = getStepchildCCParameterName(param,sequence.autotrackData[which].channel);
       break;
   }
   if(withBox){
@@ -182,10 +182,10 @@ void printParam(uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t
       p += getCCParameterName(param);
       break;
     case 1:
-      p += getMKIIParameterName(param,sequence.autotrackDataTest[sequence.activeAutotrack].channel);
+      p += getMKIIParameterName(param,sequence.autotrackData[sequence.activeAutotrack].channel);
       break;
     case 2:
-      p += getStepchildCCParameterName(param,sequence.autotrackDataTest[sequence.activeAutotrack].channel);
+      p += getStepchildCCParameterName(param,sequence.autotrackData[sequence.activeAutotrack].channel);
       break;
   }
   if(withBox){
@@ -326,9 +326,9 @@ uint8_t selectCCParam_autotrack(uint8_t which){
         controls.setSELECT(false);
         lastTime = millis();
         //if it's no longer an internal track, 
-        sequence.autotrackDataTest[sequence.activeAutotrack].parameterType = which;
-        if(sequence.autotrackDataTest[sequence.activeAutotrack].parameterType != 2 && sequence.autotrackDataTest[sequence.activeAutotrack].channel == 0)
-          sequence.autotrackDataTest[sequence.activeAutotrack].channel = 1; 
+        sequence.autotrackData[sequence.activeAutotrack].parameterType = which;
+        if(sequence.autotrackData[sequence.activeAutotrack].parameterType != 2 && sequence.autotrackData[sequence.activeAutotrack].channel == 0)
+          sequence.autotrackData[sequence.activeAutotrack].channel = 1; 
         if(which == 1)
           return MKIIParamToCC(targetParam);
         else if(which == 2)
@@ -339,7 +339,7 @@ uint8_t selectCCParam_autotrack(uint8_t which){
       if(controls.MENU()){
         controls.setMENU(false) ;
         lastTime = millis();
-        return sequence.autotrackDataTest[sequence.activeAutotrack].control;
+        return sequence.autotrackData[sequence.activeAutotrack].control;
       }
       if(controls.B() && which != 2){
         start-= 6;
@@ -439,7 +439,7 @@ uint8_t selectCCParam_autotrack(uint8_t which){
     printSmall(20,20,"name",SSD1306_WHITE);
 
     //parameter values
-    printParamList(which,targetParam,start,end,sequence.autotrackDataTest[sequence.activeAutotrack].channel);
+    printParamList(which,targetParam,start,end,sequence.autotrackData[sequence.activeAutotrack].channel);
 
     display.display();
   }

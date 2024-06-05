@@ -111,7 +111,7 @@ bool core1ready = false;
 //uint16_t sleepTime = 30000;
 uint16_t sleepTime = 10000;
 //60,000ms = 1min
-const unsigned long deepSleepTime = 60000;
+const unsigned long deepSleepTime = 20000;
 
 unsigned char keyboardPitch = 36;//holds the lowest key the keyboard is playing
 

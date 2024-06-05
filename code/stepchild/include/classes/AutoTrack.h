@@ -104,37 +104,37 @@ void Autotrack::play(uint16_t timestep){
 
 //looks for autotracks to trigger and triggers them
 void triggerAutotracks(uint8_t trackID, bool state){
-  for(uint8_t i = 0; i<sequence.autotrackDataTest.size(); i++){
-    switch(sequence.autotrackDataTest[i].triggerSource){
+  for(uint8_t i = 0; i<sequence.autotrackData.size(); i++){
+    switch(sequence.autotrackData[i].triggerSource){
       case global:
         break;
       case track:
         //if it's a targeted autotrack
-        if(sequence.autotrackDataTest[i].triggerTarget == trackID){
+        if(sequence.autotrackData[i].triggerTarget == trackID){
           //triggering it on
           if(state){
-            sequence.autotrackDataTest[i].isActive = true;
-            sequence.autotrackDataTest[i].playheadPos = 0;
+            sequence.autotrackData[i].isActive = true;
+            sequence.autotrackData[i].playheadPos = 0;
           }
           //triggering it off
-          else if(sequence.autotrackDataTest[i].gated){
-            sequence.autotrackDataTest[i].isActive = false;
-            sequence.autotrackDataTest[i].playheadPos = 0;
+          else if(sequence.autotrackData[i].gated){
+            sequence.autotrackData[i].isActive = false;
+            sequence.autotrackData[i].playheadPos = 0;
           }
         }
         break;
       case channel:
         //if it's a targeted autotrack
-        if(sequence.autotrackDataTest[i].triggerTarget == sequence.trackData[trackID].channel){
+        if(sequence.autotrackData[i].triggerTarget == sequence.trackData[trackID].channel){
           //triggering it on
           if(state){
-            sequence.autotrackDataTest[i].isActive = true;
-            sequence.autotrackDataTest[i].playheadPos = 0;
+            sequence.autotrackData[i].isActive = true;
+            sequence.autotrackData[i].playheadPos = 0;
           }
           //triggering it off
-          else if(sequence.autotrackDataTest[i].gated){
-            sequence.autotrackDataTest[i].isActive = false;
-            sequence.autotrackDataTest[i].playheadPos = 0;
+          else if(sequence.autotrackData[i].gated){
+            sequence.autotrackData[i].isActive = false;
+            sequence.autotrackData[i].playheadPos = 0;
           }
         }
         break;

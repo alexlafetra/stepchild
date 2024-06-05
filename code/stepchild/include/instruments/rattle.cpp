@@ -75,7 +75,7 @@ void rattle(){
         }
         display.clearDisplay();
         if(isPlaying)
-            drawPlayIcon(1+((millis()/400)%2),0);
+            graphics.drawPlayIcon(1+((millis()/400)%2),0);
         printSmall(0,10,stringify(noteLength),1);
         printSmall(0,20,stringify(vel),1);
 

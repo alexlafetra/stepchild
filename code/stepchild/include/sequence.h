@@ -17,7 +17,7 @@ class StepchildSequence{
     uint8_t isLooping = true;
     uint8_t loopCount;
 
-    vector<Autotrack> autotrackDataTest;
+    vector<Autotrack> autotrackData;
     uint8_t activeAutotrack;
 
     uint16_t sequenceLength;
@@ -101,7 +101,7 @@ class StepchildSequence{
         vector<Track> newTrackData;
         newTrackData.swap(this->trackData);
         vector<Autotrack> newAutotrackData;
-        newAutotrackData.swap(this->autotrackDataTest);
+        newAutotrackData.swap(this->autotrackData);
     }
     Note noteAt(uint8_t track, uint16_t step){
         if(this->lookupTable[track][step]<this->noteData[track].size())

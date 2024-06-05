@@ -1,28 +1,75 @@
 
-void drawPram(){
-  if(!menuIsActive || (activeMenu.menuTitle == "MENU") || (activeMenu.menuTitle == "FX") || (activeMenu.menuTitle == "EDIT" && activeMenu.coords.start.x>32)){
-    if(maxTracksShown == 5 || (menuIsActive && activeMenu.menuTitle == "MENU")){//weird graphical case where you want the pram to b big when the main menu is open
-      if(!playing && !recording){
-        drawPram(5,0);
+//slides a menu in from the top,right,bottom, or left
+void slideMenuIn(int fromWhere, int8_t speed){
+  //sliding in from the right
+  if(fromWhere == 1){
+    //store original coords
+    CoordinatePair targetCoords = activeMenu.coords;
+    //then, offset the menu coordinates
+    int16_t offset = screenWidth-activeMenu.coords.start.x;
+    activeMenu.coords.start.x = screenWidth;
+    activeMenu.coords.end.x += offset;
+    //continuously move the menu coords and display it, until it reaches original position
+    while(activeMenu.coords.start.x>targetCoords.start.x){
+      activeMenu.coords.end.x -= speed;
+      activeMenu.coords.start.x -= speed;
+      if(activeMenu.coords.start.x<targetCoords.start.x){
+        activeMenu.coords = targetCoords;
+        break;
       }
-      //pram bounces faster
-      else if(playing || recording){
-        //if the playhead/rechead is on a subdiv, bounce the pram (this is set in loop1, it's too hard to do accurately here)
-        display.drawBitmap(5,!((playheadPos%24/12)%2),carriage_bmp,14,15,SSD1306_WHITE);
-      }
+      displaySeq();
+      // delay(100);
     }
-    else{
-      if(!playing && !recording){
-        if(sequenceClock.onBeat(2,30))
-          display.drawBitmap(8,1,tinyPram,7,7,SSD1306_WHITE);
-        else
-          display.drawBitmap(8,0,tinyPram,7,7,SSD1306_WHITE);
+    activeMenu.coords = targetCoords;
+  }
+  //from the bottom
+  else if(fromWhere == 0){
+    //store original coords
+    CoordinatePair targetCoords = activeMenu.coords;
+    //then, offset the menu coordinates
+    int16_t offset = screenHeight-activeMenu.coords.start.y;
+    activeMenu.coords.start.y += offset;
+    activeMenu.coords.end.y += offset;
+    //continuously move the menu coords and display it, until it reaches original position
+    while(activeMenu.coords.start.y>targetCoords.start.y){
+      activeMenu.coords.start.y-= speed;
+      activeMenu.coords.end.y-= speed;
+      if(activeMenu.coords.start.y<targetCoords.start.y){
+        activeMenu.coords = targetCoords;
       }
-      //pram bounces faster
-      else if(playing || recording){
-        //if the playhead/rechead is on a subdiv, bounce the pram (this is set in loop1, it's too hard to do accurately here)
-        display.drawBitmap(8,!((playheadPos%24/12)%2),tinyPram,7,7,SSD1306_WHITE);
+      displaySeq();
+      // delay(20);
+    }
+    activeMenu.coords = targetCoords;
+  }
+}
+
+//same thang, but in reverse
+void slideMenuOut(int toWhere, int8_t speed){
+  if(toWhere == 1){//sliding out to the left side
+    while(activeMenu.coords.start.x<screenWidth){
+      activeMenu.coords.start.x+=speed;
+      activeMenu.coords.end.x+=speed;
+      //make sure x bounds don't glitch out/overflow  (don't think this is necessary, leaving it for legacy/in case you find a menu that bugs)
+      //Using this makes some menus slide a lil' ugly
+      // if(activeMenu.coords.end.x>screenWidth){
+      //   activeMenu.coords.end.x = screenWidth;
+      // }
+      displaySeq();
+      graphics.drawPram(5,0);
+    }
+  }
+  //to the bottom
+  else if(toWhere == 0){
+    while(activeMenu.coords.start.y<screenHeight){
+      activeMenu.coords.start.y+=speed;
+      activeMenu.coords.end.y+=speed;
+      //make sure y bounds don't glitch out
+      if(activeMenu.coords.end.y>screenHeight){
+        activeMenu.coords.end.y = screenHeight;
       }
+      displaySeq();
+      graphics.drawPram(5,0);
     }
   }
 }
@@ -110,7 +157,7 @@ void drawTopIcons(){
     }
   }
   else if(playing){
-    drawPlayIcon(trackDisplay+((millis()/200)%2)+1,0);
+    graphics.drawPlayIcon(trackDisplay+((millis()/200)%2)+1,0);
     x1 += 10;
     switch(sequence.isLooping){
       //if not looping
@@ -134,7 +181,7 @@ void drawTopIcons(){
 
   }
   //Data track icon
-  if(sequence.autotrackDataTest.size()>0){
+  if(sequence.autotrackData.size()>0){
     if(millis()%1600>800)
       // display.drawBitmap(x1,1,sine_small_bmp,6,4,SSD1306_WHITE);
       display.drawBitmap(x1,0,autotrack1,10,7,SSD1306_WHITE);
@@ -183,7 +230,7 @@ void drawTopIcons(){
   }
   else{
     //power/battery indicator
-    drawPower(screenWidth-10,0);
+    graphics.drawPower(screenWidth-10,0);
   }
   if(arp.isActive){
     display.drawPixel(x1,3+2*sin(float(millis())/float(200)),1);
@@ -522,7 +569,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
     }
     //carriage bitmap/title
     if(topLabels){
-      drawPram();
+      graphics.drawPram();
       if(startHeight == 16){
         drawTopIcons();
       }
@@ -1203,9 +1250,9 @@ bool areThereMoreNotes(bool above){
 }
 //checks to see if a channel is currently being modulated by an autotrack
 bool isModulated(uint8_t ch){
-  for(uint8_t dt = 0; dt<sequence.autotrackDataTest.size(); dt++){
-    if(sequence.autotrackDataTest[dt].parameterType == 2){
-      if(sequence.autotrackDataTest[dt].channel == ch && sequence.autotrackDataTest[dt].isActive)
+  for(uint8_t dt = 0; dt<sequence.autotrackData.size(); dt++){
+    if(sequence.autotrackData[dt].parameterType == 2){
+      if(sequence.autotrackData[dt].channel == ch && sequence.autotrackData[dt].isActive)
         return true;
     }
   }
@@ -2045,7 +2092,7 @@ void playingLoop(){
 void checkAutotracks(){
   if(recordingToAutotrack){
     int newVal = 64;
-    switch(sequence.autotrackDataTest[sequence.activeAutotrack].recordFrom){
+    switch(sequence.autotrackData[sequence.activeAutotrack].recordFrom){
       //recording externally, so get outta this loop!
       case 0:
         return;
@@ -2088,9 +2135,9 @@ void checkAutotracks(){
       return;
     }
     recentCC.val = newVal;
-    recentCC.cc = sequence.autotrackDataTest[sequence.activeAutotrack].control;
-    recentCC.channel = sequence.autotrackDataTest[sequence.activeAutotrack].channel;
-    sequence.autotrackDataTest[sequence.activeAutotrack].data[recheadPos] = newVal;
+    recentCC.cc = sequence.autotrackData[sequence.activeAutotrack].control;
+    recentCC.channel = sequence.autotrackData[sequence.activeAutotrack].channel;
+    sequence.autotrackData[sequence.activeAutotrack].data[recheadPos] = newVal;
   }
 }
 

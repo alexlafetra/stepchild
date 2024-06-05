@@ -10,12 +10,11 @@
 #include <Adafruit_TinyUSB.h>
 #include <MIDI.h>
 #include <SoftwareSerial.h>
-
-//for communicating w screen
 #include <Wire.h>
 
-//for drawing
-#include <Adafruit_GFX.h>//using one optimized for the pico
+//Adafruit GFX library
+//there's a pico optimized version here, but it's unclear what's optimized in it/if it matters for the SSD1306: https://github.com/Bodmer/Adafruit-GFX-Library
+#include <Adafruit_GFX.h>
 
 //grab the display libraries
 #ifdef CAPTURECARD
@@ -196,15 +195,15 @@ Knob controlKnobs[16];
 //These need to be referenced after Autotracks are defined
 void rotaryActionA_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  controls.counterA += (recordingToAutotrack && sequence.autotrackDataTest[sequence.activeAutotrack].recordFrom == 1)?controls.readEncoder(0)*4:controls.readEncoder(0);
-  if(recordingToAutotrack && sequence.autotrackDataTest[sequence.activeAutotrack].recordFrom == 1)
+  controls.counterA += (recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == 1)?controls.readEncoder(0)*4:controls.readEncoder(0);
+  if(recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == 1)
     waitingToReceiveANote = false;
 }
 
 void rotaryActionB_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  controls.counterB += (recordingToAutotrack && sequence.autotrackDataTest[sequence.activeAutotrack].recordFrom == 2)?controls.readEncoder(1)*4:controls.readEncoder(1);
-  if(recordingToAutotrack && sequence.autotrackDataTest[sequence.activeAutotrack].recordFrom == 2)
+  controls.counterB += (recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == 2)?controls.readEncoder(1)*4:controls.readEncoder(1);
+  if(recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == 2)
     waitingToReceiveANote = false;
 }
 
@@ -231,6 +230,7 @@ void rotaryActionB_Handler(){
 #include "fx/quantizeMenu.cpp"
 #include "fx/humanizeMenu.cpp"
 #include "fx/echo.cpp"
+
 //Instrument apps
 #include "instruments/rattle.cpp"
 #include "instruments/chordDJ.cpp"
@@ -246,7 +246,8 @@ void rotaryActionB_Handler(){
 
 //Menus
 #include "menus/consoleMenu.cpp"
-#include "menus/InstrumentMenu.cpp"
+#include "menus/instrumentMenu.cpp"
+#include "menus/fxMenu.cpp"
 #include "menus/arpMenu.cpp"
 #include "menus/autotrackMenu.cpp"
 #include "menus/trackMenu.cpp"
@@ -259,7 +260,7 @@ void rotaryActionB_Handler(){
 
 #include "trackEditing.h"
 #include "fileSystem.h"
-#include "screenSavers.h"
+#include "sleep.h"
 #include "recording.h"
 #include "keyboard.h"
 #include "CCSelector.h"

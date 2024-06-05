@@ -291,7 +291,7 @@ void chordBuilder(){
     display.clearDisplay();
     //normal, make-new-chord mode
     if(editorState == 0){
-      drawFullKeyBed(pressedKeys,mask,keyCursor,octave);
+      graphics.drawFullKeyBed(pressedKeys,mask,keyCursor,octave);
       chordSequence.drawProg(32, 50, -1);
 
       //if you're not editing a chord, display length var and subDiv
@@ -322,7 +322,7 @@ void chordBuilder(){
       for(uint8_t i = 0; i<chordSequence.chords[activeChord].intervals.size(); i++){
         tempNotes.push_back(chordSequence.chords[activeChord].intervals[i]+chordSequence.chords[activeChord].root);
       }
-      drawFullKeyBed(tempNotes,mask,keyCursor,0);
+      graphics.drawFullKeyBed(tempNotes,mask,keyCursor,0);
       chordSequence.drawProg(32, 50, activeChord);
       //if you are editing a chord, display it's length
       graphics.printFraction(115,32,stepsToMeasures(chordSequence.chords[activeChord].length));
@@ -332,9 +332,9 @@ void chordBuilder(){
       // for(uint8_t i = 0; i<chordSequence.chords[activeChord].intervals.size(); i++){
       //   tempNotes.push_back(chordSequence.chords[activeChord].intervals[i]+chordSequence.chords[activeChord].root);
       // }
-      drawFullKeyBed(pressedKeys,mask,keyCursor,0);
+      graphics.drawFullKeyBed(pressedKeys,mask,keyCursor,0);
       //draw a second keybed lower, JUST showing the notes that are in-key
-      drawFullKeyBed(32,tempNotes,pressedKeys,255,0);
+      graphics.drawFullKeyBed(32,tempNotes,pressedKeys,255,0);
       graphics.drawCenteredBanner(64,55,chordSequence.chords[activeChord].getPitchList(0,59));
     }
     //if there's a mask

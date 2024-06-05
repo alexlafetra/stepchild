@@ -484,21 +484,10 @@ class StepchildHardwareInput{
 };
 
 StepchildHardwareInput controls;
-
 #endif
-
-
-void restartSerial(unsigned int baud){
-  Serial.end();
-  delay(1000);
-  Serial.begin(baud);
-}
 
 void hardReset(){
   rp2040.reboot();
-}
-
-void resetUSBInterface(){
 }
 
 //update mode
@@ -508,69 +497,6 @@ void enterBootsel(){
   display.display();
   reset_usb_boot(1<<PICO_DEFAULT_LED_PIN,0);
 }
-
-
-void restartDisplay(){
-  #ifndef HEADLESS
-  Wire.end();
-  // Wire.begin();
-  display.begin(SCREEN_ADDR,true);
-  display.display();
-  #endif
-}
-
-//Sleep---------------------------
-//pause core1 (you need to call this fn from core0)
-bool sleeping = false;
-#ifdef HEADLESS
-  void enterSleepMode(){
-    return;
-  }
-  void leaveSleepMode(){
-    return;
-  }
-#else
-void leaveSleepMode(){
-  //vv these break it? for some reason
-  // Serial.end();
-  // startSerial();
-  restartDisplay();
-  rp2040.resumeOtherCore();
-  // rp2040.restartCore1(); <-- this also breaks it
-  while(!core1ready){//wait for core1
-  }
-}
-void enterSleepMode(){
-  //turn off power consuming things
-  display.clearDisplay();
-  display.display();
-  controls.clearButtons();
-  controls.turnOffLEDs();
-  
-  sleeping = true;
-  //wait for core1 to sleep
-  while(core1ready){
-  }
-   //idle core1
-  rp2040.idleOtherCore();
-  //sleep until a change is detected on 
-  while(sleeping){
-    long time  = millis();
-    sleep_ms(1000);
-    if(controls.anyActiveInputs()){
-      sleeping = false;
-    }
-    // //Serial.println("sleeping...");
-    // //Serial.print(millis()-time);
-    // Serial.flush();
-  }
-  //wake up
-  // //Serial.println("gooood morning");
-  // Serial.flush();
-  leaveSleepMode();
-}
-#endif
-
 
 #define BATTSCALE 0.00966796875
 //3.0*3.3/1024.0;
@@ -582,4 +508,12 @@ float getBattLevel(){
   //But if they're 1.2v batts VSYS is ~3.6;
   float val = float(analogRead(VOLTAGE_PIN))*BATTSCALE;
   return val;
+}
+
+void maxCurrentDrawTest(){
+  controls.writeLEDs(0b1111111111111111);
+  display.fillRect(0,0,128,64,1);
+  display.display();
+  while(true){
+  }
 }

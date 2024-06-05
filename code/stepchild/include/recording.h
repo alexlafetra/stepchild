@@ -17,12 +17,12 @@ void updateLookupData(){
 }
 
 void writeCC(uint16_t step, uint8_t channel, uint8_t controller, uint8_t value){
-  for(uint8_t dt = 0; dt < sequence.autotrackDataTest.size(); dt++){
+  for(uint8_t dt = 0; dt < sequence.autotrackData.size(); dt++){
     //if the track is primed and is recording externally
-    if(sequence.autotrackDataTest[dt].isPrimed && sequence.autotrackDataTest[dt].recordFrom == 0){
+    if(sequence.autotrackData[dt].isPrimed && sequence.autotrackData[dt].recordFrom == 0){
       //if the channel and control number match
-      if(channel == sequence.autotrackDataTest[dt].channel && controller == sequence.autotrackDataTest[dt].control){
-        sequence.autotrackDataTest[dt].data[step] = value;
+      if(channel == sequence.autotrackData[dt].channel && controller == sequence.autotrackData[dt].control){
+        sequence.autotrackData[dt].data[step] = value;
       }
     }
   }

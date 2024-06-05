@@ -83,19 +83,19 @@ void playTrack(uint8_t track, uint16_t timestep){
 
 void playDT(uint8_t dt, uint16_t timestep){
   //normal Autotracks that use the global timestep
-  if(sequence.autotrackDataTest[dt].triggerSource == global){
-    if(sequence.autotrackDataTest[dt].isActive){
-      sequence.autotrackDataTest[dt].sendData(timestep);
+  if(sequence.autotrackData[dt].triggerSource == global){
+    if(sequence.autotrackData[dt].isActive){
+      sequence.autotrackData[dt].sendData(timestep);
     }
   }
   //trigger autotracks that use internal playheads
   else{
-    if(sequence.autotrackDataTest[dt].isActive){
-      sequence.autotrackDataTest[dt].sendData(sequence.autotrackDataTest[dt].playheadPos);
-      sequence.autotrackDataTest[dt].playheadPos++;
+    if(sequence.autotrackData[dt].isActive){
+      sequence.autotrackData[dt].sendData(sequence.autotrackData[dt].playheadPos);
+      sequence.autotrackData[dt].playheadPos++;
     }
     else{
-      sequence.autotrackDataTest[dt].playheadPos = 0;
+      sequence.autotrackData[dt].playheadPos = 0;
     }
   }
 }
@@ -109,8 +109,8 @@ void playStep(uint16_t timestep) {
       playTrack(track,timestep);
   }
   //playing autotracks too
-  for(uint8_t dT = 0; dT < sequence.autotrackDataTest.size(); dT++){
-    sequence.autotrackDataTest[dT].play(timestep);
+  for(uint8_t dT = 0; dT < sequence.autotrackData.size(); dT++){
+    sequence.autotrackData[dT].play(timestep);
   }
   CV.check();
 }

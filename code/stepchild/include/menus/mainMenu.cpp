@@ -325,7 +325,7 @@ void mainMenu(){
     animateIcon(&icon);
     display.clearDisplay();
     drawSeq(true,false,true,false,false);
-    drawPram();
+    graphics.drawPram();
     display.fillCircle(111,15,23,0);
     display.drawCircle(111,15,23,1);
     activeMenu.displayMainMenu();

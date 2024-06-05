@@ -12,6 +12,7 @@ But I think I would need different pointers for the Hardware/Software/USB interf
 The headless MIDI class works totally differently.
 
 */
+
 #define MIDI_IN 1
 #define MIDI_OUT_1 0
 #define MIDI_OUT_2 4
@@ -22,16 +23,34 @@ Adafruit_USBD_MIDI usb_midi;
 SoftwareSerial Serial3 = SoftwareSerial(SerialPIO::NOPIN,MIDI_OUT_3);
 SoftwareSerial Serial4 = SoftwareSerial(SerialPIO::NOPIN,MIDI_OUT_4);
 
+//Custom MIDI Library settings (see: https://github.com/FortySevenEffects/arduino_midi_library/wiki/Using-custom-Settings)
+struct StepchildMIDISettings:public midi::DefaultSettings{
+  static const bool UseRunningStatus = false;
+  static const bool HandleNullVelocityNoteOnAsNoteOff = true;
+  static const bool Use1ByteParsing = true;
+  static const unsigned SysExMaxSize = 16;//Stepchild doesn't receive SysEx as of now, but will this crash it?
+  static const long BaudRate = 31250;//This one isn't documented, but you need it. Default val is 31250, will this work w/ USB?
+};
+
 //Macro from Arduino MIDI that creates MIDI instances
-MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, MIDI0);
-MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
-MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, MIDI2);
-MIDI_CREATE_INSTANCE(SoftwareSerial, Serial3, MIDI3);
-MIDI_CREATE_INSTANCE(SoftwareSerial, Serial4, MIDI4);
+MIDI_CREATE_CUSTOM_INSTANCE(Adafruit_USBD_MIDI, usb_midi, MIDI0, StepchildMIDISettings);
+MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial1, MIDI1, StepchildMIDISettings);
+MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial2, MIDI2, StepchildMIDISettings);
+MIDI_CREATE_CUSTOM_INSTANCE(SoftwareSerial, Serial3, MIDI3, StepchildMIDISettings);
+MIDI_CREATE_CUSTOM_INSTANCE(SoftwareSerial, Serial4, MIDI4, StepchildMIDISettings);
+
+//at some point, create a template class that can store all the MIDI objects
+template <typename midiInterfaceObject> class midiObject{
+  public:
+  midiInterfaceObject interface;
+  midiObject(){
+  }
+};
 
 class StepchildMIDI{
   public:
-  uint16_t midiChannelFilters[5] = {65535,65535,65535,65535,65535};
+  uint16_t midiChannelFilters[5] = {0b1111111111111111,0b1111111111111111,0b1111111111111111,0b1111111111111111,0b1111111111111111};
+  
   StepchildMIDI(){
   }
   void start(){

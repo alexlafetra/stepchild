@@ -163,7 +163,7 @@ void xyGrid(){
     graphics.drawBarGraphV(120,0,8,64,float(yCoord)/float(127));
 
     if(playing)
-      drawPlayIcon(10+(millis()/200)%2,2);
+      graphics.drawPlayIcon(10+(millis()/200)%2,2);
 
     display.display();
 

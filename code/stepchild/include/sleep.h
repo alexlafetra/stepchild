@@ -1,30 +1,75 @@
-//turns off screen and LEDs, sends pico to deep sleep (Not done yet!)
-#ifndef HEADLESS
-void deepSleep(){
-  if(utils.itsbeen(sleepTime)){
-    display.ssd1306_command(SSD1306_DISPLAYOFF);
-    controls.clearButtons();
-    controls.turnOffLEDs();
-    while(true){
-      delay(1);
-      if(controls.anyActiveInputs()){
-        lastTime = millis();
-        break;
-      }
-    }
-    display.ssd1306_command(SSD1306_DISPLAYON);
-    sequence.updateLEDs();
-  }
+
+/*
+----------------------
+        SLEEP
+----------------------
+
+RP2040 has both a sleep mode AND a dormant mode, dormant is even more low power.
+Sleep example:
+https://github.com/raspberrypi/pico-playground/blob/master/sleep/hello_sleep/hello_sleep.c
+Dormant example:
+https://github.com/raspberrypi/pico-playground/blob/master/sleep/hello_dormant/hello_dormant.c
+*/
+
+/*
+normal sleep mode keeps core 1 running as usual (so midi i/o still works)
+turns off LEDs and the screen, and sleeps core0 while intermittently checking buttons
+this is kind of a "lite" sleep mode, only saves power by turning off screen and LEDs
+but both CPU's are still running at full speed
+
+This COULD actually "turn off" the screen via SSD1306_command but it looks like I'd need to physically reset it
+using the reset pin... which isn't always exposed on the breakout boards
+*/
+
+void leaveSleepMode(){
+  lastTime = millis();
 }
-#else
-void deepSleep(){
-    display.clearDisplay();
-    display.display();
-    while(true){
-        if(controls.anyActiveInputs()){
-            break;
-        }
+void enterSleepMode(){
+  display.clearDisplay();
+  controls.clearButtons();
+  controls.turnOffLEDs();
+  while(true){
+    sleep_ms(500);
+    if(controls.anyActiveInputs()){
+      leaveSleepMode();
+      break;
     }
+  }
+
+}
+
+//Deep sleep actually pauses core1 and sleeps core0... not sure how energy saving this is
+// tho compared to fully going dormant
+#ifdef HEADLESS
+  void enterDeepSleepMode(){
+    return;
+  }
+  void leaveDeepSleepMode(){
+    return;
+  }
+#else
+void leaveDeepSleepMode(){
+  rp2040.resumeOtherCore();
+  sequence.updateLEDs();
+}
+void enterDeepSleepMode(){
+  //turn off power consuming things
+  display.clearDisplay();
+  display.display();
+  controls.clearButtons();
+  controls.turnOffLEDs();
+
+  //idle core1
+  rp2040.idleOtherCore();
+  //sleep until a change is detected on 
+  while(true){
+    sleep_ms(1000);
+    //when input is detected, wake up
+    if(controls.anyActiveInputs()){
+      leaveSleepMode();
+      return;
+    }
+  }
 }
 #endif
 
@@ -45,11 +90,11 @@ void screenSaver_cassette(){
       done = true;
       rotationAmount = 0;
     }
-    // else{
-    //   done = false;
-    // }
     if(controls.anyActiveInputs()){
       lastTime = millis();
+      return;
+    }
+    else if(utils.itsbeen(deepSleepTime)){
       return;
     }
   }
@@ -93,11 +138,11 @@ void screenSaver_ripples(){
       animOffset = 0;
       done = true;
     }
-    // else{
-    //   done = false;
-    // }
     if(controls.anyActiveInputs()){
       lastTime = millis();
+      return;
+    }
+    else if(utils.itsbeen(deepSleepTime)){
       return;
     }
   }
@@ -125,6 +170,9 @@ void screenSaver_moon(){
       lastTime = millis();
       return;
     }
+    else if(utils.itsbeen(deepSleepTime)){
+      return;
+    }
   }
 }
 
@@ -138,6 +186,9 @@ void screenSaver_template(){
     //checking if any buttons are pressed and breaking out of the loop if so
     if(controls.anyActiveInputs()){
       lastTime = millis();
+      return;
+    }
+    else if(utils.itsbeen(deepSleepTime)){
       return;
     }
   }
@@ -171,6 +222,9 @@ void screenSaver_prams(){
       lastTime = millis();
       return;
     }
+    else if(utils.itsbeen(deepSleepTime)){
+      return;
+    }
   }
 }
 
@@ -201,6 +255,9 @@ void screenSaver_droplets(){
       lastTime = millis();
       return;
     }
+    else if(utils.itsbeen(deepSleepTime)){
+      return;
+    }
   }
 }
 
@@ -214,6 +271,9 @@ void screenSaver_keys(){
     //checking if any buttons are pressed and breaking out of the loop if so
     if(controls.anyActiveInputs()){
       lastTime = millis();
+      return;
+    }
+    else if(utils.itsbeen(deepSleepTime)){
       return;
     }
   }
@@ -245,6 +305,9 @@ void screenSaver_text(){
       lastTime = millis();
       return;
     }
+    else if(utils.itsbeen(deepSleepTime)){
+      return;
+    }
   }
 }
 
@@ -256,6 +319,9 @@ void screenSaver_playing(){
     if(controls.anyActiveInputs()){
       lastTime = millis();
       break;
+    }
+    else if(utils.itsbeen(deepSleepTime)){
+      return;
     }
     display.clearDisplay();
     display.drawFastVLine(64,0,64,1);
@@ -310,7 +376,7 @@ void screenSaverCheck(){
   while(utils.itsbeen(sleepTime)){
     screenSaver();
     if(utils.itsbeen(deepSleepTime)){
-      deepSleep();
+      enterSleepMode();
     }
   }
   sequence.updateLEDs();

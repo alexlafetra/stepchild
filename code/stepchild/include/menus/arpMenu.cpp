@@ -483,11 +483,11 @@ void drawArpMenu(uint8_t cursor){
   }
   const uint8_t y1 = 15;
   //on/off
-  drawSlider(0,y1,"on","off",!arp.isActive);
+  graphics.drawSlider(0,y1,"on","off",!arp.isActive);
 
   //step lengths
   String stepLength = arp.uniformLength?stepsToMeasures(arp.arpSubDiv):"custom";
-  drawSlider(0,y1+20,"custom","uniform",arp.uniformLength);
+  graphics.drawSlider(0,y1+20,"custom","uniform",arp.uniformLength);
   printSmall(0,y1+14,"length:" + stepLength,1);
 
   //modulation

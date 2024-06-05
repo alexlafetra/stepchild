@@ -174,7 +174,7 @@ QChord editChord(QChord& originalChord){
     }
     display.clearDisplay();
     //normal, make-new-chord mode
-    drawFullKeyBed(pressedKeys,mask,keyCursor,octave);
+    graphics.drawFullKeyBed(pressedKeys,mask,keyCursor,octave);
     if(playedChord)
         printSmall(0,59,"Playing...",1);
     else

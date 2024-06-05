@@ -2,7 +2,7 @@
 //'board' setting needs to be the RP2040 raspberry pi pico
 //will overclock at 250MH!!
 
-//uncomment this/define elsewhere to use the capturecard version of the display library!
+//uncomment this/define elsewhere to use the capturecard version of the display library
 // #define CAPTURECARD
 
 #include "ChildOS.h"
@@ -70,6 +70,7 @@ void setup() {
   lastTime = millis();
   bootscreen_2();
   sequence.updateLEDs();
+  // maxCurrentDrawTest();
 }
 
 //CPU 1 Setup
@@ -105,6 +106,7 @@ void loop1(){
   else{
     defaultLoop();
   }
+  
   if(arp.isActive){
     arpLoop();
   }
