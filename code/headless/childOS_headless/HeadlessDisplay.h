@@ -128,7 +128,6 @@ void Display::setRotation(int r) {
 void Display::drawChar(int x, int y, unsigned char c,int color, int bg, int size_x,int size_y) {
 
   if (!gfxFont) { // 'Classic' built-in font
-
     if ((x >= _width) ||              // Clip right
         (y >= _height) ||             // Clip bottom
         ((x + 6 * size_x - 1) < 0) || // Clip left
@@ -159,7 +158,6 @@ void Display::drawChar(int x, int y, unsigned char c,int color, int bg, int size
         fillRect(x + 5 * size_x, y, size_x, 8 * size_y, bg);
     }
     
-
   } else { // Custom font
 
     // Character is assumed previously filtered by draw() to eliminate
