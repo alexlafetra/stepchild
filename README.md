@@ -4,7 +4,8 @@
 </p>
 
 <p align="center">
-<img src = "readme/cursive.png">
+<img src = "readme/cursive_light.png#gh-dark-mode-only">
+<img src = "readme/cursive_dark.png#gh-light-mode-only">
 <img src="manual/images/stepchild.gif">
 </p>
 
