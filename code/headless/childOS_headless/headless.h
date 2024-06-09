@@ -171,7 +171,7 @@ class DummyRP2040{
         long getTotalHeap();
         long getFreeHeap();
         int f_cpu();
-        int getCycleCount();
+        unsigned long getCycleCount();
 };
 DummyRP2040::DummyRP2040(){
 }
@@ -190,7 +190,7 @@ long DummyRP2040::getFreeHeap(){
 void DummyRP2040::reboot(){
     return;
 }
-int DummyRP2040::getCycleCount(){
+unsigned long DummyRP2040::getCycleCount(){
     return millis();
 }
 
@@ -266,7 +266,7 @@ void bootscreen();
 #include "HeadlessDisplay.h"
 
 //emulating delay
-void delay(unsigned long time){
+void delay(unsigned int time){
     usleep(time*1000);
 }
 

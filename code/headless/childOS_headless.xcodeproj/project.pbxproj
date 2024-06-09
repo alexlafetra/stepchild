@@ -1227,6 +1227,7 @@
 		FAA06B0229942167004BEC01 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -1237,12 +1238,7 @@
 					/usr/local/include,
 					"/Users/alex/Documents/Arduino/stepchild/src/headless/childOS_headless/rtmidi-6.0.0",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/usr/local/Cellar/glfw/3.3.8/include,
-					/usr/local/Cellar/glfw/3.3.8/lib,
-					/usr/local/Cellar/glfw/3.4/lib,
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1252,17 +1248,13 @@
 		FAA06B0329942167004BEC01 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					"/Users/alex/Documents/Arduino/stepchild/src/headless/childOS_headless/rtmidi-6.0.0",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/usr/local/Cellar/glfw/3.3.8/include,
-					/usr/local/Cellar/glfw/3.3.8/lib,
-					/usr/local/Cellar/glfw/3.4/lib,
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
