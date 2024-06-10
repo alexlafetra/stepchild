@@ -1,4 +1,5 @@
 <!-- ![Gif of the Stepchild Rotating](readme/stepchild.gif) -->
+Ahhh don't look at me i'm a work in progress!
 
 <p align="center">
 </p>
@@ -11,17 +12,27 @@
 
 <!-- intro -->
 # The Stepchild Sequencer
+[cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg
+[cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/
+![GitHub Release](https://img.shields.io/github/v/release/alexlafetra/stepchild) [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa] [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
   
 **Welcome to the github page for the Stepchild MIDI sequencer project!** The Stepchild is an open source, generative MIDI instrument designed as both a sequencer and experimental songwriting tool. The Stepchild can be purchased as either a [kit]() or [complete instrument]() from the Stepchild site, or you can [build your own]() by following the build guide.
 
 ![Render of The Stepchild](readme/opaque.png)
 
+## Open Source
+The Stepchild is an **open source project**. The design and hardware of The Stepchild are released under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa] and the software is licensed under the 
+<!-- This work is licensed under a
+. -->
+[cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
+[![CC BY-NC-SA 4.0][cc-by-nc-sa-image]][cc-by-nc-sa]
 <!-- links to social media, reddit, website -->
 <!-- capabilities -->
 # Overview
-This page gives a brief overview of the hardware and software capabilities of the Stepchild, but please [Stepchild Manual](manual/manual.md). If you're looking to make your own, please also take a look at the [Build Guide]() which gives an overview of the materials and process for building assembling a Stepchild.
+This page gives a brief overview of the hardware and software capabilities of the Stepchild. Please see the [Manual](manual/manual.md) for a guide to creating music with the Stepchild. If you're looking to make your own, please also take a look at the [Build Guide]() which gives an overview of the materials and process for building assembling a Stepchild.
 
-# Hardware
+## Hardware
 The Stepchild's current hardware is on ***version 0.9.2***.
 The Stepchild has 4 hardware MIDI out ports and 1 hardware MIDI In port, supporting both 3.5mm TRS and the original 5-pin-DIN connector MIDI standard, as well as USB MIDI in/out using the Pi Pico's microUSB port. In total, up to 8 instruments and 1 computer can be connected to output channels from the Stepchild on 4 separate hardware ports.
 
@@ -29,7 +40,7 @@ The Stepchild has 4 hardware MIDI out ports and 1 hardware MIDI In port, support
 
 <!-- ![Image of the stepchild](readme/stepchild_assembly.jpg) -->
 
-# Software
+## Software
 As of version 1.0, ChildOS has a powerful sequencer, looper, and Automation function generator, as well as 9 instruments and FX. There are a total of 16 Instrument slots and 24 FX slots that can be swapped with user-created code written in C++ (See documentation on [creating custom instruments]() for a tutorial).
 
 
