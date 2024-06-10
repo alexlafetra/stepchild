@@ -22,7 +22,7 @@ Ahhh don't look at me i'm a work in progress!
 ![Render of The Stepchild](readme/opaque.png)
 
 ## Open Source
-The Stepchild is an **open source project**. The design and hardware of The Stepchild are released under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa] and the software is licensed under the 
+The Stepchild is an **open source project**. The design and hardware of The Stepchild are released under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa] and the software is licensed under the [GPLv3](https://www.gnu.org/licenses/gpl-3.0.html).
 <!-- This work is licensed under a
 . -->
 [cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
