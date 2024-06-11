@@ -127,7 +127,7 @@ void Menu::displayMenu(){
 #define HUMANIZE 14
 
 void constructMenu(uint8_t id,uint8_t highlight){
-  controls.resetEncoders();
+  // controls.resetEncoders();
   switch(id){
     case(MAIN_MENU):
     {

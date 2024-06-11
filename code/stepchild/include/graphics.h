@@ -1588,3 +1588,206 @@ void drawOSScreen(){
   }
 }
 
+
+void drawSmallChannelIcon(uint8_t x1, uint8_t y1, uint8_t ch){
+  display.drawBitmap(x1,y1,ch_tiny,6,3,SSD1306_WHITE);
+  printSmall(x1+7,y1,stringify(ch),1);
+}
+
+//slides a menu in from the top,right,bottom, or left
+void slideMenuIn(int fromWhere, int8_t speed){
+  //sliding in from the right
+  if(fromWhere == 1){
+    //store original coords
+    CoordinatePair targetCoords = activeMenu.coords;
+    //then, offset the menu coordinates
+    int16_t offset = screenWidth-activeMenu.coords.start.x;
+    activeMenu.coords.start.x = screenWidth;
+    activeMenu.coords.end.x += offset;
+    //continuously move the menu coords and display it, until it reaches original position
+    while(activeMenu.coords.start.x>targetCoords.start.x){
+      activeMenu.coords.end.x -= speed;
+      activeMenu.coords.start.x -= speed;
+      if(activeMenu.coords.start.x<targetCoords.start.x){
+        activeMenu.coords = targetCoords;
+        break;
+      }
+      displaySeq();
+      // delay(100);
+    }
+    activeMenu.coords = targetCoords;
+  }
+  //from the bottom
+  else if(fromWhere == 0){
+    //store original coords
+    CoordinatePair targetCoords = activeMenu.coords;
+    //then, offset the menu coordinates
+    int16_t offset = screenHeight-activeMenu.coords.start.y;
+    activeMenu.coords.start.y += offset;
+    activeMenu.coords.end.y += offset;
+    //continuously move the menu coords and display it, until it reaches original position
+    while(activeMenu.coords.start.y>targetCoords.start.y){
+      activeMenu.coords.start.y-= speed;
+      activeMenu.coords.end.y-= speed;
+      if(activeMenu.coords.start.y<targetCoords.start.y){
+        activeMenu.coords = targetCoords;
+      }
+      displaySeq();
+      // delay(20);
+    }
+    activeMenu.coords = targetCoords;
+  }
+}
+
+//same thang, but in reverse
+void slideMenuOut(int toWhere, int8_t speed){
+  if(toWhere == 1){//sliding out to the left side
+    while(activeMenu.coords.start.x<screenWidth){
+      activeMenu.coords.start.x+=speed;
+      activeMenu.coords.end.x+=speed;
+      //make sure x bounds don't glitch out/overflow  (don't think this is necessary, leaving it for legacy/in case you find a menu that bugs)
+      //Using this makes some menus slide a lil' ugly
+      // if(activeMenu.coords.end.x>screenWidth){
+      //   activeMenu.coords.end.x = screenWidth;
+      // }
+      displaySeq();
+      graphics.drawPram(5,0);
+    }
+  }
+  //to the bottom
+  else if(toWhere == 0){
+    while(activeMenu.coords.start.y<screenHeight){
+      activeMenu.coords.start.y+=speed;
+      activeMenu.coords.end.y+=speed;
+      //make sure y bounds don't glitch out
+      if(activeMenu.coords.end.y>screenHeight){
+        activeMenu.coords.end.y = screenHeight;
+      }
+      displaySeq();
+      graphics.drawPram(5,0);
+    }
+  }
+}
+
+//same function, but doesn't clear or display the screen
+void drawSeq(){
+  drawSeq(true,true,true,true,false);
+}
+//sends data to screen
+//move through rows/columns, printing out data
+void displaySeq(){
+  display.clearDisplay();
+  drawSeq(true,true,true,true,false,false,sequence.viewStart,sequence.viewEnd);
+  display.display();
+}
+
+void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection){
+  drawSeq(trackLabels,topLabels,loopPoints,menus,trackSelection,false,sequence.viewStart,sequence.viewEnd);
+}
+
+//Start = step you're starting on, startheight is the y coord the sequence grid begins at
+void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_t height, bool onlyWithinLoop, bool loopFlags, bool loopPoints){
+  //drawing the measure bars
+  for (uint16_t step = start; step < end; step++) {
+    unsigned short int x1 = trackDisplay+int((step-start)*sequence.viewScale);
+    unsigned short int x2 = x1 + (step-start)*sequence.viewScale;
+
+    //shade everything outside the loop
+    if(onlyWithinLoop){
+      if(step<sequence.loopData[sequence.activeLoop].start){
+        graphics.shadeArea(x1,startHeight,(sequence.loopData[sequence.activeLoop].start-step)*sequence.viewScale,screenHeight-startHeight,3);
+        step = sequence.loopData[sequence.activeLoop].start;
+        //ok, step shouldn't ever be zero in this case, since that would mean it was LESS than zero to begin
+        //with. But, just for thoroughnesses sake, make sure step doesn't overflow when you subtract from it
+        if(step != 0){
+          step--;
+        }
+        continue;
+      }
+      else if(step>sequence.loopData[sequence.activeLoop].end){
+        graphics.shadeArea(x1,startHeight,(sequence.viewEnd-sequence.loopData[sequence.activeLoop].end)*sequence.viewScale,screenHeight-startHeight,3);
+        break;
+      }
+    }
+
+    //if the last track is showing
+    if(endTrack == sequence.trackData.size()){
+      //measure bars
+      if (!(step % sequence.subDivision) && (step%96) && (sequence.subDivision*sequence.viewScale)>1) {
+        graphics.drawDottedLineV(x1,startHeight,height,2);
+      }
+      if(!(step%96)){
+        graphics.drawDottedLineV2(x1,startHeight,height,6);
+      }
+    }
+    else{
+      //measure bars
+      if (!(step % sequence.subDivision) && (step%96) && (sequence.subDivision*sequence.viewScale)>1) {
+        graphics.drawDottedLineV(x1,startHeight,height,2);
+      }
+      if(!(step%96)){
+        graphics.drawDottedLineV2(x1,startHeight,height,6);
+      }
+    }
+
+    //drawing loop points/flags
+    if(loopPoints){//check
+      if(step == sequence.loopData[sequence.activeLoop].start){
+        if(loopFlags){
+          if(movingLoop == -1 || movingLoop == 2){
+            display.fillTriangle(trackDisplay+(step-start)*sequence.viewScale, startHeight-3-sin(millis()/50), trackDisplay+(step-start)*sequence.viewScale, startHeight-7-sin(millis()/50), trackDisplay+(step-start)*sequence.viewScale+4, startHeight-7-sin(millis()/50),SSD1306_WHITE);
+            display.drawFastVLine(trackDisplay+(step-start)*sequence.viewScale,startHeight-3,3,SSD1306_WHITE);
+          }
+          else{
+            if(sequence.cursorPos == step){
+              display.fillTriangle(trackDisplay+(step-start)*sequence.viewScale, startHeight-3, trackDisplay+(step-start)*sequence.viewScale, startHeight-7, trackDisplay+(step-start)*sequence.viewScale+4, startHeight-7,SSD1306_WHITE);
+              display.drawFastVLine(trackDisplay+(step-start)*sequence.viewScale,startHeight-3,3,SSD1306_WHITE);
+            }
+            else{
+              display.fillTriangle(trackDisplay+(step-start)*sequence.viewScale, startHeight-1, trackDisplay+(step-start)*sequence.viewScale, startHeight-5, trackDisplay+(step-start)*sequence.viewScale+4, startHeight-5,SSD1306_WHITE);
+            }
+          }
+        }
+        else{
+          display.drawPixel(trackDisplay+(sequence.loopData[sequence.activeLoop].start-start)*sequence.viewScale, startHeight-1,1);
+        }
+        if(!movingLoop || (movingLoop != 1 && (millis()/400)%2)){
+          display.drawFastVLine(trackDisplay+(step-start)*sequence.viewScale,startHeight,screenHeight-startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
+          display.drawFastVLine(trackDisplay+(step-start)*sequence.viewScale-1,startHeight,screenHeight-startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
+        }
+      }
+      if(step == sequence.loopData[sequence.activeLoop].end-1){
+        if(loopFlags){
+          if(movingLoop == 1 || movingLoop == 2){
+            display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-3-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale-4, startHeight-7-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-7-sin(millis()/50),SSD1306_WHITE);
+            display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale,startHeight-3,3,SSD1306_WHITE);
+          }
+          else{
+            if(sequence.cursorPos == step+1){
+              display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-3, trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale-4, startHeight-7, trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-7,SSD1306_WHITE);
+              display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale,startHeight-3,3,SSD1306_WHITE);
+            }
+            else{
+              display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-1, trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale-4, startHeight-5, trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-5,SSD1306_WHITE);
+            }
+          }
+        }
+        else{
+          display.drawPixel(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-1,1);
+        }
+        if(!movingLoop || (movingLoop != -1 && (millis()/400)%2)){
+          display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale+1,startHeight,screenHeight-startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
+          display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale+2,startHeight,screenHeight-startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
+        }
+      }
+      if(movingLoop == 2){
+        if(step>sequence.loopData[sequence.activeLoop].start && step<sequence.loopData[sequence.activeLoop].end && step%2){
+          display.drawPixel(trackDisplay+(step-start)*sequence.viewScale, startHeight-7-sin(millis()/50),SSD1306_WHITE);
+        }
+      }
+      if(loopFlags && (step == sequence.loopData[sequence.activeLoop].start+(sequence.loopData[sequence.activeLoop].end-sequence.loopData[sequence.activeLoop].start)/2))
+        printSmall(trackDisplay+(step-start)*sequence.viewScale-1,startHeight-7,stringify(sequence.activeLoop),SSD1306_WHITE);
+    }
+  }
+}
+

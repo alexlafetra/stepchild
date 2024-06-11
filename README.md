@@ -7,7 +7,8 @@ Ahhh don't look at me i'm a work in progress!
 <p align="center">
 <img src = "readme/cursive_light.png#gh-light-mode-only">
 <img src = "readme/cursive_dark.png#gh-dark-mode-only">
-<img src="manual/images/stepchild.gif">
+<!-- <img src="manual/images/stepchild.gif"> -->
+<img src = "readme/rotate_optimized.gif">
 </p>
 
 <!-- intro -->
@@ -17,7 +18,7 @@ Ahhh don't look at me i'm a work in progress!
 ![GitHub Release](https://img.shields.io/github/v/release/alexlafetra/stepchild) [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa] [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
   
-**Welcome to the github page for the Stepchild MIDI instrument project!** The Stepchild is an open source, generative MIDI instrument designed as both a sequencer and experimental songwriting tool. The Stepchild can be purchased as either a [kit]() or [complete instrument]() from the Stepchild site, or you can [build your own]() by following the build guide. The casing can be printed using an SLA or FDM 3D printer, but the PCB's are designed to be partially assembled by a PCBA manufacturer.
+**Welcome to the github page for the Stepchild MIDI instrument project.** The Stepchild is an open source, generative MIDI instrument designed to be a portable sequencer and experimental songwriting tool. It can be purchased as either a [kit]() or [complete instrument]() from the Stepchild site, or you can [build your own]() by following the build guide. The casing can be printed using an SLA or FDM 3D printer, but the PCB's are designed to be partially assembled by a PCBA manufacturer.
 
 ![Render of The Stepchild](readme/opaque.png)
 

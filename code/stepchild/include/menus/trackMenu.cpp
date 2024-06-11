@@ -917,7 +917,6 @@ void trackEditMenu(){
       }
       if(controls.NEW()){
         addTrack(sequence.trackData[sequence.activeTrack].pitch);
-        setActiveTrack(sequence.trackData.size()-1,false);
         lastTime = millis();
       }
       while(controls.counterA != 0){

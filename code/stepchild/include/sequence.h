@@ -178,12 +178,10 @@ class StepchildSequence{
     //deletes a note at a specific time/place
     void deleteNote(uint8_t track, uint16_t time){
         this->deleteNote_byID(track,this->IDAt(track,time));
-        this->updateLEDs();
     }
     //deletes a note at the current track/cursor position
     void deleteNote(){
         this->deleteNote_byID(this->activeTrack,this->IDAtCursor());
-        this->updateLEDs();
     }
     void deleteSelected(){
         if(this->selectionCount>0){
@@ -201,7 +199,6 @@ class StepchildSequence{
                 }
             }
         }
-        this->updateLEDs();
     }
     /*
     ----------------------------------------------------------
@@ -235,7 +232,6 @@ class StepchildSequence{
                 MIDI.noteOff(this->trackData[track].pitch, 0, this->trackData[track].channel);
             }
         }
-        this->updateLEDs();
     }
     void makeNote(int track, int time, int length, int velocity, int chance, bool mute, bool select, bool loudly){
         Note newNoteOn(time, (time + length-1), velocity, chance, mute, select);
@@ -624,7 +620,12 @@ class StepchildSequence{
     ----------------------------------------------------------
     */
    //displays notes on LEDs
-    void updateLEDs(){
+    void displayMainSequenceLEDs(){
+        if(controls.SHIFT()){
+            controls.setLED(14,millis()/200%2);
+            controls.setLED(15,(millis()/200+1)%2);
+            return;
+        }
         uint16_t dat = 0;//00000000
         if(LEDsOn && !screenSaverActive){
             uint16_t viewLength = this->viewEnd-this->viewStart;
@@ -649,6 +650,106 @@ class StepchildSequence{
         }
         controls.writeLEDs(dat);
     }
+    /*
+    ----------------------------------------------------------
+                            Loops
+    ----------------------------------------------------------
+    */
+    void setLoopPoint(int32_t start, bool which){
+        //set start
+        if(which){
+            if(start<=this->loopData[this->activeLoop].end && start>=0)
+            this->loopData[this->activeLoop].start = start;
+            else if(start < 0)
+            this->loopData[this->activeLoop].start = 0;
+            else if(start>this->loopData[this->activeLoop].end)
+            this->loopData[this->activeLoop].start = this->loopData[this->activeLoop].end;
+            this->loopData[this->activeLoop].start = this->loopData[this->activeLoop].start;
+            menuText = "loop start: "+stepsToPosition(this->loopData[this->activeLoop].start,true);
+        }
+        //set end
+        else{
+            if(start>=this->loopData[this->activeLoop].start && start <= this->sequenceLength)
+            this->loopData[this->activeLoop].end = start;
+            else if(start>this->sequenceLength)
+            this->loopData[this->activeLoop].end = this->sequenceLength;
+            else if(start<this->loopData[this->activeLoop].start)
+            this->loopData[this->activeLoop].end = this->loopData[this->activeLoop].start;
+            this->loopData[this->activeLoop].end = this->loopData[this->activeLoop].end;
+            menuText = "loop end: "+stepsToPosition(this->loopData[this->activeLoop].end,true);
+        }
+    }
+    void addLoop(Loop newLoop){
+        this->loopData.push_back(newLoop);
+    }
+    void insertLoop(Loop newLoop, uint8_t index){
+        this->loopData.insert(this->loopData.begin()+index,newLoop);
+    }
 };
 
 StepchildSequence sequence;
+
+
+//true if Stepchild is sending or receiving notes
+bool isReceiving(){
+  for(uint8_t i = 0; i<sequence.trackData.size(); i++){
+    if(sequence.trackData[i].noteLastSent != 255)
+      return true;
+  }
+  return receivedNotes.notes.size();
+}
+bool isSending(){
+  if(sentNotes.notes.size())
+    return true;
+  for(uint8_t i = 0; i<sequence.trackData.size(); i++){
+    if(sequence.trackData[i].noteLastSent != 255)
+      return true;
+  }
+  return false;
+}
+
+bool isReceivingOrSending(){
+  return (isReceiving() || isSending());
+}
+
+
+//moves the whole loop
+void moveLoop(int16_t amount){
+  uint16_t length = sequence.loopData[sequence.activeLoop].end-sequence.loopData[sequence.activeLoop].start;
+  //if it's being moved back
+  if(amount<0){
+    //if amount is larger than start, meaning start would be moved before 0
+    if(sequence.loopData[sequence.activeLoop].start<=amount)
+      sequence.setLoopPoint(0,true);
+    else
+      sequence.setLoopPoint(sequence.loopData[sequence.activeLoop].start+amount,true);
+    sequence.setLoopPoint(sequence.loopData[sequence.activeLoop].start+length,false);
+  }
+  //if it's being moved forward
+  else{
+    //if amount is larger than the gap between seqend and sequence.loopData[sequence.activeLoop].end
+    if((sequence.sequenceLength-sequence.loopData[sequence.activeLoop].end)<=amount)
+      sequence.setLoopPoint(sequence.sequenceLength,false);
+    else
+      sequence.setLoopPoint(sequence.loopData[sequence.activeLoop].end+amount,false);
+    sequence.setLoopPoint(sequence.loopData[sequence.activeLoop].end - length,true);
+  }
+}
+void toggleLoopMove(){
+  switch(movingLoop){
+    case 0:
+      movingLoop = 1;
+      moveCursor(sequence.loopData[sequence.activeLoop].start-sequence.cursorPos);
+      break;
+    case -1:
+      movingLoop = 1;
+      moveCursor(sequence.loopData[sequence.activeLoop].end-sequence.cursorPos);
+      break;
+    case 1:
+      movingLoop = 2;
+      break;
+    case 2:
+      movingLoop = 0;
+      break;
+  }
+}

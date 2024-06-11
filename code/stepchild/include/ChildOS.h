@@ -135,13 +135,16 @@ struct Loop{
   3 = return to the first Loop
   4 = repeat this loop again (infinite repeat)
   */
- Loop(){}
- Loop(uint16_t s, uint16_t e, uint8_t r, uint8_t t){
-  this->start = s;
-  this->end = e;
-  this->reps = r;
-  this->type = t;
- }
+  Loop(){}
+  Loop(uint16_t s, uint16_t e, uint8_t r, uint8_t t){
+      this->start = s;
+      this->end = e;
+      this->reps = r;
+      this->type = t;
+  }
+  uint16_t length(){
+    return this->end-this->start;
+  }
 };
 
 //each of the modifiers stores a channel, and a value
@@ -164,7 +167,7 @@ uint16_t animOffset = 0;//for animating curves
 #include "functionPrototypes.h" //function prototypes (eventually these should all be refactored into respective files)
 #include "clock.h"              //timing functions
 #include "global.h"             //program boolean flags and global data, constants
-#include "hardware.h"           //button defs and reading functions
+#include "hardwareControls.h"   //button defs and reading functions
 #include "utils.h"              //common helper functions/utilities
 
 //classes
@@ -208,7 +211,6 @@ void rotaryActionB_Handler(){
 }
 
 #include "classes/SelectionBox.h"
-#include "classes/Loop.h"
 #include "classes/Arp.h"
 #include "classes/NoteID.h"
 #include "classes/Progression.h"
@@ -245,6 +247,7 @@ void rotaryActionB_Handler(){
 #include "applications.h"
 
 //Menus
+#include "menus/loopMenu.cpp"
 #include "menus/consoleMenu.cpp"
 #include "menus/instrumentMenu.cpp"
 #include "menus/fxMenu.cpp"
@@ -259,11 +262,13 @@ void rotaryActionB_Handler(){
 #include "menus/midiMenu.cpp"
 
 #include "trackEditing.h"
-#include "fileSystem.h"
 #include "sleep.h"
+#include "fileSystem.h"
 #include "recording.h"
 #include "keyboard.h"
 #include "CCSelector.h"
+#include "grooves.h"
+#include "mainSequence.h"
 
 #include "TBA_Features.h"
 #include "everything.h"

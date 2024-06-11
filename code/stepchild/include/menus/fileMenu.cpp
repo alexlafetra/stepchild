@@ -182,22 +182,20 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
     }
     if(controls.NEW()){
       if(controls.SHIFT()){
-        dumpFilesToSerial();
-      }
-      else{
+        if(binarySelectionBox(64,32,"ye","ne","dump all files via USB?",fileMenuDisplayWrapper) == 1)
+          dumpFilesToSerial();
       }
     }
     if(filenames.size()>0){
       if(controls.SELECT() ){
         lastTime = millis();
         controls.setSELECT(false);
-        if(filenames[activeMenu.highlight] == "*New*"){
+        if(filenames[activeMenu.highlight] == "*new*"){
           String fileName = enterText("filename?");
           if(fileName != "default"){
+            Serial.println("Writing seq file");
+            Serial.flush();
             writeSeqFile(fileName);
-            // slideMenuOut(1,30);
-            // menuIsActive = false;
-            // constructMenu("MENU");
             return false;
           }
         }
@@ -268,7 +266,7 @@ void fileMenu(){
   folder.yPos = screenHeight/2;
   vector<String> filenames = loadFiles();
   fileMenuAnimation(false,menuStart,menuEnd,filenames,true);
-  while(menuIsActive){
+  while(true){
     display.clearDisplay();
     //draw menu
     activeMenu.displayFileMenu(0,false,menuStart,menuEnd,filenames);
@@ -284,7 +282,14 @@ void fileMenu(){
     if(activeMenu.page == 0){
       if(!fileMenuControls(menuStart,menuEnd,&folder,filenames)){
         fileMenuAnimation(false,menuStart,menuEnd,filenames,false);
+        Serial.println("now jumping out of file menu");
+        Serial.flush();
+        controls.clearButtons();
+        Serial.println("Now constructing main menu");
+        Serial.flush();
         constructMenu(MAIN_MENU,9);
+        Serial.println("done constructing main menu");
+        Serial.flush();
         return;
       }
         //menu data shit

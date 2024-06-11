@@ -1,0 +1,3 @@
+stack overflow error when switching between edit and track menus
+arpeggiating while playing is broken
+- seems like arp playlist isn't getting updated while sequence is playing

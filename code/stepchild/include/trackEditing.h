@@ -473,39 +473,19 @@ int makeTrackWithPitch(int pitch, int channel){
   return track;
 }
 
+void insertTrack(Track newTrack, uint8_t index){
+  //inserting new track
+  sequence.trackData.insert(sequence.trackData.begin()+index,newTrack);
+  //inserting new lookupTable lane
+  vector<uint16_t> blankLookupData(sequence.sequenceLength,0);
+  sequence.lookupTable.insert(sequence.lookupTable.begin()+index,blankLookupData);
+  //inserting new noteData lane
+  sequence.noteData.insert(sequence.noteData.begin()+index,{Note()});
+}
+
 void addTrack(Track newTrack, bool loudly){
   if(sequence.trackData.size()<255){
-    sequence.trackData.push_back(newTrack);
-
-    //widening sequence.lookupTable
-    sequence.lookupTable.resize(sequence.trackData.size());
-    //filling with 0
-    sequence.lookupTable[sequence.trackData.size()-1].resize(sequence.sequenceLength,0);
-
-    //widening sequence.noteData
-    sequence.noteData.resize(sequence.trackData.size());
-    sequence.noteData[sequence.trackData.size()-1] = {Note()};
-    sequence.activeTrack = sequence.trackData.size()-1;
-
-    if(loudly){
-      MIDI.noteOn(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
-      MIDI.noteOff(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
-    }
-  }
-}
-void addTrack_noMove(Track newTrack, bool loudly){
-  if(sequence.trackData.size()<255){
-    sequence.trackData.push_back(newTrack);
-
-    //widening sequence.lookupTable
-    sequence.lookupTable.resize(sequence.trackData.size());
-    //filling with 0
-    sequence.lookupTable[sequence.trackData.size()-1].resize(sequence.sequenceLength,0);
-
-    //widening sequence.noteData
-    sequence.noteData.resize(sequence.trackData.size());
-    sequence.noteData[sequence.trackData.size()-1] = {Note()};
-
+    insertTrack(newTrack,sequence.activeTrack);
     if(loudly){
       MIDI.noteOn(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
       MIDI.noteOff(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
@@ -520,16 +500,7 @@ void addTrack(uint8_t pitch, uint8_t channel, bool latch, uint8_t muteGroup, boo
     newTrack.isLatched = latch;
     newTrack.muteGroup = muteGroup;
     newTrack.isPrimed = primed;
-    sequence.trackData.push_back(newTrack);//adding track to vector data
-    sequence.noteData.resize(sequence.trackData.size()); //adding row to sequence.noteData
-    sequence.lookupTable.resize(sequence.trackData.size()); //adding a row to the sequence.lookupTable vector, to store lookupID's for notes in this track
-    sequence.lookupTable[sequence.trackData.size()-1].resize(sequence.sequenceLength, 0);//adding all the columns the track holds to the sequence.lookupTable
-    sequence.noteData[sequence.trackData.size()-1] = {Note()};//setting the note data for the new track to the default blank data
-    sequence.activeTrack = sequence.trackData.size()-1;
-    if(loudly){
-      MIDI.noteOn(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
-      MIDI.noteOff(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
-    }
+    addTrack(newTrack,loudly);
   }
 }
 void addTrack(unsigned char pitch, unsigned char channel, bool loudly) {
@@ -546,16 +517,7 @@ void addTrack(unsigned char pitch, bool loudly) {
 int16_t addTrack_return(unsigned short int pitch, unsigned short int channel, bool loudly) {
   if(sequence.trackData.size()<256){
     Track newTrack(pitch, channel);
-    sequence.trackData.push_back(newTrack);
-    sequence.noteData.resize(sequence.trackData.size());
-    sequence.lookupTable.resize(sequence.trackData.size());
-    sequence.lookupTable[sequence.trackData.size()-1].resize(sequence.sequenceLength, 0);
-    sequence.noteData[sequence.trackData.size()-1] = {Note()};
-    sequence.activeTrack = sequence.trackData.size()-1;
-    if(loudly){
-      MIDI.noteOn(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
-      MIDI.noteOff(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
-    }
+    addTrack(newTrack,loudly);
     return (sequence.activeTrack);
   }
   else{
@@ -566,17 +528,12 @@ int16_t addTrack_return(unsigned short int pitch, unsigned short int channel, bo
 int16_t insertTrack_return(unsigned short int pitch, unsigned short int channel, bool loudly, uint8_t loc){
   if(sequence.trackData.size()<256){
     Track newTrack(pitch, channel);
-    sequence.trackData.insert(sequence.trackData.begin()+loc,newTrack);
-    sequence.noteData.resize(sequence.trackData.size());
-    sequence.lookupTable.resize(sequence.trackData.size());
-    sequence.lookupTable[sequence.trackData.size()-1].resize(sequence.sequenceLength, 0);
-    sequence.noteData[sequence.trackData.size()-1] = {Note()};
-    sequence.activeTrack = sequence.trackData.size()-1;
+    insertTrack(newTrack,loc);
     if(loudly){
       MIDI.noteOn(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
       MIDI.noteOff(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
     }
-    return (sequence.activeTrack);
+    return (loc);
   }
   else{
     return -1;
@@ -586,9 +543,7 @@ int16_t insertTrack_return(unsigned short int pitch, unsigned short int channel,
 void dupeTrack(unsigned short int track){
   if(sequence.trackData.size()<256){
     Track newTrack = sequence.trackData[track];
-    sequence.trackData.push_back(newTrack);
-    sequence.lookupTable.push_back(sequence.lookupTable[track]);
-    sequence.noteData.push_back(sequence.noteData[track]);
+    insertTrack(newTrack,track);
   }
 }
 

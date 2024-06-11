@@ -83,10 +83,10 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
                 }
                 //moving loop start/end
                 if(movingLoop == -1){
-                    setLoopPoint(sequence.cursorPos,true);
+                    sequence.setLoopPoint(sequence.cursorPos,true);
                 }
                 else if(movingLoop == 1){
-                    setLoopPoint(sequence.cursorPos,false);
+                    sequence.setLoopPoint(sequence.cursorPos,false);
                 }
                 }
                 if (controls.joystickX == -1 && !controls.SHIFT()) {
@@ -104,10 +104,10 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
                 }
                 //moving loop start/end
                 if(movingLoop == -1){
-                    setLoopPoint(sequence.cursorPos,true);
+                    sequence.setLoopPoint(sequence.cursorPos,true);
                 }
                 else if(movingLoop == 1){
-                    setLoopPoint(sequence.cursorPos,false);
+                    sequence.setLoopPoint(sequence.cursorPos,false);
                 }
             }
         }
@@ -131,9 +131,9 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
             if(movingLoop == 2)
                 moveLoop(-1);
             else if(movingLoop == -1)
-                setLoopPoint(sequence.cursorPos,true);
+                sequence.setLoopPoint(sequence.cursorPos,true);
             else if(movingLoop == 1)
-                setLoopPoint(sequence.cursorPos,false);
+                sequence.setLoopPoint(sequence.cursorPos,false);
             }
             if (controls.joystickX == -1 && controls.SHIFT()) {
             moveCursor(1);

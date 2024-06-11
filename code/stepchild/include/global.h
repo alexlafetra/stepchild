@@ -107,12 +107,6 @@ uint8_t endTrack;
 #endif
 bool core1ready = false;
 
-//30000/1000 = 30 seconds
-//uint16_t sleepTime = 30000;
-uint16_t sleepTime = 10000;
-//60,000ms = 1min
-const unsigned long deepSleepTime = 20000;
-
 unsigned char keyboardPitch = 36;//holds the lowest key the keyboard is playing
 
 uint16_t timestep;

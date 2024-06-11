@@ -339,3 +339,172 @@ String getInterval(int root, int pitch) {
   }
   return "";
 }
+
+void alert(String text, int time){
+  unsigned short int len = text.length()*6;
+  display.clearDisplay();
+  display.setCursor(screenWidth/2-len/2, 29);
+  display.print(text);
+  display.display();
+  delay(time);
+}
+
+
+String enterText(String title){
+  bool done = false;
+  int highlight = 0;
+  int rows = 5;
+  int columns = 8;
+  int textWidth = 12;
+  int textHeight = 8;
+  String text = "";
+  vector<String> alphabet = {};
+  vector<String> alpha1 = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","_",".","!","0","1","2","3","4","5","6","7","8","9","Enter"};
+  vector<String> alpha2 = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","_",".","!","0","1","2","3","4","5","6","7","8","9","Enter"};
+  alphabet = alpha1;
+  while(!done){
+    controls.readButtons();
+    controls.readJoystick();
+    if(utils.itsbeen(200)){
+      if(controls.SHIFT()){
+        if(alphabet[0] == "a")
+          alphabet = alpha2;
+        else 
+          alphabet = alpha1;
+        lastTime = millis();
+      }
+
+      if(controls.DELETE() && text.length()>0){
+        controls.setDELETE(false);
+        String newString = text.substring(0,text.length()-1);
+        text = newString;
+        lastTime = millis();
+      }
+      if(controls.SELECT() ){
+        //adding character to text
+        if(alphabet[highlight] != "Enter" && text.length()<10){
+          text+=alphabet[highlight];
+        }
+        //or quitting
+        else if(alphabet[highlight] == "Enter")
+          done = true;
+        lastTime = millis();
+      }
+      if(controls.MENU()){
+        text = "";
+        done = true;
+        lastTime = millis();
+      }
+    }
+    if(utils.itsbeen(100)){
+      if(controls.joystickX == -1 && highlight<alphabet.size()-1){
+        highlight++;
+        lastTime = millis();
+      }
+      if(controls.joystickX == 1 && highlight>0){
+        highlight--;
+        lastTime = millis();
+      }
+      if(controls.joystickY == -1 && highlight>=columns){
+        highlight-=columns;
+        lastTime = millis();
+      }
+      if(controls.joystickY == 1 && highlight<alphabet.size()-columns){
+        highlight+=columns;
+        lastTime = millis();
+      }
+    }
+    //title
+    display.clearDisplay();
+    display.setCursor(5,6);
+    display.setFont(&FreeSerifItalic9pt7b);
+    display.print(title);
+    display.setFont();
+
+    //text tooltip
+    printSmall(88,1,"[SHF] caps",SSD1306_WHITE);
+    printSmall(88,8,"[MNU] exit",SSD1306_WHITE);
+
+    //input text
+    display.setCursor(10,15);
+    if(alphabet[highlight] != "Enter"){
+      display.print(text+alphabet[highlight]);
+      //cursor
+      if(millis()%750>250){
+        display.drawFastVLine(9+text.length()*6,15,10,SSD1306_WHITE);
+      }
+    }
+    else
+      display.print(text);
+    
+
+    //drawing alphabet
+    int count = 0;
+    for(int i = 0; i<rows; i++){
+      for(int j = 0; j<columns; j++){
+        if(count<alphabet.size()){
+          display.setCursor(j*textWidth+10, i*textHeight+24);
+          if(count == highlight){
+            //cursor highlight
+            if(millis()%750>250){
+              display.setTextColor(SSD1306_BLACK, SSD1306_WHITE);
+              display.fillRect(j*textWidth+9,i*textHeight+23,textWidth-5,textHeight+1,SSD1306_WHITE);
+              // display.print(alphabet[count]);
+              // display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
+            }
+            // else{
+              display.print(alphabet[count]);
+              display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
+              // display.drawRect(j*textWidth+9,i*textHeight+23,textWidth-5,textHeight+1,SSD1306_WHITE);
+            // }
+          }
+          else{
+            display.print(alphabet[count]);
+          }
+          count++;
+        }
+      }
+    }
+
+    display.display();
+  }
+  controls.clearButtons();
+  lastTime = millis();
+  if(text == ""){
+    text = "default";
+  }
+  return text;
+}
+
+void filterOutUnisonNotes(vector<uint8_t>& notes){
+  vector<uint8_t> uniqueNotes;
+  for(uint8_t i = 0; i<notes.size(); i++){
+    if(!uniqueNotes.size())
+      uniqueNotes.push_back(notes[i]%12);
+    else{
+      if(find(uniqueNotes.begin(),uniqueNotes.end(),notes[i]%12) == uniqueNotes.end()){
+        uniqueNotes.push_back(notes[i]%12);
+      }
+    }
+  }
+}
+
+uint8_t getLowestVal(vector<uint8_t> vec){
+  uint8_t lowest = 255;
+  for(uint8_t i = 0; i<vec.size(); i++){
+    if(vec[i]<lowest)
+      lowest = vec[i];
+  }
+  return lowest;
+}
+
+bool isInVector(int val, vector<uint8_t> vec){
+  if(vec.size() == 0) 
+    return false;
+  for(int i = 0; i<vec.size(); i++){
+    if(val == vec[i]){
+      return true;
+    }
+  }
+  return false;
+}

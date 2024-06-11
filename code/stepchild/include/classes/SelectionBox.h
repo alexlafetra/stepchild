@@ -559,7 +559,7 @@ class ClipBoard{
     }
     menuText = "copied "+stringify(numberOfNotes)+((stringify(numberOfNotes)=="1")?" note":" notes");
   }
-  void copyLoop(){
+  void copyLoop(uint8_t loopID){
     //clear copyBuffer
     while(this->buffer.size()>0){
       this->buffer.pop_back();
@@ -567,11 +567,11 @@ class ClipBoard{
     //making sure buffer has enough 'columns' to store the notes from each track
     this->buffer.resize(sequence.trackData.size());
     //treat copying the loop like you're copying it from the start of the loop
-    this->relativeCursorPosition = Coordinate(sequence.loopData[sequence.activeLoop].start,0);
+    this->relativeCursorPosition = Coordinate(sequence.loopData[loopID].start,0);
     //add all selected notes to the copy buffer
-    if(sequence.loopData[sequence.activeLoop].end-sequence.loopData[sequence.activeLoop].start>0){
-      for(int track = 0; track<sequence.trackData.size(); track++){
-        for(int step = sequence.loopData[sequence.activeLoop].start; step<=sequence.loopData[sequence.activeLoop].end; step++){// <= bc notes aren't 0 indexed
+    if(sequence.loopData[loopID].end-sequence.loopData[loopID].start>0){
+      for(uint8_t track = 0; track<sequence.trackData.size(); track++){
+        for(uint16_t step = sequence.loopData[loopID].start; step<=sequence.loopData[loopID].end; step++){// <= bc notes aren't 0 indexed
           if(sequence.lookupTable[track][step] != 0){
             this->buffer[track].push_back(sequence.noteData[track][sequence.lookupTable[track][step]]);
             //move to the end of the note, so it's not double-counted
@@ -581,12 +581,15 @@ class ClipBoard{
       }
     }
   }
-  void paste(){
+  void copyLoop(){
+    this->copyLoop(sequence.activeLoop);
+  }
+  void pasteAt(uint8_t track, uint16_t step){
     if(this->buffer.size()>0){
       uint16_t pastedNotes;
       //offset of all the notes (relative to where they were copied from)
-      int yOffset = sequence.activeTrack - this->relativeCursorPosition.y;
-      int xOffset = sequence.cursorPos - this->relativeCursorPosition.x;
+      int16_t yOffset = track - this->relativeCursorPosition.y;
+      int16_t xOffset = step - this->relativeCursorPosition.x;
       //moves through each track and note in copyBuffer, places a note at those positions in the seq
       for(int tracks = 0; tracks<this->buffer.size(); tracks++){//for each track in the copybuffer
         if(this->buffer[tracks].size()>0 && tracks+yOffset>=0 && tracks+yOffset<sequence.trackData.size()){//if there's a note stored for this track, and it'd be copied according to the new sequence.activeTrack
@@ -622,6 +625,9 @@ class ClipBoard{
       }
       menuText = "pasted "+stringify(pastedNotes)+((stringify(pastedNotes)=="1")?" note":" notes");
     }
+  }
+  void paste(){
+    this->pasteAt(sequence.activeTrack,sequence.cursorPos);
   }
 };
 

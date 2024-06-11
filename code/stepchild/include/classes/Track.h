@@ -45,5 +45,3 @@ class Track {
     return pitchToString(this->pitch, false, true);
   }
 };
-
-void addTrack_noMove(Track newTrack, bool loudly);

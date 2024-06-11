@@ -21,11 +21,17 @@ This COULD actually "turn off" the screen via SSD1306_command but it looks like 
 using the reset pin... which isn't always exposed on the breakout boards
 */
 
+uint16_t sleepTime = 30000;//10s
+
+//60,000ms = 1min
+const unsigned long long deepSleepTime = 120000;//120s
+
 void leaveSleepMode(){
   lastTime = millis();
 }
 void enterSleepMode(){
   display.clearDisplay();
+  display.display();
   controls.clearButtons();
   controls.turnOffLEDs();
   while(true){
@@ -50,7 +56,6 @@ void enterSleepMode(){
 #else
 void leaveDeepSleepMode(){
   rp2040.resumeOtherCore();
-  sequence.updateLEDs();
 }
 void enterDeepSleepMode(){
   //turn off power consuming things
@@ -379,5 +384,4 @@ void screenSaverCheck(){
       enterSleepMode();
     }
   }
-  sequence.updateLEDs();
 }

@@ -178,7 +178,7 @@ void Progression::commit(){
   uint8_t trackOffset = sequence.trackData.size();
   //make a new track for each unique pitch
   for(uint8_t i = 0; i<uniquePitches.size(); i++){
-    addTrack_noMove(Track(uniquePitches[i],1), false);
+    addTrack(Track(uniquePitches[i],1), false);
   }
   // //Serial.println("made it here 2");
   // //Serial.println("created "+String(uniquePitches.size())+" new tracks");

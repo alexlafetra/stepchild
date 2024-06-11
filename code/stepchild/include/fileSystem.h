@@ -116,7 +116,13 @@ void writeSeqFile(String filename){
   LittleFS.begin();
   String path = "/SAVES/"+filename;
   File seqFile = LittleFS.open(path,"w");
+  if(!seqFile)
+    return;
+  uint8_t count = 0;
   for(FileFormatCode data:sequenceFileHeader){
+    Serial.println(count);
+    Serial.flush();
+    count++;
     switch(data){
       case SEQ_DATA:{
         uint8_t start[2] = {0,0};
@@ -220,6 +226,8 @@ void writeSeqFile(String filename){
     }
   }
   LittleFS.end();
+  Serial.println("Done!");
+  Serial.flush();
 }
 
 void writeCurrentSeqToSerial(bool waitForResponse){
@@ -366,7 +374,6 @@ void exportSeqFileToSerial(String filename){
   //now you're ready to send ya data!
   String path = "/SAVES/"+filename;
   File seqFile = LittleFS.open(path,"r");
-
   //if the file exists, read it!
   if(seqFile){
     for(FileFormatCode data:sequenceFileHeader){
@@ -506,7 +513,10 @@ void loadSeqFile(String filename){
   LittleFS.begin();
   String path = "/SAVES/"+filename;
   File seqFile = LittleFS.open(path,"r");
+  uint8_t count = 0;
   if(seqFile){
+    Serial.println(count);
+    count++;
     //replacing sequence with empty data
     sequence.erase();
     for(FileFormatCode data:sequenceFileHeader){
@@ -648,7 +658,6 @@ void loadSeqFile(String filename){
     }
     seqFile.close();
     LittleFS.end();
-    sequence.updateLEDs();
     setActiveTrack(0,false);
   }
   else{

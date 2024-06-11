@@ -72,7 +72,6 @@ void setup() {
   core0ready = true;
   lastTime = millis();
   bootscreen_2();
-  sequence.updateLEDs();
   // maxCurrentDrawTest();
 }
 
@@ -85,14 +84,9 @@ void setup1() {
 }
 
 void loop() {
-  controls.readJoystick();
-  controls.readButtons();
-  mainSequencerButtons();
-  stepButtons();
-  mainSequencerEncoders();
-  defaultJoystickControls(true);
-  displaySeq();
+  mainSequence();
   screenSaverCheck();
+  Serial.println("Hey!");
 }
 
 //this cpu handles time-sensitive things
