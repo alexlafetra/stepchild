@@ -18,17 +18,23 @@ Ahhh don't look at me i'm a work in progress!
 ![GitHub Release](https://img.shields.io/github/v/release/alexlafetra/stepchild) [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa] [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
   
-**Welcome to the github page for the Stepchild MIDI instrument project.** The Stepchild is an open source, generative MIDI instrument designed to be a portable sequencer and experimental songwriting tool. It can be purchased as either a [kit]() or [complete instrument]() from the Stepchild site, or you can [build your own]() by following the build guide. The casing can be printed using an SLA or FDM 3D printer, but the PCB's are designed to be partially assembled by a PCBA manufacturer.
+**Welcome to the github page for the Stepchild MIDI instrument project,** an open source, generative MIDI instrument designed to be a portable step-sequencer and experimental songwriting tool built around the Pi Pico and a love for drum sequencing.
 
 ![Render of The Stepchild](readme/opaque.png)
 
+The Stepchild contains a flexible step-sequencer, CC automation and envelope data, experimental realtime MIDI instruments (you can also [make your own]()), a sequence editor including note FX, an onboard filesystem for sharing sequences, an arpeggiator, a live MIDI looper, CV output (natively +3.3V, eurorack power supply required for +12V), a Program Change sequencer, a MIDI console for debugging MIDI setups, and flexible port routing for using the Stepchild as a MIDI interface. The Stepchild has **4 MIDI outputs** and **1 MIDI input**, each of which is accessible through a TRS and classic DIN jack for max compatibility, and one input/output port via **USB MIDI**.
+
 ## Open Source
-The Stepchild is an **open source project** which means you can contribute to, remix, create your own version of, and copy the hardware & software designs that are a part of the project, with some restrictions. The Stepchild's physical design is released under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa], which is a **non-commercial** license, but get in touch if you'd like to talk about selling your own version of the Stepchild! The software is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html).
+The Stepchild is an **open source project** which means you can contribute to, remix, create your own version of, and copy the hardware & software designs that are a part of the project, with some restrictions. The Stepchild's physical design is released under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa], which is a **non-commercial** license, but get in touch with the project if you'd like to talk about selling your own version of the Stepchild or something Stephild related! The Stepchild's software is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html) and can be found in the [code](code/stepchild) folder.
 <!-- 
 [cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
 [![CC BY-NC-SA 4.0][cc-by-nc-sa-image]][cc-by-nc-sa] -->
 ![CC Attribution](readme/attribution_graphic_black.svg#gh-light-mode-only)
 ![CC Attribution](readme/attribution_graphic_white.svg#gh-dark-mode-only)
+
+
+### Having a Child
+The Stepchild can be purchased as either a [complete instrument]() or several [kits]() from the Stepchild site, or you can build your own from scratch by following the [build guide]. The Stepchild kit is designed to be relatively easy to assemble and modify and comes with partially preassembled PCBs -- making your own Stepchild is encouraged! The purpose of kits is to make it cheaper and easier for those who wants to DIY their Stepchildren.
 
 
 # Project Overview

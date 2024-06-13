@@ -10,7 +10,7 @@
 		FA01CE662AC2F93D005BBB0F /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE652AC2F93D005BBB0F /* CoreAudio.framework */; };
 		FA01CE682AC2F94C005BBB0F /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE672AC2F94C005BBB0F /* CoreMIDI.framework */; };
 		FA01CE6A2AC2F955005BBB0F /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */; };
-		FA0A413E2AD5252500013622 /* HeadlessFileSystem.h in Sources */ = {isa = PBXBuildFile; fileRef = FA0A413D2AD5252500013622 /* HeadlessFileSystem.h */; };
+		FA0A413E2AD5252500013622 /* headlessFileSystem.h in Sources */ = {isa = PBXBuildFile; fileRef = FA0A413D2AD5252500013622 /* headlessFileSystem.h */; };
 		FA2FA85D2BD75B8100A3F5C8 /* libglfw.3.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA2FA85C2BD75B8100A3F5C8 /* libglfw.3.4.dylib */; };
 		FA2FA85E2BD75B8200A3F5C8 /* libglfw.3.4.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = FA2FA85C2BD75B8100A3F5C8 /* libglfw.3.4.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		FA3C22AE2AD4E00A004634E6 /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA3C21932AD4E009004634E6 /* RtMidi.cpp */; };
@@ -46,8 +46,8 @@
 		FA01CE652AC2F93D005BBB0F /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		FA01CE672AC2F94C005BBB0F /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
-		FA01CE702AC35CBB005BBB0F /* HeadlessMIDI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HeadlessMIDI.h; sourceTree = "<group>"; };
-		FA0A413D2AD5252500013622 /* HeadlessFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HeadlessFileSystem.h; sourceTree = "<group>"; };
+		FA01CE702AC35CBB005BBB0F /* headlessMIDI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = headlessMIDI.h; sourceTree = "<group>"; };
+		FA0A413D2AD5252500013622 /* headlessFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headlessFileSystem.h; sourceTree = "<group>"; };
 		FA2FA85B2BD75A4E00A3F5C8 /* stepchild */ = {isa = PBXFileReference; lastKnownFileType = folder; name = stepchild; path = ../stepchild; sourceTree = "<group>"; };
 		FA2FA85C2BD75B8100A3F5C8 /* libglfw.3.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.4.dylib; path = ../../../../../../../usr/local/Cellar/glfw/3.4/lib/libglfw.3.4.dylib; sourceTree = "<group>"; };
 		FA3C21892AD4DBB8004634E6 /* RtMidi.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = "childOS_headless/rtmidi-6.0.0/RtMidi.cpp"; sourceTree = "<group>"; };
@@ -281,7 +281,6 @@
 		FA3C22AA2AD4E00A004634E6 /* Makefile.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.in; sourceTree = "<group>"; };
 		FA3C22AB2AD4E00A004634E6 /* aclocal.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = aclocal.m4; sourceTree = "<group>"; };
 		FA3C22AC2AD4E00A004634E6 /* autogen.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = autogen.sh; sourceTree = "<group>"; };
-		FA7028352BF17EE6009065F4 /* headlessLowerBoard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headlessLowerBoard.h; sourceTree = "<group>"; };
 		FA7578F32996CC0A00378FA9 /* GL */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GL; path = ../../../../../../usr/local/include/GL; sourceTree = "<group>"; };
 		FA7578F72996CF8500378FA9 /* libglfw.3.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.3.dylib; path = ../../../../../../usr/local/Cellar/glfw/3.3.8/lib/libglfw.3.3.dylib; sourceTree = "<group>"; };
 		FA7578F92996F34000378FA9 /* bitmap */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bitmap; sourceTree = "<group>"; };
@@ -291,7 +290,8 @@
 		FAA06B0729942479004BEC01 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		FAA06B0B29943B71004BEC01 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fonts; sourceTree = "<group>"; };
 		FAA06B0D29943BC6004BEC01 /* main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = main.cpp; sourceTree = "<group>"; };
-		FAB6ECBA2AB2340500A32AD2 /* HeadlessDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HeadlessDisplay.h; sourceTree = "<group>"; };
+		FAB6ECBA2AB2340500A32AD2 /* headlessDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = headlessDisplay.h; sourceTree = "<group>"; };
+		FAC12CDF2C1A06E20099C357 /* headlessControls.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headlessControls.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1005,10 +1005,10 @@
 			children = (
 				FAA06B0B29943B71004BEC01 /* Fonts */,
 				FAA06AFD29942167004BEC01 /* headless.h */,
-				FA7028352BF17EE6009065F4 /* headlessLowerBoard.h */,
-				FA0A413D2AD5252500013622 /* HeadlessFileSystem.h */,
-				FA01CE702AC35CBB005BBB0F /* HeadlessMIDI.h */,
-				FAB6ECBA2AB2340500A32AD2 /* HeadlessDisplay.h */,
+				FAC12CDF2C1A06E20099C357 /* headlessControls.h */,
+				FA0A413D2AD5252500013622 /* headlessFileSystem.h */,
+				FA01CE702AC35CBB005BBB0F /* headlessMIDI.h */,
+				FAB6ECBA2AB2340500A32AD2 /* headlessDisplay.h */,
 				FA7578F92996F34000378FA9 /* bitmap */,
 				FAA06B0D29943BC6004BEC01 /* main.cpp */,
 			);
@@ -1101,7 +1101,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA3C22AE2AD4E00A004634E6 /* RtMidi.cpp in Sources */,
-				FA0A413E2AD5252500013622 /* HeadlessFileSystem.h in Sources */,
+				FA0A413E2AD5252500013622 /* headlessFileSystem.h in Sources */,
 				FAA06B0E29943BC7004BEC01 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

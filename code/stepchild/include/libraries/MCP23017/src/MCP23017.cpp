@@ -112,7 +112,6 @@ uint16_t MCP23017::read()
 {
 	uint8_t a = readPort(MCP23017Port::A);
 	uint8_t b = readPort(MCP23017Port::B);
-
 	return a | b << 8;
 }
 

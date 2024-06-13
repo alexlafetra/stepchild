@@ -97,6 +97,9 @@ class LowerBoard{
     whereas readButtons() only returns CHANGED buttons
   */
   uint16_t readButtons(){
+    return ~this->Buttons.read();
+  }
+  uint16_t readChangedButtons(){
     //inverted bc of pullup resitors! Button pins read LOW when switches (buttons) are closed (pressed)
     uint16_t newState = ~this->Buttons.read();
     //0 for buttons that haven't changed, 1 for buttons that have
@@ -261,9 +264,12 @@ class StepchildHardwareInput{
   void readStepButtons(){
     //only read it if the LB is active!
     if(LEDsOn)
-      this->stepButtonState = this->lowerBoard.readButtons();
+      this->stepButtonState = this->lowerBoard.readChangedButtons();
     else
       this->stepButtonState = 0;
+  }
+  void readStepButtonState(){
+    this->stepButtonState = this->lowerBoard.readButtons();
   }
   void readEncoderButtons(){
     this->encoderButtons = (0|(digitalRead(A_BUTTON)<<1|digitalRead(B_BUTTON)));
@@ -410,7 +416,7 @@ class StepchildHardwareInput{
 
   bool anyActiveInputs(){
     this->readButtons();
-    this->readStepButtons();
+    this->readStepButtonState();
     this->readJoystick();
     return (this->mainButtons || this->encoderButtons || this->joystickX || this->joystickY || this->stepButtonState);
   }

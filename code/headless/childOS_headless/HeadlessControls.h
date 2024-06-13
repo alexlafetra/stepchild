@@ -49,6 +49,19 @@ class DummyLowerBoard{
         leds[i] = (status>>i)&1;
       }
     }
+    void setLED(uint8_t which, bool newState){
+        uint16_t state = 0;
+        for(uint8_t i = 0; i<16; i++){
+            if(leds[i]){
+                state |= 1<<i;
+            }
+        }
+      if(newState)
+        state |= (1<<which);
+      else
+        state &= ~(1<<which);
+      this->writeLEDs(state);
+    }
     void initialize(){}
 };
 
@@ -235,6 +248,9 @@ class HeadlessHardwareInput{
     uint16_t state = 1<<which;
     this->writeLEDs(state);
   }
+    void setLED(uint8_t which, bool state){
+      this->lowerBoard.setLED(which,state);
+    }
 };
 
 HeadlessHardwareInput controls;

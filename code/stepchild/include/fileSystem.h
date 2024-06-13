@@ -1,5 +1,13 @@
+/*
+  Sequence files are very simple! They are stored as:
+  byte listing how many sections there are ("N")
+  "N" bytes for each section, listing the order of each section
+*/
+
+
+
 //Enum to organize the header of each file
-enum FileFormatCode{
+enum FileFormatCode:uint8_t {
   BLANK,//filler
   //Saving
   SEQ_DATA,
@@ -42,6 +50,31 @@ const FileFormatCode settingsFileHeader[] = {
 
 #ifndef HEADLESS
 
+void writeFileHeader(File& f){
+  f.write(sizeof(sequenceFileHeader));//number of sections in the file
+  //converting FileFormatCode into uint8_t, this is dumb
+  uint8_t temp[sizeof(sequenceFileHeader)];
+  for(uint8_t i = 0; i<sizeof(sequenceFileHeader); i++){
+    temp[i] = sequenceFileHeader[i];
+  }
+  f.write(temp,sizeof(temp));
+}
+
+void writeCurrentFileFormatToSerial(){
+  Serial.write(sizeof(sequenceFileHeader));
+  Serial.write((const uint8_t*)sequenceFileHeader,sizeof(sequenceFileHeader));
+}
+
+//lmfao
+void writeFileFormatFromFileToSerial(File& f){
+  uint8_t formatSize[1];
+  f.read(formatSize,1);
+  FileFormatCode fileHeader[formatSize[0]];
+  f.read((uint8_t*)fileHeader,formatSize[0]);
+  Serial.write(formatSize,1);
+  Serial.write((uint8_t*)fileHeader,formatSize[0]);
+}
+
 //sends the number of bytes in the file
 void sendByteCount(String filename){
   uint32_t byteCount = getByteCount(filename);
@@ -50,7 +83,7 @@ void sendByteCount(String filename){
 }
 
 void sendFileName(String filename){
-  //Serial.print('\n'+filename+'\n');
+  Serial.print('\n'+filename+'\n');
 }
 
 //returns Bytes of a file (must be called within LittleFS)
@@ -58,8 +91,11 @@ uint32_t getByteCount(String filename){
   uint32_t byteCount = 0;
   String path = "/SAVES/"+filename;
   File seqFile = LittleFS.open(path,"r");
-  if(seqFile)
-    return seqFile.size();
+  if(seqFile){
+    uint32_t s = seqFile.size();
+    seqFile.close();
+    return s;
+  }
   else
     return 0;
 }
@@ -71,46 +107,6 @@ uint32_t getByteCount_standAlone(String filename){
   return byteCount;
 }
 
-//flash mem
-void flashTest(){
-  char totalNotes;
-  for(int i = 0; i<sequence.trackData.size(); i++){
-    totalNotes += sequence.noteData[i].size()-1;
-  }
-
-  LittleFS.begin();
-
-  //reading
-  unsigned char buff[32];
-  File saveFile = LittleFS.open("test.txt","r");
-  if(saveFile){
-    Serial.println("Reading:");
-    saveFile.read(buff, 31);
-    for(int i = 0; i<32; i++){
-      Serial.println(buff[i]);
-    }
-  }
-  else
-    Serial.println("couldn't open save :/");
-  saveFile.close();
-
-  //writing
-  if(LittleFS.exists("test.txt")){
-    //Serial.println("attempting...");
-    File file2 = LittleFS.open("test.txt","w");
-    if(file2){
-      //Serial.println("Writing...");
-      for(int i = 0; i<32; i++){
-        buff[i] = millis();
-      }
-      file2.write(buff,32);
-      file2.close();
-    }
-  }
-  //Serial.println("ending...");
-  LittleFS.end();
-}
-
 //Reads through the fileFormat array and writes data according to the format order!
 void writeSeqFile(String filename){
   LittleFS.begin();
@@ -118,12 +114,9 @@ void writeSeqFile(String filename){
   File seqFile = LittleFS.open(path,"w");
   if(!seqFile)
     return;
-  uint8_t count = 0;
-  for(FileFormatCode data:sequenceFileHeader){
-    Serial.println(count);
-    Serial.flush();
-    count++;
-    switch(data){
+  writeFileHeader(seqFile);
+  for(FileFormatCode code:sequenceFileHeader){
+    switch(code){
       case SEQ_DATA:{
         uint8_t start[2] = {0,0};
         uint8_t end[2] = {uint8_t(sequence.sequenceLength>>8),uint8_t(sequence.sequenceLength)};
@@ -233,6 +226,7 @@ void writeSeqFile(String filename){
 void writeCurrentSeqToSerial(bool waitForResponse){
   //clearing serial buffer
   Serial.flush();
+  writeCurrentFileFormatToSerial();
   for(FileFormatCode data:sequenceFileHeader){
     switch(data){
       case SEQ_DATA:{
@@ -376,6 +370,7 @@ void exportSeqFileToSerial(String filename){
   File seqFile = LittleFS.open(path,"r");
   //if the file exists, read it!
   if(seqFile){
+    writeFileFormatFromFileToSerial(seqFile);
     for(FileFormatCode data:sequenceFileHeader){
       switch(data){
         case SEQ_DATA:{
@@ -513,13 +508,14 @@ void loadSeqFile(String filename){
   LittleFS.begin();
   String path = "/SAVES/"+filename;
   File seqFile = LittleFS.open(path,"r");
-  uint8_t count = 0;
   if(seqFile){
-    Serial.println(count);
-    count++;
+    uint8_t headerSectionCount[1];
+    seqFile.read(headerSectionCount,1);
+    FileFormatCode fileFormat[headerSectionCount[0]];
+    seqFile.read((uint8_t*)fileFormat,sizeof(fileFormat));
     //replacing sequence with empty data
     sequence.erase();
-    for(FileFormatCode data:sequenceFileHeader){
+    for(FileFormatCode data:fileFormat){
       switch(data){
         case SEQ_DATA:{
           //start, end
@@ -661,8 +657,7 @@ void loadSeqFile(String filename){
     setActiveTrack(0,false);
   }
   else{
-    //Serial.println("failed! weird.");
-    alert("File not Found!",400);
+    alert("Error opening file!",1000);
   }
 }
 

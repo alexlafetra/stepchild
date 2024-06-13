@@ -35,7 +35,7 @@ void fileAnimation(bool in){
 }
 
 vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames);
-bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String> filenames);
+bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String>& filenames);
 
 void quickSave(){
   //if it hasn't been saved yet
@@ -156,7 +156,7 @@ vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
   return filenames;
 }
 
-bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String> filenames){
+bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String>& filenames){
   if(utils.itsbeen(100)){
     if(controls.joystickY == -1 && activeMenu.highlight>0){
         activeMenu.highlight--;
@@ -266,7 +266,8 @@ void fileMenu(){
   folder.yPos = screenHeight/2;
   vector<String> filenames = loadFiles();
   fileMenuAnimation(false,menuStart,menuEnd,filenames,true);
-  while(true){
+  bool done = false;
+  while(!done){
     display.clearDisplay();
     //draw menu
     activeMenu.displayFileMenu(0,false,menuStart,menuEnd,filenames);
@@ -281,16 +282,10 @@ void fileMenu(){
     controls.readJoystick();
     if(activeMenu.page == 0){
       if(!fileMenuControls(menuStart,menuEnd,&folder,filenames)){
-        fileMenuAnimation(false,menuStart,menuEnd,filenames,false);
-        Serial.println("now jumping out of file menu");
-        Serial.flush();
-        controls.clearButtons();
-        Serial.println("Now constructing main menu");
-        Serial.flush();
+        // fileMenuAnimation(false,menuStart,menuEnd,filenames,false);
         constructMenu(MAIN_MENU,9);
-        Serial.println("done constructing main menu");
-        Serial.flush();
-        return;
+        // return;
+        done = true;
       }
         //menu data shit
       if(activeMenu.highlight>menuEnd){

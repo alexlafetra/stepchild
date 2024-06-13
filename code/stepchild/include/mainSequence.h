@@ -233,7 +233,6 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
       height = startHeight+trackHeight*sequence.trackData.size();
 
     //drawing measure bars, loop points
-    // drawSeqBackground(start, end, startHeight, height, shadeOutsideLoop, loopFlags, loopPoints);
     drawSeqBackground(start, end, startHeight, height, shadeOutsideLoop, sequence.isLooping, loopPoints);
 
     //top and bottom bounds
@@ -255,13 +254,11 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
       //track info display
       if(sequence.activeTrack == track){
         xCoord = 9;
-        // display.setCursor(9, y1+trackHeight/2-2);
         if(trackLabels)
           graphics.drawArrow(6+((millis()/400)%2),y1+trackHeight/2+1,2,0,true);
       }
       else{
         xCoord = 5;
-        // display.setCursor(5, y1+trackHeight/2-2);
       }
       if(trackLabels){
         if(!isShrunk){
@@ -417,12 +414,12 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
 void yControls(){
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1) {
-      setActiveTrack(sequence.activeTrack + 1, false);
+      setActiveTrack(sequence.activeTrack + 1, !playing);
       drawingNote = false;
       lastTime = millis();
     }
     if (controls.joystickY == -1) {
-      setActiveTrack(sequence.activeTrack - 1, false);
+      setActiveTrack(sequence.activeTrack - 1, !playing);
       drawingNote = false;
       lastTime = millis();
     }
@@ -480,18 +477,12 @@ void defaultJoystickControls(bool velocityEditingAllowed){
   }
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1 && !controls.SHIFT() && !controls.LOOP()) {
-      if(recording)//if you're not in normal mode, you don't want it to be loud
-        setActiveTrack(sequence.activeTrack + 1, false);
-      else
-        setActiveTrack(sequence.activeTrack + 1, false);
+      setActiveTrack(sequence.activeTrack + 1, !playing  && !recording);
       drawingNote = false;
       lastTime = millis();
     }
     if (controls.joystickY == -1 && !controls.SHIFT() && !controls.LOOP()) {
-      if(recording)//if you're not in normal mode, you don't want it to be loud
-        setActiveTrack(sequence.activeTrack - 1, false);
-      else
-        setActiveTrack(sequence.activeTrack - 1, false);
+      setActiveTrack(sequence.activeTrack - 1, !playing  && !recording);
       drawingNote = false;
       lastTime = millis();
     }
@@ -729,10 +720,10 @@ void stepButtons(){
   //DJ loop selector
   if(controls.SHIFT()){
     if(controls.stepButton(15) && sequence.activeTrack){
-      setActiveTrack(sequence.activeTrack-1,false);
+      setActiveTrack(sequence.activeTrack-1,!playing  && !recording);
     }
     else if(controls.stepButton(14)){
-      setActiveTrack(sequence.activeTrack+1,false);
+      setActiveTrack(sequence.activeTrack+1,!playing  && !recording);
     }
   }
   else{

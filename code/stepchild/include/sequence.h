@@ -88,9 +88,6 @@ class StepchildSequence{
     bool isQuarterGrid(){
         return !(this->subDivision%3);
     }
-    bool isTripletGrid(){
-        return !(this->subDivision%2);
-    }
     //swaps all the data vars in the sequence for new, blank data
     void erase(){
         this->selectionCount = 0;
@@ -630,7 +627,8 @@ class StepchildSequence{
         if(LEDsOn && !screenSaverActive){
             uint16_t viewLength = this->viewEnd-this->viewStart;
             //move through the view, check every this->subDivision
-            const uint16_t jump = (viewLength/16);
+            const uint16_t jump = this->isQuarterGrid()?(viewLength/16):(viewLength/12);
+            // const uint16_t jump = viewLength/16;
             //if there are any notes, check
             if(this->noteData[this->activeTrack].size()>1){
                 for(uint8_t i = 0; i<16; i++){

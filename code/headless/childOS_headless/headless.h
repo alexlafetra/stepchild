@@ -80,8 +80,8 @@ bool core0ready;
 bool playing = false;
 bool recording = false;
 
-#include "HeadlessMIDI.h"
-#include "HeadlessFileSystem.h"
+#include "headlessMIDI.h"
+#include "headlessFileSystem.h"
 
 //emulating micros and millis
 auto progStartTime = chrono::high_resolution_clock::now();
@@ -263,7 +263,7 @@ DummySerial Serial;
 
 void bootscreen();
 
-#include "HeadlessDisplay.h"
+#include "headlessDisplay.h"
 
 //emulating delay
 void delay(unsigned int time){

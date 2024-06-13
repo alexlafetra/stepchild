@@ -24,7 +24,7 @@ using the reset pin... which isn't always exposed on the breakout boards
 uint16_t sleepTime = 30000;//10s
 
 //60,000ms = 1min
-const unsigned long long deepSleepTime = 120000;//120s
+const unsigned long long deepSleepTime = 600000;//120s
 
 void leaveSleepMode(){
   lastTime = millis();
