@@ -1,6 +1,46 @@
+#define DEBUG_MENU 0
+#define MAIN_MENU 1
+#define CLOCK_MENU 2
+#define SETTINGS_MENU 3
+#define SEQUENCE_MENU 4
+#define LOOP_MENU 5
+#define MIDI_MENU 6
+#define FRAGMENT_MENU 7
+#define CURVE_MENU 8
+#define ARP_MENU 9
+#define FX_MENU 10
+#define EDIT_MENU 11
+#define TRACK_MENU 12
+#define QUANTIZE_MENU 13
+#define HUMANIZE_MENU 14
+#define SAVE_MENU 15
+#define FILE_MENU 16
+#define REC_MENU 17
+
+#define CURVE 8
+#define FRAGMENT 7
+#define SAVE 15
+#define FILES 16
+#define REC 17
+#define ARP 9
+#define FX 10
+#define EDIT 11
+#define TRK 12
+#define QZ 13
+#define HUMANIZE 14
+
 //Menu object
 class Menu{
   public:
+    enum MenuID:uint8_t{
+      DEBUG,
+      MAIN,
+      CLOCK,
+      SETTINGS
+    };
+
+    //menu ID
+    MenuID id;
     //String for storing the menu title
     String menuTitle;
 
@@ -95,39 +135,7 @@ void Menu::displayMenu(){
   displayMenu(true,true,false);
 }
 
-#define DEBUG_MENU 0
-#define MAIN_MENU 1
-#define CLOCK_MENU 2
-#define SETTINGS_MENU 3
-#define SEQUENCE_MENU 4
-#define LOOP_MENU 5
-#define MIDI_MENU 6
-#define FRAGMENT_MENU 7
-#define CURVE_MENU 8
-#define ARP_MENU 9
-#define FX_MENU 10
-#define EDIT_MENU 11
-#define TRACK_MENU 12
-#define QUANTIZE_MENU 13
-#define HUMANIZE_MENU 14
-#define SAVE_MENU 15
-#define FILE_MENU 16
-#define REC_MENU 17
-
-#define CURVE 8
-#define FRAGMENT 7
-#define SAVE 15
-#define FILES 16
-#define REC 17
-#define ARP 9
-#define FX 10
-#define EDIT 11
-#define TRK 12
-#define QZ 13
-#define HUMANIZE 14
-
 void constructMenu(uint8_t id,uint8_t highlight){
-  // controls.resetEncoders();
   switch(id){
     case(MAIN_MENU):
     {
