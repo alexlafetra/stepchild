@@ -129,8 +129,8 @@ void MCP23017::writeRegister(MCP23017Register reg, uint8_t value)
 	*/
 	unsigned char error = _bus->endTransmission();
 	if(error){
-        Serial.print("Something went wrong while talking to MCP23017! Code ");
-        Serial.println(error);
+        // Serial.print("Something went wrong while talking to MCP23017! Code ");
+        // Serial.println(error);
 	}
 }
 
@@ -148,8 +148,8 @@ void MCP23017::writeRegister(MCP23017Register reg, uint8_t portA, uint8_t portB)
 		= 5 ==> timeout
 	*/	unsigned char error = _bus->endTransmission();
 	if(error){
-        Serial.print("Something went wrong while talking to MCP23017! Code ");
-        Serial.println(error);
+        // Serial.print("Something went wrong while talking to MCP23017! Code ");
+        // Serial.println(error);
 	}
 }
 

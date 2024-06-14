@@ -1,8 +1,3 @@
-//library changes:
-//- added customo graphic to SSD1306 driver
-//- switched out the adafruit GFX library for the pico optimized one
-//- turned off Sysex in the MIDI library
-
 #ifndef HEADLESS
 #include <vector>
 #include <algorithm>
@@ -11,24 +6,6 @@
 #include <MIDI.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
-
-//Adafruit GFX library
-//there's a pico optimized version here, but it's unclear what's optimized in it/if it matters for the SSD1306: https://github.com/Bodmer/Adafruit-GFX-Library
-#include <Adafruit_GFX.h>
-
-//grab the display libraries
-#ifdef CAPTURECARD
-#include <SPI.h>
-#include "libraries/Adafruit_SSD1306_CaptureCard/Adafruit_SSD1306_CaptureCard.h"
-#else
-#include <Adafruit_SSD1306.h>
-#endif
-
-//for a nice font
-#include <Fonts/FreeSerifItalic9pt7b.h>
-//you only use a few glyphs from these, you don't need to include the whole thing
-#include <Fonts/FreeSerifItalic12pt7b.h>
-#include <Fonts/FreeSerifItalic24pt7b.h>
 
 //for flash storage
 #include <LittleFS.h> // LittleFS is declared
@@ -41,25 +18,12 @@ extern "C" {
 #include "pico/bootrom.h"
 }
 
-//setting up screen
-#define SCREEN_ADDR 0x3c //initialize with the I2C addr 0x3C Typically eBay OLED's
-// #define SCREEN_ADDR 0x3D
-
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
-#define OLED_RESET -1   // No reset pin!
-
-#undef SSD1306_NO_SPLASH
-#define SSD1306_NO_SPLASH 1
-
 #undef CFG_TUH_RPI_PIO_USB
 #define CFG_TUH_RPI_PIO_USB 1
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-#define DISPLAY_UPRIGHT 2
-#define DISPLAY_UPSIDEDOWN 0
-#define DISPLAY_SIDEWAYS_R 3
-#define DISPLAY_SIDEWAYS_L 1
+// #define CAPTURECARD
+
+#include "display.h"
 
 //Don't include this if you're in headless mode
 //Headless has it's own midi.h
@@ -117,6 +81,7 @@ struct PolarVertex2D;
 struct NoteTrackPair;
 struct EchoData;
 struct RandomData;
+
 //Stores loop data as start,end,reps,and type
 struct Loop{
   //The start of the Loop (in steps)
@@ -159,8 +124,6 @@ struct GlobalModifiers{
 
 GlobalModifiers globalModifiers;
 
-
-//Data variables -------------------------------------------
 uint16_t animOffset = 0;//for animating curves
 
 #include "bitmaps.h"            //bitmaps for graphics
@@ -179,7 +142,6 @@ uint16_t animOffset = 0;//for animating curves
 #include "classes/Knob.h"
 #include "sequence.h"
 #include "classes/AutoTrack.h"
-
 
 //original ChildOS fonts
 #include "fonts/7_segment.cpp"
@@ -222,7 +184,7 @@ void rotaryActionB_Handler(){
 #include "programChange.h"
 
 //including custom users apps
-#include "user/userApplications.h"
+#include "applications/userApplications.h"
 
 //FX Apps
 #include "fx/randomMenu.cpp"
@@ -234,15 +196,15 @@ void rotaryActionB_Handler(){
 #include "fx/echo.cpp"
 
 //Instrument apps
-#include "instruments/rattle.cpp"
-#include "instruments/chordDJ.cpp"
-#include "instruments/chordBuilder.cpp"
-#include "instruments/planets.cpp"
-#include "instruments/rain.cpp"
-#include "instruments/liveLoop.cpp"
-#include "instruments/knobs.cpp"
-#include "instruments/drumPads.cpp"
-#include "instruments/xy.cpp"
+#include "applications/rattle.cpp"
+#include "applications/chordDJ.cpp"
+#include "applications/chordBuilder.cpp"
+#include "applications/planets.cpp"
+#include "applications/rain.cpp"
+#include "applications/liveLoop.cpp"
+#include "applications/knobs.cpp"
+#include "applications/drumPads.cpp"
+#include "applications/xy.cpp"
 
 #include "applications.h"
 

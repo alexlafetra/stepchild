@@ -3,7 +3,6 @@
 //will overclock at 250MH!!
 
 //uncomment this/define elsewhere to use the capturecard version of the display library
-// #define CAPTURECARD
 
 //multicore tinyUSB issue: https://github.com/hathach/tinyusb/discussions/1435
 //Possible fix? https://github.com/adafruit/Adafruit_TinyUSB_Arduino/issues/238
@@ -86,7 +85,6 @@ void setup1() {
 void loop() {
   mainSequence();
   screenSaverCheck();
-  Serial.println("Hey!");
 }
 
 //this cpu handles time-sensitive things

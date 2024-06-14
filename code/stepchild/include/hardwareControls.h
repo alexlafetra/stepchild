@@ -81,7 +81,7 @@ https://forum.arduino.cc/t/how-to-read-a-register-value-using-the-wire-library/2
 #ifdef HEADLESS
 #include "../../headless/childOS_headless/HeadlessControls.h"
 #else
-#include "libraries/MCP23017/src/MCP23017.cpp"
+#include <MCP23017.h>
 class LowerBoard{
   public:
   MCP23017 LEDs = MCP23017(MCP23017_LED_ADDR,Wire);
@@ -169,21 +169,6 @@ class LowerBoard{
 
     this->Buttons.writeRegister(MCP23017Register::GPIO_A,0b11111111);
     this->Buttons.writeRegister(MCP23017Register::GPIO_B,0b11111111);
-  }
-  void test(){
-    uint16_t theLastWrite = millis();
-    while(true){
-      // uint16_t state = this->readButtons();
-      uint16_t state = this->Buttons.read();
-      this->writeLEDs(~state);
-      if((millis()-theLastWrite) > 1000){
-        Serial.println(state,BIN);
-        theLastWrite = millis();
-      }
-      display.clearDisplay();
-      printSmall(0,0,String(state),1);
-      display.display();
-    }
   }
 };
 

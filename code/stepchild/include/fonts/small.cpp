@@ -275,7 +275,6 @@ const unsigned char epd_bitmap_play [] = {
 	0x80, 0xc0, 0xe0, 0xc0, 0x80
 };
 
-
 // Array of all bitmaps for convenience. (Total bytes used to store images in  = 1312)
 const unsigned char* small_font[69] = {
 	epd_bitmap_small_a,
@@ -383,10 +382,10 @@ void printSmall_centered(int x, int y, String t, uint16_t c){
   x -= t.length()*2+countChar(t,' ');
   printSmall(x,y,t,c);
 }
+
 void printSmall(int x, int y, char text, uint16_t c){
   switch(text){
     case ' ':
-      x-=2;
       return;
     case 'A':
       display.drawBitmap(x,y,small_font[0],3,5,c);
@@ -657,10 +656,6 @@ void printSmall(int x, int y, char text, uint16_t c){
     case '|':
       display.drawBitmap(x,y,small_font[62],3,5,c);
       break;
-    // case '~':
-    //   display.drawBitmap(x,y-2,small_font[63],7,7,c);
-    //   x+=4;
-    //   break;
     //double quotes
     case '\"':
       display.drawBitmap(x,y,small_font[64],3,5,c);
@@ -692,6 +687,10 @@ void printSmall(int x, int y, String text, uint16_t c){
       case ' ':
         x-=2;
         continue;
+      //newline
+      case '\\':
+        y+=7;
+        break;
       case 'A':
         display.drawBitmap(x+4*letter,y,small_font[0],3,5,c);
         break;
@@ -937,10 +936,6 @@ void printSmall(int x, int y, String text, uint16_t c){
       case '-':
         display.drawBitmap(x+4*letter,y,small_font[55],3,5,c);
         break;
-      //newline
-      case '\\':
-        y+=7;
-        break;
       //phi
       case '@':
         display.drawBitmap(x+4*letter,y,small_font[56],3,5,c);
@@ -964,11 +959,6 @@ void printSmall(int x, int y, String text, uint16_t c){
       case '|':
         display.drawBitmap(x+4*letter,y,small_font[62],3,5,c);
         break;
-      //controls.DELETE()ta
-      // case '~':
-      //   display.drawBitmap(x,y-2,small_font[63],7,7,c);
-      //   x+=4;
-        // break;
       //double quotes
       case '\"':
         display.drawBitmap(x+4*letter,y,small_font[64],3,5,c);
