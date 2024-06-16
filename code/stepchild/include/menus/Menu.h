@@ -32,15 +32,6 @@
 //Menu object
 class Menu{
   public:
-    enum MenuID:uint8_t{
-      DEBUG,
-      MAIN,
-      CLOCK,
-      SETTINGS
-    };
-
-    //menu ID
-    MenuID id;
     //String for storing the menu title
     String menuTitle;
 
@@ -62,16 +53,15 @@ class Menu{
     void displayMenu();
     void displayMenu(bool,bool);
     void displayMenu(bool, bool, bool);
-    void displayMainMenu();
-    void displayFileMenu();
-    void displayFileMenu(int16_t, bool, uint8_t, uint8_t,vector<String>);
-    void displayTrackMenu();
-    void displayTrackMenu_trackEdit(uint8_t);
-    void displayEditMenu(uint8_t*, uint8_t, uint8_t);
-    void displayEditMenu();
+    // void displayFileMenu();
+    // void displayFileMenu(int16_t, bool, uint8_t, uint8_t,vector<String>);
+    // void displayTrackMenu();
+    // void displayTrackMenu_trackEdit(uint8_t);
+    // void displayEditMenu(uint8_t*, uint8_t, uint8_t);
+    // void displayEditMenu();
     void displaySettingsMenu(uint8_t,uint8_t,uint8_t,uint8_t);
     void displayRecMenu(uint8_t,uint8_t,uint8_t);
-    void displayFxMenu();
+    // void displayFxMenu();
     void displayHumanizeMenu();
     void displayArpMenu();
     void displayClockMenu(float,uint8_t);
@@ -107,25 +97,8 @@ Menu::Menu(int16_t x1, int16_t y1, int16_t x2, int16_t y2, String title){
   page = 0;
 }
 
-Menu activeMenu;
-
 void Menu::displayMenu(bool bounded, bool underlined, bool separateWindow){
-  if(menuTitle == "CLOCK")
-    activeMenu.displayClockMenu(1,0);
-  else if(menuTitle == "TRK")
-    activeMenu.displayTrackMenu();
-  else if(menuTitle == "EDIT")
-    activeMenu.displayEditMenu();
-  else if(menuTitle == "FX")
-    activeMenu.displayFxMenu();
-  else if(menuTitle == "TRK")
-      activeMenu.displayMenu(true,false,false);
-  else if(menuTitle == "EDIT")
-      activeMenu.displayMenu(false, true, false);
-  else if(menuTitle == "FILES")
-      activeMenu.displayFileMenu();
-  else if(menuTitle == "MENU")
-    activeMenu.displayMainMenu();
+
 }
 
 void Menu::displayMenu(bool bounded, bool underlined){
@@ -135,58 +108,38 @@ void Menu::displayMenu(){
   displayMenu(true,true,false);
 }
 
+Menu activeMenu;
+
 void constructMenu(uint8_t id,uint8_t highlight){
   switch(id){
     case(MAIN_MENU):
     {
-      Menu mainMenu(25,1,93,64,"MENU");
-      mainMenu.highlight = highlight;
-      activeMenu = mainMenu;
-      if(menuIsActive){
-        slideMenuIn(0,30);
-      }
-      return;
+
     }
     case DEBUG_MENU:
     {
       Menu debugMenu(32,4,128,64,"DEBUG");
       debugMenu.highlight = highlight;
-      activeMenu = debugMenu;
-      if(menuIsActive){
-        slideMenuIn(0,30);
-      }
       return;
     }
     //This one needs a slide in animation
     case CLOCK_MENU:
     {
-      Menu clckMenu(0,0,35,64,"CLOCK");
-      clckMenu.highlight = highlight;
-      activeMenu = clckMenu;
-      if(menuIsActive){
-        slideMenuIn(0,20);
-      }
-      clockMenu();
-      return;
     }
     case SETTINGS_MENU:
     {
       Menu settingMenu(0,2,128,64,"SETTINGS");
-      activeMenu = settingMenu;
       settingsMenu();
       return;
     }
     case LOOP_MENU:
     {
       Menu loopMenu(2,4,80,60,"LOOP");
-      activeMenu = loopMenu;
       return;
-      // cassetteAnimation();
     }
     case MIDI_MENU:
     {
       Menu midiMenu(2,4,80,60,"MIDI");
-      activeMenu = midiMenu;
       return;
     }
     case FRAGMENT:
@@ -197,44 +150,23 @@ void constructMenu(uint8_t id,uint8_t highlight){
     case ARP:
     {
       Menu arpMenu(0,0,128,64,"ARP");
-      activeMenu = arpMenu;
       return;
     }
     case FX:
     {
-      Menu efexMenu(25,1,93,64,"FX");
-      activeMenu = efexMenu;
-      if(menuIsActive){
-        slideMenuIn(0,30);
-      }
-      return;
     }
     case EDIT_MENU:
     {
-      Menu editingMenu(trackDisplay-5,0,screenWidth,headerHeight,"EDIT");
-      activeMenu = editingMenu;
-      if(menuIsActive){
-        slideMenuIn(1,48);
-      }
-      editMenu();
-      return;
     }
     case TRACK_MENU:
     {
-      Menu trkMenu(94,0,129,65,"TRK");
-      activeMenu = trkMenu;
-      if(menuIsActive){
-        slideMenuIn(1,10);
-      }
       trackMenu();
-      // slideMenuOut(1,10);
       return;
     }
     case FILES:
     {
       Menu filesMenu(7,3,128,64,"FILES");
-      activeMenu = filesMenu;
-      activeMenu.highlight = 0;
+      filesMenu.highlight = 0;
       // slideMenuIn(1,30);
       fileMenu();
       return;

@@ -703,7 +703,7 @@ void renameSeqFile(String filename){
 }
 
 bool deleteSeqFile(String filename){
-  int  choice = binarySelectionBox(64,32,"NO","YEA",fileMenuDisplayWrapper);
+  int  choice = binarySelectionBox(64,32,"NO","YEA","delete file?");
   if(choice == 1){
     filename = "/SAVES/"+filename;
     LittleFS.begin();
@@ -712,6 +712,24 @@ bool deleteSeqFile(String filename){
     return true;
   }
   return false;
+}
+
+
+void quickSave(){
+  //if it hasn't been saved yet
+  if(currentFile == ""){
+    String fileName = enterText("filename?");
+    if(fileName != "default"){
+      writeSeqFile(fileName);
+      currentFile = fileName;
+      menuText = "saved \'"+currentFile+"\'";
+    }
+  }
+  //if there is a filename for it
+  else{
+    writeSeqFile(currentFile);
+    menuText = "saved \'"+currentFile+"\'";
+  }
 }
 
 void duplicateSeqFile(String filename){

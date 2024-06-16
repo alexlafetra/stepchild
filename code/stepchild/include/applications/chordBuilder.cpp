@@ -226,8 +226,6 @@ void chordBuilder(){
           //commit chord
           if(controls.SHIFT()){
             chordSequence.commit();
-            menuIsActive = false;
-            constructMenu("MENU");
             return;
           }
           else{

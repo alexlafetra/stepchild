@@ -1,53 +1,5 @@
 /*
 --------------------------------------
-          Pin Definitions
---------------------------------------
-*/
-
-//I2C bus for the LB and screen
-#define I2C_SDA 8
-#define I2C_SCL 9
-
-//buttons/inputs
-/*
-  These vals don't correspond to hardware pins; they're the bit place value of each buttons' state
-  As stored by the controls.mainButtons byte
-*/
-#define NEW_BUTTON 7
-#define SHIFT_BUTTON 6
-#define SELECT_BUTTON 5
-#define DELETE_BUTTON 4
-#define LOOP_BUTTON 3
-#define PLAY_BUTTON 2
-#define COPY_BUTTON 1
-#define MENU_BUTTON 0
-
-#define STEPBUTTONS_DATA 12
-#define LOWERBOARD_INTERRUPT_PIN 3//unused as of rn
-#define BUTTONS_DATA 13
-#define BUTTONS_LOAD 14
-#define BUTTONS_CLOCK_IN 15
-#define BUTTONS_CLOCK_ENABLE 16
-
-//Encoders
-#define B_BUTTON 17
-#define B_CLOCK 18
-#define B_DATA 19
-#define A_BUTTON 20
-#define A_CLOCK 21
-#define A_DATA 22
-
-//Joystick
-#define JOYSTICK_X 27
-#define JOYSTICK_Y 26
-
-//Misc. Hardware
-#define VOLTAGE_PIN 29
-#define USB_PIN 24
-#define ONBOARD_LED 25
-
-/*
---------------------------------------
           Button Inputs
 --------------------------------------
 */
@@ -73,6 +25,20 @@ https://forum.arduino.cc/t/how-to-read-a-register-value-using-the-wire-library/2
 	and the Buttons:
 	0b0100010
 */
+
+//buttons/inputs
+/*
+  These vals don't correspond to hardware pins; they're the bit place value of each buttons' state
+  As stored by the controls.mainButtons byte
+*/
+#define NEW_BUTTON 7
+#define SHIFT_BUTTON 6
+#define SELECT_BUTTON 5
+#define DELETE_BUTTON 4
+#define LOOP_BUTTON 3
+#define PLAY_BUTTON 2
+#define COPY_BUTTON 1
+#define MENU_BUTTON 0
 
 #define MCP23017_LED_ADDR 0b0100001 //33 or 0x41
 #define MCP23017_BUTTON_ADDR 0b0100010 //34 or 0x42

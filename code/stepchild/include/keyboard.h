@@ -272,7 +272,7 @@ void keyboard(){
   keyboardAnimation(0,5,0,14,true);
   while(true){
     controls.readButtons();
-    stepButtons();//handles notes, and toggling
+    mainSequencerStepButtons();//handles notes, and toggling
     if(utils.itsbeen(200)){
       if(controls.MENU()){
         lastTime = millis();

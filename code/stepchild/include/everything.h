@@ -1,10 +1,18 @@
-//for no title
+void binarySelectionBoxPlaceholderDisplayFunction(){}
+
+//this one has a title, but displays a blank screen
+int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title){
+  return binarySelectionBox(x1,y1,op1,op2,title,binarySelectionBoxPlaceholderDisplayFunction);
+}
+
+//Binary Selection box w no title
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, void (*drawingFunction)()){
   return binarySelectionBox(x1,y1,op1,op2,"",drawingFunction);
 }
 
 //centered on x1 and y1
 //returns -1 (no answer/exit), 0 (no) or 1 (yes)
+//Binary Selection box w a title, returns -1 for 
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, void (*drawingFunction)()){
   //bool for breaking from the loop
   bool notChosenYet = true;

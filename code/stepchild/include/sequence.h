@@ -37,6 +37,7 @@ class StepchildSequence{
     uint8_t defaultChannel = 1;
     uint8_t defaultPitch = 36;
     uint8_t defaultVel = 127;
+    uint8_t defaultChance = 100;
 
     uint16_t selectionCount = 0;
 
@@ -749,5 +750,147 @@ void toggleLoopMove(){
     case 2:
       movingLoop = 0;
       break;
+  }
+}
+
+int16_t changeNoteLength(int val, unsigned short int track, unsigned short int id){
+  if(id!=0){
+    int newEnd;
+    //if it's 1 step long and being increased by sequence.subDivision, make it sequence.subDivision steps long instead of sequence.subDivision+1 steps
+    //(just to make editing more intuitive)
+    if(sequence.noteData[track][id].endPos - sequence.noteData[track][id].startPos == 1 && val == sequence.subDivision){
+      newEnd = sequence.noteData[track][id].endPos + val - 1;
+    }
+    else{
+      newEnd = sequence.noteData[track][id].endPos + val;
+    }
+    //check and see if there's a different note there
+    //if there is, set the new end to be 
+    for(uint16_t step = 1; step<=val; step++){
+      if(sequence.lookupTable[track][step+sequence.noteData[track][id].endPos] != 0 && sequence.lookupTable[track][step+sequence.noteData[track][id].endPos] != id){
+        //if it's the first step, just fail to save time
+        if(step == 1)
+          return 0;
+        //if it's not the first step, set the new end to right before the other note
+        else{
+          newEnd = sequence.noteData[track][id].endPos+step;
+          break;
+        }
+      }
+    }
+    //if the new end is before/at the start, don't do anything
+    if(newEnd<=sequence.noteData[track][id].startPos)
+      return 0;
+      // newEnd = sequence.noteData[track][id].startPos+1;
+    //if the new end is past/at the end of the seq
+    if(newEnd>sequence.sequenceLength){
+      newEnd = sequence.sequenceLength;
+    }
+    Note note = sequence.noteData[track][id];
+    int16_t amount = newEnd-note.endPos;
+    note.endPos = newEnd;
+    sequence.deleteNote_byID(track, id);
+    sequence.makeNote(note, track, false);
+    return amount;
+  }
+  return 0;
+}
+
+
+void changeNoteLengthSelected(int amount){
+  for(int track = 0; track<sequence.trackData.size(); track++){
+    for(int note = 1; note <= sequence.noteData[track].size()-1; note++){
+      if(sequence.noteData[track][note].isSelected){
+        changeNoteLength(amount, track, note);
+      }
+    }
+  }
+}
+
+int16_t changeNoteLength(int amount){
+  if(sequence.selectionCount > 0){
+    changeNoteLengthSelected(amount);
+    vector<uint16_t> bounds = getSelectedNotesBoundingBox();
+    //move the cursor to the end/beginning of the selection box
+    if(amount>0)
+      setCursor(bounds[2]);
+    else
+      setCursor(bounds[0]);
+    return 0;
+  }
+  else{
+    return changeNoteLength(amount, sequence.activeTrack, sequence.IDAtCursor());
+  }
+}
+
+//this one jumps the cursor to the end or start of the note
+void changeNoteLength_jumpToEnds(int16_t amount){
+  if(sequence.selectionCount > 0){
+    changeNoteLengthSelected(amount);
+    vector<uint16_t> bounds = getSelectedNotesBoundingBox();
+    //move the cursor to the end/beginning of the selection box
+    if(amount>0)
+      setCursor(bounds[2]);
+    else
+      // setCursor(bounds[0]);
+      setCursor(bounds[2]-sequence.subDivision);//testing this
+  }
+  else{
+    //if the note was changed
+    if(changeNoteLength(amount, sequence.activeTrack, sequence.IDAtCursor()) != 0){
+      //if you're shrinking the note
+      if(amount<0){
+        setCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].endPos-sequence.subDivision);//testing this
+        // setCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].startPos);
+        //if it's out of view
+        // else
+          // setCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].endPos+amount);
+      }
+      //if you're growing it
+      else
+        // setCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].endPos-sequence.subDivision);
+        setCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].endPos-1);//testing this
+
+        // setCursor(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos - amount);
+    }
+  }
+}
+
+//sets cursor to the visually nearest note
+//steps to pixels = steps*scale
+//for a note to be "visually" closer, it needs to have a smaller pixel
+//distance from the cursor than another note
+//compare trackDistance * trackHeight to stepDistance * scale
+float getDistanceFromNoteToCursor(Note note,uint8_t track){
+  //if the start of the note is closer than the end
+  return sqrt(pow(sequence.activeTrack - track,2)+pow(((abs(note.startPos-sequence.cursorPos)<abs(note.endPos-sequence.cursorPos))?(note.startPos-sequence.cursorPos):(note.endPos-sequence.cursorPos)),2));
+}
+
+void setCursorToNearestNote(){
+  const float maxPossibleDist = sequence.sequenceLength*sequence.viewScale+sequence.trackData.size()*trackHeight;
+  float minDist = maxPossibleDist;
+  int minTrack;
+  int minNote;
+  for(int track = 0; track<sequence.noteData.size(); track++){
+    for(int note = 1; note<sequence.noteData[track].size(); note++){
+      // //Serial.println("checking n:"+stringify(note)+" t:"+stringify(track));
+      // Serial.flush();
+      float distance = getDistanceFromNoteToCursor(sequence.noteData[track][note],track);
+      if(distance<minDist){
+        minTrack = track;
+        minNote = note;
+        minDist = distance;
+        if(minDist == 0)
+          break;
+      }
+    }
+    if(minDist == 0)
+      break;
+  }
+  // //Serial.println("setting cursor...");
+  // Serial.flush();
+  if(minDist != maxPossibleDist){
+    setCursor((sequence.noteData[minTrack][minNote].startPos<sequence.cursorPos)?sequence.noteData[minTrack][minNote].startPos:sequence.noteData[minTrack][minNote].endPos-1);
+    setActiveTrack(minTrack,false);
   }
 }

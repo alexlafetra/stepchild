@@ -38,7 +38,6 @@ bool recording = false;
 bool gotClock = false;
 bool hasStarted = false;
 bool menuIsActive = false;
-bool displayingVel = true;//get rid of this
 bool drawingNote = false;
 bool pitchesOrNumbers = true;
 
@@ -64,8 +63,6 @@ bool recordingToAutotrack = false;
 
 //controls whether or not fragmenting is on
 bool isFragmenting = false;
-
-bool editingNote = false;
 
 //lets you drag the loop indicators around
 //0 is off, 1 is start, -1 is end, 2 is both

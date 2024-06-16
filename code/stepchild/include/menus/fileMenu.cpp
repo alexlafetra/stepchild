@@ -1,90 +1,84 @@
+class FileMenu:public NewMenu{
+  public:
+    vector<String> filenames = {"*new*"};
+    WireFrame folderWireframe;
+    uint8_t menuStart = 0;
+    uint8_t menuEnd = 4;
+    uint8_t page = 0;
+    FileMenu(){
+      coords = CoordinatePair(7,3,128,64);
+      folderWireframe = makeFolder(30);
+      folderWireframe.scale = 3;
+      folderWireframe.xPos = 96;
+      folderWireframe.yPos = screenHeight/2;
+      // filenames = loadFiles();
+    }
+    void displayMenu();
+    void displayMenu(int16_t,bool);
+    void displayMiniMenu();
+    void fileAnimation(bool);
+    void fileMenuAnimation(bool open, bool inOrOut);
+    bool fileMenuControls();
+    bool fileMenuControls_default();
+    bool fileMenuControls_miniMenu();
+};
+
 //animation for the file menu
-void fileAnimation(bool in){
-  vector<String> filenames = {"*new*"};
+void FileMenu::fileAnimation(bool in){
   if(in){
-    activeMenu.highlight = -1;
-    int xDistance = screenWidth-activeMenu.coords.start.x;//how far the display is gonna need to slide over
-    int width = activeMenu.coords.end.x - activeMenu.coords.start.x;
+    cursor = -1;
+    int xDistance = screenWidth-coords.start.x;//how far the display is gonna need to slide over
+    int width = coords.end.x - coords.start.x;
     for(int i = 0; i< xDistance; i+=10){
       //this literally just shifts where the menu is over and over again
-      activeMenu.coords.start.x = screenWidth-i;
-      activeMenu.coords.end.x = activeMenu.coords.start.x + width;
-      display.clearDisplay();
-      activeMenu.displayFileMenu(20-i/10,0,0,3,filenames);
-      // display.drawBitmap(screenWidth-i,0,folder_closed_bmp,14,26,SSD1306_WHITE);
-      display.display();
+      coords.start.x = screenWidth-i;
+      coords.end.x = coords.start.x + width;
+      displayMenu(20-i/10,false);
     }
-    activeMenu.highlight = 0;
+    cursor = 0;
     display.drawBitmap(0,0,folder_open_bmp,24,26,SSD1306_WHITE);
   }
   else if(!in){
-    activeMenu.highlight = -1;
-    int xDistance = screenWidth-activeMenu.coords.start.x;//how far the display is gonna need to slide over
-    int width = activeMenu.coords.end.x - activeMenu.coords.start.x;
+    cursor = -1;
+    int xDistance = screenWidth-coords.start.x;//how far the display is gonna need to slide over
+    int width = coords.end.x - coords.start.x;
     for(int i = xDistance; i> 0; i-=10){
       //this literally just shifts where the menu is over and over again
-      activeMenu.coords.start.x = screenWidth-i;
-      activeMenu.coords.end.x = activeMenu.coords.start.x + width;
-      display.clearDisplay();
-      activeMenu.displayFileMenu(30-i/10,0,0,3,filenames);
-      // display.drawBitmap(xDistance-i,0,folder_closed_bmp,14,26,SSD1306_WHITE);
-      display.display();
+      coords.start.x = screenWidth-i;
+      coords.end.x = coords.start.x + width;
+      displayMenu(30-i/10,false);
     }
-    activeMenu.highlight = 0;
+    cursor = 0;
   }
 }
 
-vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames);
-bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String>& filenames);
-
-void quickSave(){
-  //if it hasn't been saved yet
-  if(currentFile == ""){
-    String fileName = enterText("filename?");
-    if(fileName != "default"){
-      writeSeqFile(fileName);
-      currentFile = fileName;
-      menuText = "saved \'"+currentFile+"\'";
-    }
-  }
-  //if there is a filename for it
-  else{
-    writeSeqFile(currentFile);
-    menuText = "saved \'"+currentFile+"\'";
-  }
-}
-
-void fileMenuDisplayWrapper(){
-  activeMenu.displayFileMenu();
-}
-void loadBackup(){
+bool loadBackup(){
   //if there's an active filename
   if(currentFile != ""){
     vector<String> ops = {"NAUR","YEA"};
-    int8_t choice = binarySelectionBox(59,32,"NO","YEA","LOAD BACKUP?",fileMenuDisplayWrapper);
+    int8_t choice = binarySelectionBox(59,32,"NO","YEA","LOAD BACKUP?");
     if(choice){
       loadSeqFile(currentFile);
-      slideMenuOut(1,30);
-      menuIsActive = false;
-      constructMenu("MENU");
+      return true;
     }
+    return false;
   }
   //if there isn't, just enter files menu
   else{
-    slideMenuOut(0,20);
-    constructMenu("FILES");
+    // slideMenuOut(0,20);
+    return false;
   }
 }
 
-vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
+bool FileMenu::fileMenuControls_miniMenu(){
   //scrolling
   if(utils.itsbeen(100)){
-    if(controls.joystickY == 1 && activeMenu.highlight<5){
-      activeMenu.highlight++;
+    if(controls.joystickY == 1 && cursor<5){
+      cursor++;
       lastTime = millis();
     }
-    else if(controls.joystickY == -1 && activeMenu.highlight>0){
-      activeMenu.highlight--;
+    else if(controls.joystickY == -1 && cursor>0){
+      cursor--;
       lastTime = millis();
     }
   }
@@ -92,20 +86,20 @@ vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
     //back to normal mode
     if(controls.MENU()){
       lastTime = millis();
-      activeMenu.highlight = activeMenu.page;
-      activeMenu.page = 0;
-      openFolderAnimation(w,30);
+      cursor = page;
+      page = 0;
+      openFolderAnimation(folderWireframe,30);
     }
     //selecting an option
     if(controls.SELECT() ){
       lastTime = millis();
       controls.setSELECT(false);
-      switch(activeMenu.highlight){
+      switch(cursor){
         //overwrite
         case 1:
         {
-          String fileName = filenames[activeMenu.page];
-          int8_t choice = binarySelectionBox(64,32,"NO","YEA",displayMiniMenu);
+          String fileName = filenames[page];
+          int8_t choice = binarySelectionBox(64,32,"NO","YEA","overwrite file?");
           if(choice == 1){
             writeSeqFile(fileName);
           }
@@ -114,7 +108,7 @@ vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
         //load
         case 0:
         {
-          String fileName = filenames[activeMenu.page];
+          String fileName = filenames[page];
           loadSeqFile(fileName);
           currentFile = fileName;
           alert("loaded "+currentFile+"!",500);
@@ -123,52 +117,71 @@ vector<String> fileMenuControls_miniMenu(WireFrame* w,vector<String> filenames){
         //rename
         case 2:
         {
-          String filename = filenames[activeMenu.page];
+          String filename = filenames[page];
           renameSeqFile(filename);
           filenames = loadFiles();
           break;
         }
         //export
         case 3:
-          exportSeqFileToSerial_standAlone(filenames[activeMenu.page]);
+          exportSeqFileToSerial_standAlone(filenames[page]);
           break;
         //del
         case 4:
         {
-          String filename = filenames[activeMenu.page];
+          String filename = filenames[page];
           if(deleteSeqFile(filename));
           filenames = loadFiles();
-          activeMenu.highlight = activeMenu.page-1;
-          activeMenu.page = 0;
-          openFolderAnimation(w,30);
+          cursor = page-1;
+          page = 0;
+          openFolderAnimation(folderWireframe,30);
           break;
         }
         //back
         case 5:
           lastTime = millis();
-          activeMenu.highlight = activeMenu.page;
-          activeMenu.page = 0;
-          openFolderAnimation(w,30);
+          cursor = page;
+          page = 0;
+          openFolderAnimation(folderWireframe,30);
           break;
       }
     }
   }
-  return filenames;
+  return true;
 }
 
-bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<String>& filenames){
+bool FileMenu::fileMenuControls(){
+  controls.readButtons();
+  controls.readJoystick();
+  if(page == 0){
+    return fileMenuControls();
+  }
+  else{
+    return fileMenuControls_miniMenu();
+  }
+}
+bool FileMenu::fileMenuControls_default(){
+  //menu data shit
+  if(cursor>menuEnd){
+    menuEnd = cursor;
+    menuStart = menuEnd-4;
+  }
+  else if(cursor<menuStart){
+    menuStart = cursor;
+    menuEnd = menuStart+4;
+  }
   if(utils.itsbeen(100)){
-    if(controls.joystickY == -1 && activeMenu.highlight>0){
-        activeMenu.highlight--;
-        if(activeMenu.highlight<menuStart){
+    if(controls.joystickY == -1 && cursor>0){
+        cursor--;
+        if(cursor<menuStart){
             menuStart--;
             menuEnd--;
         }
         lastTime = millis();
     }
-    if(controls.joystickY == 1 && activeMenu.highlight<(filenames.size()-1)){
-        activeMenu.highlight++;
-        if(activeMenu.highlight>menuEnd){
+    if(controls.joystickY == 1 && cursor<(filenames.size()-1)){
+        cursor++;
+        if(cursor>menuEnd){
             menuStart++;
             menuEnd++;
         }
@@ -182,7 +195,7 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
     }
     if(controls.NEW()){
       if(controls.SHIFT()){
-        if(binarySelectionBox(64,32,"ye","ne","dump all files via USB?",fileMenuDisplayWrapper) == 1)
+        if(binarySelectionBox(64,32,"ye","ne","dump all files via USB?") == 1)
           dumpFilesToSerial();
       }
     }
@@ -190,11 +203,9 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
       if(controls.SELECT() ){
         lastTime = millis();
         controls.setSELECT(false);
-        if(filenames[activeMenu.highlight] == "*new*"){
+        if(filenames[cursor] == "*new*"){
           String fileName = enterText("filename?");
           if(fileName != "default"){
-            Serial.println("Writing seq file");
-            Serial.flush();
             writeSeqFile(fileName);
             return false;
           }
@@ -202,27 +213,27 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
         //entering the minimenu
         else{
           //set the 'page' variable to the current file index
-          activeMenu.page = activeMenu.highlight;
+          page = cursor;
           //reset highlight to 0
-          activeMenu.highlight = 0;
+          cursor = 0;
           //open wireFrame
-          openFolderAnimation(w,80);
+          openFolderAnimation(folderWireframe,80);
           return true;
         }
       }
       if(controls.DELETE()){
         lastTime = millis();
         controls.setDELETE(false);
-        String filename = filenames[activeMenu.highlight];
+        String filename = filenames[cursor];
         deleteSeqFile(filename);
         filenames = loadFiles();
         if(filenames.size() == 0)
-          activeMenu.highlight = 0;
+          cursor = 0;
       }
       if(controls.COPY()){
         lastTime = millis();
         controls.setCOPY(false);
-        String filename = filenames[activeMenu.highlight];
+        String filename = filenames[cursor];
         duplicateSeqFile(filename);
         filenames = loadFiles();
       }
@@ -231,79 +242,44 @@ bool fileMenuControls(uint8_t menuStart, uint8_t menuEnd,WireFrame* w,vector<Str
   return true;
 }
 
-void fileMenuAnimation(bool open, uint8_t menuStart, uint8_t menuEnd,vector<String> filenames, bool inOrOut){
+void FileMenu::fileMenuAnimation(bool open, bool inOrOut){
   if(inOrOut){
     int16_t textOffset = 24;
     while(textOffset > 0){
       textOffset -= 5;
       if(textOffset< -5)
         textOffset = -5;
-      display.clearDisplay();
       //draw menu
-      activeMenu.displayFileMenu(textOffset,false,menuStart,menuEnd,filenames);
-      display.display();
+      displayMenu(textOffset,false);
     }
   }
   else{
     int16_t textOffset = 0;
     while(textOffset < 128){
       textOffset+=16;
-      display.clearDisplay();
       //draw menu
-      activeMenu.displayFileMenu(textOffset,false,menuStart,menuEnd,filenames);
-      display.display();
+      displayMenu(textOffset,false);
     }
   }
 }
+
+void FileMenu::displayMenu(){
+  FileMenu::displayMenu(0,false);
+}
+
 
 void fileMenu(){
-  uint8_t menuStart = 0;
-  uint8_t menuEnd = 4;
   controls.clearButtons();
-  WireFrame folder = makeFolder(30);
-  folder.scale = 3;
-  folder.xPos = 96;
-  folder.yPos = screenHeight/2;
-  vector<String> filenames = loadFiles();
-  fileMenuAnimation(false,menuStart,menuEnd,filenames,true);
-  bool done = false;
-  while(!done){
-    display.clearDisplay();
+  FileMenu fileMenu;
+  fileMenu.fileMenuAnimation(false,true);
+  while(fileMenu.fileMenuControls()){
     //draw menu
-    activeMenu.displayFileMenu(0,false,menuStart,menuEnd,filenames);
-    //render wireframe
-    folder.render();
-    //draw mini menu
-    if(activeMenu.page!=0)
-      displayMiniMenu();
-    display.display();
-    folder.rotate(1,1);
-    controls.readButtons();
-    controls.readJoystick();
-    if(activeMenu.page == 0){
-      if(!fileMenuControls(menuStart,menuEnd,&folder,filenames)){
-        // fileMenuAnimation(false,menuStart,menuEnd,filenames,false);
-        constructMenu(MAIN_MENU,9);
-        // return;
-        done = true;
-      }
-        //menu data shit
-      if(activeMenu.highlight>menuEnd){
-        menuEnd = activeMenu.highlight;
-        menuStart = menuEnd-4;
-      }
-      else if(activeMenu.highlight<menuStart){
-        menuStart = activeMenu.highlight;
-        menuEnd = menuStart+4;
-      }
-    }
-    else{
-      filenames = fileMenuControls_miniMenu(&folder,filenames);
-    }
+    fileMenu.displayMenu();
   }
+  fileMenu.fileMenuAnimation(false,false);
 }
 
-void displayMiniMenu(){
+void FileMenu::displayMiniMenu(){
   const uint8_t x1 = 66;
   const uint8_t y1 = 9;
   const vector<String> options = {"Load","Overwrite","Rename","Export","Delete","Back"};
@@ -319,35 +295,31 @@ void displayMiniMenu(){
   //mask (again)
   display.drawFastHLine(x1+1,y1+42,17,SSD1306_BLACK);
   display.drawPixel(x1+1,y1+41,SSD1306_BLACK);
-  if(activeMenu.highlight == 5)
+  if(cursor == 5)
     display.drawBitmap(x1+2,y1+41,back_arrow_light_bmp,14,13,SSD1306_WHITE);
   else
     display.drawBitmap(x1+4,y1+43,back_arrow_bmp,10,9,SSD1306_WHITE);
 
   //if it's on an item other than the 'back' arrow
   for(uint8_t i = 0; i<5; i++){
-    if(activeMenu.highlight == i){
+    if(cursor == i){
       display.fillRoundRect(x1+2,y1+8*i+2,options[i].length()*4+4,7,2,SSD1306_WHITE);
     }
     printSmall(x1+4,y1+8*i+3,options[i],2);
   }
-  printChunky(87-options[activeMenu.highlight].length()*3,y1-7,options[activeMenu.highlight],SSD1306_WHITE);
+  printChunky(87-options[cursor].length()*3,y1-7,options[cursor],SSD1306_WHITE);
 
   //drawing icon
-  if(activeMenu.highlight<5){
+  if(cursor<5){
     display.fillRoundRect(100,29,16,16,3,0);
     display.drawRoundRect(100,29,16,16,3,1);
 
-    display.drawBitmap(102,31,file_menu_icons[activeMenu.highlight],12,12,1);
+    display.drawBitmap(102,31,file_menu_icons[cursor],12,12,1);
   }
 }
 
-void Menu::displayFileMenu(){
-  vector<String> filenames = {"*new*"};
-  displayFileMenu(0,false,0,1,filenames);
-}
-
-void Menu::displayFileMenu(int16_t textOffset, bool open, uint8_t menuStart, uint8_t menuEnd,vector<String> filenames){
+void FileMenu::displayMenu(int16_t textOffset, bool open){
+  display.clearDisplay();
   unsigned short int menuHeight = abs(coords.end.y-coords.start.y);
   display.setCursor(coords.start.x+9,coords.start.y+3);
   display.setFont(&FreeSerifItalic9pt7b);
@@ -378,10 +350,10 @@ void Menu::displayFileMenu(int16_t textOffset, bool open, uint8_t menuStart, uin
   //printing out the menu
   for(int i = menuStart; i<=menuEnd; i++){
     if(page == 0){
-      if(highlight != i){
+      if(cursor != i){
         printSmall(coords.start.x+10+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.start.y+6,filenames[i],SSD1306_WHITE);
       }
-      else if(highlight == i){
+      else if(cursor == i){
         graphics.drawBanner(coords.start.x+16+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.start.y+6,filenames[i]);
       }
     }
@@ -395,4 +367,10 @@ void Menu::displayFileMenu(int16_t textOffset, bool open, uint8_t menuStart, uin
     }
     yLoc++;
   }
+  folderWireframe.render();
+  //draw mini menu
+  if(page!=0)
+    displayMiniMenu();
+  display.display();
+  folderWireframe.rotate(1,1);
 }

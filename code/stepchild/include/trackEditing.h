@@ -18,15 +18,22 @@ vector<uint8_t> selectMultipleTracks(String text){
   vector<uint8_t> selection;
   while(true){
     display.clearDisplay();
-    drawSeq(true, false, false, false, true, false, sequence.viewStart, sequence.viewEnd);
+    SequenceRenderSettings settings;
+    settings.trackSelection = true;
+    settings.drawPram = false;
+    settings.shrinkTopDisplay = true;
+    settings.topLabels = false;
+    drawSeq(settings);
     printSmall(screenWidth-text.length()*4,0,text,1);
 
-    display.setCursor(0,7);
-    display.setFont(&FreeSerifItalic9pt7b);
-    display.setTextColor(SSD1306_WHITE);
-    display.print("Trk");
-    display.print(stringify(sequence.activeTrack+1));
-    display.setFont();
+    printSmall(2,2,"Trk:"+stringify(sequence.activeTrack+1),1);
+
+    // display.setCursor(0,7);
+    // display.setFont(&FreeSerifItalic9pt7b);
+    // display.setTextColor(SSD1306_WHITE);
+    // display.print("Trk");
+    // display.print(stringify(sequence.activeTrack+1));
+    // display.setFont();
 
     display.display();
     controls.readButtons();
@@ -199,8 +206,8 @@ void sortTracks(){
   uint8_t sortType = 0;
   //0 = track pitch, 1 = track channel, 2 =  number of notes (wip)
   int8_t sortTarget = 0;
-  const uint8_t x1 = 28;
-  const uint8_t y1 = 16;
+  const uint8_t x1 = trackDisplay-2;
+  const uint8_t y1 = 0;
   while(true){
     controls.readButtons();
     controls.readJoystick();
@@ -212,26 +219,27 @@ void sortTracks(){
       if(controls.NEW() || controls.SELECT() ){
         sortTrackData(sortType,sortTarget);
         lastTime = millis();
-        break;
       }
     }
-    while(controls.counterB != 0){
-      sortType = !sortType;
-      controls.counterB+=controls.counterB<0?1:-1;
-    }
     while(controls.counterA != 0){
-      sortTarget+=controls.counterA<0?-1:1;
+      sortType = !sortType;
+      controls.counterA+=controls.counterA<0?1:-1;
+    }
+    while(controls.counterB != 0){
+      sortTarget+=controls.counterB<0?-1:1;
       if(sortTarget<0)
         sortTarget = 2;
       if(sortTarget == 3)
         sortTarget = 0;
-      controls.counterA+=controls.counterA<0?1:-1;
+      controls.counterB+=controls.counterB<0?1:-1;
     }
     display.clearDisplay();
-    drawSeq(true, false, false, true, false, false, sequence.viewStart, sequence.viewEnd);
-    display.fillRoundRect(x1,y1,85,37,3,0);
-    display.drawRoundRect(x1,y1,85,37,3,1);
-    printSmall(x1+2,y1+2,"sort by ",1);
+    SequenceRenderSettings settings;
+    settings.drawTrackChannel = true;
+    drawSeq(settings);
+    display.fillRoundRect(x1,y1,85,43,3,0);
+    display.drawRoundRect(x1,y1,85,43,3,1);
+    printSmall(x1+42,y1+3,"sort by:",1,CENTER);
     if(true){
       String target;
       switch(sortTarget){
@@ -245,11 +253,11 @@ void sortTracks(){
           target = "note count";
           break;
       }
-      printItalic(x1+2,y1+8,target,1);
+      printItalic(x1+2,y1+10,target,1);
     }
-    printSmall(x1+2,y1+16,"in ",1);
-    printItalic(x1+2,y1+22,sortType?"descending":"ascending",1);
-    printSmall(x1+2,y1+30,"order",1);
+    printSmall(x1+42,y1+19,"in:",1,CENTER);
+    printItalic(x1+2,y1+26,sortType?"descending":"ascending",1);
+    printSmall(x1+42,y1+35,"order",1,CENTER);
     display.display();
   }
 }
@@ -302,8 +310,21 @@ void swapTracks(){
   }
 }
 
+uint8_t countEmptyTracks(){
+  uint8_t count = 0;
+  for(auto track:sequence.noteData){
+    if(track.size()==1){
+      count++;
+    }
+  }
+  return count;
+}
 void deleteEmptyTracks(){
-  for(int i = 0; i<sequence.trackData.size(); i++){
+  if(binarySelectionBox(64,32,"nah","yea","delete "+stringify(countEmptyTracks())+" tracks?",drawSeq) != 1){
+    return;
+  }
+  for(uint8_t i = 0; i<sequence.trackData.size(); i++){
+    //leave at least 1 track
     if(sequence.noteData[i].size()-1 == 0 && sequence.trackData.size()>1){
       deleteTrack(i);
       i--;

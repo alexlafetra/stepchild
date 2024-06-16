@@ -519,7 +519,7 @@ class StepchildGraphics{
     }
   }
 
-  void drawArrow_highlight(uint8_t pointX,uint8_t pointY, uint8_t size, uint8_t direction){
+  void drawhighlight(uint8_t pointX,uint8_t pointY, uint8_t size, uint8_t direction){
     this->drawArrow(pointX,pointY,size+2,direction,true);
     switch(direction){
       case RIGHT:
@@ -787,30 +787,26 @@ class StepchildGraphics{
     else
       display.drawBitmap(x1,y1,carriage_bmp,14,15,SSD1306_WHITE);
   }
-  void drawPram(){
-    if(!menuIsActive || (activeMenu.menuTitle == "MENU") || (activeMenu.menuTitle == "FX") || (activeMenu.menuTitle == "EDIT" && activeMenu.coords.start.x>32)){
-      if(maxTracksShown == 5 || (menuIsActive && activeMenu.menuTitle == "MENU")){//weird graphical case where you want the pram to b big when the main menu is open
-        if(!playing && !recording){
-          this->drawPram(5,0);
-        }
-        else if(playing || recording){
-          //if the playhead/rechead is on a subdiv, bounce the pram 
-          display.drawBitmap(5,!((playheadPos%24/12)%2),carriage_bmp,14,15,SSD1306_WHITE);
-        }
-      }
-      else{
-        if(!playing && !recording){
-          if(sequenceClock.onBeat(2,30))
-            display.drawBitmap(8,1,tinyPram,7,7,SSD1306_WHITE);
-          else
-            display.drawBitmap(8,0,tinyPram,7,7,SSD1306_WHITE);
-        }
-        //pram bounces faster
-        else if(playing || recording){
-          //if the playhead/rechead is on a subdiv, bounce the pram
-          display.drawBitmap(8,!((playheadPos%24/12)%2),tinyPram,7,7,SSD1306_WHITE);
-        }
-      }
+  void drawBigPram(){
+    if(!playing && !recording){
+      this->drawPram(5,0);
+    }
+    else if(playing || recording){
+      //if the playhead/rechead is on a subdiv, bounce the pram 
+      display.drawBitmap(5,!((playheadPos%24/12)%2),carriage_bmp,14,15,SSD1306_WHITE);
+    }
+  }
+  void drawTinyPram(){
+    if(!playing && !recording){
+      if(sequenceClock.onBeat(2,30))
+        display.drawBitmap(8,1,tinyPram,7,7,SSD1306_WHITE);
+      else
+        display.drawBitmap(8,0,tinyPram,7,7,SSD1306_WHITE);
+    }
+    //pram bounces faster
+    else if(playing || recording){
+      //if the playhead/rechead is on a subdiv, bounce the pram
+      display.drawBitmap(8,!((playheadPos%24/12)%2),tinyPram,7,7,SSD1306_WHITE);
     }
   }
   //draws a play icon shaded according to the sequence clock state
@@ -855,6 +851,89 @@ class StepchildGraphics{
       else{
         display.fillRect(x1+2,y1+2,6,3,SSD1306_WHITE);
       }
+    }
+  }
+
+  //gen midi numbers taken from https://usermanuals.finalemusic.com/SongWriter2012Win/Content/PercussionMaps.htm
+  void drawDrumIcon(uint8_t x1, uint8_t y1, uint8_t note){
+    int8_t which = -1;
+    switch(note){
+      //"bass drum" => 808
+      case 35:
+        which = 0;
+        break;
+      //"kick"
+      case 36:
+        which = 1;
+        break;
+      //cowbell
+      case 34:
+      case 56:
+        which = 2;
+        break;
+      //clap
+      case 39:
+        which = 3;
+        break;
+      //crash cymbal
+      case 49:
+        which = 4;
+        break;
+      //"laser" ==> gun (sfx)
+      case 27:
+      case 28:
+      case 29:
+      case 30:
+        which = 5;
+        break;
+      //closing hat pedal
+      case 44:
+        which = 6;
+        break;
+      //open hat
+      case 46:
+        which = 7;
+        break;
+      //closed hat
+      case 42:
+        which = 8;
+        break;
+      //rim
+      case 31:
+      case 32:
+      case 37:
+        which = 9;
+        break;
+      //shaker
+      case 82:
+        which = 10;
+        break;
+      //snare
+      case 38:
+      case 40:
+        which = 11;
+        break;
+      //tomL
+      case 45:
+        which = 12;
+        break;
+      //tomM
+      case 47:
+      case 48:
+        which = 13;
+        break;
+      //tomS
+      case 50:
+        which = 14;
+        break;
+      //triangle
+      case 80:
+      case 81:
+        which = 15;
+        break;
+    }
+    if(which != -1){
+      display.drawBitmap(x1,y1,drum_icons[which],16,8,1,0);
     }
   }
 };
@@ -1005,7 +1084,7 @@ void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct
   uint8_t offset = printPitch(xCoord, yCoord, s, bigOct, channel, c);
   offset+=4;
   //if you want to show the track channel
-  if(controls.SHIFT() || (menuIsActive && activeMenu.menuTitle == "TRK")){
+  if(controls.SHIFT() || (channel)){
     String sx = ":";
     sx += stringify(sequence.trackData[trackID].channel);
     // if(sequence.trackData[trackID].isLatched){
@@ -1594,200 +1673,189 @@ void drawSmallChannelIcon(uint8_t x1, uint8_t y1, uint8_t ch){
   printSmall(x1+7,y1,stringify(ch),1);
 }
 
-//slides a menu in from the top,right,bottom, or left
-void slideMenuIn(int fromWhere, int8_t speed){
-  //sliding in from the right
-  if(fromWhere == 1){
-    //store original coords
-    CoordinatePair targetCoords = activeMenu.coords;
-    //then, offset the menu coordinates
-    int16_t offset = screenWidth-activeMenu.coords.start.x;
-    activeMenu.coords.start.x = screenWidth;
-    activeMenu.coords.end.x += offset;
-    //continuously move the menu coords and display it, until it reaches original position
-    while(activeMenu.coords.start.x>targetCoords.start.x){
-      activeMenu.coords.end.x -= speed;
-      activeMenu.coords.start.x -= speed;
-      if(activeMenu.coords.start.x<targetCoords.start.x){
-        activeMenu.coords = targetCoords;
-        break;
-      }
-      displaySeq();
-      // delay(100);
-    }
-    activeMenu.coords = targetCoords;
+void drawMoveIcon(uint8_t x1, uint8_t y1, bool anim){
+  if(anim && (millis()%600) > 300){
+    display.drawBitmap(x1+1,y1+1,arrow_small_bmp2,9,9,SSD1306_WHITE);
   }
-  //from the bottom
-  else if(fromWhere == 0){
-    //store original coords
-    CoordinatePair targetCoords = activeMenu.coords;
-    //then, offset the menu coordinates
-    int16_t offset = screenHeight-activeMenu.coords.start.y;
-    activeMenu.coords.start.y += offset;
-    activeMenu.coords.end.y += offset;
-    //continuously move the menu coords and display it, until it reaches original position
-    while(activeMenu.coords.start.y>targetCoords.start.y){
-      activeMenu.coords.start.y-= speed;
-      activeMenu.coords.end.y-= speed;
-      if(activeMenu.coords.start.y<targetCoords.start.y){
-        activeMenu.coords = targetCoords;
-      }
-      displaySeq();
-      // delay(20);
-    }
-    activeMenu.coords = targetCoords;
+  else{
+    display.drawBitmap(x1,y1,arrow_small_bmp1,11,11,SSD1306_WHITE);
   }
 }
 
-//same thang, but in reverse
-void slideMenuOut(int toWhere, int8_t speed){
-  if(toWhere == 1){//sliding out to the left side
-    while(activeMenu.coords.start.x<screenWidth){
-      activeMenu.coords.start.x+=speed;
-      activeMenu.coords.end.x+=speed;
-      //make sure x bounds don't glitch out/overflow  (don't think this is necessary, leaving it for legacy/in case you find a menu that bugs)
-      //Using this makes some menus slide a lil' ugly
-      // if(activeMenu.coords.end.x>screenWidth){
-      //   activeMenu.coords.end.x = screenWidth;
-      // }
-      displaySeq();
-      graphics.drawPram(5,0);
-    }
+void drawLengthIcon(uint8_t x1, uint8_t y1, uint8_t length, uint8_t animThing, bool anim){
+  uint8_t offset=0;
+  if(anim){
+    offset+=(millis()/200)%(animThing);
   }
-  //to the bottom
-  else if(toWhere == 0){
-    while(activeMenu.coords.start.y<screenHeight){
-      activeMenu.coords.start.y+=speed;
-      activeMenu.coords.end.y+=speed;
-      //make sure y bounds don't glitch out
-      if(activeMenu.coords.end.y>screenHeight){
-        activeMenu.coords.end.y = screenHeight;
-      }
-      displaySeq();
-      graphics.drawPram(5,0);
-    }
+  //brackets
+  printSmall(x1+offset,y1,"(",SSD1306_WHITE);
+  printSmall(x1+length-offset,y1,")",SSD1306_WHITE);
+  //rect
+  display.fillRect(x1+offset+3,y1,length-2*offset-3,5,SSD1306_WHITE);
+}
+
+void drawFxIcon(uint8_t x1,uint8_t y1, uint8_t w, bool anim){
+  display.drawRect(x1,y1,w,w,SSD1306_WHITE);
+  printSmall(x1+2,y1+3,"fx",1);
+}
+
+//two blocks
+void drawQuantIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim){
+  //dotted
+  graphics.drawDottedRect(x1,y1+size/2-1,size/2+1,size/2+1,2);
+  //full
+  if(anim){
+    x1-=(millis()/200)%(size/2);
+    y1+=(millis()/200)%(size/2);
+  }
+  display.fillRect(x1+size/2-1,y1,size/2+2,size/2+2,SSD1306_WHITE);
+}
+
+//one square, one rotated square
+void drawHumanizeIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim){
+  float angle = 15;
+  if(anim){
+    angle = (millis()/15)%90;
+  }
+  graphics.drawDottedRect(x1,y1,size,size,2);
+  graphics.drawRotatedRect(x1+size/2,y1+size/2,size-2,size-2,angle,SSD1306_WHITE);
+}
+
+void drawVelIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
+  if(anim){
+    display.drawRect(x1,y1,w,w,SSD1306_WHITE);
+    graphics.shadeRect(x1+1,y1+1,w-2,w-2,(millis()/200)%5+1);
+    display.drawRect(x1+1,y1+1,w-2,w-2,SSD1306_BLACK);
+  }
+  else{
+    display.fillRect(x1,y1,w,w,SSD1306_WHITE);
+    display.drawRect(x1+1,y1+1,w-2,w-2,SSD1306_BLACK);
+    printSmall(x1+w/2-1,y1+3,"v",2);
   }
 }
 
-//same function, but doesn't clear or display the screen
-void drawSeq(){
-  drawSeq(true,true,true,true,false);
-}
-//sends data to screen
-//move through rows/columns, printing out data
-void displaySeq(){
-  display.clearDisplay();
-  drawSeq(true,true,true,true,false,false,sequence.viewStart,sequence.viewEnd);
-  display.display();
-}
-
-void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection){
-  drawSeq(trackLabels,topLabels,loopPoints,menus,trackSelection,false,sequence.viewStart,sequence.viewEnd);
+void drawChanceIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
+  if(anim){
+    display.drawRect(x1,y1,w,w,SSD1306_WHITE);
+    graphics.shadeRect(x1+1,y1+1,w-2,w-2,(millis()/200)%5+1);
+    display.drawRect(x1+1,y1+1,w-2,w-2,SSD1306_BLACK);
+  }
+  else{
+    display.fillRect(x1,y1,w,w,SSD1306_WHITE);
+    display.drawRect(x1+1,y1+1,w-2,w-2,SSD1306_BLACK);
+    printSmall(x1+w/2-1,y1+3,"%",2);
+  }
 }
 
-//Start = step you're starting on, startheight is the y coord the sequence grid begins at
-void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_t height, bool onlyWithinLoop, bool loopFlags, bool loopPoints){
-  //drawing the measure bars
-  for (uint16_t step = start; step < end; step++) {
-    unsigned short int x1 = trackDisplay+int((step-start)*sequence.viewScale);
-    unsigned short int x2 = x1 + (step-start)*sequence.viewScale;
+void drawWarpIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
+  w--;
+  graphics.drawDottedRect(x1,y1,w,w,2);
+  if(anim)
+    display.fillRect(x1,y1,(millis()/100)%(w)+2,(millis()/100)%(w)+2,SSD1306_WHITE);
+  else
+    display.fillRect(x1,y1,w/2,w/2,SSD1306_WHITE);
+}
 
-    //shade everything outside the loop
-    if(onlyWithinLoop){
-      if(step<sequence.loopData[sequence.activeLoop].start){
-        graphics.shadeArea(x1,startHeight,(sequence.loopData[sequence.activeLoop].start-step)*sequence.viewScale,screenHeight-startHeight,3);
-        step = sequence.loopData[sequence.activeLoop].start;
-        //ok, step shouldn't ever be zero in this case, since that would mean it was LESS than zero to begin
-        //with. But, just for thoroughnesses sake, make sure step doesn't overflow when you subtract from it
-        if(step != 0){
-          step--;
-        }
-        continue;
-      }
-      else if(step>sequence.loopData[sequence.activeLoop].end){
-        graphics.shadeArea(x1,startHeight,(sequence.viewEnd-sequence.loopData[sequence.activeLoop].end)*sequence.viewScale,screenHeight-startHeight,3);
-        break;
-      }
-    }
-
-    //if the last track is showing
-    if(endTrack == sequence.trackData.size()){
-      //measure bars
-      if (!(step % sequence.subDivision) && (step%96) && (sequence.subDivision*sequence.viewScale)>1) {
-        graphics.drawDottedLineV(x1,startHeight,height,2);
-      }
-      if(!(step%96)){
-        graphics.drawDottedLineV2(x1,startHeight,height,6);
-      }
-    }
-    else{
-      //measure bars
-      if (!(step % sequence.subDivision) && (step%96) && (sequence.subDivision*sequence.viewScale)>1) {
-        graphics.drawDottedLineV(x1,startHeight,height,2);
-      }
-      if(!(step%96)){
-        graphics.drawDottedLineV2(x1,startHeight,height,6);
-      }
-    }
-
-    //drawing loop points/flags
-    if(loopPoints){//check
-      if(step == sequence.loopData[sequence.activeLoop].start){
-        if(loopFlags){
-          if(movingLoop == -1 || movingLoop == 2){
-            display.fillTriangle(trackDisplay+(step-start)*sequence.viewScale, startHeight-3-sin(millis()/50), trackDisplay+(step-start)*sequence.viewScale, startHeight-7-sin(millis()/50), trackDisplay+(step-start)*sequence.viewScale+4, startHeight-7-sin(millis()/50),SSD1306_WHITE);
-            display.drawFastVLine(trackDisplay+(step-start)*sequence.viewScale,startHeight-3,3,SSD1306_WHITE);
-          }
-          else{
-            if(sequence.cursorPos == step){
-              display.fillTriangle(trackDisplay+(step-start)*sequence.viewScale, startHeight-3, trackDisplay+(step-start)*sequence.viewScale, startHeight-7, trackDisplay+(step-start)*sequence.viewScale+4, startHeight-7,SSD1306_WHITE);
-              display.drawFastVLine(trackDisplay+(step-start)*sequence.viewScale,startHeight-3,3,SSD1306_WHITE);
-            }
-            else{
-              display.fillTriangle(trackDisplay+(step-start)*sequence.viewScale, startHeight-1, trackDisplay+(step-start)*sequence.viewScale, startHeight-5, trackDisplay+(step-start)*sequence.viewScale+4, startHeight-5,SSD1306_WHITE);
-            }
-          }
-        }
-        else{
-          display.drawPixel(trackDisplay+(sequence.loopData[sequence.activeLoop].start-start)*sequence.viewScale, startHeight-1,1);
-        }
-        if(!movingLoop || (movingLoop != 1 && (millis()/400)%2)){
-          display.drawFastVLine(trackDisplay+(step-start)*sequence.viewScale,startHeight,screenHeight-startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
-          display.drawFastVLine(trackDisplay+(step-start)*sequence.viewScale-1,startHeight,screenHeight-startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
-        }
-      }
-      if(step == sequence.loopData[sequence.activeLoop].end-1){
-        if(loopFlags){
-          if(movingLoop == 1 || movingLoop == 2){
-            display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-3-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale-4, startHeight-7-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-7-sin(millis()/50),SSD1306_WHITE);
-            display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale,startHeight-3,3,SSD1306_WHITE);
-          }
-          else{
-            if(sequence.cursorPos == step+1){
-              display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-3, trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale-4, startHeight-7, trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-7,SSD1306_WHITE);
-              display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale,startHeight-3,3,SSD1306_WHITE);
-            }
-            else{
-              display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-1, trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale-4, startHeight-5, trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-5,SSD1306_WHITE);
-            }
-          }
-        }
-        else{
-          display.drawPixel(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-1,1);
-        }
-        if(!movingLoop || (movingLoop != -1 && (millis()/400)%2)){
-          display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale+1,startHeight,screenHeight-startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
-          display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale+2,startHeight,screenHeight-startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
-        }
-      }
-      if(movingLoop == 2){
-        if(step>sequence.loopData[sequence.activeLoop].start && step<sequence.loopData[sequence.activeLoop].end && step%2){
-          display.drawPixel(trackDisplay+(step-start)*sequence.viewScale, startHeight-7-sin(millis()/50),SSD1306_WHITE);
-        }
-      }
-      if(loopFlags && (step == sequence.loopData[sequence.activeLoop].start+(sequence.loopData[sequence.activeLoop].end-sequence.loopData[sequence.activeLoop].start)/2))
-        printSmall(trackDisplay+(step-start)*sequence.viewScale-1,startHeight-7,stringify(sequence.activeLoop),SSD1306_WHITE);
+//inverting square
+void drawReverseIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
+  display.drawRect(x1,y1,w,w,1);
+  display.fillRect(x1+2,y1+2,w-4,w-4,1);
+  display.fillRect(x1+4,y1+4,w-8,w-8,0);
+  if(anim){
+    if(millis()%400>200){
+      display.fillRect(x1+1,y1+1,w-2,w-2,2);
     }
   }
 }
 
+//concentric circles
+void drawEchoIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
+  // display.drawRect(x1,y1,w,w,1);
+  if(!anim){
+    display.drawCircle(x1+w/2,y1+w/2,w-6,1);
+    // display.drawCircle(x1+w/2,y1+w/2,w-7,1);
+    display.drawCircle(x1+w/2,y1+w/2,w-8,1);
+    display.drawPixel(x1+w/2,y1+w/2,1);
+  }
+  else{
+    uint8_t r;
+    if(millis()%800>600){
+      r = w - 6;
+      display.drawCircle(x1+w/2,y1+w/2,r,1);
+    }
+    if(millis()%800>400){
+      r = w - 8;
+      display.drawCircle(x1+w/2,y1+w/2,r,1);
+    }
+    if(millis()%800>200){
+      r = 0;
+      display.drawCircle(x1+w/2,y1+w/2,r,1);
+    }
+  }
+}
+
+//die
+void drawRandomIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
+  display.fillRect(x1,y1,w,w,1);
+  display.drawRect(x1+1,y1+1,w-2,w-2,0);
+  uint8_t dots = 6;
+  if(anim){
+    dots = (millis()%1200)/200+1;
+  }
+  switch(dots){
+    case 1:
+      display.drawPixel(x1+5,y1+5,0);
+      break;
+    case 2:
+      display.drawPixel(x1+3,y1+5,0);
+      display.drawPixel(x1+7,y1+5,0);
+      break;
+    case 3:
+      display.drawPixel(x1+3,y1+3,0);
+      display.drawPixel(x1+5,y1+5,0);
+      display.drawPixel(x1+7,y1+7,0);
+      break;
+    case 4:
+      display.drawPixel(x1+3,y1+3,0);
+      display.drawPixel(x1+3,y1+7,0);
+      display.drawPixel(x1+7,y1+3,0);
+      display.drawPixel(x1+7,y1+7,0);
+      break;
+    case 5:
+      display.drawPixel(x1+3,y1+3,0);
+      display.drawPixel(x1+3,y1+7,0);
+      display.drawPixel(x1+7,y1+3,0);
+      display.drawPixel(x1+7,y1+7,0);
+      display.drawPixel(x1+5,y1+5,0);
+      break;
+    case 6:
+      display.drawPixel(x1+3,y1+3,0);
+      display.drawPixel(x1+3,y1+5,0);
+      display.drawPixel(x1+3,y1+7,0);
+
+      display.drawPixel(x1+7,y1+3,0);
+      display.drawPixel(x1+7,y1+5,0);
+      display.drawPixel(x1+7,y1+7,0);
+      break;
+  }
+}
+
+void drawQuickFunctionIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
+  drawFxIcon(x1,y1,w,anim);
+}
+
+void drawQuantBrackets(uint8_t x1, uint8_t y1){
+  const uint8_t width = 24;
+  const uint8_t height = 16;
+  display.drawFastVLine(x1,y1,height,1);
+  display.drawFastVLine(x1+1,y1,height,1);
+  display.drawFastHLine(x1+2,y1,4,1);
+  display.drawFastHLine(x1+2,y1+1,4,1);
+  display.drawFastHLine(x1+2,y1+height-1,4,1);
+  display.drawFastHLine(x1+2,y1+height,4,1);
+
+  display.drawFastVLine(x1+width,y1,height,1);
+  display.drawFastVLine(x1+width-1,y1,height,1);
+  display.drawFastHLine(x1+width-5,y1+height,4,1);
+  display.drawFastHLine(x1+width-5,y1+1+height,4,1);
+}

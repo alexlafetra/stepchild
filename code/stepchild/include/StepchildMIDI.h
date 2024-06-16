@@ -13,12 +13,6 @@ The headless MIDI class works totally differently.
 
 */
 
-#define MIDI_IN 1
-#define MIDI_OUT_1 0
-#define MIDI_OUT_2 4
-#define MIDI_OUT_3 3
-#define MIDI_OUT_4 2
-
 Adafruit_USBD_MIDI usb_midi;
 SoftwareSerial Serial3 = SoftwareSerial(SerialPIO::NOPIN,MIDI_OUT_3);
 SoftwareSerial Serial4 = SoftwareSerial(SerialPIO::NOPIN,MIDI_OUT_4);

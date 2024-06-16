@@ -20,6 +20,10 @@ class StepchildClock{
 
     StepchildClock(){}
 
+    uint16_t mSecPerStep(){
+        return uSecPerStep/1000;
+    }
+
     //returns the amount a timestep should be shifted (in uSeconds) based on the swing curve
     float swingOffset(uint16_t step){
         return this->swingAmplitude*sin(2*PI/this->swingSubDiv * (step-this->swingSubDiv/4));

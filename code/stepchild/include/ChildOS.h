@@ -1,3 +1,5 @@
+#include "pins.h"   //pin definitions
+
 #ifndef HEADLESS
 #include <vector>
 #include <algorithm>
@@ -20,6 +22,7 @@ extern "C" {
 
 #undef CFG_TUH_RPI_PIO_USB
 #define CFG_TUH_RPI_PIO_USB 1
+
 
 // #define CAPTURECARD
 
@@ -130,13 +133,15 @@ uint16_t animOffset = 0;//for animating curves
 #include "functionPrototypes.h" //function prototypes (eventually these should all be refactored into respective files)
 #include "clock.h"              //timing functions
 #include "global.h"             //program boolean flags and global data, constants
-#include "hardwareControls.h"   //button defs and reading functions
+#include "hardwareControls.h"   //button/input reading functions
 #include "utils.h"              //common helper functions/utilities
 
 //classes
-#include "classes/WireFrame.h"//wireframe stuff
+#include "graphics/WireFrame.h"//wireframe stuff
+#include "graphics/wireframeObjects.h"//wireframe stuff
 #include "classes/PlayList.h"
-#include "classes/Menu.h"
+#include "menus/NewMenu.h"
+#include "menus/Menu.h"
 #include "classes/Note.h"
 #include "classes/Track.h"
 #include "classes/Knob.h"
@@ -144,15 +149,15 @@ uint16_t animOffset = 0;//for animating curves
 #include "classes/AutoTrack.h"
 
 //original ChildOS fonts
-#include "fonts/7_segment.cpp"
-#include "fonts/cursive.cpp"
-#include "fonts/small.cpp"
-#include "fonts/arp.cpp"
-#include "fonts/italic.cpp"
-#include "fonts/chunky.cpp"
+#include "graphics/fonts/7_segment.cpp"
+#include "graphics/fonts/cursive.cpp"
+#include "graphics/fonts/small.cpp"
+#include "graphics/fonts/arp.cpp"
+#include "graphics/fonts/italic.cpp"
+#include "graphics/fonts/chunky.cpp"
 
 //Basic graphic functions
-#include "graphics.h"
+#include "graphics/stepchildGraphics.h"
 
 //16 knobs for the 'controlknobs' instrument
 Knob controlKnobs[16];
@@ -185,6 +190,7 @@ void rotaryActionB_Handler(){
 
 //including custom users apps
 #include "applications/userApplications.h"
+#include "graphics/sequenceRender.h"
 
 //FX Apps
 #include "fx/randomMenu.cpp"
@@ -206,7 +212,110 @@ void rotaryActionB_Handler(){
 #include "applications/drumPads.cpp"
 #include "applications/xy.cpp"
 
-#include "applications.h"
+#include "applications/applications.h"
+
+//Enter note selection screen, and display a custom icon in the corner
+//Used for the FX a lot
+bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)){
+  while(true){
+    controls.readJoystick();
+    controls.readButtons();
+    defaultEncoderControls();
+    if(controls.SELECT()  && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
+      selBox.begun = true;
+      selBox.coords.start.x = sequence.cursorPos;
+      selBox.coords.start.y = sequence.activeTrack;
+    }
+    //if controls.SELECT()  is released, and there's a selection box
+    if(!controls.SELECT()  && selBox.begun){
+      selBox.coords.end.x = sequence.cursorPos;
+      selBox.coords.end.y = sequence.activeTrack;
+      selBox.begun = false;
+      selectBox();
+    }
+    if(utils.itsbeen(200)){
+      if(controls.NEW()){
+        lastTime = millis();
+        return true;
+      }
+      if(controls.MENU()){
+        clearSelection();
+        lastTime = millis();
+        return false;
+      }
+      if(controls.SELECT() ){
+        if(controls.SHIFT()){
+          clearSelection();
+          toggleSelectNote(sequence.activeTrack,sequence.IDAtCursor(),false);
+        }
+        else{
+          toggleSelectNote(sequence.activeTrack,sequence.IDAtCursor(),true);
+        }
+        lastTime = millis();
+      }
+    }
+    if (utils.itsbeen(100)) {
+      if (controls.joystickX == 1 && !controls.SHIFT()) {
+        //if cursor isn't on a measure marker, move it to the nearest one
+        if(sequence.cursorPos%sequence.subDivision){
+          moveCursor(-sequence.cursorPos%sequence.subDivision);
+          lastTime = millis();
+        }
+        else{
+          moveCursor(-sequence.subDivision);
+          lastTime = millis();
+        }
+      }
+      if (controls.joystickX == -1 && !controls.SHIFT()) {
+        if(sequence.cursorPos%sequence.subDivision){
+          moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
+          lastTime = millis();
+        }
+        else{
+          moveCursor(sequence.subDivision);
+          lastTime = millis();
+        }
+      }
+      if (controls.joystickY == 1) {
+        if(recording)
+          setActiveTrack(sequence.activeTrack + 1, false);
+        else
+          setActiveTrack(sequence.activeTrack + 1, false);
+        lastTime = millis();
+      }
+      if (controls.joystickY == -1) {
+        if(recording)
+          setActiveTrack(sequence.activeTrack - 1, false);
+        else
+          setActiveTrack(sequence.activeTrack - 1, false);
+        lastTime = millis();
+      }
+    }
+    if (utils.itsbeen(50)) {
+      if (controls.joystickX == 1 && controls.SHIFT()) {
+        moveCursor(-1);
+        lastTime = millis();
+      }
+      if (controls.joystickX == -1 && controls.SHIFT()) {
+        moveCursor(1);
+        lastTime = millis();
+      }
+    }
+    display.clearDisplay();
+    SequenceRenderSettings settings;
+    settings.topLabels = false;
+    settings.drawPram = false;
+    drawSeq(settings);
+    if(!sequence.selectionCount){
+      printSmall(trackDisplay,0,"select notes to "+text,1);
+    }
+    else{
+      printSmall(trackDisplay,0,"[n] to "+text+" "+stringify(sequence.selectionCount)+(sequence.selectionCount == 1?" note":" notes"),1);
+    }
+    iconFunction(7,1,14,true);
+    display.display();
+  }
+}
 
 //Menus
 #include "menus/loopMenu.cpp"
@@ -215,10 +324,10 @@ void rotaryActionB_Handler(){
 #include "menus/fxMenu.cpp"
 #include "menus/arpMenu.cpp"
 #include "menus/autotrackMenu.cpp"
-#include "menus/trackMenu.cpp"
+#include "menus/trackMenus.cpp"
 #include "menus/settingsMenu.cpp"
 #include "menus/fileMenu.cpp"
-#include "menus/editMenu.cpp"
+#include "menus/noteEditMenu.cpp"
 #include "menus/clockMenu.cpp"
 #include "menus/mainMenu.cpp"
 #include "menus/midiMenu.cpp"

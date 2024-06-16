@@ -145,8 +145,8 @@ void chordBuilder();
 void echoMenu();
 void humanizeMenu();
 void quantizeMenu();
-void slideMenuIn(int fromWhere, int8_t speed);
-void slideMenuOut(int fromWhere, int8_t speed);
+// void slideMenuIn(int fromWhere, int8_t speed);
+// void slideMenuOut(int fromWhere, int8_t speed);
 void strumMenu();
 
 //Note editing
@@ -212,9 +212,8 @@ void tuneTracksToScale();
 
 //controls
 void clearButtons();
-void stepButtons();
+void mainSequencerStepButtons();
 void mainSequencerEncoders();
-bool fxMenuControls();
 bool echoMenuControls(uint8_t* cursor);
 void saveMenuControls();
 bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote);
@@ -264,7 +263,7 @@ void enterBootsel();
 void writeSeqFile(String filename);
 vector<String> loadFiles();
 vector<String> loadFilesAndSizes();
-void loadBackup();
+bool loadBackup();
 void quickSave();
 void loadSeqFile(String filename);
 void renameSeqFile(String filename);
@@ -298,6 +297,7 @@ void keyboard();
 void drumPad();
 String getMKIIParameterName(uint8_t param,  uint8_t channel);
 String getCCParameterName(uint8_t param);
+int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title);
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, void (*displayFunction)());
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, void (*displayFunction)());
 uint8_t countSpaces(String text);
