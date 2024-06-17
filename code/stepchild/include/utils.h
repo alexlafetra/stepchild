@@ -372,7 +372,6 @@ String enterText(String title){
           alphabet = alpha1;
         lastTime = millis();
       }
-
       if(controls.DELETE() && text.length()>0){
         controls.setDELETE(false);
         String newString = text.substring(0,text.length()-1);
@@ -393,6 +392,10 @@ String enterText(String title){
         text = "";
         done = true;
         lastTime = millis();
+      }
+      if(controls.NEW()){
+        lastTime = millis();
+        highlight = alphabet.size()-1;
       }
     }
     if(utils.itsbeen(100)){

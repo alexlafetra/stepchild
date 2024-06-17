@@ -1,4 +1,4 @@
-class ClockMenu:public NewMenu{
+class ClockMenu:public StepchildMenu{
   public:
     float tVal;
     float angle;

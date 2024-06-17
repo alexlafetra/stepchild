@@ -1,4 +1,4 @@
-class NoteEditMenu:public NewMenu{
+class NoteEditMenu:public StepchildMenu{
   public:
     int8_t fnWindowStart = 0;
     //value determining how many subDivs are skipped when stencilling notes

@@ -821,8 +821,7 @@ class StepchildGraphics{
   //draws the power icon corresponding to USB/batt and batt level
   void drawPower(uint8_t x1, uint8_t y1){
     //check if USB is plugged in
-    bool usb = digitalRead(USB_PIN);
-    if(usb){
+    if(isConnectedToUSBPower()){
       display.drawBitmap(x1,y1+1,tiny_usb,10,4,SSD1306_WHITE);
     }
     else{

@@ -16,9 +16,29 @@ const unsigned char lightbulb_bmp [] = {
 	0x29, 0x40, 0x09, 0x00, 0x09, 0x00, 0x06, 0x00
 };
 
-void drawSettingsTabs(uint8_t);
+class SettingsMenu:public StepchildMenu{
+  public:
+    WireFrame wireframe;
+    uint8_t menuTab = 0;
+    uint8_t xCursor = 0;
+    SettingsMenu(){
+      wireframe = getSettingsMenuWireFrame();
+    }
 
-void printMemoryInfo(uint8_t x1, uint8_t y1){
+    void drawSettingsTabs();
+    void printMemoryInfo(uint8_t x1, uint8_t y1);
+    void printPowerInfo(uint8_t x1, uint8_t y1);
+    WireFrame getSettingsMenuWireFrame();
+    void animateSettingsMenuWireFrame();
+    void drawTemplateOptions(uint8_t, uint8_t);
+    void displaySettingsMenu(uint8_t, uint8_t);
+    void displaySettingsMenu_selectionBox();
+    void displayMenu();
+    bool settingsMenuControls();
+};
+
+
+void SettingsMenu::printMemoryInfo(uint8_t x1, uint8_t y1){
   printCursive(x1,y1-7,"memory",1);
   display.fillRect(x1,y1,59,33,0);
   display.drawRect(x1,y1,59,33,1);
@@ -28,18 +48,18 @@ void printMemoryInfo(uint8_t x1, uint8_t y1){
   printSmall(x1+22,y1+26,"("+stringify(float(rp2040.getFreeHeap())/float(rp2040.getTotalHeap())*100)+"%)",1);
 }
 
-void printPowerInfo(uint8_t x1, uint8_t y1){
+void SettingsMenu::printPowerInfo(uint8_t x1, uint8_t y1){
   String s = stringify(getBattLevel());
   graphics.drawLabel(x1,y1,"vsys: "+s+"v",true);
 }
 
-void displaySettingsMenu_selectionBox(){
-    activeMenu.displaySettingsMenu(0,7,0,0);
+void SettingsMenu::displaySettingsMenu_selectionBox(){
+  displaySettingsMenu(0,0);
 }
 
-WireFrame getSettingsMenuWireFrame(uint8_t which){
+WireFrame SettingsMenu::getSettingsMenuWireFrame(){
   WireFrame w;
-  switch(which){
+  switch(menuTab){
     //gear
     case 0:
       w = makeThickGear(10,8,8,40,true);
@@ -68,280 +88,285 @@ WireFrame getSettingsMenuWireFrame(uint8_t which){
   return w;
 }
 
-void animateSettingsMenuWireFrame(WireFrame &w,uint8_t which){
-  switch(which){
+void SettingsMenu::animateSettingsMenuWireFrame(){
+  switch(menuTab){
     case 0:
-      w.rotate(2,2);
+      wireframe.rotate(2,2);
       break;
     case 1:
-      w.rotate(2,1);
+      wireframe.rotate(2,1);
       break;
     case 2:
-      w.yPos = 20+8.0*sin(millis()/600.0);
-      w.rotate(PI/6.0*sin(millis()/400),1);
+      wireframe.yPos = 20+8.0*sin(millis()/600.0);
+      wireframe.rotate(PI/6.0*sin(millis()/400),1);
       break;
   }
 }
-void settingsMenu(){
-  //which 'tab' you're looking at
-  uint8_t menuTab = 0;
-  //the cursor
-  uint8_t xCursor = 0;
-  WireFrame gear = getSettingsMenuWireFrame(menuTab);
-  while(true){
-    controls.readJoystick();
-    controls.readButtons();
-    if(utils.itsbeen(200)){
-      if(controls.joystickY != 0){
-        if(xCursor == 0){
-            if(controls.joystickY == 1 && menuTab<2){
-              menuTab++;
-              lastTime = millis();
-              gear = getSettingsMenuWireFrame(menuTab);
-            }
-            else if(controls.joystickY == -1 && menuTab>0){
-              menuTab--;
-              lastTime = millis();
-              gear = getSettingsMenuWireFrame(menuTab);
-            }
-        }
-        else{
-          switch(menuTab){
-            case 0:
-              if(controls.joystickY == 1){
-                if(xCursor<6){
-                  xCursor++;
-                  lastTime = millis();
-                } 
-              }
-              else if(controls.joystickY == -1){
-                if(xCursor >  5){
-                  xCursor = 5;
-                  lastTime = millis();
-                }
-                else if(xCursor > 0){
-                  xCursor--;
-                  lastTime = millis();
-                }
-              }
-              break;
-            case 1:
-              break;
-            case 2:
-              break;
+
+bool SettingsMenu::settingsMenuControls(){
+  controls.readJoystick();
+  controls.readButtons();
+  if(utils.itsbeen(200)){
+    if(controls.joystickY != 0){
+      if(xCursor == 0){
+          if(controls.joystickY == 1 && menuTab<2){
+            menuTab++;
+            lastTime = millis();
+            wireframe = getSettingsMenuWireFrame();
           }
-        }
+          else if(controls.joystickY == -1 && menuTab>0){
+            menuTab--;
+            lastTime = millis();
+            wireframe = getSettingsMenuWireFrame();
+          }
       }
-      if(controls.joystickX != 0){
+      else{
         switch(menuTab){
-          //seq
           case 0:
-            if(controls.joystickX == -1){
-              if(xCursor == 0){
+            if(controls.joystickY == 1){
+              if(xCursor<6){
                 xCursor++;
                 lastTime = millis();
-              }
-              else if(xCursor<6){
-                xCursor = 8;
-                lastTime = millis();
-              }
-              else if(xCursor<9){
-                xCursor++;
-                lastTime = millis();
-              }
+              } 
             }
-            else if(controls.joystickX == 1){
-              if( xCursor<6){
-                xCursor = 0;
+            else if(controls.joystickY == -1){
+              if(xCursor >  5){
+                xCursor = 5;
                 lastTime = millis();
               }
-              else{
+              else if(xCursor > 0){
                 xCursor--;
                 lastTime = millis();
               }
             }
             break;
-          //sys
           case 1:
-            if(controls.joystickX == -1 && xCursor<2){
-              xCursor++;
-              lastTime = millis();
-            }
-            else if(controls.joystickX == 1 && xCursor>0){
-              xCursor--;
-              lastTime = millis();
-            }
             break;
-          //interface
           case 2:
-              if(controls.joystickX == -1 && xCursor<1){
-              xCursor++;
-              lastTime = millis();
-            }
-            else if(controls.joystickX == 1 && xCursor>0){
-              xCursor--;
-              lastTime = millis();
-            }
-            break;
-        }
-      }
-      if(controls.MENU()){
-        controls.setMENU(false) ;
-        lastTime = millis();
-        // constructMenu("MENU");
-        return;
-      }
-      bool changedBrightness = false;
-      while(controls.counterA != 0){
-        switch(menuTab){
-          case 0:
-            //changing screen brightness
-            if(xCursor == 8){
-              if(controls.counterA<0){
-                if(controls.SHIFT() && screenBrightness>0){
-                  screenBrightness--;
-                  changedBrightness = true;
-                }
-                else if(!controls.SHIFT() && screenBrightness>16){
-                  screenBrightness-=16;
-                  changedBrightness = true;
-                }
-                else if(screenBrightness != 0){
-                  screenBrightness = 0;
-                  changedBrightness = true;
-                }
-              }
-              else if(controls.counterA>0){
-                if(controls.SHIFT() && screenBrightness<255){
-                  screenBrightness++;
-                  changedBrightness = true;
-                }
-                else if(screenBrightness<239){
-                  screenBrightness+=16;
-                  changedBrightness = true;
-                }
-                else if(screenBrightness != 255){
-                  screenBrightness = 255;
-                  changedBrightness = true;
-                }
-              }
-            }
-            break;
-        }
-        controls.counterA += controls.counterA<0?1:-1;
-      }
-      if(changedBrightness){
-        display.ssd1306_command(SSD1306_SETCONTRAST);
-        display.ssd1306_command(screenBrightness);
-      }
-      if(controls.SELECT() ){
-        switch(menuTab){
-          //seq
-          case 0:
-            switch(xCursor){
-              //showing pitches
-              case 1:
-                pitchesOrNumbers = !pitchesOrNumbers;
-                lastTime = millis();
-                break;
-              //leds on/off
-              case 2:
-                LEDsOn = !LEDsOn;
-                lastTime = millis();
-                break;
-              case 3:
-                waitForNoteBeforeRec = !waitForNoteBeforeRec;
-                lastTime = millis();
-                break;
-              //overwrite
-              case 4:
-                overwriteRecording = !overwriteRecording;
-                lastTime = millis();
-                break;
-              //rec mode
-              case 5:
-                recMode++;
-                recMode%=4;
-                lastTime = millis();
-                break;
-              //remove time
-              case 6:{
-                lastTime = millis();
-                int8_t choice = 1;
-                //if there are notes that will be deld
-                uint16_t countedNotes = countNotesInRange(sequence.sequenceLength-96,sequence.sequenceLength);
-                if(countedNotes)
-                  choice = binarySelectionBox(64,32,"naur","sure","this will del "+stringify(countedNotes)+" note(s), ok?",displaySettingsMenu_selectionBox);
-                if(choice == 1){
-                    sequence.removeTimeFromSeq(96,sequence.sequenceLength-96);
-                }
-                lastTime = millis();
-                }
-                break;
-              //add time
-              case 7:
-                    sequence.addTimeToSeq(96,sequence.sequenceLength);
-                lastTime = millis();
-                break;
-              //brightness
-              case 8:
-                break;
-              //load/write to flash
-              case 9:
-                if(controls.SHIFT()){
-                  loadSettings();
-                  lastTime = millis();
-                }
-                else{
-                  writeCurrentSettingsToFile();
-                  alert("saved!",500);
-                  lastTime = millis();
-                }
-                break;
-            }
-            break;
-          //system
-          case 1:
-            switch(xCursor){
-              //enter update mode 
-              case 1:
-                display.drawBitmap(39,7,web_bmp,50,50,SSD1306_WHITE);
-                enterBootsel();
-                break;
-              //enter bottsel
-              case 2:
-                enterBootsel();
-                break;
-            }
-            break;
-          //interface
-          case 2:
-            switch(xCursor){
-              case 1:
-                webInterface();
-                break;
-            }
             break;
         }
       }
     }
-    display.clearDisplay();
-    gear.render();
-    activeMenu.displaySettingsMenu(menuTab,xCursor,0,0);
-    display.display();
-    animateSettingsMenuWireFrame(gear,menuTab);
+    if(controls.joystickX != 0){
+      switch(menuTab){
+        //seq
+        case 0:
+          if(controls.joystickX == -1){
+            if(xCursor == 0){
+              xCursor++;
+              lastTime = millis();
+            }
+            else if(xCursor<6){
+              xCursor = 8;
+              lastTime = millis();
+            }
+            else if(xCursor<9){
+              xCursor++;
+              lastTime = millis();
+            }
+          }
+          else if(controls.joystickX == 1){
+            if( xCursor<6){
+              xCursor = 0;
+              lastTime = millis();
+            }
+            else{
+              xCursor--;
+              lastTime = millis();
+            }
+          }
+          break;
+        //sys
+        case 1:
+          if(controls.joystickX == -1 && xCursor<2){
+            xCursor++;
+            lastTime = millis();
+          }
+          else if(controls.joystickX == 1 && xCursor>0){
+            xCursor--;
+            lastTime = millis();
+          }
+          break;
+        //interface
+        case 2:
+            if(controls.joystickX == -1 && xCursor<1){
+            xCursor++;
+            lastTime = millis();
+          }
+          else if(controls.joystickX == 1 && xCursor>0){
+            xCursor--;
+            lastTime = millis();
+          }
+          break;
+      }
+    }
+    if(controls.MENU()){
+      controls.setMENU(false) ;
+      lastTime = millis();
+      return false;
+    }
+    bool changedBrightness = false;
+    while(controls.counterA != 0){
+      switch(menuTab){
+        case 0:
+          //changing screen brightness
+          if(xCursor == 8){
+            if(controls.counterA<0){
+              if(controls.SHIFT() && screenBrightness>0){
+                screenBrightness--;
+                changedBrightness = true;
+              }
+              else if(!controls.SHIFT() && screenBrightness>16){
+                screenBrightness-=16;
+                changedBrightness = true;
+              }
+              else if(screenBrightness != 0){
+                screenBrightness = 0;
+                changedBrightness = true;
+              }
+            }
+            else if(controls.counterA>0){
+              if(controls.SHIFT() && screenBrightness<255){
+                screenBrightness++;
+                changedBrightness = true;
+              }
+              else if(screenBrightness<239){
+                screenBrightness+=16;
+                changedBrightness = true;
+              }
+              else if(screenBrightness != 255){
+                screenBrightness = 255;
+                changedBrightness = true;
+              }
+            }
+          }
+          break;
+      }
+      controls.counterA += controls.counterA<0?1:-1;
+    }
+    if(changedBrightness){
+      display.ssd1306_command(SSD1306_SETCONTRAST);
+      display.ssd1306_command(screenBrightness);
+    }
+    if(controls.SELECT() ){
+      switch(menuTab){
+        //seq
+        case 0:
+          switch(xCursor){
+            //showing pitches
+            case 1:
+              pitchesOrNumbers = !pitchesOrNumbers;
+              lastTime = millis();
+              break;
+            //leds on/off
+            case 2:
+              LEDsOn = !LEDsOn;
+              lastTime = millis();
+              break;
+            case 3:
+              waitForNoteBeforeRec = !waitForNoteBeforeRec;
+              lastTime = millis();
+              break;
+            //overwrite
+            case 4:
+              overwriteRecording = !overwriteRecording;
+              lastTime = millis();
+              break;
+            //rec mode
+            case 5:
+              recMode++;
+              recMode%=4;
+              lastTime = millis();
+              break;
+            //remove time
+            case 6:{
+              lastTime = millis();
+              int8_t choice = 1;
+              //if there are notes that will be deld
+              uint16_t countedNotes = countNotesInRange(sequence.sequenceLength-96,sequence.sequenceLength);
+              if(countedNotes)
+                choice = binarySelectionBox(64,32,"naur","sure","this will del "+stringify(countedNotes)+" note(s), ok?");
+              if(choice == 1){
+                  sequence.removeTimeFromSeq(96,sequence.sequenceLength-96);
+              }
+              lastTime = millis();
+              }
+              break;
+            //add time
+            case 7:
+                  sequence.addTimeToSeq(96,sequence.sequenceLength);
+              lastTime = millis();
+              break;
+            //brightness
+            case 8:
+              break;
+            //load/write to flash
+            case 9:
+              if(controls.SHIFT()){
+                loadSettings();
+                lastTime = millis();
+              }
+              else{
+                writeCurrentSettingsToFile();
+                alert("saved!",500);
+                lastTime = millis();
+              }
+              break;
+          }
+          break;
+        //system
+        case 1:
+          switch(xCursor){
+            //enter update mode 
+            case 1:
+              display.drawBitmap(39,7,web_bmp,50,50,SSD1306_WHITE);
+              enterBootsel();
+              break;
+            //enter bottsel
+            case 2:
+              enterBootsel();
+              break;
+          }
+          break;
+        //interface
+        case 2:
+          switch(xCursor){
+            case 1:
+              webInterface();
+              break;
+          }
+          break;
+      }
+    }
+  }
+  return true;
+}
+
+void SettingsMenu::displayMenu(){
+  animateSettingsMenuWireFrame();
+  display.clearDisplay();
+  wireframe.render();
+  displaySettingsMenu(0,0);
+  display.display();
+}
+
+void settingsMenu(){
+  SettingsMenu settingsMenu;
+  while(settingsMenu.settingsMenuControls()){
+    settingsMenu.displayMenu();
   }
 }
-void drawTemplateOptions(uint8_t x1,uint8_t whichTemplate){
+
+void SettingsMenu::drawTemplateOptions(uint8_t x1,uint8_t whichTemplate){
   display.fillRect(x1,0,screenWidth-x1,screenHeight,0);
   display.drawFastVLine(x1,0,screenHeight,1);
   printSmall(x1+4,2,"templates",1);
   printSmall(x1+6,12,"basic",1);
-  graphics.drawCheckbox(x1+30,11,whichTemplate == 0,activeMenu.highlight == 0);
+  graphics.drawCheckbox(x1+30,11,whichTemplate == 0,cursor == 0);
   printSmall(x1+6,22,"404",1);
-  graphics.drawCheckbox(x1+30,21,whichTemplate == 1,activeMenu.highlight == 1);
+  graphics.drawCheckbox(x1+30,21,whichTemplate == 1,cursor == 1);
   printSmall(x1+6,32,"4track",1);
-  graphics.drawCheckbox(x1+30,31,whichTemplate == 2,activeMenu.highlight == 2);
+  graphics.drawCheckbox(x1+30,31,whichTemplate == 2,cursor == 2);
 }
 
 // 'connect_to_interface', 20x20px
@@ -359,9 +384,9 @@ const unsigned char screen_capture_bmp [] = {
 	0x00, 0xb3, 0x10, 0x00, 0xa6, 0x50, 0x00, 0x80, 0x10, 0x00, 0xff, 0xf0
 };
 
-void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8_t whichTemplate){
-  drawSettingsTabs(whichMenu);
-  switch(whichMenu){
+void SettingsMenu::displaySettingsMenu(uint8_t x2,uint8_t whichTemplate){
+  drawSettingsTabs();
+  switch(menuTab){
     //sequence
     /*
     - length
@@ -396,8 +421,8 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
       //length
       printSmall(x1+3,y1+48,"length -- "+stepsToMeasures(sequence.sequenceLength),1);
       printSmall(x1+2,y1+56,"("+stringify(sequence.sequenceLength)+" steps)",1);
-      graphics.drawArrow(x1-12,y1+54,6,1,cursor == 6);
-      graphics.drawArrow(x1+56,y1+54,6,0,cursor == 7);
+      graphics.drawArrow(x1-12,y1+54,6,1,xCursor == 6);
+      graphics.drawArrow(x1+56,y1+54,6,0,xCursor == 7);
 
       //lightbulb
       display.drawBitmap(94,52,lightbulb_bmp,12,12,2);
@@ -405,18 +430,18 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
       //save
       display.drawBitmap(111,52,save_bmp,12,12,2);
 
-      switch(cursor){
+      switch(xCursor){
         case 0:
           graphics.drawArrow(14+((millis()/400)%2),9,2,1,true);
           break;
         case 1:
         case 2:
-          graphics.drawArrow(23+((millis()/400)%2),(cursor-1)*8+y1+2,2,0,false);
+          graphics.drawArrow(23+((millis()/400)%2),(xCursor-1)*8+y1+2,2,0,false);
           break;
         case 3:
         case 4:
         case 5:
-          graphics.drawArrow(23+((millis()/400)%2),(cursor-1)*8+y1+6,2,0,false);
+          graphics.drawArrow(23+((millis()/400)%2),(xCursor-1)*8+y1+6,2,0,false);
           break;
         //remove time
         case 6:
@@ -451,21 +476,21 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
       printPowerInfo(105,1);
       printSmall(x1,y1+35,"temp: "+stringify(analogReadTemp())+"}C",1);
       printSmall(x1,y1+43,"cpu speed: "+stringify(float(rp2040.f_cpu())/float(1000000))+"MHZ",1);
-      if(cursor == 0){
+      if(xCursor == 0){
         graphics.drawArrow(14+((millis()/200)%2),26,2,1,false);
         display.drawRoundRect(x1,y1+50,16,10,3,SSD1306_WHITE);
         printSmall(x1+6,y1+52,"U^",1);
         display.drawRoundRect(x1+18,y1+50,12,10,3,SSD1306_WHITE);
         printSmall(x1+21,y1+52,"B&",1);
       }
-      else if(cursor == 1){
+      else if(xCursor == 1){
         display.fillRoundRect(x1,y1+50,16,10,3,SSD1306_WHITE);
         printSmall(x1+6,y1+52,"U^",0);
         display.drawRoundRect(x1+18,y1+50,12,10,3,SSD1306_WHITE);
         printSmall(x1+21,y1+52,"B&",1);
         printSmall(x1+32,y1+52,"enter update mode",1);
       }
-      else if(cursor == 2){
+      else if(xCursor == 2){
         display.drawRoundRect(x1,y1+50,16,10,3,SSD1306_WHITE);
         printSmall(x1+6,y1+52,"U^",1);
         display.fillRoundRect(x1+18,y1+50,12,10,3,SSD1306_WHITE);
@@ -483,7 +508,7 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
     {
       display.drawBitmap(20,6,screen_capture_bmp,20,20,1);
       display.drawBitmap(20,30,connect_to_interface_bmp,20,20,1);
-      switch(cursor){
+      switch(xCursor){
         case 0:
           graphics.drawArrow(14+((millis()/200)%2),46,2,1,false);
           break;
@@ -497,10 +522,10 @@ void Menu::displaySettingsMenu(uint8_t whichMenu,uint8_t cursor,uint8_t x2,uint8
   }
 }
 
-void drawSettingsTabs(uint8_t openTab){
+void SettingsMenu::drawSettingsTabs(){
   display.setRotation(3);
   //small tab if inactive
-  if(openTab != 0){
+  if(menuTab != 0){
     uint8_t x1 = 0;
     uint8_t y1 = 124;
     display.drawFastHLine(x1,y1,2,1);
@@ -521,7 +546,7 @@ void drawSettingsTabs(uint8_t openTab){
     display.drawFastVLine(x1+16,y1-8,9,1);
     display.drawFastHLine(x1+17,y1,2,1);
   }
-  if(openTab != 1){
+  if(menuTab != 1){
     uint8_t x1 = 19;
     uint8_t y1 = 124;
     display.drawFastVLine(x1,y1-6,7,1);
@@ -539,7 +564,7 @@ void drawSettingsTabs(uint8_t openTab){
     display.drawFastVLine(x1+14,y1-8,9,1);
     display.drawFastHLine(x1+15,y1,2,1);
   }
-  if(openTab != 2){
+  if(menuTab != 2){
     uint8_t x1 = 36;
     uint8_t y1 = 124;
     display.drawFastVLine(x1,y1-6,7,1);

@@ -114,6 +114,7 @@ void writeSeqFile(String filename){
   File seqFile = LittleFS.open(path,"w");
   if(!seqFile)
     return;
+  // return;
   writeFileHeader(seqFile);
   for(FileFormatCode code:sequenceFileHeader){
     switch(code){
@@ -218,9 +219,8 @@ void writeSeqFile(String filename){
         break;}
     }
   }
+  seqFile.close();
   LittleFS.end();
-  Serial.println("Done!");
-  Serial.flush();
 }
 
 void writeCurrentSeqToSerial(bool waitForResponse){
@@ -353,7 +353,6 @@ void exportSeqFileToSerial_standAlone(String filename){
   exportSeqFileToSerial(filename);
   LittleFS.end(); 
 }
-
 /*
   Exports a seqFile as a series of bytes via USB Serial.
   ONLY call this function after LittleFS.begin()! Otherwise, use exportSeqFile_standalone.
@@ -713,7 +712,6 @@ bool deleteSeqFile(String filename){
   }
   return false;
 }
-
 
 void quickSave(){
   //if it hasn't been saved yet

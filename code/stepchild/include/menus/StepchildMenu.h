@@ -5,7 +5,7 @@ enum SlideDirection:uint8_t{
     OUT_FROM_BOTTOM
 };
 //generic menu class
-class NewMenu{
+class StepchildMenu{
     public:
         //stores coordinate pairs for (start, end) of the menu rectangle (not used by all menus!)
         CoordinatePair coords;
@@ -13,7 +13,7 @@ class NewMenu{
         uint8_t cursor = 0;
         //a function that needs to be overridden by each menu's derived class
         virtual void displayMenu(){};
-        NewMenu(){}
+        StepchildMenu(){}
         void slideIn(SlideDirection origin,uint8_t speed){
             if(origin == IN_FROM_RIGHT){
                 //store original coords

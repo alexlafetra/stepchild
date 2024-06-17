@@ -1,4 +1,4 @@
-class MainMenu:public NewMenu{
+class MainMenu:public StepchildMenu{
   public:
     WireFrame icon;
     uint8_t wireFrameID;
@@ -241,7 +241,7 @@ bool MainMenu::mainMenuControls(){
         //files
         case 9:
           slideOut(OUT_FROM_BOTTOM,20);
-          constructMenu("FILES");
+          fileMenu();
           slideIn(IN_FROM_BOTTOM,20);
           break;
         //clock

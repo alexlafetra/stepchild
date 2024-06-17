@@ -36,6 +36,7 @@ class ConsoleLog{
             }
         }
 };
+
 #ifndef HEADLESS
 void downloadFile(){
     uint8_t filesize[4] = {0,0,0,0};
@@ -95,7 +96,7 @@ void downloadFile(){
 #endif
 
 //loop that reads serial input
-void webInterface(){
+void webInterface_old(){
     uint8_t command[3] = {255,255,255};
     ConsoleLog console = ConsoleLog();
     while(true){

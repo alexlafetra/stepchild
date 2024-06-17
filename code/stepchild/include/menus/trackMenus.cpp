@@ -7,7 +7,7 @@ void drawTrackMenuTopInfo(uint8_t topL);
 --------------------------------
 */
 
-class TrackMenu:public NewMenu{
+class TrackMenu:public StepchildMenu{
   public:
     uint8_t xCursor = 0;
     TrackMenu(){
@@ -353,7 +353,7 @@ void trackMenu(){
 --------------------------------
 */
 
-class TrackEditMenu:public NewMenu{
+class TrackEditMenu:public StepchildMenu{
   public:
     //for which param to edit
     uint8_t xCursor = 0;
@@ -931,8 +931,6 @@ bool TrackEditMenu::trackEditMenuControls(){
       }
     }
     if(controls.MENU() || controls.A()){
-      // menuIsActive = false;
-      // constructMenu("MENU");
       for(uint8_t track = 0; track<sequence.trackData.size(); track++){
         sequence.trackData[track].isSelected = false;
       }
@@ -966,7 +964,7 @@ void trackEditMenu(){
 --------------------------------
 */
 
-class TrackUtilMenu:public NewMenu{
+class TrackUtilMenu:public StepchildMenu{
   public:
     //storing a ref to the track menu so you can call the display method
     TrackMenu* trackMenu;

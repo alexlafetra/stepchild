@@ -21,9 +21,7 @@
 #include <fstream>
 #include <filesystem>
 
-void quickSave(){
-    
-}
+void quickSave(){}
 
 //replacement for the Pico's filesystem
 //FileSystem LittleFS;

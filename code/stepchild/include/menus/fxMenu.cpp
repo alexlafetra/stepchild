@@ -1,4 +1,4 @@
-class FxMenu:public NewMenu{
+class FxMenu:public StepchildMenu{
   public:
     WireFrame icon;
     uint8_t page = 0;

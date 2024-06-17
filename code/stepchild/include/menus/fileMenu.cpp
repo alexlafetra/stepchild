@@ -1,4 +1,4 @@
-class FileMenu:public NewMenu{
+class FileMenu:public StepchildMenu{
   public:
     vector<String> filenames = {"*new*"};
     WireFrame folderWireframe;
@@ -11,7 +11,7 @@ class FileMenu:public NewMenu{
       folderWireframe.scale = 3;
       folderWireframe.xPos = 96;
       folderWireframe.yPos = screenHeight/2;
-      // filenames = loadFiles();
+      filenames = loadFiles();
     }
     void displayMenu();
     void displayMenu(int16_t,bool);
@@ -154,12 +154,13 @@ bool FileMenu::fileMenuControls(){
   controls.readButtons();
   controls.readJoystick();
   if(page == 0){
-    return fileMenuControls();
+    return fileMenuControls_default();
   }
   else{
     return fileMenuControls_miniMenu();
   }
 }
+
 bool FileMenu::fileMenuControls_default(){
   //menu data shit
   if(cursor>menuEnd){
@@ -207,7 +208,7 @@ bool FileMenu::fileMenuControls_default(){
           String fileName = enterText("filename?");
           if(fileName != "default"){
             writeSeqFile(fileName);
-            return false;
+            filenames = loadFiles();
           }
         }
         //entering the minimenu
@@ -327,16 +328,14 @@ void FileMenu::displayMenu(int16_t textOffset, bool open){
   display.setFont();
   printSmall(coords.start.x+9,coords.start.y+10,"--------",SSD1306_WHITE);
 
+  if(cursor != 0)
+    printSmall(coords.start.x-4,coords.start.y,stringify(cursor)+"/"+stringify(filenames.size()-1),1);
+
   const uint8_t textWidth = 20;
   const uint8_t textHeight = 9;
 
   uint8_t yLoc = 0;
-
-  //making sure it can't read filenames that don't exist
-  if(filenames.size() == 0){
-    printSmall(24,24,"No files, kid",SSD1306_WHITE);
-    return;
-  }
+  menuEnd = menuStart+4;
   if(menuEnd>=filenames.size()){
     menuEnd = filenames.size()-1;
   }

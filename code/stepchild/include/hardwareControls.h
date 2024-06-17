@@ -479,6 +479,10 @@ void enterBootsel(){
   reset_usb_boot(1<<PICO_DEFAULT_LED_PIN,0);
 }
 
+bool isConnectedToUSBPower(){
+  return digitalRead(USB_PIN);
+}
+
 #define BATTSCALE 0.00966796875
 //3.0*3.3/1024.0;
 //idk why ^^this isn't 4095.0, but it ain't
