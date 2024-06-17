@@ -486,22 +486,34 @@ int getTrackWithPitch(int pitch){
   return -1;
 }
 
-int makeTrackWithPitch(int pitch, int channel){
-  int track  = getTrackWithPitch(pitch,channel);
+int16_t makeTrackWithPitch(int pitch, int channel){
+  int16_t track = getTrackWithPitch(pitch,channel);
   if(track == -1){
-    track = addTrack_return(pitch, channel, false);
+    return addTrack_return(pitch, channel, false);
   }
   return track;
 }
 
 void insertTrack(Track newTrack, uint8_t index){
-  //inserting new track
-  sequence.trackData.insert(sequence.trackData.begin()+index,newTrack);
-  //inserting new lookupTable lane
-  vector<uint16_t> blankLookupData(sequence.sequenceLength,0);
-  sequence.lookupTable.insert(sequence.lookupTable.begin()+index,blankLookupData);
-  //inserting new noteData lane
-  sequence.noteData.insert(sequence.noteData.begin()+index,{Note()});
+  //if you're trying to insert past the end!
+  if(index>=sequence.trackData.size()){
+    //inserting new track
+    sequence.trackData.push_back(newTrack);
+    //inserting new lookupTable lane
+    vector<uint16_t> blankLookupData(sequence.sequenceLength,0);
+    sequence.lookupTable.push_back(blankLookupData);
+    //inserting new noteData lane
+    sequence.noteData.push_back({Note()});
+  }
+  else{
+    //inserting new track
+    sequence.trackData.insert(sequence.trackData.begin()+index,newTrack);
+    //inserting new lookupTable lane
+    vector<uint16_t> blankLookupData(sequence.sequenceLength,0);
+    sequence.lookupTable.insert(sequence.lookupTable.begin()+index,blankLookupData);
+    //inserting new noteData lane
+    sequence.noteData.insert(sequence.noteData.begin()+index,{Note()});
+  }
 }
 
 void addTrack(Track newTrack, bool loudly){

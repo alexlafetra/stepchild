@@ -604,7 +604,7 @@ void loadSeqFile(String filename){
             loopDat.start = uint16_t((start[0]<<8)+start[1]);
             loopDat.end = uint16_t((end[0]<<8)+end[1]);
             loopDat.reps = loopInfo[0];
-            loopDat.type = loopInfo[1];
+            loopDat.type = static_cast<LoopType>(loopInfo[1]);
             newLoopData.push_back(loopDat);
           }
           sequence.loopData.swap(newLoopData);

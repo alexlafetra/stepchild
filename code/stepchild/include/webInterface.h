@@ -13,6 +13,9 @@ class Console{
             for(uint8_t i = 0; i<text.size(); i++){
                 printSmall(x1,y1+i*6,text[i],1);
             }
+            //blinking cursor
+            if((millis()/200)%2)
+                display.fillRect(x1+(text[text.size()-1].length()+1)*4,y1+text.size()*6,3,5,1);
         }
         void clear(){
             text.erase(text.begin(),text.end());
@@ -113,11 +116,13 @@ void WebInterface::parseCommand(WebInterfaceCommand command){
 
 uint8_t getFileCount(){
     uint8_t fileCount = 0;
+    #ifndef HEADLESS
     Dir saves = LittleFS.openDir("/SAVES");
     while(saves.next()){
         fileCount++;
     }
     saves.rewind();
+    #endif
     return fileCount;
 }
 void WebInterface::sendFileCount(){
@@ -134,7 +139,7 @@ void writeFileToSerial(File f){
     uint32_t fileSize = f.size();
     uint8_t byteCount[4] = {uint8_t(fileSize>>24),uint8_t(fileSize>>16),uint8_t(fileSize>>8),uint8_t(fileSize)};
     Serial.write(byteCount,4);//write the filesize
-    // Serial.write(fileSize);
+
     char data[fileSize];
     f.readBytes(data,fileSize);//read the file into a buffer
     Serial.write(data,fileSize);//write the buffer to the serial buffer
@@ -142,6 +147,7 @@ void writeFileToSerial(File f){
 }
 
 void WebInterface::dumpFileSystem(){
+    #ifndef HEADLESS
     if(LittleFS.exists("/SAVES")){
         Dir saves = LittleFS.openDir("/SAVES");
         while(saves.next()){
@@ -158,6 +164,7 @@ void WebInterface::dumpFileSystem(){
             drawInterface();
         }
     }
+    #endif
 }
 
 void WebInterface::drawInterface(){
@@ -167,7 +174,9 @@ void WebInterface::drawInterface(){
 }
 
 void webInterface(){
+    #ifndef HEADLESS
     LittleFS.begin();
+    #endif
     WebInterface interface;
     while(interface.interfaceControls()){
         interface.drawInterface();
@@ -175,6 +184,8 @@ void webInterface(){
             interface.parseCommand(Serial.read());
         }
     }
+    #ifndef HEADLESS
     LittleFS.end();
+    #endif
 }
 

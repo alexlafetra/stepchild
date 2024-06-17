@@ -180,8 +180,10 @@ void reverse();
 void rattle();
 
 //Track editing
+int16_t makeTrackWithPitch(int,int);
 void deleteAllTracks();
 int getTrackWithPitch(int);
+int getTrackWithPitch(int,int);
 int getTrackWithPitch_above(uint8_t pitch, uint8_t aboveIndex);
 int16_t addTrack_return(unsigned short int,unsigned short int,bool);
 int16_t insertTrack_return(unsigned short int,unsigned short int,bool,uint8_t);
@@ -250,8 +252,6 @@ void checkAutotracks();
 
 //Loops
 void moveLoop(int16_t amount);
-void setActiveLoop(unsigned int id);
-void deleteLoop(uint8_t id);
 void setLoopToInfinite(uint8_t targetL);
 
 //RP2040 Hardware

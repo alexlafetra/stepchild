@@ -86,6 +86,23 @@ struct NoteTrackPair;
 struct EchoData;
 struct RandomData;
 
+enum LoopType : uint8_t{
+  NORMAL,
+  RANDOM,
+  RANDOM_SAME,
+  RETURN,
+  INFINITE
+};
+
+LoopType operator++(LoopType &c,int) {
+  c = static_cast<LoopType>(static_cast<uint8_t>(c) + 1);
+  return c;
+}
+LoopType operator--(LoopType &c,int) {
+  c = static_cast<LoopType>(static_cast<uint8_t>(c) - 1);
+  return c;
+}
+
 //Stores loop data as start,end,reps,and type
 struct Loop{
   //The start of the Loop (in steps)
@@ -95,7 +112,7 @@ struct Loop{
   //the number of times-1 the loop will play before linking to the next loop. 0 sets the Loop to play once.
   uint8_t reps;
   //how the Loop links to the next Loop
-  uint8_t type;
+  LoopType type;
   /*
   Type:
   0 = go to next Loop
@@ -109,7 +126,7 @@ struct Loop{
       this->start = s;
       this->end = e;
       this->reps = r;
-      this->type = t;
+      this->type = static_cast<LoopType>(t);
   }
   uint16_t length(){
     return this->end-this->start;
@@ -182,10 +199,10 @@ void rotaryActionB_Handler(){
 #include "classes/NoteID.h"
 #include "classes/Progression.h"
 
-#include "scales.h"
+// #include "scales.h"
 #include "CV.h"
 #include "playback.h"
-#include "interface.h"
+// #include "interface.h"
 #include "programChange.h"
 
 //including custom users apps
@@ -213,6 +230,7 @@ void rotaryActionB_Handler(){
 #include "applications/knobs.cpp"
 #include "applications/drumPads.cpp"
 #include "applications/xy.cpp"
+#include "applications/keyboard.h"
 
 #include "applications/applications.h"
 
@@ -236,8 +254,6 @@ void rotaryActionB_Handler(){
 #include "trackEditing.h"
 #include "sleep.h"
 #include "fileSystem.h"
-#include "recording.h"
-#include "keyboard.h"
 #include "CCSelector.h"
 #include "grooves.h"
 #include "mainSequence.h"

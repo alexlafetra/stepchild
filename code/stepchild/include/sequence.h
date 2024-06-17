@@ -48,11 +48,13 @@ class StepchildSequence{
     };
 
     StepchildSequence(){}
+
     /*
     ----------------------------------------------------------
                         Utilities
     ----------------------------------------------------------
     */
+   
     //creates a sequence object with default values
     void init(uint8_t numberOfTracks,uint16_t length){
         //What should happen if length<192?
@@ -683,6 +685,127 @@ class StepchildSequence{
     }
     void insertLoop(Loop newLoop, uint8_t index){
         this->loopData.insert(this->loopData.begin()+index,newLoop);
+    }
+
+    
+    void setActiveLoop(unsigned int id){
+        if(id<this->loopData.size() && id >=0){
+            this->activeLoop = id;
+            this->loopCount = 0;
+        }
+    }
+
+    void addLoop(){
+        Loop newLoop;
+        newLoop.start = this->loopData[this->activeLoop].start;
+        newLoop.end = this->loopData[this->activeLoop].end;
+        newLoop.reps = this->loopData[this->activeLoop].reps;
+        newLoop.type = this->loopData[this->activeLoop].type;
+        this->loopData.push_back(newLoop);
+        setActiveLoop(this->loopData.size()-1);
+    }
+
+    void addLoop(unsigned short int start, unsigned short int end, unsigned short int iter, uint8_t type){
+        Loop newLoop;
+        newLoop.start = start;
+        newLoop.end = end;
+        newLoop.reps = iter;
+        newLoop.type = static_cast<LoopType>(type);
+        this->loopData.push_back(newLoop);
+    }
+
+    void deleteLoop(uint8_t id){
+        if(this->loopData.size() > 1 && this->loopData.size()>id){//if there's more than one loop, and id is in this->loopData
+            vector<Loop> tempVec;
+            for(int i = 0; i<this->loopData.size(); i++){
+                if(i!=id){
+                    tempVec.push_back(this->loopData[i]);
+                }
+            }
+            this->loopData.swap(tempVec);
+            //if this->activeLoop was the loop that got deld, or above it
+            //decrement it's id so it reads correct (and existing) data
+            if(this->activeLoop>=this->loopData.size()){  
+                this->activeLoop = this->loopData.size()-1;
+            }
+        }
+        setActiveLoop(this->activeLoop);
+    }
+
+    void toggleLoop(){
+        this->isLooping = !this->isLooping;
+    }
+
+    //moves to the next loop in loopSeq
+    void nextLoop(){
+        this->loopCount = 0;
+        if(this->loopData.size()>1){
+            switch(this->loopData[this->activeLoop].type){
+                case NORMAL:
+                    //move to next loop
+                    if(this->activeLoop < this->loopData.size()-1)
+                        this->activeLoop++;
+                    else
+                        this->activeLoop = 0;
+                    if(playing)
+                        playheadPos = this->loopData[this->activeLoop].start;
+                    if(recording)
+                        recheadPos = this->loopData[this->activeLoop].start;
+                    break;
+                case RANDOM:{
+                    this->activeLoop = random(0,this->loopData.size());
+                    if(playing)
+                        playheadPos = this->loopData[this->activeLoop].start;
+                    if(recording)
+                        recheadPos = this->loopData[this->activeLoop].start;
+                    break;}
+                case RANDOM_SAME:{
+                    //move to next loop
+                    if(this->activeLoop < this->loopData.size()-1)
+                        this->activeLoop++;
+                    else
+                        this->activeLoop = 0;
+                    //if rnd of same size mode, choose a random loop
+                    int currentLength = this->loopData[this->activeLoop].end - this->loopData[this->activeLoop].start;
+                    vector<uint8_t> similarLoops;
+                    for(int i = 0; i<this->loopData.size(); i++){
+                        int len = this->loopData[i].end-this->loopData[i].start;
+                        if(len == currentLength){
+                            similarLoops.push_back(i);
+                        }
+                    }
+                    this->activeLoop = similarLoops[random(0,similarLoops.size())];
+                    if(playing)
+                        playheadPos = this->loopData[this->activeLoop].start;
+                    if(recording)
+                        recheadPos = this->loopData[this->activeLoop].start;
+                    break;}
+                case RETURN:{
+                    this->activeLoop = 0;
+                    if(playing)
+                        playheadPos = this->loopData[this->activeLoop].start;
+                    if(recording)
+                        recheadPos = this->loopData[this->activeLoop].start;
+                    break;}
+                case INFINITE:{
+                    if(playing)
+                        playheadPos = this->loopData[this->activeLoop].start;
+                    if(recording)
+                        recheadPos = this->loopData[this->activeLoop].start;
+                    break;}
+                }
+        }
+    }
+    //cuts notes off when loop repeats, then starts new note at beginning
+    void cutLoop(){
+        for(int i = 0; i<this->trackData.size(); i++){
+            if(this->trackData[i].noteLastSent != 255){
+                this->noteData[i][this->noteData[i].size()-1].endPos = this->loopData[this->activeLoop].end;
+                //if it's about to loop again (if it's a one-shot recording, there's no need to make a new note)
+                if(recMode != ONESHOT)
+                    writeNoteOn(this->loopData[this->activeLoop].start,this->trackData[i].pitch,this->noteData[i][this->noteData[i].size()-1].velocity,this->trackData[i].channel);
+            }
+        }
     }
 };
 

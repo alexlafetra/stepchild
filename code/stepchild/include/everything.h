@@ -316,24 +316,7 @@ void moveToNextNote(bool forward){
 }
 
 //View ------------------------------------------------------------------
-//view start is inclusive, starts at 0
-//view end is inclusive, 127
-//handles making sure the view is correct
-// void moveView(int16_t val) {
-//   int oldViewLength = sequence.viewEnd-sequence.viewStart;
-//   if((sequence.viewStart+val)<0){
-//     sequence.viewStart = 0;
-//     sequence.viewEnd = sequence.viewStart+oldViewLength;
-//   }
-//   if(sequence.viewEnd+val>sequence.sequenceLength){
-//     sequence.viewEnd = sequence.sequenceLength;
-//     sequence.viewStart = sequence.viewEnd - oldViewLength;
-//   }
-//   if(sequence.viewEnd+val<=sequence.sequenceLength && sequence.viewStart+val>=0){
-//     sequence.viewStart += val;
-//     sequence.viewEnd += val;
-//   }
-// }
+
 void setViewStart(uint16_t step){
   uint16_t viewLength = sequence.viewEnd-sequence.viewStart;
   if(viewLength + step > sequence.sequenceLength){

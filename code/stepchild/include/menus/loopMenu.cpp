@@ -1,9 +1,3 @@
-#define NORMAL 0
-#define RANDOM 1
-#define RANDOM_SAME 2
-#define RETURN 3
-#define INFINITE 4
-
 void printLoopTitle(uint8_t, uint8_t);
 void drawLoopBlocksVertically(int,int,int);
 void drawLoopPreview(uint8_t x1, uint8_t y1, uint8_t loop);
@@ -332,7 +326,7 @@ bool viewLoopControls(uint8_t which){
 
 void viewLoop(uint8_t which){
   setCursor(sequence.loopData[which].start);
-  setActiveLoop(which);
+  sequence.setActiveLoop(which);
   String tempText;
   while(true){
     controls.readJoystick();
@@ -387,16 +381,16 @@ void loopMenu(){
     //changing the loop type
     while(controls.counterB != 0){
       if(controls.counterB>0){
-        if(sequence.loopData[targetL].type<4)
+        if(sequence.loopData[targetL].type<INFINITE)
           sequence.loopData[targetL].type++;
         else
-          sequence.loopData[targetL].type = 0;
+          sequence.loopData[targetL].type = NORMAL;
       }
       else{
-        if(sequence.loopData[targetL].type>0)
+        if(sequence.loopData[targetL].type>NORMAL)
           sequence.loopData[targetL].type--;
         else
-          sequence.loopData[targetL].type = 4;
+          sequence.loopData[targetL].type = INFINITE;
       }
       controls.counterB += controls.counterB<0?1:-1;
     }
@@ -419,7 +413,7 @@ void loopMenu(){
       // step buttons loop selecting
       for(uint8_t i = 0; i<sequence.loopData.size(); i++){
         if(controls.stepButton(i)){
-          setActiveLoop(i);
+          sequence.setActiveLoop(i);
           lastTime = millis();
           break;
         }
@@ -439,11 +433,11 @@ void loopMenu(){
         }
         //loop type
         else{
-          if(controls.joystickX == -1 && sequence.loopData[targetL].type<3){
+          if(controls.joystickX == -1 && sequence.loopData[targetL].type<RETURN){
             sequence.loopData[targetL].type++;
             lastTime = millis();
           }
-          if(controls.joystickX == 1 && sequence.loopData[targetL].type>0){
+          if(controls.joystickX == 1 && sequence.loopData[targetL].type>NORMAL){
             sequence.loopData[targetL].type--;
             lastTime = millis();
           }
@@ -466,14 +460,14 @@ void loopMenu(){
       }
       //controls.DELETE()eting a loop
       if(controls.DELETE() && sequence.loopData.size()>1){
-        deleteLoop(targetL);
+        sequence.deleteLoop(targetL);
         if(targetL>=sequence.loopData.size())
           targetL--;
         lastTime = millis();
       }
       //playing
       if(controls.PLAY()){
-        setActiveLoop(targetL);
+        sequence.setActiveLoop(targetL);
         togglePlayMode();
         lastTime = millis();
       }
@@ -498,7 +492,7 @@ void loopMenu(){
       if(controls.SELECT() ){
         lastTime = millis();
         controls.setSELECT(false);
-        uint8_t tempType = sequence.loopData[targetL].type;
+        LoopType tempType = sequence.loopData[targetL].type;
         setLoopToInfinite(targetL);
         viewLoop(targetL);
         sequence.loopData[targetL].type = tempType;
@@ -936,54 +930,6 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
   }
 }
 
-void setActiveLoop(unsigned int id){
-  if(id<sequence.loopData.size() && id >=0){
-    sequence.activeLoop = id;
-    sequence.loopCount = 0;
-  }
-}
-
-void addLoop(){
-  Loop newLoop;
-  newLoop.start = sequence.loopData[sequence.activeLoop].start;
-  newLoop.end = sequence.loopData[sequence.activeLoop].end;
-  newLoop.reps = sequence.loopData[sequence.activeLoop].reps;
-  newLoop.type = sequence.loopData[sequence.activeLoop].type;
-  sequence.loopData.push_back(newLoop);
-  setActiveLoop(sequence.loopData.size()-1);
-}
-
-void addLoop(unsigned short int start, unsigned short int end, unsigned short int iter, unsigned short int type){
-  Loop newLoop;
-  newLoop.start = start;
-  newLoop.end = end;
-  newLoop.reps = iter;
-  newLoop.type = type;
-  sequence.loopData.push_back(newLoop);
-}
-
-void deleteLoop(uint8_t id){
-  if(sequence.loopData.size() > 1 && sequence.loopData.size()>id){//if there's more than one loop, and id is in sequence.loopData
-    vector<Loop> tempVec;
-    for(int i = 0; i<sequence.loopData.size(); i++){
-      if(i!=id){
-        tempVec.push_back(sequence.loopData[i]);
-      }
-    }
-    sequence.loopData.swap(tempVec);
-    //if sequence.activeLoop was the loop that got deld, or above it
-    //decrement it's id so it reads correct (and existing) data
-    if(sequence.activeLoop>=sequence.loopData.size()){  
-      sequence.activeLoop = sequence.loopData.size()-1;
-    }
-  }
-  setActiveLoop(sequence.activeLoop);
-}
-
-void toggleLoop(){
-  sequence.isLooping = !sequence.isLooping;
-}
-
 void setLoopToInfinite(uint8_t targetL){
   //if it's already a 3, set it to 0
   if(sequence.loopData[targetL].type == INFINITE){
@@ -1002,119 +948,6 @@ void setLoopToInfinite(uint8_t targetL){
   }
 }
 
-//moves to the next loop in loopSeq
-void nextLoop(){
-  sequence.loopCount = 0;
-  if(sequence.loopData.size()>1){
-    switch(sequence.loopData[sequence.activeLoop].type){
-      case NORMAL:
-        //move to next loop
-        if(sequence.activeLoop < sequence.loopData.size()-1)
-          sequence.activeLoop++;
-        else
-          sequence.activeLoop = 0;
-        if(playing)
-          playheadPos = sequence.loopData[sequence.activeLoop].start;
-        if(recording)
-          recheadPos = sequence.loopData[sequence.activeLoop].start;
-        break;
-      case RANDOM:{
-        sequence.activeLoop = random(0,sequence.loopData.size());
-        if(playing)
-          playheadPos = sequence.loopData[sequence.activeLoop].start;
-        if(recording)
-          recheadPos = sequence.loopData[sequence.activeLoop].start;
-        break;}
-      case RANDOM_SAME:{
-        //move to next loop
-        if(sequence.activeLoop < sequence.loopData.size()-1)
-          sequence.activeLoop++;
-        else
-          sequence.activeLoop = 0;
-        //if rnd of same size mode, choose a random loop
-        int currentLength = sequence.loopData[sequence.activeLoop].end - sequence.loopData[sequence.activeLoop].start;
-        vector<uint8_t> similarLoops;
-        for(int i = 0; i<sequence.loopData.size(); i++){
-          int len = sequence.loopData[i].end-sequence.loopData[i].start;
-          if(len == currentLength){
-            similarLoops.push_back(i);
-          }
-        }
-        sequence.activeLoop = similarLoops[random(0,similarLoops.size())];
-        if(playing)
-          playheadPos = sequence.loopData[sequence.activeLoop].start;
-        if(recording)
-          recheadPos = sequence.loopData[sequence.activeLoop].start;
-        break;}
-      case RETURN:{
-        sequence.activeLoop = 0;
-        if(playing)
-          playheadPos = sequence.loopData[sequence.activeLoop].start;
-        if(recording)
-          recheadPos = sequence.loopData[sequence.activeLoop].start;
-        break;}
-      case INFINITE:{
-        if(playing)
-          playheadPos = sequence.loopData[sequence.activeLoop].start;
-        if(recording)
-          recheadPos = sequence.loopData[sequence.activeLoop].start;
-        break;}
-    }
-  }
-}
-
-
-//cuts notes off when loop repeats, then starts new note at beginning
-void cutLoop(){
-  for(int i = 0; i<sequence.trackData.size(); i++){
-    if(sequence.trackData[i].noteLastSent != 255){
-      sequence.noteData[i][sequence.noteData[i].size()-1].endPos = sequence.loopData[sequence.activeLoop].end;
-      //if it's about to loop again (if it's a one-shot recording, there's no need to make a new note)
-      if(recMode != ONESHOT)
-        writeNoteOn(sequence.loopData[sequence.activeLoop].start,sequence.trackData[i].pitch,sequence.noteData[i][sequence.noteData[i].size()-1].velocity,sequence.trackData[i].channel);
-    }
-  }
-}
-
-//this checks loops bounds, moves to next loop, and cuts loop
-void checkLoop(){
-  if(playing){
-    if (playheadPos > sequence.loopData[sequence.activeLoop].end-1) { //if the timestep is past the end of the loop, loop it to the start
-      sequence.loopCount++;
-      if(sequence.loopCount > sequence.loopData[sequence.activeLoop].reps){
-        nextLoop();
-      }
-      playheadPos = sequence.loopData[sequence.activeLoop].start;
-      if(!sequence.isLooping)
-        togglePlayMode();
-    }
-  }
-  else if(recording){
-    //one-shot record to current loop, without looping
-    if(recMode == ONESHOT){
-      if(recheadPos>=sequence.loopData[sequence.activeLoop].end){
-        toggleRecordingMode(waitForNoteBeforeRec);
-      }
-    }
-    //record to one loop over and over again
-    else if(recMode == LOOP_MODE){
-      if(recheadPos>=sequence.loopData[sequence.activeLoop].end){
-        recheadPos = sequence.loopData[sequence.activeLoop].start;
-      }
-    }
-    //record to loops as they play in sequence
-    else if(recMode == LOOPSEQUENCE){
-      if(recheadPos>=sequence.loopData[sequence.activeLoop].end){
-        cutLoop();
-        sequence.loopCount++;
-        if(sequence.loopData[sequence.activeLoop].reps>=sequence.loopCount){
-          nextLoop();
-        }
-        recheadPos = sequence.loopData[sequence.activeLoop].start;
-      }
-    }
-  }
-}
 
 //creates a new loop immediately to the right of the current loop and copies the loop over into it (useful for on the fly beatmaking)
 //then sets the OG loop to that one
