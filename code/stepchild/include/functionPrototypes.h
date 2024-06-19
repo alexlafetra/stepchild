@@ -84,13 +84,10 @@ void writeNoteOn(unsigned short int step, uint8_t pitch, uint8_t vel, uint8_t ch
 void printItalic(int16_t x, int16_t y, char character, uint16_t c);
 void printItalic(int16_t x, int16_t y, String text, uint16_t c);
 void drawLogo(uint8_t x1, uint8_t y1);
-void drawNote_chance(uint16_t id, uint8_t track, unsigned short int xStart, unsigned short int yStart, unsigned short int length, unsigned short int height, unsigned short int chance, bool isSelected, bool isMuted);
-void drawNote_vel(uint16_t id, uint8_t track, unsigned short int xStart, unsigned short int yStart, unsigned short int length, unsigned short int height, unsigned short int vel, bool isSelected, bool isMuted);
 void displaySeq();
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection);
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, bool shadeOutsideLoop, uint16_t start, uint16_t end);
 void drawDisplay();
-void drawNote(unsigned short int, unsigned short int, unsigned short int, unsigned short int, unsigned short int, bool, bool);
 void drawBox(uint8_t cornerX, uint8_t cornerY, uint8_t width, uint8_t height, uint8_t depth, int8_t xSlant, uint8_t fill);
 void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation);
 void drawTetra(uint8_t h, uint8_t k, uint8_t height, uint8_t width, int xDepth, int yDepth, uint8_t style, uint16_t c);
@@ -145,8 +142,6 @@ void chordBuilder();
 void echoMenu();
 void humanizeMenu();
 void quantizeMenu();
-// void slideMenuIn(int fromWhere, int8_t speed);
-// void slideMenuOut(int fromWhere, int8_t speed);
 void strumMenu();
 
 //Note editing

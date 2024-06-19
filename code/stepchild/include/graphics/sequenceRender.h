@@ -326,6 +326,78 @@ void drawTopIcons(SequenceRenderSettings& settings){
 }
 
 
+uint8_t getVelShade(uint8_t vel){
+  int8_t shade = 13-(vel/10);
+  if(shade<=0)
+    return 1;
+  else
+    return shade;
+}
+
+int8_t getChanceShade(uint8_t odds){
+  int8_t shade = 11-(odds/10);
+  if(shade<=0)
+    return 1;
+  else
+    return shade;
+}
+
+void drawNote(Note& note, uint8_t track, SequenceRenderSettings& settings){
+  uint16_t length;
+  int16_t x1;
+  if(note.startPos>settings.start){
+    length = (note.endPos - note.startPos)*sequence.viewScale;
+    x1 = trackDisplay+int16_t((note.startPos-settings.start)*sequence.viewScale);
+  }
+  else{
+    length = (note.endPos - settings.start)*sequence.viewScale+1;
+    x1 = trackDisplay-1;
+  }
+  //if the note is currently superpositioned, draw it where it should be, but not if it's out of view
+  if(note.isSuperpositioned()){
+
+  }
+  uint8_t y1 = (track-startTrack) * trackHeight + settings.startHeight;
+  //if the length is less than 3, don't worry about shading it
+  if(length<3){
+    display.fillRect(x1, y1+1, length+2, trackHeight-2, SSD1306_WHITE);
+  }
+  else{
+    if(note.isMuted()){
+      display.fillRect(x1+1, y1+1, length-1, trackHeight-2, SSD1306_BLACK);
+      display.drawRect(x1+1, y1+1, length-1, trackHeight-2, SSD1306_WHITE);
+      display.drawLine(x1+1,y1+1, x1+length-1, y1+trackHeight-2,SSD1306_WHITE);
+      display.drawLine(x1+1,y1+trackHeight-2,x1+length-1,y1+1,SSD1306_WHITE);
+      display.drawFastVLine(x1+length,y1+1,trackHeight-2,SSD1306_BLACK);
+    }
+    else{
+      uint8_t shade = settings.displayingVel?getVelShade(note.velocity):getChanceShade(note.chance);
+      if(shade != 1){//so it does this faster
+        display.fillRect(x1+1, y1+1, length-1, trackHeight-2, SSD1306_BLACK);//clearing out the note area
+        for(uint8_t j = 1; j<trackHeight-2; j++){//shading the note...
+          for(uint8_t i = x1+1;i+j%shade<x1+length-1; i+=shade){
+            display.drawPixel(i+j%shade,y1+j,SSD1306_WHITE);
+          }
+        }
+        display.drawRect(x1+1, y1+1, length-1, trackHeight-2, SSD1306_WHITE);
+      }
+      //if it's a solid note, fill it quickly
+      else{
+        display.fillRect(x1+1, y1+1, length-1, trackHeight-2, SSD1306_WHITE);
+      }
+      //line at the end, if there's something at the end
+      if(sequence.lookupTable[track][note.endPos] != 0)
+        display.drawFastVLine(x1+length,y1+1,trackHeight-2,SSD1306_BLACK);
+    }
+    if(note.isSelected()){
+      display.drawRect(x1,y1+1,length,trackHeight-2,SSD1306_BLACK);
+      display.drawRect(x1+2,y1+2,length-3,trackHeight-4,SSD1306_WHITE);
+      display.drawRect(x1,y1,length+1,trackHeight,SSD1306_WHITE);
+      display.drawRect(x1+1,y1+1,length-1,trackHeight-2,SSD1306_BLACK);
+    }
+  }
+}
+
 //this function is a mess!
 void drawSeq(SequenceRenderSettings& settings){
 
@@ -437,28 +509,10 @@ void drawSeq(SequenceRenderSettings& settings){
             //Check to see if you only want to render the region in the active loop, and shade everything else!
             for (uint16_t step = settings.shadeOutsideLoop?sequence.loopData[sequence.activeLoop].start:settings.start; step < (settings.shadeOutsideLoop?sequence.loopData[sequence.activeLoop].end:settings.end); step++) {
                 uint16_t id = sequence.lookupTable[track][step];
-                unsigned short int x1 = trackDisplay+int8_t((step-settings.start)*sequence.viewScale);
-                unsigned short int x2 = x1 + (step-settings.start)*sequence.viewScale;
                 //drawing note
                 if (id != 0){
-                    if(step == sequence.noteData[track][id].startPos){
-                        uint16_t length = (sequence.noteData[track][id].endPos - sequence.noteData[track][id].startPos)*sequence.viewScale;
-                        if(settings.displayingVel)
-                            drawNote_vel(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].velocity,sequence.noteData[track][id].isSelected(),sequence.noteData[track][id].isMuted());
-                        else
-                            drawNote_chance(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].chance,sequence.noteData[track][id].isSelected(),sequence.noteData[track][id].isMuted());
-                        if(sequence.noteData[track][id].isSelected()){
-                            display.drawRect(x1,y1,length+1,trackHeight,SSD1306_WHITE);
-                            display.drawRect(x1+1,y1+1,length-1,trackHeight-2,SSD1306_BLACK);
-                        }
-                    }
-                    else if(!isInView(sequence.noteData[track][id].startPos) && step == settings.start){
-                        unsigned short int length = (sequence.noteData[track][id].endPos - settings.start)*sequence.viewScale;
-                        if(settings.displayingVel)
-                            drawNote_vel(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].velocity,sequence.noteData[track][id].isSelected(),sequence.noteData[track][id].isMuted());
-                        else
-                            drawNote_chance(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].chance,sequence.noteData[track][id].isSelected(),sequence.noteData[track][id].isMuted());
-                    }
+                  drawNote(sequence.noteData[track][id],track,settings);
+                  step = sequence.noteData[track][id].endPos;//skip to the end of the note
                 }
             }
         }
