@@ -36,6 +36,9 @@ extern "C" {
 
 using namespace std;
 
+typedef uint16_t Timestep;
+typedef uint8_t TrackID;
+
 /*
 -----------------------------
   Class Prototypes
@@ -234,7 +237,11 @@ void rotaryActionB_Handler(){
 
 #include "applications/applications.h"
 
+#ifndef HEADLESS
 #include "webInterface.h"
+#else
+void webInterface(){}
+#endif
 
 //Menus
 #include "menus/loopMenu.cpp"

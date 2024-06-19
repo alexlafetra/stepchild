@@ -69,7 +69,7 @@ void humanizeSelectedNotes(){
   if(sequence.selectionCount>0){
     for(uint8_t track = 0; track<sequence.noteData.size(); track++){
       for(uint16_t note = 1; note<sequence.noteData[track].size(); note++){
-        if(sequence.noteData[track][note].isSelected){
+        if(sequence.noteData[track][note].isSelected()){
           humanizeNote(track,note);
         }
       }

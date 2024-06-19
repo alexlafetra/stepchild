@@ -26,9 +26,6 @@ const vector<String> CCparameters = {"Bank Select","Mod Wheel","Breath Controlle
 const vector<String> MKIICCparameters = {"Ctrl ","EFX On/Off","EFX Selector"};
 const vector<String> stepChildCCParameters = {"Velocity","Probability","Pitch","BPM [Exp]","Swing [Exp]"};
 
-#define IDLE 0
-#define PLAYING 1
-#define RECORDING 2
 
 #ifndef HEADLESS
 bool playing = false;
@@ -46,6 +43,7 @@ bool pitchesOrNumbers = true;
 uint8_t clockSource = INTERNAL_CLOCK;
 
 bool overwriteRecording = true;
+bool overWriteNotesWithEmptiness = false;//flag to set for overwriting notes on tracks that AREN'T receiving notes (overdubbing silence)
 bool onlyRecToPrimedTracks = true;//Not implemented yet
 bool waitForNoteBeforeRec = true;
 bool waitingToReceiveANote = true;//wait to receive note to begin recording

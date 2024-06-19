@@ -128,7 +128,7 @@ class StepchildSequence{
     //Only use this when loading notes from a file into a blank sequence
     void loadNote(Note newNote, uint8_t track){
         this->noteData[track].push_back(newNote);
-        if(newNote.isSelected)
+        if(newNote.isSelected())
             this->selectionCount++;
         //adding to lookupData
         for (uint16_t i =  newNote.startPos; i < newNote.endPos; i++) { //sets id
@@ -138,6 +138,10 @@ class StepchildSequence{
     void loadNote(uint16_t id, uint8_t track, uint16_t start, uint8_t velocity, bool isMuted, uint8_t chance, uint16_t end, bool selected){
         Note newNoteOn(start, end, velocity, chance, isMuted, false);
         this->loadNote(newNoteOn, track);
+    }
+    void loadNote(uint8_t whichTrack, uint16_t start, uint16_t end, uint8_t velocity, uint8_t chance, uint8_t flags){
+        Note newNote(start, end, velocity, chance, flags);
+        this->loadNote(newNote,whichTrack);
     }
     /*
     ----------------------------------------------------------
@@ -153,7 +157,7 @@ class StepchildSequence{
                 this->lookupTable[track][i] = 0;
             }
             //lowering selectionCount
-            if(this->noteData[track][targetNoteID].isSelected && this->selectionCount>0)
+            if(this->noteData[track][targetNoteID].isSelected() && this->selectionCount>0)
                 this->selectionCount--;
             //erasing note from this->noteData
             //make a copy of the this->noteData[track] vector which excludes the note
@@ -188,7 +192,7 @@ class StepchildSequence{
             if(binarySelectionBox(64,32,"nah","yea","del "+stringify(selectionCount)+((selectionCount == 1)?stringify(" note?"):stringify(" notes?")),drawSeq)){
                 for(uint8_t track = 0; track<this->trackData.size(); track++){
                     for(uint16_t note = 0; note<this->noteData[track].size(); note++){
-                        if(this->noteData[track][note].isSelected){
+                        if(this->noteData[track][note].isSelected()){
                             this->deleteNote_byID(track, note);
                             (note == 0) ? note = 0: note--;
                         }
@@ -214,7 +218,7 @@ class StepchildSequence{
         if (this->lookupTable[track][newNoteOn.startPos] == 0 || newNoteOn.startPos != this->noteAt(this->activeTrack,newNoteOn.startPos).startPos) { //if there's no note there
             if (this->lookupTable[track][newNoteOn.startPos] != 0)
                 this->truncateNote(track, newNoteOn.startPos);
-            if(newNoteOn.isSelected)
+            if(newNoteOn.isSelected())
                 this->selectionCount++;
             uint16_t id = this->noteData[track].size();
             this->lookupTable[track][newNoteOn.startPos] = id;//set noteID in this->lookupTable to the index of the new note
@@ -314,7 +318,7 @@ class StepchildSequence{
     void editNotePropertyOfSelectedNotes(int8_t amount, NoteProperty which){
         for(uint8_t track = 0; track<this->trackData.size(); track++){
             for(uint16_t note = this->noteData[track].size()-1; note>0; note--){
-                if(this->noteData[track][note].isSelected){
+                if(this->noteData[track][note].isSelected()){
                     this->editNoteProperty_byID(note,track, amount, which);
                 }
             }
@@ -326,7 +330,7 @@ class StepchildSequence{
         if(this->selectionCount>0){
             this->editNotePropertyOfSelectedNotes(amount,which);
             //only edit this note if it's not selected, so you don't double-edit it
-            if(!this->noteAtCursor().isSelected)
+            if(!this->noteAtCursor().isSelected())
                 this->editNoteProperty_byID(this->IDAtCursor(), this->activeTrack, amount, which);
         }
         else
@@ -352,17 +356,17 @@ class StepchildSequence{
     void muteNote(uint8_t track, uint16_t id, bool toggle){
         if(id != 0){
             if(toggle)
-                this->noteData[track][id].muted = !this->noteData[track][id].muted;
+                this->noteData[track][id].setMuted(!this->noteData[track][id].isMuted());
             else
-                this->noteData[track][id].muted = true;
+                this->noteData[track][id].setMuted(true);
         }
     }
     void unmuteNote(uint8_t track, uint16_t id, bool toggle){
         if(id != 0){
             if(toggle)
-                this->noteData[track][id].muted = !this->noteData[track][id].muted;
+                this->noteData[track][id].setMuted(!this->noteData[track][id].isMuted());
             else
-                this->noteData[track][id].muted = false;
+                this->noteData[track][id].setMuted(false);
         }
     }
     
@@ -371,8 +375,8 @@ class StepchildSequence{
         uint16_t count = 0;
         for(uint8_t track = 0; track<this->noteData.size(); track++){
             for(uint16_t note = 1; note<this->noteData[track].size(); note++){
-                if(this->noteData[track][note].isSelected){
-                    this->noteData[track][note].muted = state;
+                if(this->noteData[track][note].isSelected()){
+                    this->noteData[track][note].setMuted(state);
                     count++;
                 }
                 if(count>=this->selectionCount){
@@ -435,7 +439,7 @@ class StepchildSequence{
             //clear out old note
             this->deleteNote(track, targetNote.startPos);
             //make room
-            this->makeNote(newTrack, newStart, length+1, targetNote.velocity, targetNote.chance, targetNote.muted, targetNote.isSelected, false);
+            this->makeNote(newTrack, newStart, length+1, targetNote.velocity, targetNote.chance, targetNote.isMuted(), targetNote.isSelected(), false);
             return true;
         }
         else return false;
@@ -449,7 +453,7 @@ class StepchildSequence{
         for(uint8_t track = 0; track<this->noteData.size(); track++){
             for(uint16_t note = 1; note<this->noteData[track].size(); note++){
                 //if the note is selected, push it into the buffer and then del it
-                if(this->noteData[track][note].isSelected){
+                if(this->noteData[track][note].isSelected()){
                     selectedNotes[track].push_back(this->noteData[track][note]);
                     this->deleteNote(track, this->noteData[track][note].startPos);
                     note--;
@@ -479,7 +483,7 @@ class StepchildSequence{
         for(uint8_t track = 0; track<selectedNotes.size(); track++){
             for(uint16_t note = 0; note<selectedNotes[track].size(); note++){
                 unsigned short int length = selectedNotes[track][note].endPos-selectedNotes[track][note].startPos;
-                this->makeNote(track+yOffset, selectedNotes[track][note].startPos+xOffset, length+1, selectedNotes[track][note].velocity, selectedNotes[track][note].chance, selectedNotes[track][note].muted, selectedNotes[track][note].isSelected, false);
+                this->makeNote(track+yOffset, selectedNotes[track][note].startPos+xOffset, length+1, selectedNotes[track][note].velocity, selectedNotes[track][note].chance, selectedNotes[track][note].isMuted(), selectedNotes[track][note].isSelected(), false);
             }
         }
         return true;
@@ -923,7 +927,7 @@ int16_t changeNoteLength(int val, unsigned short int track, unsigned short int i
 void changeNoteLengthSelected(int amount){
   for(int track = 0; track<sequence.trackData.size(); track++){
     for(int note = 1; note <= sequence.noteData[track].size()-1; note++){
-      if(sequence.noteData[track][note].isSelected){
+      if(sequence.noteData[track][note].isSelected()){
         changeNoteLength(amount, track, note);
       }
     }

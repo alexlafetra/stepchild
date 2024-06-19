@@ -2,7 +2,7 @@
 void disarmTracksWithNotes(){
   for(uint8_t i = 0; i<sequence.trackData.size(); i++){
     if(sequence.noteData[i].size()>1){
-      sequence.trackData[i].isPrimed = false;
+      sequence.trackData[i].setPrimed(false);
     }
   }
 }
@@ -10,8 +10,8 @@ void disarmTracksWithNotes(){
 vector<uint8_t> selectMultipleTracks(String text){
   //clearing out the selected tracks
   for(int i = 0; i<sequence.trackData.size(); i++){
-    if(sequence.trackData[i].isSelected){
-      sequence.trackData[i].isSelected = false;
+    if(sequence.trackData[i].isSelected()){
+      sequence.trackData[i].setSelected(false);
     }
   }
   //to hold the id's and return
@@ -52,15 +52,15 @@ vector<uint8_t> selectMultipleTracks(String text){
       if(controls.SELECT()  && !controls.SHIFT()){
         controls.setSELECT(false);
         lastTime = millis();
-        sequence.trackData[sequence.activeTrack].isSelected = !sequence.trackData[sequence.activeTrack].isSelected;
+        sequence.trackData[sequence.activeTrack].setSelected(!sequence.trackData[sequence.activeTrack].isSelected());
       }
       //toggle the selection on all of them
       if(controls.SHIFT() && controls.SELECT() ){
         controls.setNEW(false);
         lastTime = millis();
-        sequence.trackData[sequence.activeTrack].isSelected = !sequence.trackData[sequence.activeTrack].isSelected;
+        sequence.trackData[sequence.activeTrack].setSelected(!sequence.trackData[sequence.activeTrack].isSelected());
         for(int i = 0; i<sequence.trackData.size(); i++){
-          sequence.trackData[i].isSelected = sequence.trackData[sequence.activeTrack].isSelected;
+          sequence.trackData[i].setSelected(sequence.trackData[sequence.activeTrack].isSelected());
         }
       }
       if(controls.NEW() && !controls.SHIFT()){
@@ -68,9 +68,9 @@ vector<uint8_t> selectMultipleTracks(String text){
         lastTime = millis();
         //adding all the selected tracks to the list
         for(int i = 0; i<sequence.trackData.size(); i++){
-          if(sequence.trackData[i].isSelected){
+          if(sequence.trackData[i].isSelected()){
             selection.push_back(i);
-            sequence.trackData[i].isSelected = false;
+            sequence.trackData[i].setSelected(false);
           }
         }
         break;
@@ -78,7 +78,7 @@ vector<uint8_t> selectMultipleTracks(String text){
       if(controls.DELETE() || controls.MENU()){
         lastTime = millis();
         for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-          sequence.trackData[track].isSelected = false;
+          sequence.trackData[track].setSelected(false);
         }
         selection.clear();
         break;
@@ -94,14 +94,14 @@ vector<uint8_t> selectMultipleTracks(){
 }
 
 void muteTrack(unsigned short int id){
-  sequence.trackData[id].isMuted = true;
+  sequence.trackData[id].setMuted(true);
 }
 void unmuteTrack(uint16_t id){
-  sequence.trackData[id].isMuted = false;
+  sequence.trackData[id].setMuted(false);
 }
 
 void toggleMute(uint16_t id){
-  sequence.trackData[id].isMuted = !sequence.trackData[id].isMuted;
+  sequence.trackData[id].setMuted(!sequence.trackData[id].isMuted());
 }
 
 void muteMultipleTracks(vector<uint8_t> ids){
@@ -114,10 +114,10 @@ void soloTrack(unsigned short int id){
   for(int track = 0; track<sequence.trackData.size(); track++){
     if(track != id){
       muteTrack(track);
-      sequence.trackData[track].isSolo = false;
+      sequence.trackData[track].setSolo(false);
     }
     else 
-      sequence.trackData[id].isSolo = true;
+      sequence.trackData[id].setSolo(true);
   }
 }
 
@@ -126,12 +126,12 @@ void unsoloTrack(uint16_t id){
     if(track != id)
       unmuteTrack(track);
     else
-      sequence.trackData[id].isSolo = false;
+      sequence.trackData[id].setSolo(false);
   }
 }
 
 void toggleSolo(uint16_t id){
-  if(sequence.trackData[id].isSolo)
+  if(sequence.trackData[id].isSolo())
     unsoloTrack(id);
   else
     soloTrack(id);
@@ -530,9 +530,9 @@ void addTrack(Track newTrack, bool loudly){
 void addTrack(uint8_t pitch, uint8_t channel, bool latch, uint8_t muteGroup, bool primed, bool loudly){
   if(sequence.trackData.size()<255){
     Track newTrack(pitch, channel);
-    newTrack.isLatched = latch;
+    newTrack.setLatched(latch);
     newTrack.muteGroup = muteGroup;
-    newTrack.isPrimed = primed;
+    newTrack.setPrimed(primed);
     addTrack(newTrack,loudly);
   }
 }

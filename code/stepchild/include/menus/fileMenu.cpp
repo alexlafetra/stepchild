@@ -123,9 +123,14 @@ bool FileMenu::fileMenuControls_miniMenu(){
           break;
         }
         //export
-        case 3:
-          exportSeqFileToSerial_standAlone(filenames[page]);
-          break;
+        case 3:{
+#ifndef HEADLESS
+          LittleFS.begin();
+          File f = LittleFS.open("/SAVES/"+filenames[page],"r");
+          writeFileToSerial(f);
+          LittleFS.end();
+#endif
+          break;}
         //del
         case 4:
         {
@@ -195,9 +200,11 @@ bool FileMenu::fileMenuControls_default(){
       return false;
     }
     if(controls.NEW()){
-      if(controls.SHIFT()){
-        if(binarySelectionBox(64,32,"ye","ne","dump all files via USB?") == 1)
-          dumpFilesToSerial();
+      lastTime = millis();
+      String fileName = enterText("filename?");
+      if(fileName != "default"){
+        writeSeqFile(fileName);
+        filenames = loadFiles();
       }
     }
     if(filenames.size()>0){

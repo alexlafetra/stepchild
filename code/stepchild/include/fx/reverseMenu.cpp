@@ -72,7 +72,7 @@ void reverse(){
             for(uint16_t n = 1; n<sequence.noteData[track].size(); n++){
                 Note note = sequence.noteData[track][n];
                 //if the note is selected & is TOTALLY within reverse bounds
-                if(note.isSelected && (note.startPos>=bounds.start.x && note.endPos<=bounds.end.x)){
+                if(note.isSelected() && (note.startPos>=bounds.start.x && note.endPos<=bounds.end.x)){
 
                     //get its distances from the center point
                     int16_t startDist = note.startPos - center;
@@ -83,7 +83,7 @@ void reverse(){
                     note.endPos = center - startDist;
 
                     //deselect the note (because it always comes selected)
-                    note.isSelected = false;
+                    note.setSelected(false);
 
                     //del the old note
                     sequence.deleteNote_byID(track,n);

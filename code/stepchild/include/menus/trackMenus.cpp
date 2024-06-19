@@ -60,7 +60,7 @@ bool TrackMenu::trackMenuControls(){
   }
   if(utils.itsbeen(200)){
     if(controls.PLAY()){
-      sequence.trackData[sequence.activeTrack].isPrimed = !sequence.trackData[sequence.activeTrack].isPrimed;
+      sequence.trackData[sequence.activeTrack].setPrimed(!sequence.trackData[sequence.activeTrack].isPrimed());
       lastTime = millis();
     }
     if(controls.SELECT() ){
@@ -75,10 +75,10 @@ bool TrackMenu::trackMenuControls(){
           routeMenu();
           break;
         case 3:
-          sequence.trackData[sequence.activeTrack].isPrimed = !sequence.trackData[sequence.activeTrack].isPrimed;
+          sequence.trackData[sequence.activeTrack].setPrimed(!sequence.trackData[sequence.activeTrack].isPrimed());
           if(controls.SHIFT()){
             for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-              sequence.trackData[track].isPrimed = sequence.trackData[sequence.activeTrack].isPrimed;
+              sequence.trackData[track].setPrimed(sequence.trackData[sequence.activeTrack].isPrimed());
             }
           }
           break;
@@ -114,11 +114,11 @@ bool TrackMenu::trackMenuControls(){
           break;
         //latch
         case 9:
-          sequence.trackData[sequence.activeTrack].isLatched = !sequence.trackData[sequence.activeTrack].isLatched;
+          sequence.trackData[sequence.activeTrack].setLatched(!sequence.trackData[sequence.activeTrack].isLatched());
           //latch all tracks
           if(controls.SHIFT()){
             for(int track = 0; track<sequence.trackData.size(); track++){
-              sequence.trackData[track].isLatched = sequence.trackData[sequence.activeTrack].isLatched;
+              sequence.trackData[track].setLatched(sequence.trackData[sequence.activeTrack].isLatched());
             }
           }
           break;
@@ -298,7 +298,7 @@ void TrackMenu::displayMenuSidebar(){
   //prime icon
   // printSmall(coords.start.x+col1X,37,"rec",1);
   display.drawBitmap(coords.start.x+col1X,38,rec_tiny,11,4,1,0);
-  if(sequence.trackData[sequence.activeTrack].isPrimed){
+  if(sequence.trackData[sequence.activeTrack].isPrimed()){
     // printSmall(coords.start.x+2,37,"prime",1);
     if(millis()%1000<500)
       display.fillCircle(coords.start.x+col2X+4,39,2,SSD1306_WHITE);
@@ -314,7 +314,7 @@ void TrackMenu::displayMenuSidebar(){
   //erase
   display.drawBitmap(coords.start.x+col2X,43,track_eraser,11,5,SSD1306_WHITE);
   //mute
-  if(sequence.trackData[sequence.activeTrack].isMuted)
+  if(sequence.trackData[sequence.activeTrack].isMuted())
     display.drawBitmap(coords.start.x+col1X,50,track_mute,11,5,SSD1306_WHITE);
   else
     display.drawBitmap(coords.start.x+col1X,50,track_unmute,11,5,SSD1306_WHITE);
@@ -323,7 +323,7 @@ void TrackMenu::displayMenuSidebar(){
   //move
   display.drawBitmap(coords.start.x+col1X,57,track_arrows,11,5,SSD1306_WHITE);
   //latch
-  if(sequence.trackData[sequence.activeTrack].isLatched)
+  if(sequence.trackData[sequence.activeTrack].isLatched())
     display.drawBitmap(coords.start.x+col2X+3,57,track_latch,5,5,SSD1306_WHITE);
   else
     display.drawBitmap(coords.start.x+col2X+3,57,track_unlatch,5,5,SSD1306_WHITE);
@@ -398,7 +398,7 @@ void TrackEditMenu::drawTrackInfo(){
   for(uint8_t track = startTrack; track<startTrack+5; track++){
     unsigned short int y1 = (track-startTrack) * trackHeight + headerHeight-1;
     unsigned short int y2 = y1 + trackHeight;
-    if(sequence.trackData[track].isSelected){
+    if(sequence.trackData[track].isSelected()){
       //double digit
       if((track+1)>=10){
         display.setCursor(1-((millis()/200)%2), y1+4);
@@ -478,7 +478,7 @@ void TrackEditMenu::drawTrackInfo(){
       printSmall(sideWidth+30, y1+5, stringify(sequence.trackData[track].channel), SSD1306_WHITE);//channel
     
     //primed rec symbol
-    if(sequence.trackData[track].isPrimed){
+    if(sequence.trackData[track].isPrimed()){
       if(millis()%1000>500){
         display.drawCircle(sideWidth+40, y1+7, 3, SSD1306_WHITE);
       }
@@ -488,7 +488,7 @@ void TrackEditMenu::drawTrackInfo(){
     }
 
     //latch
-    graphics.drawCheckbox(sideWidth+48,y1+4,sequence.trackData[track].isLatched,xCursor == 5 && sequence.activeTrack == track);
+    graphics.drawCheckbox(sideWidth+48,y1+4,sequence.trackData[track].isLatched(),xCursor == 5 && sequence.activeTrack == track);
 
     //mute group
     if(sequence.trackData[track].muteGroup == 0){
@@ -583,7 +583,7 @@ void TrackEditMenu::displayMenu(){
   //prime icon
   // printSmall(coords.start.x+col1X,37,"rec",1);
   display.drawBitmap(coords.start.x+col1X,38,rec_tiny,11,4,1,0);
-  if(sequence.trackData[sequence.activeTrack].isPrimed){
+  if(sequence.trackData[sequence.activeTrack].isPrimed()){
     // printSmall(coords.start.x+2,37,"prime",1);
     if(millis()%1000<500)
       display.fillCircle(coords.start.x+col2X+4,39,2,SSD1306_WHITE);
@@ -598,7 +598,7 @@ void TrackEditMenu::displayMenu(){
   //erase
   display.drawBitmap(coords.start.x+col2X,43,track_eraser,11,5,SSD1306_WHITE);
   //mute
-  if(sequence.trackData[sequence.activeTrack].isMuted)
+  if(sequence.trackData[sequence.activeTrack].isMuted())
     display.drawBitmap(coords.start.x+col1X,50,track_mute,11,5,SSD1306_WHITE);
   else
     display.drawBitmap(coords.start.x+col1X,50,track_unmute,11,5,SSD1306_WHITE);
@@ -607,7 +607,7 @@ void TrackEditMenu::displayMenu(){
   //move
   display.drawBitmap(coords.start.x+col1X,57,track_arrows,11,5,SSD1306_WHITE);
   //latch
-  if(sequence.trackData[sequence.activeTrack].isLatched)
+  if(sequence.trackData[sequence.activeTrack].isLatched())
     display.drawBitmap(coords.start.x+col2X+3,57,track_latch,5,5,SSD1306_WHITE);
   else
     display.drawBitmap(coords.start.x+col2X+3,57,track_unlatch,5,5,SSD1306_WHITE);
@@ -655,7 +655,7 @@ bool TrackEditMenu::trackEditMenuControls(){
                 lastTime = millis();
                 //checking all selected tracks
                 for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].pitch>0)
+                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].pitch>0)
                     sequence.trackData[track].pitch--;
                 }
               }
@@ -667,7 +667,7 @@ bool TrackEditMenu::trackEditMenuControls(){
                 lastTime = millis();
                 //checking all selected tracks
                 for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].pitch>11)
+                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].pitch>11)
                     sequence.trackData[track].pitch-=12;
                 }
               }
@@ -679,7 +679,7 @@ bool TrackEditMenu::trackEditMenuControls(){
                 lastTime = millis();
                 //checking all selected tracks
                 for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].channel>0)
+                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].channel>0)
                     sequence.trackData[track].channel--;
                 }
               }
@@ -691,7 +691,7 @@ bool TrackEditMenu::trackEditMenuControls(){
                 lastTime = millis();
                 //checking all selected tracks
                 for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].muteGroup>0)
+                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].muteGroup>0)
                     sequence.trackData[track].muteGroup--;
                 }
               }
@@ -707,7 +707,7 @@ bool TrackEditMenu::trackEditMenuControls(){
                 lastTime = millis();
                 //checking all selected tracks
                 for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].pitch<127)
+                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].pitch<127)
                     sequence.trackData[track].pitch++;
                 }
               }
@@ -719,7 +719,7 @@ bool TrackEditMenu::trackEditMenuControls(){
                 lastTime = millis();
                 //checking all selected tracks
                 for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].pitch<=115)
+                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].pitch<=115)
                     sequence.trackData[track].pitch+=12;
                 }
               }
@@ -731,7 +731,7 @@ bool TrackEditMenu::trackEditMenuControls(){
                 lastTime = millis();
                 //checking all selected tracks
                 for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].channel<16)
+                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].channel<16)
                     sequence.trackData[track].channel++;
                 }
               }
@@ -743,7 +743,7 @@ bool TrackEditMenu::trackEditMenuControls(){
                 lastTime = millis();
                 //checking all selected tracks
                 for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].muteGroup<127)
+                  if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].muteGroup<127)
                     sequence.trackData[track].muteGroup++;
                 }
               }
@@ -776,7 +776,7 @@ bool TrackEditMenu::trackEditMenuControls(){
               lastTime = millis();
               //checking all selected tracks
               for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].pitch<127)
+                if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].pitch<127)
                   sequence.trackData[track].pitch++;
               }
             }
@@ -788,7 +788,7 @@ bool TrackEditMenu::trackEditMenuControls(){
               lastTime = millis();
               //checking all selected tracks
               for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].pitch<=115)
+                if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].pitch<=115)
                   sequence.trackData[track].pitch+=12;
               }
             }
@@ -800,7 +800,7 @@ bool TrackEditMenu::trackEditMenuControls(){
               lastTime = millis();
               //checking all selected tracks
               for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].channel<16)
+                if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].channel<16)
                   sequence.trackData[track].channel++;
               }
             }
@@ -812,7 +812,7 @@ bool TrackEditMenu::trackEditMenuControls(){
               lastTime = millis();
               //checking all selected tracks
               for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].muteGroup<127)
+                if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].muteGroup<127)
                   sequence.trackData[track].muteGroup++;
               }
             }
@@ -828,7 +828,7 @@ bool TrackEditMenu::trackEditMenuControls(){
               lastTime = millis();
               //checking all selected tracks
               for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].pitch>0)
+                if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].pitch>0)
                   sequence.trackData[track].pitch--;
               }
             }
@@ -840,7 +840,7 @@ bool TrackEditMenu::trackEditMenuControls(){
               lastTime = millis();
               //checking all selected tracks
               for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].pitch>11)
+                if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].pitch>11)
                   sequence.trackData[track].pitch-=12;
               }
             }
@@ -852,7 +852,7 @@ bool TrackEditMenu::trackEditMenuControls(){
               lastTime = millis();
               //checking all selected tracks
               for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].channel>0)
+                if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].channel>0)
                   sequence.trackData[track].channel--;
               }
             }
@@ -864,7 +864,7 @@ bool TrackEditMenu::trackEditMenuControls(){
               lastTime = millis();
               //checking all selected tracks
               for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-                if(track != sequence.activeTrack && sequence.trackData[track].isSelected && sequence.trackData[track].muteGroup>0)
+                if(track != sequence.activeTrack && sequence.trackData[track].isSelected() && sequence.trackData[track].muteGroup>0)
                   sequence.trackData[track].muteGroup--;
               }
             }
@@ -879,14 +879,14 @@ bool TrackEditMenu::trackEditMenuControls(){
         case 0:
           //toggles selection on all
           if(controls.SHIFT()){
-            sequence.trackData[sequence.activeTrack].isSelected = !sequence.trackData[sequence.activeTrack].isSelected;
+            sequence.trackData[sequence.activeTrack].setSelected(!sequence.trackData[sequence.activeTrack].isSelected());
             for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-              sequence.trackData[track].isSelected = sequence.trackData[sequence.activeTrack].isSelected;
+              sequence.trackData[track].setSelected(sequence.trackData[sequence.activeTrack].isSelected());
             }
           }
           //normal selection toggle
           else
-            sequence.trackData[sequence.activeTrack].isSelected = !sequence.trackData[sequence.activeTrack].isSelected;
+            sequence.trackData[sequence.activeTrack].setSelected(!sequence.trackData[sequence.activeTrack].isSelected());
           
           lastTime = millis();
           break;
@@ -894,17 +894,17 @@ bool TrackEditMenu::trackEditMenuControls(){
         case 4:
           //toggles prime on all
           if(controls.SHIFT()){
-            sequence.trackData[sequence.activeTrack].isPrimed = !sequence.trackData[sequence.activeTrack].isPrimed;
+            sequence.trackData[sequence.activeTrack].setPrimed(!sequence.trackData[sequence.activeTrack].isPrimed());
             for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-              sequence.trackData[track].isPrimed = sequence.trackData[sequence.activeTrack].isPrimed;
+              sequence.trackData[track].setPrimed(sequence.trackData[sequence.activeTrack].isPrimed());
             }
           }
           //normal selection toggle
           else{
-            sequence.trackData[sequence.activeTrack].isPrimed = !sequence.trackData[sequence.activeTrack].isPrimed;
+            sequence.trackData[sequence.activeTrack].setPrimed(!sequence.trackData[sequence.activeTrack].isPrimed());
             for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-              if(track != sequence.activeTrack && sequence.trackData[track].isSelected)
-                sequence.trackData[track].isPrimed = sequence.trackData[sequence.activeTrack].isPrimed;
+              if(track != sequence.activeTrack && sequence.trackData[track].isSelected())
+                sequence.trackData[track].setPrimed(sequence.trackData[sequence.activeTrack].isPrimed());
             }
           }
           lastTime = millis();
@@ -913,17 +913,17 @@ bool TrackEditMenu::trackEditMenuControls(){
         case 5:
           //toggles prime on all
           if(controls.SHIFT()){
-            sequence.trackData[sequence.activeTrack].isLatched = !sequence.trackData[sequence.activeTrack].isLatched;
+            sequence.trackData[sequence.activeTrack].setLatched(!sequence.trackData[sequence.activeTrack].isLatched());
             for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-              sequence.trackData[track].isLatched = sequence.trackData[sequence.activeTrack].isLatched;
+              sequence.trackData[track].setLatched(sequence.trackData[sequence.activeTrack].isLatched());
             }
           }
           //normal selection toggle
           else{
-            sequence.trackData[sequence.activeTrack].isLatched = !sequence.trackData[sequence.activeTrack].isLatched;
+            sequence.trackData[sequence.activeTrack].setLatched(!sequence.trackData[sequence.activeTrack].isLatched());
             for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-              if(track != sequence.activeTrack && sequence.trackData[track].isSelected)
-                sequence.trackData[track].isLatched = sequence.trackData[sequence.activeTrack].isLatched;
+              if(track != sequence.activeTrack && sequence.trackData[track].isSelected())
+                sequence.trackData[track].setLatched(sequence.trackData[sequence.activeTrack].isLatched());
             }
           }
           lastTime = millis();
@@ -932,7 +932,7 @@ bool TrackEditMenu::trackEditMenuControls(){
     }
     if(controls.MENU() || controls.A()){
       for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-        sequence.trackData[track].isSelected = false;
+        sequence.trackData[track].setSelected(false);
       }
       lastTime = millis();
       controls.setMENU(false) ;
@@ -946,7 +946,7 @@ bool TrackEditMenu::trackEditMenuControls(){
 void trackEditMenu(){
   //deselecting all the tracks
   for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-    sequence.trackData[track].isSelected = false;
+    sequence.trackData[track].setSelected(false);
   }
   TrackEditMenu trackEditMenu;
   while(trackEditMenu.trackEditMenuControls()){
@@ -954,7 +954,7 @@ void trackEditMenu(){
   }
   //deselecting all the tracks
   for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-    sequence.trackData[track].isSelected = false;
+    sequence.trackData[track].setSelected(false);
   }
 }
 
@@ -1059,7 +1059,7 @@ void drawTrackMenuTopInfo(uint8_t topL){
   printSmall(x1,0,p,1);
   printSmall(x1+4+p.length()*4,0,"("+stringify(sequence.trackData[sequence.activeTrack].pitch)+")",1);
   //primed
-  if(sequence.trackData[sequence.activeTrack].isPrimed){
+  if(sequence.trackData[sequence.activeTrack].isPrimed()){
     if(millis()%1000>500){
       display.drawCircle(x1+3,10,3,1);
     }
@@ -1068,16 +1068,16 @@ void drawTrackMenuTopInfo(uint8_t topL){
     }
   }
   //latch
-  if(sequence.trackData[sequence.activeTrack].isLatched){
+  if(sequence.trackData[sequence.activeTrack].isLatched()){
     display.drawBitmap(x1+9,7,latch_big,7,7,1,0);
     display.fillRect(x1+10,9,5,4,1);
   }
   else
     display.drawBitmap(x1+9,7,latch_big,7,7,1,0);
   //mute
-  display.drawBitmap(x1+18,7,sequence.trackData[sequence.activeTrack].isMuted?muted:unmuted,7,7,1,0);
+  display.drawBitmap(x1+18,7,sequence.trackData[sequence.activeTrack].isMuted()?muted:unmuted,7,7,1,0);
   //solo'd
-  if(sequence.trackData[sequence.activeTrack].isSolo)
+  if(sequence.trackData[sequence.activeTrack].isSolo())
     printItalic(x1+27,7,"S",1);
   //drum icon
   graphics.drawDrumIcon(x1+35,2,sequence.trackData[sequence.activeTrack].pitch);

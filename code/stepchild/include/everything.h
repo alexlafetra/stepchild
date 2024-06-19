@@ -190,7 +190,7 @@ uint16_t countNotesInRange(uint16_t start, uint16_t end){
 }
 
 //changes which track is active, changing only to valid tracks
-void setActiveTrack(uint8_t newActiveTrack, bool loudly) {
+bool setActiveTrack(uint8_t newActiveTrack, bool loudly) {
   if (newActiveTrack >= 0 && newActiveTrack < sequence.trackData.size()) {
     if(sequence.activeTrack == 4 && newActiveTrack == 5 && maxTracksShown == 5){
       maxTracksShown = 6;
@@ -202,13 +202,15 @@ void setActiveTrack(uint8_t newActiveTrack, bool loudly) {
     if (loudly) {
       MIDI.noteOn(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
       MIDI.noteOff(sequence.trackData[sequence.activeTrack].pitch, 0, sequence.trackData[sequence.activeTrack].channel);
-      if(sequence.trackData[sequence.activeTrack].isLatched){
+      if(sequence.trackData[sequence.activeTrack].isLatched()){
         MIDI.noteOn(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
         MIDI.noteOff(sequence.trackData[sequence.activeTrack].pitch, 0, sequence.trackData[sequence.activeTrack].channel);
       }
     }
+    menuText = pitchToString(sequence.trackData[sequence.activeTrack].pitch,true,true);
+    return true;
   }
-  menuText = pitchToString(sequence.trackData[sequence.activeTrack].pitch,true,true);
+  return false;
 }
 
 void changeTrackChannel(int id, int newChannel){
@@ -766,11 +768,11 @@ void arpLoop(){
   //if it was active, but hadn't started playing yet
   if(!arp.playing){
     switch(arp.source){
-      case 0:
+      case EXTERNAL:
         if(receivedNotes.notes.size()>0)
           arp.start();
         break;
-      case 1:
+      case INTERNAL:
         if(sentNotes.notes.size()>0)
           arp.start();
         break;
@@ -778,7 +780,7 @@ void arpLoop(){
   }
   if(arp.playing){
     //if the arp isn't latched and there are no notes for it
-    if(!arp.holding  && ((arp.source == 0 && !receivedNotes.notes.size()) || (arp.source == 1 && !sentNotes.notes.size()))){
+    if(!arp.holding  && ((arp.source == EXTERNAL && !receivedNotes.notes.size()) || (arp.source == INTERNAL && !sentNotes.notes.size()))){
       arp.stop();
     }
     //if it IS latched or there are notes for it, then continue

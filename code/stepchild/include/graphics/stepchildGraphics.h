@@ -946,8 +946,8 @@ void drawNote(uint16_t id, uint8_t track, unsigned short int x1, unsigned short 
     if(!mute){
       if(shade != 1){//so it does this faster
         display.fillRect(x1+1, y1+1, len-1, height-2, SSD1306_BLACK);//clearing out the note area
-        for(int j = 1; j<height-2; j++){//shading the note...
-          for(int i = x1+1;i+j%shade<x1+len-1; i+=shade){
+        for(uint8_t j = 1; j<height-2; j++){//shading the note...
+          for(uint8_t i = x1+1;i+j%shade<x1+len-1; i+=shade){
             display.drawPixel(i+j%shade,y1+j,SSD1306_WHITE);
           }
         }
@@ -1086,7 +1086,7 @@ void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct
   if(controls.SHIFT() || (channel)){
     String sx = ":";
     sx += stringify(sequence.trackData[trackID].channel);
-    // if(sequence.trackData[trackID].isLatched){
+    // if(sequence.trackData[trackID].isLatched()){
     //   sx += "<";
     // }
     // display.drawBitmap(xCoord+offset+2,yCoord,ch_tiny,6,3,1);
@@ -1094,7 +1094,7 @@ void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct
     offset+=sx.length()*4;
   }
   //if you want to show the track "primed" status for recording
-  if(recording && sequence.trackData[trackID].isPrimed){
+  if(recording && sequence.trackData[trackID].isPrimed()){
     if((millis()+trackID*10)%1000>500){
       display.fillCircle(trackDisplay-5,yCoord+1,2,1);
     }

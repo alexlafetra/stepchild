@@ -9,15 +9,16 @@ struct SequenceRenderSettings{
     bool trackLabels;
     bool topLabels;
     bool loopPoints;
-    bool menus;
-    bool trackSelection;
-    bool shadeOutsideLoop;
+    // bool menus;
+    bool trackSelection = false;
+    bool shadeOutsideLoop = false;
 
-    bool shrinkTopDisplay;
+    bool shrinkTopDisplay = false;
     bool drawPram = true;
     bool drawCursor = true;
     bool displayingVel = true;
     bool drawTrackChannel = false;
+    bool drawSuperposition = false;
 
     SequenceRenderSettings(){
         shadeOutsideLoop = false;
@@ -26,11 +27,18 @@ struct SequenceRenderSettings{
         end = sequence.viewEnd;
         trackLabels = true;
         topLabels = true;
-        drawLoopFlags = true;
         drawLoopPoints = true;
-        menus = false;
+        // menus = false;
         trackSelection = false;
-        shrinkTopDisplay = !(maxTracksShown==5);
+        if(!maxTracksShown==5){//this should change so that shrinkTop controls maxTracksShown, not the other way around
+          shrinkTopDisplay = true;
+          startHeight = 8;
+          drawLoopFlags = false;
+        }
+        else{
+          startHeight = headerHeight;
+          drawLoopFlags = true;
+        }
         drawTrackChannel = controls.SHIFT();
         makeViewInBounds();
     }
@@ -323,14 +331,6 @@ void drawSeq(SequenceRenderSettings& settings){
 
     uint16_t viewLength = settings.end - settings.start;
 
-    if(settings.shrinkTopDisplay){
-      settings.startHeight = 8;
-      settings.drawLoopFlags = false;
-    }
-    else{
-      settings.startHeight = headerHeight;
-    }
-
     trackHeight = (screenHeight-settings.startHeight)/maxTracksShown;
 
     if(sequence.trackData.size()>maxTracksShown){
@@ -415,7 +415,7 @@ void drawSeq(SequenceRenderSettings& settings){
         //if you're drawing selected tracks highlight
         if(settings.trackSelection){
           //if this track isn't selected, shade it
-          if(!sequence.trackData[track].isSelected){
+          if(!sequence.trackData[track].isSelected()){
             display.fillRect(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,0);
             graphics.shadeArea(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,3);
             continue;
@@ -426,28 +426,28 @@ void drawSeq(SequenceRenderSettings& settings){
         }
         //if the track is muted, just hatch it out (don't draw any notes)
         //if it's solo'd and muted, draw it normal (solo overrules mute)
-        else if(sequence.trackData[track].isMuted && !sequence.trackData[track].isSolo){
+        else if(sequence.trackData[track].isMuted() && !sequence.trackData[track].isSolo()){
             graphics.shadeArea(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,9);
             continue;
         }
         else{
             //highlight for solo'd tracks
-            if(sequence.trackData[track].isSolo)
+            if(sequence.trackData[track].isSolo())
                 graphics.drawNoteBracket(trackDisplay+3,y1-1,screenWidth-trackDisplay-5,trackHeight+2,true);
             //Check to see if you only want to render the region in the active loop, and shade everything else!
             for (uint16_t step = settings.shadeOutsideLoop?sequence.loopData[sequence.activeLoop].start:settings.start; step < (settings.shadeOutsideLoop?sequence.loopData[sequence.activeLoop].end:settings.end); step++) {
                 uint16_t id = sequence.lookupTable[track][step];
-                unsigned short int x1 = trackDisplay+int((step-settings.start)*sequence.viewScale);
+                unsigned short int x1 = trackDisplay+int8_t((step-settings.start)*sequence.viewScale);
                 unsigned short int x2 = x1 + (step-settings.start)*sequence.viewScale;
                 //drawing note
                 if (id != 0){
                     if(step == sequence.noteData[track][id].startPos){
                         uint16_t length = (sequence.noteData[track][id].endPos - sequence.noteData[track][id].startPos)*sequence.viewScale;
                         if(settings.displayingVel)
-                            drawNote_vel(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].velocity,sequence.noteData[track][id].isSelected,sequence.noteData[track][id].muted);
+                            drawNote_vel(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].velocity,sequence.noteData[track][id].isSelected(),sequence.noteData[track][id].isMuted());
                         else
-                            drawNote_chance(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].chance,sequence.noteData[track][id].isSelected,sequence.noteData[track][id].muted);
-                        if(sequence.noteData[track][id].isSelected){
+                            drawNote_chance(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].chance,sequence.noteData[track][id].isSelected(),sequence.noteData[track][id].isMuted());
+                        if(sequence.noteData[track][id].isSelected()){
                             display.drawRect(x1,y1,length+1,trackHeight,SSD1306_WHITE);
                             display.drawRect(x1+1,y1+1,length-1,trackHeight-2,SSD1306_BLACK);
                         }
@@ -455,9 +455,9 @@ void drawSeq(SequenceRenderSettings& settings){
                     else if(!isInView(sequence.noteData[track][id].startPos) && step == settings.start){
                         unsigned short int length = (sequence.noteData[track][id].endPos - settings.start)*sequence.viewScale;
                         if(settings.displayingVel)
-                            drawNote_vel(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].velocity,sequence.noteData[track][id].isSelected,sequence.noteData[track][id].muted);
+                            drawNote_vel(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].velocity,sequence.noteData[track][id].isSelected(),sequence.noteData[track][id].isMuted());
                         else
-                            drawNote_chance(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].chance,sequence.noteData[track][id].isSelected,sequence.noteData[track][id].muted);
+                            drawNote_chance(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].chance,sequence.noteData[track][id].isSelected(),sequence.noteData[track][id].isMuted());
                     }
                 }
             }
@@ -525,7 +525,7 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
     settings.trackLabels = trackLabels;
     settings.topLabels = topLabels;
     settings.drawLoopPoints = loopPoints;
-    settings.menus = menus;
+    // settings.menus = menus;
     settings.trackSelection = trackSelection;
     settings.trackLabels = trackLabels;
     settings.shadeOutsideLoop = shadeOutsideLoop;

@@ -240,11 +240,19 @@ void mainSequencerButtons(){
           lastTime = millis();
         }
       }
-      else if(!controls.SHIFT() && (sequence.IDAtCursor() == 0 || sequence.cursorPos != sequence.noteAtCursor().startPos)){
-        sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision,true);
-        moveCursor(sequence.subDivision);
-        drawingNote = true;
-        lastTime = millis();
+      else if(!controls.SHIFT()){
+        if((sequence.IDAtCursor() == 0 || sequence.cursorPos != sequence.noteAtCursor().startPos)){
+          sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision,true);
+          moveCursor(sequence.subDivision);
+          drawingNote = true;
+          lastTime = millis();
+        }
+        //if you are on the start pos of a note
+        else{
+          lastTime = millis();
+          Note n = sequence.noteAtCursor();
+          setSuperposition(n);
+        }
       }
     }
     defaultSelectControls();
@@ -401,4 +409,48 @@ void mainSequence(){
   mainSequencerEncoders();
   defaultJoystickControls(true);
   displaySeq();
+}
+
+void drawSuperpos(Note note){
+  uint8_t x1 = trackDisplay+int8_t((note.startPos-sequence.viewStart)*sequence.viewScale);
+  uint8_t x2 = x1 + (note.endPos-sequence.viewStart)*sequence.viewScale;
+  uint8_t startHeight = maxTracksShown==5?headerHeight:8;//this should change so that shrinkTop controls maxTracksShown, not the other way around
+  uint8_t y1 = (note.superposition.track-startTrack) * trackHeight + startHeight;
+  uint8_t y2 = y1 + trackHeight;
+  display.fillRect(x1,y1,x2-x1,y2-y1,0);
+  display.drawRect(x1,y1,x2-x1,y2-y1,1);
+}
+
+void setSuperposition(Note& note){
+  while(true){
+    controls.readButtons();
+    controls.readJoystick();
+    if(utils.itsbeen(100)){
+      if (controls.joystickY == 1) {
+        if(setActiveTrack(sequence.activeTrack + 1, !playing)){
+          note.superposition.track = sequence.activeTrack;
+        }
+        lastTime = millis();
+      }
+      if (controls.joystickY == -1) {
+        if(setActiveTrack(sequence.activeTrack - 1, !playing)){
+          note.superposition.track = sequence.activeTrack;
+        }
+        lastTime = millis();
+      }
+    }
+    if(utils.itsbeen(200)){
+      if(controls.NEW()){
+        lastTime = millis();
+        return;
+      }
+    }
+    SequenceRenderSettings settings;
+    settings.drawSuperposition = true;
+    display.clearDisplay();
+    drawSeq(settings);
+    if(millis()/100%2)
+      drawSuperpos(note);
+    display.display();
+  }
 }
