@@ -15,8 +15,8 @@ Ahhh don't look at me i'm a work in progress!
 # The Stepchild
 [cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg
 [cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/
-![GitHub Release]([https://img.shields.io/github/v/release/alexlafetra/stepchild](https://img.shields.io/github/v/release/alexlafetra/stepchild?style=plastic&logoSize=auto&labelColor=rgb(0%2C0%2C0)&color=rgb(255%2C100%2C0)
-)) [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa] [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![GitHub Release](https://img.shields.io/github/v/release/alexlafetra/stepchild?style=plastic&logoSize=auto&labelColor=rgb(0%2C0%2C0)&color=rgb(255%2C100%2C0))
+[![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa] [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
   
 **Welcome to the github page for the Stepchild MIDI instrument project,** an open source, generative MIDI instrument designed to be a portable step-sequencer and experimental songwriting tool built around the Pi Pico and a love for drum sequencing.
