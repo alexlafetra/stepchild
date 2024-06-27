@@ -144,8 +144,14 @@ void MainMenu::animateMainMenuWireFrame(){
 }
 
 bool MainMenu::mainMenuControls(){
-  controls.readJoystick();
-  controls.readButtons();
+  // controls.readJoystick();
+  // controls.readButtons();
+  Serial.println("Hey!"+stringify(millis()));
+  if(utils.itsbeen(1000)){
+    cursor++;
+    cursor%=11;
+    lastTime = millis();
+  }
   if(utils.itsbeen(100)){
     if(controls.joystickX != 0){
       if(controls.joystickX == -1){

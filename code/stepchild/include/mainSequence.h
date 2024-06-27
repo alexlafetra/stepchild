@@ -402,8 +402,8 @@ void mainSequencerEncoders(){
 }
 
 void mainSequence(){
-  controls.readJoystick();
-  controls.readButtons();
+  // controls.readJoystick();
+  // controls.readButtons();
   mainSequencerButtons();
   mainSequencerStepButtons();
   mainSequencerEncoders();

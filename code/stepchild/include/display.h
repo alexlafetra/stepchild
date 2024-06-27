@@ -10,12 +10,13 @@
 //you only use a few glyphs from these, you don't need to include the whole thing
 #include <Fonts/FreeSerifItalic12pt7b.h>
 #include <Fonts/FreeSerifItalic24pt7b.h>
+#include <SPI.h>
 
 //setting up screen
 #define SCREEN_ADDR 0x3c //initialize with the I2C addr 0x3C Typically eBay OLED's
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
-#define OLED_RESET -1   // No reset pin!
+// #define OLED_RESET -1   // No reset pin!
 
 #define SSD1306_NO_SPLASH
 
@@ -48,5 +49,7 @@ class USBSerialCaptureCard: public Adafruit_SSD1306{
 #ifdef CAPTURECARD
 USBSerialCaptureCard display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #else
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+// Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT,
+  &SPI, OLED_DC, OLED_RESET, OLED_CS);
 #endif

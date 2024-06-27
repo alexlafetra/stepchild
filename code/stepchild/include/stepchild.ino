@@ -9,12 +9,32 @@
 
 #include "ChildOS.h"
 
+void debugDrawLotsOfNotes(){
+  const uint8_t len = 8;
+  for(uint16_t step = 0; step<sequence.sequenceLength; step+=len){
+    for(uint8_t track = 0; track<sequence.trackData.size(); track++){
+      Note newNote;
+      newNote.startPos = step;
+      newNote.endPos = step+len;
+      newNote.velocity = 100;
+      sequence.makeNote(newNote,track);
+    }
+  }
+  // togglePlayMode();
+  // playing = true;
+}
+
 //CPU 0 setup
 void setup() {
   #ifndef HEADLESS
   //doing the same to the screen twoWire connection
   Wire.setSDA(I2C_SDA);
   Wire.setSCL(I2C_SCL);
+
+  SPI.setCS(OLED_CS);
+  SPI.setRX(SPI0_RX);
+  SPI.setTX(SPI0_TX);
+  SPI.setSCK(SPI0_SCK);
   #endif
   
   MIDI.start();
@@ -71,6 +91,7 @@ void setup() {
   core0ready = true;
   lastTime = millis();
   bootscreen_2();
+  debugDrawLotsOfNotes();
   // maxCurrentDrawTest();
 }
 
@@ -83,8 +104,9 @@ void setup1() {
 }
 
 void loop() {
+  mainMenu();
   mainSequence();
-  screenSaverCheck();
+  // screenSaverCheck();
 }
 
 //this cpu handles time-sensitive things
