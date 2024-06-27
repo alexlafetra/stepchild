@@ -154,7 +154,7 @@ uint16_t animOffset = 0;//for animating curves
 #include "functionPrototypes.h" //function prototypes (eventually these should all be refactored into respective files)
 #include "clock.h"              //timing functions
 #include "global.h"             //program boolean flags and global data, constants
-#include "hardwareControls.h"   //button/input reading functions
+#include "hardware.h"   //button/input reading functions
 #include "utils.h"              //common helper functions/utilities
 
 //classes
@@ -202,10 +202,8 @@ void rotaryActionB_Handler(){
 #include "classes/NoteID.h"
 #include "classes/Progression.h"
 
-// #include "scales.h"
 #include "CV.h"
 #include "playback.h"
-// #include "interface.h"
 #include "programChange.h"
 
 //including custom users apps

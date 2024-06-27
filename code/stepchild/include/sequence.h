@@ -492,14 +492,12 @@ class StepchildSequence{
     bool moveNotes(int16_t xAmount, int8_t yAmount){
         if(this->selectionCount == 0){
             if(this->IDAtCursor() != 0){
-                bool worked = this->moveNote(this->IDAtCursor(),this->activeTrack,this->activeTrack+yAmount,this->noteData[this->activeTrack][this->IDAtCursor()].startPos+xAmount);
-                return worked;
+                return this->moveNote(this->IDAtCursor(),this->activeTrack,this->activeTrack+yAmount,this->noteData[this->activeTrack][this->IDAtCursor()].startPos+xAmount);
             }
             else return false;
         }
         else{
-            bool worked = this->moveSelectedNotes(xAmount,yAmount);
-            return worked;
+            return this->moveSelectedNotes(xAmount,yAmount);
         }
     }
     //slices a note into N equal pieces

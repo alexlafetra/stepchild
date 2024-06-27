@@ -153,7 +153,7 @@ void humanize(bool move);
 int16_t changeNoteLength(int val, unsigned short int track, unsigned short int id);
 int16_t changeNoteLength(int amount);
 void changeNoteLengthSelected(int amount);
-void setSuperposition(Note& note);
+void setSuperposition(Note& note,uint8_t t);
 
 void quantizeSelectedNotes(bool deleteNote);
 bool quantizeNote(uint8_t track, uint16_t id, bool deleteNote);

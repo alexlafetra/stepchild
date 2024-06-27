@@ -251,7 +251,7 @@ void mainSequencerButtons(){
         else{
           lastTime = millis();
           Note n = sequence.noteAtCursor();
-          setSuperposition(n);
+          setSuperposition(n,sequence.activeTrack);
         }
       }
     }
@@ -421,7 +421,19 @@ void drawSuperpos(Note note){
   display.drawRect(x1,y1,x2-x1,y2-y1,1);
 }
 
-void setSuperposition(Note& note){
+void drawSuperposSelect(Note& note, uint8_t originalTrack){
+  SequenceRenderSettings settings;
+  drawNote(note,originalTrack,settings);
+  uint8_t x1 = trackDisplay+int8_t((note.startPos-sequence.viewStart)*sequence.viewScale);
+  uint8_t x2 = trackDisplay+(note.endPos-sequence.viewStart)*sequence.viewScale;
+  uint8_t startHeight = maxTracksShown==5?headerHeight:8;//this should change so that shrinkTop controls maxTracksShown, not the other way around
+  uint8_t y1 = (note.superposition.track-startTrack) * trackHeight + startHeight;
+  uint8_t y2 = y1 + trackHeight;
+  display.fillRect(x1,y1,x2-x1,y2-y1,0);
+  display.drawRect(x1,y1,x2-x1,y2-y1,1);
+}
+
+void setSuperposition(Note& note,uint8_t originalTrack){
   while(true){
     controls.readButtons();
     controls.readJoystick();
@@ -445,12 +457,8 @@ void setSuperposition(Note& note){
         return;
       }
     }
-    SequenceRenderSettings settings;
-    settings.drawSuperposition = true;
     display.clearDisplay();
-    drawSeq(settings);
-    if(millis()/100%2)
-      drawSuperpos(note);
+    drawSuperposSelect(note,originalTrack);
     display.display();
   }
 }

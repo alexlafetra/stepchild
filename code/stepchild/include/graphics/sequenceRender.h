@@ -30,7 +30,7 @@ struct SequenceRenderSettings{
         drawLoopPoints = true;
         // menus = false;
         trackSelection = false;
-        if(!maxTracksShown==5){//this should change so that shrinkTop controls maxTracksShown, not the other way around
+        if(!(maxTracksShown==5)){//this should change so that shrinkTop controls maxTracksShown, not the other way around
           shrinkTopDisplay = true;
           startHeight = 8;
           drawLoopFlags = false;
@@ -57,16 +57,16 @@ struct SequenceRenderSettings{
 };
 
 //Start = step you're starting on, startheight is the y coord the sequence grid begins at
-void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_t height, bool onlyWithinLoop, bool loopFlags, bool loopPoints){
+void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
   //drawing the measure bars
-  for (uint16_t step = start; step < end; step++) {
-    unsigned short int x1 = trackDisplay+int((step-start)*sequence.viewScale);
-    unsigned short int x2 = x1 + (step-start)*sequence.viewScale;
+  for (uint16_t step = settings.start; step < settings.end; step++) {
+    unsigned short int x1 = trackDisplay+int((step-settings.start)*sequence.viewScale);
+    unsigned short int x2 = x1 + (step-settings.start)*sequence.viewScale;
 
     //shade everything outside the loop
-    if(onlyWithinLoop){
+    if(settings.shadeOutsideLoop){
       if(step<sequence.loopData[sequence.activeLoop].start){
-        graphics.shadeArea(x1,startHeight,(sequence.loopData[sequence.activeLoop].start-step)*sequence.viewScale,screenHeight-startHeight,3);
+        graphics.shadeArea(x1,settings.startHeight,(sequence.loopData[sequence.activeLoop].start-step)*sequence.viewScale,screenHeight-settings.startHeight,3);
         step = sequence.loopData[sequence.activeLoop].start;
         //ok, step shouldn't ever be zero in this case, since that would mean it was LESS than zero to begin
         //with. But, just for thoroughnesses sake, make sure step doesn't overflow when you subtract from it
@@ -76,7 +76,7 @@ void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_
         continue;
       }
       else if(step>sequence.loopData[sequence.activeLoop].end){
-        graphics.shadeArea(x1,startHeight,(sequence.viewEnd-sequence.loopData[sequence.activeLoop].end)*sequence.viewScale,screenHeight-startHeight,3);
+        graphics.shadeArea(x1,settings.startHeight,(sequence.viewEnd-sequence.loopData[sequence.activeLoop].end)*sequence.viewScale,screenHeight-settings.startHeight,3);
         break;
       }
     }
@@ -85,79 +85,79 @@ void drawSeqBackground(uint16_t start, uint16_t end, uint8_t startHeight, uint8_
     if(endTrack == sequence.trackData.size()){
       //measure bars
       if (!(step % sequence.subDivision) && (step%96) && (sequence.subDivision*sequence.viewScale)>1) {
-        graphics.drawDottedLineV(x1,startHeight,height,2);
+        graphics.drawDottedLineV(x1,settings.startHeight,height,2);
       }
       if(!(step%96)){
-        graphics.drawDottedLineV2(x1,startHeight,height,6);
+        graphics.drawDottedLineV2(x1,settings.startHeight,height,6);
       }
     }
     else{
       //measure bars
       if (!(step % sequence.subDivision) && (step%96) && (sequence.subDivision*sequence.viewScale)>1) {
-        graphics.drawDottedLineV(x1,startHeight,height,2);
+        graphics.drawDottedLineV(x1,settings.startHeight,height,2);
       }
       if(!(step%96)){
-        graphics.drawDottedLineV2(x1,startHeight,height,6);
+        graphics.drawDottedLineV2(x1,settings.startHeight,height,6);
       }
     }
 
     //drawing loop points/flags
-    if(loopPoints){//check
+    if(settings.drawLoopPoints){//check
       if(step == sequence.loopData[sequence.activeLoop].start){
-        if(loopFlags){
+        if(settings.drawLoopFlags){
           if(movingLoop == -1 || movingLoop == 2){
-            display.fillTriangle(trackDisplay+(step-start)*sequence.viewScale, startHeight-3-sin(millis()/50), trackDisplay+(step-start)*sequence.viewScale, startHeight-7-sin(millis()/50), trackDisplay+(step-start)*sequence.viewScale+4, startHeight-7-sin(millis()/50),SSD1306_WHITE);
-            display.drawFastVLine(trackDisplay+(step-start)*sequence.viewScale,startHeight-3,3,SSD1306_WHITE);
+            display.fillTriangle(trackDisplay+(step-settings.start)*sequence.viewScale, settings.startHeight-3-sin(millis()/50), trackDisplay+(step-settings.start)*sequence.viewScale, settings.startHeight-7-sin(millis()/50), trackDisplay+(step-settings.start)*sequence.viewScale+4, settings.startHeight-7-sin(millis()/50),SSD1306_WHITE);
+            display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale,settings.startHeight-3,3,SSD1306_WHITE);
           }
           else{
             if(sequence.cursorPos == step){
-              display.fillTriangle(trackDisplay+(step-start)*sequence.viewScale, startHeight-3, trackDisplay+(step-start)*sequence.viewScale, startHeight-7, trackDisplay+(step-start)*sequence.viewScale+4, startHeight-7,SSD1306_WHITE);
-              display.drawFastVLine(trackDisplay+(step-start)*sequence.viewScale,startHeight-3,3,SSD1306_WHITE);
+              display.fillTriangle(trackDisplay+(step-settings.start)*sequence.viewScale, settings.startHeight-3, trackDisplay+(step-settings.start)*sequence.viewScale, settings.startHeight-7, trackDisplay+(step-settings.start)*sequence.viewScale+4, settings.startHeight-7,SSD1306_WHITE);
+              display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale,settings.startHeight-3,3,SSD1306_WHITE);
             }
             else{
-              display.fillTriangle(trackDisplay+(step-start)*sequence.viewScale, startHeight-1, trackDisplay+(step-start)*sequence.viewScale, startHeight-5, trackDisplay+(step-start)*sequence.viewScale+4, startHeight-5,SSD1306_WHITE);
+              display.fillTriangle(trackDisplay+(step-settings.start)*sequence.viewScale, settings.startHeight-1, trackDisplay+(step-settings.start)*sequence.viewScale, settings.startHeight-5, trackDisplay+(step-settings.start)*sequence.viewScale+4, settings.startHeight-5,SSD1306_WHITE);
             }
           }
         }
         else{
-          display.drawPixel(trackDisplay+(sequence.loopData[sequence.activeLoop].start-start)*sequence.viewScale, startHeight-1,1);
+          display.drawPixel(trackDisplay+(sequence.loopData[sequence.activeLoop].start-settings.start)*sequence.viewScale, settings.startHeight-1,1);
         }
         if(!movingLoop || (movingLoop != 1 && (millis()/400)%2)){
-          display.drawFastVLine(trackDisplay+(step-start)*sequence.viewScale,startHeight,screenHeight-startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
-          display.drawFastVLine(trackDisplay+(step-start)*sequence.viewScale-1,startHeight,screenHeight-startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
+          display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale,settings.startHeight,screenHeight-settings.startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
+          display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale-1,settings.startHeight,screenHeight-settings.startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
         }
       }
       if(step == sequence.loopData[sequence.activeLoop].end-1){
-        if(loopFlags){
+        if(settings.drawLoopFlags){
           if(movingLoop == 1 || movingLoop == 2){
-            display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-3-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale-4, startHeight-7-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-7-sin(millis()/50),SSD1306_WHITE);
-            display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale,startHeight-3,3,SSD1306_WHITE);
+            display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-3-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale-4, settings.startHeight-7-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-7-sin(millis()/50),SSD1306_WHITE);
+            display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale,settings.startHeight-3,3,SSD1306_WHITE);
           }
           else{
             if(sequence.cursorPos == step+1){
-              display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-3, trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale-4, startHeight-7, trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-7,SSD1306_WHITE);
-              display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale,startHeight-3,3,SSD1306_WHITE);
+              display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-3, trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale-4, settings.startHeight-7, trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-7,SSD1306_WHITE);
+              display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale,settings.startHeight-3,3,SSD1306_WHITE);
             }
             else{
-              display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-1, trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale-4, startHeight-5, trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-5,SSD1306_WHITE);
+              display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-1, trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale-4, settings.startHeight-5, trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-5,SSD1306_WHITE);
             }
           }
         }
         else{
-          display.drawPixel(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale, startHeight-1,1);
+          display.drawPixel(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-1,1);
         }
         if(!movingLoop || (movingLoop != -1 && (millis()/400)%2)){
-          display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale+1,startHeight,screenHeight-startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
-          display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-start)*sequence.viewScale+2,startHeight,screenHeight-startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
+          display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale+1,settings.startHeight,screenHeight-settings.startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
+          display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale+2,settings.startHeight,screenHeight-settings.startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
         }
       }
       if(movingLoop == 2){
         if(step>sequence.loopData[sequence.activeLoop].start && step<sequence.loopData[sequence.activeLoop].end && step%2){
-          display.drawPixel(trackDisplay+(step-start)*sequence.viewScale, startHeight-7-sin(millis()/50),SSD1306_WHITE);
+          display.drawPixel(trackDisplay+(step-settings.start)*sequence.viewScale, settings.startHeight-7-sin(millis()/50),SSD1306_WHITE);
         }
       }
-      if(loopFlags && (step == sequence.loopData[sequence.activeLoop].start+(sequence.loopData[sequence.activeLoop].end-sequence.loopData[sequence.activeLoop].start)/2))
-        printSmall(trackDisplay+(step-start)*sequence.viewScale-1,startHeight-7,stringify(sequence.activeLoop),SSD1306_WHITE);
+      if(settings.drawLoopFlags && (step == sequence.loopData[sequence.activeLoop].start+(sequence.loopData[sequence.activeLoop].end-sequence.loopData[sequence.activeLoop].start)/2))
+        printSmall(trackDisplay+(step-settings.start)*sequence.viewScale-1,settings.startHeight-7,stringify(sequence.activeLoop),SSD1306_WHITE);
     }
   }
 }
@@ -325,7 +325,6 @@ void drawTopIcons(SequenceRenderSettings& settings){
   }
 }
 
-
 uint8_t getVelShade(uint8_t vel){
   int8_t shade = 13-(vel/10);
   if(shade<=0)
@@ -401,25 +400,22 @@ void drawNote(Note& note, uint8_t track, SequenceRenderSettings& settings){
 //this function is a mess!
 void drawSeq(SequenceRenderSettings& settings){
 
-    uint16_t viewLength = settings.end - settings.start;
-
-    trackHeight = (screenHeight-settings.startHeight)/maxTracksShown;
+    trackHeight = (screenHeight-settings.startHeight)/maxTracksShown;//calc track height
 
     if(sequence.trackData.size()>maxTracksShown){
-        endTrack = startTrack + maxTracksShown;
+      endTrack = startTrack + maxTracksShown;
+      if(sequence.activeTrack>=endTrack){
+        endTrack = sequence.activeTrack+1;
+        startTrack = endTrack-maxTracksShown;
+      }
+      else if(sequence.activeTrack<startTrack){
+        startTrack = sequence.activeTrack;
+        endTrack = startTrack+maxTracksShown;
+      }
     }
     else{
         endTrack = startTrack + sequence.trackData.size();
     }
-    while(sequence.activeTrack>=endTrack && sequence.trackData.size()>maxTracksShown){
-        startTrack++;
-        endTrack++;
-    }
-    while(sequence.activeTrack<startTrack && sequence.trackData.size()>maxTracksShown){
-        startTrack--;
-        endTrack--;
-    }
-
     //drawing selection box, since it needs to overlay stepSeq data
     if(selBox.begun){
         selBox.render();
@@ -433,7 +429,7 @@ void drawSeq(SequenceRenderSettings& settings){
         height = settings.startHeight+trackHeight*sequence.trackData.size();
 
     //drawing measure bars, loop points
-    drawSeqBackground(settings.start, settings.end, settings.startHeight, height, settings.shadeOutsideLoop, settings.drawLoopFlags, settings.drawLoopPoints);
+    drawSeqBackground(settings, height);
 
     //top and bottom bounds
     if(startTrack == 0){
@@ -567,8 +563,8 @@ void drawSeq(SequenceRenderSettings& settings){
 
     //anim offset (for the pram)
     if(!menuIsActive){
-        animOffset++;
-        animOffset%=100;
+      animOffset++;
+      animOffset%=100;
     }
     //it's ok to call this in here bc the LB checks to make sure it doesn't redundantly write
     sequence.displayMainSequenceLEDs();

@@ -1,21 +1,27 @@
 class Console{
-    public:
+    private:
         vector<String> text;
         const uint8_t maxLines = 10;
+        uint8_t currentChar = 0;
+    public:
         Console(){}
         void log(String s){
             text.push_back(s);
             if(text.size()>maxLines){
                 text.erase(text.begin());
             }
+            currentChar = 0;
         }
         void draw(uint8_t x1, uint8_t y1){
-            for(uint8_t i = 0; i<text.size(); i++){
+            for(uint8_t i = 0; i<text.size()-1; i++){
                 printSmall(x1,y1+i*6,text[i],1);
             }
+            printSmall(x1,y1+(text.size()-1)*6,text[text.size()-1].substring(0,currentChar),1);
+            if(currentChar<text[text.size()-1].length())
+                currentChar++;
             //blinking cursor
-            if((millis()/200)%2)
-                display.fillRect(x1+(text[text.size()-1].length()+1)*4,y1+text.size()*6,3,5,1);
+            if((millis()/400)%2)
+                display.fillRect(x1+(currentChar)*4+1,y1+(text.size()-1)*6,3,5,1);
         }
         void clear(){
             text.erase(text.begin(),text.end());
