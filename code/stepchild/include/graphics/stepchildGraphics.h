@@ -114,10 +114,6 @@ class StepchildGraphics{
     this->shadeArea(x1,y1,len,height,shade);
   }
 
-  void drawCenteredBracket(int x1, int y1, int length, int height){
-    this->drawNoteBracket(x1-length/2,y1-height/2,length, height, false);
-  }
-
   void drawBinarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, bool state){
     const uint8_t height = 11;
     //getting the longest string so we know how long to make the box
@@ -536,33 +532,29 @@ class StepchildGraphics{
         break;
     }
   }
-  //bracket around a note
-  void drawNoteBracket(uint16_t x1, uint8_t y1, uint16_t length, uint8_t height, bool animated){
+
+  void drawNoteBracket(NoteCoords n, bool animated){
     uint8_t offset = animated?((millis()/400)%2):0;
-    x1++;
-    y1++;
-    length-=2;
-    height-=2;
+    n.x1++;
+    n.y1++;
+    n.length-=2;
     //topL
-    display.drawLine(x1-2-offset,y1-2-offset,x1+1-offset,y1-2-offset,SSD1306_WHITE);
-    display.drawLine(x1-2-offset,y1-2-offset,x1-2-offset,y1+1-offset,SSD1306_WHITE);
-    //bottomL
-    display.drawLine(x1-2-offset,y1+height+2+offset,x1+1-offset,y1+height+2+offset,SSD1306_WHITE);
-    display.drawLine(x1-2-offset,y1+height+2+offset,x1-2-offset,y1+height-1+offset,SSD1306_WHITE);
+    display.drawLine(n.x1-2-offset,n.y1-2-offset,n.x1+1-offset,n.y1-2-offset,SSD1306_WHITE);
+    display.drawLine(n.x1-2-offset,n.y1-2-offset,n.x1-2-offset,n.y1+1-offset,SSD1306_WHITE);
     //topR
-    display.drawLine(x1+length+2+offset,y1-2-offset,x1+length-1+offset,y1-2-offset,SSD1306_WHITE);
-    display.drawLine(x1+length+2+offset,y1-2-offset,x1+length+2+offset,y1+1-offset,SSD1306_WHITE);
+    display.drawLine(n.x1+n.length+2+offset,n.y1-2-offset,n.x1+n.length-1+offset,n.y1-2-offset,SSD1306_WHITE);
+    display.drawLine(n.x1+n.length+2+offset,n.y1-2-offset,n.x1+n.length+2+offset,n.y1+1-offset,SSD1306_WHITE);
+    //bottomL
+    display.drawLine(n.x1-2-offset,n.y2+offset,n.x1+1-offset,n.y2+offset,SSD1306_WHITE);
+    display.drawLine(n.x1-2-offset,n.y2+offset,n.x1-2-offset,n.y2-3+offset,SSD1306_WHITE);
     //bottomR
-    display.drawLine(x1+length+2+offset,y1+height+2+offset,x1+length-1+offset,y1+height+2+offset,SSD1306_WHITE);
-    display.drawLine(x1+length+2+offset,y1+height+2+offset,x1+length+2+offset,y1+height-1+offset,SSD1306_WHITE);
+    display.drawLine(n.x1+n.length+2+offset,n.y2+offset,n.x1+n.length-1+offset,n.y2+offset,SSD1306_WHITE);
+    display.drawLine(n.x1+n.length+2+offset,n.y2+offset,n.x1+n.length+2+offset,n.y2-3+offset,SSD1306_WHITE);
   }
 
-  void drawNoteBracket(uint16_t x1, uint8_t y1, uint16_t length, uint8_t height){
-    this->drawNoteBracket(x1, y1, length, height, true);
-  }
-
-  void drawNoteBracket(Note note, uint8_t track){
-    this->drawNoteBracket(trackDisplay+(note.startPos-sequence.viewStart)*sequence.viewScale,headerHeight+(track-startTrack)*trackHeight,(note.endPos-note.startPos+1)*sequence.viewScale,trackHeight);
+  void drawNoteBracket(Note& note, uint8_t track){
+    NoteCoords n = getNoteCoords(note,track);
+    this->drawNoteBracket(n,true);
   }
 
   void drawSelectionBracket(){
@@ -946,10 +938,11 @@ void fillSquareVertically(uint8_t x0, uint8_t y0, uint8_t width, uint8_t fillAmo
     display.drawFastHLine(x0+2,y0+width-3-line,width-4,1);
   }
 }
-//fill amount is a percent
-void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmount){
+//fill amount is a percent out of maxFill
+void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmount, uint8_t maxFill){
   display.drawRect(x0,y0,width,width,SSD1306_WHITE);
-  uint8_t maxLine = float(fillAmount)/float(100)*width*sqrt(2);
+  // uint8_t maxLine = float(fillAmount)/float(100)*width*sqrt(2);
+  uint8_t maxLine = float(fillAmount)/float(maxFill)*width;
   for(uint8_t line = 0; line<maxLine; line++){
     //bottom right
     int8_t x1 = x0+2+line;
@@ -975,6 +968,11 @@ void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmou
       x2 = x0+width-2;
     display.drawLine(x1,y1,x2,y2,SSD1306_WHITE);
   }
+}
+
+//overload to default to /100
+void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmount){
+  fillSquareDiagonally(x0,y0,width,fillAmount,100);
 }
 
 
@@ -1759,3 +1757,5 @@ void drawQuantBrackets(uint8_t x1, uint8_t y1){
   display.drawFastHLine(x1+width-5,y1+height,4,1);
   display.drawFastHLine(x1+width-5,y1+1+height,4,1);
 }
+
+

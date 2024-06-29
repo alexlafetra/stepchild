@@ -104,7 +104,7 @@ bool core1ready = false;
 
 unsigned char keyboardPitch = 36;//holds the lowest key the keyboard is playing
 
-uint16_t timestep;
+// uint16_t timestep;
 
 //humanize values are timing, velocity, and chance
 //i very well might go back to using this array instead of the humanizer object

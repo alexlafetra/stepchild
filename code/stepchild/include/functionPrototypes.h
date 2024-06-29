@@ -106,7 +106,7 @@ uint8_t printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bo
 void printSmall_centered(int x, int y, String t, uint16_t c);
 void printSmall(int, int, String, uint16_t);
 void fillSquareVertically(uint8_t x0, uint8_t y0, uint8_t width, uint8_t fillAmount);
-void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmount);
+void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmount,uint8_t maxFill);
 void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t numberOfKeys, bool into);
 void printParam_centered(uint8_t which, uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);
 void printParam(uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);
@@ -318,6 +318,7 @@ uint8_t countDigits_byte(uint8_t number);
 uint16_t getNoteCount();
 String bytesToString(uint32_t bytes);
 void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct, bool channel, uint16_t c);
+NoteCoords getNoteCoords(Note& note, uint8_t track);
 
 //Graphics
 void bootscreen_2();

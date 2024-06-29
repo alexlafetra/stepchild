@@ -210,7 +210,7 @@ void NoteEditMenu::displayMenu(){
       case 2:
         if(sequence.IDAtCursor() != 0){
           printSmall(53,3,"v:"+stringify(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].velocity),SSD1306_WHITE);
-          fillSquareDiagonally(4,2,15,float(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].velocity*100)/float(127));
+          fillSquareDiagonally(4,2,15,sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].velocity,127);
           printSmall(10,7,"v",2);
         }
         else{
@@ -225,7 +225,7 @@ void NoteEditMenu::displayMenu(){
       case 3:
         if(sequence.IDAtCursor() != 0){
           printSmall(64,3,stringify(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].chance)+"%",SSD1306_WHITE);
-          fillSquareDiagonally(4,2,15,float(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].chance));
+          fillSquareDiagonally(4,2,15,sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].chance);
           printSmall(10,7,"%",2);
         }
         else{
@@ -273,7 +273,7 @@ void NoteEditMenu::displayMenu(){
   }
   //draw cursor bracket
   if(sequence.IDAtCursor() != 0)
-    graphics.drawNoteBracket(sequence.noteAtCursor(),sequence.activeTrack);
+    graphics.drawNoteBracket(sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][sequence.cursorPos]],sequence.activeTrack);
   //or draw brackets around the selection
   if(sequence.selectionCount > 0)
     graphics.drawSelectionBracket();

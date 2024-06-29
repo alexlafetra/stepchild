@@ -1,13 +1,13 @@
 struct Superposition{
   //for now, it's always at the same pos but in a different track
   // Timestep position;
-  uint8_t track;
+  uint8_t pitch;
   uint8_t odds;
   Superposition(){}
   Superposition(uint8_t t, uint8_t o){
     // position = p;
-    track = t;
-    odds = 0;
+    pitch = t;
+    odds = 50;
   }
 };
 
@@ -83,7 +83,7 @@ Note::Note(){
   endPos = 24;
   velocity = 127;
   chance = 100;
-  superposition = Superposition(0,0);
+  superposition = Superposition(255,0);
 }
 Note::Note(uint16_t start, uint16_t end, uint8_t vel, uint8_t chnce, uint8_t flgs){
   startPos = start;
@@ -99,21 +99,21 @@ Note::Note(unsigned short int xPos, unsigned short int xEnd, unsigned char vel, 
   chance = odds;
   setSelected(select);
   setMuted(mute);
-  superposition = Superposition(0,0);
+  superposition = Superposition(255,0);
 }
 Note::Note(unsigned short int xPos, unsigned short int xEnd, unsigned char vel){
   startPos = xPos;
   endPos = xEnd;
   velocity = vel;
   chance = 100;
-  superposition = Superposition(0,0);
+  superposition = Superposition(255,0);
 }
 Note::Note(unsigned short int xPos, unsigned char vel, unsigned char odds){
   startPos = xPos;
   endPos = xPos + 24;//1/4 note by default
   velocity = vel;
   chance = odds;
-  superposition = Superposition(0,0);
+  superposition = Superposition(255,0);
 }
 uint16_t Note::getLength(){
   return endPos-startPos+1;

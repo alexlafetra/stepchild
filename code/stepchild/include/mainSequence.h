@@ -250,8 +250,8 @@ void mainSequencerButtons(){
         //if you are on the start pos of a note
         else{
           lastTime = millis();
-          Note n = sequence.noteAtCursor();
-          setSuperposition(n,sequence.activeTrack);
+          setSuperposition(sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][sequence.cursorPos]],sequence.activeTrack);
+          lastTime = millis();
         }
       }
     }
@@ -411,54 +411,103 @@ void mainSequence(){
   displaySeq();
 }
 
-void drawSuperpos(Note note){
-  uint8_t x1 = trackDisplay+int8_t((note.startPos-sequence.viewStart)*sequence.viewScale);
-  uint8_t x2 = x1 + (note.endPos-sequence.viewStart)*sequence.viewScale;
-  uint8_t startHeight = maxTracksShown==5?headerHeight:8;//this should change so that shrinkTop controls maxTracksShown, not the other way around
-  uint8_t y1 = (note.superposition.track-startTrack) * trackHeight + startHeight;
-  uint8_t y2 = y1 + trackHeight;
-  display.fillRect(x1,y1,x2-x1,y2-y1,0);
-  display.drawRect(x1,y1,x2-x1,y2-y1,1);
+class SuperpositionMenu{
+  public:
+    Note note;
+    uint8_t track;
+    SuperpositionMenu(Note& n, uint8_t t){
+      note = n;
+      track = t;
+      //first, set the superpos to the track pitch (if it's unset)
+      if(note.superposition.pitch == 255)
+        note.superposition.pitch = sequence.trackData[track].pitch;
+    }
+    bool setSuperpositionControls();
+    void drawSuperposSelect();
+};
+
+bool SuperpositionMenu::setSuperpositionControls(){
+  controls.readButtons();
+  controls.readJoystick();
+  if(utils.itsbeen(100)){
+    if (controls.joystickY == 1) {
+      if(note.superposition.pitch < 127){
+        note.superposition.pitch++;
+        lastTime = millis();
+      }
+    }
+    if (controls.joystickY == -1) {
+      if(note.superposition.pitch > 0){
+        note.superposition.pitch--;
+        lastTime = millis();
+      }
+    }
+  }
+  if(utils.itsbeen(200)){
+    if(controls.NEW() || controls.MENU()){
+      lastTime = millis();
+      if(note.superposition.pitch == sequence.trackData[track].pitch){
+        note.superposition.pitch = 255;//set to 'unset' if it's on the same pitch
+      }
+      return false;
+    }
+    if(controls.DELETE()){
+      lastTime = millis();
+      note.superposition.pitch = sequence.trackData[track].pitch;//reset
+    }
+  }
+  return true;
 }
 
-void drawSuperposSelect(Note& note, uint8_t originalTrack){
+void SuperpositionMenu::drawSuperposSelect(){
   SequenceRenderSettings settings;
-  drawNote(note,originalTrack,settings);
-  uint8_t x1 = trackDisplay+int8_t((note.startPos-sequence.viewStart)*sequence.viewScale);
-  uint8_t x2 = trackDisplay+(note.endPos-sequence.viewStart)*sequence.viewScale;
-  uint8_t startHeight = maxTracksShown==5?headerHeight:8;//this should change so that shrinkTop controls maxTracksShown, not the other way around
-  uint8_t y1 = (note.superposition.track-startTrack) * trackHeight + startHeight;
-  uint8_t y2 = y1 + trackHeight;
-  display.fillRect(x1,y1,x2-x1,y2-y1,0);
-  display.drawRect(x1,y1,x2-x1,y2-y1,1);
+  NoteCoords nCoords = getNoteCoords(note, track, settings);
+
+  // NoteCoords n2Coords = nCoords;
+  NoteCoords n2Coords = getNoteCoords(note, track, settings);
+  n2Coords.y1 = nCoords.y1+(int16_t(note.superposition.pitch)-int16_t(sequence.trackData[track].pitch)) * trackHeight;
+  n2Coords.y2 = n2Coords.y1 + trackHeight;
+
+  if(n2Coords.y1<2){
+    nCoords.offsetY(-n2Coords.y1+2);
+    n2Coords.offsetY(-n2Coords.y1+2);
+  }
+  if(n2Coords.y2>(SCREEN_HEIGHT-2)){
+    nCoords.offsetY(SCREEN_HEIGHT-n2Coords.y2-2);
+    n2Coords.offsetY(SCREEN_HEIGHT-n2Coords.y2-2);
+  }
+
+  //drawing horizontal pitch lines
+  for(uint8_t i = 0; i<SCREEN_HEIGHT; i++){
+    //octave
+    if(abs(nCoords.y1 - i)%(12*trackHeight) == 0)
+      graphics.drawDottedLineH(0,SCREEN_WIDTH,i+trackHeight/2,2);
+    //4 semitones
+    else if(abs(nCoords.y1 - i)%(4*trackHeight) == 0)
+      graphics.drawDottedLineH(0,SCREEN_WIDTH,i+trackHeight/2,3);
+    else if(abs(nCoords.y1 - i)%(trackHeight) == 0)
+      graphics.drawDottedLineH(0,SCREEN_WIDTH,i+trackHeight/2,12);
+  }
+
+  graphics.drawNoteBracket(n2Coords,true);
+
+  String txt = stringify(note.superposition.pitch-sequence.trackData[track].pitch);
+  if(note.superposition.pitch>sequence.trackData[track].pitch)
+    txt = "+"+txt;
+  drawNote(note, track, n2Coords, settings);//draw superpos
+  printSmall(n2Coords.x1+n2Coords.length+4,n2Coords.y1+2,txt+"("+pitchToString(note.superposition.pitch,true,true)+")",1);
+  // printSmall(n2Coords.x1+n2Coords.length+2,n2Coords.y1+2,pitchToString(note.superposition.pitch,true,true)+": "+stringify(int16_t(note.superposition.pitch)-int16_t(sequence.trackData[track].pitch)),1);
+  drawNote(note, track, nCoords, settings);//draw the note (like normal)
+
+  fillSquareDiagonally(0,0,8,note.superposition.odds);
 }
 
 void setSuperposition(Note& note,uint8_t originalTrack){
-  while(true){
-    controls.readButtons();
-    controls.readJoystick();
-    if(utils.itsbeen(100)){
-      if (controls.joystickY == 1) {
-        if(setActiveTrack(sequence.activeTrack + 1, !playing)){
-          note.superposition.track = sequence.activeTrack;
-        }
-        lastTime = millis();
-      }
-      if (controls.joystickY == -1) {
-        if(setActiveTrack(sequence.activeTrack - 1, !playing)){
-          note.superposition.track = sequence.activeTrack;
-        }
-        lastTime = millis();
-      }
-    }
-    if(utils.itsbeen(200)){
-      if(controls.NEW()){
-        lastTime = millis();
-        return;
-      }
-    }
+  SuperpositionMenu superposMenu(note,originalTrack);
+  while(superposMenu.setSuperpositionControls()){
     display.clearDisplay();
-    drawSuperposSelect(note,originalTrack);
+    superposMenu.drawSuperposSelect();
     display.display();
   }
+  note.superposition.pitch = superposMenu.note.superposition.pitch;
 }

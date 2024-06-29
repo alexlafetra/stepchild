@@ -2,6 +2,7 @@ struct SequenceRenderSettings{
     uint16_t start;
     uint16_t end;
     uint8_t startHeight;
+    uint8_t maxTracksShown = 5;
     bool onlyWithinLoop;
     bool drawLoopFlags;
     bool drawLoopPoints;
@@ -28,17 +29,11 @@ struct SequenceRenderSettings{
         trackLabels = true;
         topLabels = true;
         drawLoopPoints = true;
-        // menus = false;
+
         trackSelection = false;
-        if(!(maxTracksShown==5)){//this should change so that shrinkTop controls maxTracksShown, not the other way around
-          shrinkTopDisplay = true;
-          startHeight = 8;
-          drawLoopFlags = false;
-        }
-        else{
-          startHeight = headerHeight;
-          drawLoopFlags = true;
-        }
+        shrinkTopDisplay = true;
+        startHeight = headerHeight;
+        drawLoopFlags = true;
         drawTrackChannel = controls.SHIFT();
         makeViewInBounds();
     }
@@ -176,7 +171,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
 
   //note presence indicator(if notes are offscreen)
   if(areThereMoreNotes(true)){
-    uint8_t y1 = (maxTracksShown>5&&!menuIsActive)?8:headerHeight;
+    uint8_t y1 = (settings.maxTracksShown>5&&!menuIsActive)?8:headerHeight;
     if(!((animOffset/10)%2)){
       display.fillTriangle(trackDisplay-7,y1+3,trackDisplay-3,y1+3,trackDisplay-5,y1+1, SSD1306_WHITE);
     }
@@ -341,76 +336,101 @@ int8_t getChanceShade(uint8_t odds){
     return shade;
 }
 
-void drawNote(Note& note, uint8_t track, SequenceRenderSettings& settings){
-  uint16_t length;
-  int16_t x1;
+NoteCoords getNoteCoords(Note& note, uint8_t track, SequenceRenderSettings& settings){
+  NoteCoords nCoords;
   if(note.startPos>settings.start){
-    length = (note.endPos - note.startPos)*sequence.viewScale;
-    x1 = trackDisplay+int16_t((note.startPos-settings.start)*sequence.viewScale);
+    nCoords.length = (note.endPos - note.startPos)*sequence.viewScale;
+    nCoords.x1 = trackDisplay+int16_t((note.startPos-settings.start)*sequence.viewScale);
   }
   else{
-    length = (note.endPos - settings.start)*sequence.viewScale+1;
-    x1 = trackDisplay-1;
+    nCoords.length = (note.endPos - settings.start)*sequence.viewScale+1;
+    nCoords.x1 = trackDisplay-1;
   }
+  nCoords.y1 = (track-startTrack) * trackHeight + settings.startHeight;
+  nCoords.y2 = nCoords.y1+trackHeight;
+  return nCoords;
+}
+
+NoteCoords getNoteCoords(Note& note, uint8_t track){
+  SequenceRenderSettings settings;
+  return getNoteCoords(note,track,settings);
+}
+
+void drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSettings& settings){
   //if the note is currently superpositioned, draw it where it should be, but not if it's out of view
   if(note.isSuperpositioned()){
-
+    noteCoords.offsetY(note.superposition.pitch - sequence.trackData[track].pitch);
   }
-  uint8_t y1 = (track-startTrack) * trackHeight + settings.startHeight;
-  //if the length is less than 3, don't worry about shading it
-  if(length<3){
-    display.fillRect(x1, y1+1, length+2, trackHeight-2, SSD1306_WHITE);
+  //if it's not actively in superposition, BUT it has one and the cursor is over it, draw a rounded rect behind it
+  else if(note.superposition.pitch != 255 && sequence.cursorPos<note.endPos && sequence.cursorPos >= note.startPos && sequence.activeTrack == track){
+    display.fillRoundRect(noteCoords.x1+3, noteCoords.y1-2, noteCoords.length-1, trackHeight, 2, SSD1306_BLACK);
+    display.drawRoundRect(noteCoords.x1+3, noteCoords.y1-2, noteCoords.length-1, trackHeight, 2, SSD1306_WHITE);
+  }
+  //if the noteCoords.length is less than 3, don't worry about shading it
+  if(noteCoords.length<3){
+    display.fillRect(noteCoords.x1, noteCoords.y1+1, noteCoords.length+2, trackHeight-2, SSD1306_WHITE);
   }
   else{
     if(note.isMuted()){
-      display.fillRect(x1+1, y1+1, length-1, trackHeight-2, SSD1306_BLACK);
-      display.drawRect(x1+1, y1+1, length-1, trackHeight-2, SSD1306_WHITE);
-      display.drawLine(x1+1,y1+1, x1+length-1, y1+trackHeight-2,SSD1306_WHITE);
-      display.drawLine(x1+1,y1+trackHeight-2,x1+length-1,y1+1,SSD1306_WHITE);
-      display.drawFastVLine(x1+length,y1+1,trackHeight-2,SSD1306_BLACK);
+      display.fillRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_BLACK);
+      display.drawRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_WHITE);
+      display.drawLine(noteCoords.x1+1,noteCoords.y1+1, noteCoords.x1+noteCoords.length-1, noteCoords.y1+trackHeight-2,SSD1306_WHITE);
+      display.drawLine(noteCoords.x1+1,noteCoords.y1+trackHeight-2,noteCoords.x1+noteCoords.length-1,noteCoords.y1+1,SSD1306_WHITE);
+      display.drawFastVLine(noteCoords.x1+noteCoords.length,noteCoords.y1+1,trackHeight-2,SSD1306_BLACK);
     }
     else{
       uint8_t shade = settings.displayingVel?getVelShade(note.velocity):getChanceShade(note.chance);
       if(shade != 1){//so it does this faster
-        display.fillRect(x1+1, y1+1, length-1, trackHeight-2, SSD1306_BLACK);//clearing out the note area
+        display.fillRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_BLACK);//clearing out the note area
         for(uint8_t j = 1; j<trackHeight-2; j++){//shading the note...
-          for(uint8_t i = x1+1;i+j%shade<x1+length-1; i+=shade){
-            display.drawPixel(i+j%shade,y1+j,SSD1306_WHITE);
+          for(uint8_t i = noteCoords.x1+1;i+j%shade<noteCoords.x1+noteCoords.length-1; i+=shade){
+            display.drawPixel(i+j%shade,noteCoords.y1+j,SSD1306_WHITE);
           }
         }
-        display.drawRect(x1+1, y1+1, length-1, trackHeight-2, SSD1306_WHITE);
+        display.drawRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_WHITE);
       }
       //if it's a solid note, fill it quickly
       else{
-        display.fillRect(x1+1, y1+1, length-1, trackHeight-2, SSD1306_WHITE);
+        display.fillRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_WHITE);
       }
       //line at the end, if there's something at the end
       if(sequence.lookupTable[track][note.endPos] != 0)
-        display.drawFastVLine(x1+length,y1+1,trackHeight-2,SSD1306_BLACK);
+        display.drawFastVLine(noteCoords.x1+noteCoords.length,noteCoords.y1+1,trackHeight-2,SSD1306_BLACK);
     }
     if(note.isSelected()){
-      display.drawRect(x1,y1+1,length,trackHeight-2,SSD1306_BLACK);
-      display.drawRect(x1+2,y1+2,length-3,trackHeight-4,SSD1306_WHITE);
-      display.drawRect(x1,y1,length+1,trackHeight,SSD1306_WHITE);
-      display.drawRect(x1+1,y1+1,length-1,trackHeight-2,SSD1306_BLACK);
+      display.drawRect(noteCoords.x1,noteCoords.y1+1,noteCoords.length,trackHeight-2,SSD1306_BLACK);
+      display.drawRect(noteCoords.x1+2,noteCoords.y1+2,noteCoords.length-3,trackHeight-4,SSD1306_WHITE);
+      display.drawRect(noteCoords.x1,noteCoords.y1,noteCoords.length+1,trackHeight,SSD1306_WHITE);
+      display.drawRect(noteCoords.x1+1,noteCoords.y1+1,noteCoords.length-1,trackHeight-2,SSD1306_BLACK);
     }
   }
+}
+void drawNote(Note& note, uint8_t track, SequenceRenderSettings& settings){
+  drawNote(note, track, getNoteCoords(note,track,settings), settings);
 }
 
 //this function is a mess!
 void drawSeq(SequenceRenderSettings& settings){
 
-    trackHeight = (screenHeight-settings.startHeight)/maxTracksShown;//calc track height
+    if(settings.shrinkTopDisplay){
+      settings.maxTracksShown = maxTracksShown;
+      if(!(settings.maxTracksShown==5)){//this should change so that shrinkTop controls maxTracksShown, not the other way around
+        settings.startHeight = 8;
+        settings.drawLoopFlags = false;
+      }
+    }
 
-    if(sequence.trackData.size()>maxTracksShown){
-      endTrack = startTrack + maxTracksShown;
+    trackHeight = (screenHeight-settings.startHeight)/settings.maxTracksShown;//calc track height
+
+    if(sequence.trackData.size()>settings.maxTracksShown){
+      endTrack = startTrack + settings.maxTracksShown;
       if(sequence.activeTrack>=endTrack){
         endTrack = sequence.activeTrack+1;
-        startTrack = endTrack-maxTracksShown;
+        startTrack = endTrack-settings.maxTracksShown;
       }
       else if(sequence.activeTrack<startTrack){
         startTrack = sequence.activeTrack;
-        endTrack = startTrack+maxTracksShown;
+        endTrack = startTrack+settings.maxTracksShown;
       }
     }
     else{
@@ -422,14 +442,35 @@ void drawSeq(SequenceRenderSettings& settings){
     }
     uint8_t height;
     if(endTrack == sequence.trackData.size())
-        height = settings.startHeight+trackHeight*maxTracksShown;
-    else if(sequence.trackData.size()>maxTracksShown)
-        height = settings.startHeight+trackHeight*(maxTracksShown+1);
+        height = settings.startHeight+trackHeight*settings.maxTracksShown;
+    else if(sequence.trackData.size()>settings.maxTracksShown)
+        height = settings.startHeight+trackHeight*(settings.maxTracksShown+1);
     else
         height = settings.startHeight+trackHeight*sequence.trackData.size();
 
     //drawing measure bars, loop points
     drawSeqBackground(settings, height);
+
+    //drawing cursor
+    if(settings.drawCursor){
+        uint8_t cPos = trackDisplay+int((sequence.cursorPos-settings.start)*sequence.viewScale);
+        if(cPos>127)
+            cPos = 126;
+        if(endTrack == sequence.trackData.size()){
+            display.drawFastVLine(cPos, settings.startHeight, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
+            display.drawFastVLine(cPos+1, settings.startHeight, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
+        }
+        else{
+            display.drawFastVLine(cPos, settings.startHeight, screenHeight-settings.startHeight, SSD1306_WHITE);
+            display.drawFastVLine(cPos+1, settings.startHeight, screenHeight-settings.startHeight, SSD1306_WHITE);
+        }
+    }
+
+    //drawing active track highlight
+    uint8_t y1 = (sequence.activeTrack-startTrack) * trackHeight + settings.startHeight;
+    // display.drawRect(x1, y1, screenWidth, trackHeight, SSD1306_WHITE);
+    display.drawFastHLine(trackDisplay,y1,screenWidth-trackDisplay,1);
+    display.drawFastHLine(trackDisplay,y1+trackHeight-1,screenWidth-trackDisplay,1);
 
     //top and bottom bounds
     if(startTrack == 0){
@@ -437,7 +478,7 @@ void drawSeq(SequenceRenderSettings& settings){
     }
     //if the bottom is in view
     if(endTrack == sequence.trackData.size()){
-        display.drawFastHLine(trackDisplay,settings.startHeight+trackHeight*maxTracksShown,screenWidth,SSD1306_WHITE);
+        display.drawFastHLine(trackDisplay,settings.startHeight+trackHeight*settings.maxTracksShown,screenWidth,SSD1306_WHITE);
     }
     else if(endTrack< sequence.trackData.size())
         endTrack++;
@@ -500,8 +541,8 @@ void drawSeq(SequenceRenderSettings& settings){
         }
         else{
             //highlight for solo'd tracks
-            if(sequence.trackData[track].isSolo())
-                graphics.drawNoteBracket(trackDisplay+3,y1-1,screenWidth-trackDisplay-5,trackHeight+2,true);
+            // if(sequence.trackData[track].isSolo())
+            //     graphics.drawNoteBracket(trackDisplay+3,y1-1,screenWidth-trackDisplay-5,trackHeight+2,true);
             //Check to see if you only want to render the region in the active loop, and shade everything else!
             for (uint16_t step = settings.shadeOutsideLoop?sequence.loopData[sequence.activeLoop].start:settings.start; step < (settings.shadeOutsideLoop?sequence.loopData[sequence.activeLoop].end:settings.end); step++) {
                 uint16_t id = sequence.lookupTable[track][step];
@@ -513,28 +554,13 @@ void drawSeq(SequenceRenderSettings& settings){
             }
         }
     }
-    //---------------------------------------------------
-    //drawing cursor
-    if(settings.drawCursor){
-        uint8_t cPos = trackDisplay+int((sequence.cursorPos-settings.start)*sequence.viewScale);
-        if(cPos>127)
-            cPos = 126;
-        if(endTrack == sequence.trackData.size()){
-            display.drawFastVLine(cPos, settings.startHeight, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
-            display.drawFastVLine(cPos+1, settings.startHeight, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
-        }
-        else{
-            display.drawFastVLine(cPos, settings.startHeight, screenHeight-settings.startHeight, SSD1306_WHITE);
-            display.drawFastVLine(cPos+1, settings.startHeight, screenHeight-settings.startHeight, SSD1306_WHITE);
-        }
-    }
     //all the top icons/tooltips
     if(settings.topLabels){
         drawTopIcons(settings);
     }
     //drawing big or small pram in the corner
     if(settings.drawPram){
-        if(settings.shrinkTopDisplay){
+        if(settings.maxTracksShown != 5){
             graphics.drawTinyPram();
         }
         else{
@@ -555,11 +581,6 @@ void drawSeq(SequenceRenderSettings& settings){
         //making sure it doesn't print over the subdiv info
         cursorX = 42;
     }
-    //drawing active track highlight
-    uint8_t y1 = (sequence.activeTrack-startTrack) * trackHeight + settings.startHeight;
-    // display.drawRect(x1, y1, screenWidth, trackHeight, SSD1306_WHITE);
-    display.drawFastHLine(trackDisplay,y1,screenWidth-trackDisplay,1);
-    display.drawFastHLine(trackDisplay,y1+trackHeight-1,screenWidth-trackDisplay,1);
 
     //anim offset (for the pram)
     if(!menuIsActive){

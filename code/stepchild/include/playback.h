@@ -1,4 +1,4 @@
-void playNote(Note note, uint8_t track){
+void playNote(Note& note, uint8_t track, uint16_t timestep){
   //if it's the start of the note, or if the track wasn't sending already
   if(timestep == note.startPos || sequence.trackData[track].noteLastSent == 255){ //if it's the start
     //if it's not muted
@@ -10,12 +10,19 @@ void playNote(Note note, uint8_t track){
         sequence.trackData[track].noteLastSent = 255;
         triggerAutotracks(track,false);
       }
+
       //modifying chance value and pitch value and vel
       int16_t chance = note.chance;
       int16_t pitch = sequence.trackData[track].pitch;
       int16_t vel = note.velocity;
-      //if the channel matches, or if the modifier is global
 
+      //superposition pitch mod, if there is a superposition
+      if(note.superposition.pitch != 255 && (random(100)<note.superposition.odds || note.isSuperpositioned())){
+        pitch = note.superposition.pitch;
+        note.setSuperpositioned(true);
+      }
+
+      //global mods
       //adjusting chance
       if(sequence.trackData[track].channel == globalModifiers.chance[0] || globalModifiers.chance[0] == 0){
         chance += globalModifiers.chance[1];
@@ -65,6 +72,13 @@ void playNote(Note note, uint8_t track){
       }
     }
   }
+  //if it's the end of the note (just for visual effect)
+  else if(timestep == note.endPos-1){
+    //reset superposition flag
+    if(note.isSuperpositioned()){
+      note.setSuperpositioned(false);
+    }
+  }
 }
 
 void playTrack(uint8_t track, uint16_t timestep){
@@ -81,7 +95,7 @@ void playTrack(uint8_t track, uint16_t timestep){
   }
   //if there's a note there
   else{
-    playNote(sequence.noteAt(track,timestep),track);
+    playNote(sequence.noteData[track][sequence.lookupTable[track][timestep]],track, timestep);
   }
  }
 
@@ -173,10 +187,15 @@ void stop(){
     if(sequence.trackData[track].noteLastSent != 255){
       MIDI.noteOff(sequence.trackData[track].noteLastSent, 0, sequence.trackData[track].channel);
       sequence.trackData[track].noteLastSent = 255;
+      //reset superposition flags
+      for(uint8_t i = 1; i<sequence.noteData[track].size(); i++){
+        sequence.noteData[track][i].setSuperpositioned(false);
+      }
     }
     else{
       MIDI.noteOff(sequence.trackData[track].pitch, 0, sequence.trackData[track].channel);
     }
+
   }
   sentNotes.clear();
 }
@@ -424,6 +443,12 @@ void checkLoop(){
       sequence.loopCount++;
       if(sequence.loopCount > sequence.loopData[sequence.activeLoop].reps){
         sequence.nextLoop();
+        //reset all the superposition flags
+        for(uint8_t t = 0; t<sequence.trackData.size(); t++){
+          for(uint16_t n = 1; n<sequence.noteData[t].size(); n++){
+            sequence.noteData[t][n].setSuperpositioned(false);
+          }
+        }
       }
       playheadPos = sequence.loopData[sequence.activeLoop].start;
       if(!sequence.isLooping)

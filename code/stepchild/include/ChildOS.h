@@ -88,6 +88,8 @@ struct PolarVertex2D;
 struct NoteTrackPair;
 struct EchoData;
 struct RandomData;
+struct NoteCoords;
+struct SequenceRenderSettings;
 
 enum LoopType : uint8_t{
   NORMAL,
@@ -175,6 +177,17 @@ uint16_t animOffset = 0;//for animating curves
 #include "graphics/fonts/arp.cpp"
 #include "graphics/fonts/italic.cpp"
 #include "graphics/fonts/chunky.cpp"
+
+struct NoteCoords{
+  uint8_t x1;
+  int16_t length;
+  int16_t y1;
+  int16_t y2;
+  void offsetY(int16_t y){
+    y1+=y;
+    y2+=y;
+  }
+};
 
 //Basic graphic functions
 #include "graphics/stepchildGraphics.h"
