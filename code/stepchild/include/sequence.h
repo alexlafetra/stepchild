@@ -661,23 +661,27 @@ class StepchildSequence{
     void setLoopPoint(int32_t start, bool which){
         //set start
         if(which){
+            if(start>=loopData[activeLoop].end)
+                return;
             if(start<=this->loopData[this->activeLoop].end && start>=0)
-            this->loopData[this->activeLoop].start = start;
+                this->loopData[this->activeLoop].start = start;
             else if(start < 0)
-            this->loopData[this->activeLoop].start = 0;
+                this->loopData[this->activeLoop].start = 0;
             else if(start>this->loopData[this->activeLoop].end)
-            this->loopData[this->activeLoop].start = this->loopData[this->activeLoop].end;
+                this->loopData[this->activeLoop].start = this->loopData[this->activeLoop].end;
             this->loopData[this->activeLoop].start = this->loopData[this->activeLoop].start;
             menuText = "loop start: "+stepsToPosition(this->loopData[this->activeLoop].start,true);
         }
         //set end
         else{
+            if(start <= loopData[activeLoop].start)
+                return;
             if(start>=this->loopData[this->activeLoop].start && start <= this->sequenceLength)
-            this->loopData[this->activeLoop].end = start;
+                this->loopData[this->activeLoop].end = start;
             else if(start>this->sequenceLength)
-            this->loopData[this->activeLoop].end = this->sequenceLength;
+                this->loopData[this->activeLoop].end = this->sequenceLength;
             else if(start<this->loopData[this->activeLoop].start)
-            this->loopData[this->activeLoop].end = this->loopData[this->activeLoop].start;
+                this->loopData[this->activeLoop].end = this->loopData[this->activeLoop].start;
             this->loopData[this->activeLoop].end = this->loopData[this->activeLoop].end;
             menuText = "loop end: "+stepsToPosition(this->loopData[this->activeLoop].end,true);
         }

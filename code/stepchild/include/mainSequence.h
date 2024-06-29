@@ -228,7 +228,7 @@ void mainSequencerButtons(){
     if(controls.NEW() && !drawingNote && !controls.SELECT() ){
       if(controls.SHIFT()){
         //if there's no note starting here, make a new note 1/2 the subdiv
-        if((sequence.IDAtCursor() == 0 || sequence.cursorPos != sequence.noteAtCursor().startPos)){
+        if(!sequence.IDAtCursor()){
           sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision/2,true);
           moveCursor(sequence.subDivision/2);
           drawingNote = true;
@@ -251,7 +251,6 @@ void mainSequencerButtons(){
         else{
           lastTime = millis();
           setSuperposition(sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][sequence.cursorPos]],sequence.activeTrack);
-          lastTime = millis();
         }
       }
     }
@@ -264,9 +263,6 @@ void mainSequencerButtons(){
     else if(controls.LOOP()){
       lastTime = millis();
       pushToNewLoop();
-      // sequence.isLooping = !sequence.isLooping;
-      // lastTime = millis();
-      // menuText = sequence.isLooping?"loop on":"loop off";
     }
 
     if(controls.DELETE() && controls.SHIFT()){
@@ -429,16 +425,33 @@ class SuperpositionMenu{
 bool SuperpositionMenu::setSuperpositionControls(){
   controls.readButtons();
   controls.readJoystick();
+  while(controls.counterA){
+    if(controls.counterA > 0 && note.superposition.odds > 0){
+      note.superposition.odds -= 5;
+    }
+    if(controls.counterA < 0 && note.superposition.odds < 100){
+      note.superposition.odds += 5;
+    }
+    controls.counterA += controls.counterA<0?1:-1;
+  }
   if(utils.itsbeen(100)){
-    if (controls.joystickY == 1) {
+    if (controls.joystickY == -1) {
       if(note.superposition.pitch < 127){
         note.superposition.pitch++;
+        if(!playing){
+          MIDI.noteOn(note.superposition.pitch, note.velocity, sequence.trackData[track].channel);
+          MIDI.noteOff(note.superposition.pitch, 0, sequence.trackData[track].channel);
+        }
         lastTime = millis();
       }
     }
-    if (controls.joystickY == -1) {
+    if (controls.joystickY == 1) {
       if(note.superposition.pitch > 0){
         note.superposition.pitch--;
+        if(!playing){
+          MIDI.noteOn(note.superposition.pitch, note.velocity, sequence.trackData[track].channel);
+          MIDI.noteOff(note.superposition.pitch, 0, sequence.trackData[track].channel);
+        }
         lastTime = millis();
       }
     }
@@ -463,14 +476,16 @@ void SuperpositionMenu::drawSuperposSelect(){
   SequenceRenderSettings settings;
   NoteCoords nCoords = getNoteCoords(note, track, settings);
 
+  const uint8_t headerHeight = 12;
+
   // NoteCoords n2Coords = nCoords;
   NoteCoords n2Coords = getNoteCoords(note, track, settings);
-  n2Coords.y1 = nCoords.y1+(int16_t(note.superposition.pitch)-int16_t(sequence.trackData[track].pitch)) * trackHeight;
+  n2Coords.y1 = nCoords.y1+(int16_t(sequence.trackData[track].pitch)-int16_t(note.superposition.pitch)) * trackHeight;
   n2Coords.y2 = n2Coords.y1 + trackHeight;
 
-  if(n2Coords.y1<2){
-    nCoords.offsetY(-n2Coords.y1+2);
-    n2Coords.offsetY(-n2Coords.y1+2);
+  if(n2Coords.y1<headerHeight){
+    nCoords.offsetY(-n2Coords.y1+headerHeight);
+    n2Coords.offsetY(-n2Coords.y1+headerHeight);
   }
   if(n2Coords.y2>(SCREEN_HEIGHT-2)){
     nCoords.offsetY(SCREEN_HEIGHT-n2Coords.y2-2);
@@ -478,7 +493,7 @@ void SuperpositionMenu::drawSuperposSelect(){
   }
 
   //drawing horizontal pitch lines
-  for(uint8_t i = 0; i<SCREEN_HEIGHT; i++){
+  for(uint8_t i = headerHeight; i<SCREEN_HEIGHT; i++){
     //octave
     if(abs(nCoords.y1 - i)%(12*trackHeight) == 0)
       graphics.drawDottedLineH(0,SCREEN_WIDTH,i+trackHeight/2,2);
@@ -494,12 +509,19 @@ void SuperpositionMenu::drawSuperposSelect(){
   String txt = stringify(note.superposition.pitch-sequence.trackData[track].pitch);
   if(note.superposition.pitch>sequence.trackData[track].pitch)
     txt = "+"+txt;
-  drawNote(note, track, n2Coords, settings);//draw superpos
+
+  //draw superposition
+  graphics.fillRectWithMissingCorners(n2Coords.x1+1, n2Coords.y1, n2Coords.length-1, trackHeight, SSD1306_BLACK);
+  graphics.drawRectWithMissingCorners(n2Coords.x1+1, n2Coords.y1, n2Coords.length-1, trackHeight, SSD1306_WHITE);
+
   printSmall(n2Coords.x1+n2Coords.length+4,n2Coords.y1+2,txt+"("+pitchToString(note.superposition.pitch,true,true)+")",1);
-  // printSmall(n2Coords.x1+n2Coords.length+2,n2Coords.y1+2,pitchToString(note.superposition.pitch,true,true)+": "+stringify(int16_t(note.superposition.pitch)-int16_t(sequence.trackData[track].pitch)),1);
   drawNote(note, track, nCoords, settings);//draw the note (like normal)
 
-  fillSquareDiagonally(0,0,8,note.superposition.odds);
+  //draw probability
+  fillSquareDiagonally(0,0,15,note.superposition.odds);
+  printSmall(6,5,"%",2);
+  printSmall(17,5,stringify(note.superposition.odds)+"%",1);
+  printCursive(50,4,"superposition",1);
 }
 
 void setSuperposition(Note& note,uint8_t originalTrack){
@@ -509,5 +531,6 @@ void setSuperposition(Note& note,uint8_t originalTrack){
     superposMenu.drawSuperposSelect();
     display.display();
   }
-  note.superposition.pitch = superposMenu.note.superposition.pitch;
+  note.superposition = superposMenu.note.superposition;
+  controls.clearButtons();
 }

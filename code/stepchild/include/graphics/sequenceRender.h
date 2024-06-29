@@ -357,14 +357,22 @@ NoteCoords getNoteCoords(Note& note, uint8_t track){
 }
 
 void drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSettings& settings){
+  if(noteCoords.y2>=SCREEN_HEIGHT)
+    return;
+  else if(noteCoords.x1>=SCREEN_WIDTH)
+    return;
   //if the note is currently superpositioned, draw it where it should be, but not if it's out of view
   if(note.isSuperpositioned()){
     noteCoords.offsetY(note.superposition.pitch - sequence.trackData[track].pitch);
   }
   //if it's not actively in superposition, BUT it has one and the cursor is over it, draw a rounded rect behind it
   else if(note.superposition.pitch != 255 && sequence.cursorPos<note.endPos && sequence.cursorPos >= note.startPos && sequence.activeTrack == track){
-    display.fillRoundRect(noteCoords.x1+3, noteCoords.y1-2, noteCoords.length-1, trackHeight, 2, SSD1306_BLACK);
-    display.drawRoundRect(noteCoords.x1+3, noteCoords.y1-2, noteCoords.length-1, trackHeight, 2, SSD1306_WHITE);
+    int8_t offset = note.superposition.pitch-sequence.trackData[track].pitch;
+    if(sequence.cursorPos == note.startPos){
+        offset += (millis()/100)%2;
+    }
+    graphics.fillRectWithMissingCorners(noteCoords.x1+((abs(offset)>5)?5:offset), noteCoords.y1-offset, noteCoords.length, trackHeight, SSD1306_BLACK);
+    graphics.drawRectWithMissingCorners(noteCoords.x1+((abs(offset)>5)?5:offset), noteCoords.y1-offset, noteCoords.length, trackHeight, SSD1306_WHITE);
   }
   //if the noteCoords.length is less than 3, don't worry about shading it
   if(noteCoords.length<3){
@@ -412,183 +420,183 @@ void drawNote(Note& note, uint8_t track, SequenceRenderSettings& settings){
 //this function is a mess!
 void drawSeq(SequenceRenderSettings& settings){
 
-    if(settings.shrinkTopDisplay){
-      settings.maxTracksShown = maxTracksShown;
-      if(!(settings.maxTracksShown==5)){//this should change so that shrinkTop controls maxTracksShown, not the other way around
-        settings.startHeight = 8;
-        settings.drawLoopFlags = false;
+  if(settings.shrinkTopDisplay){
+    settings.maxTracksShown = maxTracksShown;
+    if(!(settings.maxTracksShown==5)){//this should change so that shrinkTop controls maxTracksShown, not the other way around
+      settings.startHeight = 8;
+      settings.drawLoopFlags = false;
+    }
+  }
+
+  trackHeight = (screenHeight-settings.startHeight)/settings.maxTracksShown;//calc track height
+
+  if(sequence.trackData.size()>settings.maxTracksShown){
+    endTrack = startTrack + settings.maxTracksShown;
+    if(sequence.activeTrack>=endTrack){
+      endTrack = sequence.activeTrack+1;
+      startTrack = endTrack-settings.maxTracksShown;
+    }
+    else if(sequence.activeTrack<startTrack){
+      startTrack = sequence.activeTrack;
+      endTrack = startTrack+settings.maxTracksShown;
+    }
+  }
+  else{
+      endTrack = startTrack + sequence.trackData.size();
+  }
+  //drawing selection box, since it needs to overlay stepSeq data
+  if(selBox.begun){
+      selBox.render();
+  }
+  uint8_t height;
+  if(endTrack == sequence.trackData.size())
+      height = settings.startHeight+trackHeight*settings.maxTracksShown;
+  else if(sequence.trackData.size()>settings.maxTracksShown)
+      height = settings.startHeight+trackHeight*(settings.maxTracksShown+1);
+  else
+      height = settings.startHeight+trackHeight*sequence.trackData.size();
+
+  //drawing measure bars, loop points
+  drawSeqBackground(settings, height);
+
+  //drawing cursor
+  if(settings.drawCursor){
+      uint8_t cPos = trackDisplay+int((sequence.cursorPos-settings.start)*sequence.viewScale);
+      if(cPos>127)
+          cPos = 126;
+      if(endTrack == sequence.trackData.size()){
+          display.drawFastVLine(cPos, settings.startHeight, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
+          display.drawFastVLine(cPos+1, settings.startHeight, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
       }
-    }
-
-    trackHeight = (screenHeight-settings.startHeight)/settings.maxTracksShown;//calc track height
-
-    if(sequence.trackData.size()>settings.maxTracksShown){
-      endTrack = startTrack + settings.maxTracksShown;
-      if(sequence.activeTrack>=endTrack){
-        endTrack = sequence.activeTrack+1;
-        startTrack = endTrack-settings.maxTracksShown;
+      else{
+          display.drawFastVLine(cPos, settings.startHeight, screenHeight-settings.startHeight, SSD1306_WHITE);
+          display.drawFastVLine(cPos+1, settings.startHeight, screenHeight-settings.startHeight, SSD1306_WHITE);
       }
-      else if(sequence.activeTrack<startTrack){
-        startTrack = sequence.activeTrack;
-        endTrack = startTrack+settings.maxTracksShown;
+  }
+
+  //drawing active track highlight
+  uint8_t y1 = (sequence.activeTrack-startTrack) * trackHeight + settings.startHeight;
+  // display.drawRect(x1, y1, screenWidth, trackHeight, SSD1306_WHITE);
+  display.drawFastHLine(trackDisplay,y1,screenWidth-trackDisplay,1);
+  display.drawFastHLine(trackDisplay,y1+trackHeight-1,screenWidth-trackDisplay,1);
+
+  //top and bottom bounds
+  if(startTrack == 0){
+      display.drawFastHLine(trackDisplay,settings.startHeight,screenWidth,SSD1306_WHITE);
+  }
+  //if the bottom is in view
+  if(endTrack == sequence.trackData.size()){
+      display.drawFastHLine(trackDisplay,settings.startHeight+trackHeight*settings.maxTracksShown,screenWidth,SSD1306_WHITE);
+  }
+  else if(endTrack < sequence.trackData.size())
+      endTrack++;
+  //drawin all da steps
+  //---------------------------------------------------
+  for (uint8_t track = startTrack; track < endTrack; track++) {
+      unsigned short int y1 = (track-startTrack) * trackHeight + settings.startHeight;
+      unsigned short int y2 = y1 + trackHeight;
+      uint8_t xCoord;
+      //track info display
+      if(sequence.activeTrack == track){
+          xCoord = 9;
+          if(settings.trackLabels)
+              graphics.drawArrow(6+((millis()/400)%2),y1+trackHeight/2+1,2,0,true);
       }
-    }
-    else{
-        endTrack = startTrack + sequence.trackData.size();
-    }
-    //drawing selection box, since it needs to overlay stepSeq data
-    if(selBox.begun){
-        selBox.render();
-    }
-    uint8_t height;
-    if(endTrack == sequence.trackData.size())
-        height = settings.startHeight+trackHeight*settings.maxTracksShown;
-    else if(sequence.trackData.size()>settings.maxTracksShown)
-        height = settings.startHeight+trackHeight*(settings.maxTracksShown+1);
-    else
-        height = settings.startHeight+trackHeight*sequence.trackData.size();
-
-    //drawing measure bars, loop points
-    drawSeqBackground(settings, height);
-
-    //drawing cursor
-    if(settings.drawCursor){
-        uint8_t cPos = trackDisplay+int((sequence.cursorPos-settings.start)*sequence.viewScale);
-        if(cPos>127)
-            cPos = 126;
-        if(endTrack == sequence.trackData.size()){
-            display.drawFastVLine(cPos, settings.startHeight, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
-            display.drawFastVLine(cPos+1, settings.startHeight, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
-        }
-        else{
-            display.drawFastVLine(cPos, settings.startHeight, screenHeight-settings.startHeight, SSD1306_WHITE);
-            display.drawFastVLine(cPos+1, settings.startHeight, screenHeight-settings.startHeight, SSD1306_WHITE);
-        }
-    }
-
-    //drawing active track highlight
-    uint8_t y1 = (sequence.activeTrack-startTrack) * trackHeight + settings.startHeight;
-    // display.drawRect(x1, y1, screenWidth, trackHeight, SSD1306_WHITE);
-    display.drawFastHLine(trackDisplay,y1,screenWidth-trackDisplay,1);
-    display.drawFastHLine(trackDisplay,y1+trackHeight-1,screenWidth-trackDisplay,1);
-
-    //top and bottom bounds
-    if(startTrack == 0){
-        display.drawFastHLine(trackDisplay,settings.startHeight,screenWidth,SSD1306_WHITE);
-    }
-    //if the bottom is in view
-    if(endTrack == sequence.trackData.size()){
-        display.drawFastHLine(trackDisplay,settings.startHeight+trackHeight*settings.maxTracksShown,screenWidth,SSD1306_WHITE);
-    }
-    else if(endTrack< sequence.trackData.size())
-        endTrack++;
-    //drawin all da steps
-    //---------------------------------------------------
-    for (uint8_t track = startTrack; track < endTrack; track++) {
-        unsigned short int y1 = (track-startTrack) * trackHeight + settings.startHeight;
-        unsigned short int y2 = y1 + trackHeight;
-        uint8_t xCoord;
-        //track info display
-        if(sequence.activeTrack == track){
-            xCoord = 9;
-            if(settings.trackLabels)
-                graphics.drawArrow(6+((millis()/400)%2),y1+trackHeight/2+1,2,0,true);
-        }
-        else{
-            xCoord = 5;
-        }
-        if(settings.trackLabels){
-            if(!isShrunk){
-                //printing note names
-                if(pitchesOrNumbers){
-                    printTrackPitch(xCoord, y1+trackHeight/2-2,track,false,settings.drawTrackChannel,SSD1306_WHITE);
-                }
-                //just printing pitch numbers
-                else{
-                    display.setCursor(xCoord,y1+2);
-                    display.print(sequence.trackData[track].pitch);
-                }
-            }
-            //if it's shrunk, draw it small
-            else{
-                String pitch = sequence.trackData[track].getPitchAndOctave();
-                if(track%2)
-                    printSmall(18, y1, pitchToString(sequence.trackData[track].pitch,true,true), SSD1306_WHITE);
-                else
-                    printSmall(2, y1, pitchToString(sequence.trackData[track].pitch,true,true), SSD1306_WHITE);
-                if(sequence.trackData[track].noteLastSent != 255){
-                    display.drawRect(0,y1,trackDisplay,trackHeight+2,SSD1306_WHITE);
-                }
-            }
-        }
-        //if you're drawing selected tracks highlight
-        if(settings.trackSelection){
-          //if this track isn't selected, shade it
-          if(!sequence.trackData[track].isSelected()){
-            display.fillRect(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,0);
-            graphics.shadeArea(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,3);
-            continue;
+      else{
+          xCoord = 5;
+      }
+      if(settings.trackLabels){
+          if(!isShrunk){
+              //printing note names
+              if(pitchesOrNumbers){
+                  printTrackPitch(xCoord, y1+trackHeight/2-2,track,false,settings.drawTrackChannel,SSD1306_WHITE);
+              }
+              //just printing pitch numbers
+              else{
+                  display.setCursor(xCoord,y1+2);
+                  display.print(sequence.trackData[track].pitch);
+              }
           }
+          //if it's shrunk, draw it small
           else{
-            display.fillRect(0,y1,trackDisplay,trackHeight,2);
+              String pitch = sequence.trackData[track].getPitchAndOctave();
+              if(track%2)
+                  printSmall(18, y1, pitchToString(sequence.trackData[track].pitch,true,true), SSD1306_WHITE);
+              else
+                  printSmall(2, y1, pitchToString(sequence.trackData[track].pitch,true,true), SSD1306_WHITE);
+              if(sequence.trackData[track].noteLastSent != 255){
+                  display.drawRect(0,y1,trackDisplay,trackHeight+2,SSD1306_WHITE);
+              }
           }
-        }
-        //if the track is muted, just hatch it out (don't draw any notes)
-        //if it's solo'd and muted, draw it normal (solo overrules mute)
-        else if(sequence.trackData[track].isMuted() && !sequence.trackData[track].isSolo()){
-            graphics.shadeArea(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,9);
-            continue;
-        }
-        else{
-            //highlight for solo'd tracks
-            // if(sequence.trackData[track].isSolo())
-            //     graphics.drawNoteBracket(trackDisplay+3,y1-1,screenWidth-trackDisplay-5,trackHeight+2,true);
-            //Check to see if you only want to render the region in the active loop, and shade everything else!
-            for (uint16_t step = settings.shadeOutsideLoop?sequence.loopData[sequence.activeLoop].start:settings.start; step < (settings.shadeOutsideLoop?sequence.loopData[sequence.activeLoop].end:settings.end); step++) {
-                uint16_t id = sequence.lookupTable[track][step];
-                //drawing note
-                if (id != 0){
-                  drawNote(sequence.noteData[track][id],track,settings);
-                  step = sequence.noteData[track][id].endPos;//skip to the end of the note
-                }
-            }
-        }
-    }
-    //all the top icons/tooltips
-    if(settings.topLabels){
-        drawTopIcons(settings);
-    }
-    //drawing big or small pram in the corner
-    if(settings.drawPram){
-        if(settings.maxTracksShown != 5){
-            graphics.drawTinyPram();
+      }
+      //if you're drawing selected tracks highlight
+      if(settings.trackSelection){
+        //if this track isn't selected, shade it
+        if(!sequence.trackData[track].isSelected()){
+          display.fillRect(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,0);
+          graphics.shadeArea(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,3);
+          continue;
         }
         else{
-            graphics.drawBigPram();
+          display.fillRect(0,y1,trackDisplay,trackHeight,2);
         }
-    }
-    //playhead/rechead
-    if(playing && isInView(playheadPos))
-        display.drawRoundRect(trackDisplay+(playheadPos-settings.start)*sequence.viewScale,settings.startHeight,3, screenHeight-settings.startHeight, 3, SSD1306_WHITE);
-    if(recording && isInView(recheadPos))
-        display.drawRoundRect(trackDisplay+(recheadPos-settings.start)*sequence.viewScale,settings.startHeight,3, screenHeight-settings.startHeight, 3, SSD1306_WHITE);
-
-    int cursorX = trackDisplay+int((sequence.cursorPos-settings.start)*sequence.viewScale)-8;
-    if(!playing && !recording){
-        cursorX = 32;
+      }
+      //if the track is muted, just hatch it out (don't draw any notes)
+      //if it's solo'd and muted, draw it normal (solo overrules mute)
+      else if(sequence.trackData[track].isMuted() && !sequence.trackData[track].isSolo()){
+          graphics.shadeArea(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,9);
+          continue;
+      }
+      else{
+          //highlight for solo'd tracks
+          // if(sequence.trackData[track].isSolo())
+          //     graphics.drawNoteBracket(trackDisplay+3,y1-1,screenWidth-trackDisplay-5,trackHeight+2,true);
+          //Check to see if you only want to render the region in the active loop, and shade everything else!
+          for (uint16_t step = settings.shadeOutsideLoop?sequence.loopData[sequence.activeLoop].start:settings.start; step < (settings.shadeOutsideLoop?sequence.loopData[sequence.activeLoop].end:settings.end); step++) {
+              uint16_t id = sequence.lookupTable[track][step];
+              //drawing note
+              if (id != 0){
+                drawNote(sequence.noteData[track][id],track,settings);
+                step = sequence.noteData[track][id].endPos;//skip to the end of the note
+              }
+          }
+      }
+  }
+  //all the top icons/tooltips
+  if(settings.topLabels){
+    drawTopIcons(settings);
+  }
+  //drawing big or small pram in the corner
+  if(settings.drawPram){
+    if(settings.maxTracksShown != 5){
+        graphics.drawTinyPram();
     }
     else{
-        //making sure it doesn't print over the subdiv info
-        cursorX = 42;
+        graphics.drawBigPram();
     }
+  }
+  //playhead/rechead
+  if(playing && isInView(playheadPos))
+      display.drawRoundRect(trackDisplay+(playheadPos-settings.start)*sequence.viewScale,settings.startHeight,3, screenHeight-settings.startHeight, 3, SSD1306_WHITE);
+  if(recording && isInView(recheadPos))
+      display.drawRoundRect(trackDisplay+(recheadPos-settings.start)*sequence.viewScale,settings.startHeight,3, screenHeight-settings.startHeight, 3, SSD1306_WHITE);
 
-    //anim offset (for the pram)
-    if(!menuIsActive){
-      animOffset++;
-      animOffset%=100;
-    }
-    //it's ok to call this in here bc the LB checks to make sure it doesn't redundantly write
-    sequence.displayMainSequenceLEDs();
+  int cursorX = trackDisplay+int((sequence.cursorPos-settings.start)*sequence.viewScale)-8;
+  if(!playing && !recording){
+      cursorX = 32;
+  }
+  else{
+      //making sure it doesn't print over the subdiv info
+      cursorX = 42;
+  }
+
+  //anim offset (for the pram)
+  if(!menuIsActive){
+    animOffset++;
+    animOffset%=100;
+  }
+  //it's ok to call this in here bc the LB checks to make sure it doesn't redundantly write
+  sequence.displayMainSequenceLEDs();
 }
 
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, bool shadeOutsideLoop, uint16_t start, uint16_t end){

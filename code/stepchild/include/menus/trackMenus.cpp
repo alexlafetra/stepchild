@@ -333,9 +333,9 @@ void TrackMenu::displayMenuSidebar(){
     graphics.drawArrow(coords.start.x+25+((millis()/200)%2),39,2,1,true);
   //first column
   else if(cursor>=4 && cursor<=6)
-    display.drawRoundRect(coords.start.x+3,34+7*(cursor-3),15,9,2,SSD1306_WHITE);
+    graphics.drawRectWithMissingCorners(coords.start.x+3,34+7*(cursor-3),15,9,SSD1306_WHITE);
   else if(cursor>=7)
-    display.drawRoundRect(coords.start.x+17,34+7*(cursor-6),15,9,2,SSD1306_WHITE);
+    graphics.drawRectWithMissingCorners(coords.start.x+17,34+7*(cursor-6),15,9,SSD1306_WHITE);
 }
 
 void trackMenu(){
@@ -617,10 +617,10 @@ void TrackEditMenu::displayMenu(){
     graphics.drawArrow(coords.start.x+28+((millis()/200)%2),39,2,1,true);
   //first column
   else if(cursor>=4 && cursor<=6){
-    display.drawRoundRect(coords.start.x+3,34+7*(cursor-3),15,9,2,SSD1306_WHITE);
+    graphics.drawRectWithMissingCorners(coords.start.x+3,34+7*(cursor-3),15,9,SSD1306_WHITE);
   }
   else if(cursor>=7){
-    display.drawRoundRect(coords.start.x+17,34+7*(cursor-6),15,9,2,SSD1306_WHITE);
+    graphics.drawRectWithMissingCorners(coords.start.x+17,34+7*(cursor-6),15,9,SSD1306_WHITE);
   }
   display.display();
 }

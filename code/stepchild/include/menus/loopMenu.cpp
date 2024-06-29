@@ -951,13 +951,13 @@ void setLoopToInfinite(uint8_t targetL){
 
 //creates a new loop immediately to the right of the current loop and copies the loop over into it (useful for on the fly beatmaking)
 //then sets the OG loop to that one
-void pushToNewLoop(){
+bool pushToNewLoop(){
   Loop newLoop = sequence.loopData[sequence.activeLoop];
   uint16_t length = newLoop.length();
   //if you're out of sequence length
   if(newLoop.end+length >= sequence.sequenceLength){
-    alert("extend seq to add more loops!",1000);
-    return;
+    alert("extend seq to add more loops!",500);
+    return false;
   }
   //else, make a new loop to the right
   else{
@@ -972,5 +972,6 @@ void pushToNewLoop(){
     //move the view to the start of the current loop
     setCursor(newLoop.start);
     setViewStart(newLoop.start);
+    return true;
   }
 }

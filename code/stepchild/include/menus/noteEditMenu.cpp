@@ -225,7 +225,7 @@ void NoteEditMenu::displayMenu(){
       case 3:
         if(sequence.IDAtCursor() != 0){
           printSmall(64,3,stringify(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].chance)+"%",SSD1306_WHITE);
-          fillSquareDiagonally(4,2,15,sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].chance);
+          fillSquareDiagonally(4,2,15,sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].chance,100);
           printSmall(10,7,"%",2);
         }
         else{

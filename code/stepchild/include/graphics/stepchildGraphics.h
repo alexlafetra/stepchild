@@ -845,6 +845,18 @@ class StepchildGraphics{
     }
   }
 
+  //drawing rects w/missing corners (instead of calling roundRect() with radius 2)
+  void drawRectWithMissingCorners(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t c){
+    display.drawFastHLine(x+1,y,width-2,c);
+    display.drawFastHLine(x+1,y+height-1,width-2,c);
+    display.drawFastVLine(x,y+1,height-2,c);
+    display.drawFastVLine(x+width-1,y+1,height-2,c);
+  }
+  void fillRectWithMissingCorners(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t c){
+    display.fillRect(x+1,y+1,width-2,height-2,c);
+    drawRectWithMissingCorners(x,y,width,height,c);
+  }
+
   //gen midi numbers taken from https://usermanuals.finalemusic.com/SongWriter2012Win/Content/PercussionMaps.htm
   void drawDrumIcon(uint8_t x1, uint8_t y1, uint8_t note){
     int8_t which = -1;
@@ -941,14 +953,14 @@ void fillSquareVertically(uint8_t x0, uint8_t y0, uint8_t width, uint8_t fillAmo
 //fill amount is a percent out of maxFill
 void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmount, uint8_t maxFill){
   display.drawRect(x0,y0,width,width,SSD1306_WHITE);
-  // uint8_t maxLine = float(fillAmount)/float(100)*width*sqrt(2);
-  uint8_t maxLine = float(fillAmount)/float(maxFill)*width;
+  // uint8_t maxLine = float(fillAmount)/float(maxFill)*width*sqrt(2);
+  uint8_t maxLine = float(fillAmount)/float(maxFill)*width*1.4;
   for(uint8_t line = 0; line<maxLine; line++){
     //bottom right
     int8_t x1 = x0+2+line;
     int8_t y1 = y0+width-3;
     if(x1>x0+width-2)
-      x1=x0+width-2;
+      x1 = x0+width-2;
 
     //top left
     int8_t x2 = x0+2;
