@@ -1,416 +1,3 @@
-//draws pram, other icons (not loop points tho)
-void drawTopIcons(){
-  // if it's recording and waiting for a note
-  if(recording && waitingToReceiveANote){
-    if(millis()%1000>500){
-    }
-    else{
-    }
-  }
-
-  //music symbol while receiving notes
-  if(isReceivingOrSending()){
-    if(!((animOffset/10)%2)){
-      display.drawChar(21,0,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
-    }
-    else{
-      display.drawChar(21,1,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
-    }
-  }
-
-  //note presence indicator(if notes are offscreen)
-  if(areThereMoreNotes(true)){
-    uint8_t y1 = (maxTracksShown>5&&!menuIsActive)?8:headerHeight;
-    if(!((animOffset/10)%2)){
-      display.fillTriangle(trackDisplay-7,y1+3,trackDisplay-3,y1+3,trackDisplay-5,y1+1, SSD1306_WHITE);
-    }
-    else{
-      display.fillTriangle(trackDisplay-7,y1+2,trackDisplay-3,y1+2,trackDisplay-5,y1, SSD1306_WHITE);
-    }
-  }
-  if(areThereMoreNotes(false)){
-    if(!((animOffset/10)%2)){
-      display.fillTriangle(trackDisplay-7,screenHeight-5,trackDisplay-3,screenHeight-5,trackDisplay-5,screenHeight-3, SSD1306_WHITE);
-    }
-    else{
-      display.fillTriangle(trackDisplay-7,screenHeight-4,trackDisplay-3,screenHeight-4,trackDisplay-5,screenHeight-2, SSD1306_WHITE);
-    }
-  }
-
-  uint8_t x1 = 32;
-  //rec/play icon
-  if(recording){
-    if(clockSource == EXTERNAL_CLOCK && !gotClock){
-      if(waitingToReceiveANote){
-        if(millis()%1000>500){
-          display.drawCircle(trackDisplay+3,3,3,SSD1306_WHITE);
-        }
-      }
-      else
-        display.drawCircle(trackDisplay+3,3,3,SSD1306_WHITE);
-    }
-    else if((clockSource == EXTERNAL_CLOCK && gotClock) || clockSource == INTERNAL_CLOCK){
-      if(waitingToReceiveANote){
-        if(millis()%1000>500){
-          display.fillCircle(trackDisplay+3,3,3,SSD1306_WHITE);
-        }
-      }
-      else
-        display.fillCircle(trackDisplay+3,3,3,SSD1306_WHITE);
-    }
-    x1+=9;
-    switch(recMode){
-      //if one-shot rec
-      case 0:
-        // display.drawBitmap(x1+((millis()/200)%2),0,oneShot_rec,7,7,SSD1306_WHITE);
-        printSmall(x1,1,"1",1);
-        x1+=4;
-        if((millis()/10)%100>50)
-          display.drawBitmap(x1,1,oneshot_bmp,3,5,SSD1306_WHITE);
-        x1+=4;
-        break;
-      //if continuous recording
-      case 1:
-        display.drawBitmap(x1,1,continuous_bmp,9,5,SSD1306_WHITE);
-        x1+=10;
-        break;
-    }
-    if(overwriteRecording){
-      display.drawBitmap(x1,0,((millis()/10)%100>50)?overwrite_1:overwrite_2,7,7,SSD1306_WHITE);
-      x1+=8;
-    }
-  }
-  else if(playing){
-    graphics.drawPlayIcon(trackDisplay+((millis()/200)%2)+1,0);
-    x1 += 10;
-    switch(sequence.isLooping){
-      //if not looping
-      case 0:
-        if((millis()/10)%100>50)
-          display.drawFastVLine(x1,0,7,1);
-        printSmall(x1+3,1,"1",1);
-        x1+=10;
-        break;
-      //if looping
-      case 1:
-        if(millis()%1000>500){
-          display.drawBitmap(x1,0,toploop_arrow1,7,7,SSD1306_WHITE);
-        }
-        else{
-          display.drawBitmap(x1,0,toploop_arrow2,7,7,SSD1306_WHITE);
-        }
-        x1+=10;
-        break;
-    }
-
-  }
-  //Data track icon
-  if(sequence.autotrackData.size()>0){
-    if(millis()%1600>800)
-      // display.drawBitmap(x1,1,sine_small_bmp,6,4,SSD1306_WHITE);
-      display.drawBitmap(x1,0,autotrack1,10,7,SSD1306_WHITE);
-    else{
-      // display.drawBitmap(x1,1,sine_small_reverse_bmp,6,4,SSD1306_WHITE);
-      display.drawBitmap(x1,0,autotrack2,10,7,SSD1306_WHITE);
-    }
-    x1+=12;
-  }
-
-  //swing icon
-  if(sequenceClock.isSwinging){
-    graphics.drawPendulum(x1+2,0,7,millis()/2,1);
-    x1+=10;
-  }
-  //fragment gem
-  if(isFragmenting){
-    drawTetra(x1,5,10+sin(float(millis())/float(500)),10+sin(float(millis())/float(500)),6+sin(float(millis())/float(500)),1+sin(float(millis())/float(500)),0,SSD1306_WHITE);
-    x1+=8;
-  }
-
-  //velocity/chance indicator while shifting
-  if(controls.SHIFT()){
-    if(displayingVel){
-      if(sequence.IDAtCursor() == 0){
-        String vel = stringify(sequence.defaultVel);
-        printSmall(x1,1,"v:"+vel,SSD1306_WHITE);
-        x1+=vel.length()*4+8;;
-      }
-      else{
-        String vel = stringify(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].velocity);
-        printSmall(x1,1,"v:"+vel,SSD1306_WHITE);
-        x1+=vel.length()*4+8;
-      }
-    }
-    else{
-      if(sequence.IDAtCursor() == 0){
-        printSmall(x1,1,"c:"+stringify(100),SSD1306_WHITE);
-        x1+=20;
-      }
-      else{
-        printSmall(x1,1,"c:"+stringify(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].chance),SSD1306_WHITE);
-        x1+=20;
-      }
-    }
-  }
-  else{
-    //power/battery indicator
-    graphics.drawPower(screenWidth-10,0);
-  }
-  if(arp.isActive){
-    display.drawPixel(x1,3+2*sin(float(millis())/float(200)),1);
-    display.drawPixel(x1+2,3+2*sin(float(millis())/float(200)+100),1);
-    display.drawPixel(x1+4,3+2*sin(float(millis())/float(200)+200),1);
-    // printSmall(x1+6,1,"a",1);
-    display.drawBitmap(x1+6,2,tiny_arp_bmp,9,3,1);
-    // x1+=8;
-    x1+=17;
-  }
-  if(controls.SHIFT()){
-    graphics.drawSequenceMemoryBar(screenWidth-30,0,30);
-  }
-  else{
-    //draw menu text
-    printSmall(x1,1,menuText,SSD1306_WHITE);
-    x1+=menuText.length()*4+2;
-  }
-}
-
-
-//this function is a mess!
-void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, bool shadeOutsideLoop, uint16_t start, uint16_t end){
-  if(!screenSaverActive){
-    //handling the note view
-    if(end>sequence.sequenceLength){
-      end = sequence.sequenceLength;
-    }
-    if(start>end){
-      start = 0;
-    }
-    uint16_t viewLength = end - start;
-
-    uint8_t startHeight = 0;
-    bool loopFlags = loopPoints;
-
-    if(maxTracksShown == 6 && !menuIsActive){
-      startHeight = 8;
-      trackHeight = (screenHeight-startHeight)/maxTracksShown;
-      loopFlags = false;
-    }
-    else{
-      trackHeight = (screenHeight-headerHeight)/maxTracksShown;
-      startHeight = headerHeight;
-    }
-
-    if(sequence.trackData.size()>maxTracksShown){
-      endTrack = startTrack + maxTracksShown;
-    }
-    else{
-      endTrack = startTrack + sequence.trackData.size();
-    }
-    while(sequence.activeTrack>=endTrack && sequence.trackData.size()>maxTracksShown){
-      startTrack++;
-      endTrack++;
-    }
-    while(sequence.activeTrack<startTrack && sequence.trackData.size()>maxTracksShown){
-      startTrack--;
-      endTrack--;
-    }
-
-    display.setTextSize(1);
-    display.setTextColor(SSD1306_WHITE);
-    // display.setTextWrap(false);
-
-    //drawing selection box, since it needs to overlay stepSeq data
-    if(selBox.begun){
-      selBox.render();
-    }
-    uint8_t height;
-    if(endTrack == sequence.trackData.size())
-      height = startHeight+trackHeight*maxTracksShown;
-    else if(sequence.trackData.size()>maxTracksShown)
-      height = startHeight+trackHeight*(maxTracksShown+1);
-    else
-      height = startHeight+trackHeight*sequence.trackData.size();
-
-    //drawing measure bars, loop points
-    drawSeqBackground(start, end, startHeight, height, shadeOutsideLoop, sequence.isLooping, loopPoints);
-
-    //top and bottom bounds
-    if(startTrack == 0){
-      display.drawFastHLine(trackDisplay,startHeight,screenWidth,SSD1306_WHITE);
-    }
-    //if the bottom is in view
-    if(endTrack == sequence.trackData.size()){
-      display.drawFastHLine(trackDisplay,startHeight+trackHeight*maxTracksShown,screenWidth,SSD1306_WHITE);
-    }
-   else if(endTrack< sequence.trackData.size())
-        endTrack++;
-    //drawin all da steps
-    //---------------------------------------------------
-    for (int track = startTrack; track < endTrack; track++) {
-      unsigned short int y1 = (track-startTrack) * trackHeight + startHeight;
-      unsigned short int y2 = y1 + trackHeight;
-      uint8_t xCoord;
-      //track info display
-      if(sequence.activeTrack == track){
-        xCoord = 9;
-        if(trackLabels)
-          graphics.drawArrow(6+((millis()/400)%2),y1+trackHeight/2+1,2,0,true);
-      }
-      else{
-        xCoord = 5;
-      }
-      if(trackLabels){
-        if(!isShrunk){
-          //printing note names
-          if(pitchesOrNumbers){
-            printTrackPitch(xCoord, y1+trackHeight/2-2,track,false,true,SSD1306_WHITE);
-          }
-          //just printing pitch numbers
-          else{
-            display.setCursor(xCoord,y1+2);
-            display.print(sequence.trackData[track].pitch);
-          }
-          // else{
-          //   if(track == sequence.activeTrack && isModulated(sequence.trackData[track].channel)){
-          //     if(playing)
-          //       display.drawBitmap(trackDisplay-7,y1+3+((millis()/200)%2),sine_small_bmp,6,4,SSD1306_WHITE);
-          //     else
-          //       display.drawBitmap(trackDisplay-7,y1+2,sine_small_bmp,6,4,SSD1306_WHITE);
-          //   }
-          // }
-        }
-        //if it's shrunk, draw it small
-        else{
-          String pitch = sequence.trackData[track].getPitchAndOctave();
-          if(track%2){
-            printSmall(18, y1, pitchToString(sequence.trackData[track].pitch,true,true), SSD1306_WHITE);
-          }
-          else
-            printSmall(2, y1, pitchToString(sequence.trackData[track].pitch,true,true), SSD1306_WHITE);
-          if(sequence.trackData[track].noteLastSent != 255){
-            display.drawRect(0,y1,trackDisplay,trackHeight+2,SSD1306_WHITE);
-          }
-        }
-      }
-      //if you're only drawing selected tracks, and this track ISN'T selected, shade it
-      if(trackSelection && !sequence.trackData[track].isSelected){
-        display.fillRect(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,0);
-        graphics.shadeArea(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,3);
-      }
-      //if the track is muted, just hatch it out (don't draw any notes)
-      //if it's solo'd and muted, draw it normal (solo overrules mute)
-      else if(sequence.trackData[track].isMuted && !sequence.trackData[track].isSolo){
-        // display.fillRect(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,0);
-        graphics.shadeArea(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,9);
-        continue;
-      }
-      else{
-        //highlight for solo'd tracks
-        if(sequence.trackData[track].isSolo)
-          graphics.drawNoteBracket(trackDisplay+3,y1-1,screenWidth-trackDisplay-5,trackHeight+2,true);
-        // display.setTextColor(SSD1306_WHITE,SSD1306_BLACK);
-        for (int step = start; step < end; step++) {
-          //if you only want to draw what's within the loop
-          if(shadeOutsideLoop){
-            //if you're less than the loop, jump to the start of the loop
-            //(this could also be in the initial for loop condition!)
-            if(step<sequence.loopData[sequence.activeLoop].start){
-              step = sequence.loopData[sequence.activeLoop].start;
-            }
-            //if you're past the loop end, break out of the for loop
-            else if(step>=sequence.loopData[sequence.activeLoop].end){
-              break;
-            }
-          }
-          int id = sequence.lookupTable[track][step];
-          unsigned short int x1 = trackDisplay+int((step-start)*sequence.viewScale);
-          unsigned short int x2 = x1 + (step-start)*sequence.viewScale;
-          //drawing note
-          if (id != 0){
-            if(step == sequence.noteData[track][id].startPos){
-              uint16_t length = (sequence.noteData[track][id].endPos - sequence.noteData[track][id].startPos)*sequence.viewScale;
-              if(displayingVel)
-                drawNote_vel(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].velocity,sequence.noteData[track][id].isSelected,sequence.noteData[track][id].muted);
-              else
-                drawNote_chance(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].chance,sequence.noteData[track][id].isSelected,sequence.noteData[track][id].muted);
-              if(sequence.noteData[track][id].isSelected){
-                display.drawRect(x1,y1,length+1,trackHeight,SSD1306_WHITE);
-                display.drawRect(x1+1,y1+1,length-1,trackHeight-2,SSD1306_BLACK);
-              }
-            }
-            else if(!isInView(sequence.noteData[track][id].startPos) && step == start){
-              unsigned short int length = (sequence.noteData[track][id].endPos - start)*sequence.viewScale;
-              if(displayingVel)
-                drawNote_vel(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].velocity,sequence.noteData[track][id].isSelected,sequence.noteData[track][id].muted);
-              else
-                drawNote_chance(id, track, x1,y1,length,trackHeight,sequence.noteData[track][id].chance,sequence.noteData[track][id].isSelected,sequence.noteData[track][id].muted);
-            }
-          }
-        }
-      }
-    }
-    //---------------------------------------------------
-    //drawing cursor
-    if(!editingNote && !(menuIsActive && activeMenu.menuTitle == "EDIT" && activeMenu.page == 1)){
-      uint8_t cPos = trackDisplay+int((sequence.cursorPos-start)*sequence.viewScale);
-      if(cPos>127)
-        cPos = 126;
-      if(endTrack == sequence.trackData.size()){
-        display.drawFastVLine(cPos, startHeight, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
-        display.drawFastVLine(cPos+1, startHeight, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
-        // display.drawRect(trackDisplay+int((sequence.cursorPos-start)*sequence.viewScale), startHeight, 2, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
-      }
-      else{
-        display.drawFastVLine(cPos, startHeight, screenHeight-startHeight, SSD1306_WHITE);
-        display.drawFastVLine(cPos+1, startHeight, screenHeight-startHeight, SSD1306_WHITE);
-        // display.drawRect(trackDisplay+int((sequence.cursorPos-start)*sequence.viewScale), startHeight, 2, screenHeight-startHeight, SSD1306_WHITE);
-      }
-    }
-    //carriage bitmap/title
-    if(topLabels){
-      graphics.drawPram();
-      if(startHeight == 16){
-        drawTopIcons();
-      }
-    }
-    //playhead/rechead
-    if(playing && isInView(playheadPos))
-      display.drawRoundRect(trackDisplay+(playheadPos-start)*sequence.viewScale,startHeight,3, screenHeight-startHeight, 3, SSD1306_WHITE);
-    if(recording && isInView(recheadPos))
-      display.drawRoundRect(trackDisplay+(recheadPos-start)*sequence.viewScale,startHeight,3, screenHeight-startHeight, 3, SSD1306_WHITE);
-    
-    int cursorX = trackDisplay+int((sequence.cursorPos-start)*sequence.viewScale)-8;
-    if(!playing && !recording){
-      cursorX = 32;
-    }
-    else{
-      //making sure it doesn't print over the subdiv info
-      cursorX = 42;
-    }
-    //drawing active track highlight
-    unsigned short int x1 = trackDisplay;
-    unsigned short int y1 = (sequence.activeTrack-startTrack) * trackHeight + startHeight;
-    unsigned short int x2 = x1+screenWidth-trackDisplay;
-    unsigned short int y2 = y1 + trackHeight;
-    // display.drawRect(x1, y1, screenWidth, trackHeight, SSD1306_WHITE);
-    display.drawFastHLine(x1,y1,screenWidth-x1,1);
-    display.drawFastHLine(x1,y1+trackHeight-1,screenWidth-x1,1);
-  }
-  if(menus && menuIsActive){
-    activeMenu.displayMenu(true,true);
-  }
-
-  //anim offset (for the pram)
-  if(!menuIsActive){
-    animOffset++;
-    if(animOffset>100)
-      animOffset = 0;
-  }
-  //it's ok to call this in here bc the LB checks to make sure it doesn't redundantly write
-  sequence.displayMainSequenceLEDs();
-}
-
 void yControls(){
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1) {
@@ -641,7 +228,7 @@ void mainSequencerButtons(){
     if(controls.NEW() && !drawingNote && !controls.SELECT() ){
       if(controls.SHIFT()){
         //if there's no note starting here, make a new note 1/2 the subdiv
-        if((sequence.IDAtCursor() == 0 || sequence.cursorPos != sequence.noteAtCursor().startPos)){
+        if(!sequence.IDAtCursor()){
           sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision/2,true);
           moveCursor(sequence.subDivision/2);
           drawingNote = true;
@@ -653,11 +240,18 @@ void mainSequencerButtons(){
           lastTime = millis();
         }
       }
-      else if(!controls.SHIFT() && (sequence.IDAtCursor() == 0 || sequence.cursorPos != sequence.noteAtCursor().startPos)){
-        sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision,true);
-        moveCursor(sequence.subDivision);
-        drawingNote = true;
-        lastTime = millis();
+      else if(!controls.SHIFT()){
+        if((sequence.IDAtCursor() == 0 || sequence.cursorPos != sequence.noteAtCursor().startPos)){
+          sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision,true);
+          moveCursor(sequence.subDivision);
+          drawingNote = true;
+          lastTime = millis();
+        }
+        //if you are on the start pos of a note
+        else{
+          lastTime = millis();
+          setSuperposition(sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][sequence.cursorPos]],sequence.activeTrack);
+        }
       }
     }
     defaultSelectControls();
@@ -669,9 +263,6 @@ void mainSequencerButtons(){
     else if(controls.LOOP()){
       lastTime = millis();
       pushToNewLoop();
-      // sequence.isLooping = !sequence.isLooping;
-      // lastTime = millis();
-      // menuText = sequence.isLooping?"loop on":"loop off";
     }
 
     if(controls.DELETE() && controls.SHIFT()){
@@ -695,27 +286,21 @@ void mainSequencerButtons(){
     //menu press
     if(controls.MENU()){
       lastTime = millis();
-      menuIsActive = true;
-      constructMenu("MENU");
       mainMenu();
       return;
     }
     if(controls.A()){
-      menuIsActive = true;
       lastTime = millis();
-      // controls.setA(false);
-      constructMenu(TRACK_MENU);
+      trackMenu();
     }
     if(controls.B()){
       lastTime = millis();
-      // controls.setB(false);;
-      menuIsActive = true;
-      constructMenu(EDIT_MENU);
+      editMenu();
     }
   }
 }
 
-void stepButtons(){
+void mainSequencerStepButtons(){
   //don't need to time debounce the step buttons!
   //DJ loop selector
   if(controls.SHIFT()){
@@ -813,11 +398,139 @@ void mainSequencerEncoders(){
 }
 
 void mainSequence(){
-    controls.readJoystick();
-    controls.readButtons();
-    mainSequencerButtons();
-    stepButtons();
-    mainSequencerEncoders();
-    defaultJoystickControls(true);
-    displaySeq();
+  controls.readJoystick();
+  controls.readButtons();
+  mainSequencerButtons();
+  mainSequencerStepButtons();
+  mainSequencerEncoders();
+  defaultJoystickControls(true);
+  displaySeq();
+}
+
+class SuperpositionMenu{
+  public:
+    Note note;
+    uint8_t track;
+    SuperpositionMenu(Note& n, uint8_t t){
+      note = n;
+      track = t;
+      //first, set the superpos to the track pitch (if it's unset)
+      if(note.superposition.pitch == 255)
+        note.superposition.pitch = sequence.trackData[track].pitch;
+    }
+    bool setSuperpositionControls();
+    void drawSuperposSelect();
+};
+
+bool SuperpositionMenu::setSuperpositionControls(){
+  controls.readButtons();
+  controls.readJoystick();
+  while(controls.counterA){
+    if(controls.counterA > 0 && note.superposition.odds > 0){
+      note.superposition.odds -= 5;
+    }
+    if(controls.counterA < 0 && note.superposition.odds < 100){
+      note.superposition.odds += 5;
+    }
+    controls.counterA += controls.counterA<0?1:-1;
+  }
+  if(utils.itsbeen(100)){
+    if (controls.joystickY == -1) {
+      if(note.superposition.pitch < 127){
+        note.superposition.pitch++;
+        if(!playing){
+          MIDI.noteOn(note.superposition.pitch, note.velocity, sequence.trackData[track].channel);
+          MIDI.noteOff(note.superposition.pitch, 0, sequence.trackData[track].channel);
+        }
+        lastTime = millis();
+      }
+    }
+    if (controls.joystickY == 1) {
+      if(note.superposition.pitch > 0){
+        note.superposition.pitch--;
+        if(!playing){
+          MIDI.noteOn(note.superposition.pitch, note.velocity, sequence.trackData[track].channel);
+          MIDI.noteOff(note.superposition.pitch, 0, sequence.trackData[track].channel);
+        }
+        lastTime = millis();
+      }
+    }
+  }
+  if(utils.itsbeen(200)){
+    if(controls.NEW() || controls.MENU()){
+      lastTime = millis();
+      if(note.superposition.pitch == sequence.trackData[track].pitch){
+        note.superposition.pitch = 255;//set to 'unset' if it's on the same pitch
+      }
+      return false;
+    }
+    if(controls.DELETE()){
+      lastTime = millis();
+      note.superposition.pitch = sequence.trackData[track].pitch;//reset
+    }
+  }
+  return true;
+}
+
+void SuperpositionMenu::drawSuperposSelect(){
+  SequenceRenderSettings settings;
+  NoteCoords nCoords = getNoteCoords(note, track, settings);
+
+  const uint8_t headerHeight = 12;
+
+  // NoteCoords n2Coords = nCoords;
+  NoteCoords n2Coords = getNoteCoords(note, track, settings);
+  n2Coords.y1 = nCoords.y1+(int16_t(sequence.trackData[track].pitch)-int16_t(note.superposition.pitch)) * trackHeight;
+  n2Coords.y2 = n2Coords.y1 + trackHeight;
+
+  if(n2Coords.y1<headerHeight){
+    nCoords.offsetY(-n2Coords.y1+headerHeight);
+    n2Coords.offsetY(-n2Coords.y1+headerHeight);
+  }
+  if(n2Coords.y2>(SCREEN_HEIGHT-2)){
+    nCoords.offsetY(SCREEN_HEIGHT-n2Coords.y2-2);
+    n2Coords.offsetY(SCREEN_HEIGHT-n2Coords.y2-2);
+  }
+
+  //drawing horizontal pitch lines
+  for(uint8_t i = headerHeight; i<SCREEN_HEIGHT; i++){
+    //octave
+    if(abs(nCoords.y1 - i)%(12*trackHeight) == 0)
+      graphics.drawDottedLineH(0,SCREEN_WIDTH,i+trackHeight/2,2);
+    //4 semitones
+    else if(abs(nCoords.y1 - i)%(4*trackHeight) == 0)
+      graphics.drawDottedLineH(0,SCREEN_WIDTH,i+trackHeight/2,3);
+    else if(abs(nCoords.y1 - i)%(trackHeight) == 0)
+      graphics.drawDottedLineH(0,SCREEN_WIDTH,i+trackHeight/2,12);
+  }
+
+  graphics.drawNoteBracket(n2Coords,true);
+
+  String txt = stringify(note.superposition.pitch-sequence.trackData[track].pitch);
+  if(note.superposition.pitch>sequence.trackData[track].pitch)
+    txt = "+"+txt;
+
+  //draw superposition
+  graphics.fillRectWithMissingCorners(n2Coords.x1+1, n2Coords.y1, n2Coords.length-1, trackHeight, SSD1306_BLACK);
+  graphics.drawRectWithMissingCorners(n2Coords.x1+1, n2Coords.y1, n2Coords.length-1, trackHeight, SSD1306_WHITE);
+
+  printSmall(n2Coords.x1+n2Coords.length+4,n2Coords.y1+2,txt+"("+pitchToString(note.superposition.pitch,true,true)+")",1);
+  drawNote(note, track, nCoords, settings);//draw the note (like normal)
+
+  //draw probability
+  fillSquareDiagonally(0,0,15,note.superposition.odds);
+  printSmall(6,5,"%",2);
+  printSmall(17,5,stringify(note.superposition.odds)+"%",1);
+  printCursive(50,4,"superposition",1);
+}
+
+void setSuperposition(Note& note,uint8_t originalTrack){
+  SuperpositionMenu superposMenu(note,originalTrack);
+  while(superposMenu.setSuperpositionControls()){
+    display.clearDisplay();
+    superposMenu.drawSuperposSelect();
+    display.display();
+  }
+  note.superposition = superposMenu.note.superposition;
+  controls.clearButtons();
 }

@@ -526,15 +526,15 @@ void drawArpMenu(uint8_t cursor){
   printSmall(50,1,"src:",1);
   switch(arp.source){
     //external
-    case 0:
+    case EXTERNAL:
       display.drawBitmap(64,0,tiny_midi_bmp,7,7,1);
       break;
     //internal
-    case 1:
+    case INTERNAL:
       display.drawBitmap(64,0,tiny_stepchild_bmp,7,7,1);
       break;
     //both
-    case 2:
+    case BOTH:
       display.drawBitmap(64,0,tiny_midi_bmp,7,7,1);
       printSmall(72,1,"+",1);
       display.drawBitmap(76,0,tiny_stepchild_bmp,7,7,1);

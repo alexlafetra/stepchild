@@ -37,6 +37,7 @@ class StepchildSequence{
     uint8_t defaultChannel = 1;
     uint8_t defaultPitch = 36;
     uint8_t defaultVel = 127;
+    uint8_t defaultChance = 100;
 
     uint16_t selectionCount = 0;
 
@@ -47,11 +48,13 @@ class StepchildSequence{
     };
 
     StepchildSequence(){}
+
     /*
     ----------------------------------------------------------
                         Utilities
     ----------------------------------------------------------
     */
+   
     //creates a sequence object with default values
     void init(uint8_t numberOfTracks,uint16_t length){
         //What should happen if length<192?
@@ -125,7 +128,7 @@ class StepchildSequence{
     //Only use this when loading notes from a file into a blank sequence
     void loadNote(Note newNote, uint8_t track){
         this->noteData[track].push_back(newNote);
-        if(newNote.isSelected)
+        if(newNote.isSelected())
             this->selectionCount++;
         //adding to lookupData
         for (uint16_t i =  newNote.startPos; i < newNote.endPos; i++) { //sets id
@@ -135,6 +138,10 @@ class StepchildSequence{
     void loadNote(uint16_t id, uint8_t track, uint16_t start, uint8_t velocity, bool isMuted, uint8_t chance, uint16_t end, bool selected){
         Note newNoteOn(start, end, velocity, chance, isMuted, false);
         this->loadNote(newNoteOn, track);
+    }
+    void loadNote(uint8_t whichTrack, uint16_t start, uint16_t end, uint8_t velocity, uint8_t chance, uint8_t flags){
+        Note newNote(start, end, velocity, chance, flags);
+        this->loadNote(newNote,whichTrack);
     }
     /*
     ----------------------------------------------------------
@@ -150,7 +157,7 @@ class StepchildSequence{
                 this->lookupTable[track][i] = 0;
             }
             //lowering selectionCount
-            if(this->noteData[track][targetNoteID].isSelected && this->selectionCount>0)
+            if(this->noteData[track][targetNoteID].isSelected() && this->selectionCount>0)
                 this->selectionCount--;
             //erasing note from this->noteData
             //make a copy of the this->noteData[track] vector which excludes the note
@@ -185,7 +192,7 @@ class StepchildSequence{
             if(binarySelectionBox(64,32,"nah","yea","del "+stringify(selectionCount)+((selectionCount == 1)?stringify(" note?"):stringify(" notes?")),drawSeq)){
                 for(uint8_t track = 0; track<this->trackData.size(); track++){
                     for(uint16_t note = 0; note<this->noteData[track].size(); note++){
-                        if(this->noteData[track][note].isSelected){
+                        if(this->noteData[track][note].isSelected()){
                             this->deleteNote_byID(track, note);
                             (note == 0) ? note = 0: note--;
                         }
@@ -211,7 +218,7 @@ class StepchildSequence{
         if (this->lookupTable[track][newNoteOn.startPos] == 0 || newNoteOn.startPos != this->noteAt(this->activeTrack,newNoteOn.startPos).startPos) { //if there's no note there
             if (this->lookupTable[track][newNoteOn.startPos] != 0)
                 this->truncateNote(track, newNoteOn.startPos);
-            if(newNoteOn.isSelected)
+            if(newNoteOn.isSelected())
                 this->selectionCount++;
             uint16_t id = this->noteData[track].size();
             this->lookupTable[track][newNoteOn.startPos] = id;//set noteID in this->lookupTable to the index of the new note
@@ -311,7 +318,7 @@ class StepchildSequence{
     void editNotePropertyOfSelectedNotes(int8_t amount, NoteProperty which){
         for(uint8_t track = 0; track<this->trackData.size(); track++){
             for(uint16_t note = this->noteData[track].size()-1; note>0; note--){
-                if(this->noteData[track][note].isSelected){
+                if(this->noteData[track][note].isSelected()){
                     this->editNoteProperty_byID(note,track, amount, which);
                 }
             }
@@ -323,7 +330,7 @@ class StepchildSequence{
         if(this->selectionCount>0){
             this->editNotePropertyOfSelectedNotes(amount,which);
             //only edit this note if it's not selected, so you don't double-edit it
-            if(!this->noteAtCursor().isSelected)
+            if(!this->noteAtCursor().isSelected())
                 this->editNoteProperty_byID(this->IDAtCursor(), this->activeTrack, amount, which);
         }
         else
@@ -349,17 +356,17 @@ class StepchildSequence{
     void muteNote(uint8_t track, uint16_t id, bool toggle){
         if(id != 0){
             if(toggle)
-                this->noteData[track][id].muted = !this->noteData[track][id].muted;
+                this->noteData[track][id].setMuted(!this->noteData[track][id].isMuted());
             else
-                this->noteData[track][id].muted = true;
+                this->noteData[track][id].setMuted(true);
         }
     }
     void unmuteNote(uint8_t track, uint16_t id, bool toggle){
         if(id != 0){
             if(toggle)
-                this->noteData[track][id].muted = !this->noteData[track][id].muted;
+                this->noteData[track][id].setMuted(!this->noteData[track][id].isMuted());
             else
-                this->noteData[track][id].muted = false;
+                this->noteData[track][id].setMuted(false);
         }
     }
     
@@ -368,8 +375,8 @@ class StepchildSequence{
         uint16_t count = 0;
         for(uint8_t track = 0; track<this->noteData.size(); track++){
             for(uint16_t note = 1; note<this->noteData[track].size(); note++){
-                if(this->noteData[track][note].isSelected){
-                    this->noteData[track][note].muted = state;
+                if(this->noteData[track][note].isSelected()){
+                    this->noteData[track][note].setMuted(state);
                     count++;
                 }
                 if(count>=this->selectionCount){
@@ -432,7 +439,7 @@ class StepchildSequence{
             //clear out old note
             this->deleteNote(track, targetNote.startPos);
             //make room
-            this->makeNote(newTrack, newStart, length+1, targetNote.velocity, targetNote.chance, targetNote.muted, targetNote.isSelected, false);
+            this->makeNote(newTrack, newStart, length+1, targetNote.velocity, targetNote.chance, targetNote.isMuted(), targetNote.isSelected(), false);
             return true;
         }
         else return false;
@@ -446,7 +453,7 @@ class StepchildSequence{
         for(uint8_t track = 0; track<this->noteData.size(); track++){
             for(uint16_t note = 1; note<this->noteData[track].size(); note++){
                 //if the note is selected, push it into the buffer and then del it
-                if(this->noteData[track][note].isSelected){
+                if(this->noteData[track][note].isSelected()){
                     selectedNotes[track].push_back(this->noteData[track][note]);
                     this->deleteNote(track, this->noteData[track][note].startPos);
                     note--;
@@ -476,7 +483,7 @@ class StepchildSequence{
         for(uint8_t track = 0; track<selectedNotes.size(); track++){
             for(uint16_t note = 0; note<selectedNotes[track].size(); note++){
                 unsigned short int length = selectedNotes[track][note].endPos-selectedNotes[track][note].startPos;
-                this->makeNote(track+yOffset, selectedNotes[track][note].startPos+xOffset, length+1, selectedNotes[track][note].velocity, selectedNotes[track][note].chance, selectedNotes[track][note].muted, selectedNotes[track][note].isSelected, false);
+                this->makeNote(track+yOffset, selectedNotes[track][note].startPos+xOffset, length+1, selectedNotes[track][note].velocity, selectedNotes[track][note].chance, selectedNotes[track][note].isMuted(), selectedNotes[track][note].isSelected(), false);
             }
         }
         return true;
@@ -485,14 +492,12 @@ class StepchildSequence{
     bool moveNotes(int16_t xAmount, int8_t yAmount){
         if(this->selectionCount == 0){
             if(this->IDAtCursor() != 0){
-                bool worked = this->moveNote(this->IDAtCursor(),this->activeTrack,this->activeTrack+yAmount,this->noteData[this->activeTrack][this->IDAtCursor()].startPos+xAmount);
-                return worked;
+                return this->moveNote(this->IDAtCursor(),this->activeTrack,this->activeTrack+yAmount,this->noteData[this->activeTrack][this->IDAtCursor()].startPos+xAmount);
             }
             else return false;
         }
         else{
-            bool worked = this->moveSelectedNotes(xAmount,yAmount);
-            return worked;
+            return this->moveSelectedNotes(xAmount,yAmount);
         }
     }
     //slices a note into N equal pieces
@@ -656,23 +661,27 @@ class StepchildSequence{
     void setLoopPoint(int32_t start, bool which){
         //set start
         if(which){
+            if(start>=loopData[activeLoop].end)
+                return;
             if(start<=this->loopData[this->activeLoop].end && start>=0)
-            this->loopData[this->activeLoop].start = start;
+                this->loopData[this->activeLoop].start = start;
             else if(start < 0)
-            this->loopData[this->activeLoop].start = 0;
+                this->loopData[this->activeLoop].start = 0;
             else if(start>this->loopData[this->activeLoop].end)
-            this->loopData[this->activeLoop].start = this->loopData[this->activeLoop].end;
+                this->loopData[this->activeLoop].start = this->loopData[this->activeLoop].end;
             this->loopData[this->activeLoop].start = this->loopData[this->activeLoop].start;
             menuText = "loop start: "+stepsToPosition(this->loopData[this->activeLoop].start,true);
         }
         //set end
         else{
+            if(start <= loopData[activeLoop].start)
+                return;
             if(start>=this->loopData[this->activeLoop].start && start <= this->sequenceLength)
-            this->loopData[this->activeLoop].end = start;
+                this->loopData[this->activeLoop].end = start;
             else if(start>this->sequenceLength)
-            this->loopData[this->activeLoop].end = this->sequenceLength;
+                this->loopData[this->activeLoop].end = this->sequenceLength;
             else if(start<this->loopData[this->activeLoop].start)
-            this->loopData[this->activeLoop].end = this->loopData[this->activeLoop].start;
+                this->loopData[this->activeLoop].end = this->loopData[this->activeLoop].start;
             this->loopData[this->activeLoop].end = this->loopData[this->activeLoop].end;
             menuText = "loop end: "+stepsToPosition(this->loopData[this->activeLoop].end,true);
         }
@@ -682,6 +691,127 @@ class StepchildSequence{
     }
     void insertLoop(Loop newLoop, uint8_t index){
         this->loopData.insert(this->loopData.begin()+index,newLoop);
+    }
+
+    
+    void setActiveLoop(unsigned int id){
+        if(id<this->loopData.size() && id >=0){
+            this->activeLoop = id;
+            this->loopCount = 0;
+        }
+    }
+
+    void addLoop(){
+        Loop newLoop;
+        newLoop.start = this->loopData[this->activeLoop].start;
+        newLoop.end = this->loopData[this->activeLoop].end;
+        newLoop.reps = this->loopData[this->activeLoop].reps;
+        newLoop.type = this->loopData[this->activeLoop].type;
+        this->loopData.push_back(newLoop);
+        setActiveLoop(this->loopData.size()-1);
+    }
+
+    void addLoop(unsigned short int start, unsigned short int end, unsigned short int iter, uint8_t type){
+        Loop newLoop;
+        newLoop.start = start;
+        newLoop.end = end;
+        newLoop.reps = iter;
+        newLoop.type = static_cast<LoopType>(type);
+        this->loopData.push_back(newLoop);
+    }
+
+    void deleteLoop(uint8_t id){
+        if(this->loopData.size() > 1 && this->loopData.size()>id){//if there's more than one loop, and id is in this->loopData
+            vector<Loop> tempVec;
+            for(int i = 0; i<this->loopData.size(); i++){
+                if(i!=id){
+                    tempVec.push_back(this->loopData[i]);
+                }
+            }
+            this->loopData.swap(tempVec);
+            //if this->activeLoop was the loop that got deld, or above it
+            //decrement it's id so it reads correct (and existing) data
+            if(this->activeLoop>=this->loopData.size()){  
+                this->activeLoop = this->loopData.size()-1;
+            }
+        }
+        setActiveLoop(this->activeLoop);
+    }
+
+    void toggleLoop(){
+        this->isLooping = !this->isLooping;
+    }
+
+    //moves to the next loop in loopSeq
+    void nextLoop(){
+        this->loopCount = 0;
+        if(this->loopData.size()>1){
+            switch(this->loopData[this->activeLoop].type){
+                case NORMAL:
+                    //move to next loop
+                    if(this->activeLoop < this->loopData.size()-1)
+                        this->activeLoop++;
+                    else
+                        this->activeLoop = 0;
+                    if(playing)
+                        playheadPos = this->loopData[this->activeLoop].start;
+                    if(recording)
+                        recheadPos = this->loopData[this->activeLoop].start;
+                    break;
+                case RANDOM:{
+                    this->activeLoop = random(0,this->loopData.size());
+                    if(playing)
+                        playheadPos = this->loopData[this->activeLoop].start;
+                    if(recording)
+                        recheadPos = this->loopData[this->activeLoop].start;
+                    break;}
+                case RANDOM_SAME:{
+                    //move to next loop
+                    if(this->activeLoop < this->loopData.size()-1)
+                        this->activeLoop++;
+                    else
+                        this->activeLoop = 0;
+                    //if rnd of same size mode, choose a random loop
+                    int currentLength = this->loopData[this->activeLoop].end - this->loopData[this->activeLoop].start;
+                    vector<uint8_t> similarLoops;
+                    for(int i = 0; i<this->loopData.size(); i++){
+                        int len = this->loopData[i].end-this->loopData[i].start;
+                        if(len == currentLength){
+                            similarLoops.push_back(i);
+                        }
+                    }
+                    this->activeLoop = similarLoops[random(0,similarLoops.size())];
+                    if(playing)
+                        playheadPos = this->loopData[this->activeLoop].start;
+                    if(recording)
+                        recheadPos = this->loopData[this->activeLoop].start;
+                    break;}
+                case RETURN:{
+                    this->activeLoop = 0;
+                    if(playing)
+                        playheadPos = this->loopData[this->activeLoop].start;
+                    if(recording)
+                        recheadPos = this->loopData[this->activeLoop].start;
+                    break;}
+                case INFINITE:{
+                    if(playing)
+                        playheadPos = this->loopData[this->activeLoop].start;
+                    if(recording)
+                        recheadPos = this->loopData[this->activeLoop].start;
+                    break;}
+                }
+        }
+    }
+    //cuts notes off when loop repeats, then starts new note at beginning
+    void cutLoop(){
+        for(int i = 0; i<this->trackData.size(); i++){
+            if(this->trackData[i].noteLastSent != 255){
+                this->noteData[i][this->noteData[i].size()-1].endPos = this->loopData[this->activeLoop].end;
+                //if it's about to loop again (if it's a one-shot recording, there's no need to make a new note)
+                if(recMode != ONESHOT)
+                    writeNoteOn(this->loopData[this->activeLoop].start,this->trackData[i].pitch,this->noteData[i][this->noteData[i].size()-1].velocity,this->trackData[i].channel);
+            }
+        }
     }
 };
 
@@ -749,5 +879,147 @@ void toggleLoopMove(){
     case 2:
       movingLoop = 0;
       break;
+  }
+}
+
+int16_t changeNoteLength(int val, unsigned short int track, unsigned short int id){
+  if(id!=0){
+    int newEnd;
+    //if it's 1 step long and being increased by sequence.subDivision, make it sequence.subDivision steps long instead of sequence.subDivision+1 steps
+    //(just to make editing more intuitive)
+    if(sequence.noteData[track][id].endPos - sequence.noteData[track][id].startPos == 1 && val == sequence.subDivision){
+      newEnd = sequence.noteData[track][id].endPos + val - 1;
+    }
+    else{
+      newEnd = sequence.noteData[track][id].endPos + val;
+    }
+    //check and see if there's a different note there
+    //if there is, set the new end to be 
+    for(uint16_t step = 1; step<=val; step++){
+      if(sequence.lookupTable[track][step+sequence.noteData[track][id].endPos] != 0 && sequence.lookupTable[track][step+sequence.noteData[track][id].endPos] != id){
+        //if it's the first step, just fail to save time
+        if(step == 1)
+          return 0;
+        //if it's not the first step, set the new end to right before the other note
+        else{
+          newEnd = sequence.noteData[track][id].endPos+step;
+          break;
+        }
+      }
+    }
+    //if the new end is before/at the start, don't do anything
+    if(newEnd<=sequence.noteData[track][id].startPos)
+      return 0;
+      // newEnd = sequence.noteData[track][id].startPos+1;
+    //if the new end is past/at the end of the seq
+    if(newEnd>sequence.sequenceLength){
+      newEnd = sequence.sequenceLength;
+    }
+    Note note = sequence.noteData[track][id];
+    int16_t amount = newEnd-note.endPos;
+    note.endPos = newEnd;
+    sequence.deleteNote_byID(track, id);
+    sequence.makeNote(note, track, false);
+    return amount;
+  }
+  return 0;
+}
+
+
+void changeNoteLengthSelected(int amount){
+  for(int track = 0; track<sequence.trackData.size(); track++){
+    for(int note = 1; note <= sequence.noteData[track].size()-1; note++){
+      if(sequence.noteData[track][note].isSelected()){
+        changeNoteLength(amount, track, note);
+      }
+    }
+  }
+}
+
+int16_t changeNoteLength(int amount){
+  if(sequence.selectionCount > 0){
+    changeNoteLengthSelected(amount);
+    vector<uint16_t> bounds = getSelectedNotesBoundingBox();
+    //move the cursor to the end/beginning of the selection box
+    if(amount>0)
+      setCursor(bounds[2]);
+    else
+      setCursor(bounds[0]);
+    return 0;
+  }
+  else{
+    return changeNoteLength(amount, sequence.activeTrack, sequence.IDAtCursor());
+  }
+}
+
+//this one jumps the cursor to the end or start of the note
+void changeNoteLength_jumpToEnds(int16_t amount){
+  if(sequence.selectionCount > 0){
+    changeNoteLengthSelected(amount);
+    vector<uint16_t> bounds = getSelectedNotesBoundingBox();
+    //move the cursor to the end/beginning of the selection box
+    if(amount>0)
+      setCursor(bounds[2]);
+    else
+      // setCursor(bounds[0]);
+      setCursor(bounds[2]-sequence.subDivision);//testing this
+  }
+  else{
+    //if the note was changed
+    if(changeNoteLength(amount, sequence.activeTrack, sequence.IDAtCursor()) != 0){
+      //if you're shrinking the note
+      if(amount<0){
+        setCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].endPos-sequence.subDivision);//testing this
+        // setCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].startPos);
+        //if it's out of view
+        // else
+          // setCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].endPos+amount);
+      }
+      //if you're growing it
+      else
+        // setCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].endPos-sequence.subDivision);
+        setCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].endPos-1);//testing this
+
+        // setCursor(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos - amount);
+    }
+  }
+}
+
+//sets cursor to the visually nearest note
+//steps to pixels = steps*scale
+//for a note to be "visually" closer, it needs to have a smaller pixel
+//distance from the cursor than another note
+//compare trackDistance * trackHeight to stepDistance * scale
+float getDistanceFromNoteToCursor(Note note,uint8_t track){
+  //if the start of the note is closer than the end
+  return sqrt(pow(sequence.activeTrack - track,2)+pow(((abs(note.startPos-sequence.cursorPos)<abs(note.endPos-sequence.cursorPos))?(note.startPos-sequence.cursorPos):(note.endPos-sequence.cursorPos)),2));
+}
+
+void setCursorToNearestNote(){
+  const float maxPossibleDist = sequence.sequenceLength*sequence.viewScale+sequence.trackData.size()*trackHeight;
+  float minDist = maxPossibleDist;
+  int minTrack;
+  int minNote;
+  for(int track = 0; track<sequence.noteData.size(); track++){
+    for(int note = 1; note<sequence.noteData[track].size(); note++){
+      // //Serial.println("checking n:"+stringify(note)+" t:"+stringify(track));
+      // Serial.flush();
+      float distance = getDistanceFromNoteToCursor(sequence.noteData[track][note],track);
+      if(distance<minDist){
+        minTrack = track;
+        minNote = note;
+        minDist = distance;
+        if(minDist == 0)
+          break;
+      }
+    }
+    if(minDist == 0)
+      break;
+  }
+  // //Serial.println("setting cursor...");
+  // Serial.flush();
+  if(minDist != maxPossibleDist){
+    setCursor((sequence.noteData[minTrack][minNote].startPos<sequence.cursorPos)?sequence.noteData[minTrack][minNote].startPos:sequence.noteData[minTrack][minNote].endPos-1);
+    setActiveTrack(minTrack,false);
   }
 }

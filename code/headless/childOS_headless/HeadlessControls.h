@@ -21,6 +21,7 @@ class DummyLowerBoard{
     }
     void recalibrate(){
     }
+    
     //The Main Status Control reg bits are [X DEACT SLEEP DSLEEP X X PWR_LED INT]
     void activeMode(){
     }

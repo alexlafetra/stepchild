@@ -15,10 +15,6 @@ analogWriteResolution (int resolution) to set the resolution of the PWM signal â
 analogWrite(GPIO, duty cycle) to output a PWM signal to a specified pin with a defined duty cycle. It continuously outputs a PWM signal until a digitalWrite() or other digital output is performed.
 */
 
-#define CV1_PIN 5
-#define CV2_PIN 6
-#define CV3_PIN 28
-
 #define CV_PITCH 0
 #define CV_GATE 1
 #define CV_CLOCK 2

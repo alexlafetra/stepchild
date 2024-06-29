@@ -163,7 +163,7 @@ bool warpAintoB(CoordinatePair A, CoordinatePair B, bool onlySelected){
           //if the note starts SOMEWHERE within A, warp it!
           //you might want to change this/add an option
           //to ONLY warp notes that are entirely contained within A
-          if(sequence.noteData[track][noteID].startPos>=A.start.x && sequence.noteData[track][noteID].startPos<A.end.x && ((onlySelected && sequence.noteData[track][noteID].isSelected) || !onlySelected)){
+          if(sequence.noteData[track][noteID].startPos>=A.start.x && sequence.noteData[track][noteID].startPos<A.end.x && ((onlySelected && sequence.noteData[track][noteID].isSelected()) || !onlySelected)){
               Note targetNote = sequence.noteData[track][noteID];
               uint16_t oldLength = targetNote.getLength();
               uint16_t distanceFromStartOfA = targetNote.startPos - A.start.x;

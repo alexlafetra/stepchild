@@ -1750,8 +1750,8 @@ void drawAutotrackViewer(uint8_t firstTrack){
           //track box
           display.drawRoundRect(9,currentHeight,119,23,3,1);
           //track data
-          display.fillRoundRect(sideMenu-2,currentHeight+4,screenWidth-sideMenu,height+6,2,SSD1306_BLACK);
-          display.drawRoundRect(sideMenu-3,currentHeight+3,screenWidth-sideMenu,height+8,2,SSD1306_WHITE);
+          graphics.fillRectWithMissingCorners(sideMenu-2,currentHeight+4,screenWidth-sideMenu,height+6,SSD1306_BLACK);
+          graphics.drawRectWithMissingCorners(sideMenu-3,currentHeight+3,screenWidth-sideMenu,height+8,SSD1306_WHITE);
 
           drawMiniDT(sideMenu-3,currentHeight+4,height+6,sequence.activeAutotrack);
           //cc/ch indicator

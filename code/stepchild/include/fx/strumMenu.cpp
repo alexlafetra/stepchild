@@ -39,7 +39,7 @@ vector<NoteID> grabSelectedNotesAsNoteIDs(){
     vector<NoteID> notes;
     for(uint8_t i = 0; i<sequence.noteData.size(); i++){
         for(uint8_t j = 1; j<sequence.noteData[i].size(); j++){
-            if(sequence.noteData[i][j].isSelected){
+            if(sequence.noteData[i][j].isSelected()){
                 NoteID newNote = NoteID(i,j);
                 notes.push_back(newNote);
             }
@@ -89,7 +89,7 @@ void strum(uint8_t type, uint8_t sortBy, uint16_t amount, int8_t variation){
             //generate offset
             int16_t offset = (variation == 0)?amount:(float(random(-variation,variation))/100.0 * amount + amount);
 
-            newNote.isSelected = false;
+            newNote.setSelected(false);
             uint16_t length = newNote.getLength()-1;
             newNote.startPos = earliest;
             newNote.endPos = newNote.startPos+length;

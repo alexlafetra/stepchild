@@ -84,13 +84,10 @@ void writeNoteOn(unsigned short int step, uint8_t pitch, uint8_t vel, uint8_t ch
 void printItalic(int16_t x, int16_t y, char character, uint16_t c);
 void printItalic(int16_t x, int16_t y, String text, uint16_t c);
 void drawLogo(uint8_t x1, uint8_t y1);
-void drawNote_chance(uint16_t id, uint8_t track, unsigned short int xStart, unsigned short int yStart, unsigned short int length, unsigned short int height, unsigned short int chance, bool isSelected, bool isMuted);
-void drawNote_vel(uint16_t id, uint8_t track, unsigned short int xStart, unsigned short int yStart, unsigned short int length, unsigned short int height, unsigned short int vel, bool isSelected, bool isMuted);
 void displaySeq();
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection);
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, bool shadeOutsideLoop, uint16_t start, uint16_t end);
 void drawDisplay();
-void drawNote(unsigned short int, unsigned short int, unsigned short int, unsigned short int, unsigned short int, bool, bool);
 void drawBox(uint8_t cornerX, uint8_t cornerY, uint8_t width, uint8_t height, uint8_t depth, int8_t xSlant, uint8_t fill);
 void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation);
 void drawTetra(uint8_t h, uint8_t k, uint8_t height, uint8_t width, int xDepth, int yDepth, uint8_t style, uint16_t c);
@@ -109,7 +106,7 @@ uint8_t printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bo
 void printSmall_centered(int x, int y, String t, uint16_t c);
 void printSmall(int, int, String, uint16_t);
 void fillSquareVertically(uint8_t x0, uint8_t y0, uint8_t width, uint8_t fillAmount);
-void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmount);
+void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmount,uint8_t maxFill);
 void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t numberOfKeys, bool into);
 void printParam_centered(uint8_t which, uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);
 void printParam(uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);
@@ -145,8 +142,6 @@ void chordBuilder();
 void echoMenu();
 void humanizeMenu();
 void quantizeMenu();
-void slideMenuIn(int fromWhere, int8_t speed);
-void slideMenuOut(int fromWhere, int8_t speed);
 void strumMenu();
 
 //Note editing
@@ -158,6 +153,7 @@ void humanize(bool move);
 int16_t changeNoteLength(int val, unsigned short int track, unsigned short int id);
 int16_t changeNoteLength(int amount);
 void changeNoteLengthSelected(int amount);
+void setSuperposition(Note& note,uint8_t t);
 
 void quantizeSelectedNotes(bool deleteNote);
 bool quantizeNote(uint8_t track, uint16_t id, bool deleteNote);
@@ -180,8 +176,10 @@ void reverse();
 void rattle();
 
 //Track editing
+int16_t makeTrackWithPitch(int,int);
 void deleteAllTracks();
 int getTrackWithPitch(int);
+int getTrackWithPitch(int,int);
 int getTrackWithPitch_above(uint8_t pitch, uint8_t aboveIndex);
 int16_t addTrack_return(unsigned short int,unsigned short int,bool);
 int16_t insertTrack_return(unsigned short int,unsigned short int,bool,uint8_t);
@@ -192,7 +190,7 @@ void eraseTrack();
 void deleteTrack(unsigned short int);
 void deleteTrack(unsigned short int track, bool hard);
 void setTrackPitch(int, int, bool);
-void setActiveTrack(uint8_t, bool);
+bool setActiveTrack(uint8_t, bool);
 vector<uint8_t> selectMultipleTracks(String);
 void muteMultipleTracks(vector<uint8_t> ids);
 void toggleMute(uint16_t id);
@@ -212,9 +210,8 @@ void tuneTracksToScale();
 
 //controls
 void clearButtons();
-void stepButtons();
+void mainSequencerStepButtons();
 void mainSequencerEncoders();
-bool fxMenuControls();
 bool echoMenuControls(uint8_t* cursor);
 void saveMenuControls();
 bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote);
@@ -251,8 +248,6 @@ void checkAutotracks();
 
 //Loops
 void moveLoop(int16_t amount);
-void setActiveLoop(unsigned int id);
-void deleteLoop(uint8_t id);
 void setLoopToInfinite(uint8_t targetL);
 
 //RP2040 Hardware
@@ -264,15 +259,12 @@ void enterBootsel();
 void writeSeqFile(String filename);
 vector<String> loadFiles();
 vector<String> loadFilesAndSizes();
-void loadBackup();
+bool loadBackup();
 void quickSave();
 void loadSeqFile(String filename);
 void renameSeqFile(String filename);
 bool deleteSeqFile(String filename);
 void duplicateSeqFile(String filename);
-void exportSeqFileToSerial(String filename);
-void exportSeqFileToSerial_standAlone(String filename);
-void dumpFilesToSerial();
 uint32_t getByteCount(String filename);
 void loadSettings();
 void loadSavedSettingsFromFile();
@@ -298,6 +290,7 @@ void keyboard();
 void drumPad();
 String getMKIIParameterName(uint8_t param,  uint8_t channel);
 String getCCParameterName(uint8_t param);
+int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title);
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, void (*displayFunction)());
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, void (*displayFunction)());
 uint8_t countSpaces(String text);
@@ -325,6 +318,7 @@ uint8_t countDigits_byte(uint8_t number);
 uint16_t getNoteCount();
 String bytesToString(uint32_t bytes);
 void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct, bool channel, uint16_t c);
+NoteCoords getNoteCoords(Note& note, uint8_t track);
 
 //Graphics
 void bootscreen_2();

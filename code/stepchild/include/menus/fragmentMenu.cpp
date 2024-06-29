@@ -32,15 +32,11 @@ void fragmentMenu(){
     controls.readJoystick();
     if(utils.itsbeen(200)){
       if(controls.MENU()){
-        menuIsActive = false;
-        constructMenu("MENU");
-        lastTime = millis();
+        return;
       }
       if(controls.stepButtons(3)){
         controls.stepButtons(3) = 0;
-        constructMenu("MENU");
-        menuIsActive = false;
-        lastTime = millis();
+        return;
       }
     }
     //controlling where the line starts

@@ -4,6 +4,8 @@
  |  We use RTMidi to read in and send out midi messages.
  |  Got the MIDI Messages byte values from:
  |  https://www.midi.org/specifications-old/item/table-1-summary-of-midi-message
+ |  The RTMIDI setup/boilerplate code is from:
+ |  https://www.music.mcgill.ca/~gary/rtmidi/
  + -------------------
  */
 
@@ -276,7 +278,7 @@ class HeadlessMIDI{
         catch ( RtMidiError &error ) {
           error.printMessage();
         }
-        virtualMidiOut->openVirtualPort();
+        virtualMidiOut->openVirtualPort("Stepchild (headless)");
     }
     bool isThru(uint8_t output){
         return false;
@@ -290,7 +292,7 @@ class HeadlessMIDI{
       return true;
     }
     else{
-      bool value = (this->midiChannelFilters[whichPort] & (1 << whichChannel-1)) != 0 ;
+        bool value = (this->midiChannelFilters[whichPort] & (1 << (whichChannel-1))) != 0 ;
       return value;
     }
   }
@@ -309,12 +311,12 @@ class HeadlessMIDI{
   void setMidiChannel(uint8_t channel, uint8_t output, bool status){
     //for activating, you use OR
     if(status){
-      uint16_t byte = 1 << channel-1;
+      uint16_t byte = 1 << (channel-1);
       this->midiChannelFilters[output] = this->midiChannelFilters[output] | byte;
     }
     //for deactivating, you use AND (and NOT to create the mask)
     else{
-      uint16_t byte = ~(1 << channel-1);
+        uint16_t byte = ~(1 << (channel-1));
       this->midiChannelFilters[output] = this->midiChannelFilters[output] & byte;
     }
   }

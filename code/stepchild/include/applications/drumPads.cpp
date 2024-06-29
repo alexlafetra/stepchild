@@ -2,7 +2,7 @@ void drumPad(){
   drumPadAnimation(screenWidth-25,5,36,16, true);
   while(true){
     controls.readButtons();
-    stepButtons();//handles notes, and toggling
+    mainSequencerStepButtons();
     //midi messages from encoders when in keys/drumpads mode
     while(controls.counterA != 0){
       if(controls.counterA >= 1 && keyboardPitch<127){

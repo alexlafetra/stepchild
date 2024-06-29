@@ -1,3 +1,6 @@
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+
 //this holds all the bits for the display
 class Display{
     public:

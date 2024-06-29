@@ -1,3 +1,26 @@
+enum ArpSource:uint8_t{
+  EXTERNAL,
+  INTERNAL,
+  BOTH
+};
+ArpSource operator++(ArpSource &c,int) {
+  c = static_cast<ArpSource>(static_cast<uint8_t>(c) + 1);
+  return c;
+}
+ArpSource operator--(ArpSource &c,int) {
+  c = static_cast<ArpSource>(static_cast<uint8_t>(c) - 1);
+  return c;
+}
+ArpSource& operator%=(ArpSource& lhs, int rhs) {
+  // Convert enum to its underlying integer type for the operation
+  using underlying = std::underlying_type_t<ArpSource>;
+  underlying& lhs_value = reinterpret_cast<underlying&>(lhs);
+  // Perform the modulus operation and update lhs
+  lhs_value %= rhs;
+  // Return the updated lhs
+  return lhs;
+}
+
 //arpeggiator objects! these store which notes they play (scale), in what order (order), how fast (subDiv)
 //what does an arpeggiator need? which notes to play, how fast to play them, and in what order
 //also, randomness
@@ -30,7 +53,7 @@ public:
   bool playing;
   bool uniformLength;
   bool holding;
-  uint8_t source; //can be 0 (external only) 1 (internal only) or 2 (both)
+  ArpSource source; //can be 0 (external only) 1 (internal only) or 2 (both)
 
   void grabNotesFromTracks(bool);
   void grabNotesFromPlaylist();
@@ -70,7 +93,7 @@ Arp::Arp() {
   playing = false;
   uniformLength = true;
   holding = false;
-  source = 0;
+  source = EXTERNAL;
   channel = 1;
 
   maxVelMod = 0;

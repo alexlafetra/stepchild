@@ -2,7 +2,7 @@ void quantizeSelectedNotes(bool deleteNote){
   if(sequence.selectionCount>0){
     for(uint8_t track = 0; track<sequence.noteData.size(); track++){
       for(uint16_t note = 1; note<sequence.noteData[track].size(); note++){
-        if(sequence.noteData[track][note].isSelected){
+        if(sequence.noteData[track][note].isSelected()){
           //if a note was deld (when quantize fails)
           if(!quantizeNote(track,note,deleteNote)){
             note = 1;
@@ -15,12 +15,12 @@ void quantizeSelectedNotes(bool deleteNote){
 void quantize(bool move_the_cursor,bool deleteNote){
   //quantizing selected notes
   if(sequence.selectionCount>0){
-    if(!sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].isSelected){
+    if(!sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].isSelected()){
       quantizeNote(sequence.activeTrack,sequence.IDAtCursor(),deleteNote);
     }
     for(uint8_t track = 0; track<sequence.noteData.size(); track++){
       for(uint16_t note = 1; note<sequence.noteData[track].size(); note++){
-        if(sequence.noteData[track][note].isSelected){
+        if(sequence.noteData[track][note].isSelected()){
           //if a note was deld (when quantize fails)
           if(!quantizeNote(track,note,deleteNote)){
             note = 1;

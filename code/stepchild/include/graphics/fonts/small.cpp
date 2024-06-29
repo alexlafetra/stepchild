@@ -348,7 +348,7 @@ const unsigned char* small_font[69] = {
   epd_bitmap_play
 };
 
-// 'smallFont', 24x40px
+// 'smallFont', 24x40px (8 x 8 characters)
 const unsigned char smallFont [] = {
 	0x59, 0xe6, 0xdd, 0xb6, 0x59, 0x25, 0xfa, 0x5f, 0xa7, 0xb6, 0x59, 0x2d, 0xb9, 0xe7, 0x1d, 0xee, 
 	0xcb, 0x96, 0x46, 0xcf, 0x6d, 0x47, 0x4b, 0x6e, 0x56, 0xcb, 0x6c, 0xea, 0xbb, 0x54, 0x59, 0xfb, 
@@ -651,311 +651,343 @@ uint8_t getGlyphIndex(uint8_t c){
   return 0;
 }
 
-void printSmall(int x, int y, String text, uint16_t c){
-  for(int letter = 0; letter<text.length(); letter++){
-    if(x+4*letter>=screenWidth)
-      return;
-    unsigned char character = text.charAt(letter);
-    switch(character){
+//returns the number of pixels you need to move forward (usually 4, unless it's a half character)
+int8_t printSmall(int x, int y, char character, uint16_t c){
+  switch(character){
       case ' ':
-        x-=2;
-        continue;
-      //newline
-      case '\\':
-        y+=7;
-        break;
+        return 2;
       case 'A':
-        display.drawBitmap(x+4*letter,y,small_font[0],3,5,c);
+        display.drawBitmap(x,y,small_font[0],3,5,c);
         break;
       case 'B':
-        display.drawBitmap(x+4*letter,y,small_font[1],3,5,c);
+        display.drawBitmap(x,y,small_font[1],3,5,c);
         break;
       case 'C':
-        display.drawBitmap(x+4*letter,y,small_font[2],3,5,c);
+        display.drawBitmap(x,y,small_font[2],3,5,c);
         break;
       case 'D':
-        display.drawBitmap(x+4*letter,y,small_font[3],3,5,c);
+        display.drawBitmap(x,y,small_font[3],3,5,c);
         break;
       case 'E':
-        display.drawBitmap(x+4*letter,y,small_font[4],3,5,c);
+        display.drawBitmap(x,y,small_font[4],3,5,c);
         break;
       case 'F':
-        display.drawBitmap(x+4*letter,y,small_font[5],3,5,c);
+        display.drawBitmap(x,y,small_font[5],3,5,c);
         break;
       case 'G':
-        display.drawBitmap(x+4*letter,y,small_font[6],3,5,c);
+        display.drawBitmap(x,y,small_font[6],3,5,c);
         break;
       case 'H':
-        display.drawBitmap(x+4*letter,y,small_font[7],3,5,c);
+        display.drawBitmap(x,y,small_font[7],3,5,c);
         break;
       case 'I':
-        display.drawBitmap(x+4*letter,y,small_font[8],3,5,c);
+        display.drawBitmap(x,y,small_font[8],3,5,c);
         break;
       case 'J':
-        display.drawBitmap(x+4*letter,y,small_font[9],3,5,c);
+        display.drawBitmap(x,y,small_font[9],3,5,c);
         break;
       case 'K':
-        display.drawBitmap(x+4*letter,y,small_font[10],3,5,c);
+        display.drawBitmap(x,y,small_font[10],3,5,c);
         break;
       case 'L':
-        display.drawBitmap(x+4*letter,y,small_font[11],3,5,c);
+        display.drawBitmap(x,y,small_font[11],3,5,c);
         break;
       case 'M':
-        display.drawBitmap(x+4*letter,y,small_font[12],3,5,c);
+        display.drawBitmap(x,y,small_font[12],3,5,c);
         break;
       case 'N':
-        display.drawBitmap(x+4*letter,y,small_font[13],3,5,c);
+        display.drawBitmap(x,y,small_font[13],3,5,c);
         break;
       case 'O':
-        display.drawBitmap(x+4*letter,y,small_font[14],3,5,c);
+        display.drawBitmap(x,y,small_font[14],3,5,c);
         break;
       case 'P':
-        display.drawBitmap(x+4*letter,y,small_font[15],3,5,c);
+        display.drawBitmap(x,y,small_font[15],3,5,c);
         break;
-     case 'Q':
-       display.drawBitmap(x+4*letter,y,small_font[16],3,5,c);
-       break;
+      case 'Q':
+        display.drawBitmap(x,y,small_font[16],3,5,c);
+        break;
       case 'R':
-        display.drawBitmap(x+4*letter,y,small_font[17],3,5,c);
+        display.drawBitmap(x,y,small_font[17],3,5,c);
         break;
       case 'S':
-        display.drawBitmap(x+4*letter,y,small_font[18],3,5,c);
+        display.drawBitmap(x,y,small_font[18],3,5,c);
         break;
       case 'T':
-        display.drawBitmap(x+4*letter,y,small_font[19],3,5,c);
+        display.drawBitmap(x,y,small_font[19],3,5,c);
         break;
       case 'U':
-        display.drawBitmap(x+4*letter,y,small_font[20],3,5,c);
+        display.drawBitmap(x,y,small_font[20],3,5,c);
         break;
       case 'V':
-        display.drawBitmap(x+4*letter,y,small_font[21],3,5,c);
+        display.drawBitmap(x,y,small_font[21],3,5,c);
         break;
       case 'W':
-        display.drawBitmap(x+4*letter,y,small_font[22],3,5,c);
+        display.drawBitmap(x,y,small_font[22],3,5,c);
         break;
       case 'X':
-        display.drawBitmap(x+4*letter,y,small_font[23],3,5,c);
+        display.drawBitmap(x,y,small_font[23],3,5,c);
         break;
       case 'Y':
-        display.drawBitmap(x+4*letter,y,small_font[24],3,5,c);
+        display.drawBitmap(x,y,small_font[24],3,5,c);
         break;
       case 'Z':
-        display.drawBitmap(x+4*letter,y,small_font[25],3,5,c);
+        display.drawBitmap(x,y,small_font[25],3,5,c);
         break;
       case 'a':
-        display.drawBitmap(x+4*letter,y,small_font[0],3,5,c);
+        display.drawBitmap(x,y,small_font[0],3,5,c);
         break;
       case 'b':
-        display.drawBitmap(x+4*letter,y,small_font[1],3,5,c);
+        display.drawBitmap(x,y,small_font[1],3,5,c);
         break;
       case 'c':
-        display.drawBitmap(x+4*letter,y,small_font[2],3,5,c);
+        display.drawBitmap(x,y,small_font[2],3,5,c);
         break;
       case 'd':
-        display.drawBitmap(x+4*letter,y,small_font[3],3,5,c);
+        display.drawBitmap(x,y,small_font[3],3,5,c);
         break;
       case 'e':
-        display.drawBitmap(x+4*letter,y,small_font[4],3,5,c);
+        display.drawBitmap(x,y,small_font[4],3,5,c);
         break;
       case 'f':
-        display.drawBitmap(x+4*letter,y,small_font[5],3,5,c);
+        display.drawBitmap(x,y,small_font[5],3,5,c);
         break;
       case 'g':
-        display.drawBitmap(x+4*letter,y,small_font[6],3,5,c);
+        display.drawBitmap(x,y,small_font[6],3,5,c);
         break;
       case 'h':
-        display.drawBitmap(x+4*letter,y,small_font[7],3,5,c);
+        display.drawBitmap(x,y,small_font[7],3,5,c);
         break;
       case 'i':
-        display.drawBitmap(x+4*letter,y,small_font[8],3,5,c);
+        display.drawBitmap(x,y,small_font[8],3,5,c);
         break;
       case 'j':
-        display.drawBitmap(x+4*letter,y,small_font[9],3,5,c);
+        display.drawBitmap(x,y,small_font[9],3,5,c);
         break;
       case 'k':
-        display.drawBitmap(x+4*letter,y,small_font[10],3,5,c);
+        display.drawBitmap(x,y,small_font[10],3,5,c);
         break;
       case 'l':
-        display.drawBitmap(x+4*letter,y,small_font[11],3,5,c);
+        display.drawBitmap(x,y,small_font[11],3,5,c);
         break;
       case 'm':
-        display.drawBitmap(x+4*letter,y,small_font[12],3,5,c);
+        display.drawBitmap(x,y,small_font[12],3,5,c);
         break;
       case 'n':
-        display.drawBitmap(x+4*letter,y,small_font[13],3,5,c);
+        display.drawBitmap(x,y,small_font[13],3,5,c);
         break;
       case 'o':
-        display.drawBitmap(x+4*letter,y,small_font[14],3,5,c);
+        display.drawBitmap(x,y,small_font[14],3,5,c);
         break;
       case 'p':
-        display.drawBitmap(x+4*letter,y,small_font[15],3,5,c);
+        display.drawBitmap(x,y,small_font[15],3,5,c);
         break;
       case 'q':
-        display.drawBitmap(x+4*letter,y,small_font[16],3,5,c);
+        display.drawBitmap(x,y,small_font[16],3,5,c);
         break;
       case 'r':
-        display.drawBitmap(x+4*letter,y,small_font[17],3,5,c);
+        display.drawBitmap(x,y,small_font[17],3,5,c);
         break;
       case 's':
-        display.drawBitmap(x+4*letter,y,small_font[18],3,5,c);
+        display.drawBitmap(x,y,small_font[18],3,5,c);
         break;
       case 't':
-        display.drawBitmap(x+4*letter,y,small_font[19],3,5,c);
+        display.drawBitmap(x,y,small_font[19],3,5,c);
         break;
       case 'u':
-        display.drawBitmap(x+4*letter,y,small_font[20],3,5,c);
+        display.drawBitmap(x,y,small_font[20],3,5,c);
         break;
       case 'v':
-        display.drawBitmap(x+4*letter,y,small_font[21],3,5,c);
+        display.drawBitmap(x,y,small_font[21],3,5,c);
         break;
       case 'w':
-        display.drawBitmap(x+4*letter,y,small_font[22],3,5,c);
+        display.drawBitmap(x,y,small_font[22],3,5,c);
         break;
       case 'x':
-        display.drawBitmap(x+4*letter,y,small_font[23],3,5,c);
+        display.drawBitmap(x,y,small_font[23],3,5,c);
         break;
       case 'y':
-        display.drawBitmap(x+4*letter,y,small_font[24],3,5,c);
+        display.drawBitmap(x,y,small_font[24],3,5,c);
         break;
       case 'z':
-        display.drawBitmap(x+4*letter,y,small_font[25],3,5,c);
+        display.drawBitmap(x,y,small_font[25],3,5,c);
         break;
       case '0':
-        display.drawBitmap(x+4*letter,y,small_font[26],3,5,c);
+        display.drawBitmap(x,y,small_font[26],3,5,c);
         break;
       case '1':
-        display.drawBitmap(x+4*letter,y,small_font[27],3,5,c);
+        display.drawBitmap(x,y,small_font[27],3,5,c);
         break;
       case '2':
-        display.drawBitmap(x+4*letter,y,small_font[28],3,5,c);
+        display.drawBitmap(x,y,small_font[28],3,5,c);
         break;
       case '3':
-        display.drawBitmap(x+4*letter,y,small_font[29],3,5,c);
+        display.drawBitmap(x,y,small_font[29],3,5,c);
         break;
       case '4':
-        display.drawBitmap(x+4*letter,y,small_font[30],3,5,c);
+        display.drawBitmap(x,y,small_font[30],3,5,c);
         break;
       case '5':
-        display.drawBitmap(x+4*letter,y,small_font[31],3,5,c);
+        display.drawBitmap(x,y,small_font[31],3,5,c);
         break;
       case '6':
-        display.drawBitmap(x+4*letter,y,small_font[32],3,5,c);
+        display.drawBitmap(x,y,small_font[32],3,5,c);
         break;
       case '7':
-        display.drawBitmap(x+4*letter,y,small_font[33],3,5,c);
+        display.drawBitmap(x,y,small_font[33],3,5,c);
         break;
       case '8':
-        display.drawBitmap(x+4*letter,y,small_font[34],3,5,c);
+        display.drawBitmap(x,y,small_font[34],3,5,c);
         break;
       case '9':
-        display.drawBitmap(x+4*letter,y,small_font[35],3,5,c);
+        display.drawBitmap(x,y,small_font[35],3,5,c);
         break;
       case '.':
-        display.drawBitmap(x+4*letter,y,small_font[36],3,5,c);
+        display.drawBitmap(x,y,small_font[36],3,5,c);
         break;
       case ':':
-        display.drawBitmap(x+4*letter-1,y,small_font[37],3,5,c);
-        x-=2;
-        break;
+        display.drawBitmap(x-1,y,small_font[37],3,5,c);
+        return 2;
       case ';':
-        display.drawBitmap(x+4*letter,y,small_font[38],3,5,c);
+        display.drawBitmap(x,y,small_font[38],3,5,c);
         break;
       case '+':
-        display.drawBitmap(x+4*letter,y,small_font[39],3,5,c);
+        display.drawBitmap(x,y,small_font[39],3,5,c);
         break;
       case '[':
-        display.drawBitmap(x+4*letter,y,small_font[40],3,5,c);
+        display.drawBitmap(x,y,small_font[40],3,5,c);
         break;
       case ']':
-        display.drawBitmap(x+4*letter,y,small_font[41],3,5,c);
+        display.drawBitmap(x,y,small_font[41],3,5,c);
         break;
       case '/':
-        display.drawBitmap(x+4*letter,y,small_font[42],3,5,c);
+        display.drawBitmap(x,y,small_font[42],3,5,c);
         break;
       case ',':
-        display.drawBitmap(x+4*letter,y,small_font[44],3,5,c);
+        display.drawBitmap(x,y,small_font[44],3,5,c);
         break;
       case '?':
-        display.drawBitmap(x+4*letter,y,small_font[45],3,5,c);
+        display.drawBitmap(x,y,small_font[45],3,5,c);
         break;
       case '!':
-        display.drawBitmap(x+4*letter,y,small_font[46],3,5,c);
+        display.drawBitmap(x,y,small_font[46],3,5,c);
         break;
       case '^':
-        display.drawBitmap(x+4*letter,y,small_font[47],3,5,c);
+        display.drawBitmap(x,y,small_font[47],3,5,c);
         break;
       case '&':
-        display.drawBitmap(x+4*letter,y,small_font[48],3,5,c);
+        display.drawBitmap(x,y,small_font[48],3,5,c);
         break;
       case '<':
-        display.drawBitmap(x+4*letter,y,small_font[49],3,5,c);
+        display.drawBitmap(x,y,small_font[49],3,5,c);
         break;
       case '>':
-        display.drawBitmap(x+4*letter,y,small_font[50],3,5,c);
+        display.drawBitmap(x,y,small_font[50],3,5,c);
         break;
       //single quote
       case '\'':
-        display.drawBitmap(x+4*letter,y,small_font[51],3,5,c);
+        display.drawBitmap(x,y,small_font[51],3,5,c);
         break;
       case '%':
-        display.drawBitmap(x+4*letter,y,small_font[52],3,5,c);
+        display.drawBitmap(x,y,small_font[52],3,5,c);
         break;
       //special case: 2 char symbol so it needs to increment x a bit
       case '#':
-        display.drawBitmap(x+4*letter,y,small_font[53],2,5,c);
-        display.drawBitmap(x+2+4*letter,y,small_font[54],3,5,c);
-        x+=2;
-        break;
+        display.drawBitmap(x,y,small_font[53],2,5,c);
+        display.drawBitmap(x+2,y,small_font[54],3,5,c);
+        return 6;
       case '-':
-        display.drawBitmap(x+4*letter,y,small_font[55],3,5,c);
+        display.drawBitmap(x,y,small_font[55],3,5,c);
         break;
       //phi
       case '@':
-        display.drawBitmap(x+4*letter,y,small_font[56],3,5,c);
+        display.drawBitmap(x,y,small_font[56],3,5,c);
         break;
       case '(':
-        display.drawBitmap(x+4*letter,y,small_font[57],3,5,c);
+        display.drawBitmap(x,y,small_font[57],3,5,c);
         break;
       case ')':
-        display.drawBitmap(x+4*letter,y,small_font[58],3,5,c);
+        display.drawBitmap(x,y,small_font[58],3,5,c);
         break;
       //note icon
       case '$':
-        display.drawBitmap(x+4*letter,y,small_font[59],3,5,c);
+        display.drawBitmap(x,y,small_font[59],3,5,c);
         break;
       case '=':
-        display.drawBitmap(x+4*letter,y,small_font[60],3,5,c);
+        display.drawBitmap(x,y,small_font[60],3,5,c);
         break;
       case '*':
-        display.drawBitmap(x+4*letter,y,small_font[61],3,5,c);
+        display.drawBitmap(x,y,small_font[61],3,5,c);
         break;
       case '|':
-        display.drawBitmap(x+4*letter,y,small_font[62],3,5,c);
+        display.drawBitmap(x,y,small_font[62],3,5,c);
         break;
       //double quotes
       case '\"':
-        display.drawBitmap(x+4*letter,y,small_font[64],3,5,c);
+        display.drawBitmap(x,y,small_font[64],3,5,c);
         break;
       //divide
       case '~':
-        display.drawBitmap(x+4*letter,y,small_font[65],3,5,c);
+        display.drawBitmap(x,y,small_font[65],3,5,c);
         break;
       //degree
       case '}':
-        display.drawBitmap(x+4*letter,y,small_font[66],3,5,c);
+        display.drawBitmap(x,y,small_font[66],3,5,c);
         break;
       //play
       case '\a':
-        display.drawBitmap(x+4*letter,y,small_font[67],3,5,c);
+        display.drawBitmap(x,y,small_font[67],3,5,c);
         break;
       //stop
       case '\t':
-        display.drawBitmap(x+4*letter,y,small_font[68],3,5,c);
+        display.drawBitmap(x,y,small_font[68],3,5,c);
         break;
-    }
+  }
+  return 4;
+}
+
+enum TextAlign:uint8_t{
+  LEFT,
+  CENTER,
+  RIGHT
+};
+
+//converts text to char
+void printSmall(int x, int y, String text, uint16_t c, TextAlign a){
+  switch(a){
+    case TextAlign::CENTER:
+      x-=text.length()*2+countChar(text,' ');
+    case TextAlign::LEFT:
+      for(uint16_t letter = 0; letter<text.length(); letter++){
+        if(x>=screenWidth)
+          return;
+        char character = text.charAt(letter);
+        x+=printSmall(x,y,character,c);
+      }
+      return;
+    case TextAlign::RIGHT:
+      x+=text.length()*4-countChar(text,' ');
+      for(uint16_t letter = text.length()-1; letter>=0; letter--){
+        if(x>=screenWidth)
+          continue;
+        if(x<0)
+          return;
+        char character = text.charAt(letter);
+        x-=printSmall(x,y,character,c);
+      }
+      break;
   }
 }
 
+void printSmall_centered(int x, int y, String text, uint16_t c){
+  printSmall(x,y,text,c,TextAlign::CENTER);
+}
+
+void printSmall(int x, int y, String text, uint16_t c){
+  printSmall(x,y,text,c,TextAlign::LEFT);
+}
+
+//just converts a float to a string
 void printSmall(int x1, int y1, float a, uint16_t c){
   printSmall(x1,y1,stringify(a),c);
 }
@@ -989,8 +1021,4 @@ void printSmall_overflow(int x, int y, int margin, String text, uint16_t c){
   }
   //print whatever's remaining
   printSmall(xCoord, yCoord, word, c);
-}
-void printSmall_centered(int x, int y, String t, uint16_t c){
-  x -= t.length()*2+countChar(t,' ');
-  printSmall(x,y,t,c);
 }

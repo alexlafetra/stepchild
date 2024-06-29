@@ -34,7 +34,7 @@ void echoNote(int track, int id){
   Note targetNote = sequence.noteData[track][id];
   for(int i = 0; i<repeats; i++){
     Note echoNote = targetNote;
-    echoNote.isSelected = false;
+    echoNote.setSelected(false);
     uint16_t offset = (i+1)*delay;
     echoNote.startPos += offset;
     echoNote.endPos += offset;
@@ -54,7 +54,7 @@ void echoSelectedNotes(){
   }
   for(uint8_t track = 0; track<sequence.trackData.size(); track++){
     for(uint8_t note = 1; note<sequence.noteData[track].size(); note++){
-      if(sequence.noteData[track][note].isSelected){
+      if(sequence.noteData[track][note].isSelected()){
         echoNote(track,note);
       }
     }

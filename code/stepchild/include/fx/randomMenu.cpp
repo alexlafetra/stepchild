@@ -259,7 +259,9 @@ CoordinatePair selectArea_random(){
     graphics.rotate(1,0);
     graphics.rotate(1,1);
     display.clearDisplay();
-    drawSeq(true, false, true, false, false, false, sequence.viewStart, sequence.viewEnd);
+    SequenceRenderSettings settings;
+    settings.drawPram = false;
+    drawSeq(settings);
     drawCoordinateBox(coords);
     graphics.renderDie();
     if(coords.start.x == 0 && coords.end.x == 0 && coords.start.y == 0 && coords.end.y == 0){

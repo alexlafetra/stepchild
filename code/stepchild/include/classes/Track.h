@@ -7,19 +7,17 @@ class Track {
   uint8_t muteGroup;
   //255 if no note is being sent, pitch val if currently sending
   uint8_t noteLastSent;//if a note is currently being sent
-  bool isSelected;
-  bool isLatched;//for sending notes to 'loop' SP404 pads (or triggering latched samples in general)
-  bool isPrimed;
-  bool isMuted;
-  bool isSolo;
-
+  enum TrackFlagBit:uint8_t{
+    SELECTED = 0,
+    MUTED = 1,
+    LATCHED = 2,
+    PRIMED = 3,
+    SOLO = 4
+  };
+  uint8_t flags = 0b00001000;//tracks start primed
+  
   //constructor for each track
   Track() {
-    isSelected = false;
-    isLatched = false;
-    isPrimed = true;
-    isSolo = false;
-    isMuted = false;
     muteGroup = 0;
     noteLastSent = 255;
   }
@@ -27,11 +25,6 @@ class Track {
   Track(unsigned char p, unsigned char c){
     pitch = p;
     channel = c;
-    isSelected = false;
-    isLatched = false;
-    isPrimed = true;
-    isSolo = false;
-    isMuted = false;
     muteGroup = 0;
     noteLastSent = 255;
   }
@@ -44,4 +37,57 @@ class Track {
   String getPitch(){
     return pitchToString(this->pitch, false, true);
   }
+
+  void setFlag(TrackFlagBit b, bool s);
+  bool isSelected();
+  bool isMuted();
+  bool isLatched();
+  bool isPrimed();
+  bool isSolo();
+  void setPrimed(bool);
+  void setLatched(bool);
+  void setSelected(bool);
+  void setSolo(bool);
+  void setMuted(bool);
+  bool checkFlag(TrackFlagBit);
+
 };
+void Track::setFlag(TrackFlagBit b, bool state){
+  if(state)
+    flags |= (1<<b);
+  else
+    flags &= ~(1<<b);
+}
+bool Track::checkFlag(TrackFlagBit b){
+  return flags&(1<<b);
+}
+bool Track::isSelected(){
+  return checkFlag(SELECTED);
+}
+bool Track::isPrimed(){
+  return checkFlag(PRIMED);
+}
+bool Track::isSolo(){
+  return checkFlag(SOLO);
+}
+bool Track::isMuted(){
+  return checkFlag(MUTED);
+}
+bool Track::isLatched(){
+  return checkFlag(LATCHED);
+}
+void Track::setPrimed(bool state){
+  setFlag(PRIMED,state);
+}
+void Track::setSolo(bool state){
+  setFlag(SOLO,state);
+}
+void Track::setSelected(bool state){
+  setFlag(SELECTED,state);
+}
+void Track::setMuted(bool state){
+  setFlag(MUTED,state);
+}
+void Track::setLatched(bool state){
+  setFlag(LATCHED,state);
+}

@@ -20,7 +20,7 @@ struct CoordinatePair{
         this->start = Coordinate(xStart,0);
         this->end = Coordinate(xEnd,0);
     }
-    CoordinatePair(uint16_t xStart, uint16_t xEnd, uint8_t yStart, uint8_t yEnd){
+    CoordinatePair(uint16_t xStart, uint8_t yStart, uint16_t xEnd, uint8_t yEnd){
         this->start = Coordinate(xStart,yStart);
         this->end = Coordinate(xEnd,yEnd);
     }
@@ -34,7 +34,6 @@ unsigned long lastTime;
 
 class StepchildUtilities{
     public:
-    //
     Coordinate getRadian(uint8_t h, uint8_t k, int a, int b, float angle) {
         float x1 = h + a * cos(radians(angle));
         float y1;
@@ -373,7 +372,6 @@ String enterText(String title){
           alphabet = alpha1;
         lastTime = millis();
       }
-
       if(controls.DELETE() && text.length()>0){
         controls.setDELETE(false);
         String newString = text.substring(0,text.length()-1);
@@ -394,6 +392,10 @@ String enterText(String title){
         text = "";
         done = true;
         lastTime = millis();
+      }
+      if(controls.NEW()){
+        lastTime = millis();
+        highlight = alphabet.size()-1;
       }
     }
     if(utils.itsbeen(100)){
@@ -508,3 +510,4 @@ bool isInVector(int val, vector<uint8_t> vec){
   }
   return false;
 }
+

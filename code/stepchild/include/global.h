@@ -26,9 +26,6 @@ const vector<String> CCparameters = {"Bank Select","Mod Wheel","Breath Controlle
 const vector<String> MKIICCparameters = {"Ctrl ","EFX On/Off","EFX Selector"};
 const vector<String> stepChildCCParameters = {"Velocity","Probability","Pitch","BPM [Exp]","Swing [Exp]"};
 
-#define IDLE 0
-#define PLAYING 1
-#define RECORDING 2
 
 #ifndef HEADLESS
 bool playing = false;
@@ -38,7 +35,6 @@ bool recording = false;
 bool gotClock = false;
 bool hasStarted = false;
 bool menuIsActive = false;
-bool displayingVel = true;//get rid of this
 bool drawingNote = false;
 bool pitchesOrNumbers = true;
 
@@ -47,6 +43,7 @@ bool pitchesOrNumbers = true;
 uint8_t clockSource = INTERNAL_CLOCK;
 
 bool overwriteRecording = true;
+bool overWriteNotesWithEmptiness = false;//flag to set for overwriting notes on tracks that AREN'T receiving notes (overdubbing silence)
 bool onlyRecToPrimedTracks = true;//Not implemented yet
 bool waitForNoteBeforeRec = true;
 bool waitingToReceiveANote = true;//wait to receive note to begin recording
@@ -64,8 +61,6 @@ bool recordingToAutotrack = false;
 
 //controls whether or not fragmenting is on
 bool isFragmenting = false;
-
-bool editingNote = false;
 
 //lets you drag the loop indicators around
 //0 is off, 1 is start, -1 is end, 2 is both
@@ -109,7 +104,7 @@ bool core1ready = false;
 
 unsigned char keyboardPitch = 36;//holds the lowest key the keyboard is playing
 
-uint16_t timestep;
+// uint16_t timestep;
 
 //humanize values are timing, velocity, and chance
 //i very well might go back to using this array instead of the humanizer object

@@ -1,3 +1,7 @@
+#define FIRMWARE_VERSION 0.9.2
+
+#include "pins.h"   //pin definitions
+
 #ifndef HEADLESS
 #include <vector>
 #include <algorithm>
@@ -31,6 +35,9 @@ extern "C" {
 #endif
 
 using namespace std;
+
+typedef uint16_t Timestep;
+typedef uint8_t TrackID;
 
 /*
 -----------------------------
@@ -81,6 +88,25 @@ struct PolarVertex2D;
 struct NoteTrackPair;
 struct EchoData;
 struct RandomData;
+struct NoteCoords;
+struct SequenceRenderSettings;
+
+enum LoopType : uint8_t{
+  NORMAL,
+  RANDOM,
+  RANDOM_SAME,
+  RETURN,
+  INFINITE
+};
+
+LoopType operator++(LoopType &c,int) {
+  c = static_cast<LoopType>(static_cast<uint8_t>(c) + 1);
+  return c;
+}
+LoopType operator--(LoopType &c,int) {
+  c = static_cast<LoopType>(static_cast<uint8_t>(c) - 1);
+  return c;
+}
 
 //Stores loop data as start,end,reps,and type
 struct Loop{
@@ -91,7 +117,7 @@ struct Loop{
   //the number of times-1 the loop will play before linking to the next loop. 0 sets the Loop to play once.
   uint8_t reps;
   //how the Loop links to the next Loop
-  uint8_t type;
+  LoopType type;
   /*
   Type:
   0 = go to next Loop
@@ -105,7 +131,7 @@ struct Loop{
       this->start = s;
       this->end = e;
       this->reps = r;
-      this->type = t;
+      this->type = static_cast<LoopType>(t);
   }
   uint16_t length(){
     return this->end-this->start;
@@ -130,13 +156,14 @@ uint16_t animOffset = 0;//for animating curves
 #include "functionPrototypes.h" //function prototypes (eventually these should all be refactored into respective files)
 #include "clock.h"              //timing functions
 #include "global.h"             //program boolean flags and global data, constants
-#include "hardwareControls.h"   //button defs and reading functions
+#include "hardware.h"   //button/input reading functions
 #include "utils.h"              //common helper functions/utilities
 
 //classes
-#include "classes/WireFrame.h"//wireframe stuff
+#include "graphics/WireFrame.h"//wireframe stuff
+#include "graphics/wireframeObjects.h"//wireframe stuff
 #include "classes/PlayList.h"
-#include "classes/Menu.h"
+#include "menus/StepchildMenu.h"
 #include "classes/Note.h"
 #include "classes/Track.h"
 #include "classes/Knob.h"
@@ -144,15 +171,26 @@ uint16_t animOffset = 0;//for animating curves
 #include "classes/AutoTrack.h"
 
 //original ChildOS fonts
-#include "fonts/7_segment.cpp"
-#include "fonts/cursive.cpp"
-#include "fonts/small.cpp"
-#include "fonts/arp.cpp"
-#include "fonts/italic.cpp"
-#include "fonts/chunky.cpp"
+#include "graphics/fonts/7_segment.cpp"
+#include "graphics/fonts/cursive.cpp"
+#include "graphics/fonts/small.cpp"
+#include "graphics/fonts/arp.cpp"
+#include "graphics/fonts/italic.cpp"
+#include "graphics/fonts/chunky.cpp"
+
+struct NoteCoords{
+  uint8_t x1;
+  int16_t length;
+  int16_t y1;
+  int16_t y2;
+  void offsetY(int16_t y){
+    y1+=y;
+    y2+=y;
+  }
+};
 
 //Basic graphic functions
-#include "graphics.h"
+#include "graphics/stepchildGraphics.h"
 
 //16 knobs for the 'controlknobs' instrument
 Knob controlKnobs[16];
@@ -177,14 +215,15 @@ void rotaryActionB_Handler(){
 #include "classes/NoteID.h"
 #include "classes/Progression.h"
 
-#include "scales.h"
 #include "CV.h"
 #include "playback.h"
-#include "interface.h"
 #include "programChange.h"
 
 //including custom users apps
 #include "applications/userApplications.h"
+#include "graphics/sequenceRender.h"
+
+#include "helperFunctions.h"
 
 //FX Apps
 #include "fx/randomMenu.cpp"
@@ -205,8 +244,15 @@ void rotaryActionB_Handler(){
 #include "applications/knobs.cpp"
 #include "applications/drumPads.cpp"
 #include "applications/xy.cpp"
+#include "applications/keyboard.h"
 
-#include "applications.h"
+#include "applications/applications.h"
+
+#ifndef HEADLESS
+#include "webInterface.h"
+#else
+void webInterface(){}
+#endif
 
 //Menus
 #include "menus/loopMenu.cpp"
@@ -215,10 +261,10 @@ void rotaryActionB_Handler(){
 #include "menus/fxMenu.cpp"
 #include "menus/arpMenu.cpp"
 #include "menus/autotrackMenu.cpp"
-#include "menus/trackMenu.cpp"
+#include "menus/trackMenus.cpp"
 #include "menus/settingsMenu.cpp"
 #include "menus/fileMenu.cpp"
-#include "menus/editMenu.cpp"
+#include "menus/noteEditMenu.cpp"
 #include "menus/clockMenu.cpp"
 #include "menus/mainMenu.cpp"
 #include "menus/midiMenu.cpp"
@@ -226,8 +272,6 @@ void rotaryActionB_Handler(){
 #include "trackEditing.h"
 #include "sleep.h"
 #include "fileSystem.h"
-#include "recording.h"
-#include "keyboard.h"
 #include "CCSelector.h"
 #include "grooves.h"
 #include "mainSequence.h"
