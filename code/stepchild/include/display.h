@@ -41,7 +41,7 @@ class USBSerialCaptureCard: public Adafruit_SSD1306{
     }
     void display(){
       if(sendScreenViaUSB)
-        >writeScreenToSerial();
+        writeScreenToSerial();
       Adafruit_SSD1306::display();//call the original display method
     }
 };
