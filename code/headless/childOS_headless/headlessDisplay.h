@@ -8,6 +8,7 @@ class Display{
     bool inverted = false;
     //used to tell the window that the emulation has updated the display
     bool displayUpdate = false;
+    bool sendScreenViaUSB = false;
     
     //for compatability with adafruit functions
     const int16_t WIDTH = 128;        ///< This is the 'raw' display width - never changes

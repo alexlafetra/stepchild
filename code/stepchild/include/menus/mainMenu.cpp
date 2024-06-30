@@ -55,7 +55,8 @@ void MainMenu::updateMainMenuWireFrame(){
     //PC
     case 7:
       icon = makeMonitor();
-      icon.rotate(15,2);
+      icon.rotate(-30,1);
+      icon.rotate(-10,0);
       break;
     //midi
     case 8:
@@ -103,6 +104,7 @@ void MainMenu::animateMainMenuWireFrame(){
     case 3:
       icon.rotate(3,1);
       break;
+    //disc
     case 4:
       icon.rotate(3,1);
       break;
@@ -110,16 +112,15 @@ void MainMenu::animateMainMenuWireFrame(){
     case 5:
       icon.rotate(3,1);
       break;
-    //rec
+    //die
     case 6:
       icon.rotate(1,0);
       icon.rotate(1,1);
       break;
-    //heart
+    //monitor
     case 7:
-      icon.rotate(3,1);
+      animateMonitor(icon,3.0,14);
       break;
-    
     //midi
     case 8:
       icon.rotate(3,1);

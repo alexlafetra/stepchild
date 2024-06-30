@@ -102,8 +102,12 @@ const unsigned char italic_z []  = {
 const unsigned char italic_x []  = {
 	0x6c, 0x78, 0x30, 0x30, 0x30, 0x78, 0xd8
 };
+// 'slash', 7x7px
+const unsigned char italic_slash [] = {
+	0x0c, 0x1c, 0x18, 0x38, 0x30, 0x70, 0x60
+};
 
-const unsigned char* italic_font[26] = {
+const unsigned char* italic_font[27] = {
 	italic_a,
 	italic_b,
 	italic_c,
@@ -129,7 +133,8 @@ const unsigned char* italic_font[26] = {
 	italic_w,
 	italic_x,
 	italic_y,
-	italic_z
+	italic_z,
+  italic_slash
 };
 void printItalic_wave(int16_t x, int16_t y, String text, int8_t height, uint8_t timing, uint16_t c){
   for(uint8_t i = 0; i<text.length(); i++){
@@ -299,6 +304,9 @@ void printItalic(int16_t x, int16_t y, char character, uint16_t c){
     case 'z':
       display.drawBitmap(x,y,italic_font[25],7,7,c);
       break;
+    case '/':
+      display.drawBitmap(x,y,italic_font[26],7,7,c);
+      break;
   }
 }
 void printItalic(int16_t x, int16_t y, String text, uint16_t c){
@@ -463,6 +471,9 @@ void printItalic(int16_t x, int16_t y, String text, uint16_t c){
         break;
       case 'z':
         display.drawBitmap(x+8*letter,y,italic_font[25],7,7,c);
+        break;
+      case '/':
+        display.drawBitmap(x+8*letter,y,italic_font[26],7,7,c);
         break;
     }
   }

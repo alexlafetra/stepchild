@@ -329,8 +329,8 @@ void screenSaver_playing(){
       return;
     }
     display.clearDisplay();
-    display.drawFastVLine(64,0,64,1);
-    // graphics.drawDottedLineH(64,0,64,2);
+    // display.drawFastVLine(64,0,64,1);
+    graphics.drawDottedLineV(64,0,64,2);
     vector<uint8_t> trackIDsWithPitches;
     for(uint8_t i = 0; i<sequence.trackData.size(); i++){
       if(sequence.noteData[i].size()>1){

@@ -357,16 +357,17 @@ NoteCoords getNoteCoords(Note& note, uint8_t track){
 }
 
 void drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSettings& settings){
+  
+  //if the note is currently superpositioned, draw it where it should be, but not if it's out of view
+  if(note.isSuperpositioned()){
+    noteCoords.offsetY(sequence.trackData[track].pitch - note.superposition.pitch);
+  }
   if(noteCoords.y2>=SCREEN_HEIGHT)
     return;
   else if(noteCoords.x1>=SCREEN_WIDTH)
     return;
-  //if the note is currently superpositioned, draw it where it should be, but not if it's out of view
-  if(note.isSuperpositioned()){
-    noteCoords.offsetY(note.superposition.pitch - sequence.trackData[track].pitch);
-  }
   //if it's not actively in superposition, BUT it has one and the cursor is over it, draw a rounded rect behind it
-  else if(note.superposition.pitch != 255 && sequence.cursorPos<note.endPos && sequence.cursorPos >= note.startPos && sequence.activeTrack == track){
+  if(!note.isSuperpositioned() && note.superposition.pitch != 255 && sequence.cursorPos<note.endPos && sequence.cursorPos >= note.startPos && sequence.activeTrack == track){
     int8_t offset = note.superposition.pitch-sequence.trackData[track].pitch;
     if(sequence.cursorPos == note.startPos){
         offset += (millis()/100)%2;
@@ -385,6 +386,10 @@ void drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSe
       display.drawLine(noteCoords.x1+1,noteCoords.y1+1, noteCoords.x1+noteCoords.length-1, noteCoords.y1+trackHeight-2,SSD1306_WHITE);
       display.drawLine(noteCoords.x1+1,noteCoords.y1+trackHeight-2,noteCoords.x1+noteCoords.length-1,noteCoords.y1+1,SSD1306_WHITE);
       display.drawFastVLine(noteCoords.x1+noteCoords.length,noteCoords.y1+1,trackHeight-2,SSD1306_BLACK);
+    }
+    else if(note.isSuperpositioned()){
+      graphics.fillRectWithMissingCorners(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_BLACK);
+      graphics.drawRectWithMissingCorners(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_WHITE);
     }
     else{
       uint8_t shade = settings.displayingVel?getVelShade(note.velocity):getChanceShade(note.chance);

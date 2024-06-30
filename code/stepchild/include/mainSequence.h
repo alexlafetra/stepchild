@@ -294,8 +294,13 @@ void mainSequencerButtons(){
       trackMenu();
     }
     if(controls.B()){
-      lastTime = millis();
-      editMenu();
+      if(controls.SHIFT() && sequence.IDAtCursor()){
+        setCursor(sequence.noteAtCursor().startPos);
+      }
+      else{
+        lastTime = millis();
+        editMenu();
+      }
     }
   }
 }
@@ -463,6 +468,16 @@ bool SuperpositionMenu::setSuperpositionControls(){
         note.superposition.pitch = 255;//set to 'unset' if it's on the same pitch
       }
       return false;
+    }
+    if(controls.PLAY()){
+      if(controls.SHIFT() || recording){
+        toggleRecordingMode(waitForNoteBeforeRec);
+        lastTime = millis();
+      }
+      else{
+        togglePlayMode();
+        lastTime = millis();
+      }
     }
     if(controls.DELETE()){
       lastTime = millis();

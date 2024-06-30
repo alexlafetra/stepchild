@@ -71,15 +71,15 @@ WireFrame SettingsMenu::getSettingsMenuWireFrame(){
     //pram
     case 1:
       w = makePram();
-      w.xPos = 100;
-      w.yPos = 20;
-      w.scale = 4;
+      w.xPos = 105;
+      w.yPos = 30;
+      w.scale = 1.8;
       break;
     //computer
     case 2:
       w = makeMonitor();
       w.xPos = 100;
-      w.yPos = 30;
+      w.yPos = 40;
       w.scale = 4;
       w.rotate(-30,1);
       w.rotate(-10,0);
@@ -97,8 +97,7 @@ void SettingsMenu::animateSettingsMenuWireFrame(){
       wireframe.rotate(2,1);
       break;
     case 2:
-      wireframe.yPos = 20+8.0*sin(millis()/600.0);
-      wireframe.rotate(PI/6.0*sin(millis()/400),1);
+      animateMonitor(wireframe,5.0,23);
       break;
   }
 }
@@ -113,11 +112,13 @@ bool SettingsMenu::settingsMenuControls(){
             menuTab++;
             lastTime = millis();
             wireframe = getSettingsMenuWireFrame();
+            xCursor = 0;
           }
           else if(controls.joystickY == -1 && menuTab>0){
             menuTab--;
             lastTime = millis();
             wireframe = getSettingsMenuWireFrame();
+            xCursor = 0;
           }
       }
       else{
@@ -142,7 +143,12 @@ bool SettingsMenu::settingsMenuControls(){
             break;
           case 1:
             break;
+          //PC/interface
           case 2:
+            if(controls.joystickY){
+              xCursor = xCursor == 1?2:1;
+              lastTime = millis();
+            }
             break;
         }
       }
@@ -189,12 +195,12 @@ bool SettingsMenu::settingsMenuControls(){
           break;
         //interface
         case 2:
-            if(controls.joystickX == -1 && xCursor<1){
-            xCursor++;
+          if(controls.joystickX == -1 && xCursor == 0){
+            xCursor = 1;
             lastTime = millis();
           }
-          else if(controls.joystickX == 1 && xCursor>0){
-            xCursor--;
+          else if(controls.joystickX == 1 && xCursor > 0){
+            xCursor = 0;
             lastTime = millis();
           }
           break;
@@ -294,7 +300,7 @@ bool SettingsMenu::settingsMenuControls(){
               break;
             //add time
             case 7:
-                  sequence.addTimeToSeq(96,sequence.sequenceLength);
+              sequence.addTimeToSeq(96,sequence.sequenceLength);
               lastTime = millis();
               break;
             //brightness
@@ -333,6 +339,11 @@ bool SettingsMenu::settingsMenuControls(){
           switch(xCursor){
             case 1:
               webInterface();
+              break;
+            //toggle screen sharing
+            case 2:
+              display.sendScreenViaUSB = !display.sendScreenViaUSB;
+              lastTime = millis();
               break;
           }
           break;
@@ -482,6 +493,7 @@ void SettingsMenu::displaySettingsMenu(uint8_t x2,uint8_t whichTemplate){
         printSmall(x1+6,y1+52,"U^",1);
         display.drawRoundRect(x1+18,y1+50,12,10,3,SSD1306_WHITE);
         printSmall(x1+21,y1+52,"B&",1);
+        printItalic(64,55,"CPU/MEM",1);
       }
       else if(xCursor == 1){
         display.fillRoundRect(x1,y1+50,16,10,3,SSD1306_WHITE);
@@ -506,17 +518,26 @@ void SettingsMenu::displaySettingsMenu(uint8_t x2,uint8_t whichTemplate){
     - button to connect to interface app (go into interface mode)
     */
     {
-      display.drawBitmap(20,6,screen_capture_bmp,20,20,1);
-      display.drawBitmap(20,30,connect_to_interface_bmp,20,20,1);
+      printItalic(44,0,"COMPUTER",1);
       switch(xCursor){
         case 0:
-          graphics.drawArrow(14+((millis()/200)%2),46,2,1,false);
+          graphics.drawArrow(14+((millis()/200)%2),41,2,1,false);
           break;
+        //interface
         case 1:
+          display.fillRoundRect(18,30,24,24,3,1);
+          graphics.drawArrow(44+((millis()/200)%2),43,4,1,true);
+          printSmall(0,59,"Connect to Web Interface",1);
           break;
+        //screen sharing
         case 2:
+          display.fillRoundRect(18,2+(display.sendScreenViaUSB?(millis()/100%2):0),24,24,3,1);
+          graphics.drawArrow(44+((millis()/200)%2),14,4,1,true);
+          printSmall(0,59,"share screen via USB",1);
           break;
       }
+      display.drawBitmap(20,4+(display.sendScreenViaUSB?(millis()/100%2):0),screen_capture_bmp,20,20,2);
+      display.drawBitmap(20,32,connect_to_interface_bmp,20,20,2);
     }
       break;
   }
@@ -568,20 +589,19 @@ void SettingsMenu::drawSettingsTabs(){
     uint8_t x1 = 36;
     uint8_t y1 = 124;
     display.drawFastVLine(x1,y1-6,7,1);
-    display.drawFastHLine(x1,y1-6,18,1);
-    printSmall(x1+2,y1-4,"intr",1);
-    display.drawFastVLine(x1+18,y1-6,7,1);
-    display.drawFastHLine(x1+19,y1,2,1);
+    display.drawFastHLine(x1,y1-6,10,1);
+    printSmall(x1+2,y1-4,"PC",1);
+    display.drawFastVLine(x1+10,y1-6,7,1);
+    display.drawFastHLine(x1+11,y1,8,1);
   }
   else{
     uint8_t x1 = 36;
     uint8_t y1 = 124;
     display.drawFastVLine(x1,y1-8,9,1);
-    display.drawFastHLine(x1,y1-8,18,1);
-    printSmall(x1+2,y1-6,"intr",1);
-    display.drawFastVLine(x1+18,y1-8,9,1);
-    display.drawFastHLine(x1+19,y1,2,1);
+    display.drawFastHLine(x1,y1-8,11,1);
+    printSmall(x1+2,y1-6,"PC",1);
+    display.drawFastVLine(x1+10,y1-8,9,1);
+    display.drawFastHLine(x1+11,y1,8,1);
   }
-  display.drawFastHLine(57,124,24,1);
   display.setRotation(2);
 }

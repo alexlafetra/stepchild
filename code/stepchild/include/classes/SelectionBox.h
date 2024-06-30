@@ -471,7 +471,7 @@ class ClipBoard{
     //add all selected notes to the copy buffer
     if(sequence.loopData[loopID].end-sequence.loopData[loopID].start>0){
       for(uint8_t track = 0; track<sequence.trackData.size(); track++){
-        for(uint16_t step = sequence.loopData[loopID].start; step<=sequence.loopData[loopID].end; step++){// <= bc notes aren't 0 indexed
+        for(uint16_t step = sequence.loopData[loopID].start; step<sequence.loopData[loopID].end; step++){// <= bc notes aren't 0 indexed
           if(sequence.lookupTable[track][step] != 0){
             this->buffer[track].push_back(sequence.noteData[track][sequence.lookupTable[track][step]]);
             //move to the end of the note, so it's not double-counted

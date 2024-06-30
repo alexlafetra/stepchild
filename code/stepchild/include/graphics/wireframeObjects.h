@@ -106,7 +106,10 @@ vector<uint8_t> getXClosestVerts(Vertex vert, WireFrame wf, uint8_t number){
   }
   return xClosestVerts;
 }
-
+void animateMonitor(WireFrame& wireframe, float mag, uint8_t yCoord){
+  wireframe.yPos = yCoord+mag*sin(millis()/600.0);
+  wireframe.rotate(PI/8.0*sin(millis()/400),1);
+}
 vector<WireFrame> animateRotation(vector<WireFrame> w, float angle, uint8_t speed, uint8_t axis, float xA, float yA, float zA, WireFrame frame){
   float animAngle = angle/speed;
   uint8_t count = 0;
