@@ -3,13 +3,13 @@ void drumPad(){
   while(true){
     controls.readButtons();
     mainSequencerStepButtons();
-    //midi messages from encoders when in keys/drumpads mode
+    //changing pitch range
     while(controls.counterA != 0){
-      if(controls.counterA >= 1 && keyboardPitch<127){
-        keyboardPitch++;
+      if(controls.counterA >= 1 && 36<127){
+        // 36++;
       }
-      else if(controls.counterA <= -1 && keyboardPitch>0){
-        keyboardPitch--;
+      else if(controls.counterA <= -1 && 36>0){
+        // 36--;
       }
       controls.counterA += controls.counterA<0?1:-1;
     }
@@ -45,7 +45,7 @@ void drumPad(){
       }
     }
     display.clearDisplay();
-    drawDrumPads(screenWidth-25,5,keyboardPitch - keyboardPitch%12,16);
+    drawDrumPads(screenWidth-25,5,36 - 36%12,16);
     display.display();
   }
   drumPadAnimation(screenWidth-25,5,36,16, false);

@@ -1,10 +1,10 @@
 class ClockMenu:public StepchildMenu{
   public:
-    float tVal;
+    float tVal = 0;
     float angle;
     ClockMenu(){
       tVal = micros();
-      angle = 1;
+      angle = 0;
       coords = CoordinatePair(0,0,35,64);
     }
     void displayMenu();
@@ -13,14 +13,33 @@ class ClockMenu:public StepchildMenu{
     void updatePendulum();
     bool clockMenuControls();
     void updateStepButtons();
+    void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val);
+    void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val,uint8_t r);
 };
+
+//draws a swinging pendulum, for the clock menu
+void ClockMenu::drawPendulum(int16_t x2, int16_t y2, int8_t length, float val, uint8_t r){
+  //pendulum
+  int a = length;
+  int h = x2;
+  int k = y2;
+  float x1 = h + a * cos(radians(val))/float(2.4);
+  float y1 = k + a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
+  display.drawLine(x1,y1,h,k,SSD1306_WHITE);
+  display.fillCircle(x1,y1,r,SSD1306_BLACK);
+  display.drawCircle(x1,y1,r,SSD1306_WHITE);
+}
+//draws a pendulum where "val" is a the angle of the pendulum
+void ClockMenu::drawPendulum(int16_t x2, int16_t y2, int8_t length, float val){
+  drawPendulum(x2,y2,length,val,3);
+}
 
 void ClockMenu::updatePendulum(){
   //for the clock pendulum
   if(sequenceClock.isSwinging)
-    angle += 1*(micros()-tVal)/(sequenceClock.uSecPerStep)+(sequenceClock.swingAmplitude/2000)*sin(PI*int(angle)/45);
+    angle += 4.0*(micros()-tVal)/(sequenceClock.uSecPerStep)+(sequenceClock.swingAmplitude/2000)*sin(PI*int(angle)/45);
   else
-    angle += 1*(micros()-tVal)/(sequenceClock.uSecPerStep);
+    angle += 4.0*(micros()-tVal)/(sequenceClock.uSecPerStep);
   tVal = micros();
 }
 
@@ -95,9 +114,18 @@ void ClockMenu::displayMenu(){
   updatePendulum();
   updateStepButtons();
   display.clearDisplay();
+
   //if you're on the swing menu, no need to draw the seq
-  if(cursor != 2)
-    drawSeq(false,false,false,false,false);
+  if(cursor != 2){
+    SequenceRenderSettings settings;
+    settings.trackLabels = false;
+    settings.topLabels = false;
+    settings.shrinkTopDisplay = false;
+    settings.loopPoints = false;
+    settings.drawLoopFlags = false;
+    settings.trackSelection = false;
+    drawSeq(settings);
+  }
   //lines
   display.drawFastHLine(trackDisplay,headerHeight,screenWidth-trackDisplay,SSD1306_WHITE);
   uint8_t x1 = 0;
@@ -172,7 +200,7 @@ void ClockMenu::displayMenu(){
   display.fillRoundRect(38+coords.start.y,13,9,19+x1,3,SSD1306_BLACK);
   display.drawRoundRect(38+coords.start.y,13,9,19+x1,3,SSD1306_WHITE);
   display.setRotation(1);
-  printSmall(screenHeight-29-x1,coords.start.y+40,"sequenceClock.BPM",SSD1306_WHITE);
+  printSmall(screenHeight-29-x1,coords.start.y+40,"BPM",SSD1306_WHITE);
   display.setRotation(2);
   //swing
   display.fillRoundRect(50+coords.start.y,13,9,27+x2,3,SSD1306_BLACK);
@@ -195,16 +223,18 @@ void ClockMenu::displayMenu(){
   //clock animation
   if(clockSource == INTERNAL_CLOCK){
       display.fillRect(0,coords.start.y,32,screenHeight-coords.start.y,SSD1306_BLACK);
-      graphics.drawPendulum(16,coords.start.y+23,26,tVal);
+      display.drawFastVLine(11,coords.start.y+33,31-coords.start.y,1);
+      display.drawFastVLine(20,coords.start.y+33,31-coords.start.y,1);
+      drawPendulum(16,coords.start.y+23,26,angle);
       display.fillRect(10,coords.start.y+23,12,10,SSD1306_BLACK);
       display.drawBitmap(6,coords.start.y+5,clock_1_bmp,20,38,SSD1306_WHITE);
-      x2 = 3*cos(millis()/200);
-      int8_t y2 = 3*((millis()/400)%2);
-      display.drawLine(15,coords.start.y+15,15+x2,coords.start.y+15+y2,SSD1306_BLACK);
+      
+      //drawing hands on clock
+      graphics.drawCircleRadian(15,coords.start.y+15,3,float(millis())/20.0,0);
   }
   else{
       display.fillRect(0,coords.start.y,32,screenHeight-coords.start.y,SSD1306_BLACK);
-      graphics.drawPendulum(16,coords.start.y+23,26,90);
+      drawPendulum(16,coords.start.y+23,26,90);
       display.fillRect(10,coords.start.y+23,12,10,SSD1306_BLACK);
       display.drawBitmap(6,coords.start.y+5,clock_1_bmp,20,38,SSD1306_WHITE);
       display.drawLine(15,coords.start.y+15,15,coords.start.y+13,SSD1306_BLACK);
@@ -379,7 +409,7 @@ void tapBpm(){
   display.drawFastHLine(0,8,screenWidth,SSD1306_WHITE);
   display.drawFastHLine(0,40,screenWidth,SSD1306_WHITE);
   display.setCursor(46,12);
-  display.print("sequenceClock.BPM");
+  display.print("BPM");
   display.setFont(&FreeSerifItalic9pt7b);
   display.setCursor(64-stringify(int(sequenceClock.BPM)).length()*4,35);
   print7SegNumber(64,35,sequenceClock.BPM,true);
@@ -413,7 +443,7 @@ void tapBpm(){
         display.drawFastHLine(0,8,screenWidth,SSD1306_WHITE);
         display.drawFastHLine(0,40,screenWidth,SSD1306_WHITE);
         display.setCursor(46,12);
-        display.print("sequenceClock.BPM");
+        display.print("BPM");
         display.setFont(&FreeSerifItalic9pt7b);
         display.setCursor(64-stringify(int(sequenceClock.BPM)).length()*4,35);
         display.print(sequenceClock.BPM);

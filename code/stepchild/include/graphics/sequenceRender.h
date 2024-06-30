@@ -147,7 +147,7 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
         }
       }
       if(movingLoop == 2){
-        if(step>sequence.loopData[sequence.activeLoop].start && step<sequence.loopData[sequence.activeLoop].end && step%2){
+        if(step>sequence.loopData[sequence.activeLoop].start && step<sequence.loopData[sequence.activeLoop].end && settings.startHeight>8){
           display.drawPixel(trackDisplay+(step-settings.start)*sequence.viewScale, settings.startHeight-7-sin(millis()/50),SSD1306_WHITE);
         }
       }
@@ -265,7 +265,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
 
   //swing icon
   if(sequenceClock.isSwinging){
-    graphics.drawPendulum(x1+2,0,7,millis()/2,1);
+//    graphics.drawPendulum(x1+2,0,7,millis()/2,1);
     x1+=10;
   }
   //fragment gem

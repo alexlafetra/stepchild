@@ -541,7 +541,7 @@ void drawArpMenu(uint8_t cursor){
       break;
   }
 
-  drawKeys(38,14,getOctave(keyboardPitch),14,false);//always start on a C, for simplicity
+  drawKeys(38,14,getOctave(36),14,false);//always start on a C, for simplicity
   
   //title
   printArp_wiggly(0,3,"arpeggi",1);

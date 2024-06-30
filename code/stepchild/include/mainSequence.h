@@ -473,10 +473,13 @@ bool SuperpositionMenu::setSuperpositionControls(){
       if(controls.SHIFT() || recording){
         toggleRecordingMode(waitForNoteBeforeRec);
         lastTime = millis();
+        if(recording)
+          menuText = "ready!";
       }
       else{
         togglePlayMode();
         lastTime = millis();
+        menuText = playing?"playing!":"stopped";
       }
     }
     if(controls.DELETE()){

@@ -817,6 +817,15 @@ WireFrame makeGraphBox(float offset){
   box.rotate(15,0);
   return box;
 }
+
+float limit(float target,float min,float max){
+  if(target<min)
+    return min;
+  else if(target>max)
+    return max;
+  return target;
+}
+
 //makes a metronome (with an adjustable angle)
 WireFrame makeMetronome(float offset){
   //8 verts for box
@@ -836,7 +845,9 @@ WireFrame makeMetronome(float offset){
 
   //two for stick
   Vertex v11 = Vertex(0,1,1.75);//lower
-  Vertex v12 = Vertex(offset,-5.5,1.75);//upper
+  Coordinate r = utils.getRadian(0,1,5,5,30.0*cos(offset)+90.0);
+  Vertex v12 = Vertex(r.x,-r.y,1.75);//upper
+  // Vertex v12 = Vertex(5.0*cos(offset),-5.5+limit(sin(offset/PI),0,1),1.75);//upper
 
   vector<Vertex> verties = {v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12};
   vector<vector<uint8_t>> edges = {{0,1},{1,2},{2,3},{3,0},//top
@@ -1378,7 +1389,7 @@ void loopArrowAnimation(WireFrame* w){
 
 void metAnimation(WireFrame* w){
   //make a new folder wireframe with the right open amount
-  WireFrame  n = makeMetronome(5*((millis()/400)%2));
+  WireFrame  n = makeMetronome(float((millis())/100.0));
   //rotate it so it's at the same position as the current folder
   n.rotate(w->currentAngle[1],1);
   //then swap their vertices

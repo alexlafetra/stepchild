@@ -133,7 +133,7 @@ void MainMenu::animateMainMenuWireFrame(){
     //clock
     case 10:
       metAnimation(&icon);
-      icon.yPos = 16 + 2*sin(millis()/400);
+      icon.yPos = 16 + 2*sin(float(millis())/400);
       break;
     //arp
     case 11:

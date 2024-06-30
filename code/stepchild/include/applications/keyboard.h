@@ -164,7 +164,7 @@ void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numbe
           pressed = true;
         }
         if(pressed){
-          if(pad == keyboardPitch && controls.SHIFT()){//so that you can see the keyboard pitch when shifting through
+          if(pad == 36 && controls.SHIFT()){//so that you can see the keyboard pitch when shifting through
             drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i+2, width, thickness, width-4, xSlant,0);
           }
           else
@@ -178,7 +178,7 @@ void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numbe
           }
         }
         else{
-          if(pad == keyboardPitch && controls.SHIFT()){//so that you can see the keyboard pitch when shifting through
+          if(pad == 36 && controls.SHIFT()){//so that you can see the keyboard pitch when shifting through
             drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i, width, thickness, width-4, xSlant,0);
           }
           else
@@ -195,7 +195,7 @@ void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numbe
   if(controls.SHIFT()){
     display.setCursor(0,0);
     display.setTextSize(2);
-    display.print(getOctave(keyboardPitch));
+    display.print(getOctave(36));
     display.setTextSize(1);
   }
 }
@@ -279,13 +279,13 @@ void keyboard(){
         break;
       }
     }
-    //midi messages from encoders when in keys/drumpads mode
+    //changing pitch range
     while(controls.counterA != 0){
-      if(controls.counterA >= 1 && keyboardPitch<127){
-        keyboardPitch++;
+      if(controls.counterA >= 1 && 36<127){
+        // 36++;
       }
-      else if(controls.counterA <= -1 && keyboardPitch>0){
-        keyboardPitch--;
+      else if(controls.counterA <= -1 && 36>0){
+        // 36--;
       }
       controls.counterA += controls.counterA<0?1:-1;
     }
@@ -300,7 +300,7 @@ void keyboard(){
       }
     }
     display.clearDisplay();
-    drawKeys(0,5,getOctave(keyboardPitch),14,true);//always start on a C, for simplicity
+    drawKeys(0,5,getOctave(36),14,true);//always start on a C, for simplicity
     display.display();
   }
   keyboardAnimation(0,5,0,14,false);

@@ -369,12 +369,13 @@ class StepchildGraphics{
     display.drawLine(x1, y1, h, k, c);
   }
   void drawCircleRadian(uint8_t h, uint8_t k, int r, float angle, uint16_t c) {
+    //can't % this bc it's a float
     while(angle>360){
       angle-=360;
     }
     float x1 = h + r * cos(radians(angle));
     float y1;
-    if (angle > 180) {
+    if (angle > 180.0) {
       y1 = k - r * sqrt(1 - pow((x1 - h), 2) / pow(r, 2));
     }
     else {
@@ -627,24 +628,6 @@ class StepchildGraphics{
     int8_t pX = 12*cos(angle);
     display.drawLine(x1+9,y1+12,x1+10+pX,y1+12-pY,SSD1306_BLACK);
     display.drawRect(x1,y1,19,14,SSD1306_WHITE);
-  }
-  //draws a swinging pendulum, for the clock menu
-  void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val,uint8_t r){
-    //pendulum
-    int a = length;
-    int h = x2;
-    int k = y2;
-    float x1;
-    float y1;
-    x1 = h + a * cos(radians(val))/float(2.4);
-    y1 = k + a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
-    display.drawLine(x1,y1,h,k,SSD1306_WHITE);
-    display.fillCircle(x1,y1,r,SSD1306_BLACK);
-    display.drawCircle(x1,y1,r,SSD1306_WHITE);
-  }
-  //draws a pendulum where "val" is a the angle of the pendulum
-  void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val){
-    this->drawPendulum(x2,y2,length,val,3);
   }
   void drawLabel_outline(uint8_t x1, uint8_t y1, String text){
     display.fillRoundRect(x1-text.length()*2+countSpaces(text)-3,y1-2,text.length()*4-countSpaces(text)*2+5,9,3,0);

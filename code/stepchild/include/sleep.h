@@ -271,7 +271,7 @@ void screenSaver_keys(){
   //loop that runs while the screensaver is active
   while(true){
     display.clearDisplay();
-    drawKeys(0,5,getOctave(keyboardPitch),14,true);//always start on a C, for simplicity
+    drawKeys(0,5,getOctave(36),14,true);//always start on a C, for simplicity
     display.display();
     //checking if any buttons are pressed and breaking out of the loop if so
     if(controls.anyActiveInputs()){
