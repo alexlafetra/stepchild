@@ -273,10 +273,10 @@ void NoteEditMenu::displayMenu(){
   }
   //draw cursor bracket
   if(sequence.IDAtCursor() != 0)
-    graphics.drawNoteBracket(sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][sequence.cursorPos]],sequence.activeTrack);
+    drawNoteBracket(sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][sequence.cursorPos]],sequence.activeTrack,settings);
   //or draw brackets around the selection
   if(sequence.selectionCount > 0)
-    graphics.drawSelectionBracket();
+    drawSelectionBracket(settings);
   display.display();
 }
 

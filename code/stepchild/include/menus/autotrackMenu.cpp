@@ -1476,11 +1476,11 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
         }
 
         //playhead
-        if(playing && ((sequence.autotrackData[sequence.activeAutotrack].triggerSource == global && step == playheadPos) || (sequence.autotrackData[sequence.activeAutotrack].triggerSource != global && step == sequence.autotrackData[sequence.activeAutotrack].playheadPos)))
+        if(playing && ((sequence.autotrackData[sequence.activeAutotrack].triggerSource == global && step == sequence.playheadPos) || (sequence.autotrackData[sequence.activeAutotrack].triggerSource != global && step == sequence.autotrackData[sequence.activeAutotrack].playheadPos)))
           display.drawRoundRect(32+(step-sequence.viewStart)*sequence.viewScale,0,3,screenHeight,3,SSD1306_WHITE);
         
         //rechead
-        if(recording && recheadPos == step)
+        if(recording && sequence.recheadPos == step)
           display.drawRoundRect(32+(step-sequence.viewStart)*sequence.viewScale,0,3,screenHeight,3,SSD1306_WHITE);
 
         //loop points
@@ -1556,10 +1556,10 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     uint8_t height;
     uint8_t val;
     if(playing){
-      if(sequence.autotrackData[sequence.activeAutotrack].data[sequence.autotrackData[sequence.activeAutotrack].triggerSource==global?playheadPos:sequence.autotrackData[sequence.activeAutotrack].playheadPos] == 255)
-        val = getLastDTVal(sequence.autotrackData[sequence.activeAutotrack].triggerSource==global?playheadPos:sequence.autotrackData[sequence.activeAutotrack].playheadPos,sequence.activeAutotrack);
+      if(sequence.autotrackData[sequence.activeAutotrack].data[sequence.autotrackData[sequence.activeAutotrack].triggerSource==global?sequence.playheadPos:sequence.autotrackData[sequence.activeAutotrack].playheadPos] == 255)
+        val = getLastDTVal(sequence.autotrackData[sequence.activeAutotrack].triggerSource==global?sequence.playheadPos:sequence.autotrackData[sequence.activeAutotrack].playheadPos,sequence.activeAutotrack);
       else
-        val = sequence.autotrackData[sequence.activeAutotrack].data[sequence.autotrackData[sequence.activeAutotrack].triggerSource==global?playheadPos:sequence.autotrackData[sequence.activeAutotrack].playheadPos];
+        val = sequence.autotrackData[sequence.activeAutotrack].data[sequence.autotrackData[sequence.activeAutotrack].triggerSource==global?sequence.playheadPos:sequence.autotrackData[sequence.activeAutotrack].playheadPos];
     }
     else{
       if(sequence.autotrackData[sequence.activeAutotrack].data[sequence.cursorPos] == 255)
@@ -1575,7 +1575,7 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     //drawing sent data
     display.setRotation(1);
     if(playing){
-      printSmall(barHeight/2-stringify(getLastDTVal(sequence.autotrackData[sequence.activeAutotrack].triggerSource==global?playheadPos:sequence.autotrackData[sequence.activeAutotrack].playheadPos,sequence.activeAutotrack)).length()*2,3,stringify(getLastDTVal(sequence.autotrackData[sequence.activeAutotrack].triggerSource==global?playheadPos:sequence.autotrackData[sequence.activeAutotrack].playheadPos,sequence.activeAutotrack)),2);
+      printSmall(barHeight/2-stringify(getLastDTVal(sequence.autotrackData[sequence.activeAutotrack].triggerSource==global?sequence.playheadPos:sequence.autotrackData[sequence.activeAutotrack].playheadPos,sequence.activeAutotrack)).length()*2,3,stringify(getLastDTVal(sequence.autotrackData[sequence.activeAutotrack].triggerSource==global?sequence.playheadPos:sequence.autotrackData[sequence.activeAutotrack].playheadPos,sequence.activeAutotrack)),2);
     }
     else{
       printSmall(barHeight/2-stringify(getLastDTVal(sequence.cursorPos,sequence.activeAutotrack)).length()*2,3,stringify(getLastDTVal(sequence.cursorPos,sequence.activeAutotrack)),2);
@@ -1835,9 +1835,14 @@ void drawAutotrackViewer(uint8_t firstTrack){
   const uint8_t x1 = 101;
   const uint8_t y1 = 38;
   //Drawing our robot bud
-  if((playing || recording) && atLeastOneActiveAutotrack())
-    // switch(millis()/500%4){
-    switch((playing?sequence.autotrackData[sequence.activeAutotrack].playheadPos:recheadPos)/24%4){
+  if(playing && atLeastOneActiveAutotrack()){
+    uint16_t position = 0;
+    //if the autotrack is triggering, then use its internal playhead
+    if(sequence.autotrackData[sequence.activeAutotrack].triggerSource != global)
+      position = sequence.autotrackData[sequence.activeAutotrack].playheadPos;
+    else
+      position = sequence.playheadPos;
+    switch((position/24)%4){
       case 0:
         display.drawBitmap(x1+1,y1+3,robo3_mask,18,17,0);
         display.drawBitmap(x1,y1,robo3,21,24,1);
@@ -1854,6 +1859,7 @@ void drawAutotrackViewer(uint8_t firstTrack){
         display.drawBitmap(x1+9,y1+2,robo5_mask,12,17,0);
         display.drawBitmap(x1+9,y1,robo6,18,24,1);
         break;
+    }
   }
   else{
     display.drawBitmap(x1+9,y1+2,robo1_mask,12,17,0);
@@ -1877,7 +1883,7 @@ void drawMiniDT(uint8_t x1, uint8_t y1, uint8_t height, uint8_t which){
         else
           display.drawLine(x1+(i-sequence.loopData[sequence.activeLoop].start)*sc, y1+yScale*(127-getLastDTVal(i,which)),x1+(i+1-sequence.loopData[sequence.activeLoop].start)*sc-1, y1+yScale*(127-getLastDTVal(i+1,which)),SSD1306_WHITE);
         if(playing){
-          if((sequence.autotrackData[which].triggerSource == global && i == playheadPos) || (sequence.autotrackData[which].triggerSource != global && i == sequence.autotrackData[which].playheadPos)){
+          if((sequence.autotrackData[which].triggerSource == global && i == sequence.playheadPos) || (sequence.autotrackData[which].triggerSource != global && i == sequence.autotrackData[which].playheadPos)){
             display.drawFastVLine(x1+(i-sequence.loopData[sequence.activeLoop].start)*sc,y1,height,SSD1306_WHITE);
           }
         }

@@ -84,7 +84,6 @@ void writeNoteOn(unsigned short int step, uint8_t pitch, uint8_t vel, uint8_t ch
 void printItalic(int16_t x, int16_t y, char character, uint16_t c);
 void printItalic(int16_t x, int16_t y, String text, uint16_t c);
 void drawLogo(uint8_t x1, uint8_t y1);
-void displaySeq();
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection);
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, bool shadeOutsideLoop, uint16_t start, uint16_t end);
 void drawDisplay();
@@ -274,8 +273,8 @@ uint32_t getByteCount_standAlone(String filename);
 //Misc. helper functions
 vector<uint16_t> getSelectedNotesBoundingBox();
 vector<uint8_t> selectKeys(uint8_t startRoot);
-vector<uint8_t> genScale(uint8_t, uint8_t);
-vector<uint8_t> genScale(uint8_t, uint8_t, int8_t,uint8_t);
+vector<uint8_t> genScale(ScaleName, uint8_t);
+vector<uint8_t> genScale(ScaleName, uint8_t, int8_t,uint8_t);
 float swingOffset(unsigned short int step);
 String stepsToMeasures(int32_t stepVal);
 void changeSubDivInt(bool);
@@ -283,7 +282,7 @@ String pitchToString(uint8_t input, bool oct, bool sharps);
 bool isInVector(int val, vector<uint8_t> vec);
 uint8_t getLowestVal(vector<uint8_t> vec);
 String stepsToPosition(int steps,bool verby);
-int getOctave(int val);
+int16_t getOctave(int val);
 void changeFragmentSubDivInt(bool down);
 void toggleFragmentTriplets();
 void keyboard();

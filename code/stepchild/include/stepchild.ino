@@ -35,7 +35,7 @@ void setup() {
   // these two strings must be exactly 32 characters long:
   //                                   0123456789ABCDEF0123456789ABCDEF
   USBDevice.setManufacturerDescriptor("Alex LaFetra Thompson           ");
-  USBDevice.setProductDescriptor     ("Stepchild FIRMWARE_VERSION                  ");
+  USBDevice.setProductDescriptor     ("Stepchild Firmware 0.9.2        ");
   #endif
 
 

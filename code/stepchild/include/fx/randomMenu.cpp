@@ -137,7 +137,7 @@ void drawCoordinateBox(CoordinatePair coords){
     }
 
     //if it's offscreen, return
-    if(X2<=sequence.viewStart || X1>=sequence.viewEnd || Y1 > startTrack+maxTracksShown || Y2<startTrack){
+    if(X2<=sequence.viewStart || X1>=sequence.viewEnd || Y1 > sequence.startTrack+maxTracksShown || Y2<sequence.startTrack){
       return;
     }
 
@@ -147,18 +147,18 @@ void drawCoordinateBox(CoordinatePair coords){
     if(X2>sequence.viewEnd){
       X2 = sequence.viewEnd;
     }
-    if(Y1<startTrack){
-      Y1 = startTrack;
+    if(Y1<sequence.startTrack){
+      Y1 = sequence.startTrack;
     }
-    if(Y2>(startTrack+maxTracksShown)){
-      Y2 = startTrack+maxTracksShown;
+    if(Y2>(sequence.startTrack+maxTracksShown)){
+      Y2 = sequence.startTrack+maxTracksShown;
     }
     uint8_t startX = trackDisplay+(X1-sequence.viewStart)*sequence.viewScale;
     uint8_t length = (X2-X1)*sequence.viewScale;
     // uint8_t startHeight = maxTracksShown==5?headerHeight:8;
     uint8_t startHeight = headerHeight;
-    uint8_t startY = (Y1-startTrack)*trackHeight+startHeight;
-    uint8_t height = ((Y2 - startTrack + 1)*trackHeight - startY)%(screenHeight-startHeight) + startHeight;
+    uint8_t startY = (Y1-sequence.startTrack)*trackHeight+startHeight;
+    uint8_t height = ((Y2 - sequence.startTrack + 1)*trackHeight - startY)%(screenHeight-startHeight) + startHeight;
    
    if((millis())%400>200){
       graphics.shadeRect(startX,startY,length,height,3);
@@ -694,6 +694,11 @@ bool randMenuControls(uint8_t * whichTab){
 
 void randMenu(){
     //start by jumping into randomizer
+    randomData.maxLength = sequence.subDivision;
+    if(sequence.subDivision/2 > 1)
+      randomData.minLength = sequence.subDivision/2;
+    else
+      randomData.minLength = sequence.subDivision;
     genRandom(randomData);
     //once the user exits, build them the options screen:
 

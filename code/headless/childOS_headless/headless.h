@@ -74,7 +74,7 @@
 
 using namespace std;
 
-int headlessCounterA, headlessCounterB;
+int headlessCounterA = 0, headlessCounterB = 0;
 
 bool core0ready;
 bool playing = false;
@@ -546,7 +546,7 @@ GLFWwindow* initGlfw(){
 }
 
 //custom circle drawing
-void glCircle(int x1, int y1, int r, int numberOfVertices){
+void glFillCircle(int x1, int y1, int r, int numberOfVertices){
     float theta = 2.0*PI/float(numberOfVertices);
     glBegin(GL_POLYGON);
     for(int i = 0; i<numberOfVertices; i++){
@@ -554,40 +554,143 @@ void glCircle(int x1, int y1, int r, int numberOfVertices){
     }
     glEnd();
 }
+//custom circle drawing
+void glDrawCircle(int x1, int y1, int r, int numberOfVertices){
+    glLineWidth(5);//set stroke width
+    float theta = 2.0*PI/float(numberOfVertices);
+    glBegin(GL_LINE_LOOP);
+    for(int i = 0; i<numberOfVertices; i++){
+        glVertex2f(r*cos(i*theta)+x1,r*sin(i*theta)+y1);
+    }
+    glEnd();
+}
+
+void glDrawRadian(int x, int y, int r, float angle){
+    float x2 = r*cos(angle)+x;
+    float y2 = r*sin(angle)+y;
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(x,y);
+    glVertex2f(x2,y2);
+    glEnd();
+}
+
+void glFillCircleSegment(float cx, float cy, float r, int startAngle, int endAngle) {
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(cx, cy);
+    for (int i = startAngle; i <= endAngle; i++) {
+        float theta = i * 3.1415926f / 180.0f;
+        float x = r * cosf(theta);
+        float y = r * sinf(theta);
+        glVertex2f(cx + x, cy + y);
+    }
+    glEnd();
+}
+
+void glFillRoundRect(float x, float y, float width, float height, float radius) {
+    if (radius > width / 2.0f) radius = width / 2.0f;
+    if (radius > height / 2.0f) radius = height / 2.0f;
+
+    float right = x + width;
+    float top = y + height;
+    float left = x;
+    float bottom = y;
+
+    // Center rectangle
+    glBegin(GL_QUADS);
+    glVertex2f(left + radius, bottom);
+    glVertex2f(right - radius, bottom);
+    glVertex2f(right - radius, top);
+    glVertex2f(left + radius, top);
+    glEnd();
+
+    // Left rectangle
+    glBegin(GL_QUADS);
+    glVertex2f(left, bottom + radius);
+    glVertex2f(left + radius, bottom + radius);
+    glVertex2f(left + radius, top - radius);
+    glVertex2f(left, top - radius);
+    glEnd();
+
+    // Right rectangle
+    glBegin(GL_QUADS);
+    glVertex2f(right - radius, bottom + radius);
+    glVertex2f(right, bottom + radius);
+    glVertex2f(right, top - radius);
+    glVertex2f(right - radius, top - radius);
+    glEnd();
+
+    // Bottom rectangle
+    glBegin(GL_QUADS);
+    glVertex2f(left + radius, bottom);
+    glVertex2f(right - radius, bottom);
+    glVertex2f(right - radius, bottom + radius);
+    glVertex2f(left + radius, bottom + radius);
+    glEnd();
+
+    // Top rectangle
+    glBegin(GL_QUADS);
+    glVertex2f(left + radius, top - radius);
+    glVertex2f(right - radius, top - radius);
+    glVertex2f(right - radius, top);
+    glVertex2f(left + radius, top);
+    glEnd();
+
+    // Bottom-left corner
+    glFillCircleSegment(left + radius, bottom + radius, radius, 180, 270);
+
+    // Bottom-right corner
+    glFillCircleSegment(right - radius, bottom + radius, radius, 270, 360);
+
+    // Top-right corner
+    glFillCircleSegment(right - radius, top - radius, radius, 0, 90);
+
+    // Top-left corner
+    glFillCircleSegment(left + radius, top - radius, radius, 90, 180);
+}
 
 //checks for a window update, then draws pixels to the openGL window using the 'screenPixels' buffer
 void displayWindow(void)
 {
     //update the display if there's been an update
     if(display.displayUpdate && openGLready){
-//        glClearColor( 0.0f, 0.0f, 0.2f, 0.0f ); //dark transparent blue
-        glClearColor(0.0f,0.0f,0.0f,1.0f);
+        
+        //filling bg with white
+        glClearColor(1.0f,1.0f,1.0f,1.0f);//white
+//        glClearColor(0.0f,0.0f,0.0f,0.0f);//clear
         glClear( GL_COLOR_BUFFER_BIT);
-        for(int j = 0;j<64; j++){
-            for(int i = 0; i<128; i++){
-                //draw white pixelsg
-                if(screenPixels[i][j] == 1){
-//                    glColor3f(0.6, 0.6, 0.0); //dark yellow
-//                    glColor3f(0.9,0.9,0.0); //bright yellow
-                    glColor4f(1.0,1.0,1.0,1.0);
-                }
-                else{
-//                    glColor4f( 0.0f, 0.0f, 0.2f, 0.8f); //dark transparent blue
-                    glColor4f(0.0,0.0,0.0,1.0);
-                }
-                int x1 = i+1;
-                int y1 = 63 - j;
-                glBegin(GL_POLYGON);
-                glVertex2f(sideBorder+x1*windowScale, topBorder+y1*windowScale);
-                glVertex2f(sideBorder+x1*windowScale-1*windowScale, topBorder+y1*windowScale);
-                glVertex2f(sideBorder+x1*windowScale-1*windowScale, topBorder+y1*windowScale+1*windowScale);
-                glVertex2f(sideBorder+x1*windowScale, topBorder+y1*windowScale+1*windowScale);
-                glEnd();
-            }
-        }
-        //drawing leds
+        
         int w, h;
         glfwGetWindowSize(window, &w, &h);
+        
+        //drawing rounded rect to emulate screen border
+        glColor3f(0.0,0.0,0.0);
+        glFillRoundRect(sideBorder-10,topBorder-10, w-2*sideBorder+20, h-2*topBorder+20, 20);
+        
+        //drawing buttons
+        const int buttonX = (sideBorder-10)/2;
+        const int buttonY = topBorder - 25;
+        const int buttonGap = 30;
+        glColor3f(1.0,0.0,0.0); //delete
+        deleteKeyVal?glDrawCircle(buttonX,buttonY+buttonGap,10,20):glFillCircle(buttonX,buttonY+buttonGap,10,20);
+        glColor3f(1.0,1.0,0.0); //select
+        selectKeyVal?glDrawCircle(buttonX,buttonY+2*buttonGap,10,20):glFillCircle(buttonX,buttonY+2*buttonGap,10,20);
+        glColor3f(0.9,0.9,0.9); //shift
+        shiftKeyVal?glDrawCircle(buttonX,buttonY+3*buttonGap,10,20):glFillCircle(buttonX,buttonY+3*buttonGap,10,20);
+        glColor3f(0.0,1.0,0.0); //new
+        newKeyVal?glDrawCircle(buttonX,buttonY+4*buttonGap,10,20):glFillCircle(buttonX,buttonY+4*buttonGap,10,20);
+        
+        glColor3f(0.0,0.0,1.0); //Loop
+        loopKeyVal?glDrawCircle(buttonX+buttonGap,buttonY,10,20):glFillCircle(buttonX+buttonGap,buttonY,10,20);
+        glColor3f(0.9,0.9,0.9); //play
+        playKeyVal?glDrawCircle(buttonX+2*buttonGap,buttonY,10,20):glFillCircle(buttonX+2*buttonGap,buttonY,10,20);
+        glColor3f(0.6,0.6,0.6); //copy
+        copyKeyVal?glDrawCircle(buttonX+3*buttonGap,buttonY,10,20):glFillCircle(buttonX+3*buttonGap,buttonY,10,20);
+        glColor3f(0.0,0.0,0.0); //menu
+        menuKeyVal?glDrawCircle(buttonX+4*buttonGap,buttonY,10,20):glFillCircle(buttonX+4*buttonGap,buttonY,10,20);
+        
+        //drawing leds
+        const int ledStartX = (buttonX+5*buttonGap);
+        const int ledLength = w/3;
         for(int i = 0; i<16; i++){
             if(leds[i]){
                 glColor3f(1.0,0.0,0.0); //red
@@ -595,8 +698,57 @@ void displayWindow(void)
             else{
                 glColor3f(0.0,0.0,0.0); //dark
             }
-            glCircle(w/16*i+w/16,(i%2)?10:30,10,20);
+            glFillCircle((ledLength)/16*i+ledStartX,(i%2)?buttonY-20:buttonY,10,20);
         }
+        
+        //joystick
+        int yOffset = 0;
+        if(yKeyVal>0)
+            yOffset = -10;
+        else if(yKeyVal<0)
+            yOffset = 10;
+        int xOffset = 0;
+        if(xKeyVal>0)
+            xOffset = -10;
+        else if(xKeyVal<0)
+            xOffset = 10;
+        glColor3f(0.0,0.0,0.0);
+        glDrawCircle(ledStartX + ledLength + 20, buttonY-10, 25, 20);
+        glFillCircle(ledStartX + ledLength + 20 + xOffset, buttonY-10 + yOffset, 20, 20);
+        
+        //drawing encoders
+        const int encoderXStart = w - sideBorder/2+10;
+        const int encoderYStart = h - topBorder - 10;
+        float aAngle = float(encASTATE)/16.0 * 2.0*PI;
+        float bAngle = float(encBSTATE)/16.0 * 2.0*PI;
+        glColor3f(0.0,0.0,0.0); //dark
+        glDrawCircle(encoderXStart, encoderYStart, 15, 20);
+        if(!encAPRESS)
+            glDrawRadian(encoderXStart,encoderYStart,15,aAngle);
+        glDrawCircle(encoderXStart, encoderYStart - 40, 15, 20);
+        if(!encBPRESS)
+            glDrawRadian(encoderXStart,encoderYStart-40,15,bAngle);
+
+
+        
+        //drawing pixels
+        for(int j = 0;j<64; j++){
+            for(int i = 0; i<128; i++){
+                //draw white pixels
+                if(screenPixels[i][j] == 1){
+                    glColor4f(1.0,1.0,1.0,1.0);
+                    int x1 = i+1;
+                    int y1 = 63 - j;
+                    glBegin(GL_POLYGON);
+                    glVertex2f(sideBorder+x1*windowScale, topBorder+y1*windowScale);
+                    glVertex2f(sideBorder+x1*windowScale-1*windowScale, topBorder+y1*windowScale);
+                    glVertex2f(sideBorder+x1*windowScale-1*windowScale, topBorder+y1*windowScale+1*windowScale);
+                    glVertex2f(sideBorder+x1*windowScale, topBorder+y1*windowScale+1*windowScale);
+                    glEnd();
+                }
+            }
+        }
+        
         glFlush();
         glfwSwapBuffers(window);
         display.displayUpdate = false;
@@ -611,6 +763,7 @@ void Display::display(void){
         glfwTerminate();
         exit(0);
     }
+    //pushing the display buffer into screenpixels
     for(int column = 0;column<128;column++){
         for(int row = 0; row<64; row++){
             screenPixels[column][row] = displayBuffer[column][row];

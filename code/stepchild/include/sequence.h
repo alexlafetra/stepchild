@@ -9,20 +9,23 @@ class StepchildSequence{
     uint16_t cursorPos = 0;
 
     //Not implemented yet! Still using global vars
-    uint16_t readHead = 0; 
-    uint16_t writeHead = 0;
+    uint16_t recheadPos = 0;
+    uint16_t playheadPos = 0;
 
     vector<Loop> loopData;
     uint8_t activeLoop = 0;
     uint8_t isLooping = true;
-    uint8_t loopCount;
+    uint8_t loopCount = 0;
 
     vector<Autotrack> autotrackData;
-    uint8_t activeAutotrack;
+    uint8_t activeAutotrack = 0;
 
     uint16_t sequenceLength;
-    uint16_t viewStart;
-    uint16_t viewEnd;
+    uint16_t viewStart = 0;
+    uint16_t viewEnd = 192;
+    bool shrinkTopDisplay = false;
+    uint8_t startTrack = 0;
+    uint8_t endTrack = 4;
     float viewScale = 0.5;
 
     uint8_t subDivision = 24;
@@ -280,6 +283,11 @@ class StepchildSequence{
         else if(step == this->noteAt(track,step).startPos)
             this->deleteNote(track, step);
     }
+    void makeNoteEveryNDivisions(uint8_t n){
+        for(uint16_t step = viewStart; step<viewEnd; step+=(n*subDivision)){
+            makeNote(activeTrack,step,subDivision,false);
+        }
+    }
     /*
     ----------------------------------------------------------
                         EDITING NOTES
@@ -298,6 +306,7 @@ class StepchildSequence{
                     this->noteData[track][id].velocity = 0;
                 else
                     this->noteData[track][id].velocity = vel;
+                break;
             }
             case PITCH:{
 
@@ -311,6 +320,7 @@ class StepchildSequence{
                     this->noteData[track][id].chance = 0;
                 else
                     this->noteData[track][id].chance = chance;
+                break;
             }
         }
     }
@@ -341,7 +351,7 @@ class StepchildSequence{
     void changeVel(int8_t amount){
         this->editNoteAndSelected(amount,VELOCITY);
     }
-    void changeChance(int amount){
+    void changeChance(int8_t amount){
         this->editNoteAndSelected(amount,CHANCE);
     }
 
@@ -502,12 +512,12 @@ class StepchildSequence{
     }
     //slices a note into N equal pieces
     void chopNote(uint8_t track, uint16_t step, uint8_t pieces){
-        if(!this->IDAt(track,step))
+        if(!IDAt(track,step))
             return;
-        Note targetNote = this->noteAt(track,step);
+        Note targetNote = noteAt(track,step);
         uint16_t length = targetNote.endPos - targetNote.startPos;
         //if the length is too short to cut, don't
-        if(!(length/pieces))
+        if(!((length+1)/pieces))
             return;
         
         //the new length of each sub note
@@ -624,8 +634,13 @@ class StepchildSequence{
    //displays notes on LEDs
     void displayMainSequenceLEDs(){
         if(controls.SHIFT()){
-            controls.setLED(14,millis()/200%2);
-            controls.setLED(15,(millis()/200+1)%2);
+            uint16_t ledState = 0b0000000000001111;
+            if(millis()/200%2)
+                ledState |= 0b1000000000000000;
+            if((millis()/200+1)%2)
+                ledState |= 0b0100000000000000;
+            
+            controls.writeLEDs(ledState);
             return;
         }
         uint16_t dat = 0;//00000000

@@ -722,8 +722,8 @@ void drawLoopPreview(uint8_t x1, uint8_t y1, uint8_t loop){
       }
     }
     //drawing playhead, if it's in view
-    if(playing && playheadPos>sequence.loopData[loop].start && playheadPos<sequence.loopData[loop].end){
-      display.drawFastVLine(x1+(playheadPos-sequence.loopData[loop].start)*s,y1-1,tracksWithNotes.size()+2,SSD1306_WHITE);
+    if(playing && sequence.playheadPos>sequence.loopData[loop].start && sequence.playheadPos<sequence.loopData[loop].end){
+      display.drawFastVLine(x1+(sequence.playheadPos-sequence.loopData[loop].start)*s,y1-1,tracksWithNotes.size()+2,SSD1306_WHITE);
     }
   }
   //if there are no notes
@@ -759,7 +759,7 @@ void drawLoopBlocksVertically(int firstLoop,int highlight, int z){
 
       //play progress
       if(playing && loop+firstLoop == sequence.activeLoop)
-        display.fillRect(xStart, yStart+(loopHeight+3)*loop, float(length)*float(playheadPos-sequence.loopData[sequence.activeLoop].start)/float(sequence.loopData[sequence.activeLoop].end-sequence.loopData[sequence.activeLoop].start), loopHeight, SSD1306_WHITE);
+        display.fillRect(xStart, yStart+(loopHeight+3)*loop, float(length)*float(sequence.playheadPos-sequence.loopData[sequence.activeLoop].start)/float(sequence.loopData[sequence.activeLoop].end-sequence.loopData[sequence.activeLoop].start), loopHeight, SSD1306_WHITE);
 
       //loop block
       display.drawRect(xStart, yStart+(loopHeight+3)*loop, length, loopHeight, 1);

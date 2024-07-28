@@ -15,7 +15,7 @@ vector<uint8_t> selectMultipleTracks(String text){
     }
   }
   //to hold the id's and return
-  vector<uint8_t> selection;
+  vector<uint8_t> selection = {};
   while(true){
     display.clearDisplay();
     SequenceRenderSettings settings;
@@ -27,13 +27,6 @@ vector<uint8_t> selectMultipleTracks(String text){
     printSmall(screenWidth-text.length()*4,0,text,1);
 
     printSmall(2,2,"Trk:"+stringify(sequence.activeTrack+1),1);
-
-    // display.setCursor(0,7);
-    // display.setFont(&FreeSerifItalic9pt7b);
-    // display.setTextColor(SSD1306_WHITE);
-    // display.print("Trk");
-    // display.print(stringify(sequence.activeTrack+1));
-    // display.setFont();
 
     display.display();
     controls.readButtons();
@@ -73,7 +66,7 @@ vector<uint8_t> selectMultipleTracks(String text){
             sequence.trackData[i].setSelected(false);
           }
         }
-        break;
+        return selection;
       }
       if(controls.DELETE() || controls.MENU()){
         lastTime = millis();
@@ -89,8 +82,7 @@ vector<uint8_t> selectMultipleTracks(String text){
 }
 
 vector<uint8_t> selectMultipleTracks(){
-  String empty;
-  return selectMultipleTracks(empty);
+  return selectMultipleTracks("");
 }
 
 void muteTrack(unsigned short int id){
@@ -168,18 +160,6 @@ bool sortTracksByChannel(Track t1, Track t2){
   return t1.channel>t2.channel;
 }
 
-bool compareNoteCount(Track a, Track b){
-  // uint8_t trackIndexA;
-  // uint8_t trackIndexB;
-  // for(uint8_t i = 0; i<sequence.trackData.size(); i++){
-  //   if(sequence.trackData[i] == a)
-  //     trackIndexA = i;
-  //   if(sequence.trackData[i] == b)
-  //     trackIndexB = i;
-  // }
-  // return (sequence.noteData[trackIndexA].size()>sequence.noteData[trackIndexB].size())
-  return true;
-}
 
 void sortTrackData(uint8_t type,uint8_t target){
   //type is either 0 (ascending) or 1 (descending)
@@ -191,9 +171,6 @@ void sortTrackData(uint8_t type,uint8_t target){
       break;
     case 1:
       sort(tempData.begin(),tempData.end(),sortTracksByChannel);
-      break;
-    case 2:
-      sort(tempData.begin(),tempData.end(),compareNoteCount);
       break;
   }
   if(type)
@@ -353,10 +330,10 @@ void deleteTrack(unsigned short int track, bool hard, bool askFirst){
       return;
     }
     //if the end track is within view
-    if(endTrack == sequence.trackData.size()){
-      endTrack--;
-      if(startTrack>0)
-        startTrack--;
+    if(sequence.endTrack == sequence.trackData.size()){
+      sequence.endTrack--;
+      if(sequence.startTrack>0)
+        sequence.startTrack--;
     }
     if(sequence.activeTrack == track && sequence.activeTrack>0){
       sequence.activeTrack--;
@@ -378,9 +355,6 @@ void deleteTrack(unsigned short int track, bool hard, bool askFirst){
     sequence.trackData.swap(tempTrackData);
     sequence.noteData.swap(tempSeqData);
     sequence.lookupTable.swap(tempLookupData);
-    // sequence.trackData.erase(sequence.trackData.begin() + track);
-    // sequence.noteData.erase(sequence.noteData.begin() + track);
-    // sequence.lookupTable.erase(sequence.lookupTable.begin() + track);
   }
 }
 
@@ -400,21 +374,21 @@ void shrinkTracks(){
   if(!isShrunk){
     if(sequence.trackData.size()>6){
         maxTracksShown = 6;
-        startTrack = 0;
-        endTrack = 5;
+        sequence.startTrack = 0;
+        sequence.endTrack = 5;
       }
     else{
       maxTracksShown = sequence.trackData.size();
-      startTrack = 0;
-      endTrack = sequence.trackData.size()-1;
+      sequence.startTrack = 0;
+      sequence.endTrack = sequence.trackData.size()-1;
     }
     // headerHeight = 16;
   }
   //if it's not shrunk, shrink em
   else{
     maxTracksShown = 16;
-    startTrack = 0;
-    endTrack = 16;
+    sequence.startTrack = 0;
+    sequence.endTrack = 16;
     // headerHeight = 8;
   }
   setActiveTrack(0,false);
@@ -450,7 +424,7 @@ void transposeAllPitches(int increment){
 }
 
 void setTrackPitch(int track, int note, bool loud) {
-  if(note>=0 && note<=120){
+  if(note>=0 && note<=127){
     MIDI.noteOff(sequence.trackData[track].pitch,0,sequence.trackData[track].channel);
     sequence.trackData[track].pitch = note;
     if(loud){
@@ -592,10 +566,10 @@ void eraseTrack() {
   eraseTrack(sequence.activeTrack);
 }
 
-void setTrackToNearestPitch(vector<uint8_t>pitches,int track,bool allowDuplicates){
+void setTrackToNearestPitch(vector<uint8_t>pitches,uint8_t track,bool allowDuplicates){
   int oldPitch = sequence.trackData[track].pitch;
   int pitchDistance = 127;
-  int closestPitch;
+  int closestPitch = 0;
   int octaveOffset = 12*getOctave(oldPitch);
   for(int i = 0; i<pitches.size(); i++){
     if(abs(pitches[i]+octaveOffset-oldPitch)<pitchDistance){
@@ -623,7 +597,7 @@ void setTrackToNearestPitch(vector<uint8_t>pitches,int track,bool allowDuplicate
 void setTrackToNearestUniquePitch(vector<uint8_t>pitches,int track){
   int oldPitch = sequence.trackData[track].pitch;
   int pitchDistance = 127;
-  int closestPitch;
+  int closestPitch = 0;
   int octaveOffset = 12*getOctave(oldPitch);
   for(int i = 0; i<pitches.size(); i++){
     if(abs(pitches[i]+octaveOffset-oldPitch)<pitchDistance){
@@ -681,8 +655,10 @@ void tuneTracksToScale(){
     return;
   }
   vector<uint8_t> tracks = selectMultipleTracks("select tracks to tune");
+  if(!tracks.size())
+    return;
   bool allowDuplicates = binarySelectionBox(64,32,"no","ye","allow duplicate pitches?",drawSeq);
-  for(int track = tracks.size()-1; track >= 0; track--){
+  for(uint8_t track = 0; track < tracks.size(); track++){
     setTrackToNearestPitch(pitches, tracks[track], allowDuplicates);
   }
 }

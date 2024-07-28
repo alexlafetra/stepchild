@@ -242,8 +242,8 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
             }
           }
         // if(!movingLoop || (movingLoop != 1 && (millis()/400)%2)){
-        //   display.drawFastVLine(trackDisplay+(step-sequence.viewStart)*sequence.viewScale,9,screenHeight-9-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
-        //   display.drawFastVLine(trackDisplay+(step-sequence.viewStart)*sequence.viewScale-1,9,screenHeight-9-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
+        //   display.drawFastVLine(trackDisplay+(step-sequence.viewStart)*sequence.viewScale,9,screenHeight-9-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
+        //   display.drawFastVLine(trackDisplay+(step-sequence.viewStart)*sequence.viewScale-1,9,screenHeight-9-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
         // }
       }
       if(step == sequence.loopData[sequence.activeLoop].end-1){
@@ -261,8 +261,8 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
             }
           }
         // if(!movingLoop || (movingLoop != -1 && (millis()/400)%2)){
-        //   display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale+1,9,screenHeight-9-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
-        //   display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale+2,9,screenHeight-9-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
+        //   display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale+1,9,screenHeight-9-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
+        //   display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale+2,9,screenHeight-9-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
         // }
       }
       if(movingLoop == 2){
@@ -301,11 +301,11 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
     if(sequence.cursorPos<sequence.viewEnd && sequence.cursorPos>=sequence.viewStart){
         graphics.drawArrow((sequence.cursorPos-sequence.viewStart)*sequence.viewScale+trackDisplay+((millis()/200)%2)-1,activePort*portHeight+14,3,0,false);
     }
-    if(playing && playheadPos<sequence.viewEnd && playheadPos>=sequence.viewStart){
-        display.drawRoundRect(trackDisplay+(playheadPos-sequence.viewStart)*sequence.viewScale,9,3, screenHeight-9, 3, SSD1306_WHITE);
+    if(playing && sequence.playheadPos<sequence.viewEnd && sequence.playheadPos>=sequence.viewStart){
+        display.drawRoundRect(trackDisplay+(sequence.playheadPos-sequence.viewStart)*sequence.viewScale,9,3, screenHeight-9, 3, SSD1306_WHITE);
     }
-    else if(recording && recheadPos<sequence.viewEnd && recheadPos>=sequence.viewStart){
-        display.drawRoundRect(trackDisplay+(recheadPos-sequence.viewStart)*sequence.viewScale,9,3, screenHeight-9, 3, SSD1306_WHITE);
+    else if(recording && sequence.recheadPos<sequence.viewEnd && sequence.recheadPos>=sequence.viewStart){
+        display.drawRoundRect(trackDisplay+(sequence.recheadPos-sequence.viewStart)*sequence.viewScale,9,3, screenHeight-9, 3, SSD1306_WHITE);
     }
 
     //message editing box

@@ -206,7 +206,6 @@ void warp(){
   CoordinatePair A;
   CoordinatePair B;
   //0 is A, 1 is B, 2 is warp
-  uint8_t cursor = 0;
   while(true){
     A = selectArea_warp(true);
     if(A.isVertical())

@@ -89,8 +89,6 @@ class HeadlessHardwareInput{
       states |= temp[7-i]<<i;
     }
     this->mainButtons = states;
-    this->counterA += headlessCounterA;
-    this->counterB += headlessCounterB;
   }
   void readStepButtons(){
     //Headless mode condition isn't needed! The headless lower board class
@@ -109,14 +107,18 @@ class HeadlessHardwareInput{
     this->joystickY = yKeyVal;
   }
   void readButtons(){
-    headlessCounterA = this->counterA;
-    headlessCounterB = this->counterB;
     try{
       glfwPollEvents();
     }
     catch(...){
         cout<<"oh shit";
     }
+      counterA += headlessCounterA;
+      counterB += headlessCounterB;
+      encASTATE += headlessCounterA;
+      encBSTATE += headlessCounterB;
+      headlessCounterA = 0;
+      headlessCounterB = 0;
     this->readMainButtons();
     this->readEncoderButtons();
     this->readStepButtons();

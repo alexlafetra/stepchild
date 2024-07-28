@@ -66,8 +66,8 @@ bool isFragmenting = false;
 //0 is off, 1 is start, -1 is end, 2 is both
 int8_t movingLoop = 0;
 
-unsigned short int playheadPos;
-unsigned short int recheadPos;
+// unsigned short int playheadPos;
+// unsigned short int recheadPos;
 
 const unsigned char headerHeight = 16;
 const unsigned char trackDisplay = 32;
@@ -94,8 +94,7 @@ int8_t onStop = 0;
 //could probably get rid of these! put them in drawSeq
 uint8_t trackHeight;
 uint8_t maxTracksShown = 5;
-uint8_t startTrack = 0;
-uint8_t endTrack;
+// uint8_t maxTracksShown = 16;
 
 #ifndef HEADLESS
     bool core0ready = false;

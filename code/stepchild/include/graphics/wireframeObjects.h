@@ -77,7 +77,7 @@ vector<uint8_t> getXClosestVerts(Vertex vert, WireFrame wf, uint8_t number){
   uint8_t closestVert = indices[0];
   vector<uint8_t> xClosestVerts;
 
-  uint8_t smallest;
+  uint8_t smallest = 0;
   //perform this operation "x times" to get a certain number of closest verts
   for(uint8_t xTimes = 0; xTimes<number; xTimes++){
     for(uint8_t i = 0; i<distances.size(); i++){
@@ -505,7 +505,6 @@ WireFrame makeGyro(float angleX, float angleY, float angleZ,float angle2X, float
 }
 
 WireFrame makeCycle(){
-    uint8_t rotation = 1;
     vector<Vertex> verts;
     vector<vector<uint16_t>> edges;
     //forks
@@ -1407,7 +1406,7 @@ void graphAnimation(WireFrame* w){
 
 void renderTest(){
   vector<WireFrame> meshes = {makeWrench(),makeFolder(30.0),makeHand(0,0,0,0,0),makeKeys(),makeMIDI(),makeMetronome(0),makeLoopArrows(0),makeGraphBox(5)};
-  float angleX,angleY,angleZ;
+//  float angleX,angleY,angleZ;
   uint8_t activeOption = 0;
   bool justOne = false;
   display.setTextColor(SSD1306_WHITE);

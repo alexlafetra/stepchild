@@ -20,6 +20,7 @@ struct SequenceRenderSettings{
     bool displayingVel = true;
     bool drawTrackChannel = false;
     bool drawSuperposition = false;
+    bool stepSequencerLEDs = true;//controls whether or not drawSeq sets the LEDs to display notes
 
     SequenceRenderSettings(){
         shadeOutsideLoop = false;
@@ -77,7 +78,7 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
     }
 
     //if the last track is showing
-    if(endTrack == sequence.trackData.size()){
+    if(sequence.endTrack == sequence.trackData.size()){
       //measure bars
       if (!(step % sequence.subDivision) && (step%96) && (sequence.subDivision*sequence.viewScale)>1) {
         graphics.drawDottedLineV(x1,settings.startHeight,height,2);
@@ -118,8 +119,8 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
           display.drawPixel(trackDisplay+(sequence.loopData[sequence.activeLoop].start-settings.start)*sequence.viewScale, settings.startHeight-1,1);
         }
         if(!movingLoop || (movingLoop != 1 && (millis()/400)%2)){
-          display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale,settings.startHeight,screenHeight-settings.startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
-          display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale-1,settings.startHeight,screenHeight-settings.startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
+          display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
+          display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale-1,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
         }
       }
       if(step == sequence.loopData[sequence.activeLoop].end-1){
@@ -142,8 +143,8 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
           display.drawPixel(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-1,1);
         }
         if(!movingLoop || (movingLoop != -1 && (millis()/400)%2)){
-          display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale+1,settings.startHeight,screenHeight-settings.startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
-          display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale+2,settings.startHeight,screenHeight-settings.startHeight-(endTrack == sequence.trackData.size()),SSD1306_WHITE);
+          display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale+1,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
+          display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale+2,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
         }
       }
       if(movingLoop == 2){
@@ -265,7 +266,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
 
   //swing icon
   if(sequenceClock.isSwinging){
-//    graphics.drawPendulum(x1+2,0,7,millis()/2,1);
+   graphics.drawPendulum(x1+2,0,7,millis()/2);
     x1+=10;
   }
   //fragment gem
@@ -346,7 +347,7 @@ NoteCoords getNoteCoords(Note& note, uint8_t track, SequenceRenderSettings& sett
     nCoords.length = (note.endPos - settings.start)*sequence.viewScale+1;
     nCoords.x1 = trackDisplay-1;
   }
-  nCoords.y1 = (track-startTrack) * trackHeight + settings.startHeight;
+  nCoords.y1 = (track-sequence.startTrack) * trackHeight + settings.startHeight;
   nCoords.y2 = nCoords.y1+trackHeight;
   return nCoords;
 }
@@ -424,7 +425,6 @@ void drawNote(Note& note, uint8_t track, SequenceRenderSettings& settings){
 
 //this function is a mess!
 void drawSeq(SequenceRenderSettings& settings){
-
   if(settings.shrinkTopDisplay){
     settings.maxTracksShown = maxTracksShown;
     if(!(settings.maxTracksShown==5)){//this should change so that shrinkTop controls maxTracksShown, not the other way around
@@ -436,25 +436,25 @@ void drawSeq(SequenceRenderSettings& settings){
   trackHeight = (screenHeight-settings.startHeight)/settings.maxTracksShown;//calc track height
 
   if(sequence.trackData.size()>settings.maxTracksShown){
-    endTrack = startTrack + settings.maxTracksShown;
-    if(sequence.activeTrack>=endTrack){
-      endTrack = sequence.activeTrack+1;
-      startTrack = endTrack-settings.maxTracksShown;
+    sequence.endTrack = sequence.startTrack + settings.maxTracksShown;
+    if(sequence.activeTrack>=sequence.endTrack){
+      sequence.endTrack = sequence.activeTrack+1;
+      sequence.startTrack = sequence.endTrack-settings.maxTracksShown;
     }
-    else if(sequence.activeTrack<startTrack){
-      startTrack = sequence.activeTrack;
-      endTrack = startTrack+settings.maxTracksShown;
+    else if(sequence.activeTrack<sequence.startTrack){
+      sequence.startTrack = sequence.activeTrack;
+      sequence.endTrack = sequence.startTrack+settings.maxTracksShown;
     }
   }
   else{
-      endTrack = startTrack + sequence.trackData.size();
+      sequence.endTrack = sequence.startTrack + sequence.trackData.size();
   }
   //drawing selection box, since it needs to overlay stepSeq data
   if(selBox.begun){
       selBox.render();
   }
   uint8_t height;
-  if(endTrack == sequence.trackData.size())
+  if(sequence.endTrack == sequence.trackData.size())
       height = settings.startHeight+trackHeight*settings.maxTracksShown;
   else if(sequence.trackData.size()>settings.maxTracksShown)
       height = settings.startHeight+trackHeight*(settings.maxTracksShown+1);
@@ -469,9 +469,9 @@ void drawSeq(SequenceRenderSettings& settings){
       uint8_t cPos = trackDisplay+int((sequence.cursorPos-settings.start)*sequence.viewScale);
       if(cPos>127)
           cPos = 126;
-      if(endTrack == sequence.trackData.size()){
-          display.drawFastVLine(cPos, settings.startHeight, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
-          display.drawFastVLine(cPos+1, settings.startHeight, (endTrack-startTrack)*trackHeight, SSD1306_WHITE);
+      if(sequence.endTrack == sequence.trackData.size()){
+          display.drawFastVLine(cPos, settings.startHeight, (sequence.endTrack-sequence.startTrack)*trackHeight, SSD1306_WHITE);
+          display.drawFastVLine(cPos+1, settings.startHeight, (sequence.endTrack-sequence.startTrack)*trackHeight, SSD1306_WHITE);
       }
       else{
           display.drawFastVLine(cPos, settings.startHeight, screenHeight-settings.startHeight, SSD1306_WHITE);
@@ -480,35 +480,31 @@ void drawSeq(SequenceRenderSettings& settings){
   }
 
   //drawing active track highlight
-  uint8_t y1 = (sequence.activeTrack-startTrack) * trackHeight + settings.startHeight;
+  uint8_t y1 = (sequence.activeTrack-sequence.startTrack) * trackHeight + settings.startHeight;
   // display.drawRect(x1, y1, screenWidth, trackHeight, SSD1306_WHITE);
   display.drawFastHLine(trackDisplay,y1,screenWidth-trackDisplay,1);
   display.drawFastHLine(trackDisplay,y1+trackHeight-1,screenWidth-trackDisplay,1);
 
   //top and bottom bounds
-  if(startTrack == 0){
+  if(sequence.startTrack == 0){
       display.drawFastHLine(trackDisplay,settings.startHeight,screenWidth,SSD1306_WHITE);
   }
   //if the bottom is in view
-  if(endTrack == sequence.trackData.size()){
+  if(sequence.endTrack == sequence.trackData.size()){
       display.drawFastHLine(trackDisplay,settings.startHeight+trackHeight*settings.maxTracksShown,screenWidth,SSD1306_WHITE);
   }
-  else if(endTrack < sequence.trackData.size())
-      endTrack++;
+  else if(sequence.endTrack < sequence.trackData.size())
+      sequence.endTrack++;
   //drawin all da steps
   //---------------------------------------------------
-  for (uint8_t track = startTrack; track < endTrack; track++) {
-      unsigned short int y1 = (track-startTrack) * trackHeight + settings.startHeight;
-      unsigned short int y2 = y1 + trackHeight;
-      uint8_t xCoord;
+  for (uint8_t track = sequence.startTrack; track < (sequence.endTrack>sequence.trackData.size()?sequence.trackData.size():sequence.endTrack); track++) {
+      unsigned short int y1 = (track-sequence.startTrack) * trackHeight + settings.startHeight;
+      uint8_t xCoord = 5;
       //track info display
       if(sequence.activeTrack == track){
           xCoord = 9;
           if(settings.trackLabels)
               graphics.drawArrow(6+((millis()/400)%2),y1+trackHeight/2+1,2,0,true);
-      }
-      else{
-          xCoord = 5;
       }
       if(settings.trackLabels){
           if(!isShrunk){
@@ -581,10 +577,10 @@ void drawSeq(SequenceRenderSettings& settings){
     }
   }
   //playhead/rechead
-  if(playing && isInView(playheadPos))
-      display.drawRoundRect(trackDisplay+(playheadPos-settings.start)*sequence.viewScale,settings.startHeight,3, screenHeight-settings.startHeight, 3, SSD1306_WHITE);
-  if(recording && isInView(recheadPos))
-      display.drawRoundRect(trackDisplay+(recheadPos-settings.start)*sequence.viewScale,settings.startHeight,3, screenHeight-settings.startHeight, 3, SSD1306_WHITE);
+  if(playing && isInView(sequence.playheadPos))
+      display.drawRoundRect(trackDisplay+(sequence.playheadPos-settings.start)*sequence.viewScale,settings.startHeight,3, screenHeight-settings.startHeight, 3, SSD1306_WHITE);
+  if(recording && isInView(sequence.recheadPos))
+      display.drawRoundRect(trackDisplay+(sequence.recheadPos-settings.start)*sequence.viewScale,settings.startHeight,3, screenHeight-settings.startHeight, 3, SSD1306_WHITE);
 
   int cursorX = trackDisplay+int((sequence.cursorPos-settings.start)*sequence.viewScale)-8;
   if(!playing && !recording){
@@ -601,9 +597,14 @@ void drawSeq(SequenceRenderSettings& settings){
     animOffset%=100;
   }
   //it's ok to call this in here bc the LB checks to make sure it doesn't redundantly write
-  sequence.displayMainSequenceLEDs();
+  if(settings.stepSequencerLEDs)
+    sequence.displayMainSequenceLEDs();
 }
 
+void drawSeq(){
+  SequenceRenderSettings settings;
+  drawSeq(settings);
+}
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, bool shadeOutsideLoop, uint16_t start, uint16_t end){
     SequenceRenderSettings settings;
     settings.trackLabels = trackLabels;
@@ -622,16 +623,77 @@ void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool
   drawSeq(trackLabels,topLabels,loopPoints,menus,trackSelection,false,sequence.viewStart,sequence.viewEnd);
 }
 
-//same function, but doesn't clear or display the screen
-void drawSeq(){
-  drawSeq(true,true,true,true,false);
+void drawNoteBracket(NoteCoords& n, bool animated){
+  uint8_t offset = animated?((millis()/400)%2):0;
+  n.x1++;
+  n.y1++;
+  n.length-=2;
+  //topL
+  display.drawLine(n.x1-2-offset,n.y1-2-offset,n.x1+1-offset,n.y1-2-offset,SSD1306_WHITE);
+  display.drawLine(n.x1-2-offset,n.y1-2-offset,n.x1-2-offset,n.y1+1-offset,SSD1306_WHITE);
+  //topR
+  display.drawLine(n.x1+n.length+2+offset,n.y1-2-offset,n.x1+n.length-1+offset,n.y1-2-offset,SSD1306_WHITE);
+  display.drawLine(n.x1+n.length+2+offset,n.y1-2-offset,n.x1+n.length+2+offset,n.y1+1-offset,SSD1306_WHITE);
+  //bottomL
+  display.drawLine(n.x1-2-offset,n.y2+offset,n.x1+1-offset,n.y2+offset,SSD1306_WHITE);
+  display.drawLine(n.x1-2-offset,n.y2+offset,n.x1-2-offset,n.y2-3+offset,SSD1306_WHITE);
+  //bottomR
+  display.drawLine(n.x1+n.length+2+offset,n.y2+offset,n.x1+n.length-1+offset,n.y2+offset,SSD1306_WHITE);
+  display.drawLine(n.x1+n.length+2+offset,n.y2+offset,n.x1+n.length+2+offset,n.y2-3+offset,SSD1306_WHITE);
 }
 
-//sends data to screen
-//move through rows/columns, printing out data
-void displaySeq(){
-  display.clearDisplay();
-  drawSeq(true,true,true,true,false,false,sequence.viewStart,sequence.viewEnd);
-  display.display();
+void drawNoteBracket(Note& note, uint8_t track, SequenceRenderSettings& settings){
+  NoteCoords n = getNoteCoords(note,track,settings);
+  drawNoteBracket(n,true);
 }
 
+
+void drawSelectionBracket(SequenceRenderSettings& settings){
+    vector<uint16_t> bounds  = getSelectedNotesBoundingBox();
+    //if the left side is in view
+    if(bounds[0]>=sequence.viewStart){
+      //if the top L corner is in view
+      uint8_t x1 = (bounds[0]-sequence.viewStart)*sequence.viewScale+trackDisplay-((millis()/200)%2);
+      if(bounds[1]>=sequence.startTrack){
+        //y coord relative to the view
+        uint8_t y1 = (bounds[1]-sequence.startTrack)*trackHeight+settings.startHeight-((millis()/200)%2);
+        display.drawLine(x1,y1,x1+5,y1,SSD1306_WHITE);
+        display.drawLine(x1,y1-1,x1+5,y1-1,SSD1306_WHITE);
+        display.drawLine(x1,y1,x1,y1+5,SSD1306_WHITE);
+        display.drawLine(x1-1,y1,x1-1,y1+5,SSD1306_WHITE);
+      }
+      //if the bottom L corner is in view
+      if(bounds[3]<=sequence.endTrack){
+        //y coord relative to the view
+        uint8_t y1 = (bounds[3]-sequence.startTrack+1)*trackHeight+settings.startHeight+((millis()/200)%2);
+        display.drawLine(x1,y1,x1+5,y1,SSD1306_WHITE);
+        display.drawLine(x1,y1+1,x1+5,y1+1,SSD1306_WHITE);
+        display.drawLine(x1,y1,x1,y1-5,SSD1306_WHITE);
+        display.drawLine(x1-1,y1,x1-1,y1-5,SSD1306_WHITE);
+      }
+    }
+    //if the right corner is in view
+    if(bounds[2]<sequence.viewEnd){
+      uint8_t x1 = (bounds[2]-sequence.viewStart)*sequence.viewScale+trackDisplay+((millis()/200)%2)+1;
+      //top R corner
+      if(bounds[1]>=sequence.startTrack){
+        uint8_t y1 = (bounds[1]-sequence.startTrack)*trackHeight+settings.startHeight-((millis()/200)%2);
+        display.drawLine(x1,y1,x1-5,y1,SSD1306_WHITE);
+        display.drawLine(x1,y1-1,x1-5,y1-1,SSD1306_WHITE);
+        display.drawLine(x1,y1,x1,y1+5,SSD1306_WHITE);
+        display.drawLine(x1+1,y1,x1+1,y1+5,SSD1306_WHITE);
+      }
+      //bottom R corner
+      if(bounds[3]<=sequence.endTrack){
+        uint8_t y1 = (bounds[3]-sequence.startTrack+1)*trackHeight+settings.startHeight+((millis()/200)%2);
+        display.drawLine(x1,y1,x1-5,y1,SSD1306_WHITE);
+        display.drawLine(x1,y1+1,x1-5,y1+1,SSD1306_WHITE);
+        display.drawLine(x1,y1,x1,y1-5,SSD1306_WHITE);
+        display.drawLine(x1+1,y1,x1+1,y1-5,SSD1306_WHITE);
+      }
+    }
+  }
+  void drawSelectionBracket(){
+    SequenceRenderSettings settings;
+    drawSelectionBracket(settings);
+  }

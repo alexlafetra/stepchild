@@ -98,16 +98,17 @@ void defaultJoystickControls(bool velocityEditingAllowed){
     }
     //changing vel
     if(velocityEditingAllowed){
-      if (controls.joystickY == 1 && controls.SHIFT()) {
-        sequence.changeVel(-10);
-        lastTime = millis();
+      if(sequence.IDAtCursor()){
+        if (controls.joystickY == 1 && controls.SHIFT()) {
+          sequence.changeVel(-10);
+          lastTime = millis();
+        }
+        if (controls.joystickY == -1 && controls.SHIFT()) {
+          sequence.changeVel(10);
+          lastTime = millis();
+        }
       }
-      if (controls.joystickY == -1 && controls.SHIFT()) {
-        sequence.changeVel(10);
-        lastTime = millis();
-      }
-
-      if(sequence.IDAtCursor()==0){
+      else{
         if(controls.joystickY == 1 && controls.SHIFT()){
           sequence.defaultVel-=10;
           if(sequence.defaultVel<1)
@@ -311,9 +312,27 @@ void mainSequencerStepButtons(){
   if(controls.SHIFT()){
     if(controls.stepButton(15) && sequence.activeTrack){
       setActiveTrack(sequence.activeTrack-1,!playing  && !recording);
+      lastTime = millis();
     }
     else if(controls.stepButton(14)){
       setActiveTrack(sequence.activeTrack+1,!playing  && !recording);
+      lastTime = millis();
+    }
+    else if(controls.stepButton(0)){
+      sequence.makeNoteEveryNDivisions(1);
+      lastTime = millis();
+    }
+    else if(controls.stepButton(1)){
+      sequence.makeNoteEveryNDivisions(2);
+      lastTime = millis();
+    }
+    else if(controls.stepButton(2)){
+      sequence.makeNoteEveryNDivisions(3);
+      lastTime = millis();
+    }
+    else if(controls.stepButton(3)){
+      sequence.makeNoteEveryNDivisions(4);
+      lastTime = millis();
     }
   }
   else{
@@ -409,7 +428,9 @@ void mainSequence(){
   mainSequencerStepButtons();
   mainSequencerEncoders();
   defaultJoystickControls(true);
-  displaySeq();
+  display.clearDisplay();
+  drawSeq();
+  display.display();
 }
 
 class SuperpositionMenu{
@@ -522,7 +543,7 @@ void SuperpositionMenu::drawSuperposSelect(){
       graphics.drawDottedLineH(0,SCREEN_WIDTH,i+trackHeight/2,12);
   }
 
-  graphics.drawNoteBracket(n2Coords,true);
+  drawNoteBracket(n2Coords,true);
 
   String txt = stringify(note.superposition.pitch-sequence.trackData[track].pitch);
   if(note.superposition.pitch>sequence.trackData[track].pitch)
@@ -551,4 +572,165 @@ void setSuperposition(Note& note,uint8_t originalTrack){
   }
   note.superposition = superposMenu.note.superposition;
   controls.clearButtons();
+}
+
+
+vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
+  vector<vector<uint8_t>> selectedNotes;
+  selectedNotes.resize(sequence.trackData.size());
+  bool movingBetweenNotes = false;
+  SequenceRenderSettings settings;
+  settings.topLabels = false;
+  settings.loopPoints = false;
+  settings.trackSelection = false;
+  while(true){
+    controls.readButtons();
+    controls.readJoystick();
+    //selectionBox
+    //when controls.SELECT()  is pressed and stick is moved, and there's no selection box
+    if(controls.SELECT()  && !selBox.begun && (controls.joystickX != 0 || controls.joystickY != 0)){
+      selBox.begun = true;
+      selBox.coords.start.x = sequence.cursorPos;
+      selBox.coords.start.y = sequence.activeTrack;
+    }
+    //if controls.SELECT()  is released, and there's a selection box
+    if(!controls.SELECT()  && selBox.begun){
+      selBox.coords.end.x = sequence.cursorPos;
+      selBox.coords.end.y = sequence.activeTrack;
+      if(selBox.coords.start.x>selBox.coords.end.x){
+        unsigned short int x1_old = selBox.coords.start.x;
+        selBox.coords.start.x = selBox.coords.end.x;
+        selBox.coords.end.x = x1_old;
+      }
+      if(selBox.coords.start.y>selBox.coords.end.y){
+        unsigned short int y1_old = selBox.coords.start.y;
+        selBox.coords.start.y = selBox.coords.end.y;
+        selBox.coords.end.y = y1_old;
+      }
+      for(int track = selBox.coords.start.y; track<=selBox.coords.end.y; track++){
+        for(int time = selBox.coords.start.x; time<=selBox.coords.end.x; time++){
+          if(sequence.lookupTable[track][time] != 0){
+            //if the note isn't in the vector yet, add it
+            if(!isInVector(sequence.lookupTable[track][time],selectedNotes[track]))
+              selectedNotes[track].push_back(sequence.lookupTable[track][time]);
+            time = sequence.noteData[track][sequence.lookupTable[track][time]].endPos;
+          }
+        }
+      }
+      selBox.begun = false;
+    }
+    if(utils.itsbeen(100)){
+      if(!movingBetweenNotes){
+        if(controls.joystickY == 1){
+          setActiveTrack(sequence.activeTrack+1,false);
+          lastTime = millis();
+        }
+        if(controls.joystickY == -1){
+          setActiveTrack(sequence.activeTrack-1,false);
+          lastTime = millis();
+        }
+      }
+    }
+    if(utils.itsbeen(100)){
+      if(controls.joystickX != 0){
+        if(!movingBetweenNotes){
+          if (controls.joystickX == 1 && !controls.SHIFT()) {
+            if(sequence.cursorPos%sequence.subDivision){
+              moveCursor(-sequence.cursorPos%sequence.subDivision);
+              lastTime = millis();
+            }
+            else{
+              moveCursor(-sequence.subDivision);
+              lastTime = millis();
+            }
+          }
+          if (controls.joystickX == -1 && !controls.SHIFT()) {
+            if(sequence.cursorPos%sequence.subDivision){
+              moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
+              lastTime = millis();
+            }
+            else{
+              moveCursor(sequence.subDivision);
+              lastTime = millis();
+            }
+          }
+        }
+        else{
+          if(controls.joystickX == 1){
+            moveToNextNote(false,false);
+            lastTime = millis();
+          }
+          else if(controls.joystickX == -1){
+            moveToNextNote(true,false);
+            lastTime = millis();
+          }
+        }
+      }
+    }
+    if(utils.itsbeen(200)){
+      //select
+      if(controls.SELECT()  && sequence.IDAtCursor() != 0 && !selBox.begun){
+        unsigned short int id;
+        id = sequence.IDAtCursor();
+        if(controls.SHIFT()){
+          //del old vec
+          vector<vector<uint8_t>> temp;
+          temp.resize(sequence.trackData.size());
+          selectedNotes = temp;
+          selectedNotes[sequence.activeTrack].push_back(sequence.IDAtCursor());
+        }
+        else{
+          //if the note isn't in the vector yet, add it
+          if(!isInVector(sequence.IDAtCursor(),selectedNotes[sequence.activeTrack]))
+            selectedNotes[sequence.activeTrack].push_back(sequence.IDAtCursor());
+          //if it is, remove it
+          else{
+            vector<uint8_t> temp;
+            for(int i = 0; i<selectedNotes[sequence.activeTrack].size(); i++){
+              //push back all the notes that aren't the one the cursor is on
+              if(selectedNotes[sequence.activeTrack][i] != sequence.IDAtCursor()){
+                temp.push_back(selectedNotes[sequence.activeTrack][i]);
+              }
+            }
+            selectedNotes[sequence.activeTrack] = temp;
+          }
+        }
+        lastTime = millis();
+      }
+      if(controls.DELETE()){
+        lastTime = millis();
+        selectedNotes.clear();
+        break;
+      }
+      if(controls.NEW()){
+        controls.setNEW(false);
+        lastTime = millis();
+        break;
+      }
+      if(controls.LOOP()){
+        lastTime = millis();
+        movingBetweenNotes = !movingBetweenNotes;
+      }
+    }
+    display.clearDisplay();
+    drawSeq(settings);
+    printSmall(0,0,text1,SSD1306_WHITE);
+    printSmall(0,8,text2,SSD1306_WHITE);
+    if(movingBetweenNotes){
+      if(millis()%1000 >= 500){
+        display.drawBitmap(6,0,arrow_1_bmp,16,16,SSD1306_WHITE);
+      }
+      else{
+        display.drawBitmap(6,0,arrow_3_bmp,16,16,SSD1306_WHITE);
+      }
+    }
+    //draw a note bracket on any note that's been added to the selection
+    for(int track = 0; track<selectedNotes.size(); track++){
+      for(int note = 0; note<selectedNotes[track].size(); note++){
+        drawNoteBracket(sequence.noteData[track][selectedNotes[track][note]],track,settings);
+      }
+    }
+    display.display();
+  }
+  return selectedNotes;
 }

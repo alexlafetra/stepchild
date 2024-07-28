@@ -348,7 +348,7 @@ void handleStop_recording(){
 }
 
 void handleNoteOn_Recording(uint8_t channel, uint8_t note, uint8_t velocity){
-  writeNoteOn(recheadPos, note, velocity, channel);
+  writeNoteOn(sequence.recheadPos, note, velocity, channel);
   sendThruOn(channel, note, velocity);
   waitingToReceiveANote = false;
   recentNote.pitch = note;
@@ -361,7 +361,7 @@ void handleNoteOn_Recording(uint8_t channel, uint8_t note, uint8_t velocity){
 }
 
 void handleNoteOff_Recording(uint8_t channel, uint8_t note, uint8_t velocity){
-  writeNoteOff(recheadPos, note, channel);
+  writeNoteOff(sequence.recheadPos, note, channel);
   sendThruOff(channel, note);
   waitingToReceiveANote = false;
   noteOffReceived = true;
@@ -378,7 +378,7 @@ void handleNoteOff_Recording(uint8_t channel, uint8_t note, uint8_t velocity){
 }
 
 void handleCC_Recording(uint8_t channel, uint8_t cc, uint8_t value){
-  writeCC(recheadPos,channel,cc,value);
+  writeCC(sequence.recheadPos,channel,cc,value);
   recentCC.cc = cc;
   recentCC.val = value;
   recentCC.channel = channel;
@@ -439,7 +439,7 @@ void handleStop_Normal(){
 //this checks loops bounds, moves to next loop, and cuts loop
 void checkLoop(){
   if(playing){
-    if (playheadPos > sequence.loopData[sequence.activeLoop].end-1) { //if the timestep is past the end of the loop, loop it to the start
+    if (sequence.playheadPos > sequence.loopData[sequence.activeLoop].end-1) { //if the timestep is past the end of the loop, loop it to the start
       sequence.loopCount++;
       if(sequence.loopCount > sequence.loopData[sequence.activeLoop].reps){
         sequence.nextLoop();
@@ -450,7 +450,7 @@ void checkLoop(){
           }
         }
       }
-      playheadPos = sequence.loopData[sequence.activeLoop].start;
+        sequence.playheadPos = sequence.loopData[sequence.activeLoop].start;
       if(!sequence.isLooping)
         togglePlayMode();
     }
@@ -458,25 +458,25 @@ void checkLoop(){
   else if(recording){
     //one-shot record to current loop, without looping
     if(recMode == ONESHOT){
-      if(recheadPos>=sequence.loopData[sequence.activeLoop].end){
+      if(sequence.recheadPos>=sequence.loopData[sequence.activeLoop].end){
         toggleRecordingMode(waitForNoteBeforeRec);
       }
     }
     //record to one loop over and over again
     else if(recMode == LOOP_MODE){
-      if(recheadPos>=sequence.loopData[sequence.activeLoop].end){
-        recheadPos = sequence.loopData[sequence.activeLoop].start;
+      if(sequence.recheadPos>=sequence.loopData[sequence.activeLoop].end){
+        sequence.recheadPos = sequence.loopData[sequence.activeLoop].start;
       }
     }
     //record to loops as they play in sequence
     else if(recMode == LOOPSEQUENCE){
-      if(recheadPos>=sequence.loopData[sequence.activeLoop].end){
+      if(sequence.recheadPos>=sequence.loopData[sequence.activeLoop].end){
         sequence.cutLoop();
         sequence.loopCount++;
         if(sequence.loopData[sequence.activeLoop].reps>=sequence.loopCount){
          sequence. nextLoop();
         }
-        recheadPos = sequence.loopData[sequence.activeLoop].start;
+        sequence.recheadPos = sequence.loopData[sequence.activeLoop].start;
       }
     }
   }
@@ -507,14 +507,14 @@ void cleanupRecording(uint16_t stopTime){
 void recordingLoop(){
   MIDI.read();
   if(clockSource == INTERNAL_CLOCK){
-    if(sequenceClock.hasItBeenEnoughTime(recheadPos)){
+    if(sequenceClock.hasItBeenEnoughTime(sequence.recheadPos)){
       sequenceClock.timeLastStepPlayed = micros();
       checkAutotracks();
       //if it's not in wait mode, or if it is but a note has been received
       if(!waitForNoteBeforeRec || !waitingToReceiveANote){
-        continueStep(recheadPos);
+        continueStep(sequence.recheadPos);
         MIDI.sendClock();
-        recheadPos++;
+        sequence.recheadPos++;
         checkLoop();
       }
     }
@@ -522,8 +522,8 @@ void recordingLoop(){
   else if(clockSource == EXTERNAL_CLOCK){
     if(gotClock && hasStarted){
       gotClock = false;
-      continueStep(recheadPos);
-      recheadPos++;
+      continueStep(sequence.recheadPos);
+      sequence.recheadPos++;
       checkLoop();
       checkAutotracks();
     }

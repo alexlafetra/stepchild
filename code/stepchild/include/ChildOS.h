@@ -1,4 +1,4 @@
-#define FIRMWARE_VERSION 0.9.2
+#define FIRMWARE_VERSION '0.9.2'
 
 #include "pins.h"   //pin definitions
 
@@ -90,6 +90,58 @@ struct EchoData;
 struct RandomData;
 struct NoteCoords;
 struct SequenceRenderSettings;
+
+
+enum ScaleName:uint8_t{
+  MAJOR,
+  HARMONIC_MINOR,
+  MELODIC_MINOR,
+  MAJOR_PENTATONIC,
+  MINOR_PENTATONIC,
+  BLUE,
+  DORIAN,
+  PHRYGIAN,
+  LYDIAN,
+  MIXOLYDIAN,
+  AEOLIAN,
+  LOCRIAN
+};
+
+ScaleName& operator++(ScaleName& e) {
+    using underlying_type = std::underlying_type<ScaleName>::type;
+    e = static_cast<ScaleName>(static_cast<underlying_type>(e) + 1);
+    
+    // Wrap-around logic if necessary
+    if (e > LOCRIAN) {
+        e = MAJOR; // or handle wrap-around as per your logic
+    }
+    
+    return e;
+}
+ScaleName operator++(ScaleName& e, int) {
+    ScaleName result = e; // Make a copy of the current value
+    ++e;               // Increment the original value
+    return result;     // Return the copy (the original value before increment)
+}
+// Define a free-standing function to overload --
+ScaleName& operator--(ScaleName& e) {
+    using underlying_type = std::underlying_type<ScaleName>::type;
+    e = static_cast<ScaleName>(static_cast<underlying_type>(e) - 1);
+    
+    // Wrap-around logic if necessary
+    if (e < MAJOR) {
+        e = LOCRIAN; // or handle wrap-around as per your logic
+    }
+    
+    return e;
+}
+
+// Define a free-standing function to overload postfix --
+ScaleName operator--(ScaleName& e, int) {
+    ScaleName result = e; // Make a copy of the current value
+    --e;               // Decrement the original value
+    return result;     // Return the copy (the original value before decrement)
+}
 
 enum LoopType : uint8_t{
   NORMAL,

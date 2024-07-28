@@ -383,6 +383,22 @@ class StepchildGraphics{
     }
     display.drawLine(x1, y1, h, k, c);
   }
+  void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val, uint8_t r){
+    //pendulum
+    int a = length;
+    int h = x2;
+    int k = y2;
+    float x1 = h + a * cos(radians(val))/float(2.4);
+    float y1 = k + a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
+    display.drawLine(x1,y1,h,k,SSD1306_WHITE);
+    display.fillCircle(x1,y1,r,SSD1306_BLACK);
+    display.drawCircle(x1,y1,r,SSD1306_WHITE);
+  }
+  //draws a pendulum where "val" is a the angle of the pendulum
+  void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val){
+    drawPendulum(x2,y2,length,val,2);
+  }
+
   void fillEllipse(uint8_t h, uint8_t k, int a, int b,uint16_t c){
     for(int i = 0; i<360; i++){
       this->drawRadian(h,k,a,b,i,c);
@@ -531,76 +547,6 @@ class StepchildGraphics{
       case DOWN:
         this->drawArrow(pointX,pointY-1,size,direction,false);
         break;
-    }
-  }
-
-  void drawNoteBracket(NoteCoords n, bool animated){
-    uint8_t offset = animated?((millis()/400)%2):0;
-    n.x1++;
-    n.y1++;
-    n.length-=2;
-    //topL
-    display.drawLine(n.x1-2-offset,n.y1-2-offset,n.x1+1-offset,n.y1-2-offset,SSD1306_WHITE);
-    display.drawLine(n.x1-2-offset,n.y1-2-offset,n.x1-2-offset,n.y1+1-offset,SSD1306_WHITE);
-    //topR
-    display.drawLine(n.x1+n.length+2+offset,n.y1-2-offset,n.x1+n.length-1+offset,n.y1-2-offset,SSD1306_WHITE);
-    display.drawLine(n.x1+n.length+2+offset,n.y1-2-offset,n.x1+n.length+2+offset,n.y1+1-offset,SSD1306_WHITE);
-    //bottomL
-    display.drawLine(n.x1-2-offset,n.y2+offset,n.x1+1-offset,n.y2+offset,SSD1306_WHITE);
-    display.drawLine(n.x1-2-offset,n.y2+offset,n.x1-2-offset,n.y2-3+offset,SSD1306_WHITE);
-    //bottomR
-    display.drawLine(n.x1+n.length+2+offset,n.y2+offset,n.x1+n.length-1+offset,n.y2+offset,SSD1306_WHITE);
-    display.drawLine(n.x1+n.length+2+offset,n.y2+offset,n.x1+n.length+2+offset,n.y2-3+offset,SSD1306_WHITE);
-  }
-
-  void drawNoteBracket(Note& note, uint8_t track){
-    NoteCoords n = getNoteCoords(note,track);
-    this->drawNoteBracket(n,true);
-  }
-
-  void drawSelectionBracket(){
-    vector<uint16_t> bounds  = getSelectedNotesBoundingBox();
-    //if the left side is in view
-    if(bounds[0]>=sequence.viewStart){
-      //if the top L corner is in view
-      uint8_t x1 = (bounds[0]-sequence.viewStart)*sequence.viewScale+trackDisplay-((millis()/200)%2);
-      if(bounds[1]>=startTrack){
-        //y coord relative to the view
-        uint8_t y1 = (bounds[1]-startTrack)*trackHeight+headerHeight-((millis()/200)%2);
-        display.drawLine(x1,y1,x1+5,y1,SSD1306_WHITE);
-        display.drawLine(x1,y1-1,x1+5,y1-1,SSD1306_WHITE);
-        display.drawLine(x1,y1,x1,y1+5,SSD1306_WHITE);
-        display.drawLine(x1-1,y1,x1-1,y1+5,SSD1306_WHITE);
-      }
-      //if the bottom L corner is in view
-      if(bounds[3]<=endTrack){
-        //y coord relative to the view
-        uint8_t y1 = (bounds[3]-startTrack+1)*trackHeight+headerHeight+((millis()/200)%2);
-        display.drawLine(x1,y1,x1+5,y1,SSD1306_WHITE);
-        display.drawLine(x1,y1+1,x1+5,y1+1,SSD1306_WHITE);
-        display.drawLine(x1,y1,x1,y1-5,SSD1306_WHITE);
-        display.drawLine(x1-1,y1,x1-1,y1-5,SSD1306_WHITE);
-      }
-    }
-    //if the right corner is in view
-    if(bounds[2]<sequence.viewEnd){
-      uint8_t x1 = (bounds[2]-sequence.viewStart)*sequence.viewScale+trackDisplay+((millis()/200)%2)+1;
-      //top R corner
-      if(bounds[1]>=startTrack){
-        uint8_t y1 = (bounds[1]-startTrack)*trackHeight+headerHeight-((millis()/200)%2);
-        display.drawLine(x1,y1,x1-5,y1,SSD1306_WHITE);
-        display.drawLine(x1,y1-1,x1-5,y1-1,SSD1306_WHITE);
-        display.drawLine(x1,y1,x1,y1+5,SSD1306_WHITE);
-        display.drawLine(x1+1,y1,x1+1,y1+5,SSD1306_WHITE);
-      }
-      //bottom R corner
-      if(bounds[3]<=endTrack){
-        uint8_t y1 = (bounds[3]-startTrack+1)*trackHeight+headerHeight+((millis()/200)%2);
-        display.drawLine(x1,y1,x1-5,y1,SSD1306_WHITE);
-        display.drawLine(x1,y1+1,x1-5,y1+1,SSD1306_WHITE);
-        display.drawLine(x1,y1,x1,y1-5,SSD1306_WHITE);
-        display.drawLine(x1+1,y1,x1+1,y1-5,SSD1306_WHITE);
-      }
     }
   }
 
@@ -768,7 +714,7 @@ class StepchildGraphics{
     }
     else if(playing || recording){
       //if the playhead/rechead is on a subdiv, bounce the pram 
-      display.drawBitmap(5,!((playheadPos%24/12)%2),carriage_bmp,14,15,SSD1306_WHITE);
+      display.drawBitmap(5,!((sequence.playheadPos%24/12)%2),carriage_bmp,14,15,SSD1306_WHITE);
     }
   }
   void drawTinyPram(){
@@ -781,7 +727,7 @@ class StepchildGraphics{
     //pram bounces faster
     else if(playing || recording){
       //if the playhead/rechead is on a subdiv, bounce the pram
-      display.drawBitmap(8,!((playheadPos%24/12)%2),tinyPram,7,7,SSD1306_WHITE);
+      display.drawBitmap(8,!((sequence.playheadPos%24/12)%2),tinyPram,7,7,SSD1306_WHITE);
     }
   }
   //draws a play icon shaded according to the sequence clock state
@@ -1343,8 +1289,8 @@ void bootscreen(){
   uint16_t frameCount = 0;
   display.setTextColor(SSD1306_WHITE);
   char child[5] = {'c','h','i','l','d'};
-  int16_t xCoord;
-  int16_t yCoord;
+    int16_t xCoord = 0;
+    int16_t yCoord = 0;
 
   uint8_t xOffset = 30;
   uint8_t yOffset = 15;
@@ -1381,7 +1327,7 @@ void bootscreen(){
     pram.rotate(5,1);
     // writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
     uint16_t ledData = 0b1111111111111111;
-    ledData>>(16-frameCount/8);
+    ledData>>=(16-frameCount/8);
     controls.writeLEDs(ledData);
     frameCount+=4;
   }

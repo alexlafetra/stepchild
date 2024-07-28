@@ -192,11 +192,14 @@ uint16_t countNotesInRange(uint16_t start, uint16_t end){
 //changes which track is active, changing only to valid tracks
 bool setActiveTrack(uint8_t newActiveTrack, bool loudly) {
   if (newActiveTrack >= 0 && newActiveTrack < sequence.trackData.size()) {
-    if(sequence.activeTrack == 4 && newActiveTrack == 5 && maxTracksShown == 5){
+    // if(sequence.activeTrack == 4 && newActiveTrack == 5 && maxTracksShown == 5){
+    if(sequence.activeTrack == 4 && newActiveTrack == 5 && sequence.shrinkTopDisplay == false){
       maxTracksShown = 6;
+      sequence.shrinkTopDisplay = true;
     }
-    else if(sequence.activeTrack == 1 && newActiveTrack == 0 && maxTracksShown == 6){
+    else if(sequence.activeTrack == 1 && newActiveTrack == 0){
       maxTracksShown = 5;
+      sequence.shrinkTopDisplay = false;
     }
     sequence.activeTrack = newActiveTrack;
     if (loudly) {
@@ -339,7 +342,7 @@ void moveView(int16_t val){
 
 //moving the cursor around
 int16_t moveCursor(int moveAmount){
-  int16_t amt;
+  int16_t amt = 0;
   //if you're trying to move back at the start
   if(sequence.cursorPos == 0 && moveAmount < 0){
     return 0;
@@ -515,13 +518,13 @@ bool areThereAnyNotes(){
 bool areThereMoreNotes(bool above){
   if(sequence.trackData.size()>maxTracksShown){
     if(!above){
-      for(int track = endTrack+1; track<sequence.trackData.size();track++){
+      for(int track = sequence.endTrack+1; track<sequence.trackData.size();track++){
         if(sequence.noteData[track].size()-1>0)
         return true;
       }
     }
     else if(above){
-      for(int track = startTrack-1; track>=0; track--){
+      for(int track = sequence.startTrack-1; track>=0; track--){
         if(sequence.noteData[track].size()-1>0)
         return true;
       }
@@ -548,9 +551,9 @@ void togglePlayMode(){
   playing = !playing;
   //if it's looping, set the playhead to the sequence.activeLoop start
   if(sequence.isLooping)
-    playheadPos = sequence.loopData[sequence.activeLoop].start;
+    sequence.playheadPos = sequence.loopData[sequence.activeLoop].start;
   else
-    playheadPos = 0;
+    sequence.playheadPos = 0;
   if(playing){
     if(recording){
       toggleRecordingMode(waitForNoteBeforeRec);
@@ -629,12 +632,12 @@ void toggleRecordingMode(bool butWait){
   recording = !recording;
   //if it stopped recording
   if(!recording)
-    cleanupRecording(recheadPos);
+    cleanupRecording(sequence.recheadPos);
   //if it's recording to the loop
   if(recMode == ONESHOT || recMode == LOOP_MODE)
-    recheadPos = sequence.loopData[sequence.activeLoop].start;
+    sequence.recheadPos = sequence.loopData[sequence.activeLoop].start;
   // else
-  //   recheadPos = ONESHOT;
+  //   sequence.recheadPos = ONESHOT;
   if(butWait)
     waitingToReceiveANote = true;
   else
@@ -684,10 +687,10 @@ void toggleRecordingMode(bool butWait){
 void playingLoop(){
   //internal timing
   if(clockSource == INTERNAL_CLOCK){
-    if(sequenceClock.hasItBeenEnoughTime(playheadPos)){
+    if(sequenceClock.hasItBeenEnoughTime(sequence.playheadPos)){
       MIDI.sendClock();
-      playStep(playheadPos);
-      playheadPos++;
+      playStep(sequence.playheadPos);
+      sequence.playheadPos++;
       checkLoop();
     }
   }
@@ -696,8 +699,8 @@ void playingLoop(){
     MIDI.read();
     if(gotClock && hasStarted){
       gotClock = false;
-      playStep(playheadPos);
-      playheadPos += 1;
+      playStep(sequence.playheadPos);
+      sequence.playheadPos += 1;
       checkLoop();
       // checkFragment();
     }
@@ -753,13 +756,13 @@ void checkAutotracks(){
     recentCC.val = newVal;
     recentCC.cc = sequence.autotrackData[sequence.activeAutotrack].control;
     recentCC.channel = sequence.autotrackData[sequence.activeAutotrack].channel;
-    sequence.autotrackData[sequence.activeAutotrack].data[recheadPos] = newVal;
+    sequence.autotrackData[sequence.activeAutotrack].data[sequence.recheadPos] = newVal;
   }
 }
 
 void defaultLoop(){
-  playheadPos = sequence.loopData[sequence.activeLoop].start;
-  recheadPos = sequence.loopData[sequence.activeLoop].start;
+  sequence.playheadPos = sequence.loopData[sequence.activeLoop].start;
+  sequence.recheadPos = sequence.loopData[sequence.activeLoop].start;
   // fragmentStep = 0;
   MIDI.read();
 }

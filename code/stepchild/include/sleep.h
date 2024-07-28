@@ -319,6 +319,7 @@ void screenSaver_text(){
 //inspired by the drum machine from Iglooghost's music vide:
 //https://www.youtube.com/watch?v=5IfB819O7qg
 void screenSaver_playing(){
+  vector<uint8_t> trackIDsWithNotes = getTracksWithNotes();
   while(true){
     controls.readButtons();
     if(controls.anyActiveInputs()){
@@ -331,15 +332,9 @@ void screenSaver_playing(){
     display.clearDisplay();
     // display.drawFastVLine(64,0,64,1);
     graphics.drawDottedLineV(64,0,64,2);
-    vector<uint8_t> trackIDsWithPitches;
-    for(uint8_t i = 0; i<sequence.trackData.size(); i++){
-      if(sequence.noteData[i].size()>1){
-        trackIDsWithPitches.push_back(i);
-      }
-    }
     for(uint16_t step = 0; step<128; step++){
-      for(uint8_t track:trackIDsWithPitches){
-        int32_t start = playheadPos - 64;
+      for(uint8_t track:trackIDsWithNotes){
+        int32_t start = sequence.playheadPos - 64;
         if(start+step<0)
           continue;
         if(track>8)
@@ -347,13 +342,13 @@ void screenSaver_playing(){
         if(sequence.lookupTable[track][start+step]){
           Note note = sequence.noteData[track][sequence.lookupTable[track][start+step]];
           if(note.startPos == (start+step)){
-            if(playheadPos<note.endPos && playheadPos>=note.startPos)
+            if(sequence.playheadPos<note.endPos && sequence.playheadPos>=note.startPos)
               display.fillRect(step,track*8,note.endPos-note.startPos,7,1);
             else
               display.drawRect(step,track*8,note.endPos-note.startPos,7,1);
           }
           else if(note.startPos<(start) && note.endPos > start){
-            if(playheadPos<note.endPos && playheadPos>=note.startPos)
+            if(sequence.playheadPos<note.endPos && sequence.playheadPos>=note.startPos)
               display.fillRect(-1,track*8,note.endPos-start,7,1);
             else
               display.drawRect(-1,track*8,note.endPos-start,7,1);

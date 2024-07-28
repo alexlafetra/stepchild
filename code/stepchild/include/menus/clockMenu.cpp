@@ -13,26 +13,8 @@ class ClockMenu:public StepchildMenu{
     void updatePendulum();
     bool clockMenuControls();
     void updateStepButtons();
-    void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val);
-    void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val,uint8_t r);
 };
 
-//draws a swinging pendulum, for the clock menu
-void ClockMenu::drawPendulum(int16_t x2, int16_t y2, int8_t length, float val, uint8_t r){
-  //pendulum
-  int a = length;
-  int h = x2;
-  int k = y2;
-  float x1 = h + a * cos(radians(val))/float(2.4);
-  float y1 = k + a * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
-  display.drawLine(x1,y1,h,k,SSD1306_WHITE);
-  display.fillCircle(x1,y1,r,SSD1306_BLACK);
-  display.drawCircle(x1,y1,r,SSD1306_WHITE);
-}
-//draws a pendulum where "val" is a the angle of the pendulum
-void ClockMenu::drawPendulum(int16_t x2, int16_t y2, int8_t length, float val){
-  drawPendulum(x2,y2,length,val,3);
-}
 
 void ClockMenu::updatePendulum(){
   //for the clock pendulum
@@ -105,7 +87,7 @@ void ClockMenu::drawSwingCurve(int8_t xPos, int8_t yPos){
   }
   //playhead
   if(playing || recording){
-    display.drawFastVLine(trackDisplay + ((playing ? playheadPos:recheadPos)-sequence.viewStart)*sequence.viewScale,16,screenHeight-16,SSD1306_WHITE);
+    display.drawFastVLine(trackDisplay + ((playing ? sequence.playheadPos:sequence.recheadPos)-sequence.viewStart)*sequence.viewScale,16,screenHeight-16,SSD1306_WHITE);
   }
   display.drawFastHLine(xPos,16,screenWidth-xPos,1);
 }
@@ -124,6 +106,7 @@ void ClockMenu::displayMenu(){
     settings.loopPoints = false;
     settings.drawLoopFlags = false;
     settings.trackSelection = false;
+    settings.stepSequencerLEDs = false;
     drawSeq(settings);
   }
   //lines
@@ -225,7 +208,7 @@ void ClockMenu::displayMenu(){
       display.fillRect(0,coords.start.y,32,screenHeight-coords.start.y,SSD1306_BLACK);
       display.drawFastVLine(11,coords.start.y+33,31-coords.start.y,1);
       display.drawFastVLine(20,coords.start.y+33,31-coords.start.y,1);
-      drawPendulum(16,coords.start.y+23,26,angle);
+      graphics.drawPendulum(16,coords.start.y+23,26,angle);
       display.fillRect(10,coords.start.y+23,12,10,SSD1306_BLACK);
       display.drawBitmap(6,coords.start.y+5,clock_1_bmp,20,38,SSD1306_WHITE);
       
@@ -234,7 +217,7 @@ void ClockMenu::displayMenu(){
   }
   else{
       display.fillRect(0,coords.start.y,32,screenHeight-coords.start.y,SSD1306_BLACK);
-      drawPendulum(16,coords.start.y+23,26,90);
+      graphics.drawPendulum(16,coords.start.y+23,26,90);
       display.fillRect(10,coords.start.y+23,12,10,SSD1306_BLACK);
       display.drawBitmap(6,coords.start.y+5,clock_1_bmp,20,38,SSD1306_WHITE);
       display.drawLine(15,coords.start.y+15,15,coords.start.y+13,SSD1306_BLACK);

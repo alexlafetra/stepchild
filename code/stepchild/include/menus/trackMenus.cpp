@@ -69,10 +69,12 @@ bool TrackMenu::trackMenuControls(){
         //tune
         case 0:
           tuneTracksToScale();
+          lastTime = millis();
           break;
         //midi route/channel
         case 2:
           routeMenu();
+          lastTime = millis();
           break;
         case 3:
           sequence.trackData[sequence.activeTrack].setPrimed(!sequence.trackData[sequence.activeTrack].isPrimed());
@@ -85,6 +87,7 @@ bool TrackMenu::trackMenuControls(){
         //edit
         case 4:
           trackUtils(this);
+          lastTime = millis();
           break;
         //mute
         case 5:
@@ -94,10 +97,12 @@ bool TrackMenu::trackMenuControls(){
           else{
             toggleMute(sequence.activeTrack);
           }
+          lastTime = millis();
           break;
         //move
         case 6:
           swapTracks();
+          lastTime = millis();
           break;
         //erase
         case 7:
@@ -107,10 +112,12 @@ bool TrackMenu::trackMenuControls(){
           else{
             eraseTrack(sequence.activeTrack);
           }
+          lastTime = millis();
           break;
         //solo
         case 8:
           toggleSolo(sequence.activeTrack);
+          lastTime = millis();
           break;
         //latch
         case 9:
@@ -121,6 +128,7 @@ bool TrackMenu::trackMenuControls(){
               sequence.trackData[track].setLatched(sequence.trackData[sequence.activeTrack].isLatched());
             }
           }
+          lastTime = millis();
           break;
       }
     }
@@ -267,7 +275,6 @@ void TrackMenu::displayMenuSidebar(){
   drawTrackMenuTopInfo(coords.start.x);
 
   //drawing menu options, and the highlight
-  const uint8_t textWidth = 20;
   const uint8_t textHeight = 8;
   const uint8_t yPos = 12;
   //printing out the menu
@@ -371,19 +378,19 @@ class TrackEditMenu:public StepchildMenu{
 void TrackEditMenu::drawTrackInfo(){
   const uint8_t sideWidth = 18;
   //track scrolling
-  endTrack = startTrack + sequence.trackData.size();
+  sequence.endTrack = sequence.startTrack + sequence.trackData.size();
   trackHeight = (screenHeight - headerHeight) / sequence.trackData.size();
   if(sequence.trackData.size()>5){
-    endTrack = startTrack + 5;
+    sequence.endTrack = sequence.startTrack + 5;
     trackHeight = (screenHeight-headerHeight)/5;
   }
-  while(sequence.activeTrack>endTrack-1 && sequence.trackData.size()>5){
-    startTrack++;
-    endTrack++;
+  while(sequence.activeTrack>sequence.endTrack-1 && sequence.trackData.size()>5){
+    sequence.startTrack++;
+    sequence.endTrack++;
   }
-  while(sequence.activeTrack<startTrack && sequence.trackData.size()>5){
-    startTrack--;
-    endTrack--;
+  while(sequence.activeTrack<sequence.startTrack && sequence.trackData.size()>5){
+    sequence.startTrack--;
+    sequence.endTrack--;
   }
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
@@ -395,9 +402,8 @@ void TrackEditMenu::drawTrackInfo(){
   display.drawFastHLine(0,headerHeight-1,screenWidth,SSD1306_WHITE);
 
   //tracks
-  for(uint8_t track = startTrack; track<startTrack+5; track++){
-    unsigned short int y1 = (track-startTrack) * trackHeight + headerHeight-1;
-    unsigned short int y2 = y1 + trackHeight;
+  for(uint8_t track = sequence.startTrack; track<sequence.startTrack+5; track++){
+    unsigned short int y1 = (track-sequence.startTrack) * trackHeight + headerHeight-1;
     if(sequence.trackData[track].isSelected()){
       //double digit
       if((track+1)>=10){
@@ -552,7 +558,6 @@ void TrackEditMenu::displayMenu(){
   printChunky(coords.end.x-s.length()*6,coords.start.y+5,s,SSD1306_WHITE);
 
   //drawing menu options, and the highlight
-  const uint8_t textWidth = 20;
   const uint8_t textHeight = 8;
   const uint8_t yPos = 12;
   //printing out the menu

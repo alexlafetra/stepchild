@@ -102,27 +102,27 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
   }
 }
 //Functions and definitions for generating scales
-#define MAJOR_SCALE 0
-#define DORIAN_MODE 1
-#define PHRYGIAN_MODE 2
-#define LYDIAN_MODE 3
-#define MIXOLYDIAN_MODE_MODE 4
-#define AEOLIAN_MODE 5
-#define LOCRIAN_MODE 6
+// #define MAJOR 0
+// #define DORIAN 1
+// #define PHRYGIAN 2
+// #define LYDIAN 3
+// #define MIXOLYDIAN 4
+// #define AEOLIAN 5
+// #define LOCRIAN 6
 
-#define MELODIC_MINOR_SCALE 7
-#define HARMONIC_MINOR_SCALE 8
-#define MAJOR_PENTATONIC_SCALE 9
-#define MINOR_PENTATONIC_SCALE 10
-#define BLUE_SCALE 10
+// #define MELODIC_MINOR 7
+// #define HARMONIC_MINOR 8
+// #define MAJOR_PENTATONIC 9
+// #define MINOR_PENTATONIC 10
+// #define BLUE 10
 
 
-String getScaleName(uint8_t scale){
+String getScaleName(ScaleName scale){
   const String scales[12] = {"major","dorian","phrygian","lydian","mixolydian","aeolian","locrian","melodic minor","harmonic minor","major pentatonic","minor pentatonoic","blue"};
-  return scales[scale];
+  return scales[static_cast<uint8_t>(scale)];
 }
 
-vector<uint8_t> genScale(uint8_t scale, uint8_t root, int8_t numOctaves, uint8_t octave){
+vector<uint8_t> genScale(ScaleName scale, uint8_t root, int8_t numOctaves, uint8_t octave){
   vector<uint8_t> newScale;
   for(int8_t i = octave; i<numOctaves+octave; i++){
     vector<uint8_t> temp = genScale(scale,root%12+(i*12));
@@ -133,36 +133,47 @@ vector<uint8_t> genScale(uint8_t scale, uint8_t root, int8_t numOctaves, uint8_t
   return newScale;
 }
 //make sure 'root' isn't passed to this fn as a negative number
-vector<uint8_t> genScale(uint8_t scale, uint8_t root){
+vector<uint8_t> genScale(ScaleName scale, uint8_t root){
   vector<uint8_t> newScale;
-  if(scale == MAJOR_SCALE)
-    newScale = {root,uint8_t(root+2),uint8_t(root+4),uint8_t(root+5),uint8_t(root+7),uint8_t(root+9),uint8_t(root+11),uint8_t(root+12)};
-  else if(scale == DORIAN_MODE)
-    newScale = {root,uint8_t(root+2),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+9),uint8_t(root+10),uint8_t(root+12)};
-  else if(scale == PHRYGIAN_MODE)
-    newScale = {root,uint8_t(root+1),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+8),uint8_t(root+10),uint8_t(root+12)};
-  else if(scale == LYDIAN_MODE)
-    newScale = {root,uint8_t(root+2),uint8_t(root+4),uint8_t(root+6),uint8_t(root+7),uint8_t(root+9),uint8_t(root+11),uint8_t(root+12)};
-  else if(scale == MIXOLYDIAN_MODE_MODE)
-    newScale = {root,uint8_t(root+2),uint8_t(root+4),uint8_t(root+5),uint8_t(root+7),uint8_t(root+9),uint8_t(root+10),uint8_t(root+12)};
-  else if(scale == AEOLIAN_MODE)
-    newScale = {root,uint8_t(root+2),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+8),uint8_t(root+10),uint8_t(root+12)};
-  else if(scale == LOCRIAN_MODE)
-    newScale = {root,uint8_t(root+1),uint8_t(root+3),uint8_t(root+5),uint8_t(root+6),uint8_t(root+8),uint8_t(root+10),uint8_t(root+12)};
-  else if(scale == MELODIC_MINOR_SCALE)
-    newScale = {root,uint8_t(root+2),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+8),uint8_t(root+10),uint8_t(root+12)};
-  else if(scale == HARMONIC_MINOR_SCALE)
-    newScale = {root,uint8_t(root+2),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+8),uint8_t(root+11),uint8_t(root+12)};
-  else if(scale == MAJOR_PENTATONIC_SCALE)
-    newScale = {root,uint8_t(root+2),uint8_t(root+4),uint8_t(root+7),uint8_t(root+9),uint8_t(root+12)};
-  else if(scale == MINOR_PENTATONIC_SCALE)
-    newScale = {root,uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+10),uint8_t(root+12)};
-  else if(scale == BLUE_SCALE)
-    newScale = {root,uint8_t(root+3),uint8_t(root+5),uint8_t(root+6),uint8_t(root+7),uint8_t(root+10),uint8_t(root+12)};
-  
+  switch(scale){
+    case MAJOR:
+      newScale = {root,uint8_t(root+2),uint8_t(root+4),uint8_t(root+5),uint8_t(root+7),uint8_t(root+9),uint8_t(root+11)};
+      break;
+    case DORIAN:
+      newScale = {root,uint8_t(root+2),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+9),uint8_t(root+10)};
+      break;
+    case PHRYGIAN:
+      newScale = {root,uint8_t(root+1),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+8),uint8_t(root+10)};
+      break;
+    case LYDIAN:
+      newScale = {root,uint8_t(root+2),uint8_t(root+4),uint8_t(root+6),uint8_t(root+7),uint8_t(root+9),uint8_t(root+11)};
+      break;
+    case MIXOLYDIAN:
+      newScale = {root,uint8_t(root+2),uint8_t(root+4),uint8_t(root+5),uint8_t(root+7),uint8_t(root+9),uint8_t(root+10)};
+      break;
+    case AEOLIAN:
+      newScale = {root,uint8_t(root+2),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+8),uint8_t(root+10)};
+      break;
+    case LOCRIAN:
+      newScale = {root,uint8_t(root+1),uint8_t(root+3),uint8_t(root+5),uint8_t(root+6),uint8_t(root+8),uint8_t(root+10)};
+      break;
+    case MELODIC_MINOR:
+      newScale = {root,uint8_t(root+2),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+8),uint8_t(root+10)};
+      break;
+    case HARMONIC_MINOR:
+      newScale = {root,uint8_t(root+2),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+8),uint8_t(root+11)};
+    case MAJOR_PENTATONIC:
+      newScale = {root,uint8_t(root+2),uint8_t(root+4),uint8_t(root+7),uint8_t(root+9)};
+      break;
+    case MINOR_PENTATONIC:
+      newScale = {root,uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+10)};
+      break;
+    case BLUE:
+      newScale = {root,uint8_t(root+3),uint8_t(root+5),uint8_t(root+6),uint8_t(root+7),uint8_t(root+10)};
+      break;
+  }
   return newScale;
 }
-
 
 vector<uint8_t> selectKeys(uint8_t startRoot) {
   uint8_t selected = 0;
@@ -171,8 +182,8 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
   bool done = false;
   uint8_t root = startRoot%12;
   //FUCK
-  const uint8_t scaleOptions[12] =  { MAJOR_SCALE , HARMONIC_MINOR_SCALE , MELODIC_MINOR_SCALE , MAJOR_PENTATONIC_SCALE , MINOR_PENTATONIC_SCALE , BLUE_SCALE , DORIAN_MODE , PHRYGIAN_MODE , LYDIAN_MODE , MIXOLYDIAN_MODE_MODE , AEOLIAN_MODE , LOCRIAN_MODE };
-  uint8_t activeScale;
+  // const ScaleName scaleOptions[12] =  { MAJOR , HARMONIC_MINOR , MELODIC_MINOR , MAJOR_PENTATONIC , MINOR_PENTATONIC , BLUE , DORIAN , PHRYGIAN , LYDIAN , MIXOLYDIAN , AEOLIAN , LOCRIAN };
+  ScaleName activeScale = MAJOR;
   bool showingScale = false;
   while (!done) {
     animOffset++;
@@ -209,7 +220,7 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
     while(controls.counterA != 0){
       if(controls.counterA >= 1)
         root++;
-      else if(controls.counterA <= -1){
+      if(controls.counterA <= -1){
         if(root == 0)
           root = 11;
         else
@@ -222,26 +233,23 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
     while(controls.counterB != 0){
       if(!showingScale){
         showingScale = true;
-        activeScale = 0;
+        activeScale = MAJOR;
       }
       else{
         if(controls.counterB >= 1){
           activeScale++;
         }
-        else if(controls.counterB <= -1){
-          if(activeScale == 0)
-            activeScale = 11;
-          else activeScale--;
+        if(controls.counterB <= -1){
+          activeScale--;
         }
-        activeScale %= 12;
       }
-      vector<uint8_t> newScale = genScale(scaleOptions[activeScale],0);
+      vector<uint8_t> newScale = genScale(activeScale,root);
       //clear out old scale
-      for(int i = 0; i<12; i++){
+      for(uint8_t i = 0; i<12; i++){
         keys[i] = false;
       }
       //putting in newScale
-      for(int i = 0; i<newScale.size(); i++){
+      for(uint8_t i = 0; i<newScale.size(); i++){
         keys[newScale[i]] = true;
       }
       controls.counterB += controls.counterB<0?1:-1;;
@@ -255,19 +263,18 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
             root%=12;
             lastTime = millis();
           }
-          else if(controls.joystickY == -1){
+          if(controls.joystickY == -1){
             if(root == 0)
               root = 11;
             else
               root--;
-            root%=12;
             lastTime = millis();
           }
         }
         else{
           if(!showingScale){
             showingScale = true;
-            activeScale = 0;
+            activeScale = MAJOR;
             lastTime = millis();
           }
           else{
@@ -275,21 +282,21 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
               activeScale++;
               lastTime = millis();
             }
-            else if(controls.joystickY == -1){
-              if(activeScale == 0)
-                activeScale = 11;
-              else activeScale--;
+            if(controls.joystickY == -1){
+              if(activeScale)
+                activeScale = BLUE;
+              else 
+              activeScale--;
               lastTime = millis();
             }
-            activeScale %= 12;
           }
-          vector<uint8_t> newScale = genScale(scaleOptions[activeScale],0);
+          vector<uint8_t> newScale = genScale(activeScale,0);
           //clear out old scale
-          for(int i = 0; i<12; i++){
+          for(uint8_t i = 0; i<12; i++){
             keys[i] = false;
           }
           //putting in newScale
-          for(int i = 0; i<newScale.size(); i++){
+          for(uint8_t i = 0; i<(newScale.size()>12?12:newScale.size()); i++){
             keys[newScale[i]] = true;
           }
         }
@@ -354,7 +361,7 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
       }
     }
     if(showingScale){
-      printCursive_centered(64, 1, getScaleName(scaleOptions[activeScale]),SSD1306_WHITE);
+      printCursive_centered(64, 1, getScaleName(activeScale),SSD1306_WHITE);
     }
     else{
       printCursive_centered(64, 1, "scale",SSD1306_WHITE);
@@ -364,14 +371,15 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
     display.print(" "+pitchToString(root,false,true));
     display.display();
   }
-  vector<uint8_t> returnedKeys;
-  for(int i = 0; i<12; i++){
+    vector<uint8_t> returnedKeys = {};
+  for(uint8_t i = 0; i<12; i++){
     if(keys[i]){
-      returnedKeys.push_back(i+root);
+      returnedKeys.push_back((i+root)%12);
     }
   }
   return returnedKeys;
 }
+
 void selectKeysAnimation(bool in) {
   if(in){
     uint8_t selected = 0;

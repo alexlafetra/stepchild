@@ -150,7 +150,7 @@ void rain(){
   bool grabNotesFromPlaylist = false;
 
   //start off w/ C major scale
-  vector<uint8_t> pitchList = genScale(MAJOR_SCALE,0);
+  vector<uint8_t> pitchList = genScale(MAJOR,0);
 
   bool isPlaying = true;
   while(true){

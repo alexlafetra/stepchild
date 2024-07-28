@@ -7,7 +7,7 @@
 */
 
 void exitRecAndStartPlaying(uint8_t& layerCount){
-    CoordinatePair A = CoordinatePair(sequence.loopData[sequence.activeLoop].start,recheadPos);
+    CoordinatePair A = CoordinatePair(sequence.loopData[sequence.activeLoop].start,sequence.recheadPos);
     CoordinatePair B = CoordinatePair(sequence.loopData[sequence.activeLoop].start,sequence.loopData[sequence.activeLoop].end);
     //make sure to call this first, so that the recording is cleaned up
     togglePlayMode();
@@ -93,10 +93,10 @@ void liveLoop(){
                     //if you were already playing, just begin recording! don't wait for a note
                     //but if you haven't been playing/recording anything, wait for a note
                     if(playing){
-                        uint16_t oldPlayheadPos = playheadPos;
+                        uint16_t oldPlayheadPos = sequence.playheadPos;
                         recMode = LOOP_MODE;
                         toggleRecordingMode(false);
-                        recheadPos = oldPlayheadPos;
+                        sequence.recheadPos = oldPlayheadPos;
                     }
                     else{
                         recMode = FULL;

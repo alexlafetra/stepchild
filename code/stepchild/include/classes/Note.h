@@ -3,7 +3,10 @@ struct Superposition{
   // Timestep position;
   uint8_t pitch;
   uint8_t odds;
-  Superposition(){}
+  Superposition(){
+    pitch = 255;
+    odds = 50;
+  }
   Superposition(uint8_t t, uint8_t o){
     // position = p;
     pitch = t;

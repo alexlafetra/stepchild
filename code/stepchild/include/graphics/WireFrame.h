@@ -60,10 +60,10 @@ void Vertex::coordTransform(vector<vector<float>> transformer){
           z1 = temp;
       }
     }
+      x = x1;
+      y = y1;
+      z = z1;
   }
-  x = x1;
-  y = y1;
-  z = z1;
 }
 
 //rotates a vertex around x (0) y (1) or z (2) axes
