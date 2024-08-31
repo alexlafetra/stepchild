@@ -747,7 +747,6 @@ void checkAutotracks(){
 void defaultLoop(){
   sequence.playheadPos = sequence.loopData[sequence.activeLoop].start;
   sequence.recheadPos = sequence.loopData[sequence.activeLoop].start;
-  // fragmentStep = 0;
   MIDI.read();
 }
 

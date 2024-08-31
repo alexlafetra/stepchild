@@ -1,6 +1,3 @@
-<!-- ![Gif of the Stepchild Rotating](readme/stepchild.gif) -->
-Ahhh don't look at me i'm a work in progress!
-
 <p align="center">
 </p>
 
@@ -19,35 +16,28 @@ Ahhh don't look at me i'm a work in progress!
 [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa] [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
   
-**Welcome to the github page for the Stepchild MIDI instrument project,** an open source, generative MIDI instrument designed to be a portable step-sequencer and experimental songwriting tool built around the Pi Pico and a love for drum sequencing.
+**Welcome to the github page for the Stepchild MIDI instrument project,** an open source generative MIDI instrument. The Stepchild is a portable step-sequencer and experimental songwriting tool built around the Pi Pico and a love for drum sequencing, and it's open source because building your own is cool as fuck.
 
 ![Render of The Stepchild](readme/opaque.png)
 
-The Stepchild contains a flexible step-sequencer, CC automation and envelope data, experimental realtime MIDI instruments (you can also [make your own]()), a sequence editor including note FX, an onboard filesystem for sharing sequences, an arpeggiator, a live MIDI looper, CV output (natively +3.3V, eurorack power supply required for +12V), a Program Change sequencer, a MIDI console for debugging MIDI setups, and flexible port routing for using the Stepchild as a MIDI interface. The Stepchild has **4 MIDI outputs** and **1 MIDI input**, each of which is accessible through a TRS and classic DIN jack for max compatibility, and one input/output port via **USB MIDI**.
-
 ## Open Source
 The Stepchild is an **open source project** which means you can contribute to, remix, create your own version of, and copy the hardware & software designs that are a part of the project, with some restrictions. The Stepchild's physical design is released under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa], which is a **non-commercial** license, but get in touch with the project if you'd like to talk about selling your own version of the Stepchild or something Stephild related! The Stepchild's software is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html) and can be found in the [code](code/stepchild) folder.
-<!-- 
-[cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
-[![CC BY-NC-SA 4.0][cc-by-nc-sa-image]][cc-by-nc-sa] -->
-![CC Attribution](readme/attribution_graphic_black.svg#gh-light-mode-only)
-![CC Attribution](readme/attribution_graphic_white.svg#gh-dark-mode-only)
 
-
-### Having a Child
-The Stepchild can be purchased as either a [complete instrument]() or several [kits]() from the Stepchild site, or you can build your own from scratch by following the [build guide]. The Stepchild kit is designed to be relatively easy to assemble and modify and comes with partially preassembled PCBs -- making your own Stepchild is encouraged! The purpose of kits is to make it cheaper and easier for those who wants to DIY their Stepchildren.
-
+<p align="center">
+<img src = "readme/attribution_graphic_black.svg#gh-light-mode-only">
+<img src = "readme/attribution_graphic_white.svg#gh-dark-mode-only">
+</p>
 
 # Project Overview
-Please see the [Manual](manual/manual.md) for a guide to creating music with the Stepchild. If you're looking to make your own, please also take a look at the [Build Guide]() which gives an overview of the materials and process for building one of your own.
+The Stepchild contains a flexible step-sequencer, CC automation and envelope data, experimental realtime MIDI instruments, a sequence editor including note FX, an onboard filesystem for sharing sequences, an arpeggiator, a live MIDI looper, CV output (natively +3.3V, eurorack power supply required for +12V), a Program Change sequencer, a MIDI console for debugging MIDI setups, and flexible port routing for using the Stepchild as a MIDI interface: **4 MIDI outputs** and **1 MIDI input**, each of which is accessible through a 3.5mm TRS jack (a headphone jack) *and* a classic MIDI DIN jack, and one input/output port via **USB MIDI**.
+
 
 ## Hardware
-The Stepchild's current hardware version is ***v0.9.2***. The design files include:
+The Stepchild's current hardware version is ***v0.9.2***. To build one, you will need:
 
 **PCB**
-- Main PCB
-- CV Breakout PCB
-- Lower LED Buttons PCB
+- Main, CV, and step sequencer breakout circuit boards
+- All the components from the BOM
 - MIDI Breakout Board ***(Rack Mount Only)***
 - Eurorack Face Plate ***(Rack Mount Only)***
 
@@ -56,7 +46,9 @@ The Stepchild's current hardware version is ***v0.9.2***. The design files inclu
 - [Battery](build/case/BatteryClip.stl) & [Eurorack](build/case/EurorackClip.stl) compartment clips
 - [Silkscreen Graphics](build/silkscreen/graphics.svg)
 
-The Stepchild has 4 hardware MIDI out ports and 1 hardware MIDI In port, supporting both 3.5mm TRS and the original 5-pin-DIN connector MIDI standard, as well as USB MIDI in/out using the Pi Pico's microUSB port. In total, up to 8 instruments and 1 computer can be connected to output channels from the Stepchild on 4 separate hardware ports.
+***Some Notes!***
+
+All the Stepchild case components were originally designed to be made with an SLA printer. The Stepchildren I'm building are made with resin printed cases, though, but all the pieces can be made on an SLA printer.
 
 ![Image](readme/stepchild_disassembled.jpg)
 
