@@ -24,7 +24,7 @@ const vector<String> CCparameters = {"Bank Select","Mod Wheel","Breath Controlle
                                       "Increment +1","Increment -1","Non-Reg. Param. LSB","Non-Reg. Param. MSB",
                                       "Reg. Param. LSB","Reg. Param. MSB","Undefined"};
 const vector<String> MKIICCparameters = {"Ctrl ","EFX On/Off","EFX Selector"};
-const vector<String> stepChildCCParameters = {"Velocity","Probability","Pitch","BPM [Exp]","Swing [Exp]"};
+const vector<String> stepChildCCParameters = {"Velocity","Probability","Pitch","BPM","Swing"};
 
 
 #ifndef HEADLESS
@@ -34,7 +34,6 @@ bool recording = false;
 
 bool gotClock = false;
 bool hasStarted = false;
-bool menuIsActive = false;
 bool drawingNote = false;
 bool pitchesOrNumbers = true;
 
@@ -66,9 +65,6 @@ bool isFragmenting = false;
 //0 is off, 1 is start, -1 is end, 2 is both
 int8_t movingLoop = 0;
 
-// unsigned short int playheadPos;
-// unsigned short int recheadPos;
-
 const unsigned char headerHeight = 16;
 const unsigned char trackDisplay = 32;
 
@@ -93,8 +89,6 @@ int8_t onStop = 0;
 
 //could probably get rid of these! put them in drawSeq
 uint8_t trackHeight;
-uint8_t maxTracksShown = 5;
-// uint8_t maxTracksShown = 16;
 
 #ifndef HEADLESS
     bool core0ready = false;
@@ -129,7 +123,7 @@ struct RandomData{
 
 RandomData randomData;
 
-String menuText;
+String menuText = "";
 String currentFile = "";
 
 //stores recent received note as pitch, vel, channel

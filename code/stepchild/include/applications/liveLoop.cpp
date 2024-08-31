@@ -33,7 +33,6 @@ void liveLoop(){
     //save loop!
     Loop originalLoop = sequence.loopData[sequence.activeLoop];
     uint8_t originalRecMode = recMode;
-    menuIsActive = false;
     recMode = FULL;
     Knob knobA;
     Knob knobB;
@@ -141,7 +140,6 @@ void liveLoop(){
         }
 
     }
-    menuIsActive = true;
     recMode = originalRecMode;
     sequence.loopData[sequence.activeLoop] = originalLoop;
 }

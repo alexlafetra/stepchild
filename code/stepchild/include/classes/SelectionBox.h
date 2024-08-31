@@ -52,7 +52,7 @@ class SelectionBox{
     }
 
     //same, but for tracks
-    uint8_t startHeight = (menuIsActive||maxTracksShown==5)?headerHeight:8;
+    uint8_t startHeight = sequence.shrinkTopDisplay?headerHeight:8;
     startY = (Y1-sequence.startTrack)*trackHeight+startHeight;
     height = ((Y2+1-sequence.startTrack)*trackHeight)+startHeight - startY;
     if(Y1<sequence.startTrack){
@@ -135,7 +135,6 @@ vector<uint16_t> getSelectedNotesBoundingBox(){
 
 vector<uint8_t> getTracksWithSelectedNotes(){
   vector<uint8_t> list;
-  uint16_t count;
   if(sequence.selectionCount>0){
     for(uint8_t track = 0; track<sequence.trackData.size(); track++){
       for(uint16_t note = 1; note<sequence.noteData[track].size(); note++){
@@ -328,7 +327,7 @@ class ClipBoard{
   }
   void pasteAt(uint8_t track, uint16_t step){
     if(this->buffer.size()>0){
-      uint16_t pastedNotes;
+        uint16_t pastedNotes = 0;
       //offset of all the notes (relative to where they were copied from)
       int16_t yOffset = track - this->relativeCursorPosition.y;
       int16_t xOffset = step - this->relativeCursorPosition.x;
@@ -337,14 +336,7 @@ class ClipBoard{
         if(this->buffer[tracks].size()>0 && tracks+yOffset>=0 && tracks+yOffset<sequence.trackData.size()){//if there's a note stored for this track, and it'd be copied according to the new sequence.activeTrack
           for(int notes = 0; notes<this->buffer[tracks].size(); notes++){
             if(this->buffer[tracks][notes].startPos + xOffset<= sequence.sequenceLength){
-              //if the note will be copied to someWhere within the seqence, make note
-              int start = xOffset+this->buffer[tracks][notes].startPos;
-              int end = xOffset+this->buffer[tracks][notes].endPos;
               int track = tracks+yOffset;
-              unsigned char vel = this->buffer[tracks][notes].velocity;
-              unsigned char chance = this->buffer[tracks][notes].chance;
-              bool mute = this->buffer[tracks][notes].isMuted();
-
               Note newNote = this->buffer[tracks][notes];
               newNote.startPos += xOffset;
               newNote.endPos += xOffset;

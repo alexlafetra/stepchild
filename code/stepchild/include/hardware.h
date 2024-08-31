@@ -43,6 +43,10 @@ https://forum.arduino.cc/t/how-to-read-a-register-value-using-the-wire-library/2
 #define MCP23017_LED_ADDR 0b0100001 //33 or 0x41
 #define MCP23017_BUTTON_ADDR 0b0100010 //34 or 0x42
 
+//range is (5-1023) aka 0-1018
+const float joystickScaleFactor = float(128)/float(1018);
+
+
 //use the headless control code if you're building the headless mode
 #ifdef HEADLESS
 #include "../../headless/childOS_headless/HeadlessControls.h"
@@ -242,6 +246,13 @@ class StepchildHardwareInput{
       this->joystickY = 1;
     else
       this->joystickY = 0;
+  }
+  int16_t getJoyX(){
+    return abs(analogRead(JOYSTICK_X) * joystickScaleFactor);
+  }
+
+  int16_t getJoyY(){
+    return abs(128 - constrain(analogRead(JOYSTICK_Y)*joystickScaleFactor,0,128));
   }
   //reads in all the inputs!
   void readButtons(){
@@ -466,6 +477,8 @@ class StepchildHardwareInput{
 
 StepchildHardwareInput controls;
 #endif
+
+
 
 void hardReset(){
   rp2040.reboot();

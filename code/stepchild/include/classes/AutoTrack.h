@@ -1,25 +1,29 @@
 enum TriggerSource:uint8_t{global,track,channel};
+//unimplemented
+// enum TargetType:uint8_t{GENERAL_MIDI,SP404MKII,INTERNAL};
 
 class Autotrack{
   public:
     //holds values in the range 0-127, 255 ==> NO value and a control number should not be sent
     vector<uint8_t> data;
     //control number
-    uint8_t control;
+    uint8_t control = 1;
     //channel val
-    uint8_t channel;
+    uint8_t channel = 1;
     //type of track
     //0 is default, line-based, 1 is sine/cosine based, 2 is square, 3 is saw, 4 is was, 5 is triangle and 6 is random
     //5 is random
-    uint8_t type;
+    uint8_t type = 0;
     //this is just for the osc-based
-    uint16_t period;
-    uint16_t phase;
-    int8_t amplitude;
-    uint8_t yPos;
+    uint16_t period = 96;
+    uint16_t phase = 0;
+    int8_t amplitude = 64;
+    uint8_t yPos = 0;
+
+    int8_t title[4] = {-1,-1,-1,-1};//name
 
     //controls whether it's a 0 (default) or 1 (sp404mkII) or 2 (internal) parameter track
-    uint8_t parameterType;
+    uint8_t parameterType = 0;
 
     //for recording to it
     bool isPrimed = true;
@@ -47,17 +51,19 @@ class Autotrack{
     void sendData(uint16_t);
     void play(uint16_t);
     void setTrigger(TriggerSource trigSource, uint8_t trigTarget);
+    void setTitle(String name){
+      for(uint8_t i = 0; i<(name.length()<4?name.length():4); i++){
+        title[i] = name.charAt(i);
+      }
+    }
+    void clearTitle(){
+      for(uint8_t i = 0; i<4; i++){
+        title[i] = -1;
+      }
+    }
 };
 
 Autotrack::Autotrack(){
-  control = 1;
-  channel = 1;
-  type = 0;
-  parameterType = 0;
-  phase = 0;
-  amplitude = 64;
-  yPos = 64;
-  period = 96;
 }
 
 Autotrack::Autotrack(uint8_t t, uint16_t length){
@@ -65,14 +71,9 @@ Autotrack::Autotrack(uint8_t t, uint16_t length){
   for(uint16_t i = 1; i<length; i++){
     data.push_back(255);
   }
-  control = 1;
-  channel = 1;
   type = t;
-  parameterType = 0;
-  phase = 0;
-  amplitude = 64;
-  yPos = 64;
-  period = 96;
+  String txt = enterText("name?",4);
+  this->setTitle(txt);
 }
 
 void Autotrack::sendData(uint16_t timestep){

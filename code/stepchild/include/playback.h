@@ -530,3 +530,249 @@ void recordingLoop(){
   }
 }
 
+
+void togglePlayMode(){
+  playing = !playing;
+  //if it's looping, set the playhead to the sequence.activeLoop start
+  if(sequence.isLooping)
+    sequence.playheadPos = sequence.loopData[sequence.activeLoop].start;
+  else
+    sequence.playheadPos = 0;
+  if(playing){
+    if(recording){
+      toggleRecordingMode(waitForNoteBeforeRec);
+    }
+    #ifndef HEADLESS
+    MIDI1.setHandleNoteOn(handleNoteOn_Normal);
+    MIDI1.setHandleNoteOff(handleNoteOff_Normal);
+    MIDI1.setHandleClock(handleClock_playing);
+    MIDI1.setHandleStart(handleStart_playing);
+    MIDI1.setHandleStop(handleStop_playing);
+    MIDI0.setHandleNoteOn(handleNoteOn_Normal);
+    MIDI0.setHandleNoteOff(handleNoteOff_Normal);
+    MIDI0.setHandleClock(handleClock_playing);
+    MIDI0.setHandleStart(handleStart_playing);
+    MIDI0.setHandleStop(handleStop_playing);
+    #endif
+
+    sequenceClock.startTime = micros();
+    if(arp.isActive){
+      arp.start();
+    }
+    MIDI.sendStart();
+  }
+  else if(!playing){
+    stop();
+    setNormalMode();
+    MIDI.sendStop();
+    globalModifiers.velocity[1] = 0;
+    globalModifiers.chance[1] = 0;
+    globalModifiers.pitch[1] = 0;
+    CV.off();
+
+  }
+}
+void setNormalMode(){
+  stop();
+  if(arp.isActive){
+    arp.stop();
+  }
+  if(recordingToAutotrack){
+    recordingToAutotrack = false;
+    controls.counterA = 0;
+    controls.counterB = 0;
+  }
+  #ifndef HEADLESS
+  MIDI1.disconnectCallbackFromType(midi::Clock);
+  MIDI1.disconnectCallbackFromType(midi::Start);
+  MIDI1.disconnectCallbackFromType(midi::Stop);
+  MIDI1.disconnectCallbackFromType(midi::NoteOn);
+  MIDI1.disconnectCallbackFromType(midi::NoteOff);
+  MIDI1.disconnectCallbackFromType(midi::ControlChange);
+
+  MIDI0.disconnectCallbackFromType(midi::Clock);
+  MIDI0.disconnectCallbackFromType(midi::Start);
+  MIDI0.disconnectCallbackFromType(midi::Stop);
+  MIDI0.disconnectCallbackFromType(midi::NoteOn);
+  MIDI0.disconnectCallbackFromType(midi::NoteOff);
+  MIDI0.disconnectCallbackFromType(midi::ControlChange);
+
+  MIDI0.setHandleNoteOn(handleNoteOn_Normal);
+  MIDI0.setHandleNoteOff(handleNoteOff_Normal);
+  MIDI0.setHandleStart(handleStart_Normal);
+  MIDI0.setHandleStop(handleStop_Normal);
+
+  MIDI1.setHandleNoteOn(handleNoteOn_Normal);
+  MIDI1.setHandleNoteOff(handleNoteOff_Normal);
+  MIDI1.setHandleStart(handleStart_Normal);
+  MIDI1.setHandleStop(handleStop_Normal);
+
+  MIDI0.setHandleControlChange(handleCC_Normal);
+  MIDI1.setHandleControlChange(handleCC_Normal);
+  #endif
+}
+
+void toggleRecordingMode(bool butWait){
+  recording = !recording;
+  //if it stopped recording
+  if(!recording)
+    cleanupRecording(sequence.recheadPos);
+  //if it's recording to the loop
+  if(recMode == ONESHOT || recMode == LOOP_MODE)
+    sequence.recheadPos = sequence.loopData[sequence.activeLoop].start;
+  // else
+  //   sequence.recheadPos = ONESHOT;
+  if(butWait)
+    waitingToReceiveANote = true;
+  else
+    waitingToReceiveANote = false;
+  if(recording){
+    if(playing){
+      togglePlayMode();
+    }
+    stop();
+    #ifndef HEADLESS
+    //disconnecting all the midi callbacks!
+    MIDI1.disconnectCallbackFromType(midi::NoteOn);
+    MIDI1.disconnectCallbackFromType(midi::NoteOff);
+    MIDI1.disconnectCallbackFromType(midi::Clock);
+    MIDI1.disconnectCallbackFromType(midi::Start);
+    MIDI1.disconnectCallbackFromType(midi::Stop);
+
+    MIDI0.disconnectCallbackFromType(midi::NoteOn);
+    MIDI0.disconnectCallbackFromType(midi::NoteOff);
+    MIDI0.disconnectCallbackFromType(midi::Clock);
+    MIDI0.disconnectCallbackFromType(midi::Start);
+    MIDI0.disconnectCallbackFromType(midi::Stop);
+
+    //reconnecting the midi callbacks
+    MIDI1.setHandleNoteOn(handleNoteOn_Recording);
+    MIDI1.setHandleNoteOff(handleNoteOff_Recording);
+    MIDI1.setHandleClock(handleClock_recording);
+    MIDI1.setHandleStart(handleStart_recording);
+    MIDI1.setHandleStop(handleStop_recording);
+    MIDI1.setHandleControlChange(handleCC_Recording);
+
+    MIDI0.setHandleNoteOn(handleNoteOn_Recording);
+    MIDI0.setHandleNoteOff(handleNoteOff_Recording);
+    MIDI0.setHandleClock(handleClock_recording);
+    MIDI0.setHandleStart(handleStart_recording);
+    MIDI0.setHandleStop(handleStop_recording);
+    MIDI0.setHandleControlChange(handleCC_Recording);
+    #endif
+    sequenceClock.startTime = micros();
+  }
+  else{//go back to normal mode
+    setNormalMode();
+  }
+}
+
+//runs while "playing" is true
+void playingLoop(){
+  //internal timing
+  if(clockSource == INTERNAL_CLOCK){
+    if(sequenceClock.hasItBeenEnoughTime(sequence.playheadPos)){
+      MIDI.sendClock();
+      playStep(sequence.playheadPos);
+      sequence.playheadPos++;
+      checkLoop();
+    }
+  }
+  //external timing
+  else if(clockSource == EXTERNAL_CLOCK){
+    MIDI.read();
+    if(gotClock && hasStarted){
+      gotClock = false;
+      playStep(sequence.playheadPos);
+      sequence.playheadPos += 1;
+      checkLoop();
+      // checkFragment();
+    }
+  }
+}
+
+//this records CC to the activeDT (when you're in the )
+void checkAutotracks(){
+  if(recordingToAutotrack){
+    int newVal = 64;
+    switch(sequence.autotrackData[sequence.activeAutotrack].recordFrom){
+      //recording externally, so get outta this loop!
+      case 0:
+        return;
+      //rec from encoder A
+      case 1:
+        if(controls.counterA>127){
+          controls.counterA = 127;
+        }
+        if(controls.counterA<0)
+          controls.counterA = 0;
+        newVal = controls.counterA;
+        break;
+      //rec from encoder B
+      case 2:
+        if(controls.counterB>127)
+          controls.counterB = 127;
+        if(controls.counterB<0)
+          controls.counterB = 0;
+        newVal = controls.counterB;
+        break;
+      //rec from joystick X
+      case 3:
+        newVal = controls.getJoyX();
+        if(newVal < 58 || newVal>68)
+          waitingToReceiveANote = false;
+        break;
+      //rec from joystick Y
+      case 4:
+        newVal = controls.getJoyY();
+        if(newVal < 58 || newVal>68)
+          waitingToReceiveANote = false;
+        break;
+    }
+    //bounds checking the new value before we write it to the DT
+    if(newVal>127)
+      newVal = 127;
+    else if(newVal<0)
+      newVal = 0;
+    if(waitingToReceiveANote){
+      return;
+    }
+    recentCC.val = newVal;
+    recentCC.cc = sequence.autotrackData[sequence.activeAutotrack].control;
+    recentCC.channel = sequence.autotrackData[sequence.activeAutotrack].channel;
+    sequence.autotrackData[sequence.activeAutotrack].data[sequence.recheadPos] = newVal;
+  }
+}
+
+void defaultLoop(){
+  sequence.playheadPos = sequence.loopData[sequence.activeLoop].start;
+  sequence.recheadPos = sequence.loopData[sequence.activeLoop].start;
+  // fragmentStep = 0;
+  MIDI.read();
+}
+
+void arpLoop(){
+  //if it was active, but hadn't started playing yet
+  if(!arp.playing){
+    switch(arp.source){
+      case EXTERNAL:
+        if(receivedNotes.notes.size()>0)
+          arp.start();
+        break;
+      case INTERNAL:
+        if(sentNotes.notes.size()>0)
+          arp.start();
+        break;
+    }
+  }
+  if(arp.playing){
+    //if the arp isn't latched and there are no notes for it
+    if(!arp.holding  && ((arp.source == EXTERNAL && !receivedNotes.notes.size()) || (arp.source == INTERNAL && !sentNotes.notes.size()))){
+      arp.stop();
+    }
+    //if it IS latched or there are notes for it, then continue
+    else if(arp.hasItBeenEnoughTime()){
+      arp.playstep();
+    }
+  }
+}

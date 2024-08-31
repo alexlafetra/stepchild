@@ -73,7 +73,6 @@ void writeCVClock();
 void moveAutotrackCursor(int moveAmount);
 void changeDataPoint(int8_t);
 void smoothAutotrack(uint16_t, uint16_t, uint8_t);
-bool isModulated(uint8_t ch);
 void autotrackViewer();
 String getCCParam(uint8_t param, uint8_t channel, uint8_t type);
 
@@ -308,6 +307,7 @@ void moveView(int16_t val);
 void setViewStart(uint16_t step);
 void setNormalMode();
 String enterText(String title);
+String enterText(String title,uint8_t count);
 void bootscreen();
 uint8_t countChar(String text,unsigned char c);
 void filterOutUnisonNotes(vector<uint8_t>& notes);

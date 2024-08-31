@@ -190,18 +190,6 @@ struct Loop{
   }
 };
 
-//each of the modifiers stores a channel, and a value
-//the parameter gets modified
-//gets added to notes in the vel modifier channel
-//0 is the global channel
-struct GlobalModifiers{
-  int8_t velocity[2] = {0,0};
-  int8_t chance[2] = {0,0};
-  int8_t pitch[2] = {0,0};
-};
-
-GlobalModifiers globalModifiers;
-
 uint16_t animOffset = 0;//for animating curves
 
 #include "bitmaps.h"            //bitmaps for graphics
@@ -210,6 +198,7 @@ uint16_t animOffset = 0;//for animating curves
 #include "global.h"             //program boolean flags and global data, constants
 #include "hardware.h"   //button/input reading functions
 #include "utils.h"              //common helper functions/utilities
+#include "internalCC.h"
 
 //classes
 #include "graphics/WireFrame.h"//wireframe stuff
@@ -243,6 +232,7 @@ struct NoteCoords{
 
 //Basic graphic functions
 #include "graphics/stepchildGraphics.h"
+#include "stepchildGUI.h"
 
 //16 knobs for the 'controlknobs' instrument
 Knob controlKnobs[16];
@@ -329,4 +319,3 @@ void webInterface(){}
 #include "mainSequence.h"
 
 #include "TBA_Features.h"
-#include "everything.h"

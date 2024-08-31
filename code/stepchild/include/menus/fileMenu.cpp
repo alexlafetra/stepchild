@@ -202,7 +202,7 @@ bool FileMenu::fileMenuControls_default(){
     if(controls.NEW()){
       lastTime = millis();
       String fileName = enterText("filename?");
-      if(fileName != "default"){
+      if(fileName != ""){
         writeSeqFile(fileName);
         filenames = loadFiles();
       }
@@ -213,7 +213,7 @@ bool FileMenu::fileMenuControls_default(){
         controls.setSELECT(false);
         if(filenames[cursor] == "*new*"){
           String fileName = enterText("filename?");
-          if(fileName != "default"){
+          if(fileName != ""){
             writeSeqFile(fileName);
             filenames = loadFiles();
           }

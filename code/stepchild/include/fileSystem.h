@@ -556,7 +556,7 @@ void quickSave(){
   //if it hasn't been saved yet
   if(currentFile == ""){
     String fileName = enterText("filename?");
-    if(fileName != "default"){
+    if(fileName != ""){
       writeSeqFile(fileName);
       currentFile = fileName;
       menuText = "saved \'"+currentFile+"\'";

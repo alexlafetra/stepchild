@@ -51,20 +51,9 @@ void gridAnimation(bool in){
   }
 }
 
-//range is (5-1023) aka 0-1018
-const float joystickScaleFactor = float(128)/float(1018);
-
-int16_t getJoyX(){
-  return abs(analogRead(JOYSTICK_X) * joystickScaleFactor);
-}
-
-int16_t getJoyY(){
-  return abs(128 - constrain(analogRead(JOYSTICK_Y)*joystickScaleFactor,0,128));
-}
-
 void xyGrid(){
-  int16_t xCoord = getJoyX();
-  int16_t yCoord = getJoyY();
+  int16_t xCoord = controls.getJoyX();
+  int16_t yCoord = controls.getJoyY();
 
   int8_t offsetX = 0;
   int8_t offsetY = 0;
@@ -81,11 +70,11 @@ void xyGrid(){
   while(true){
     //a little averaging for smoother motion
     if(!pauseY)
-      yCoord = (yCoord+getJoyY())/2+offsetY;
+      yCoord = (yCoord+controls.getJoyY())/2+offsetY;
       // yCoord = (yCoord+abs((analogRead(JOYSTICK_Y) - 5) * scaleF))/2;
     if(!pauseX)
       // xCoord = (xCoord+abs(128 - (analogRead(JOYSTICK_Y) - 5) * scaleF))/2;
-      xCoord = (xCoord+getJoyX())/2+offsetX;
+      xCoord = (xCoord+controls.getJoyX())/2+offsetX;
 
     display.clearDisplay();
     //rec/play icon

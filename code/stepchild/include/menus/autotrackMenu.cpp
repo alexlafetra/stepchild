@@ -183,7 +183,7 @@ void drawNodeEditingIcon(uint8_t xPos, uint8_t yPos, uint8_t type, uint8_t frame
     //elliptical UP
     case 1:
       {
-      uint8_t lastPoint;
+      uint8_t lastPoint = 0;
       for(uint8_t point = 0; point<width; point++){
         uint8_t pt = sin(millis()/100+point)+yPos+sqrt(1-pow(point-width/2,2)/pow(width/2,2))*(height/2+2)+1;
         if(point == 0){
@@ -277,8 +277,7 @@ void drawCurveIcon(uint8_t xPos, uint8_t yPos, uint8_t type, uint8_t frame){
       {
         display.drawRect(xPos,yPos,width,height,SSD1306_WHITE);
         //slope is just 1/1
-        int8_t coef = 1;
-        uint8_t pt;
+        uint8_t pt = 0;
         for(uint8_t point = 0; point<width; point++){
           if((point+frame)%(width/2)>=width/4)
             pt = -(point+frame)%(width/2)+2*height/2;
@@ -1799,8 +1798,18 @@ void drawAutotrackViewer(uint8_t firstTrack){
           
           display.fillRect(sideMenu,currentHeight,screenWidth-sideMenu,height,SSD1306_BLACK);
           display.drawRect(sideMenu,currentHeight,screenWidth-sideMenu,height,SSD1306_WHITE);
-          if(sequence.autotrackData[track+firstTrack].isActive)
-            printParam_centered(track+firstTrack,sideMenu+(screenWidth-sideMenu)/2,currentHeight+2,sequence.autotrackData[track+firstTrack].control,false,sequence.autotrackData[track+firstTrack].parameterType,false);
+          if(sequence.autotrackData[track+firstTrack].isActive){
+            //if it doesn't have a label, just print the param name
+            if(sequence.autotrackData[firstTrack+track].title[0] == -1)
+              printParam_centered(track+firstTrack,sideMenu+(screenWidth-sideMenu)/2,currentHeight+2,sequence.autotrackData[track+firstTrack].control,false,sequence.autotrackData[track+firstTrack].parameterType,false);
+            else{
+              String label = "";
+              for(uint8_t i = 0; i<4; i++){
+                label += sequence.autotrackData[firstTrack+track].title[i];
+              }
+              printSmall_centered(sideMenu+(screenWidth-sideMenu)/2,currentHeight+2,label,1);
+            }
+          }
           else
             printSmall_centered(sideMenu+(screenWidth-sideMenu)/2,currentHeight+2,"[inactive]",1);
           currentHeight+=height-1;
@@ -1809,8 +1818,16 @@ void drawAutotrackViewer(uint8_t firstTrack){
     }
 
     //data track label
-    String p = getCCParam(sequence.autotrackData[sequence.activeAutotrack].control,sequence.autotrackData[sequence.activeAutotrack].channel,sequence.autotrackData[sequence.activeAutotrack].parameterType);
-    printCursive(10,0,p,1);
+    String label = "";
+    if(sequence.autotrackData[sequence.activeAutotrack].title[0] == -1){
+      label = getCCParam(sequence.autotrackData[sequence.activeAutotrack].control,sequence.autotrackData[sequence.activeAutotrack].channel,sequence.autotrackData[sequence.activeAutotrack].parameterType);
+    }
+    else{
+      for(uint8_t i = 0; i<4; i++){
+        label += sequence.autotrackData[sequence.activeAutotrack].title[i];
+      }
+    }
+    printCursive(10,0,label,1);
 
     //drawing 'more tracks' indicators
     if(firstTrack>0){

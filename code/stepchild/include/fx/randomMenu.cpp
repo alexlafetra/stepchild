@@ -137,7 +137,7 @@ void drawCoordinateBox(CoordinatePair coords){
     }
 
     //if it's offscreen, return
-    if(X2<=sequence.viewStart || X1>=sequence.viewEnd || Y1 > sequence.startTrack+maxTracksShown || Y2<sequence.startTrack){
+    if(X2<=sequence.viewStart || X1>=sequence.viewEnd || Y1 > sequence.startTrack+sequence.maxTracksShown || Y2<sequence.startTrack){
       return;
     }
 
@@ -150,12 +150,12 @@ void drawCoordinateBox(CoordinatePair coords){
     if(Y1<sequence.startTrack){
       Y1 = sequence.startTrack;
     }
-    if(Y2>(sequence.startTrack+maxTracksShown)){
-      Y2 = sequence.startTrack+maxTracksShown;
+    if(Y2>(sequence.startTrack+sequence.maxTracksShown)){
+      Y2 = sequence.startTrack+sequence.maxTracksShown;
     }
     uint8_t startX = trackDisplay+(X1-sequence.viewStart)*sequence.viewScale;
     uint8_t length = (X2-X1)*sequence.viewScale;
-    // uint8_t startHeight = maxTracksShown==5?headerHeight:8;
+    // uint8_t startHeight = sequence.maxTracksShown==5?headerHeight:8;
     uint8_t startHeight = headerHeight;
     uint8_t startY = (Y1-sequence.startTrack)*trackHeight+startHeight;
     uint8_t height = ((Y2 - sequence.startTrack + 1)*trackHeight - startY)%(screenHeight-startHeight) + startHeight;

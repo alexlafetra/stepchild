@@ -373,12 +373,12 @@ void shrinkTracks(){
   //if it's already shrunk, toggle it
   if(!isShrunk){
     if(sequence.trackData.size()>6){
-        maxTracksShown = 6;
+        sequence.maxTracksShown = 6;
         sequence.startTrack = 0;
         sequence.endTrack = 5;
       }
     else{
-      maxTracksShown = sequence.trackData.size();
+      sequence.maxTracksShown = sequence.trackData.size();
       sequence.startTrack = 0;
       sequence.endTrack = sequence.trackData.size()-1;
     }
@@ -386,7 +386,7 @@ void shrinkTracks(){
   }
   //if it's not shrunk, shrink em
   else{
-    maxTracksShown = 16;
+    sequence.maxTracksShown = 16;
     sequence.startTrack = 0;
     sequence.endTrack = 16;
     // headerHeight = 8;

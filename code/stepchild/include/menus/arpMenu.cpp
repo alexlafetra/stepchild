@@ -550,13 +550,8 @@ void drawArpMenu(uint8_t cursor){
 //"notes" option adds notes from the 1scale onto whatever notes are playing
 void arpMenu(){
   keyboardAnimation(38,14,0,14,true);
-  int xStart = 10;
-  int yStart = 32;
   int spacing = 4;
-  int width = screenWidth/8-spacing-2;
   //step boxes
-  int noteStart = 0;
-  int noteEnd = 7;
   uint8_t cursor = 0;
   while(true){
     display.clearDisplay();

@@ -24,6 +24,7 @@ class StepchildSequence{
     uint16_t viewStart = 0;
     uint16_t viewEnd = 192;
     bool shrinkTopDisplay = false;
+    uint8_t maxTracksShown = 6;
     uint8_t startTrack = 0;
     uint8_t endTrack = 4;
     float viewScale = 0.5;
@@ -1037,4 +1038,397 @@ void setCursorToNearestNote(){
     setCursor((sequence.noteData[minTrack][minNote].startPos<sequence.cursorPos)?sequence.noteData[minTrack][minNote].startPos:sequence.noteData[minTrack][minNote].endPos-1);
     setActiveTrack(minTrack,false);
   }
+}
+
+
+uint16_t getNoteCount(){
+  uint16_t count = 0;
+  for(uint8_t track = 0; track<sequence.noteData.size(); track++){
+    count+=sequence.noteData[track].size()-1;
+  }
+  return count;
+}
+
+float getNoteDensity(uint16_t timestep){
+  float density = 0;
+  for(int track = 0; track<sequence.trackData.size(); track++){
+    if(sequence.lookupTable[track][timestep] != 0){
+      density++;
+    }
+  }
+  return density/float(sequence.trackData.size());
+}
+float getNoteDensity(uint16_t start, uint16_t end){
+  float density;
+  for(int i = start; i<= end; i++){
+    density+=getNoteDensity(i);
+  }
+  return density/float(end-start+1);
+}
+
+//counts notes within a range
+uint16_t countNotesInRange(uint16_t start, uint16_t end){
+  uint16_t count = 0;
+  for(uint8_t t = 0; t<sequence.trackData.size(); t++){
+    //if there are no notes, ignore it
+    if(sequence.noteData[t].size() == 1)
+      continue;
+    else{
+      //move over each note
+      for(uint16_t i = 1; i<sequence.noteData.size(); i++){
+        if(sequence.noteData[t][i].startPos>=start && sequence.noteData[t][i].startPos<end)
+          count++;
+      }
+    }
+  }
+  return count;
+}
+
+//changes which track is active, changing only to valid tracks
+bool setActiveTrack(uint8_t newActiveTrack, bool loudly) {
+  if (newActiveTrack >= 0 && newActiveTrack < sequence.trackData.size()) {
+    // if(sequence.activeTrack == 4 && newActiveTrack == 5 && sequence.maxTracksShown == 5){
+    if((sequence.activeTrack == sequence.maxTracksShown-1) && (newActiveTrack == sequence.maxTracksShown) && sequence.shrinkTopDisplay == false){
+      sequence.maxTracksShown++;
+      sequence.shrinkTopDisplay = true;
+    }
+    else if(sequence.activeTrack == 1 && newActiveTrack == 0){
+      sequence.maxTracksShown--;
+      sequence.shrinkTopDisplay = false;
+    }
+    sequence.activeTrack = newActiveTrack;
+    if (loudly) {
+      MIDI.noteOn(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
+      MIDI.noteOff(sequence.trackData[sequence.activeTrack].pitch, 0, sequence.trackData[sequence.activeTrack].channel);
+      if(sequence.trackData[sequence.activeTrack].isLatched()){
+        MIDI.noteOn(sequence.trackData[sequence.activeTrack].pitch, sequence.defaultVel, sequence.trackData[sequence.activeTrack].channel);
+        MIDI.noteOff(sequence.trackData[sequence.activeTrack].pitch, 0, sequence.trackData[sequence.activeTrack].channel);
+      }
+    }
+    menuText = pitchToString(sequence.trackData[sequence.activeTrack].pitch,true,true);
+    return true;
+  }
+  return false;
+}
+
+void changeTrackChannel(int id, int newChannel){
+  if(newChannel>=0 && newChannel<=16){
+    sequence.trackData[id].channel = newChannel;
+  }
+}
+
+
+void changeAllTrackChannels(int newChannel){
+  for(int track = 0; track<sequence.trackData.size(); track++){
+    changeTrackChannel(track, newChannel);
+  }
+}
+
+void moveToNextNote_inTrack(bool up){
+  uint8_t track = sequence.activeTrack;
+  uint16_t currentID = sequence.IDAtCursor();
+  bool foundTrack = false;
+  //moving the track up/down until it hits a track with notes
+  //and checking bounds
+  if(up){
+    while(track<sequence.trackData.size()-1){
+      track++;
+      if(sequence.noteData[track].size()>1){
+        foundTrack = true;
+        break;
+      }
+    }
+  }
+  else{
+    while(track>0){
+      track--;
+      if(sequence.noteData[track].size()>1){
+        foundTrack = true;
+        break;
+      }
+    }
+  }
+  //if you couldn't find a track with a note on it, just return
+  if(!foundTrack){
+    return;
+  }
+  for(uint16_t dist = 0; dist<sequence.sequenceLength; dist++){
+    bool stillValid = false;
+    //if the new position is in bounds
+    if(sequence.cursorPos+dist<=sequence.sequenceLength){
+      stillValid = true;
+      //and if there's something there!
+      if(sequence.lookupTable[track][sequence.cursorPos+dist] != 0){
+        //move to it
+        moveCursor(dist);
+        setActiveTrack(track,false);
+        return;
+      }
+    }
+    if(sequence.cursorPos>=dist){
+      stillValid = true;
+      if(sequence.lookupTable[track][sequence.cursorPos-dist] != 0){
+        moveCursor(-dist);
+        setActiveTrack(track,false);
+        return;
+      }
+    }
+    //if it's reached the bounds
+    if(!stillValid){
+      return;
+    }
+  }
+}
+
+//moves thru each step, forward or backward, and moves the cursor to the first note it finds
+void moveToNextNote(bool forward,bool endSnap){
+  //if there's a note on this track at all
+  if(sequence.noteData[sequence.activeTrack].size()>1){
+    unsigned short int id = sequence.IDAtCursor();
+    if(forward){
+      for(int i = sequence.cursorPos; i<sequence.sequenceLength; i++){
+        if(sequence.lookupTable[sequence.activeTrack][i] !=id && sequence.lookupTable[sequence.activeTrack][i] != 0){
+          moveCursor(sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][i]].startPos-sequence.cursorPos);
+          return;
+        }
+      }
+      if(endSnap){
+        moveCursor(sequence.sequenceLength-sequence.cursorPos);
+      }
+      return;
+    }
+    else{
+      for(int i = sequence.cursorPos; i>0; i--){
+        if(sequence.lookupTable[sequence.activeTrack][i] !=id && sequence.lookupTable[sequence.activeTrack][i] != 0){
+          moveCursor(sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][i]].startPos-sequence.cursorPos);
+          return;
+        }
+      }
+      if(endSnap){
+        moveCursor(-sequence.cursorPos);
+      }
+      return;
+    }
+  }
+}
+
+void moveToNextNote(bool forward){
+  moveToNextNote(forward, false);
+}
+
+//View ------------------------------------------------------------------
+
+void setViewStart(uint16_t step){
+  uint16_t viewLength = sequence.viewEnd-sequence.viewStart;
+  if(viewLength + step > sequence.sequenceLength){
+    step = sequence.sequenceLength-viewLength;
+  }
+  sequence.viewStart = step;
+  sequence.viewEnd = step+viewLength;
+}
+
+void moveView(int16_t val){
+  if(val < 0 && abs(val)>sequence.viewStart){
+    setViewStart(0);
+  }
+  else{
+    setViewStart(sequence.viewStart+val);
+  }
+}
+
+//moving the cursor around
+int16_t moveCursor(int moveAmount){
+  int16_t amt = 0;
+  //if you're trying to move back at the start
+  if(sequence.cursorPos == 0 && moveAmount < 0){
+    return 0;
+  }
+  if(moveAmount<0 && sequence.cursorPos+moveAmount<0){
+    amt = sequence.cursorPos;
+    sequence.cursorPos = 0;
+  }
+  else{
+    sequence.cursorPos += moveAmount;
+    amt = moveAmount;
+  }
+  if(sequence.cursorPos > sequence.sequenceLength) {
+    amt += (sequence.sequenceLength-sequence.cursorPos);
+    sequence.cursorPos = sequence.sequenceLength;
+  }
+  //extend the note if one is being drawn (and if you're moving forward)
+  if(drawingNote && moveAmount>0){
+    if(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].endPos<sequence.cursorPos)
+      changeNoteLength(sequence.cursorPos-sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].endPos,sequence.activeTrack,sequence.noteData[sequence.activeTrack].size()-1);
+  }
+  //Move the view along with the cursor
+  if(sequence.cursorPos<sequence.viewStart+sequence.subDivision && sequence.viewStart>0){
+    moveView(sequence.cursorPos - (sequence.viewStart+sequence.subDivision));
+  }
+  else if(sequence.cursorPos > sequence.viewEnd-sequence.subDivision && sequence.viewEnd<sequence.sequenceLength){
+    moveView(sequence.cursorPos - (sequence.viewEnd-sequence.subDivision));
+  }
+  //update the LEDs
+  menuText = ((moveAmount>0)?(stepsToPosition(sequence.cursorPos,true)+">>"):("<<"+stepsToPosition(sequence.cursorPos,true)));
+  return amt;
+}
+
+void setCursor(uint16_t loc){
+  moveCursor(loc-sequence.cursorPos);
+}
+
+void moveCursorIntoView(){
+  if (sequence.cursorPos < 0) {
+    sequence.cursorPos = 0;
+  }
+  if (sequence.cursorPos > sequence.sequenceLength-1) {
+    sequence.cursorPos = sequence.sequenceLength-1;
+  }
+  if (sequence.cursorPos < sequence.viewStart) {
+    moveView(sequence.cursorPos-sequence.viewStart);
+  }
+  if (sequence.cursorPos >= sequence.viewEnd) {//doin' it this way so the last column of pixels is drawn, but you don't interact with it
+    moveView(sequence.cursorPos-sequence.viewEnd);
+  }
+}
+
+//------------------------------------------------------------------------------------------------------------------------------
+bool isInView(int target){
+  if(target>=sequence.viewStart && target<=sequence.viewEnd)
+    return true;
+  else
+    return false;
+}
+
+uint16_t changeSubDiv(bool direction, uint8_t subDiv, bool allowZero){
+  //down
+  if(!direction){
+    if(subDiv == 1 && allowZero)
+      subDiv = 0;
+    else if(subDiv>3)
+      subDiv /= 2;
+    else if(subDiv == 3)
+      subDiv = 1;
+  }
+  else{
+    if(subDiv == 0)
+      subDiv = 1;
+    else if(subDiv == 1)//if it's one, set it to 3
+      subDiv = 3;
+    else if(subDiv !=  96 && subDiv != 32){
+      //if triplet mode
+      if(!(subDiv%2))
+        subDiv *= 2;
+      else if(!(subDiv%3))
+        subDiv *=2;
+    }
+  }
+  return subDiv;
+}
+
+void changeSubDivInt(bool down){
+  changeSubDivInt(down,false);
+}
+
+void changeSubDivInt(bool down, bool limitToView){
+  if(down){
+    if(sequence.subDivision>3 && (!limitToView || (sequence.subDivision*sequence.viewScale)>2))
+      sequence.subDivision /= 2;
+    else if(sequence.subDivision == 3)
+      sequence.subDivision = 1;
+  }
+  else{
+    if(sequence.subDivision == 1)//if it's one, set it to 3
+      sequence.subDivision = 3;
+    else if(sequence.subDivision !=  96 && sequence.subDivision != 32){
+      //if triplet mode
+      if(!(sequence.subDivision%2))
+        sequence.subDivision *= 2;
+      else if(!(sequence.subDivision%3))
+        sequence.subDivision *=2;
+    }
+  }
+  menuText = "~"+stepsToMeasures(sequence.subDivision);
+}
+
+uint16_t toggleTriplets(uint16_t subDiv){
+  //this breaks the pattern, but lets you swap from 2/1 to 3/1 (rare case probs)
+  if(subDiv == 192){
+    subDiv = 32;
+  }
+  else if(!(subDiv%3)){//if it's in 1/4 mode...
+    subDiv = 2*subDiv/3;//set it to triplet mode
+  }
+  else if(!(subDiv%2)){//if it was in triplet mode...
+    subDiv = 3*subDiv/2;//set it to 1/4 mode
+  }
+  menuText = stepsToMeasures(sequence.subDivision);
+  return subDiv;
+}
+
+void toggleTriplets(){
+  //this breaks the pattern, but lets you swap from 2/1 to 3/1 (rare case probs)
+  if(sequence.subDivision == 192){
+    sequence.subDivision = 32;
+  }
+  else if(!(sequence.subDivision%3)){//if it's in 1/4 mode...
+    sequence.subDivision = 2*sequence.subDivision/3;//set it to triplet mode
+  }
+  else if(!(sequence.subDivision%2)){//if it was in triplet mode...
+    sequence.subDivision = 3*sequence.subDivision/2;//set it to 1/4 mode
+  }
+  menuText = stepsToMeasures(sequence.subDivision);
+}
+
+//makes sure scale/viewend line up with the display
+void checkView(){
+  if(sequence.viewEnd>sequence.sequenceLength){
+    sequence.viewScale = float(96)/float(sequence.sequenceLength);
+    sequence.viewEnd = sequence.sequenceLength+1;
+  }
+}
+//zooms in/out
+void zoom(bool in){
+  uint16_t viewLength = sequence.viewEnd-sequence.viewStart;
+  if(!in && viewLength<sequence.sequenceLength){
+    sequence.viewScale /= 2;
+  }
+  else if(in && viewLength/2>1){
+    sequence.viewScale *= 2;
+  }  
+  sequence.viewStart = 0;
+  sequence.viewEnd = 96/sequence.viewScale;
+  checkView();
+  changeSubDivInt(in);
+  moveCursorIntoView();
+  menuText = stepsToMeasures(sequence.viewStart)+"<-->"+stepsToMeasures(sequence.viewEnd)+"(~"+stepsToMeasures(sequence.subDivision)+")";
+}
+bool areThereAnyNotes(){
+  for(uint8_t t = 0; t<sequence.noteData.size(); t++){
+    if(sequence.noteData[t].size()>1){
+      return true;
+    }
+  }
+  return false;
+}
+//checks for notes above or below a track
+bool areThereMoreNotes(bool above){
+  if(sequence.trackData.size()>sequence.maxTracksShown){
+    if(!above){
+      for(int track = sequence.endTrack+1; track<sequence.trackData.size();track++){
+        if(sequence.noteData[track].size()-1>0)
+        return true;
+      }
+    }
+    else if(above){
+      for(int track = sequence.startTrack-1; track>=0; track--){
+        if(sequence.noteData[track].size()-1>0)
+        return true;
+      }
+    }
+  }
+  return false;
+}
+//sort function for sorting tracks by channel
+bool compareChannels(Track t1, Track t2){
+  return t1.channel>t2.channel;
 }

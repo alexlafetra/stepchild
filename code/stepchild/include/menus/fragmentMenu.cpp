@@ -25,7 +25,7 @@ void fragmentMenu(){
   int maxRepsVal = 8;
   //for drawing the start bounds
   bool startedDrawing = false;
-  while(menuIsActive){
+  while(true){
     h = 80;
     k = 30;
     controls.readButtons();

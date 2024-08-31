@@ -2,7 +2,7 @@ struct SequenceRenderSettings{
     uint16_t start;
     uint16_t end;
     uint8_t startHeight;
-    uint8_t maxTracksShown = 5;
+    uint8_t maxTracksShown = 6;
     bool onlyWithinLoop;
     bool drawLoopFlags;
     bool drawLoopPoints;
@@ -30,9 +30,9 @@ struct SequenceRenderSettings{
         trackLabels = true;
         topLabels = true;
         drawLoopPoints = true;
-
         trackSelection = false;
-        shrinkTopDisplay = true;
+        shrinkTopDisplay = sequence.shrinkTopDisplay;
+        maxTracksShown = sequence.maxTracksShown;
         startHeight = headerHeight;
         drawLoopFlags = true;
         drawTrackChannel = controls.SHIFT();
@@ -172,7 +172,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
 
   //note presence indicator(if notes are offscreen)
   if(areThereMoreNotes(true)){
-    uint8_t y1 = (settings.maxTracksShown>5&&!menuIsActive)?8:headerHeight;
+    uint8_t y1 = settings.shrinkTopDisplay?8:headerHeight;
     if(!((animOffset/10)%2)){
       display.fillTriangle(trackDisplay-7,y1+3,trackDisplay-3,y1+3,trackDisplay-5,y1+1, SSD1306_WHITE);
     }
@@ -426,11 +426,9 @@ void drawNote(Note& note, uint8_t track, SequenceRenderSettings& settings){
 //this function is a mess!
 void drawSeq(SequenceRenderSettings& settings){
   if(settings.shrinkTopDisplay){
-    settings.maxTracksShown = maxTracksShown;
-    if(!(settings.maxTracksShown==5)){//this should change so that shrinkTop controls maxTracksShown, not the other way around
-      settings.startHeight = 8;
-      settings.drawLoopFlags = false;
-    }
+    settings.startHeight = 8;
+    settings.drawLoopFlags = false;
+    settings.maxTracksShown++;
   }
 
   trackHeight = (screenHeight-settings.startHeight)/settings.maxTracksShown;//calc track height
@@ -569,7 +567,7 @@ void drawSeq(SequenceRenderSettings& settings){
   }
   //drawing big or small pram in the corner
   if(settings.drawPram){
-    if(settings.maxTracksShown != 5){
+    if(settings.shrinkTopDisplay){
         graphics.drawTinyPram();
     }
     else{
@@ -592,10 +590,9 @@ void drawSeq(SequenceRenderSettings& settings){
   }
 
   //anim offset (for the pram)
-  if(!menuIsActive){
-    animOffset++;
-    animOffset%=100;
-  }
+
+  animOffset = (animOffset+1)%100;
+
   //it's ok to call this in here bc the LB checks to make sure it doesn't redundantly write
   if(settings.stepSequencerLEDs)
     sequence.displayMainSequenceLEDs();
