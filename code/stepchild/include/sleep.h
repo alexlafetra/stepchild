@@ -168,7 +168,7 @@ void screenSaver_moon(){
       done = false;
     }
     display.clearDisplay();
-    drawMoon(phase, waxing);
+    graphics.drawMoon(phase, waxing);
     display.display();
     counter+=waxing?1:-1;;
     if(controls.anyActiveInputs()){

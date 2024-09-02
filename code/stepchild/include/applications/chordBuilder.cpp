@@ -71,12 +71,12 @@ void chordBuilder(){
     while(controls.counterB != 0){
       if(!controls.SHIFT()){   
         if(controls.counterB >= 1){
-          changeSubDivInt(true);
+          sequence.changeSubDivInt(true);
           controls.counterB += controls.counterB<0?1:-1;;
         }
         //changing subdivint
         if(controls.counterB <= -1){
-          changeSubDivInt(false);
+          sequence.changeSubDivInt(false);
           controls.counterB += controls.counterB<0?1:-1;;
         }
       }

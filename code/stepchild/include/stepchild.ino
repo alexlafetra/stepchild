@@ -70,7 +70,7 @@ void setup() {
   setNormalMode();
   core0ready = true;
   lastTime = millis();
-  bootscreen_2();
+  graphics.bootscreen_2();
   // maxCurrentDrawTest();
 }
 

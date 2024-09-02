@@ -82,7 +82,7 @@ void humanize(bool move){
   //quantizing the note at the cursor
   if(sequence.IDAtCursor() != 0){
     int16_t amount = humanizeNote(sequence.activeTrack,sequence.IDAtCursor());
-    moveCursor(amount);
+    sequence.moveCursor(amount);
   }
 }
 
@@ -208,7 +208,6 @@ void humanizeMenu(){
     display.display();
   }
 }
-
 bool humanizeMenuControls(uint8_t* cursor){
   if(utils.itsbeen(100)){
     //moving cursor
@@ -243,7 +242,7 @@ bool humanizeMenuControls(uint8_t* cursor){
     if(controls.NEW()){
         lastTime = millis();
         while(true){
-            if(selectNotes("humanize",drawHumanizeIcon)){
+            if(selectNotes("humanize",[](uint8_t a, uint8_t b, uint8_t c, bool d){graphics.drawHumanizeIcon(a,b,c,d);})){
                 humanizeSelectedNotes();
             }
             else{
@@ -260,14 +259,14 @@ bool humanizeMenuControls(uint8_t* cursor){
       if((*cursor) == 2){
         //if shifting, toggle between 1/3 and 1/4 mode
         if(controls.SHIFT()){
-          toggleTriplets();
+          sequence.toggleTriplets();
         }
         else if(controls.counterA >= 1){
-          changeSubDivInt(true);
+          sequence.changeSubDivInt(true);
         }
         //changing subdivint
         else if(controls.counterA <= -1){
-          changeSubDivInt(false);
+          sequence.changeSubDivInt(false);
         }
       }
       else{
@@ -299,14 +298,14 @@ bool humanizeMenuControls(uint8_t* cursor){
   while(controls.counterB != 0){
     //if shifting, toggle between 1/3 and 1/4 mode
     if(controls.SHIFT()){
-      toggleTriplets();
+      sequence.toggleTriplets();
     }
     else if(controls.counterB >= 1){
-      changeSubDivInt(true);
+      sequence.changeSubDivInt(true);
     }
     //changing subdivint
     else if(controls.counterB <= -1){
-      changeSubDivInt(false);
+      sequence.changeSubDivInt(false);
     }
     controls.counterB += controls.counterB<0?1:-1;;
   }

@@ -6,13 +6,13 @@ void drawLoopInfo(uint8_t x1, uint8_t y1, uint8_t whichLoop);
 void moveCursorWithinLoop(int amount, uint8_t whichLoop){
   //if the cursor is going to move before the loop
   if(amount<0 && (sequence.cursorPos + amount)<sequence.loopData[whichLoop].start)
-    moveCursor(sequence.cursorPos - sequence.loopData[whichLoop].start);
+    sequence.moveCursor(sequence.cursorPos - sequence.loopData[whichLoop].start);
   //if the cursor is going to move past the loop
   else if(amount>0 && (sequence.cursorPos+amount)>=sequence.loopData[whichLoop].end)
-    moveCursor(sequence.loopData[whichLoop].end-sequence.cursorPos);
+    sequence.moveCursor(sequence.loopData[whichLoop].end-sequence.cursorPos);
   //if not, then it's moving within the loop
   else
-    moveCursor(amount);
+    sequence.moveCursor(amount);
 }
 
 bool isWithinLoop(int val, int loop, int amount, bool inclusive){
@@ -90,21 +90,21 @@ bool viewLoopControls(uint8_t which){
         if(!movingLoop)
           moveCursorWithinLoop(-sequence.cursorPos%sequence.subDivision,which);
         else
-          moveCursor(-sequence.cursorPos%sequence.subDivision);
+          sequence.moveCursor(-sequence.cursorPos%sequence.subDivision);
         lastTime = millis();
         //moving entire loop
         if(movingLoop == 2)
-          moveLoop(-sequence.cursorPos%sequence.subDivision);
+          sequence.moveLoop(-sequence.cursorPos%sequence.subDivision);
       }
       else{
         if(!movingLoop)
           moveCursorWithinLoop(-sequence.subDivision,which);
         else
-          moveCursor(-sequence.subDivision);
+          sequence.moveCursor(-sequence.subDivision);
         lastTime = millis();
         //moving entire loop
         if(movingLoop == 2)
-          moveLoop(-sequence.subDivision);
+          sequence.moveLoop(-sequence.subDivision);
       }
       //moving loop start/end
       if(movingLoop == -1){
@@ -119,19 +119,19 @@ bool viewLoopControls(uint8_t which){
         if(!movingLoop)
           moveCursorWithinLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision,which);
         else
-          moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
+          sequence.moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
         lastTime = millis();
         if(movingLoop == 2)
-          moveLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
+          sequence.moveLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
       }
       else{
         if(!movingLoop)
           moveCursorWithinLoop(sequence.subDivision,which);
         else
-          moveCursor(sequence.subDivision);
+          sequence.moveCursor(sequence.subDivision);
         lastTime = millis();
         if(movingLoop == 2)
-          moveLoop(sequence.subDivision);
+          sequence.moveLoop(sequence.subDivision);
       }
       //moving loop start/end
       if(movingLoop == -1){
@@ -145,17 +145,17 @@ bool viewLoopControls(uint8_t which){
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1 && !controls.SHIFT() && !controls.LOOP()) {
       if(recording)//if you're not in normal mode, you don't want it to be loud
-        setActiveTrack(sequence.activeTrack + 1, false);
+        sequence.setActiveTrack(sequence.activeTrack + 1, false);
       else
-        setActiveTrack(sequence.activeTrack + 1, true);
+        sequence.setActiveTrack(sequence.activeTrack + 1, true);
       drawingNote = false;
       lastTime = millis();
     }
     if (controls.joystickY == -1 && !controls.SHIFT() && !controls.LOOP()) {
       if(recording)//if you're not in normal mode, you don't want it to be loud
-        setActiveTrack(sequence.activeTrack - 1, false);
+        sequence.setActiveTrack(sequence.activeTrack - 1, false);
       else
-        setActiveTrack(sequence.activeTrack - 1, true);
+        sequence.setActiveTrack(sequence.activeTrack - 1, true);
       drawingNote = false;
       lastTime = millis();
     }
@@ -166,10 +166,10 @@ bool viewLoopControls(uint8_t which){
       if(!movingLoop)
         moveCursorWithinLoop(-1,which);
       else
-        moveCursor(-1);
+        sequence.moveCursor(-1);
       lastTime = millis();
       if(movingLoop == 2)
-        moveLoop(-1);
+        sequence.moveLoop(-1);
       else if(movingLoop == -1)
         sequence.setLoopPoint(sequence.cursorPos,true);
       else if(movingLoop == 1)
@@ -179,10 +179,10 @@ bool viewLoopControls(uint8_t which){
       if(!movingLoop)
         moveCursorWithinLoop(1,which);
       else
-        moveCursor(1);
+        sequence.moveCursor(1);
       lastTime = millis();
       if(movingLoop == 2)
-        moveLoop(1);
+        sequence.moveLoop(1);
       else if(movingLoop == -1)
         sequence.loopData[sequence.activeLoop].start = sequence.cursorPos;
       else if(movingLoop == 1)
@@ -325,7 +325,7 @@ bool viewLoopControls(uint8_t which){
 }
 
 void viewLoop(uint8_t which){
-  setCursor(sequence.loopData[which].start);
+  sequence.setCursor(sequence.loopData[which].start);
   sequence.setActiveLoop(which);
   String tempText;
   while(true){
@@ -970,8 +970,8 @@ bool pushToNewLoop(){
     clipboard.pasteAt(0,newLoop.start);
 
     //move the view to the start of the current loop
-    setCursor(newLoop.start);
-    setViewStart(newLoop.start);
+    sequence.setCursor(newLoop.start);
+    sequence.setViewStart(newLoop.start);
     return true;
   }
 }

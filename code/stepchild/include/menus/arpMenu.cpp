@@ -82,17 +82,17 @@ void customLengthsMenu(){
       if(utils.itsbeen(120)){
         if(controls.joystickY != 0){
           if(controls.SHIFT()){
-            arp.lengths[cursorX] = toggleTriplets(arp.lengths[cursorX]);
+            arp.lengths[cursorX] = sequence.toggleTriplets(arp.lengths[cursorX]);
             lastTime = millis();
           }
           else{
             if(controls.joystickY == -1){
               lastTime = millis();
-              arp.lengths[cursorX] = changeSubDiv(true,arp.lengths[cursorX],false);
+              arp.lengths[cursorX] = sequence.changeSubDiv(true,arp.lengths[cursorX],false);
             }
             else if(controls.joystickY == 1){
               lastTime = millis();
-              arp.lengths[cursorX] = changeSubDiv(false,arp.lengths[cursorX],false);
+              arp.lengths[cursorX] = sequence.changeSubDiv(false,arp.lengths[cursorX],false);
             }
           }
         }
@@ -473,7 +473,7 @@ void drawArpModeIcon(uint8_t x1, int8_t y1, uint8_t which,uint16_t c){
 void drawArpMenu(uint8_t cursor){
   //last note played
   String lastNote = pitchToString(arp.lastPitchSent,true,true);
-  printPitch(115,0,lastNote,false,false, 1);
+  graphics.printPitch(115,0,lastNote,false,false, 1);
   if(arp.holding && millis()%800>400){
     printSmall(106,9,"[HOLD]",1);
   }
@@ -493,16 +493,16 @@ void drawArpMenu(uint8_t cursor){
   //modulation
   printArp(0,52,"MOD",1);
 
-  fillSquareVertically(20,50,11,float(arp.maxVelMod*100)/float(127));
+  graphics.fillSquareVertically(20,50,11,float(arp.maxVelMod*100)/float(127));
   printSmall(24,53,"v",2);
 
-  fillSquareVertically(33,50,11,float(arp.chanceMod));
+  graphics.fillSquareVertically(33,50,11,float(arp.chanceMod));
   printSmall(37,53,"%",2);
 
-  fillSquareVertically(46,50,11,float(arp.repMod*100)/float(127));
+  graphics.fillSquareVertically(46,50,11,float(arp.repMod*100)/float(127));
   printSmall(50,53,"x",2);
 
-  fillSquareVertically(59,50,11,float(arp.maxPitchMod*100)/float(127));
+  graphics.fillSquareVertically(59,50,11,float(arp.maxPitchMod*100)/float(127));
   printSmall(63,53,"$",2);
 
   //arp mode icon
@@ -520,7 +520,7 @@ void drawArpMenu(uint8_t cursor){
       break;
   }
   //channel icon
-  drawSmallChannelIcon(93,1,arp.channel);
+  graphics.drawSmallChannelIcon(93,1,arp.channel);
 
   //input icon
   printSmall(50,1,"src:",1);
@@ -663,16 +663,16 @@ void arpMenu(){
             break;
           case 1:
             if(controls.SHIFT()){
-              arp.arpSubDiv = toggleTriplets(arp.arpSubDiv);
+              arp.arpSubDiv = sequence.toggleTriplets(arp.arpSubDiv);
               controls.counterA += controls.counterA<0?1:-1;;
             }
             else{
               if(controls.counterA > 0){
-                arp.arpSubDiv = changeSubDiv(true,arp.arpSubDiv,false);
+                arp.arpSubDiv = sequence.changeSubDiv(true,arp.arpSubDiv,false);
                 controls.counterA += controls.counterA<0?1:-1;;
               }
               else{
-                arp.arpSubDiv = changeSubDiv(false,arp.arpSubDiv,false);
+                arp.arpSubDiv = sequence.changeSubDiv(false,arp.arpSubDiv,false);
                 controls.counterA += controls.counterA<0?1:-1;;
               }
             }

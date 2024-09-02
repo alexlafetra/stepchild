@@ -43,46 +43,46 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
       if (controls.joystickX == 1 && !controls.SHIFT()) {
         //if cursor isn't on a measure marker, move it to the nearest one
         if(sequence.cursorPos%sequence.subDivision){
-          moveCursor(-sequence.cursorPos%sequence.subDivision);
+          sequence.moveCursor(-sequence.cursorPos%sequence.subDivision);
           lastTime = millis();
         }
         else{
-          moveCursor(-sequence.subDivision);
+          sequence.moveCursor(-sequence.subDivision);
           lastTime = millis();
         }
       }
       if (controls.joystickX == -1 && !controls.SHIFT()) {
         if(sequence.cursorPos%sequence.subDivision){
-          moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
+          sequence.moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
           lastTime = millis();
         }
         else{
-          moveCursor(sequence.subDivision);
+          sequence.moveCursor(sequence.subDivision);
           lastTime = millis();
         }
       }
       if (controls.joystickY == 1) {
         if(recording)
-          setActiveTrack(sequence.activeTrack + 1, false);
+          sequence.setActiveTrack(sequence.activeTrack + 1, false);
         else
-          setActiveTrack(sequence.activeTrack + 1, false);
+          sequence.setActiveTrack(sequence.activeTrack + 1, false);
         lastTime = millis();
       }
       if (controls.joystickY == -1) {
         if(recording)
-          setActiveTrack(sequence.activeTrack - 1, false);
+          sequence.setActiveTrack(sequence.activeTrack - 1, false);
         else
-          setActiveTrack(sequence.activeTrack - 1, false);
+          sequence.setActiveTrack(sequence.activeTrack - 1, false);
         lastTime = millis();
       }
     }
     if (utils.itsbeen(50)) {
       if (controls.joystickX == 1 && controls.SHIFT()) {
-        moveCursor(-1);
+        sequence.moveCursor(-1);
         lastTime = millis();
       }
       if (controls.joystickX == -1 && controls.SHIFT()) {
-        moveCursor(1);
+        sequence.moveCursor(1);
         lastTime = millis();
       }
     }

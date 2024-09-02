@@ -1,12 +1,12 @@
 void yControls(){
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1) {
-      setActiveTrack(sequence.activeTrack + 1, !playing);
+      sequence.setActiveTrack(sequence.activeTrack + 1, !playing);
       drawingNote = false;
       lastTime = millis();
     }
     if (controls.joystickY == -1) {
-      setActiveTrack(sequence.activeTrack - 1, !playing);
+      sequence.setActiveTrack(sequence.activeTrack - 1, !playing);
       drawingNote = false;
       lastTime = millis();
     }
@@ -19,18 +19,18 @@ void defaultJoystickControls(bool velocityEditingAllowed){
     if (controls.joystickX == 1 && !controls.SHIFT()) {
       //if cursor isn't on a measure marker, move it to the nearest one
       if(sequence.cursorPos%sequence.subDivision){
-        moveCursor(-sequence.cursorPos%sequence.subDivision);
+        sequence.moveCursor(-sequence.cursorPos%sequence.subDivision);
         lastTime = millis();
         //moving entire loop
         if(movingLoop == 2)
-          moveLoop(-sequence.cursorPos%sequence.subDivision);
+          sequence.moveLoop(-sequence.cursorPos%sequence.subDivision);
       }
       else{
-        moveCursor(-sequence.subDivision);
+        sequence.moveCursor(-sequence.subDivision);
         lastTime = millis();
         //moving entire loop
         if(movingLoop == 2)
-          moveLoop(-sequence.subDivision);
+          sequence.moveLoop(-sequence.subDivision);
       }
       //moving loop start/end
       if(movingLoop == -1){
@@ -42,16 +42,16 @@ void defaultJoystickControls(bool velocityEditingAllowed){
     }
     if (controls.joystickX == -1 && !controls.SHIFT()) {
       if(sequence.cursorPos%sequence.subDivision){
-        moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
+        sequence.moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
         lastTime = millis();
         if(movingLoop == 2)
-          moveLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
+          sequence.moveLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
       }
       else{
-        moveCursor(sequence.subDivision);
+        sequence.moveCursor(sequence.subDivision);
         lastTime = millis();
         if(movingLoop == 2)
-          moveLoop(sequence.subDivision);
+          sequence.moveLoop(sequence.subDivision);
       }
       //moving loop start/end
       if(movingLoop == -1){
@@ -64,12 +64,12 @@ void defaultJoystickControls(bool velocityEditingAllowed){
   }
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1 && !controls.SHIFT() && !controls.LOOP()) {
-      setActiveTrack(sequence.activeTrack + 1, !playing  && !recording);
+      sequence.setActiveTrack(sequence.activeTrack + 1, !playing  && !recording);
       drawingNote = false;
       lastTime = millis();
     }
     if (controls.joystickY == -1 && !controls.SHIFT() && !controls.LOOP()) {
-      setActiveTrack(sequence.activeTrack - 1, !playing  && !recording);
+      sequence.setActiveTrack(sequence.activeTrack - 1, !playing  && !recording);
       drawingNote = false;
       lastTime = millis();
     }
@@ -77,20 +77,20 @@ void defaultJoystickControls(bool velocityEditingAllowed){
   if (utils.itsbeen(50)) {
     //moving
     if (controls.joystickX == 1 && controls.SHIFT()) {
-      moveCursor(-1);
+      sequence.moveCursor(-1);
       lastTime = millis();
       if(movingLoop == 2)
-        moveLoop(-1);
+        sequence.moveLoop(-1);
       else if(movingLoop == -1)
         sequence.setLoopPoint(sequence.cursorPos,true);
       else if(movingLoop == 1)
         sequence.setLoopPoint(sequence.cursorPos,false);
     }
     if (controls.joystickX == -1 && controls.SHIFT()) {
-      moveCursor(1);
+      sequence.moveCursor(1);
       lastTime = millis();
       if(movingLoop == 2)
-        moveLoop(1);
+        sequence.moveLoop(1);
       else if(movingLoop == -1)
         sequence.loopData[sequence.activeLoop].start = sequence.cursorPos;
       else if(movingLoop == 1)
@@ -231,7 +231,7 @@ void mainSequencerButtons(){
         //if there's no note starting here, make a new note 1/2 the subdiv
         if(!sequence.IDAtCursor()){
           sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision/2,true);
-          moveCursor(sequence.subDivision/2);
+          sequence.moveCursor(sequence.subDivision/2);
           drawingNote = true;
           lastTime = millis();
         }
@@ -244,7 +244,7 @@ void mainSequencerButtons(){
       else if(!controls.SHIFT()){
         if((sequence.IDAtCursor() == 0 || sequence.cursorPos != sequence.noteAtCursor().startPos)){
           sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision,true);
-          moveCursor(sequence.subDivision);
+          sequence.moveCursor(sequence.subDivision);
           drawingNote = true;
           lastTime = millis();
         }
@@ -296,7 +296,7 @@ void mainSequencerButtons(){
     }
     if(controls.B()){
       if(controls.SHIFT() && sequence.IDAtCursor()){
-        setCursor(sequence.noteAtCursor().startPos);
+        sequence.setCursor(sequence.noteAtCursor().startPos);
       }
       else{
         lastTime = millis();
@@ -311,11 +311,11 @@ void mainSequencerStepButtons(){
   //DJ loop selector
   if(controls.SHIFT()){
     if(controls.stepButton(15) && sequence.activeTrack){
-      setActiveTrack(sequence.activeTrack-1,!playing  && !recording);
+      sequence.setActiveTrack(sequence.activeTrack-1,!playing  && !recording);
       lastTime = millis();
     }
     else if(controls.stepButton(14)){
-      setActiveTrack(sequence.activeTrack+1,!playing  && !recording);
+      sequence.setActiveTrack(sequence.activeTrack+1,!playing  && !recording);
       lastTime = millis();
     }
     else if(controls.stepButton(0)){
@@ -361,24 +361,24 @@ void defaultEncoderControls(){
   while(controls.counterA != 0){
     //changing zoom
     if(controls.counterA >= 1){
-      zoom(true);
+      sequence.zoom(true);
     }
     if(controls.counterA <= -1){
-      zoom(false);
+      sequence.zoom(false);
     }
     controls.counterA += controls.counterA<0?1:-1;;
   }
   while(controls.counterB != 0){
     //if shifting, toggle between 1/3 and 1/4 mode
     if(controls.SHIFT()){
-      toggleTriplets();
+      sequence.toggleTriplets();
     }
     else if(controls.counterB >= 1){
-      changeSubDivInt(true);
+      sequence.changeSubDivInt(true);
     }
     //changing subdivint
     else if(controls.counterB <= -1){
-      changeSubDivInt(false);
+      sequence.changeSubDivInt(false);
     }
     controls.counterB += controls.counterB<0?1:-1;;
   }
@@ -398,24 +398,24 @@ void mainSequencerEncoders(){
     //changing zoom
     else{
       if(controls.counterA >= 1 && !controls.A()){
-        zoom(true);
+        sequence.zoom(true);
       }
       if(controls.counterA <= -1 && !controls.A()){
-        zoom(false);
+        sequence.zoom(false);
       }
     }
     controls.counterA += controls.counterA<0?1:-1;;
   }
   while(controls.counterB != 0){
     if(controls.SHIFT()){
-      toggleTriplets();
+      sequence.toggleTriplets();
     }
     else if(controls.counterB >= 1){
-      changeSubDivInt(true,true);
+      sequence.changeSubDivInt(true,true);
     }
     //changing subdivint
     else if(controls.counterB <= -1){
-      changeSubDivInt(false,true);
+      sequence.changeSubDivInt(false,true);
     }
     controls.counterB += controls.counterB<0?1:-1;;
   }
@@ -557,7 +557,7 @@ void SuperpositionMenu::drawSuperposSelect(){
   drawNote(note, track, nCoords, settings);//draw the note (like normal)
 
   //draw probability
-  fillSquareDiagonally(0,0,15,note.superposition.odds);
+  graphics.fillSquareDiagonally(0,0,15,note.superposition.odds);
   printSmall(6,5,"%",2);
   printSmall(17,5,stringify(note.superposition.odds)+"%",1);
   printCursive(50,4,"superposition",1);
@@ -622,11 +622,11 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
     if(utils.itsbeen(100)){
       if(!movingBetweenNotes){
         if(controls.joystickY == 1){
-          setActiveTrack(sequence.activeTrack+1,false);
+          sequence.setActiveTrack(sequence.activeTrack+1,false);
           lastTime = millis();
         }
         if(controls.joystickY == -1){
-          setActiveTrack(sequence.activeTrack-1,false);
+          sequence.setActiveTrack(sequence.activeTrack-1,false);
           lastTime = millis();
         }
       }
@@ -636,32 +636,32 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
         if(!movingBetweenNotes){
           if (controls.joystickX == 1 && !controls.SHIFT()) {
             if(sequence.cursorPos%sequence.subDivision){
-              moveCursor(-sequence.cursorPos%sequence.subDivision);
+              sequence.moveCursor(-sequence.cursorPos%sequence.subDivision);
               lastTime = millis();
             }
             else{
-              moveCursor(-sequence.subDivision);
+              sequence.moveCursor(-sequence.subDivision);
               lastTime = millis();
             }
           }
           if (controls.joystickX == -1 && !controls.SHIFT()) {
             if(sequence.cursorPos%sequence.subDivision){
-              moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
+              sequence.moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
               lastTime = millis();
             }
             else{
-              moveCursor(sequence.subDivision);
+              sequence.moveCursor(sequence.subDivision);
               lastTime = millis();
             }
           }
         }
         else{
           if(controls.joystickX == 1){
-            moveToNextNote(false,false);
+            sequence.moveToNextNote(false,false);
             lastTime = millis();
           }
           else if(controls.joystickX == -1){
-            moveToNextNote(true,false);
+            sequence.moveToNextNote(true,false);
             lastTime = millis();
           }
         }

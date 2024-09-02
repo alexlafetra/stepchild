@@ -79,10 +79,10 @@ void ClockMenu::drawSwingCurve(int8_t xPos, int8_t yPos){
   }
 
   //loop points
-  if(isInView(sequence.loopData[sequence.activeLoop].start)){
+  if(sequence.isInView(sequence.loopData[sequence.activeLoop].start)){
     display.drawFastVLine(trackDisplay + (sequence.loopData[sequence.activeLoop].start)*sequence.viewScale,16,screenHeight-16,SSD1306_WHITE);
   }
-  if(isInView(sequence.loopData[sequence.activeLoop].end)){
+  if(sequence.isInView(sequence.loopData[sequence.activeLoop].end)){
     display.drawFastVLine(trackDisplay + (sequence.loopData[sequence.activeLoop].end)*sequence.viewScale,16,screenHeight-16,SSD1306_WHITE);
   }
   //playhead

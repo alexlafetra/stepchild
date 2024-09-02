@@ -156,9 +156,9 @@ void strumMenu(){
                 //amount (delay)
                 case 0:
                     if(controls.SHIFT())
-                        toggleTriplets(amount);
+                        sequence.toggleTriplets(amount);
                     else
-                        amount = changeSubDiv(controls.counterA>0,amount,false);
+                        amount = sequence.changeSubDiv(controls.counterA>0,amount,false);
                 //type
                 case 1:
                     sortType = !sortType;
@@ -183,9 +183,9 @@ void strumMenu(){
                 //amount (delay)
                 case 0:
                     if(controls.SHIFT())
-                        toggleTriplets(amount);
+                        sequence.toggleTriplets(amount);
                     else
-                        amount = changeSubDiv(controls.counterB>0,amount,false);
+                        amount = sequence.changeSubDiv(controls.counterB>0,amount,false);
                     break;
                 //type
                 case 1:

@@ -259,7 +259,7 @@ void insertChordIntoSequence(QChord chord){
                     length+=sequence.subDivision;
                 }
                 else if(!controls.SHIFT()){
-                    zoom(true);
+                    sequence.zoom(true);
                 }
             }
             if(controls.counterA <= -1){
@@ -267,7 +267,7 @@ void insertChordIntoSequence(QChord chord){
                     length-=sequence.subDivision;
                 }
                 else if(!controls.SHIFT()){
-                    zoom(false);
+                    sequence.zoom(false);
                 }
             }
             controls.counterA += controls.counterA<0?1:-1;;
@@ -275,14 +275,14 @@ void insertChordIntoSequence(QChord chord){
         while(controls.counterB != 0){
             //if shifting, toggle between 1/3 and 1/4 mode
             if(controls.SHIFT()){
-                toggleTriplets();
+                sequence.toggleTriplets();
             }
             else if(controls.counterB >= 1){
-                changeSubDivInt(true);
+                sequence.changeSubDivInt(true);
             }
             //changing subdivint
             else if(controls.counterB <= -1){
-                changeSubDivInt(false);
+                sequence.changeSubDivInt(false);
             }
             controls.counterB += controls.counterB<0?1:-1;;
         }

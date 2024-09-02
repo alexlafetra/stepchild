@@ -125,7 +125,7 @@ unsigned long testFillScreen() {
 unsigned long testText() {
   tft.fillScreen(ILI9341_BLACK);
   unsigned long start = micros();
-  tft.setCursor(0, 0);
+  tft.setCursor0, 0);
   tft.setTextColor(ILI9341_WHITE);  tft.setTextSize(1);
   tft.println("Hello World!");
   tft.setTextColor(ILI9341_YELLOW); tft.setTextSize(2);

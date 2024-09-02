@@ -35,10 +35,10 @@ void moveAutotrackCursor(int moveAmount){
   }
   //Move the view along with the cursor
   if(sequence.cursorPos<sequence.viewStart+sequence.subDivision && sequence.viewStart>0){
-    moveView(sequence.cursorPos - (sequence.viewStart+sequence.subDivision));
+    sequence.moveView(sequence.cursorPos - (sequence.viewStart+sequence.subDivision));
   }
   else if(sequence.cursorPos > sequence.viewEnd-sequence.subDivision && sequence.viewEnd<sequence.sequenceLength){
-    moveView(sequence.cursorPos - (sequence.viewEnd-sequence.subDivision));
+    sequence.moveView(sequence.cursorPos - (sequence.viewEnd-sequence.subDivision));
   }
 }
 
@@ -824,10 +824,10 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
     //changing zoom
     if(!controls.SHIFT()){
       if(controls.counterA >= 1){
-          zoom(true);
+          sequence.zoom(true);
         }
       if(controls.counterA <= -1){
-        zoom(false);
+        sequence.zoom(false);
       }
     }
     else{
@@ -847,11 +847,11 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
   while(controls.counterB != 0 && !recordingToAutotrack){
     if(!controls.SHIFT()){   
       if(controls.counterB >= 1){
-        changeSubDivInt(true);
+        sequence.changeSubDivInt(true);
       }
       //changing subdivint
       if(controls.counterB <= -1){
-        changeSubDivInt(false);
+        sequence.changeSubDivInt(false);
       }
     }
     else{
@@ -1000,7 +1000,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
     }
     if(controls.B()){
       lastTime = millis();
-      toggleTriplets();
+      sequence.toggleTriplets();
     }
     if(controls.MENU()){
       lastTime = millis();
@@ -1026,10 +1026,10 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
     //changing zoom
     if(!controls.SHIFT()){
       if(controls.counterA >= 1){
-          zoom(true);
+          sequence.zoom(true);
         }
       if(controls.counterA <= -1){
-        zoom(false);
+        sequence.zoom(false);
       }
     }
     else{
@@ -1049,11 +1049,11 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
   while(controls.counterB != 0){
     if(!controls.SHIFT()){   
       if(controls.counterB >= 1 && !controls.SHIFT()){
-        changeSubDivInt(true);
+        sequence.changeSubDivInt(true);
       }
       //changing subdivint
       if(controls.counterB <= -1 && !controls.SHIFT()){
-        changeSubDivInt(false);
+        sequence.changeSubDivInt(false);
       }
     }
     else{
@@ -1098,7 +1098,7 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput){
     }
     if(controls.B()){
       lastTime = millis();
-      toggleTriplets();
+      sequence.toggleTriplets();
     }
     //swapping modes
     if(controls.LOOP()){

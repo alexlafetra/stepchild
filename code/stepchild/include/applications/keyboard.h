@@ -37,20 +37,20 @@ void drawKeys(uint8_t xStart,uint8_t yStart,uint8_t octave,uint8_t numberOfKeys,
           blackKeyOffset = key/12+1;
         }
         if(pressed){
-          drawBox(xStart+(blackKeys+blackKeyOffset)*(xSlant+offset)+25, yStart+(blackKeys+blackKeyOffset)*(keyWidth+offset)-1,keyLength-10, keyHeight, keyWidth, xSlant,4);
+          graphics.drawBox(xStart+(blackKeys+blackKeyOffset)*(xSlant+offset)+25, yStart+(blackKeys+blackKeyOffset)*(keyWidth+offset)-1,keyLength-10, keyHeight, keyWidth, xSlant,4);
         }
         else
-          drawBox(xStart+(blackKeys+blackKeyOffset)*(xSlant+offset)+25, yStart+(blackKeys+blackKeyOffset)*(keyWidth+offset)-3,keyLength-10, keyHeight, keyWidth, xSlant,3);
+          graphics.drawBox(xStart+(blackKeys+blackKeyOffset)*(xSlant+offset)+25, yStart+(blackKeys+blackKeyOffset)*(keyWidth+offset)-3,keyLength-10, keyHeight, keyWidth, xSlant,3);
         blackKeys++;
       }
     }
     else if(whiteKeys<9){
       //drawing pitches
       if(pressed){
-        drawBox(xStart+whiteKeys*(xSlant+offset), yStart+whiteKeys*(keyWidth+offset)+2,keyLength, keyHeight, keyWidth, xSlant,2);
+        graphics.drawBox(xStart+whiteKeys*(xSlant+offset), yStart+whiteKeys*(keyWidth+offset)+2,keyLength, keyHeight, keyWidth, xSlant,2);
       }
       else
-        drawBox(xStart+whiteKeys*(xSlant+offset), yStart+whiteKeys*(keyWidth+offset),keyLength, keyHeight, keyWidth, xSlant,1);
+        graphics.drawBox(xStart+whiteKeys*(xSlant+offset), yStart+whiteKeys*(keyWidth+offset),keyLength, keyHeight, keyWidth, xSlant,1);
       whiteKeys++;
     }
   }
@@ -82,18 +82,18 @@ void drawKeys_inverse(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t num
         blackKeyOffset = key/12+1;
       }
       if(pressed){
-        drawBox(xStart+(blackKeys+blackKeyOffset)*(xSlant+offset)+25, yStart+(blackKeys+blackKeyOffset)*(keyWidth+offset)-1,keyLength-10, keyHeight, keyWidth, xSlant,5);
+        graphics.drawBox(xStart+(blackKeys+blackKeyOffset)*(xSlant+offset)+25, yStart+(blackKeys+blackKeyOffset)*(keyWidth+offset)-1,keyLength-10, keyHeight, keyWidth, xSlant,5);
       }
       else
-        drawBox(xStart+(blackKeys+blackKeyOffset)*(xSlant+offset)+25, yStart+(blackKeys+blackKeyOffset)*(keyWidth+offset)-3,keyLength-10, keyHeight, keyWidth, xSlant,1);
+        graphics.drawBox(xStart+(blackKeys+blackKeyOffset)*(xSlant+offset)+25, yStart+(blackKeys+blackKeyOffset)*(keyWidth+offset)-3,keyLength-10, keyHeight, keyWidth, xSlant,1);
       blackKeys++;
     }
     else{
       if(pressed){
-        drawBox(xStart+whiteKeys*(xSlant+offset), yStart+whiteKeys*(keyWidth+offset)+2,keyLength, keyHeight, keyWidth, xSlant,4);
+        graphics.drawBox(xStart+whiteKeys*(xSlant+offset), yStart+whiteKeys*(keyWidth+offset)+2,keyLength, keyHeight, keyWidth, xSlant,4);
       }
       else
-        drawBox(xStart+whiteKeys*(xSlant+offset), yStart+whiteKeys*(keyWidth+offset),keyLength, keyHeight, keyWidth, xSlant,3);
+        graphics.drawBox(xStart+whiteKeys*(xSlant+offset), yStart+whiteKeys*(keyWidth+offset),keyLength, keyHeight, keyWidth, xSlant,3);
       whiteKeys++;
     }
   }
@@ -114,7 +114,7 @@ void drumPadAnimation(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t n
     for(int i = 0; i<rows; i++){
       for(int j = 0; j<columns; j++){
         if(pad>=startPad){
-          drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i, width, thickness, width-4, xSlant,1);
+          graphics.drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i, width, thickness, width-4, xSlant,1);
           pad--;
           display.display();
           delay(10);
@@ -130,7 +130,7 @@ void drumPadAnimation(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t n
       for(int i = 0; i<rows; i++){
         for(int j = 0; j<columns; j++){
           if(pad>0){
-            drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i, width, thickness, width-4, xSlant,1);
+            graphics.drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i, width, thickness, width-4, xSlant,1);
             pad--;
           }
         }
@@ -155,7 +155,7 @@ void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numbe
   bool pressed;
   uint8_t pad = startPad+numberOfPads-1;
 
-  // drawBox(xStart, yStart, width, thickness, width-7, xSlant, 1);
+  // graphics.drawBox(xStart, yStart, width, thickness, width-7, xSlant, 1);
   for(int i = 0; i<rows; i++){
     for(int j = 0; j<columns; j++){
       if(pad>=startPad){
@@ -165,10 +165,10 @@ void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numbe
         }
         if(pressed){
           if(pad == 36 && controls.SHIFT()){//so that you can see the keyboard pitch when shifting through
-            drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i+2, width, thickness, width-4, xSlant,0);
+            graphics.drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i+2, width, thickness, width-4, xSlant,0);
           }
           else
-            drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i+2, width, thickness, width-4, xSlant,2);
+            graphics.drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i+2, width, thickness, width-4, xSlant,2);
           if(controls.SHIFT()){
             display.setCursor(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i-1,yStart+(width-4+ySpacing)*i+2);
             display.setTextColor(SSD1306_BLACK);
@@ -179,10 +179,10 @@ void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numbe
         }
         else{
           if(pad == 36 && controls.SHIFT()){//so that you can see the keyboard pitch when shifting through
-            drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i, width, thickness, width-4, xSlant,0);
+            graphics.drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i, width, thickness, width-4, xSlant,0);
           }
           else
-            drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i, width, thickness, width-4, xSlant,1);
+            graphics.drawBox(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i, yStart+(width-4+ySpacing)*i, width, thickness, width-4, xSlant,1);
           if(controls.SHIFT()){
             display.setCursor(xStart-(xSpacing+width)*j-(-xSlant+ySpacing-1)*i-1,yStart+(width-4+ySpacing)*i+2);
             display.print(pitchToString(pad,false,true));
@@ -222,13 +222,13 @@ void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t nu
         if(blackKeys%12>=4 && blackKeys%12<=6){
           blackKeyOffset = key/12+1;
         }
-        drawBox(xStart+(blackKeys+blackKeyOffset)*(xSlant+offset)+25, yStart+(blackKeys+blackKeyOffset)*(keyWidth+offset)-3,keyLength-10, keyHeight, keyWidth, xSlant,3);
+        graphics.drawBox(xStart+(blackKeys+blackKeyOffset)*(xSlant+offset)+25, yStart+(blackKeys+blackKeyOffset)*(keyWidth+offset)-3,keyLength-10, keyHeight, keyWidth, xSlant,3);
         blackKeys++;
         display.display();
         // delay(2);
       }
       else{
-        drawBox(xStart+whiteKeys*(xSlant+offset), yStart+whiteKeys*(keyWidth+offset),keyLength, keyHeight, keyWidth, xSlant,1);
+        graphics.drawBox(xStart+whiteKeys*(xSlant+offset), yStart+whiteKeys*(keyWidth+offset),keyLength, keyHeight, keyWidth, xSlant,1);
         whiteKeys++;
         display.display();
         // delay(2);
@@ -251,11 +251,11 @@ void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t nu
           if(blackKeys%12>=4 && blackKeys%12<=6){
             blackKeyOffset = key/12+1;
           }
-          drawBox(xStart+(blackKeys+blackKeyOffset)*(xSlant+offset)+25, yStart+(blackKeys+blackKeyOffset)*(keyWidth+offset)-3,keyLength-10, keyHeight, keyWidth, xSlant,3);
+          graphics.drawBox(xStart+(blackKeys+blackKeyOffset)*(xSlant+offset)+25, yStart+(blackKeys+blackKeyOffset)*(keyWidth+offset)-3,keyLength-10, keyHeight, keyWidth, xSlant,3);
           blackKeys++;
         }
         else{
-          drawBox(xStart+whiteKeys*(xSlant+offset), yStart+whiteKeys*(keyWidth+offset),keyLength, keyHeight, keyWidth, xSlant,1);
+          graphics.drawBox(xStart+whiteKeys*(xSlant+offset), yStart+whiteKeys*(keyWidth+offset),keyLength, keyHeight, keyWidth, xSlant,1);
           whiteKeys++;
         }
       }

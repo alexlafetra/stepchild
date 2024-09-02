@@ -492,7 +492,7 @@ void loadSeqFile(String filename){
     }
     seqFile.close();
     LittleFS.end();
-    setActiveTrack(0,false);
+    sequence.setActiveTrack(0,false);
   }
   else{
     alert("Error opening file!",1000);

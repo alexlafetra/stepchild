@@ -289,7 +289,7 @@ bool SettingsMenu::settingsMenuControls(){
               lastTime = millis();
               int8_t choice = 1;
               //if there are notes that will be deld
-              uint16_t countedNotes = countNotesInRange(sequence.sequenceLength-96,sequence.sequenceLength);
+              uint16_t countedNotes = sequence.countNotesInRange(sequence.sequenceLength-96,sequence.sequenceLength);
               if(countedNotes)
                 choice = binarySelectionBox(64,32,"naur","sure","this will del "+stringify(countedNotes)+" note(s), ok?");
               if(choice == 1){

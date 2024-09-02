@@ -106,6 +106,13 @@ class HeadlessHardwareInput{
     this->joystickX = xKeyVal;
     this->joystickY = yKeyVal;
   }
+    float getJoyX(){
+        return 0;
+    }
+    float getJoyY(){
+        return 0;
+    }
+
   void readButtons(){
     try{
       glfwPollEvents();

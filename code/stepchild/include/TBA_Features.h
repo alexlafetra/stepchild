@@ -111,7 +111,7 @@ void fragmentAnimation(bool in){
         width = random(maxWidth-10,maxWidth);
       }
       display.clearDisplay();
-      drawTetra(h,k,height,width,xDepth,yDepth,0,SSD1306_WHITE);
+      graphics.drawTetra(h,k,height,width,xDepth,yDepth,0,SSD1306_WHITE);
       maxWidth-=15;
       maxHeight-=15;
       k-=3;
@@ -133,7 +133,7 @@ void fragmentAnimation(bool in){
         width = random(maxWidth-10,maxWidth);
       }
       display.clearDisplay();
-      drawTetra(h,k,height,width,xDepth,yDepth,0,SSD1306_WHITE);
+      graphics.drawTetra(h,k,height,width,xDepth,yDepth,0,SSD1306_WHITE);
       maxWidth+=15;
       maxHeight+=15;
       k+=3;

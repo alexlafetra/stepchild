@@ -606,7 +606,7 @@ void inputMenu(){
       }
     }
     int8_t bigOffset;
-    if(isReceivingOrSending())
+    if(sequence.isReceivingOrSending())
       bigOffset = 2*((millis()/200)%2);
     else
       bigOffset = 2*sin(millis()/300);

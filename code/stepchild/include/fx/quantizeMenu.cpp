@@ -58,7 +58,7 @@ bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote){
       return false;
     }
     else if(move){
-      moveCursor(-distance);
+      sequence.moveCursor(-distance);
     }
   }
   //move to the right
@@ -72,7 +72,7 @@ bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote){
       return false;
     }
     else if(move){
-      moveCursor(distance);
+      sequence.moveCursor(distance);
     }
   }
   return true;
@@ -91,19 +91,19 @@ void drawQuantCubes(uint8_t distance){
   // uint8_t hOffset = 2*sin(millis()/150);
   const uint8_t hOffset = 2;
   if(distance == 0){
-    drawBox(47+distance/2,hOffset+16-distance/2,width+1,width+1,12,12,4);
-    drawBox(48+distance/2,hOffset+17-distance/2,width,width,11,11,3);
+    graphics.drawBox(47+distance/2,hOffset+16-distance/2,width+1,width+1,12,12,4);
+    graphics.drawBox(48+distance/2,hOffset+17-distance/2,width,width,11,11,3);
   }
   else{
     //bottomL
-    // drawBox(48-distance/2,hOffset+12+distance/2,width,width,11,11,2);
-    drawBox(48-distance/2,hOffset+16+distance/2,width,width,12,12,7);
+    // graphics.drawBox(48-distance/2,hOffset+12+distance/2,width,width,11,11,2);
+    graphics.drawBox(48-distance/2,hOffset+16+distance/2,width,width,12,12,7);
 
     //inverse wirewrame (topR)
-    drawBox(48+distance/2,hOffset+16-distance/2,width,width,12,12,7);
+    graphics.drawBox(48+distance/2,hOffset+16-distance/2,width,width,12,12,7);
 
     //inner lines
-    // drawBox(48-distance/2,hOffset+12+distance/2,width,width,12,12,6);
+    // graphics.drawBox(48-distance/2,hOffset+12+distance/2,width,width,12,12,6);
 
     //top line
     graphics.drawDottedLineDiagonal(48-distance/2,hOffset+16+distance/2,48+distance/2,hOffset+16-distance/2,2);
@@ -113,8 +113,8 @@ void drawQuantCubes(uint8_t distance){
 }
 
 void drawLittleQuantCubes(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
-  drawBox(13-(millis()/500)%4,(millis()/500)%4,8,8,3,3,4);
-  drawBox(6+(millis()/500)%4,5-(millis()/500)%4,8,8,3,3,0);
+  graphics.drawBox(13-(millis()/500)%4,(millis()/500)%4,8,8,3,3,4);
+  graphics.drawBox(6+(millis()/500)%4,5-(millis()/500)%4,8,8,3,3,0);
 }
 
 bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
@@ -142,15 +142,15 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
   //changing sequence.subDivision
   while(controls.counterB != 0){
     if(controls.counterB >= 1 && !controls.SHIFT()){
-      changeSubDivInt(true);
+      sequence.changeSubDivInt(true);
     }
     //changing subdivint
     if(controls.counterB <= -1 && !controls.SHIFT()){
-      changeSubDivInt(false);
+      sequence.changeSubDivInt(false);
     }
     //if shifting, toggle between 1/3 and 1/4 mode
     else while(controls.counterB != 0 && controls.SHIFT()){
-      toggleTriplets();
+      sequence.toggleTriplets();
     }
     controls.counterB += controls.counterB<0?1:-1;;
     if(*whichParam != 1){
@@ -239,16 +239,16 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
         //changing sequence.subDivision
         case 1:
           if(controls.SHIFT()){
-            toggleTriplets();
+            sequence.toggleTriplets();
             lastTime = millis();
           }
           else{
             if(controls.joystickX == -1){
-              changeSubDivInt(true);
+              sequence.changeSubDivInt(true);
               lastTime = millis();
             }
             else if(controls.joystickX == 1){
-              changeSubDivInt(false);
+              sequence.changeSubDivInt(false);
               lastTime = millis();
             }
           }

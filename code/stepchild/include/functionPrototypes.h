@@ -82,14 +82,12 @@ void writeNoteOn(unsigned short int step, uint8_t pitch, uint8_t vel, uint8_t ch
 //Drawing functions
 void printItalic(int16_t x, int16_t y, char character, uint16_t c);
 void printItalic(int16_t x, int16_t y, String text, uint16_t c);
-void drawLogo(uint8_t x1, uint8_t y1);
+// void drawLogo(uint8_t x1, uint8_t y1);
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection);
 void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, bool shadeOutsideLoop, uint16_t start, uint16_t end);
 void drawDisplay();
-void drawBox(uint8_t cornerX, uint8_t cornerY, uint8_t width, uint8_t height, uint8_t depth, int8_t xSlant, uint8_t fill);
 void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation);
-void drawTetra(uint8_t h, uint8_t k, uint8_t height, uint8_t width, int xDepth, int yDepth, uint8_t style, uint16_t c);
-void drawBracket(uint8_t h, uint8_t k, uint8_t height, uint8_t width, uint8_t style, uint16_t c);
+// void drawBracket(uint8_t h, uint8_t k, uint8_t height, uint8_t width, uint8_t style, uint16_t c);
 void drawKeys(uint8_t xStart,uint8_t yStart,uint8_t octave,uint8_t numberOfKeys, bool fromPlaylist);
 void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numberOfPads);
 void drawArpStepLengths(uint8_t xStart, uint8_t yStart, uint8_t startNote, uint8_t xCursor, bool selected);
@@ -98,25 +96,16 @@ void drawMoon(int phase, bool forward);
 void drawSeq();
 void drawCurlyBracket(int16_t x1, uint8_t y1, uint8_t length,uint8_t height,bool start, bool end);
 void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation);
-void drawHumanizeIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim);
 void drawTrackLabel(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c);
-uint8_t printPitch(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c);
 void printSmall_centered(int x, int y, String t, uint16_t c);
 void printSmall(int, int, String, uint16_t);
-void fillSquareVertically(uint8_t x0, uint8_t y0, uint8_t width, uint8_t fillAmount);
-void fillSquareDiagonally(uint8_t x0, uint8_t y0, uint8_t width,uint8_t fillAmount,uint8_t maxFill);
 void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t numberOfKeys, bool into);
 void printParam_centered(uint8_t which, uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);
 void printParam(uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);
 void drumPadAnimation(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numberOfPads, bool into);
 
 //Icons
-void drawEchoIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim);
-void drawQuantIcon(uint8_t,uint8_t,uint8_t,bool);
-void drawDrumIcon(uint8_t x1, uint8_t y1, uint8_t note);
 void drawArpModeIcon(uint8_t x1, int8_t y1, uint8_t which,uint16_t c);
-void drawWarpIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim);
-void drawSmallChannelIcon(uint8_t x1, uint8_t y1, uint8_t ch);
 
 //Menus
 void saveMenu();
@@ -145,12 +134,8 @@ void strumMenu();
 //Note editing
 void echoNote(int track, int id);
 void echoTrack(int track);
-void changeNoteLength_jumpToEnds(int16_t amount);
 void quantize(bool move_the_cursor,bool deleteNote);
 void humanize(bool move);
-int16_t changeNoteLength(int val, unsigned short int track, unsigned short int id);
-int16_t changeNoteLength(int amount);
-void changeNoteLengthSelected(int amount);
 void setSuperposition(Note& note,uint8_t t);
 
 void quantizeSelectedNotes(bool deleteNote);
@@ -188,7 +173,6 @@ void eraseTrack();
 void deleteTrack(unsigned short int);
 void deleteTrack(unsigned short int track, bool hard);
 void setTrackPitch(int, int, bool);
-bool setActiveTrack(uint8_t, bool);
 vector<uint8_t> selectMultipleTracks(String);
 void muteMultipleTracks(vector<uint8_t> ids);
 void toggleMute(uint16_t id);
@@ -227,30 +211,17 @@ void rotaryActionB_Handler();
 
 
 //sequence
-void zoom(bool);
-bool isInView(int);
 void updateLookupData_track(unsigned short int);
-int16_t moveCursor(int moveAmount);
 void selectBox();
 void togglePlayMode();
 void toggleRecordingMode(bool);
-void setCursor(uint16_t loc);
-// void cutInsertTime();
-void moveToNextNote_inTrack(bool up);
-void moveToNextNote(bool forward,bool endSnap);
-bool areThereAnyNotes();
-bool areThereMoreNotes(bool);
-void setCursorToNearestNote();
-void checkView();
 void checkAutotracks();
 
 //Loops
-void moveLoop(int16_t amount);
 void setLoopToInfinite(uint8_t targetL);
 
 //RP2040 Hardware
 float getBattLevel();
-// float analogReadTemp();
 void enterBootsel();
 
 //filesystem
@@ -276,7 +247,7 @@ vector<uint8_t> genScale(ScaleName, uint8_t);
 vector<uint8_t> genScale(ScaleName, uint8_t, int8_t,uint8_t);
 float swingOffset(unsigned short int step);
 String stepsToMeasures(int32_t stepVal);
-void changeSubDivInt(bool);
+// void sequence.changeSubDivInt(bool);
 String pitchToString(uint8_t input, bool oct, bool sharps);
 bool isInVector(int val, vector<uint8_t> vec);
 uint8_t getLowestVal(vector<uint8_t> vec);
@@ -292,19 +263,8 @@ int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String t
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, void (*displayFunction)());
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, void (*displayFunction)());
 uint8_t countSpaces(String text);
-void toggleTriplets();
-uint16_t toggleTriplets(uint16_t subDiv);
-void changeSubDivInt(bool down);
-void changeSubDivInt(bool down, bool limitToView);
-uint16_t changeSubDiv(bool direction, uint8_t subDiv, bool allowZero);
 String convertVectorToPitches(vector<uint8_t> intervals);
-uint16_t countNotesInRange(uint16_t start, uint16_t end);
-bool isReceiving();
-bool isSending();
-bool isReceivingOrSending();
 String getInterval(int root, int pitch);
-void moveView(int16_t val);
-void setViewStart(uint16_t step);
 void setNormalMode();
 String enterText(String title);
 String enterText(String title,uint8_t count);
@@ -314,13 +274,10 @@ void filterOutUnisonNotes(vector<uint8_t>& notes);
 bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote);
 void disarmTracksWithNotes();
 uint8_t countDigits_byte(uint8_t number);
-uint16_t getNoteCount();
 String bytesToString(uint32_t bytes);
-void printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t trackID,bool bigOct, bool channel, uint16_t c);
 NoteCoords getNoteCoords(Note& note, uint8_t track);
 
 //Graphics
-void bootscreen_2();
 void alert(String text, int time);
 void selectKeysAnimation(bool);
 void printItalic_wave(int16_t x, int16_t y, string text, int8_t height, uint8_t timing, uint16_t c);

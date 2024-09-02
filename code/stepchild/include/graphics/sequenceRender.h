@@ -161,7 +161,7 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
 //draws pram, other icons (not loop points tho)
 void drawTopIcons(SequenceRenderSettings& settings){
   //music symbol while receiving notes
-  if(isReceivingOrSending()){
+  if(sequence.isReceivingOrSending()){
     if(!((animOffset/10)%2)){
       display.drawChar(21,0,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
     }
@@ -171,7 +171,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
   }
 
   //note presence indicator(if notes are offscreen)
-  if(areThereMoreNotes(true)){
+  if(sequence.areThereMoreNotes(true)){
     uint8_t y1 = settings.shrinkTopDisplay?8:headerHeight;
     if(!((animOffset/10)%2)){
       display.fillTriangle(trackDisplay-7,y1+3,trackDisplay-3,y1+3,trackDisplay-5,y1+1, SSD1306_WHITE);
@@ -180,7 +180,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
       display.fillTriangle(trackDisplay-7,y1+2,trackDisplay-3,y1+2,trackDisplay-5,y1, SSD1306_WHITE);
     }
   }
-  if(areThereMoreNotes(false)){
+  if(sequence.areThereMoreNotes(false)){
     if(!((animOffset/10)%2)){
       display.fillTriangle(trackDisplay-7,screenHeight-5,trackDisplay-3,screenHeight-5,trackDisplay-5,screenHeight-3, SSD1306_WHITE);
     }
@@ -271,7 +271,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
   }
   //fragment gem
   if(isFragmenting){
-    drawTetra(x1,5,10+sin(float(millis())/float(500)),10+sin(float(millis())/float(500)),6+sin(float(millis())/float(500)),1+sin(float(millis())/float(500)),0,SSD1306_WHITE);
+    graphics.drawTetra(x1,5,10+sin(float(millis())/float(500)),10+sin(float(millis())/float(500)),6+sin(float(millis())/float(500)),1+sin(float(millis())/float(500)),0,SSD1306_WHITE);
     x1+=8;
   }
 
@@ -508,7 +508,7 @@ void drawSeq(SequenceRenderSettings& settings){
           if(!isShrunk){
               //printing note names
               if(pitchesOrNumbers){
-                  printTrackPitch(xCoord, y1+trackHeight/2-2,track,false,settings.drawTrackChannel,SSD1306_WHITE);
+                  graphics.printTrackPitch(xCoord, y1+trackHeight/2-2,track,false,settings.drawTrackChannel,SSD1306_WHITE);
               }
               //just printing pitch numbers
               else{
@@ -575,9 +575,9 @@ void drawSeq(SequenceRenderSettings& settings){
     }
   }
   //playhead/rechead
-  if(playing && isInView(sequence.playheadPos))
+  if(playing && sequence.isInView(sequence.playheadPos))
       display.drawRoundRect(trackDisplay+(sequence.playheadPos-settings.start)*sequence.viewScale,settings.startHeight,3, screenHeight-settings.startHeight, 3, SSD1306_WHITE);
-  if(recording && isInView(sequence.recheadPos))
+  if(recording && sequence.isInView(sequence.recheadPos))
       display.drawRoundRect(trackDisplay+(sequence.recheadPos-settings.start)*sequence.viewScale,settings.startHeight,3, screenHeight-settings.startHeight, 3, SSD1306_WHITE);
 
   int cursorX = trackDisplay+int((sequence.cursorPos-settings.start)*sequence.viewScale)-8;

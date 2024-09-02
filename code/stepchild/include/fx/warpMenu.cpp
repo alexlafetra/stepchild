@@ -62,46 +62,46 @@ CoordinatePair selectArea_warp(bool AorB){
       if (controls.joystickX == 1 && !controls.SHIFT()) {
         //if cursor isn't on a measure marker, move it to the nearest one
         if(sequence.cursorPos%sequence.subDivision){
-          moveCursor(-sequence.cursorPos%sequence.subDivision);
+          sequence.moveCursor(-sequence.cursorPos%sequence.subDivision);
           lastTime = millis();
         }
         else{
-          moveCursor(-sequence.subDivision);
+          sequence.moveCursor(-sequence.subDivision);
           lastTime = millis();
         }
       }
       if (controls.joystickX == -1 && !controls.SHIFT()) {
         if(sequence.cursorPos%sequence.subDivision){
-          moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
+          sequence.moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
           lastTime = millis();
         }
         else{
-          moveCursor(sequence.subDivision);
+          sequence.moveCursor(sequence.subDivision);
           lastTime = millis();
         }
       }
       if (controls.joystickY == 1) {
         if(recording)
-          setActiveTrack(sequence.activeTrack + 1, false);
+          sequence.setActiveTrack(sequence.activeTrack + 1, false);
         else
-          setActiveTrack(sequence.activeTrack + 1, true);
+          sequence.setActiveTrack(sequence.activeTrack + 1, true);
         lastTime = millis();
       }
       if (controls.joystickY == -1) {
         if(recording)
-          setActiveTrack(sequence.activeTrack - 1, false);
+          sequence.setActiveTrack(sequence.activeTrack - 1, false);
         else
-          setActiveTrack(sequence.activeTrack - 1, true);
+          sequence.setActiveTrack(sequence.activeTrack - 1, true);
         lastTime = millis();
       }
     }
     if (utils.itsbeen(50)) {
       if (controls.joystickX == 1 && controls.SHIFT()) {
-        moveCursor(-1);
+        sequence.moveCursor(-1);
         lastTime = millis();
       }
       if (controls.joystickX == -1 && controls.SHIFT()) {
-        moveCursor(1);
+        sequence.moveCursor(1);
         lastTime = millis();
       }
     }
@@ -127,7 +127,7 @@ CoordinatePair selectArea_warp(bool AorB){
       if(millis()%500>250)
         printItalic(trackDisplay+50,0,AorB?"A":"B",1);
     }
-    drawWarpIcon(8,2,11,true);
+    graphics.drawWarpIcon(8,2,11,true);
     display.display();
   }
 }

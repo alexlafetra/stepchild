@@ -325,22 +325,22 @@ void fragmentMenu(){
       if(fragmentData[1][2]>1 && isFragmenting){
         int reps = random(fragmentData[1][1],fragmentData[1][2]);
         if(reps == 1){
-          drawTetra(h+40+cos(millis()),k-5+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
+          graphics.drawTetra(h+40+cos(millis()),k-5+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
         }
         else if(reps == 2){
-          drawTetra(h+40+cos(millis()),k-5+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
-          drawTetra(h-40+cos(millis()),k-5+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
+          graphics.drawTetra(h+40+cos(millis()),k-5+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
+          graphics.drawTetra(h-40+cos(millis()),k-5+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
         }
         else if(reps == 3){
-          drawTetra(h+40+cos(millis()),k-5+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
-          drawTetra(h-40+cos(millis()),k-5+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
-          drawTetra(h+40+cos(millis()),k+10+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
+          graphics.drawTetra(h+40+cos(millis()),k-5+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
+          graphics.drawTetra(h-40+cos(millis()),k-5+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
+          graphics.drawTetra(h+40+cos(millis()),k+10+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
         }
         else if(reps>3){
-          drawTetra(h+40+cos(millis()),k-5+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
-          drawTetra(h-40+cos(millis()),k-5+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
-          drawTetra(h+40+cos(millis()),k+10+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
-          drawTetra(h-40+cos(millis()),k+10+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
+          graphics.drawTetra(h+40+cos(millis()),k-5+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
+          graphics.drawTetra(h-40+cos(millis()),k-5+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
+          graphics.drawTetra(h+40+cos(millis()),k+10+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
+          graphics.drawTetra(h-40+cos(millis()),k+10+sin(millis()),height*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
         }
       }
     }
@@ -389,10 +389,10 @@ void fragmentMenu(){
     // yDepth = random(-10,10);
     //animated if the sequence is fragmenting
     if(!playing&&!recording){
-      drawTetra(h+cos(millis()),k+sin(millis()),height*fragmentSubDiv*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
+      graphics.drawTetra(h+cos(millis()),k+sin(millis()),height*fragmentSubDiv*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
     }
     else{
-      drawTetra(h+cos(millis()),k+sin(millis()),fragmentData[1][0]*float(screenHeight)/float(fragmentData[1][2]),fragmentData[0][0]*fragmentSubDiv*float(screenWidth)/float(fragmentData[0][2]),xDepth,yDepth,0,SSD1306_WHITE);
+      graphics.drawTetra(h+cos(millis()),k+sin(millis()),fragmentData[1][0]*float(screenHeight)/float(fragmentData[1][2]),fragmentData[0][0]*fragmentSubDiv*float(screenWidth)/float(fragmentData[0][2]),xDepth,yDepth,0,SSD1306_WHITE);
     }
     display.display();
   }

@@ -33,11 +33,11 @@ vector<uint8_t> selectMultipleTracks(String text){
     controls.readJoystick();
     if(utils.itsbeen(100)){
       if(controls.joystickY == 1){
-        setActiveTrack(sequence.activeTrack+1,true);
+        sequence.setActiveTrack(sequence.activeTrack+1,true);
         lastTime = millis();
       }
       if(controls.joystickY == -1){
-        setActiveTrack(sequence.activeTrack-1,true);
+        sequence.setActiveTrack(sequence.activeTrack-1,true);
         lastTime = millis();
       }
     }
@@ -246,13 +246,13 @@ void swapTracks(){
     if(utils.itsbeen(100)){
       if(controls.joystickY == 1){
         swapTracks(track1,sequence.activeTrack+1);
-        setActiveTrack(sequence.activeTrack+1,true);
+        sequence.setActiveTrack(sequence.activeTrack+1,true);
         track1 = sequence.activeTrack;
         lastTime = millis();
       }
       if(controls.joystickY == -1){
         swapTracks(track1,sequence.activeTrack-1);
-        setActiveTrack(sequence.activeTrack-1,true);
+        sequence.setActiveTrack(sequence.activeTrack-1,true);
         track1 = sequence.activeTrack;
         lastTime = millis();
       }
@@ -391,7 +391,7 @@ void shrinkTracks(){
     sequence.endTrack = 16;
     // headerHeight = 8;
   }
-  setActiveTrack(0,false);
+  sequence.setActiveTrack(0,false);
 }
 
 void transposeAllChannels(int increment){

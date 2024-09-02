@@ -68,18 +68,18 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
             if (controls.joystickX == 1 && !controls.SHIFT()) {
                 //if cursor isn't on a measure marker, move it to the nearest one
                 if(sequence.cursorPos%sequence.subDivision){
-                    moveCursor(-sequence.cursorPos%sequence.subDivision);
+                    sequence.moveCursor(-sequence.cursorPos%sequence.subDivision);
                     lastTime = millis();
                     //moving entire loop
                     if(movingLoop == 2)
-                    moveLoop(-sequence.cursorPos%sequence.subDivision);
+                    sequence.moveLoop(-sequence.cursorPos%sequence.subDivision);
                 }
                 else{
-                    moveCursor(-sequence.subDivision);
+                    sequence.moveCursor(-sequence.subDivision);
                     lastTime = millis();
                     //moving entire loop
                     if(movingLoop == 2)
-                    moveLoop(-sequence.subDivision);
+                    sequence.moveLoop(-sequence.subDivision);
                 }
                 //moving loop start/end
                 if(movingLoop == -1){
@@ -91,16 +91,16 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
                 }
                 if (controls.joystickX == -1 && !controls.SHIFT()) {
                 if(sequence.cursorPos%sequence.subDivision){
-                    moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
+                    sequence.moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
                     lastTime = millis();
                     if(movingLoop == 2)
-                    moveLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
+                    sequence.moveLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
                 }
                 else{
-                    moveCursor(sequence.subDivision);
+                    sequence.moveCursor(sequence.subDivision);
                     lastTime = millis();
                     if(movingLoop == 2)
-                    moveLoop(sequence.subDivision);
+                    sequence.moveLoop(sequence.subDivision);
                 }
                 //moving loop start/end
                 if(movingLoop == -1){
@@ -126,20 +126,20 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
         if (utils.itsbeen(50)) {
             //moving
             if (controls.joystickX == 1 && controls.SHIFT()) {
-            moveCursor(-1);
+            sequence.moveCursor(-1);
             lastTime = millis();
             if(movingLoop == 2)
-                moveLoop(-1);
+                sequence.moveLoop(-1);
             else if(movingLoop == -1)
                 sequence.setLoopPoint(sequence.cursorPos,true);
             else if(movingLoop == 1)
                 sequence.setLoopPoint(sequence.cursorPos,false);
             }
             if (controls.joystickX == -1 && controls.SHIFT()) {
-            moveCursor(1);
+            sequence.moveCursor(1);
             lastTime = millis();
             if(movingLoop == 2)
-                moveLoop(1);
+                sequence.moveLoop(1);
             else if(movingLoop == -1)
                 sequence.loopData[sequence.activeLoop].start = sequence.cursorPos;
             else if(movingLoop == 1)
@@ -362,7 +362,7 @@ bool jumpCursorToPC(uint8_t port, bool forward, bool allowSameTS){
         }
     }
     if(atLeastOne){
-        moveCursor(nearestDist*(forward?1:-1));
+        sequence.moveCursor(nearestDist*(forward?1:-1));
         return true;
     }
     else{

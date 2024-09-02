@@ -202,7 +202,7 @@ bool echoMenuControls(uint8_t* cursor){
       lastTime = millis();
       while(true){
         //echo selected notes
-        if(selectNotes("echo",drawEchoIcon)){
+        if(selectNotes("echo",[](uint8_t a, uint8_t b, uint8_t c, bool d){graphics.drawEchoIcon(a,b,c,d);})){//lambda function!
           echoSelectedNotes();
           clearSelection();
         }

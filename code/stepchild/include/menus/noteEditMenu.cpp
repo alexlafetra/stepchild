@@ -68,19 +68,19 @@ void NoteEditMenu::displayMenu(){
     //draw edit icons if the tool bar is onscreen
     if(coords.start.x<screenWidth){
       //move
-      drawMoveIcon(coords.start.x+3,1,cursor==0);
+      graphics.drawMoveIcon(coords.start.x+3,1,cursor==0);
       //change length
-      drawLengthIcon(coords.start.x+17,4,10,3,cursor == 1);
+      graphics.drawLengthIcon(coords.start.x+17,4,10,3,cursor == 1);
       //change vel
-      drawVelIcon(coords.start.x+33,1,11,cursor == 2);
+      graphics.drawVelIcon(coords.start.x+33,1,11,cursor == 2);
       //change chance
-      drawChanceIcon(coords.start.x+47,1,11,cursor == 3);
+      graphics.drawChanceIcon(coords.start.x+47,1,11,cursor == 3);
       //quantize
-      drawQuantIcon(coords.start.x+61,1,11,cursor == 4);
+      graphics.drawQuantIcon(coords.start.x+61,1,11,cursor == 4);
       //humanize
-      drawHumanizeIcon(coords.start.x+75,1,10,cursor == 5);
+      graphics.drawHumanizeIcon(coords.start.x+75,1,10,cursor == 5);
       //warp
-      drawQuickFunctionIcon(coords.start.x+90,1,11,cursor == 6);
+      graphics.drawQuickFunctionIcon(coords.start.x+90,1,11,cursor == 6);
     }
 
     //arrow highlight
@@ -165,7 +165,7 @@ void NoteEditMenu::displayMenu(){
       //note count display
       display.fillRoundRect(4,coords.start.x+11,22,7,3,SSD1306_WHITE);
       display.fillRoundRect(4,coords.start.x+26,22,7,3,SSD1306_WHITE);
-      uint8_t noteCount = getNoteCount();
+      uint8_t noteCount = sequence.getNoteCount();
       printSmall(9,coords.start.x+5,"seq",SSD1306_WHITE);
       printSmall(15-stringify(noteCount).length()*2,coords.start.x+12,stringify(noteCount),SSD1306_BLACK);
       printSmall(9,coords.start.x+20,"trk",SSD1306_WHITE);
@@ -200,7 +200,7 @@ void NoteEditMenu::displayMenu(){
         break;
       //changing length
       case 1:
-        drawLengthIcon(2,6,16,6,true);
+        graphics.drawLengthIcon(2,6,16,6,true);
         if(sequence.IDAtCursor() != 0){
           graphics.printFraction(66,3,stepsToMeasures(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos-sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos));
         }
@@ -210,11 +210,11 @@ void NoteEditMenu::displayMenu(){
       case 2:
         if(sequence.IDAtCursor() != 0){
           printSmall(53,3,"v:"+stringify(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].velocity),SSD1306_WHITE);
-          fillSquareDiagonally(4,2,15,sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].velocity,127);
+          graphics.fillSquareDiagonally(4,2,15,sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].velocity,127);
           printSmall(10,7,"v",2);
         }
         else{
-          fillSquareDiagonally(4,2,15,0);
+          graphics.fillSquareDiagonally(4,2,15,0);
           printSmall(10,7,"v",2);
         }
         printSmall(78,3,"^/&+[sh]",1);
@@ -225,11 +225,11 @@ void NoteEditMenu::displayMenu(){
       case 3:
         if(sequence.IDAtCursor() != 0){
           printSmall(64,3,stringify(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].chance)+"%",SSD1306_WHITE);
-          fillSquareDiagonally(4,2,15,sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].chance,100);
+          graphics.fillSquareDiagonally(4,2,15,sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].chance,100);
           printSmall(10,7,"%",2);
         }
         else{
-          fillSquareDiagonally(4,2,15,0);
+          graphics.fillSquareDiagonally(4,2,15,0);
           printSmall(10,7,"%",2);
         }
         //control tooltip
@@ -239,8 +239,8 @@ void NoteEditMenu::displayMenu(){
       //quantize
       case 4:
         //title
-        drawBox(9-(millis()/500)%4,1+(millis()/500)%4,8,8,3,3,4);
-        drawBox(2+(millis()/500)%4,6-(millis()/500)%4,8,8,3,3,0);
+        graphics.drawBox(9-(millis()/500)%4,1+(millis()/500)%4,8,8,3,3,4);
+        graphics.drawBox(2+(millis()/500)%4,6-(millis()/500)%4,8,8,3,3,0);
         txt = "QUANT";
         //amount
         printSmall(70,3,stringify(quantizeAmount)+"%",1);
@@ -334,7 +334,7 @@ bool NoteEditMenu::editMenuControls_editing(){
       //highlight = 0 ==> moving notes, 1==> changing vel, 2==> changing chance, 3==> changing length
       if(cursor == 0){
         if(sequence.moveNotes(0,1)){
-          setActiveTrack(sequence.activeTrack + 1, true);
+          sequence.setActiveTrack(sequence.activeTrack + 1, true);
         }
       }
       //vel
@@ -342,14 +342,14 @@ bool NoteEditMenu::editMenuControls_editing(){
         if(controls.SHIFT())
           sequence.changeVel(-8);
         else
-          moveToNextNote_inTrack(true);
+          sequence.moveToNextNote_inTrack(true);
       }
       //chance
       else if(cursor == 3){
         if(controls.SHIFT())
             sequence.changeChance(-5);
         else
-          moveToNextNote_inTrack(true);
+          sequence.moveToNextNote_inTrack(true);
       }
       //quant
       else if(cursor == 4){
@@ -357,12 +357,12 @@ bool NoteEditMenu::editMenuControls_editing(){
           quantizeAmount--;
         }
         else{
-          moveToNextNote_inTrack(true);
+          sequence.moveToNextNote_inTrack(true);
         }
       }
       //humanize
       else if(cursor == 5){
-        moveToNextNote_inTrack(true);
+        sequence.moveToNextNote_inTrack(true);
       }
       drawingNote = false;
       lastTime = millis();
@@ -370,19 +370,19 @@ bool NoteEditMenu::editMenuControls_editing(){
     if (controls.joystickY == -1){
       if(cursor == 0){
         if(sequence.moveNotes(0,-1))
-          setActiveTrack(sequence.activeTrack - 1, true);
+          sequence.setActiveTrack(sequence.activeTrack - 1, true);
       }
       else if(cursor == 2){
         if(controls.SHIFT())
           sequence.changeVel(8);
         else
-          moveToNextNote_inTrack(false);
+          sequence.moveToNextNote_inTrack(false);
       }
       else if(cursor == 3){
         if(controls.SHIFT())
             sequence.changeChance(5);
         else
-          moveToNextNote_inTrack(false);
+          sequence.moveToNextNote_inTrack(false);
       }
       //quant
       else if(cursor == 4){
@@ -390,12 +390,12 @@ bool NoteEditMenu::editMenuControls_editing(){
           quantizeAmount++;
         }
         else{
-          moveToNextNote_inTrack(false);
+          sequence.moveToNextNote_inTrack(false);
         }
       }
       //humanize
       else if(cursor == 5){
-        moveToNextNote_inTrack(false);
+        sequence.moveToNextNote_inTrack(false);
       }
       drawingNote = false;
       lastTime = millis();
@@ -407,45 +407,45 @@ bool NoteEditMenu::editMenuControls_editing(){
         if(cursor == 1){
           //if it's not on a subDiv
           if(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos%sequence.subDivision)
-            changeNoteLength_jumpToEnds(-(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos%sequence.subDivision));
+            sequence.changeNoteLength_jumpToEnds(-(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos%sequence.subDivision));
           //if it is
           else
-            changeNoteLength_jumpToEnds(-sequence.subDivision);
+            sequence.changeNoteLength_jumpToEnds(-sequence.subDivision);
           lastTime = millis();
         }
         else if(cursor == 0){
           //if it's not on a subDiv
           if(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos%sequence.subDivision){
             if(sequence.moveNotes(-(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos%sequence.subDivision),0)){
-              moveCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].startPos-sequence.cursorPos);
+              sequence.moveCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].startPos-sequence.cursorPos);
               lastTime = millis();
             }
           }
           else{
             if(sequence.moveNotes(-sequence.subDivision,0)){
-              moveCursor(-sequence.subDivision);
+              sequence.moveCursor(-sequence.subDivision);
               lastTime = millis();
             }
           }
         }
         else{
-          moveToNextNote(false,false);
+          sequence.moveToNextNote(false,false);
           lastTime = millis();
         }
       }
       else{
         if(cursor == 0){
           if(sequence.moveNotes(-1,0)){
-            moveCursor(-1);
+            sequence.moveCursor(-1);
             lastTime = millis();
           }
         }
         else if(cursor == 1){
-          changeNoteLength_jumpToEnds(-1);
+          sequence.changeNoteLength_jumpToEnds(-1);
           lastTime = millis();
         }
         else{
-          moveToNextNote(false,false);
+          sequence.moveToNextNote(false,false);
           lastTime = millis();
         }
       }
@@ -456,46 +456,46 @@ bool NoteEditMenu::editMenuControls_editing(){
         //if it's not on a subDiv
         if(cursor == 1){
           if(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos%sequence.subDivision){     
-            changeNoteLength_jumpToEnds(sequence.subDivision-(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos%sequence.subDivision));
+            sequence.changeNoteLength_jumpToEnds(sequence.subDivision-(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].endPos%sequence.subDivision));
             lastTime = millis();
           }
           else{
-            changeNoteLength_jumpToEnds(sequence.subDivision);
+            sequence.changeNoteLength_jumpToEnds(sequence.subDivision);
             lastTime = millis();
           }
         }
         else if(cursor == 0){
           if(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos%sequence.subDivision){     
             if(sequence.moveNotes(sequence.subDivision-sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos%sequence.subDivision,0)){
-              moveCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].startPos-sequence.cursorPos);
+              sequence.moveCursor(sequence.noteData[sequence.activeTrack][sequence.noteData[sequence.activeTrack].size()-1].startPos-sequence.cursorPos);
               lastTime = millis();
             }
           }
           else{
             if(sequence.moveNotes(sequence.subDivision,0)){
-              moveCursor(sequence.subDivision);
+              sequence.moveCursor(sequence.subDivision);
               lastTime = millis();
             }
           }
         }
         else{
-          moveToNextNote(true,false);
+          sequence.moveToNextNote(true,false);
           lastTime = millis();
         }
       }
       else{
         if(cursor == 0){
           if(sequence.moveNotes(1,0)){
-            moveCursor(1);
+            sequence.moveCursor(1);
             lastTime = millis();
           }
         }
         else if(cursor == 1){
-          changeNoteLength_jumpToEnds(1);
+          sequence.changeNoteLength_jumpToEnds(1);
           lastTime = millis();
         }
         else{
-          moveToNextNote(true,false);
+          sequence.moveToNextNote(true,false);
           lastTime = millis();
         }
       }
@@ -567,10 +567,10 @@ bool NoteEditMenu::editMenuControls_normal(){
     if(!controls.SHIFT()){
       //changing zoom
       if(controls.counterA >= 1){
-          zoom(true);
+          sequence.zoom(true);
         }
       if(controls.counterA <= -1){
-        zoom(false);
+        sequence.zoom(false);
       }
     }
     else{
@@ -587,16 +587,16 @@ bool NoteEditMenu::editMenuControls_normal(){
   while(controls.counterB != 0){
     if(!controls.SHIFT()){
       if(controls.counterB >= 1 && !controls.SHIFT()){
-        changeSubDivInt(true);
+        sequence.changeSubDivInt(true);
       }
       //changing subdivint
       if(controls.counterB <= -1 && !controls.SHIFT()){
-        changeSubDivInt(false);
+        sequence.changeSubDivInt(false);
       }
     }
     //if shifting, toggle between 1/3 and 1/4 mode
     else while(controls.counterB != 0 && controls.B()){
-      toggleTriplets();
+      sequence.toggleTriplets();
     }
     controls.counterB += controls.counterB<0?1:-1;;
   }
@@ -604,23 +604,23 @@ bool NoteEditMenu::editMenuControls_normal(){
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1){
       if(controls.SHIFT()){
-        moveToNextNote_inTrack(true);
+        sequence.moveToNextNote_inTrack(true);
         drawingNote = false;
         lastTime = millis();
       }
       else{
-        setActiveTrack(sequence.activeTrack+1,false);
+        sequence.setActiveTrack(sequence.activeTrack+1,false);
         lastTime = millis();
       }
     }
     if (controls.joystickY == -1){
       if(controls.SHIFT()){
-        moveToNextNote_inTrack(false);
+        sequence.moveToNextNote_inTrack(false);
         drawingNote = false;
         lastTime = millis();
       }
       else{
-        setActiveTrack(sequence.activeTrack-1,false);
+        sequence.setActiveTrack(sequence.activeTrack-1,false);
         lastTime = millis();
       }
     }
@@ -628,7 +628,7 @@ bool NoteEditMenu::editMenuControls_normal(){
   if(utils.itsbeen(100)){
     if (controls.joystickX == 1){
       if(!controls.SHIFT()){
-        moveToNextNote(false,false);
+        sequence.moveToNextNote(false,false);
         lastTime = millis();
       }
       //controls.SHIFT()
@@ -639,7 +639,7 @@ bool NoteEditMenu::editMenuControls_normal(){
     }
     if (controls.joystickX == -1){
       if(!controls.SHIFT()){  
-        moveToNextNote(true,false);
+        sequence.moveToNextNote(true,false);
         lastTime = millis();
       }
       else if(cursor<6){
@@ -716,9 +716,9 @@ bool NoteEditMenu::editMenuControls_normal(){
           page = 1;
         }
         //if there are ANY notes jump into edit mode
-        else if(areThereAnyNotes()){
+        else if(sequence.areThereAnyNotes()){
           if(sequence.IDAtCursor() == 0){
-            setCursorToNearestNote();
+            sequence.setCursorToNearestNote();
           }
           editingNote = true;
           lastTime = millis();

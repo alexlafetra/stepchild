@@ -213,46 +213,46 @@ CoordinatePair selectArea_random(){
       if (controls.joystickX == 1 && !controls.SHIFT()) {
         //if cursor isn't on a measure marker, move it to the nearest one
         if(sequence.cursorPos%sequence.subDivision){
-          moveCursor(-sequence.cursorPos%sequence.subDivision);
+          sequence.moveCursor(-sequence.cursorPos%sequence.subDivision);
           lastTime = millis();
         }
         else{
-          moveCursor(-sequence.subDivision);
+          sequence.moveCursor(-sequence.subDivision);
           lastTime = millis();
         }
       }
       if (controls.joystickX == -1 && !controls.SHIFT()) {
         if(sequence.cursorPos%sequence.subDivision){
-          moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
+          sequence.moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
           lastTime = millis();
         }
         else{
-          moveCursor(sequence.subDivision);
+          sequence.moveCursor(sequence.subDivision);
           lastTime = millis();
         }
       }
       if (controls.joystickY == 1) {
         if(recording)
-          setActiveTrack(sequence.activeTrack + 1, false);
+          sequence.setActiveTrack(sequence.activeTrack + 1, false);
         else
-          setActiveTrack(sequence.activeTrack + 1, true);
+          sequence.setActiveTrack(sequence.activeTrack + 1, true);
         lastTime = millis();
       }
       if (controls.joystickY == -1) {
         if(recording)
-          setActiveTrack(sequence.activeTrack - 1, false);
+          sequence.setActiveTrack(sequence.activeTrack - 1, false);
         else
-          setActiveTrack(sequence.activeTrack - 1, true);
+          sequence.setActiveTrack(sequence.activeTrack - 1, true);
         lastTime = millis();
       }
     }
     if (utils.itsbeen(50)) {
       if (controls.joystickX == 1 && controls.SHIFT()) {
-        moveCursor(-1);
+        sequence.moveCursor(-1);
         lastTime = millis();
       }
       if (controls.joystickX == -1 && controls.SHIFT()) {
-        moveCursor(1);
+        sequence.moveCursor(1);
         lastTime = millis();
       }
     }
@@ -471,7 +471,7 @@ bool randMenuControls(uint8_t * whichTab){
             if(controls.SHIFT())
               (randomData.minLength)++;
             else{
-              randomData.minLength = changeSubDiv(true,randomData.minLength,false);
+              randomData.minLength = sequence.changeSubDiv(true,randomData.minLength,false);
             }
             if(randomData.minLength>96)
               randomData.minLength = 96;
@@ -480,7 +480,7 @@ bool randMenuControls(uint8_t * whichTab){
             if(controls.SHIFT() && randomData.minLength>1)
               (randomData.minLength)--;
             else
-              randomData.minLength = changeSubDiv(false,randomData.minLength,false);
+              randomData.minLength = sequence.changeSubDiv(false,randomData.minLength,false);
           }
           if(randomData.minLength>randomData.maxLength)
             randomData.maxLength=randomData.minLength;
@@ -582,7 +582,7 @@ bool randMenuControls(uint8_t * whichTab){
             if(controls.SHIFT())
               (randomData.maxLength)++;
             else{
-              randomData.maxLength = changeSubDiv(true,randomData.maxLength,false);
+              randomData.maxLength = sequence.changeSubDiv(true,randomData.maxLength,false);
             }
             if(randomData.maxLength>96)
               randomData.maxLength = 96;
@@ -591,7 +591,7 @@ bool randMenuControls(uint8_t * whichTab){
             if(controls.SHIFT() && randomData.maxLength>1)
               (randomData.maxLength)--;
             else
-              randomData.maxLength = changeSubDiv(false,randomData.maxLength,false);
+              randomData.maxLength = sequence.changeSubDiv(false,randomData.maxLength,false);
           }
           if((randomData.maxLength)<(randomData.minLength))
             randomData.minLength = randomData.maxLength;
@@ -680,10 +680,10 @@ bool randMenuControls(uint8_t * whichTab){
         //changing grid subDiv
         case 5:
           if(controls.counterB >= 1){
-            changeSubDivInt(true);
+            sequence.changeSubDivInt(true);
           }
           else if(controls.counterB <= -1){
-            changeSubDivInt(false);
+            sequence.changeSubDivInt(false);
           }
           controls.counterB += controls.counterB<0?1:-1;
           break;

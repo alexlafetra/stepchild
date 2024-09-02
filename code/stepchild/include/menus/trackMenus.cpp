@@ -49,11 +49,11 @@ bool TrackMenu::trackMenuControls(){
   if(utils.itsbeen(100)){
     if(controls.SHIFT() && controls.joystickY != 0){
       if(controls.joystickY == -1){
-        setActiveTrack(sequence.activeTrack-1,true);
+        sequence.setActiveTrack(sequence.activeTrack-1,true);
         lastTime = millis();
       }
       if(controls.joystickY == 1){
-        setActiveTrack(sequence.activeTrack+1,true);
+        sequence.setActiveTrack(sequence.activeTrack+1,true);
         lastTime = millis();
       }
     }
@@ -230,11 +230,11 @@ bool TrackMenu::trackMenuControls(){
     }
     while(controls.counterB != 0){
       if(controls.counterB <= -1){
-        setActiveTrack(sequence.activeTrack+1,true);
+        sequence.setActiveTrack(sequence.activeTrack+1,true);
         lastTime = millis();
       }
       if(controls.counterB >= 1){
-        setActiveTrack(sequence.activeTrack-1,true);
+        sequence.setActiveTrack(sequence.activeTrack-1,true);
         lastTime = millis();
       }
       controls.counterB += controls.counterB<0?1:-1;;
@@ -637,11 +637,11 @@ bool TrackEditMenu::trackEditMenuControls(){
     //moving thru tracks
     if(controls.joystickY != 0){
       if (controls.joystickY == 1) {
-        setActiveTrack(sequence.activeTrack + 1, true);
+        sequence.setActiveTrack(sequence.activeTrack + 1, true);
         lastTime = millis();
       }
       if (controls.joystickY == -1) {
-        setActiveTrack(sequence.activeTrack - 1, true);
+        sequence.setActiveTrack(sequence.activeTrack - 1, true);
         lastTime = millis();
       }
     }
