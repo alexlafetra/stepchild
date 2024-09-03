@@ -1022,13 +1022,12 @@ uint16_t StepchildSequence::countNotesInRange(uint16_t start, uint16_t end){
 //changes which track is active, changing only to valid tracks
 bool StepchildSequence::setActiveTrack(uint8_t newActiveTrack, bool loudly) {
   if (newActiveTrack >= 0 && newActiveTrack < this->trackData.size()) {
-    // if(this->activeTrack == 4 && newActiveTrack == 5 && this->maxTracksShown == 5){
-    if((this->activeTrack == this->maxTracksShown-1) && (newActiveTrack == this->maxTracksShown) && this->shrinkTopDisplay == false){
-      this->maxTracksShown++;
+    if((this->activeTrack == this->maxTracksShown-1) && (newActiveTrack == this->maxTracksShown) && (this->shrinkTopDisplay == false)){
+      // this->maxTracksShown++;
       this->shrinkTopDisplay = true;
     }
-    else if(this->activeTrack == 1 && newActiveTrack == 0){
-      this->maxTracksShown--;
+    else if((this->activeTrack == 1) && (newActiveTrack == 0) && (this->shrinkTopDisplay)){
+      // this->maxTracksShown--;
       this->shrinkTopDisplay = false;
     }
     this->activeTrack = newActiveTrack;

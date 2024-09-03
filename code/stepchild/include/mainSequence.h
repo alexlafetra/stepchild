@@ -280,7 +280,7 @@ void mainSequencerButtons(){
       lastTime = millis();
     }
     //if play+controls.SHIFT(), or if play and it's already recording
-    if(controls.PLAY() && controls.SHIFT() || controls.PLAY() && recording){
+    if((controls.PLAY() && controls.SHIFT()) || (controls.PLAY() && recording)){
       toggleRecordingMode(waitForNoteBeforeRec);
       lastTime = millis();
     }

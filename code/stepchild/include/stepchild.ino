@@ -2,8 +2,6 @@
 //'board' setting needs to be the RP2040 raspberry pi pico
 //will overclock at 250MH!!
 
-//uncomment this/define elsewhere to use the capturecard version of the display library
-
 //multicore tinyUSB issue: https://github.com/hathach/tinyusb/discussions/1435
 //Possible fix? https://github.com/adafruit/Adafruit_TinyUSB_Arduino/issues/238
 
@@ -25,8 +23,7 @@ void setup() {
 
   //start the display and throw an error if it doesn't work
   //(probably not very helpful)
-  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR)) {
-  }
+  display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR);
   //Set the display rotation (which is ~technically~ upside down)
   display.setRotation(DISPLAY_UPRIGHT);
   //turn text wrapping off, so our menus look ok
@@ -37,7 +34,6 @@ void setup() {
   USBDevice.setManufacturerDescriptor("Alex LaFetra Thompson           ");
   USBDevice.setProductDescriptor     ("Stepchild Firmware 0.9.2        ");
   #endif
-
 
   // CV.init()
 
@@ -71,7 +67,6 @@ void setup() {
   core0ready = true;
   lastTime = millis();
   graphics.bootscreen_2();
-  // maxCurrentDrawTest();
 }
 
 //CPU 1 Setup

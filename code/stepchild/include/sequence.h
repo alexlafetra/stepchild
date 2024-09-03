@@ -24,7 +24,7 @@ class StepchildSequence{
   uint16_t viewStart = 0;
   uint16_t viewEnd = 192;
   bool shrinkTopDisplay = false;
-  uint8_t maxTracksShown = 6;
+  uint8_t maxTracksShown = 5;
   uint8_t startTrack = 0;
   uint8_t endTrack = 4;
   float viewScale = 0.5;

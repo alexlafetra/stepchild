@@ -97,7 +97,7 @@ String enterText(String title, uint8_t count){
       display.print(text+(text.length()<count?alphabet[highlight]:""));
       //cursor
       if(millis()%750>250){
-        display.drawFastVLine(9+text.length()*6,15,10,SSD1306_WHITE);
+        display.drawFastVLine(9+text.length()*6,14,9,SSD1306_WHITE);
       }
     }
     else
@@ -105,7 +105,7 @@ String enterText(String title, uint8_t count){
 
     //blank spaces
     for(uint8_t i = text.length(); i<count; i++){
-      display.drawFastHLine(10+i*6,23,5,1);
+      display.drawFastHLine(10+i*6,22,5,1);
     }
     
 

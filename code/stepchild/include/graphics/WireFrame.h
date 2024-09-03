@@ -98,6 +98,7 @@ class WireFrame{
   vector<uint16_t> dots;
   uint8_t xPos;
   uint8_t yPos;
+  uint8_t dotSize = 1;
   float scale;
   bool drawEdges;
   bool drawDots;
@@ -251,7 +252,7 @@ void WireFrame::renderDie(){
 void WireFrame::render(){
   if(drawDots){
     for(uint8_t i = 0; i<dots.size(); i++){
-      verts[dots[i]].render(xPos,yPos,scale,1);
+      verts[dots[i]].render(xPos,yPos,scale,dotSize);
       //for labelling verts
       // verts[dots[i]].render(xPos,yPos,scale,1,String(i));
     }

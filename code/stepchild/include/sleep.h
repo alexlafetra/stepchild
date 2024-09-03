@@ -199,6 +199,36 @@ void screenSaver_template(){
   }
 }
 
+void screenSaver_die(){
+  bool done = false;
+  WireFrame cube = makeCube(20);
+  cube.xPos = 64;
+  cube.yPos = 32;
+  cube.scale = 1.8;
+  WireFrame dots = makeDieDots(64,32,0,1.8);
+  dots.dotSize = 3;
+  //loop that runs while the screensaver is active
+  while(true){
+    cube.setRotation(millis()/1000,0);
+    cube.setRotation(millis()/1000,1);
+    dots = makeDieDots(64,32,1+2.0*sin(millis()/200),1.8);
+    dots.setRotation(millis()/1000,0);
+    dots.setRotation(millis()/1000,1);
+    display.clearDisplay();
+    cube.render();
+    dots.render();
+    display.display();
+    //checking if any buttons are pressed and breaking out of the loop if so
+    if(controls.anyActiveInputs()){
+      lastTime = millis();
+      return;
+    }
+    else if(utils.itsbeen(deepSleepTime)){
+      return;
+    }
+  }
+}
+
 void screenSaver_prams(){
   vector<Raindrop> prams;
   const uint8_t maxPrams = 8;

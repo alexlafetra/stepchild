@@ -170,13 +170,7 @@ WireFrame makeCube(uint8_t size){
   return WireFrame(vertices,edges);
 }
 
-//makes a cube with die dots!
-//dots ~are~ accurate
-WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float scale){
-  WireFrame cube = makeCube(20);
-  cube.xPos = x1;
-  cube.yPos = y1;
-  cube.scale = scale;
+WireFrame makeDieDots(uint8_t x1, uint8_t y1, uint8_t distance, float scale){
 
   //1
   Vertex v1 = Vertex(0,0,distance);
@@ -219,6 +213,17 @@ WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float sca
     allDots.dots.push_back(i);
   }
   allDots.scale = scale;
+  return allDots;
+}
+
+//makes a cube with die dots!
+//dots ~are~ accurate
+WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float scale){
+  WireFrame cube = makeCube(20);
+  cube.xPos = x1;
+  cube.yPos = y1;
+  cube.scale = scale;
+  WireFrame allDots = makeDieDots(x1,y1,distance,scale);
   cube.join(allDots);
   cube.drawDots = true;
   return cube;

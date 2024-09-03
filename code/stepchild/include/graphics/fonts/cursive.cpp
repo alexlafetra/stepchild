@@ -52,8 +52,8 @@
 
 //Cursive font
 void printCursive(int x, int y, String text, uint16_t c){
-  for(int letter = 0; letter<text.length(); letter++){
-    unsigned char character = text.charAt(letter);
+  for(uint16_t letter = 0; letter<text.length(); letter++){
+    char character = text.charAt(letter);
     switch(character){
       case ' ':
         continue;

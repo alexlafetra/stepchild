@@ -14,13 +14,13 @@ class Autotrack{
     //0 is default, line-based, 1 is sine/cosine based, 2 is square, 3 is saw, 4 is was, 5 is triangle and 6 is random
     //5 is random
     uint8_t type = 0;
-    //this is just for the osc-based
+    //this is just for the osc-based waveforms
     uint16_t period = 96;
     uint16_t phase = 0;
-    int8_t amplitude = 64;
-    uint8_t yPos = 0;
+    int8_t amplitude = 48;
+    uint8_t yPos = 64;
 
-    int8_t title[4] = {-1,-1,-1,-1};//name
+    char title[4] = {0,0,0,0};//name
 
     //controls whether it's a 0 (default) or 1 (sp404mkII) or 2 (internal) parameter track
     uint8_t parameterType = 0;
@@ -61,6 +61,15 @@ class Autotrack{
         title[i] = -1;
       }
     }
+    String getTitle(){
+      String s = "";
+      for(uint8_t i = 0; i<4; i++){
+        if(title[i] != -1){
+          s += stringify(title[i]);
+        }
+      }
+      return s;
+    }
 };
 
 Autotrack::Autotrack(){
@@ -72,8 +81,6 @@ Autotrack::Autotrack(uint8_t t, uint16_t length){
     data.push_back(255);
   }
   type = t;
-  String txt = enterText("name?",4);
-  this->setTitle(txt);
 }
 
 void Autotrack::sendData(uint16_t timestep){

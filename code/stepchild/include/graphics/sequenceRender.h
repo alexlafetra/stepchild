@@ -52,6 +52,65 @@ struct SequenceRenderSettings{
     }
 };
 
+void SelectionBox::render(SequenceRenderSettings& settings){
+  coords.end = Coordinate(sequence.cursorPos,sequence.activeTrack);
+
+  unsigned short int startX;
+  unsigned short int startY;
+  unsigned short int len;
+  unsigned short int height;
+
+  unsigned short int X1;
+  unsigned short int X2;
+  unsigned short int Y1;
+  unsigned short int Y2;
+
+  if(this->coords.start.x>this->coords.end.x){
+    X1 = this->coords.end.x;
+    X2 = this->coords.start.x;
+  }
+  else{
+    X1 = this->coords.start.x;
+    X2 = this->coords.end.x;
+  }
+  if(this->coords.start.y>this->coords.end.y){
+    Y1 = this->coords.end.y;
+    Y2 = this->coords.start.y;
+  }
+  else{
+    Y1 = this->coords.start.y;
+    Y2 = this->coords.end.y;
+  }
+
+  startX = trackDisplay+(X1-sequence.viewStart)*sequence.viewScale;
+  len = (X2-X1)*sequence.viewScale;
+
+  //if box starts before view
+  if(X1<sequence.viewStart){
+    startX = trackDisplay;//box is drawn from beggining, to this->coords.end.x
+    len = (X2-sequence.viewStart)*sequence.viewScale;
+  }
+  //if box ends past view
+  if(X2>sequence.viewEnd){
+    len = (sequence.viewEnd-X1)*sequence.viewScale;
+  }
+
+  //same, but for tracks
+  startY = (Y1-sequence.startTrack)*trackHeight+settings.startHeight;
+  height = ((Y2+1-sequence.startTrack)*trackHeight)+settings.startHeight - startY;
+  if(Y1<sequence.startTrack){
+    startY = settings.startHeight;
+    height = ((Y2 - sequence.startTrack + 1)*trackHeight - startY)%(screenHeight-settings.startHeight) + settings.startHeight;
+  }
+  display.drawRect(startX, startY, len, height, SSD1306_WHITE);
+  display.drawRect(startX+1, startY+1, len-2, height-2, SSD1306_WHITE);
+
+  if(len>5 && height>=trackHeight){
+    display.fillRect(startX+2,startY+2, len-4, height-4, SSD1306_BLACK);
+    graphics.shadeArea(startX+2,startY+2, len-4, height-4,5);
+  }
+}
+
 //Start = step you're starting on, startheight is the y coord the sequence grid begins at
 void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
   //drawing the measure bars
@@ -115,9 +174,6 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
             }
           }
         }
-        else{
-          display.drawPixel(trackDisplay+(sequence.loopData[sequence.activeLoop].start-settings.start)*sequence.viewScale, settings.startHeight-1,1);
-        }
         if(!movingLoop || (movingLoop != 1 && (millis()/400)%2)){
           display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
           display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale-1,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
@@ -138,9 +194,6 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
               display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-1, trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale-4, settings.startHeight-5, trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-5,SSD1306_WHITE);
             }
           }
-        }
-        else{
-          display.drawPixel(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-1,1);
         }
         if(!movingLoop || (movingLoop != -1 && (millis()/400)%2)){
           display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale+1,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
@@ -363,9 +416,9 @@ void drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSe
   if(note.isSuperpositioned()){
     noteCoords.offsetY(sequence.trackData[track].pitch - note.superposition.pitch);
   }
-  if(noteCoords.y2>=SCREEN_HEIGHT)
+  if(noteCoords.y1>=SCREEN_HEIGHT)
     return;
-  else if(noteCoords.x1>=SCREEN_WIDTH)
+  if(noteCoords.x1>=SCREEN_WIDTH)
     return;
   //if it's not actively in superposition, BUT it has one and the cursor is over it, draw a rounded rect behind it
   if(!note.isSuperpositioned() && note.superposition.pitch != 255 && sequence.cursorPos<note.endPos && sequence.cursorPos >= note.startPos && sequence.activeTrack == track){
@@ -428,7 +481,7 @@ void drawSeq(SequenceRenderSettings& settings){
   if(settings.shrinkTopDisplay){
     settings.startHeight = 8;
     settings.drawLoopFlags = false;
-    settings.maxTracksShown++;
+    settings.maxTracksShown = sequence.maxTracksShown+1;
   }
 
   trackHeight = (screenHeight-settings.startHeight)/settings.maxTracksShown;//calc track height
@@ -449,7 +502,7 @@ void drawSeq(SequenceRenderSettings& settings){
   }
   //drawing selection box, since it needs to overlay stepSeq data
   if(selBox.begun){
-      selBox.render();
+      selBox.render(settings);
   }
   uint8_t height;
   if(sequence.endTrack == sequence.trackData.size())
@@ -464,7 +517,7 @@ void drawSeq(SequenceRenderSettings& settings){
 
   //drawing cursor
   if(settings.drawCursor){
-      uint8_t cPos = trackDisplay+int((sequence.cursorPos-settings.start)*sequence.viewScale);
+      uint8_t cPos = trackDisplay+uint8_t((sequence.cursorPos-settings.start)*sequence.viewScale);
       if(cPos>127)
           cPos = 126;
       if(sequence.endTrack == sequence.trackData.size()){
@@ -489,13 +542,13 @@ void drawSeq(SequenceRenderSettings& settings){
   }
   //if the bottom is in view
   if(sequence.endTrack == sequence.trackData.size()){
-      display.drawFastHLine(trackDisplay,settings.startHeight+trackHeight*settings.maxTracksShown,screenWidth,SSD1306_WHITE);
+    display.drawFastHLine(trackDisplay,settings.startHeight+trackHeight*settings.maxTracksShown,screenWidth,SSD1306_WHITE);
   }
   else if(sequence.endTrack < sequence.trackData.size())
-      sequence.endTrack++;
+    sequence.endTrack++;
   //drawin all da steps
   //---------------------------------------------------
-  for (uint8_t track = sequence.startTrack; track < (sequence.endTrack>sequence.trackData.size()?sequence.trackData.size():sequence.endTrack); track++) {
+  for (uint8_t track = sequence.startTrack; track < sequence.endTrack; track++) {
       unsigned short int y1 = (track-sequence.startTrack) * trackHeight + settings.startHeight;
       uint8_t xCoord = 5;
       //track info display

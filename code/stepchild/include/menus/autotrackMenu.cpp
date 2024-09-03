@@ -74,12 +74,14 @@ void changeDataPoint(int8_t amount){
 
 void createAutotrack(uint8_t type){
   Autotrack newData(type,sequence.sequenceLength);
+  newData.setTitle(stringify(sequence.autotrackData.size()));
   sequence.autotrackData.push_back(newData);
 }
 
 void createAutotrack(uint8_t type, uint8_t cont){
   Autotrack newData(type,sequence.sequenceLength);
   newData.control = cont;
+  newData.setTitle(stringify(sequence.autotrackData.size()));
   sequence.autotrackData.push_back(newData);
 }
 
@@ -90,6 +92,18 @@ void createAutotrack(uint8_t cont, uint8_t chan, uint8_t isOn, vector<uint8_t> p
   newData.isActive = isOn;
   newData.data.swap(points);
   newData.parameterType = pType;
+  newData.setTitle(stringify(sequence.autotrackData.size()));
+  sequence.autotrackData.push_back(newData);
+}
+
+void createAutotrack(uint8_t cont, uint8_t chan, uint8_t isOn, vector<uint8_t> points,uint8_t pType, String title){
+  Autotrack newData(0,sequence.sequenceLength);
+  newData.control = cont;
+  newData.channel = chan;
+  newData.isActive = isOn;
+  newData.data.swap(points);
+  newData.parameterType = pType;
+  newData.setTitle(title);
   sequence.autotrackData.push_back(newData);
 }
 
@@ -327,10 +341,10 @@ void setAutotrackTrigger(uint8_t whichAT){
     printSmall(0,0,"set autotrack trigger:",1);
 
     //drawing global label
-    (trigSource ||togglingGate)?display.drawRect(8,22,27,9,1):display.fillRect(8,22,27,9,1);
-    printSmall(10,24,"global",2);
+    (trigSource||togglingGate)?display.drawRect(8,28,27,9,1):display.fillRect(8,28,27,9,1);
+    printSmall(10,30,"global",2);
     if(!trigSource && !togglingGate)
-      graphics.drawArrow(22,20+((millis()/400)%2),3,3,false);
+      graphics.drawArrow(22,26+((millis()/400)%2),3,3,false);
 
 
     //drawing gate label
@@ -338,7 +352,7 @@ void setAutotrackTrigger(uint8_t whichAT){
     printSmall_centered(22,40,"gate",1);
 
     if(togglingGate){
-      graphics.drawArrow(22,60+((millis()/400)%2),3,2,false);
+      graphics.drawArrow(22,59+((millis()/400)%2),3,2,false);
     }
 
     //drawing tracks
@@ -1662,9 +1676,16 @@ bool autotrackViewerControls(){
   if(utils.itsbeen(200)){
     //selecting a autotrack
     if(controls.SELECT() ){
-      if(sequence.autotrackData.size()>0){
-        lastTime = millis();
-        autotrackEditor();
+      if(sequence.autotrackData.size()){
+        //if shifting, and if there are any autotracks
+        if(controls.SHIFT()){
+          lastTime = millis();
+          sequence.autotrackData[sequence.activeAutotrack].setTitle(enterText("name?",4));
+        }
+        else{
+          lastTime = millis();
+          autotrackEditor();
+        }
       }
     }
     if(controls.NEW()){
@@ -1817,24 +1838,14 @@ void drawAutotrackViewer(uint8_t firstTrack){
       }
     }
 
-    //data track label
-    String label = "";
-    if(sequence.autotrackData[sequence.activeAutotrack].title[0] == -1){
-      label = getCCParam(sequence.autotrackData[sequence.activeAutotrack].control,sequence.autotrackData[sequence.activeAutotrack].channel,sequence.autotrackData[sequence.activeAutotrack].parameterType);
-    }
-    else{
-      for(uint8_t i = 0; i<4; i++){
-        label += sequence.autotrackData[sequence.activeAutotrack].title[i];
-      }
-    }
-    printCursive(10,0,label,1);
+    printCursive(10,0,"track - "+sequence.autotrackData[sequence.activeAutotrack].getTitle(),1);
 
     //drawing 'more tracks' indicators
     if(firstTrack>0){
-      graphics.drawArrow(124,1+sin(millis()/75),2,2,true);
+      graphics.drawArrow(14,9+sin(millis()/75),2,2,true);
     }
     if(firstTrack+4<sequence.autotrackData.size()-1){
-      graphics.drawArrow(124,63-sin(millis()/75),2,3,true);
+      graphics.drawArrow(14,63-sin(millis()/75),2,3,true);
     }
   }
   else{

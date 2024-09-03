@@ -8,65 +8,7 @@ class SelectionBox{
     this->begun = false;
   }
 
-  void render(){
-    coords.end = Coordinate(sequence.cursorPos,sequence.activeTrack);
-
-    unsigned short int startX;
-    unsigned short int startY;
-    unsigned short int len;
-    unsigned short int height;
-
-    unsigned short int X1;
-    unsigned short int X2;
-    unsigned short int Y1;
-    unsigned short int Y2;
-
-    if(this->coords.start.x>this->coords.end.x){
-      X1 = this->coords.end.x;
-      X2 = this->coords.start.x;
-    }
-    else{
-      X1 = this->coords.start.x;
-      X2 = this->coords.end.x;
-    }
-    if(this->coords.start.y>this->coords.end.y){
-      Y1 = this->coords.end.y;
-      Y2 = this->coords.start.y;
-    }
-    else{
-      Y1 = this->coords.start.y;
-      Y2 = this->coords.end.y;
-    }
-
-    startX = trackDisplay+(X1-sequence.viewStart)*sequence.viewScale;
-    len = (X2-X1)*sequence.viewScale;
-
-    //if box starts before view
-    if(X1<sequence.viewStart){
-      startX = trackDisplay;//box is drawn from beggining, to this->coords.end.x
-      len = (X2-sequence.viewStart)*sequence.viewScale;
-    }
-    //if box ends past view
-    if(X2>sequence.viewEnd){
-      len = (sequence.viewEnd-X1)*sequence.viewScale;
-    }
-
-    //same, but for tracks
-    uint8_t startHeight = sequence.shrinkTopDisplay?headerHeight:8;
-    startY = (Y1-sequence.startTrack)*trackHeight+startHeight;
-    height = ((Y2+1-sequence.startTrack)*trackHeight)+startHeight - startY;
-    if(Y1<sequence.startTrack){
-      startY = startHeight;
-      height = ((Y2 - sequence.startTrack + 1)*trackHeight - startY)%(screenHeight-startHeight) + startHeight;
-    }
-    display.drawRect(startX, startY, len, height, SSD1306_WHITE);
-    display.drawRect(startX+1, startY+1, len-2, height-2, SSD1306_WHITE);
-
-    if(len>5 && height>=trackHeight){
-      display.fillRect(startX+2,startY+2, len-4, height-4, SSD1306_BLACK);
-      graphics.shadeArea(startX+2,startY+2, len-4, height-4,5);
-    }
-  }
+  void render(SequenceRenderSettings& settings);
 };
 
 

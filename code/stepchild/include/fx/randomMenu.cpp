@@ -111,7 +111,7 @@ void drawRandMenuOptions(uint8_t which,RandomData randData){
   }
 }
 
-void drawCoordinateBox(CoordinatePair coords){
+void drawCoordinateBox(CoordinatePair coords, SequenceRenderSettings& settings){
   if(!selBox.begun && (coords.start.x != coords.end.x)){
     //correcting bounds for view
     unsigned short int X1;
@@ -137,7 +137,7 @@ void drawCoordinateBox(CoordinatePair coords){
     }
 
     //if it's offscreen, return
-    if(X2<=sequence.viewStart || X1>=sequence.viewEnd || Y1 > sequence.startTrack+sequence.maxTracksShown || Y2<sequence.startTrack){
+    if(X2<=sequence.viewStart || X1>=sequence.viewEnd || Y1 > sequence.startTrack+sequence.endTrack || Y2<sequence.startTrack){
       return;
     }
 
@@ -155,8 +155,7 @@ void drawCoordinateBox(CoordinatePair coords){
     }
     uint8_t startX = trackDisplay+(X1-sequence.viewStart)*sequence.viewScale;
     uint8_t length = (X2-X1)*sequence.viewScale;
-    // uint8_t startHeight = sequence.maxTracksShown==5?headerHeight:8;
-    uint8_t startHeight = headerHeight;
+    uint8_t startHeight = sequence.shrinkTopDisplay?8:headerHeight;
     uint8_t startY = (Y1-sequence.startTrack)*trackHeight+startHeight;
     uint8_t height = ((Y2 - sequence.startTrack + 1)*trackHeight - startY)%(screenHeight-startHeight) + startHeight;
    
@@ -175,7 +174,7 @@ CoordinatePair selectArea_random(){
   coords.end.x = 0;
   coords.start.y = 0;
   coords.end.y = 0;
-  WireFrame graphics = genRandMenuObjects(16,8,10,0.5);
+  WireFrame dieModel = genRandMenuObjects(16,8,10,0.5);
   while(true){
     controls.readJoystick();
     controls.readButtons();
@@ -256,14 +255,26 @@ CoordinatePair selectArea_random(){
         lastTime = millis();
       }
     }
-    graphics.rotate(1,0);
-    graphics.rotate(1,1);
+    dieModel.rotate(1,0);
+    dieModel.rotate(1,1);
     display.clearDisplay();
     SequenceRenderSettings settings;
     settings.drawPram = false;
+    settings.topLabels = false;
     drawSeq(settings);
-    drawCoordinateBox(coords);
-    graphics.renderDie();
+    drawCoordinateBox(coords,settings);
+    if(sequence.shrinkTopDisplay){
+      dieModel.scale = 0.25;
+      dieModel.yPos = 4;
+      dieModel.drawDots = false;
+      dieModel.renderDie();
+    }
+    else{
+      dieModel.scale = 0.5;
+      dieModel.yPos = 8;
+      dieModel.drawDots = true;
+      dieModel.renderDie();
+    }
     if(coords.start.x == 0 && coords.end.x == 0 && coords.start.y == 0 && coords.end.y == 0){
       printSmall(trackDisplay,0,"select an area!",1);
     }

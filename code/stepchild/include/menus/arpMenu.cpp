@@ -1,3 +1,4 @@
+void drawArpMenu(uint8_t cursor, bool justKeys);
 void drawArpMenu(uint8_t cursor);
 
 void deleteCustomLength(uint8_t which){
@@ -122,7 +123,7 @@ void customLengthsMenu(){
   }
 }
 
-void drawModBoxes(uint8_t cursor){
+void drawModBoxes_old(uint8_t cursor){
   display.fillRect(0,2,70,57,0);
   display.drawRoundRect(0,2,70,57,3,1);
   printItalic(2,4,"settings",1);
@@ -205,6 +206,83 @@ void drawModBoxes(uint8_t cursor){
   display.fillRoundRect(65,0,15,15,3,0);
   display.drawRoundRect(65,0,15,15,3,1);
   display.drawBitmap(67,2,gear_bmp,11,11,1);
+}
+void drawModBoxes(uint8_t cursor){
+  printArp_wiggly(0,3,"settings",1);
+  String text;
+  const uint8_t mid = 40;
+  //vel is special, needs a top and a bottom
+  int8_t start = mid-arp.maxVelMod/10;
+  int8_t end = mid+arp.minVelMod/10;
+  int8_t length = end-start;
+  display.fillRect(3,start,7,length,1);
+  printSmall_centered(7,end+3,stringify(64-arp.minVelMod/2),1);
+  printSmall_centered(7,start-7,stringify(arp.maxVelMod/2),1);
+  if(cursor == 0){
+    graphics.drawArrow(6,end+8+(millis()/200)%2,3,2,true);
+    text = "velocity";
+  }
+  
+  //chance
+  display.fillRect(13,mid+13-arp.chanceMod/4,7,arp.chanceMod/4,1);
+  printSmall_centered(17,mid+7-arp.chanceMod/4,stringify(arp.chanceMod),1);
+  if(cursor == 1){
+    graphics.drawArrow(16,mid+15+(millis()/200)%2,3,2,true);
+    text = "chance";
+  }
+
+  //reps
+  display.fillRect(23,mid+13-arp.repMod/4,7,arp.repMod/4,1);
+  printSmall_centered(27,mid+7-arp.repMod/4,stringify(arp.repMod),1);
+  if(cursor == 2){
+    graphics.drawArrow(26,mid+15+(millis()/200)%2,3,2,true);
+    text = "repeats";
+  }
+
+  //pitch is also special, needs a top and a bottom
+  start = mid - arp.maxPitchMod/10;
+  end = mid + arp.minPitchMod/10;
+  length = end - start;
+  display.fillRect(33,start,7,length,1);
+  printSmall_centered(37,end+3,stringify(-arp.minPitchMod/16),1);
+  printSmall_centered(37,start-7,stringify(arp.maxPitchMod/16),1);
+  if(cursor == 3){
+    graphics.drawArrow(36,end+8+(millis()/200)%2,3,2,true);
+    text = "octave";
+  }
+
+  //play order
+  if(cursor == 4){
+    start = mid-(arp.playStyle)*12-5;
+    for(uint8_t i = 0; i<6; i++){
+      drawArpModeIcon(44,start+i*12,i,1);
+    }
+    graphics.drawArrow(56+(millis()/200)%2,mid,3,1,true);
+    switch(arp.playStyle){
+      case 5:
+        text = "random";
+        break;
+      case 4:
+        text = "down/up";
+        break;
+      case 3:
+        text = "up/down";
+        break;
+      case 2:
+        text = "up";
+        break;
+      case 1:
+        text = "down";
+        break;
+      case 0:
+        text = "play order";
+        break;
+    }
+  }
+  else{
+    drawArpModeIcon(44,mid-5,arp.playStyle,1);
+  }
+  printSmall(0,59,text,1);
 }
 
 void arpModMenu(){
@@ -459,7 +537,7 @@ void arpModMenu(){
       }
     }
     display.clearDisplay();
-    drawArpMenu(2);
+    drawArpMenu(2,true);
     drawModBoxes(cursor);
     display.display();
   }
@@ -469,8 +547,10 @@ void drawArpModeIcon(uint8_t x1, int8_t y1, uint8_t which,uint16_t c){
   display.fillRect(x1,y1,11,11,0);
   display.drawBitmap(x1,y1,arpMode_icons[which],11,11,c);
 }
+void drawArpMenu(uint8_t cursor, bool justKeys){
 
-void drawArpMenu(uint8_t cursor){
+  drawKeys(38,14,getOctave(36),14,false);//always start on a C, for simplicity
+
   //last note played
   String lastNote = pitchToString(arp.lastPitchSent,true,true);
   graphics.printPitch(115,0,lastNote,false,false, 1);
@@ -481,6 +561,9 @@ void drawArpMenu(uint8_t cursor){
     printSmall(110,9,"cpy 2",1);
       printSmall(112,15,"hold",1);
   }
+
+  if(justKeys)
+    return;
   const uint8_t y1 = 15;
   //on/off
   graphics.drawSlider(0,y1,"on","off",!arp.isActive);
@@ -539,12 +622,13 @@ void drawArpMenu(uint8_t cursor){
       printSmall(72,1,"+",1);
       display.drawBitmap(76,0,tiny_stepchild_bmp,7,7,1);
       break;
-  }
-
-  drawKeys(38,14,getOctave(36),14,false);//always start on a C, for simplicity
-  
+  }  
   //title
   printArp_wiggly(0,3,"arpeggi",1);
+}
+
+void drawArpMenu(uint8_t cursor){
+  drawArpMenu(cursor,false);
 }
 
 //"notes" option adds notes from the 1scale onto whatever notes are playing
