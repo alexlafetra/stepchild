@@ -46,7 +46,7 @@ void FileMenu::fileAnimation(bool in){
       //this literally just shifts where the menu is over and over again
       coords.start.x = screenWidth-i;
       coords.end.x = coords.start.x + width;
-      displayMenu(30-i/10,false);
+      displayMenu(20-i/10,false);
     }
     cursor = 0;
   }
@@ -335,7 +335,7 @@ void FileMenu::displayMenu(int16_t textOffset, bool open){
   display.setFont();
   printSmall(coords.start.x+9,coords.start.y+10,"--------",SSD1306_WHITE);
 
-  if(cursor != 0)
+  if(cursor && !page)
     printSmall(coords.start.x-4,coords.start.y,stringify(cursor)+"/"+stringify(filenames.size()-1),1);
 
   const uint8_t textWidth = 20;
@@ -354,21 +354,21 @@ void FileMenu::displayMenu(int16_t textOffset, bool open){
     graphics.drawArrow(coords.start.x,coords.start.y+60+sin(millis()/150),2,3,false);
   }
   //printing out the menu
-  for(int i = menuStart; i<=menuEnd; i++){
+  for(uint8_t i = menuStart; i<=menuEnd; i++){    
     if(page == 0){
       if(cursor != i){
-        printSmall(coords.start.x+10+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.start.y+6,filenames[i],SSD1306_WHITE);
+        printSmall(coords.start.x+min(10+textOffset*(i-menuStart),screenWidth),(yLoc+1)*textHeight+coords.start.y+6,filenames[i],SSD1306_WHITE);
       }
       else if(cursor == i){
-        graphics.drawBanner(coords.start.x+16+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.start.y+6,filenames[i]);
+        graphics.drawBanner(coords.start.x+min(16+textOffset*(i-menuStart),screenWidth),(yLoc+1)*textHeight+coords.start.y+6,filenames[i]);
       }
     }
     else{
       if(page != i){
-        printSmall(coords.start.x+10+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.start.y+6,filenames[i],SSD1306_WHITE);
+        printSmall(coords.start.x+min(10+textOffset*(i-menuStart),screenWidth),(yLoc+1)*textHeight+coords.start.y+6,filenames[i],SSD1306_WHITE);
       }
       else if(page == i){
-        graphics.drawBanner(coords.start.x+16+textOffset*(i-menuStart),(yLoc+1)*textHeight+coords.start.y+6,filenames[i]);
+        graphics.drawBanner(coords.start.x+min(16+textOffset*(i-menuStart),screenWidth),(yLoc+1)*textHeight+coords.start.y+6,filenames[i]);
       }
     }
     yLoc++;

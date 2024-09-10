@@ -66,8 +66,15 @@ class StepchildCV{
     }
     //writes a clock pulse
     void writeClock(){
-        analogWrite(CV3_PIN,65535);
-        analogWrite(CV3_PIN,0);
+        // digitalWrite(CV3_PIN,HIGH);
+        // digitalWrite(CV2_PIN,HIGH);
+        // digitalWrite(CV1_PIN,HIGH);
+        // digitalWrite(CV3_PIN,LOW);
+        // digitalWrite(CV2_PIN,LOW);
+        // digitalWrite(CV1_PIN,LOW);
+
+        // analogWrite(CV3_PIN,65535);
+        // analogWrite(CV3_PIN,0);
     }
     void check(){
         //if the CV functionality is turned off, just return immediately

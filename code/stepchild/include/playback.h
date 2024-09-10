@@ -676,6 +676,8 @@ void playingLoop(){
       playStep(sequence.playheadPos);
       sequence.playheadPos++;
       checkLoop();
+      if(!sequence.playheadPos%24)
+        CV.writeClock();
     }
   }
   //external timing

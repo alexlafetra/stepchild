@@ -35,7 +35,7 @@ void setup() {
   USBDevice.setProductDescriptor     ("Stepchild Firmware 0.9.2        ");
   #endif
 
-  // CV.init()
+  CV.init();
 
   //setting up the pinouts and the lower board
   controls.init();

@@ -546,13 +546,15 @@ void StepchildGraphics::drawhighlight(uint8_t pointX,uint8_t pointY, uint8_t siz
 }
 
 void StepchildGraphics::drawBanner(int8_t x1, int8_t y1, String text){
-    display.drawBitmap(x1-13,y1-4,bannerL_bmp,12,9,SSD1306_WHITE);
-    // display.drawBitmap(x1+text.length()*4-countSpaces(text)*2,y1,bannerR_bmp,11,9,SSD1306_WHITE);
-    display.setRotation(DISPLAY_UPSIDEDOWN);
-    display.drawBitmap(screenWidth-(x1+text.length()*4-countSpaces(text)*2+countChar(text,'#')*2)-12,screenHeight-y1-9,bannerL_bmp,12,9,SSD1306_WHITE);
-    display.setRotation(DISPLAY_UPRIGHT);
-    display.fillRect(x1-1,y1-1,text.length()*4-countSpaces(text)*2+countChar(text,'#')*2+1,7,SSD1306_WHITE);
-    printSmall(x1,y1,text,SSD1306_BLACK);
+  if(x1 > SCREEN_WIDTH || y1 > SCREEN_HEIGHT)
+    return;
+  display.drawBitmap(x1-13,y1-4,bannerL_bmp,12,9,SSD1306_WHITE);
+  // display.drawBitmap(x1+text.length()*4-countSpaces(text)*2,y1,bannerR_bmp,11,9,SSD1306_WHITE);
+  display.setRotation(DISPLAY_UPSIDEDOWN);
+  display.drawBitmap(screenWidth-(x1+text.length()*4-countSpaces(text)*2+countChar(text,'#')*2)-12,screenHeight-y1-9,bannerL_bmp,12,9,SSD1306_WHITE);
+  display.setRotation(DISPLAY_UPRIGHT);
+  display.fillRect(x1-1,y1-1,text.length()*4-countSpaces(text)*2+countChar(text,'#')*2+1,7,SSD1306_WHITE);
+  printSmall(x1,y1,text,SSD1306_BLACK);
 }
 
 void StepchildGraphics::drawCenteredBanner(int8_t x1, int8_t y1, String text){

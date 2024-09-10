@@ -132,7 +132,7 @@ void StepchildSequence::deleteNote(){
 }
 void StepchildSequence::deleteSelected(){
     if(this->selectionCount>0){
-        if(binarySelectionBox(64,32,"nah","yea","del "+stringify(selectionCount)+((selectionCount == 1)?stringify(" note?"):stringify(" notes?")),drawSeq)){
+        if(binarySelectionBox(64,32,"nah","yea","del "+stringify(selectionCount)+((selectionCount == 1)?stringify(" note?"):stringify(" notes?")),drawSeq) == 1){
             for(uint8_t track = 0; track<this->trackData.size(); track++){
                 for(uint16_t note = 0; note<this->noteData[track].size(); note++){
                     if(this->noteData[track][note].isSelected()){

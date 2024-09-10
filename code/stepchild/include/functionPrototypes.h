@@ -67,7 +67,6 @@ void viewPram();
 //CV
 void writeCVGate(bool state);
 void writeCVPitch(uint8_t pitch);
-void writeCVClock();
 
 //Automation
 void moveAutotrackCursor(int moveAmount);
@@ -97,8 +96,8 @@ void drawSeq();
 void drawCurlyBracket(int16_t x1, uint8_t y1, uint8_t length,uint8_t height,bool start, bool end);
 void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation);
 void drawTrackLabel(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c);
-void printSmall_centered(int x, int y, String t, uint16_t c);
-void printSmall(int, int, String, uint16_t);
+void printSmall_centered(int16_t x, int16_t y, String t, uint16_t c);
+void printSmall(int16_t, int16_t, String, uint16_t);
 void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t numberOfKeys, bool into);
 void printParam_centered(uint8_t which, uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);
 void printParam(uint8_t xPos, uint8_t yPos, uint8_t param, bool withBox, uint8_t type, bool withCC);

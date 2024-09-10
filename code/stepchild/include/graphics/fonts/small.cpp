@@ -652,7 +652,7 @@ uint8_t getGlyphIndex(uint8_t c){
 }
 
 //returns the number of pixels you need to move forward (usually 4, unless it's a half character)
-int8_t printSmall(int x, int y, char character, uint16_t c){
+int8_t printSmall(int16_t x, int16_t y, char character, uint16_t c){
   switch(character){
       case ' ':
         return 2;
@@ -953,7 +953,7 @@ enum TextAlign:uint8_t{
 };
 
 //converts text to char
-void printSmall(int x, int y, String text, uint16_t c, TextAlign a){
+void printSmall(int16_t x, int16_t y, String text, uint16_t c, TextAlign a){
   switch(a){
     case TextAlign::CENTER:
       x-=text.length()*2+countChar(text,' ');
@@ -983,17 +983,17 @@ void printSmall_centered(int x, int y, String text, uint16_t c){
   printSmall(x,y,text,c,TextAlign::CENTER);
 }
 
-void printSmall(int x, int y, String text, uint16_t c){
+void printSmall(int16_t x, int16_t y, String text, uint16_t c){
   printSmall(x,y,text,c,TextAlign::LEFT);
 }
 
 //just converts a float to a string
-void printSmall(int x1, int y1, float a, uint16_t c){
+void printSmall(int16_t x1, int16_t y1, float a, uint16_t c){
   printSmall(x1,y1,stringify(a),c);
 }
 
 //this one prints out one word at a time, with bounds
-void printSmall_overflow(int x, int y, int margin, String text, uint16_t c){
+void printSmall_overflow(int16_t x, int16_t y, int margin, String text, uint16_t c){
   int xCoord = x;
   int yCoord = y;
   String word = "";
