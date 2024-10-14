@@ -146,7 +146,7 @@ void MainMenu::animateMainMenuWireFrame(){
 bool MainMenu::mainMenuControls(){
   // controls.readJoystick();
   // controls.readButtons();
-  Serial.println("Hey!"+stringify(millis()));
+//  Serial.println("Hey!"+stringify(millis()));
   if(utils.itsbeen(1000)){
     cursor++;
     cursor%=11;

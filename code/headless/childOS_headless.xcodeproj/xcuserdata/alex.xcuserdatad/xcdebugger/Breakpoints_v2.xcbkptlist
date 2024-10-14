@@ -63,8 +63,7 @@
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "9855"
-                  endingLineNumber = "9855"
-                  offsetFromSymbolStart = "8340">
+                  endingLineNumber = "9855">
                </Location>
                <Location
                   uuid = "8B0DB746-7815-4473-8CC8-34AB3A673FD5 - 5751cc2c0c2481e5"
@@ -78,8 +77,7 @@
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "9855"
-                  endingLineNumber = "9855"
-                  offsetFromSymbolStart = "8335">
+                  endingLineNumber = "9855">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -142,38 +140,6 @@
             endingLineNumber = "70"
             landmarkName = "selectArea_warp(AorB)"
             landmarkType = "9">
-            <Locations>
-               <Location
-                  uuid = "0DC07154-35EB-4888-920E-AB36AD14FC21 - 29dae6902ac4a87d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "warpAintoB(CoordinatePair, CoordinatePair)"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Documents/Arduino/stepchild/src/stepchild/menus/warpMenu.cpp"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "71"
-                  endingLineNumber = "71"
-                  offsetFromSymbolStart = "680">
-               </Location>
-               <Location
-                  uuid = "0DC07154-35EB-4888-920E-AB36AD14FC21 - 29dae6902ac4a87d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "warpAintoB(CoordinatePair, CoordinatePair)"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Documents/Arduino/stepchild/src/stepchild/menus/warpMenu.cpp"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "71"
-                  endingLineNumber = "71"
-                  offsetFromSymbolStart = "689">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
