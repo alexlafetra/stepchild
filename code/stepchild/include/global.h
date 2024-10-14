@@ -3,7 +3,6 @@ unsigned const char screenHeight = 64;
 
 uint8_t screenBrightness = 255;
 
-const String OSversionNumber = "V0.1";
 /*
 CC numbers:
 1 -- Modulation
@@ -28,8 +27,8 @@ const vector<String> stepChildCCParameters = {"Velocity","Probability","Pitch","
 
 
 #ifndef HEADLESS
-bool playing = false;
-bool recording = false;
+// bool playing = false;
+// bool recording = false;
 #endif
 
 bool gotClock = false;

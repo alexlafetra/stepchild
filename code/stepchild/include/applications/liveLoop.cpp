@@ -91,7 +91,7 @@ void liveLoop(){
                     clearSelection();
                     //if you were already playing, just begin recording! don't wait for a note
                     //but if you haven't been playing/recording anything, wait for a note
-                    if(playing){
+                    if(sequence.playing()){
                         uint16_t oldPlayheadPos = sequence.playheadPos;
                         recMode = LOOP_MODE;
                         toggleRecordingMode(false);
@@ -104,14 +104,16 @@ void liveLoop(){
                 }
                 //if you are already recording
                 //stop the recording and shrink it to the active loop, if you're coming out of a recording
-                else if(recording && !playing){
+                else if(recording && !sequence.playing()){
                     exitRecAndStartPlaying(layerCount);
                 }
             }
         }
         //drawing display
         display.clearDisplay();
-        drawSeq(true,false,true,false,false,false,sequence.viewStart,sequence.viewEnd);
+        SequenceRenderSettings settings;
+        settings.topLabels = false;
+        drawSeq(settings);
         // display.fillRoundRect(-5,-5,39,22,5,0);
         display.fillRect(0,0,32,16,0);
         // display.drawRoundRect(-5,-5,39,22,5,1);

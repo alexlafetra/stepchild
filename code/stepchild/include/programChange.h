@@ -301,7 +301,7 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
     if(sequence.cursorPos<sequence.viewEnd && sequence.cursorPos>=sequence.viewStart){
         graphics.drawArrow((sequence.cursorPos-sequence.viewStart)*sequence.viewScale+trackDisplay+((millis()/200)%2)-1,activePort*portHeight+14,3,0,false);
     }
-    if(playing && sequence.playheadPos<sequence.viewEnd && sequence.playheadPos>=sequence.viewStart){
+    if(sequence.playing() && sequence.playheadPos<sequence.viewEnd && sequence.playheadPos>=sequence.viewStart){
         display.drawRoundRect(trackDisplay+(sequence.playheadPos-sequence.viewStart)*sequence.viewScale,9,3, screenHeight-9, 3, SSD1306_WHITE);
     }
     else if(recording && sequence.recheadPos<sequence.viewEnd && sequence.recheadPos>=sequence.viewStart){

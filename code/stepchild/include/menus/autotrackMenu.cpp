@@ -5,6 +5,8 @@ bool autotrackViewerControls();
 void drawAutotrackViewer(uint8_t firstTrack);
 void drawMiniDT(uint8_t x1, uint8_t y1, uint8_t height, uint8_t which);
 void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool settingRecInput);
+void moveAutotrackCursor(int moveAmount);
+void changeDataPoint(int8_t amount);
 
 //these could all be refactored into methods of the autotrack type... jus sayin
 //OR you could pass a pointer to the DT as an arg, it would make it easier to use for other people
@@ -14,7 +16,6 @@ void randomInterp(uint16_t start, uint16_t end, uint8_t which);
 void linearInterpolate(uint16_t start, uint16_t end, uint8_t id);
 void ellipticalInterpolate(uint16_t start, uint16_t end, uint8_t id, bool up);
 void smoothSelectedPoints(uint8_t type);
-
 
 //moving cursor around while in autotrack mode
 //This could probably be combined with "moveCursor"
@@ -1489,7 +1490,7 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
         }
 
         //playhead
-        if(playing && ((sequence.autotrackData[sequence.activeAutotrack].triggerSource == global && step == sequence.playheadPos) || (sequence.autotrackData[sequence.activeAutotrack].triggerSource != global && step == sequence.autotrackData[sequence.activeAutotrack].playheadPos)))
+        if(sequence.playing() && ((sequence.autotrackData[sequence.activeAutotrack].triggerSource == global && step == sequence.playheadPos) || (sequence.autotrackData[sequence.activeAutotrack].triggerSource != global && step == sequence.autotrackData[sequence.activeAutotrack].playheadPos)))
           display.drawRoundRect(32+(step-sequence.viewStart)*sequence.viewScale,0,3,screenHeight,3,SSD1306_WHITE);
         
         //rechead
@@ -1528,7 +1529,7 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     }
     else{
       //title
-      if(!playing){
+      if(!sequence.playing()){
         printSmall(0,0,"trk",SSD1306_WHITE);
         printSmall(6-stringify(sequence.activeAutotrack+1).length()*2,7,stringify(sequence.activeAutotrack+1),SSD1306_WHITE);
       }
@@ -1548,7 +1549,7 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     }
     
     //play icon
-    if(playing)
+    if(sequence.playing())
       display.fillTriangle(120+((millis()/200)%2),9,120+((millis()/200)%2),3,120+6+((millis()/200)%2),6,SSD1306_WHITE);
     if(recording){
       //flash it while waiting
@@ -1561,14 +1562,14 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     
     //drawing the bargraph
     uint8_t barHeight;
-    if(!playing)
+    if(!sequence.playing())
       barHeight = 50;
     else
      barHeight = 64;
     display.drawRect(0,screenHeight-barHeight,11,barHeight,SSD1306_WHITE);
     uint8_t height;
     uint8_t val;
-    if(playing){
+    if(sequence.playing()){
       if(sequence.autotrackData[sequence.activeAutotrack].data[sequence.autotrackData[sequence.activeAutotrack].triggerSource==global?sequence.playheadPos:sequence.autotrackData[sequence.activeAutotrack].playheadPos] == 255)
         val = getLastDTVal(sequence.autotrackData[sequence.activeAutotrack].triggerSource==global?sequence.playheadPos:sequence.autotrackData[sequence.activeAutotrack].playheadPos,sequence.activeAutotrack);
       else
@@ -1587,7 +1588,7 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     
     //drawing sent data
     display.setRotation(1);
-    if(playing){
+    if(sequence.playing()){
       printSmall(barHeight/2-stringify(getLastDTVal(sequence.autotrackData[sequence.activeAutotrack].triggerSource==global?sequence.playheadPos:sequence.autotrackData[sequence.activeAutotrack].playheadPos,sequence.activeAutotrack)).length()*2,3,stringify(getLastDTVal(sequence.autotrackData[sequence.activeAutotrack].triggerSource==global?sequence.playheadPos:sequence.autotrackData[sequence.activeAutotrack].playheadPos,sequence.activeAutotrack)),2);
     }
     else{
@@ -1863,7 +1864,7 @@ void drawAutotrackViewer(uint8_t firstTrack){
   const uint8_t x1 = 101;
   const uint8_t y1 = 38;
   //Drawing our robot bud
-  if(playing && atLeastOneActiveAutotrack()){
+  if(sequence.playing() && atLeastOneActiveAutotrack()){
     uint16_t position = 0;
     //if the autotrack is triggering, then use its internal playhead
     if(sequence.autotrackData[sequence.activeAutotrack].triggerSource != global)
@@ -1910,7 +1911,7 @@ void drawMiniDT(uint8_t x1, uint8_t y1, uint8_t height, uint8_t which){
         }
         else
           display.drawLine(x1+(i-sequence.loopData[sequence.activeLoop].start)*sc, y1+yScale*(127-getLastDTVal(i,which)),x1+(i+1-sequence.loopData[sequence.activeLoop].start)*sc-1, y1+yScale*(127-getLastDTVal(i+1,which)),SSD1306_WHITE);
-        if(playing){
+        if(sequence.playing()){
           if((sequence.autotrackData[which].triggerSource == global && i == sequence.playheadPos) || (sequence.autotrackData[which].triggerSource != global && i == sequence.autotrackData[which].playheadPos)){
             display.drawFastVLine(x1+(i-sequence.loopData[sequence.activeLoop].start)*sc,y1,height,SSD1306_WHITE);
           }

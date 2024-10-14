@@ -1,3 +1,5 @@
+bool echoMenuControls(uint8_t* cursor);
+
 void drawEcho(unsigned short int xStart, unsigned short int yStart, short unsigned int time, short unsigned int decay, short unsigned int repeats){
   unsigned short int previewLength = 12;
   // drawNote(xStart,yStart,previewLength,trackHeight,1,false,false);//pilot note

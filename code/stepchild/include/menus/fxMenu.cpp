@@ -66,7 +66,9 @@ void FxMenu::drawFxLabel(){
 
 void FxMenu::displayMenu(){
   display.clearDisplay();
-  drawSeq(true,false,true,false,false);
+  SequenceRenderSettings settings;
+  settings.topLabels = false;
+  drawSeq(settings);
   graphics.drawPram(5,0);
   display.fillCircle(111,13,23,0);
   display.drawCircle(111,13,23,1);

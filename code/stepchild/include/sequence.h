@@ -20,7 +20,7 @@ class StepchildSequence{
   vector<Autotrack> autotrackData;
   uint8_t activeAutotrack = 0;
 
-  uint16_t sequenceLength;
+  uint16_t sequenceLength = 192;
   uint16_t viewStart = 0;
   uint16_t viewEnd = 192;
   bool shrinkTopDisplay = false;
@@ -31,13 +31,23 @@ class StepchildSequence{
 
   uint8_t subDivision = 24;
 
-  enum PlayState{
-      PLAY,
-      RECORD,
-      LIVELOOP
+  enum MovingLoopState{
+    NONE,
+    START,
+    END,
+    BOTH
   };
 
-  PlayState playState;
+  MovingLoopState movingLoop;
+
+  enum PlayState{
+      STOPPED,
+      PLAYING,
+      RECORDING,
+      LIVELOOPING
+  };
+
+  PlayState playState = STOPPED;
   uint8_t defaultChannel = 1;
   uint8_t defaultPitch = 36;
   uint8_t defaultVel = 127;
@@ -54,7 +64,7 @@ class StepchildSequence{
   StepchildSequence(){}
   /*
   ----------------------------------------------------------
-                      Utilities
+                      UTILITIES
   ----------------------------------------------------------
   */
   
@@ -68,6 +78,14 @@ class StepchildSequence{
   Note noteAtCursor();
   uint16_t IDAt(uint8_t track, uint16_t step);
   uint16_t IDAtCursor();
+
+    /*
+  ----------------------------------------------------------
+                      PLAYBACK/RECORDING
+  ----------------------------------------------------------
+  */
+  void togglePlay();
+  void toggleRecord();
   /*
   ----------------------------------------------------------
                       LOADING NOTES
@@ -209,6 +227,9 @@ class StepchildSequence{
   float getNoteDensity(uint16_t start, uint16_t end);
   //counts notes within a range
   uint16_t countNotesInRange(uint16_t start, uint16_t end);
+  bool playing();
+  bool recording();
+  bool liveLooping();
   /*
   ----------------------------------------------------------
                           Cursor

@@ -89,6 +89,12 @@ void humanize(bool move){
 struct PolarVertex2D{
   float r;
   float theta;
+  float getX(float mod){
+    return (r+mod)*cos(theta);
+  }
+  float getY(float mod){
+    return (r+mod)*sin(theta);
+  }
 };
 
 class HumanizeBlob{
@@ -114,100 +120,19 @@ float getPseudoRandom(float theta, float amp,float timeAmp){
     return amp*cos(theta)*sin(millis()/100.0)*sin(theta*PI)*cos(3.0*theta/(2.0*PI)*sin(float(millis())/1000.0*timeAmp));
 }
 
-float getX(PolarVertex2D a, float mod){
-    return (a.r+mod)*cos(a.theta);
-}
-float getY(PolarVertex2D a,float mod){
-    return (a.r+mod)*sin(a.theta);
-}
-
 void HumanizeBlob::jiggle(float radiusAmount, float timingAmount, float rotationAmount, float radius){
   const uint16_t s = points.size()-1;
   for(uint8_t i = 0; i<s+1; i++){
     points[i].theta+=rotationAmount/100.0;
     points[i].r = radius;
   }
-  display.drawLine(getX(points[0],getPseudoRandom(points[0].theta,radiusAmount,timingAmount))+64,getY(points[0],getPseudoRandom(points[0].theta,radiusAmount,timingAmount))+32,getX(points[s],getPseudoRandom(points[s].theta,radiusAmount,timingAmount))+64,getY(points[s],getPseudoRandom(points[s].theta,radiusAmount,timingAmount))+32,1);
+  display.drawLine(points[0].getX(getPseudoRandom(points[0].theta,radiusAmount,timingAmount))+64,points[0].getY(getPseudoRandom(points[0].theta,radiusAmount,timingAmount))+32,points[s].getX(getPseudoRandom(points[s].theta,radiusAmount,timingAmount))+64,points[s].getY(getPseudoRandom(points[s].theta,radiusAmount,timingAmount))+32,1);
   for(uint8_t i = 1; i<s+1; i++){
-    display.drawLine(getX(points[i-1],getPseudoRandom(points[i-1].theta,radiusAmount,timingAmount))+64,getY(points[i-1],getPseudoRandom(points[i-1].theta,radiusAmount,timingAmount))+32,getX(points[i],getPseudoRandom(points[i].theta,radiusAmount,timingAmount))+64,getY(points[i],getPseudoRandom(points[i].theta,radiusAmount,timingAmount))+32,1);
+    display.drawLine(points[i-1].getX(getPseudoRandom(points[i-1].theta,radiusAmount,timingAmount))+64,points[i-1].getY(getPseudoRandom(points[i-1].theta,radiusAmount,timingAmount))+32,points[i].getX(getPseudoRandom(points[i].theta,radiusAmount,timingAmount))+64,points[i].getY(getPseudoRandom(points[i].theta,radiusAmount,timingAmount))+32,1);
   }
 }
 
-void humanizeMenu(){
-  //cursor can be time, velocity, or chance
-  uint8_t cursor = 0;
-  HumanizeBlob blob = HumanizeBlob(20,30);
-  while(true){
-    //timing, vel, chance
-    controls.readJoystick();
-    controls.readButtons();
-    if(!humanizeMenuControls(&cursor)){
-      break;
-    }
-    display.clearDisplay();
-    
-    //draw timing amount
-    String q = stringify(humanizerParameters.timingAmount);
-    while(q.length()<3){
-      q = "0"+q;
-    }
-    print7SegSmall(3,9,q+"%",1);
-      
-    String s = stepsToMeasures(sequence.subDivision);
-    graphics.printFraction_small(screenWidth-s.length()*4,11,s);
 
-    //velocity amount
-    q = stringify(humanizerParameters.velocityAmount);
-    while(q.length()<3){
-      q = "0"+q;
-    }
-    print7SegSmall(3,54,q+"%",1);
-
-    //chance amount
-    q = stringify(humanizerParameters.chanceAmount);
-    while(q.length()<3){
-      q = "0"+q;
-    }
-    print7SegSmall(109,54,q+"%",1);
-
-    //draw labels
-    switch(cursor){
-      //pos
-      case 0:
-        display.fillRoundRect(0,0,20,7,4,1);
-        display.drawRoundRect(-5,3,29,16,3,1);
-        break;
-      //vel
-      case 1:
-        display.fillRoundRect(0,45,16,7,4,1);
-        display.drawRoundRect(-5,48,29,16,3,1);
-        break;
-      //subDiv
-      case 2:
-        display.fillRoundRect(113,0,15,7,4,1);
-        display.drawRoundRect(107,3,23,18,3,1);
-        break;
-      //chance
-      case 3:
-        display.fillRoundRect(121,45,7,7,4,1);
-        display.drawRoundRect(107,48,23,16,3,1);
-        break;
-    }
-    printSmall(2,1,"time",2);
-    printSmall(115,1,"div",2);
-    printSmall(2,46,"vel",2);
-    printSmall(123,46,"%",2);
-    blob.jiggle(float(humanizerParameters.velocityAmount+1)/10.0,float(humanizerParameters.chanceAmount)/10.0,float(humanizerParameters.timingAmount)/500.0+1, 10.0*float(sequence.subDivision)/24.0);
-    //title
-    // display.fillRoundRect(77,0,54,9,3,1);
-    // printCursive(79,1,"humanize",0);
-    const char title[8] = {'h','u','m','a','n','i','z','e'};
-    for(uint8_t i = 0; i<8; i++){
-      printSmall(i*125/7,29,title[i],2);
-    }
-    display.display();
-  }
-}
 bool humanizeMenuControls(uint8_t* cursor){
   if(utils.itsbeen(100)){
     //moving cursor
@@ -311,4 +236,81 @@ bool humanizeMenuControls(uint8_t* cursor){
   }
 
   return true;
+}
+
+
+void humanizeMenu(){
+  //cursor can be time, velocity, or chance
+  uint8_t cursor = 0;
+  HumanizeBlob blob = HumanizeBlob(20,30);
+  while(true){
+    //timing, vel, chance
+    controls.readJoystick();
+    controls.readButtons();
+    if(!humanizeMenuControls(&cursor)){
+      break;
+    }
+    display.clearDisplay();
+    
+    //draw timing amount
+    String q = stringify(humanizerParameters.timingAmount);
+    while(q.length()<3){
+      q = "0"+q;
+    }
+    print7SegSmall(3,9,q+"%",1);
+      
+    String s = stepsToMeasures(sequence.subDivision);
+    graphics.printFraction_small(screenWidth-s.length()*4,11,s);
+
+    //velocity amount
+    q = stringify(humanizerParameters.velocityAmount);
+    while(q.length()<3){
+      q = "0"+q;
+    }
+    print7SegSmall(3,54,q+"%",1);
+
+    //chance amount
+    q = stringify(humanizerParameters.chanceAmount);
+    while(q.length()<3){
+      q = "0"+q;
+    }
+    print7SegSmall(109,54,q+"%",1);
+
+    //draw labels
+    switch(cursor){
+      //pos
+      case 0:
+        display.fillRoundRect(0,0,20,7,4,1);
+        display.drawRoundRect(-5,3,29,16,3,1);
+        break;
+      //vel
+      case 1:
+        display.fillRoundRect(0,45,16,7,4,1);
+        display.drawRoundRect(-5,48,29,16,3,1);
+        break;
+      //subDiv
+      case 2:
+        display.fillRoundRect(113,0,15,7,4,1);
+        display.drawRoundRect(107,3,23,18,3,1);
+        break;
+      //chance
+      case 3:
+        display.fillRoundRect(121,45,7,7,4,1);
+        display.drawRoundRect(107,48,23,16,3,1);
+        break;
+    }
+    printSmall(2,1,"time",2);
+    printSmall(115,1,"div",2);
+    printSmall(2,46,"vel",2);
+    printSmall(123,46,"%",2);
+    blob.jiggle(float(humanizerParameters.velocityAmount+1)/10.0,float(humanizerParameters.chanceAmount)/10.0,float(humanizerParameters.timingAmount)/500.0+1, 10.0*float(sequence.subDivision)/24.0);
+    //title
+    // display.fillRoundRect(77,0,54,9,3,1);
+    // printCursive(79,1,"humanize",0);
+    const char title[8] = {'h','u','m','a','n','i','z','e'};
+    for(uint8_t i = 0; i<8; i++){
+      printSmall(i*125/7,29,title[i],2);
+    }
+    display.display();
+  }
 }

@@ -63,8 +63,7 @@
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "9855"
-                  endingLineNumber = "9855"
-                  offsetFromSymbolStart = "8340">
+                  endingLineNumber = "9855">
                </Location>
                <Location
                   uuid = "8B0DB746-7815-4473-8CC8-34AB3A673FD5 - 5751cc2c0c2481e5"
@@ -78,8 +77,7 @@
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "9855"
-                  endingLineNumber = "9855"
-                  offsetFromSymbolStart = "8335">
+                  endingLineNumber = "9855">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -146,38 +144,6 @@
             endingLineNumber = "70"
             landmarkName = "selectArea_warp(AorB)"
             landmarkType = "9">
-            <Locations>
-               <Location
-                  uuid = "0DC07154-35EB-4888-920E-AB36AD14FC21 - 29dae6902ac4a87d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "warpAintoB(CoordinatePair, CoordinatePair)"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Documents/Arduino/stepchild/src/stepchild/menus/warpMenu.cpp"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "71"
-                  endingLineNumber = "71"
-                  offsetFromSymbolStart = "680">
-               </Location>
-               <Location
-                  uuid = "0DC07154-35EB-4888-920E-AB36AD14FC21 - 29dae6902ac4a87d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "warpAintoB(CoordinatePair, CoordinatePair)"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Documents/Arduino/stepchild/src/stepchild/menus/warpMenu.cpp"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "71"
-                  endingLineNumber = "71"
-                  offsetFromSymbolStart = "689">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -304,38 +270,6 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "678"
             endingLineNumber = "678">
-            <Locations>
-               <Location
-                  uuid = "1B3EA020-7BDB-402C-812F-D1405E22D41E - 794e64537da15208"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "tuneTracksToScale()"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Desktop/Stepchild%20Project/stepchild/code/stepchild/include/trackEditing.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "678"
-                  endingLineNumber = "678"
-                  offsetFromSymbolStart = "33">
-               </Location>
-               <Location
-                  uuid = "1B3EA020-7BDB-402C-812F-D1405E22D41E - 794e64537da15208"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "tuneTracksToScale()"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Desktop/Stepchild%20Project/stepchild/code/stepchild/include/trackEditing.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "678"
-                  endingLineNumber = "678"
-                  offsetFromSymbolStart = "44">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -398,83 +332,6 @@
             endingLineNumber = "551"
             landmarkName = "selectKeysAnimation(in)"
             landmarkType = "9">
-            <Locations>
-               <Location
-                  uuid = "D8F0AA6C-9CF7-4F18-95DA-529F9B3E484F - b5ab167975166533"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "selectKeysAnimation(bool)"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Desktop/Stepchild%20Project/stepchild/code/stepchild/include/helperFunctions.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "584"
-                  endingLineNumber = "584"
-                  offsetFromSymbolStart = "633">
-               </Location>
-               <Location
-                  uuid = "D8F0AA6C-9CF7-4F18-95DA-529F9B3E484F - b5ab167975166533"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "selectKeysAnimation(bool)"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Desktop/Stepchild%20Project/stepchild/code/stepchild/include/helperFunctions.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "584"
-                  endingLineNumber = "584"
-                  offsetFromSymbolStart = "2897">
-               </Location>
-               <Location
-                  uuid = "D8F0AA6C-9CF7-4F18-95DA-529F9B3E484F - b5ab167975166533"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "selectKeysAnimation(bool)"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Desktop/Stepchild%20Project/stepchild/code/stepchild/include/helperFunctions.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "584"
-                  endingLineNumber = "584"
-                  offsetFromSymbolStart = "5667">
-               </Location>
-               <Location
-                  uuid = "D8F0AA6C-9CF7-4F18-95DA-529F9B3E484F - b5ab167975166533"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "selectKeysAnimation(bool)"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Desktop/Stepchild%20Project/stepchild/code/stepchild/include/helperFunctions.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "584"
-                  endingLineNumber = "584"
-                  offsetFromSymbolStart = "8318">
-               </Location>
-               <Location
-                  uuid = "D8F0AA6C-9CF7-4F18-95DA-529F9B3E484F - b5ab167975166533"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "selectKeysAnimation(bool)"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Desktop/Stepchild%20Project/stepchild/code/stepchild/include/helperFunctions.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "584"
-                  endingLineNumber = "584"
-                  offsetFromSymbolStart = "10713">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -491,38 +348,6 @@
             endingLineNumber = "381"
             landmarkName = "selectKeys(startRoot)"
             landmarkType = "9">
-            <Locations>
-               <Location
-                  uuid = "C2B4D39D-A821-417F-8BC5-CB61E1D895E6 - a18ece5248357c6b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "selectKeys(unsigned char)"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Desktop/Stepchild%20Project/stepchild/code/stepchild/include/helperFunctions.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "381"
-                  endingLineNumber = "381"
-                  offsetFromSymbolStart = "5003">
-               </Location>
-               <Location
-                  uuid = "C2B4D39D-A821-417F-8BC5-CB61E1D895E6 - a18ece5248357c6b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "selectKeys(unsigned char)"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Desktop/Stepchild%20Project/stepchild/code/stepchild/include/helperFunctions.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "381"
-                  endingLineNumber = "381"
-                  offsetFromSymbolStart = "4996">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -537,38 +362,6 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "687"
             endingLineNumber = "687">
-            <Locations>
-               <Location
-                  uuid = "45055FAA-47F6-446D-BD11-BB2570776A8B - 794e64537da16dbd"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "tuneTracksToScale()"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Desktop/Stepchild%20Project/stepchild/code/stepchild/include/trackEditing.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "689"
-                  endingLineNumber = "689"
-                  offsetFromSymbolStart = "468">
-               </Location>
-               <Location
-                  uuid = "45055FAA-47F6-446D-BD11-BB2570776A8B - 794e64537da16dc2"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "tuneTracksToScale()"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Desktop/Stepchild%20Project/stepchild/code/stepchild/include/trackEditing.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "688"
-                  endingLineNumber = "688"
-                  offsetFromSymbolStart = "479">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -649,38 +442,6 @@
             endingLineNumber = "246"
             landmarkName = "selectKeys(startRoot)"
             landmarkType = "9">
-            <Locations>
-               <Location
-                  uuid = "AE72339B-7B65-42A3-A029-0621EABEC1B6 - a18ece5248356dd2"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "selectKeys(unsigned char)"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Desktop/Stepchild%20Project/stepchild/code/stepchild/include/helperFunctions.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "246"
-                  endingLineNumber = "246"
-                  offsetFromSymbolStart = "815">
-               </Location>
-               <Location
-                  uuid = "AE72339B-7B65-42A3-A029-0621EABEC1B6 - a18ece5248356dd2"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "selectKeys(unsigned char)"
-                  moduleName = "childOS_headless"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/alex/Desktop/Stepchild%20Project/stepchild/code/stepchild/include/helperFunctions.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "246"
-                  endingLineNumber = "246"
-                  offsetFromSymbolStart = "795">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

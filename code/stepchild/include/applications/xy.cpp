@@ -98,7 +98,7 @@ void xyGrid(){
           display.fillCircle(3,3,3,SSD1306_WHITE);
       }
     }
-    else if(playing){
+    else if(sequence.playing()){
       if(clockSource == EXTERNAL_CLOCK && !gotClock){
         display.drawTriangle(0,6,0,0,6,3,SSD1306_WHITE);
       }
@@ -151,7 +151,7 @@ void xyGrid(){
     graphics.drawBarGraphV(0,0,8,64,float(xCoord)/float(127));
     graphics.drawBarGraphV(120,0,8,64,float(yCoord)/float(127));
 
-    if(playing)
+    if(sequence.playing())
       graphics.drawPlayIcon(10+(millis()/200)%2,2);
 
     display.display();

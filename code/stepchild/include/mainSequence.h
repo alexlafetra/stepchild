@@ -1,12 +1,12 @@
 void yControls(){
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1) {
-      sequence.setActiveTrack(sequence.activeTrack + 1, !playing);
+      sequence.setActiveTrack(sequence.activeTrack + 1, !sequence.playing());
       drawingNote = false;
       lastTime = millis();
     }
     if (controls.joystickY == -1) {
-      sequence.setActiveTrack(sequence.activeTrack - 1, !playing);
+      sequence.setActiveTrack(sequence.activeTrack - 1, !sequence.playing());
       drawingNote = false;
       lastTime = millis();
     }
@@ -64,12 +64,12 @@ void defaultJoystickControls(bool velocityEditingAllowed){
   }
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1 && !controls.SHIFT() && !controls.LOOP()) {
-      sequence.setActiveTrack(sequence.activeTrack + 1, !playing  && !recording);
+      sequence.setActiveTrack(sequence.activeTrack + 1, !sequence.playing()  && !recording);
       drawingNote = false;
       lastTime = millis();
     }
     if (controls.joystickY == -1 && !controls.SHIFT() && !controls.LOOP()) {
-      sequence.setActiveTrack(sequence.activeTrack - 1, !playing  && !recording);
+      sequence.setActiveTrack(sequence.activeTrack - 1, !sequence.playing()  && !recording);
       drawingNote = false;
       lastTime = millis();
     }
@@ -311,11 +311,11 @@ void mainSequencerStepButtons(){
   //DJ loop selector
   if(controls.SHIFT()){
     if(controls.stepButton(15) && sequence.activeTrack){
-      sequence.setActiveTrack(sequence.activeTrack-1,!playing  && !recording);
+      sequence.setActiveTrack(sequence.activeTrack-1,!sequence.playing()  && !recording);
       lastTime = millis();
     }
     else if(controls.stepButton(14)){
-      sequence.setActiveTrack(sequence.activeTrack+1,!playing  && !recording);
+      sequence.setActiveTrack(sequence.activeTrack+1,!sequence.playing()  && !recording);
       lastTime = millis();
     }
     else if(controls.stepButton(0)){
@@ -464,7 +464,7 @@ bool SuperpositionMenu::setSuperpositionControls(){
     if (controls.joystickY == -1) {
       if(note.superposition.pitch < 127){
         note.superposition.pitch++;
-        if(!playing){
+        if(!sequence.playing()){
           MIDI.noteOn(note.superposition.pitch, note.velocity, sequence.trackData[track].channel);
           MIDI.noteOff(note.superposition.pitch, 0, sequence.trackData[track].channel);
         }
@@ -474,7 +474,7 @@ bool SuperpositionMenu::setSuperpositionControls(){
     if (controls.joystickY == 1) {
       if(note.superposition.pitch > 0){
         note.superposition.pitch--;
-        if(!playing){
+        if(!sequence.playing()){
           MIDI.noteOn(note.superposition.pitch, note.velocity, sequence.trackData[track].channel);
           MIDI.noteOff(note.superposition.pitch, 0, sequence.trackData[track].channel);
         }
@@ -500,7 +500,7 @@ bool SuperpositionMenu::setSuperpositionControls(){
       else{
         togglePlayMode();
         lastTime = millis();
-        menuText = playing?"playing!":"stopped";
+        menuText = sequence.playing()?"playing!":"stopped";
       }
     }
     if(controls.DELETE()){
@@ -581,7 +581,7 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
   bool movingBetweenNotes = false;
   SequenceRenderSettings settings;
   settings.topLabels = false;
-  settings.loopPoints = false;
+  settings.drawLoopPoints = false;
   settings.trackSelection = false;
   while(true){
     controls.readButtons();

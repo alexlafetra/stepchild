@@ -421,7 +421,7 @@ void handleNoteOff_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
 
 void handleStart_Normal(){
   if(clockSource == EXTERNAL_CLOCK){
-    if(!playing && !recording){
+    if(!sequence.playing() && !recording){
       togglePlayMode();
     }
   }
@@ -429,7 +429,7 @@ void handleStart_Normal(){
 
 void handleStop_Normal(){
   if(clockSource == EXTERNAL_CLOCK){
-    if(playing){
+    if(sequence.playing()){
       togglePlayMode();
     }
   }
@@ -438,7 +438,7 @@ void handleStop_Normal(){
 
 //this checks loops bounds, moves to next loop, and cuts loop
 void checkLoop(){
-  if(playing){
+  if(sequence.playing()){
     if (sequence.playheadPos > sequence.loopData[sequence.activeLoop].end-1) { //if the timestep is past the end of the loop, loop it to the start
       sequence.loopCount++;
       if(sequence.loopCount > sequence.loopData[sequence.activeLoop].reps){
@@ -532,13 +532,13 @@ void recordingLoop(){
 
 
 void togglePlayMode(){
-  playing = !playing;
+  sequence.togglePlay();
   //if it's looping, set the playhead to the sequence.activeLoop start
   if(sequence.isLooping)
     sequence.playheadPos = sequence.loopData[sequence.activeLoop].start;
   else
     sequence.playheadPos = 0;
-  if(playing){
+  if(sequence.playing()){
     if(recording){
       toggleRecordingMode(waitForNoteBeforeRec);
     }
@@ -561,7 +561,7 @@ void togglePlayMode(){
     }
     MIDI.sendStart();
   }
-  else if(!playing){
+  else{
     stop();
     setNormalMode();
     MIDI.sendStop();
@@ -569,7 +569,6 @@ void togglePlayMode(){
     globalModifiers.chance[1] = 0;
     globalModifiers.pitch[1] = 0;
     CV.off();
-
   }
 }
 void setNormalMode(){
@@ -627,7 +626,7 @@ void toggleRecordingMode(bool butWait){
   else
     waitingToReceiveANote = false;
   if(recording){
-    if(playing){
+    if(sequence.playing()){
       togglePlayMode();
     }
     stop();
