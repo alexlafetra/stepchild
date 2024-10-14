@@ -1,10 +1,25 @@
 #define FIRMWARE_VERSION '0.9.2'
 
 #include "pins.h"   //pin definitions
-
-#ifndef HEADLESS
 #include <vector>
 #include <algorithm>
+
+#ifdef HEADLESS
+#include <string>
+#include <iostream>
+#include <cstdlib>
+#include <vector>
+#include <cmath>
+#include <chrono>//for emulating millis() and micros()
+#include <unistd.h>
+#include <thread>//for multithreading
+
+#include "../headless/childOS_headless/headlessOpenGL.h"
+#include "../headless/childOS_headless/headlessMIDI.h"
+#include "../headless/childOS_headless/headlessFileSystem.h"
+#include "../headless/childOS_headless/headlessArduino.h"
+#include "../headless/childOS_headless/headlessDisplay.h"
+#else
 #include <Arduino.h>
 #include <Adafruit_TinyUSB.h>
 #include <MIDI.h>
@@ -24,8 +39,6 @@ extern "C" {
 
 #undef CFG_TUH_RPI_PIO_USB
 #define CFG_TUH_RPI_PIO_USB 1
-
-// #define CAPTURECARD
 
 #include "display.h"
 
@@ -196,7 +209,11 @@ uint16_t animOffset = 0;//for animating curves
 #include "functionPrototypes.h" //function prototypes (eventually these should all be refactored into respective files)
 #include "clock.h"              //timing functions
 #include "global.h"             //program boolean flags and global data, constants
-#include "hardware.h"   //button/input reading functions
+#ifdef HEADLESS
+  #include "../headless/childOS_headless/headlessControls.h"
+#else
+  #include "hardware.h"   //button/input reading functions
+#endif
 #include "utils.h"              //common helper functions/utilities
 #include "internalCC.h"
 

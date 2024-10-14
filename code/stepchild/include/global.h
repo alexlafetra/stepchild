@@ -90,9 +90,7 @@ int8_t onStop = 0;
 //could probably get rid of these! put them in drawSeq
 uint8_t trackHeight;
 
-#ifndef HEADLESS
-    bool core0ready = false;
-#endif
+bool core0ready = false;
 bool core1ready = false;
 
 //humanize values are timing, velocity, and chance

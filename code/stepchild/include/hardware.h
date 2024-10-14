@@ -46,11 +46,6 @@ https://forum.arduino.cc/t/how-to-read-a-register-value-using-the-wire-library/2
 //range is (5-1023) aka 0-1018
 const float joystickScaleFactor = float(128)/float(1018);
 
-
-//use the headless control code if you're building the headless mode
-#ifdef HEADLESS
-#include "../../headless/childOS_headless/HeadlessControls.h"
-#else
 #include <MCP23017.h>
 class LowerBoard{
   public:
@@ -476,9 +471,6 @@ class StepchildHardwareInput{
 };
 
 StepchildHardwareInput controls;
-#endif
-
-
 
 void hardReset(){
   rp2040.reboot();
