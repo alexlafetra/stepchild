@@ -272,7 +272,10 @@ void swapTracks(){
     controls.readJoystick();
     controls.readButtons();
     display.clearDisplay();
-    drawSeq(true, false, false, true, false, false, sequence.viewStart, sequence.viewEnd);
+    SequenceRenderSettings settings;
+    settings.topLabels = false;
+    settings.drawLoopPoints = false;
+    drawSeq(settings);
     display.fillRect(70,0,16,16,0);
     if(millis()%1000 >= 500){
       display.drawBitmap(70,0,arrow_1_bmp,16,16,SSD1306_WHITE);

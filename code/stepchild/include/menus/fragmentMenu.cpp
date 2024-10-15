@@ -268,7 +268,7 @@ void fragmentMenu(){
       for(int lineStep = 0; lineStep<screenWidth; lineStep++){
         //if it's within the seq
         if((lineStep+timeS)<=sequence.sequenceLength&&(lineStep+timeS)>=0){
-          if(playing){
+          if(sequence.playing()){
             timeS = playheadPos - 64;
             if(lineStep+timeS == playheadPos){
               display.drawRoundRect(lineStep, xStart-10, 3, 20, 3, SSD1306_WHITE);
@@ -388,7 +388,7 @@ void fragmentMenu(){
     // xDepth = random(-10,10);
     // yDepth = random(-10,10);
     //animated if the sequence is fragmenting
-    if(!playing&&!recording){
+    if(!sequence.playing()&&!sequence.recording()){
       graphics.drawTetra(h+cos(millis()),k+sin(millis()),height*fragmentSubDiv*float(screenWidth)/float(maxRepsVal),width*fragmentSubDiv*float(screenWidth)/float(maxLengthVal),xDepth,yDepth,0,SSD1306_WHITE);
     }
     else{

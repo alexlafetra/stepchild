@@ -704,23 +704,23 @@ void StepchildGraphics::drawPram(uint8_t x1, uint8_t y1){
         display.drawBitmap(x1,y1,carriage_bmp,14,15,SSD1306_WHITE);
 }
 void StepchildGraphics::drawBigPram(){
-    if(!playing && !recording){
+    if(!sequence.playing() && !sequence.recording()){
         this->drawPram(5,0);
     }
-    else if(playing || recording){
+    else if(sequence.playing() || sequence.recording()){
         //if the playhead/rechead is on a subdiv, bounce the pram 
         display.drawBitmap(5,!((sequence.playheadPos%24/12)%2),carriage_bmp,14,15,SSD1306_WHITE);
     }
 }
 void StepchildGraphics::drawTinyPram(){
-    if(!playing && !recording){
+    if(!sequence.playing() && !sequence.recording()){
         if(sequenceClock.onBeat(2,30))
             display.drawBitmap(8,1,tinyPram,7,7,SSD1306_WHITE);
         else
             display.drawBitmap(8,0,tinyPram,7,7,SSD1306_WHITE);
     }
     //pram bounces faster
-    else if(playing || recording){
+    else if(sequence.playing() || sequence.recording()){
         //if the playhead/rechead is on a subdiv, bounce the pram
         display.drawBitmap(8,!((sequence.playheadPos%24/12)%2),tinyPram,7,7,SSD1306_WHITE);
     }
@@ -926,7 +926,7 @@ void StepchildGraphics::printTrackPitch(uint8_t xCoord, uint8_t yCoord, uint8_t 
     offset+=sx.length()*4;
   }
   //if you want to show the track "primed" status for recording
-  if(recording && sequence.trackData[trackID].isPrimed()){
+  if(sequence.recording() && sequence.trackData[trackID].isPrimed()){
     if((millis()+trackID*10)%1000>500){
       display.fillCircle(trackDisplay-5,yCoord+1,2,1);
     }

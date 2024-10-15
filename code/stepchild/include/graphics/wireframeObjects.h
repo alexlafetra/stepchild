@@ -229,6 +229,40 @@ WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float sca
   return cube;
 }
 
+WireFrame makeHalfHouse(float width){
+  vector<Vertex> verts = {
+    Vertex(-1,0.25,width),
+    Vertex(-1,-1,width),
+    Vertex(-1.25,-1,width),
+    Vertex(0,-2,width),
+    Vertex(1.25,-1,width),
+    Vertex(1,-1,width),
+    Vertex(1,0.25,width)
+  };
+  vector<vector<uint8_t>> edges;
+  for(uint8_t i = 0; i < verts.size()-1; i++){
+      edges.push_back({i,static_cast<unsigned char>(i+1)});
+  }
+  edges.push_back({static_cast<unsigned char>(verts.size()-1),0});
+  WireFrame house = WireFrame(verts,edges);
+  return house;
+}
+
+WireFrame makeHouse(){
+  const float width = 3;
+  WireFrame house = makeHalfHouse(width/2);
+  uint8_t offset = house.verts.size();
+  for(uint8_t i = 0; i<house.verts.size(); i++){
+      house.edges.push_back({i,static_cast<unsigned short>(i+offset)});
+  }
+  house.join(makeHalfHouse(-width/2));
+  house.xPos = 64;
+  house.yPos = 40;
+  house.scale = 12.0;
+  viewWireFrame(house);
+  return house;
+}
+
 WireFrame genFrame(){
   //frame
   Vertex v1 = Vertex(10,10,25);

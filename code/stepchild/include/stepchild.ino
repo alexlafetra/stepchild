@@ -21,8 +21,6 @@ void setup() {
   //starting serial monitor output @ 9600baud
   Serial.begin(9600);
 
-  //start the display and throw an error if it doesn't work
-  //(probably not very helpful)
   display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR);
   //Set the display rotation (which is ~technically~ upside down)
   display.setRotation(DISPLAY_UPRIGHT);
@@ -66,6 +64,7 @@ void setup() {
   setNormalMode();
   core0ready = true;
   lastTime = millis();
+  makeHouse();
   graphics.bootscreen_2();
 }
 
@@ -85,11 +84,11 @@ void loop() {
 //this cpu handles time-sensitive things
 void loop1(){
   //play mode
-  if(playing){
+  if(sequence.playing()){
     playingLoop();
   }
   //record mode
-  else if(recording){
+  else if(sequence.recording()){
     recordingLoop();
   }
   //default state

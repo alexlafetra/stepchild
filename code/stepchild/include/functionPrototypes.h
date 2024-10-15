@@ -61,41 +61,17 @@ void debugNoteCount();
 void debugPrint();
 void debugPrintLookup();
 
-//WireFrame
-void viewPram();
-
-//CV
-void writeCVGate(bool state);
-void writeCVPitch(uint8_t pitch);
-
-//Automation
-void moveAutotrackCursor(int moveAmount);
-void changeDataPoint(int8_t);
-void smoothAutotrack(uint16_t, uint16_t, uint8_t);
-void autotrackViewer();
-String getCCParam(uint8_t param, uint8_t channel, uint8_t type);
-
 //Rec/play
 void writeNoteOn(unsigned short int step, uint8_t pitch, uint8_t vel, uint8_t channel);
 
 //Drawing functions
 void printItalic(int16_t x, int16_t y, char character, uint16_t c);
 void printItalic(int16_t x, int16_t y, String text, uint16_t c);
-// void drawLogo(uint8_t x1, uint8_t y1);
-void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection);
-void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, bool shadeOutsideLoop, uint16_t start, uint16_t end);
-void drawDisplay();
-void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation);
-// void drawBracket(uint8_t h, uint8_t k, uint8_t height, uint8_t width, uint8_t style, uint16_t c);
 void drawKeys(uint8_t xStart,uint8_t yStart,uint8_t octave,uint8_t numberOfKeys, bool fromPlaylist);
 void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numberOfPads);
 void drawArpStepLengths(uint8_t xStart, uint8_t yStart, uint8_t startNote, uint8_t xCursor, bool selected);
 void drawEchoMenu(uint8_t cursor);
-void drawMoon(int phase, bool forward);
 void drawSeq();
-void drawCurlyBracket(int16_t x1, uint8_t y1, uint8_t length,uint8_t height,bool start, bool end);
-void drawCurlyBracket(uint8_t x1, uint8_t y1, uint8_t length, uint8_t height, bool start, bool end, uint8_t rotation);
-void drawTrackLabel(uint8_t xCoord, uint8_t yCoord, String pitch, bool bigOct, bool channel, uint16_t c);
 void printSmall_centered(int16_t x, int16_t y, String t, uint16_t c);
 void printSmall(int16_t, int16_t, String, uint16_t);
 void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t numberOfKeys, bool into);
@@ -190,14 +166,8 @@ void sortTracks();
 void tuneTracksToScale();
 
 //controls
-void clearButtons();
 void mainSequencerStepButtons();
 void mainSequencerEncoders();
-bool echoMenuControls(uint8_t* cursor);
-void saveMenuControls();
-bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote);
-bool humanizeMenuControls(uint8_t* cursor);
-bool mainMenuControls();
 void yControls();
 void defaultEncoderControls();
 void defaultSelectBoxControls();
@@ -207,6 +177,22 @@ void defaultLoopControls();
 void defaultCopyControls();
 void rotaryActionA_Handler();
 void rotaryActionB_Handler();
+
+//MIDI
+void handleStop_playing();
+void handleClock_playing();
+void handleStart_playing();
+void handleClock_recording();
+void handleStart_recording();
+void handleStop_recording();
+void handleNoteOn_Recording(uint8_t channel, uint8_t note, uint8_t velocity);
+void handleNoteOff_Recording(uint8_t channel, uint8_t note, uint8_t velocity);
+void handleCC_Recording(uint8_t channel, uint8_t cc, uint8_t value);
+void handleCC_Normal(uint8_t channel, uint8_t cc, uint8_t value);
+void handleNoteOn_Normal(uint8_t channel, uint8_t note, uint8_t velocity);
+void handleNoteOff_Normal(uint8_t channel, uint8_t note, uint8_t velocity);
+void handleStart_Normal();
+void handleStop_Normal();
 
 
 //sequence
@@ -244,7 +230,7 @@ vector<uint16_t> getSelectedNotesBoundingBox();
 vector<uint8_t> selectKeys(uint8_t startRoot);
 vector<uint8_t> genScale(ScaleName, uint8_t);
 vector<uint8_t> genScale(ScaleName, uint8_t, int8_t,uint8_t);
-float swingOffset(unsigned short int step);
+// float swingOffset(unsigned short int step);
 String stepsToMeasures(int32_t stepVal);
 // void sequence.changeSubDivInt(bool);
 String pitchToString(uint8_t input, bool oct, bool sharps);
@@ -267,13 +253,11 @@ String getInterval(int root, int pitch);
 void setNormalMode();
 String enterText(String title);
 String enterText(String title,uint8_t count);
-void bootscreen();
 uint8_t countChar(String text,unsigned char c);
 void filterOutUnisonNotes(vector<uint8_t>& notes);
 bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote);
 void disarmTracksWithNotes();
 uint8_t countDigits_byte(uint8_t number);
-String bytesToString(uint32_t bytes);
 NoteCoords getNoteCoords(Note& note, uint8_t track);
 
 //Graphics

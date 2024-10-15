@@ -86,8 +86,8 @@ void ClockMenu::drawSwingCurve(int8_t xPos, int8_t yPos){
     display.drawFastVLine(trackDisplay + (sequence.loopData[sequence.activeLoop].end)*sequence.viewScale,16,screenHeight-16,SSD1306_WHITE);
   }
   //playhead
-  if(playing || recording){
-    display.drawFastVLine(trackDisplay + ((playing ? sequence.playheadPos:sequence.recheadPos)-sequence.viewStart)*sequence.viewScale,16,screenHeight-16,SSD1306_WHITE);
+  if(sequence.playing() || sequence.recording()){
+    display.drawFastVLine(trackDisplay + ((sequence.playing() ? sequence.playheadPos:sequence.recheadPos)-sequence.viewStart)*sequence.viewScale,16,screenHeight-16,SSD1306_WHITE);
   }
   display.drawFastHLine(xPos,16,screenWidth-xPos,1);
 }
@@ -103,7 +103,7 @@ void ClockMenu::displayMenu(){
     settings.trackLabels = false;
     settings.topLabels = false;
     settings.shrinkTopDisplay = false;
-    settings.loopPoints = false;
+    settings.drawLoopPoints = false;
     settings.drawLoopFlags = false;
     settings.trackSelection = false;
     settings.stepSequencerLEDs = false;

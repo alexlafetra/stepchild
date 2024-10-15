@@ -3,12 +3,17 @@ class MainMenu:public StepchildMenu{
     WireFrame icon;
     uint8_t wireFrameID;
     bool renderWireframes = false;
+    SequenceRenderSettings settings;
     MainMenu(){
       coords = CoordinatePair(25,1,93,64);
       icon = makeGraphBox(5);
       icon.xPos = 112;
       icon.yPos = 16;
       graphAnimation(&icon);
+      settings.trackLabels = true;
+      settings.topLabels = false;
+      settings.drawLoopPoints = true;
+      settings.shrinkTopDisplay = false;
     }
     void displayMenu();
     bool mainMenuControls();
@@ -94,20 +99,12 @@ void MainMenu::animateMainMenuWireFrame(){
     case 1:
       //cute idea to pause the loop icon, but you're never not looping!
       // if(sequence.isLooping)
-      icon.rotate(3,1);
-      break;
     //keys
     case 2:
-      icon.rotate(3,1);
-      break;
     //settings
     case 3:
-      icon.rotate(3,1);
-      break;
     //disc
     case 4:
-      icon.rotate(3,1);
-      break;
     //fx
     case 5:
       icon.rotate(3,1);
@@ -318,11 +315,7 @@ void MainMenu::drawMainMenuLabel(){
 
 void MainMenu::displayMenu(){
   display.clearDisplay();
-  SequenceRenderSettings settings;
-  settings.trackLabels = true;
-  settings.topLabels = false;
-  settings.loopPoints = true;
-  settings.shrinkTopDisplay = false;
+  settings.updateView();
   drawSeq(settings);
 
   if(renderWireframes){

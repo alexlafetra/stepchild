@@ -22,7 +22,10 @@ CoordinatePair selectNotesAndArea(String text, void (*iconFunction)(uint8_t,uint
             }
         }
         display.clearDisplay();
-        drawSeq(true, false, true, false, false, true, sequence.viewStart, sequence.viewEnd);
+        SequenceRenderSettings settings;
+        settings.topLabels = false;
+        settings.shadeOutsideLoop = true;
+        drawSeq(settings);
         printSmall(trackDisplay,0,text,1);
         iconFunction(7,1,14,true);
         display.display();

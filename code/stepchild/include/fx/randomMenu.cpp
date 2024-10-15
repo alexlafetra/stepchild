@@ -231,14 +231,14 @@ CoordinatePair selectArea_random(){
         }
       }
       if (controls.joystickY == 1) {
-        if(recording)
+        if(sequence.recording())
           sequence.setActiveTrack(sequence.activeTrack + 1, false);
         else
           sequence.setActiveTrack(sequence.activeTrack + 1, true);
         lastTime = millis();
       }
       if (controls.joystickY == -1) {
-        if(recording)
+        if(sequence.recording())
           sequence.setActiveTrack(sequence.activeTrack - 1, false);
         else
           sequence.setActiveTrack(sequence.activeTrack - 1, true);

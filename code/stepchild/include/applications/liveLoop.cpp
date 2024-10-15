@@ -85,13 +85,13 @@ void liveLoop(){
             //get ready to record, but wait for note
             if(controls.PLAY()){
                 //if controls.SHIFT() is held, and you're not already recording
-                if(!recording && controls.SHIFT()){
+                if(!sequence.recording() && controls.SHIFT()){
                     lastTime = millis();
                     //clear selected notes, so you don't warp 'em
                     clearSelection();
                     //if you were already playing, just begin recording! don't wait for a note
                     //but if you haven't been playing/recording anything, wait for a note
-                    if(playing){
+                    if(sequence.playing()){
                         uint16_t oldPlayheadPos = sequence.playheadPos;
                         recMode = LOOP_MODE;
                         toggleRecordingMode(false);
@@ -104,14 +104,16 @@ void liveLoop(){
                 }
                 //if you are already recording
                 //stop the recording and shrink it to the active loop, if you're coming out of a recording
-                else if(recording && !playing){
+                else if(sequence.recording() && !sequence.playing()){
                     exitRecAndStartPlaying(layerCount);
                 }
             }
         }
         //drawing display
         display.clearDisplay();
-        drawSeq(true,false,true,false,false,false,sequence.viewStart,sequence.viewEnd);
+        SequenceRenderSettings settings;
+        settings.topLabels = false;
+        drawSeq(settings);
         // display.fillRoundRect(-5,-5,39,22,5,0);
         display.fillRect(0,0,32,16,0);
         // display.drawRoundRect(-5,-5,39,22,5,1);
@@ -129,7 +131,7 @@ void liveLoop(){
         //checking if the seq should start/stop
         if(startStopTriggerNote != -1){
             if(recentNote.pitch == startStopTriggerNote){
-                if(recording){
+                if(sequence.recording()){
                     exitRecAndStartPlaying(layerCount);
                 }
                 else{

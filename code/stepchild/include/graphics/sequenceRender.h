@@ -9,8 +9,6 @@ struct SequenceRenderSettings{
 
     bool trackLabels;
     bool topLabels;
-    bool loopPoints;
-    // bool menus;
     bool trackSelection = false;
     bool shadeOutsideLoop = false;
 
@@ -49,6 +47,10 @@ struct SequenceRenderSettings{
     }
     uint16_t getViewLength(){
         return end-start;
+    }
+    void updateView(){
+        start = sequence.viewStart;
+        end = sequence.viewEnd;
     }
 };
 
@@ -243,7 +245,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
   }
   uint8_t x1 = 32;
   //rec/play icon
-  if(recording){
+  if(sequence.recording()){
     if(clockSource == EXTERNAL_CLOCK && !gotClock){
       if(waitingToReceiveANote){
         if(millis()%1000>500){
@@ -284,7 +286,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
       x1+=8;
     }
   }
-  else if(playing){
+  else if(sequence.playing()){
     graphics.drawPlayIcon(trackDisplay+((millis()/200)%2)+1,0);
     x1 += 10;
     switch(sequence.isLooping){
@@ -628,13 +630,13 @@ void drawSeq(SequenceRenderSettings& settings){
     }
   }
   //playhead/rechead
-  if(playing && sequence.isInView(sequence.playheadPos))
+  if(sequence.playing() && sequence.isInView(sequence.playheadPos))
       display.drawRoundRect(trackDisplay+(sequence.playheadPos-settings.start)*sequence.viewScale,settings.startHeight,3, screenHeight-settings.startHeight, 3, SSD1306_WHITE);
-  if(recording && sequence.isInView(sequence.recheadPos))
+  if(sequence.recording() && sequence.isInView(sequence.recheadPos))
       display.drawRoundRect(trackDisplay+(sequence.recheadPos-settings.start)*sequence.viewScale,settings.startHeight,3, screenHeight-settings.startHeight, 3, SSD1306_WHITE);
 
   int cursorX = trackDisplay+int((sequence.cursorPos-settings.start)*sequence.viewScale)-8;
-  if(!playing && !recording){
+  if(!sequence.playing() && !sequence.recording()){
       cursorX = 32;
   }
   else{
@@ -654,23 +656,6 @@ void drawSeq(SequenceRenderSettings& settings){
 void drawSeq(){
   SequenceRenderSettings settings;
   drawSeq(settings);
-}
-void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection, bool shadeOutsideLoop, uint16_t start, uint16_t end){
-    SequenceRenderSettings settings;
-    settings.trackLabels = trackLabels;
-    settings.topLabels = topLabels;
-    settings.drawLoopPoints = loopPoints;
-    // settings.menus = menus;
-    settings.trackSelection = trackSelection;
-    settings.trackLabels = trackLabels;
-    settings.shadeOutsideLoop = shadeOutsideLoop;
-    settings.start = start;
-    settings.end = end;
-    drawSeq(settings);
-}
-
-void drawSeq(bool trackLabels, bool topLabels, bool loopPoints, bool menus, bool trackSelection){
-  drawSeq(trackLabels,topLabels,loopPoints,menus,trackSelection,false,sequence.viewStart,sequence.viewEnd);
 }
 
 void drawNoteBracket(NoteCoords& n, bool animated){

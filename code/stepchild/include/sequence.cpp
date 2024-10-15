@@ -214,7 +214,7 @@ void StepchildSequence::stencilNotes(uint8_t count){
 void StepchildSequence::toggleNote(uint8_t track, uint16_t step, uint16_t length){
     //if there's no note/no start there, make a note
     if(this->lookupTable[track][step] == 0 || (this->lookupTable[track][step] != 0 && this->noteAt(track,step).startPos != step)){
-        if(!playing && !recording)
+        if(this->playing() && this->recording())
             this->makeNote(track, step, length, true);
         else
             this->makeNote(track, step, length, false);
@@ -598,7 +598,7 @@ void StepchildSequence::displayMainSequenceLEDs(){
                     if(this->noteData[this->activeTrack][this->lookupTable[this->activeTrack][step]].startPos == step){
                         //if playing or recording, and the head isn't on that step, it should be on
                         //if it is on that step, then the step should blink
-                        if(!playing || ((playheadPos < this->noteAt(this->activeTrack,step).startPos) || (playheadPos > this->noteAt(this->activeTrack,step).endPos))){
+                        if(!this->playing() || ((playheadPos < this->noteAt(this->activeTrack,step).startPos) || (playheadPos > this->noteAt(this->activeTrack,step).endPos))){
                             dat |= (1<<i);
                         }
                     }
@@ -708,16 +708,16 @@ void StepchildSequence::nextLoop(){
                     this->activeLoop++;
                 else
                     this->activeLoop = 0;
-                if(playing)
+                if(this->playing())
                     playheadPos = this->loopData[this->activeLoop].start;
-                if(recording)
+                if(this->recording())
                     recheadPos = this->loopData[this->activeLoop].start;
                 break;
             case RANDOM:{
                 this->activeLoop = random(0,this->loopData.size());
-                if(playing)
+                if(this->playing())
                     playheadPos = this->loopData[this->activeLoop].start;
-                if(recording)
+                if(this->recording())
                     recheadPos = this->loopData[this->activeLoop].start;
                 break;}
             case RANDOM_SAME:{
@@ -736,22 +736,22 @@ void StepchildSequence::nextLoop(){
                     }
                 }
                 this->activeLoop = similarLoops[random(0,similarLoops.size())];
-                if(playing)
+                if(this->playing())
                     playheadPos = this->loopData[this->activeLoop].start;
-                if(recording)
+                if(this->recording())
                     recheadPos = this->loopData[this->activeLoop].start;
                 break;}
             case RETURN:{
                 this->activeLoop = 0;
-                if(playing)
+                if(this->playing())
                     playheadPos = this->loopData[this->activeLoop].start;
-                if(recording)
+                if(this->recording())
                     recheadPos = this->loopData[this->activeLoop].start;
                 break;}
             case INFINITE:{
-                if(playing)
+                if(this->playing())
                     playheadPos = this->loopData[this->activeLoop].start;
-                if(recording)
+                if(this->recording())
                     recheadPos = this->loopData[this->activeLoop].start;
                 break;}
             }
@@ -816,19 +816,19 @@ void StepchildSequence::moveLoop(int16_t amount){
 }
 void StepchildSequence::toggleLoopMove(){
   switch(movingLoop){
-    case 0:
-      movingLoop = 1;
+    case NONE:
+      movingLoop = END;
       moveCursor(this->loopData[this->activeLoop].start-this->cursorPos);
       break;
-    case -1:
-      movingLoop = 1;
+    case START:
+      movingLoop = END;
       moveCursor(this->loopData[this->activeLoop].end-this->cursorPos);
       break;
-    case 1:
-      movingLoop = 2;
+    case END:
+      movingLoop = BOTH;
       break;
-    case 2:
-      movingLoop = 0;
+    case BOTH:
+      movingLoop = NONE;
       break;
   }
 }
@@ -1365,4 +1365,30 @@ bool StepchildSequence::areThereMoreNotes(bool above){
 //sort function for sorting tracks by channel
 bool StepchildSequence::compareChannels(Track t1, Track t2){
   return t1.channel>t2.channel;
+}
+bool StepchildSequence::playing(){
+  return (playState == PLAYING);
+}
+bool StepchildSequence::recording(){
+  return (playState == RECORDING);
+}
+bool StepchildSequence::liveLooping(){
+  return (playState == LIVELOOPING);
+}
+
+void StepchildSequence::togglePlay(){
+  if(playing()){
+    playState = STOPPED;
+  }
+  else{
+    playState = PLAYING;
+  }
+}
+void StepchildSequence::toggleRecording(){
+  if(recording()){
+    playState = STOPPED;
+  }
+  else{
+    playState = RECORDING;
+  }
 }

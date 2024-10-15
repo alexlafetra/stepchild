@@ -81,14 +81,14 @@ CoordinatePair selectArea_warp(bool AorB){
         }
       }
       if (controls.joystickY == 1) {
-        if(recording)
+        if(sequence.recording())
           sequence.setActiveTrack(sequence.activeTrack + 1, false);
         else
           sequence.setActiveTrack(sequence.activeTrack + 1, true);
         lastTime = millis();
       }
       if (controls.joystickY == -1) {
-        if(recording)
+        if(sequence.recording())
           sequence.setActiveTrack(sequence.activeTrack - 1, false);
         else
           sequence.setActiveTrack(sequence.activeTrack - 1, true);
@@ -110,7 +110,6 @@ CoordinatePair selectArea_warp(bool AorB){
     settings.drawPram = false;
     settings.topLabels = false;
     drawSeq(settings);
-    // drawSeq(true, false, true, false, false, false, sequence.viewStart, sequence.viewEnd);
     drawCoordinateBox(coords,settings);
     if(coords.start.x == 0 && coords.end.x == 0 && coords.start.y == 0 && coords.end.y == 0){
       printSmall(trackDisplay,0,"warp",1);

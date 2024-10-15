@@ -393,7 +393,7 @@ void screenSaver_playing(){
 
 void screenSaver(){
   //vector that holds all the screen savers
-  if(playing || recording){
+  if(sequence.playing() || sequence.recording()){
     screenSaver_playing();
     return;
   }

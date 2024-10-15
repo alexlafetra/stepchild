@@ -389,7 +389,7 @@ void midiMenu(){
           graphics.drawDottedLineDiagonal(x1-8,y1+8,x1-22,y1+8,3);
           break;
       }
-      if(playing){
+      if(sequence.playing()){
         uint8_t x2 = 95;
         uint8_t y2 = 4;
         display.fillTriangle(x2+((millis()/200)%2)+1,y2+6,x2+((millis()/200)%2)+1,y2,x2+6+((millis()/200)%2)+1,y2+3,SSD1306_WHITE);

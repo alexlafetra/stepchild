@@ -300,7 +300,9 @@ void insertChordIntoSequence(QChord chord){
             }
         }
         display.clearDisplay();
-        drawSeq(true,false,true,false,false,false,sequence.viewStart,sequence.viewEnd);
+        SequenceRenderSettings settings;
+        settings.topLabels = false;
+        drawSeq(settings);
         display.fillRect(0,0,55,15,0);
         display.drawRect(0,0,55,15,1);
         printSmall(0,0,"[Sh]+[B] for +/-",1);

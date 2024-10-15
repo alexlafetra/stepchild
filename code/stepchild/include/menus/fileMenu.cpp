@@ -328,7 +328,6 @@ void FileMenu::displayMiniMenu(){
 
 void FileMenu::displayMenu(int16_t textOffset, bool open){
   display.clearDisplay();
-  unsigned short int menuHeight = abs(coords.end.y-coords.start.y);
   display.setCursor(coords.start.x+9,coords.start.y+3);
   display.setFont(&FreeSerifItalic9pt7b);
   display.print("Files");
@@ -338,7 +337,6 @@ void FileMenu::displayMenu(int16_t textOffset, bool open){
   if(cursor && !page)
     printSmall(coords.start.x-4,coords.start.y,stringify(cursor)+"/"+stringify(filenames.size()-1),1);
 
-  const uint8_t textWidth = 20;
   const uint8_t textHeight = 9;
 
   uint8_t yLoc = 0;
