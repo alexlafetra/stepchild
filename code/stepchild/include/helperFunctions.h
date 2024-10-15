@@ -62,14 +62,14 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
         }
       }
       if (controls.joystickY == 1) {
-        if(recording)
+        if(sequence.recording())
           sequence.setActiveTrack(sequence.activeTrack + 1, false);
         else
           sequence.setActiveTrack(sequence.activeTrack + 1, false);
         lastTime = millis();
       }
       if (controls.joystickY == -1) {
-        if(recording)
+        if(sequence.recording())
           sequence.setActiveTrack(sequence.activeTrack - 1, false);
         else
           sequence.setActiveTrack(sequence.activeTrack - 1, false);

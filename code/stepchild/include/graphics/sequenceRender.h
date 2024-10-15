@@ -245,7 +245,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
   }
   uint8_t x1 = 32;
   //rec/play icon
-  if(recording){
+  if(sequence.recording()){
     if(clockSource == EXTERNAL_CLOCK && !gotClock){
       if(waitingToReceiveANote){
         if(millis()%1000>500){
@@ -632,11 +632,11 @@ void drawSeq(SequenceRenderSettings& settings){
   //playhead/rechead
   if(sequence.playing() && sequence.isInView(sequence.playheadPos))
       display.drawRoundRect(trackDisplay+(sequence.playheadPos-settings.start)*sequence.viewScale,settings.startHeight,3, screenHeight-settings.startHeight, 3, SSD1306_WHITE);
-  if(recording && sequence.isInView(sequence.recheadPos))
+  if(sequence.recording() && sequence.isInView(sequence.recheadPos))
       display.drawRoundRect(trackDisplay+(sequence.recheadPos-settings.start)*sequence.viewScale,settings.startHeight,3, screenHeight-settings.startHeight, 3, SSD1306_WHITE);
 
   int cursorX = trackDisplay+int((sequence.cursorPos-settings.start)*sequence.viewScale)-8;
-  if(!sequence.playing() && !recording){
+  if(!sequence.playing() && !sequence.recording()){
       cursorX = 32;
   }
   else{

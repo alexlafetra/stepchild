@@ -816,19 +816,19 @@ void StepchildSequence::moveLoop(int16_t amount){
 }
 void StepchildSequence::toggleLoopMove(){
   switch(movingLoop){
-    case 0:
-      movingLoop = 1;
+    case NONE:
+      movingLoop = END;
       moveCursor(this->loopData[this->activeLoop].start-this->cursorPos);
       break;
-    case -1:
-      movingLoop = 1;
+    case START:
+      movingLoop = END;
       moveCursor(this->loopData[this->activeLoop].end-this->cursorPos);
       break;
-    case 1:
-      movingLoop = 2;
+    case END:
+      movingLoop = BOTH;
       break;
-    case 2:
-      movingLoop = 0;
+    case BOTH:
+      movingLoop = NONE;
       break;
   }
 }
@@ -1382,5 +1382,13 @@ void StepchildSequence::togglePlay(){
   }
   else{
     playState = PLAYING;
+  }
+}
+void StepchildSequence::toggleRecording(){
+  if(recording()){
+    playState = STOPPED;
+  }
+  else{
+    playState = RECORDING;
   }
 }

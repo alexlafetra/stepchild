@@ -85,7 +85,7 @@ class StepchildSequence{
   ----------------------------------------------------------
   */
   void togglePlay();
-  void toggleRecord();
+  void toggleRecording();
   /*
   ----------------------------------------------------------
                       LOADING NOTES

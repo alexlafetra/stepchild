@@ -956,7 +956,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput){
         deleteDataPoint(sequence.cursorPos,sequence.activeAutotrack);
     }
     if(controls.PLAY()){
-      if(controls.SHIFT() || recording){
+      if(controls.SHIFT() || sequence.recording()){
         lastTime = millis();
         recordingToAutotrack = true;
         recentCC.val = 0;
@@ -1494,7 +1494,7 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
           display.drawRoundRect(32+(step-sequence.viewStart)*sequence.viewScale,0,3,screenHeight,3,SSD1306_WHITE);
         
         //rechead
-        if(recording && sequence.recheadPos == step)
+        if(sequence.recording() && sequence.recheadPos == step)
           display.drawRoundRect(32+(step-sequence.viewStart)*sequence.viewScale,0,3,screenHeight,3,SSD1306_WHITE);
 
         //loop points
@@ -1551,7 +1551,7 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
     //play icon
     if(sequence.playing())
       display.fillTriangle(120+((millis()/200)%2),9,120+((millis()/200)%2),3,120+6+((millis()/200)%2),6,SSD1306_WHITE);
-    if(recording){
+    if(sequence.recording()){
       //flash it while waiting
       if(waitingToReceiveANote && (millis()%1000>500))
         display.drawCircle(124,6,3,SSD1306_WHITE);

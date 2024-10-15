@@ -85,7 +85,7 @@ void liveLoop(){
             //get ready to record, but wait for note
             if(controls.PLAY()){
                 //if controls.SHIFT() is held, and you're not already recording
-                if(!recording && controls.SHIFT()){
+                if(!sequence.recording() && controls.SHIFT()){
                     lastTime = millis();
                     //clear selected notes, so you don't warp 'em
                     clearSelection();
@@ -104,7 +104,7 @@ void liveLoop(){
                 }
                 //if you are already recording
                 //stop the recording and shrink it to the active loop, if you're coming out of a recording
-                else if(recording && !sequence.playing()){
+                else if(sequence.recording() && !sequence.playing()){
                     exitRecAndStartPlaying(layerCount);
                 }
             }
@@ -131,7 +131,7 @@ void liveLoop(){
         //checking if the seq should start/stop
         if(startStopTriggerNote != -1){
             if(recentNote.pitch == startStopTriggerNote){
-                if(recording){
+                if(sequence.recording()){
                     exitRecAndStartPlaying(layerCount);
                 }
                 else{

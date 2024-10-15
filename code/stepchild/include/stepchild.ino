@@ -88,7 +88,7 @@ void loop1(){
     playingLoop();
   }
   //record mode
-  else if(recording){
+  else if(sequence.recording()){
     recordingLoop();
   }
   //default state

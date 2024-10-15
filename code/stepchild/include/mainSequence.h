@@ -64,12 +64,12 @@ void defaultJoystickControls(bool velocityEditingAllowed){
   }
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1 && !controls.SHIFT() && !controls.LOOP()) {
-      sequence.setActiveTrack(sequence.activeTrack + 1, !sequence.playing()  && !recording);
+      sequence.setActiveTrack(sequence.activeTrack + 1, !sequence.playing()  && !sequence.recording());
       drawingNote = false;
       lastTime = millis();
     }
     if (controls.joystickY == -1 && !controls.SHIFT() && !controls.LOOP()) {
-      sequence.setActiveTrack(sequence.activeTrack - 1, !sequence.playing()  && !recording);
+      sequence.setActiveTrack(sequence.activeTrack - 1, !sequence.playing()  && !sequence.recording());
       drawingNote = false;
       lastTime = millis();
     }
@@ -169,27 +169,27 @@ void defaultSelectControls(){
 void defaultLoopControls(){
   if(controls.LOOP()){
       //if you're not moving a loop, start
-      if(movingLoop == 0){
+      if(movingLoop == StepchildSequence::NONE){
         //if you're on the start, move the start
         if(sequence.cursorPos == sequence.loopData[sequence.activeLoop].start){
-          movingLoop = -1;
+          movingLoop = StepchildSequence::START;
           menuText = "Moving Loop Start";
         }
         //if you're on the end
         else if(sequence.cursorPos == sequence.loopData[sequence.activeLoop].end){
-          movingLoop = 1;
+          movingLoop = StepchildSequence::END;
           menuText = "Moving Loop End";
         }
         //if you're not on either, move the whole loop
         else{
-          movingLoop = 2;
+          movingLoop = StepchildSequence::BOTH;
           menuText = "Moving Loop";
         }
         lastTime = millis();
       }
       //if you were moving, stop
       else{
-        movingLoop = 0;
+        movingLoop = StepchildSequence::NONE;
         lastTime = millis();
       }
   }
@@ -275,12 +275,12 @@ void mainSequencerButtons(){
     }
 
     //Modes: play, listen, and record
-    if(controls.PLAY() && !controls.SHIFT() && !recording){
+    if(controls.PLAY() && !controls.SHIFT() && !sequence.recording()){
       togglePlayMode();
       lastTime = millis();
     }
-    //if play+controls.SHIFT(), or if play and it's already recording
-    if((controls.PLAY() && controls.SHIFT()) || (controls.PLAY() && recording)){
+    //if play+controls.SHIFT(), or if play and it's already sequence.recording()
+    if((controls.PLAY() && controls.SHIFT()) || (controls.PLAY() && sequence.recording())){
       toggleRecordingMode(waitForNoteBeforeRec);
       lastTime = millis();
     }
@@ -311,11 +311,11 @@ void mainSequencerStepButtons(){
   //DJ loop selector
   if(controls.SHIFT()){
     if(controls.stepButton(15) && sequence.activeTrack){
-      sequence.setActiveTrack(sequence.activeTrack-1,!sequence.playing()  && !recording);
+      sequence.setActiveTrack(sequence.activeTrack-1,!sequence.playing()  && !sequence.recording());
       lastTime = millis();
     }
     else if(controls.stepButton(14)){
-      sequence.setActiveTrack(sequence.activeTrack+1,!sequence.playing()  && !recording);
+      sequence.setActiveTrack(sequence.activeTrack+1,!sequence.playing()  && !sequence.recording());
       lastTime = millis();
     }
     else if(controls.stepButton(0)){
@@ -491,10 +491,10 @@ bool SuperpositionMenu::setSuperpositionControls(){
       return false;
     }
     if(controls.PLAY()){
-      if(controls.SHIFT() || recording){
+      if(controls.SHIFT() || sequence.recording()){
         toggleRecordingMode(waitForNoteBeforeRec);
         lastTime = millis();
-        if(recording)
+        if(sequence.recording())
           menuText = "ready!";
       }
       else{

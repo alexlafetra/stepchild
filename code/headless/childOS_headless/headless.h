@@ -77,8 +77,6 @@ using namespace std;
 int headlessCounterA = 0, headlessCounterB = 0;
 
 bool core0ready;
-bool playing = false;
-bool recording = false;
 
 #include "headlessMIDI.h"
 #include "headlessFileSystem.h"

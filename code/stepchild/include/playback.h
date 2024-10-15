@@ -421,7 +421,7 @@ void handleNoteOff_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
 
 void handleStart_Normal(){
   if(clockSource == EXTERNAL_CLOCK){
-    if(!sequence.playing() && !recording){
+    if(!sequence.playing() && !sequence.recording()){
       togglePlayMode();
     }
   }
@@ -455,7 +455,7 @@ void checkLoop(){
         togglePlayMode();
     }
   }
-  else if(recording){
+  else if(sequence.recording()){
     //one-shot record to current loop, without looping
     if(recMode == ONESHOT){
       if(sequence.recheadPos>=sequence.loopData[sequence.activeLoop].end){
@@ -539,7 +539,7 @@ void togglePlayMode(){
   else
     sequence.playheadPos = 0;
   if(sequence.playing()){
-    if(recording){
+    if(sequence.recording()){
       toggleRecordingMode(waitForNoteBeforeRec);
     }
     #ifndef HEADLESS
@@ -612,9 +612,9 @@ void setNormalMode(){
 }
 
 void toggleRecordingMode(bool butWait){
-  recording = !recording;
+  sequence.toggleRecording();
   //if it stopped recording
-  if(!recording)
+  if(!sequence.recording())
     cleanupRecording(sequence.recheadPos);
   //if it's recording to the loop
   if(recMode == ONESHOT || recMode == LOOP_MODE)
@@ -625,7 +625,7 @@ void toggleRecordingMode(bool butWait){
     waitingToReceiveANote = true;
   else
     waitingToReceiveANote = false;
-  if(recording){
+  if(sequence.recording()){
     if(sequence.playing()){
       togglePlayMode();
     }

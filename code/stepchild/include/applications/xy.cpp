@@ -78,7 +78,7 @@ void xyGrid(){
 
     display.clearDisplay();
     //rec/play icon
-    if(recording){
+    if(sequence.recording()){
       if(clockSource == EXTERNAL_CLOCK && !gotClock){
         if(waitingToReceiveANote){
           if(millis()%1000>500){

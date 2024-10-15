@@ -37,7 +37,7 @@ void genFragment(){
   //set the active playhead to the start of the fragment
   if(sequence.playing())
       sequence.playheadPos = fragmentData[2][0];
-  else if(recording)
+  else if(sequence.recording())
       sequence.recheadPos = fragmentData[2][0];
   fragmentStep = 0;
 }

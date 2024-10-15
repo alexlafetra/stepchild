@@ -63,7 +63,7 @@ void MidiInputCallback( double deltatime, vector< unsigned char > *message, void
     cout<<"velocity: "<<to_string(velocity)<<endl;
     #endif
     
-    if(playing){
+    if(sequence.playing()){
         switch(type){
             //note off -- 1000
             case 8:
@@ -97,7 +97,7 @@ void MidiInputCallback( double deltatime, vector< unsigned char > *message, void
                 
         }
     }
-    else if(recording){
+    else if(sequence.recording()){
         switch(type){
             //note off
             case 8:

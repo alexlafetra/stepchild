@@ -144,7 +144,7 @@ bool viewLoopControls(uint8_t which){
   }
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1 && !controls.SHIFT() && !controls.LOOP()) {
-      if(recording)//if you're not in normal mode, you don't want it to be loud
+      if(sequence.recording())//if you're not in normal mode, you don't want it to be loud
         sequence.setActiveTrack(sequence.activeTrack + 1, false);
       else
         sequence.setActiveTrack(sequence.activeTrack + 1, true);
@@ -152,7 +152,7 @@ bool viewLoopControls(uint8_t which){
       lastTime = millis();
     }
     if (controls.joystickY == -1 && !controls.SHIFT() && !controls.LOOP()) {
-      if(recording)//if you're not in normal mode, you don't want it to be loud
+      if(sequence.recording())//if you're not in normal mode, you don't want it to be loud
         sequence.setActiveTrack(sequence.activeTrack - 1, false);
       else
         sequence.setActiveTrack(sequence.activeTrack - 1, true);
@@ -265,12 +265,12 @@ bool viewLoopControls(uint8_t which){
     }
 
     //Modes: play, listen, and record
-    if(controls.PLAY() && !controls.SHIFT() && !recording){
+    if(controls.PLAY() && !controls.SHIFT() && !sequence.recording()){
       togglePlayMode();
       lastTime = millis();
     }
     //if play+controls.SHIFT(), or if play and it's already recording
-    if((controls.PLAY() && controls.SHIFT()) || (controls.PLAY() && recording)){
+    if((controls.PLAY() && controls.SHIFT()) || (controls.PLAY() && sequence.recording())){
       toggleRecordingMode(waitForNoteBeforeRec);
       lastTime = millis();
     }
@@ -281,21 +281,21 @@ bool viewLoopControls(uint8_t which){
       if(movingLoop == 0){
         //if you're on the start, move the start
         if(sequence.cursorPos == sequence.loopData[sequence.activeLoop].start){
-          movingLoop = -1;
+          movingLoop = StepchildSequence::START;
         }
         //if you're on the end
         else if(sequence.cursorPos == sequence.loopData[sequence.activeLoop].end){
-          movingLoop = 1;
+          movingLoop = StepchildSequence::END;
         }
         //if you're not on either, move the whole loop
         else{
-          movingLoop = 2;
+          movingLoop = StepchildSequence::BOTH;
         }
         lastTime = millis();
       }
       //if you were moving, stop
       else{
-        movingLoop = 0;
+        movingLoop = StepchildSequence::NONE;
         lastTime = millis();
       }
     }
