@@ -1,3 +1,8 @@
+/*
+ + -------------------
+ | OpenGL code for creating, updating, and drawing the headless window
+ + -------------------
+ */
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
 #include <OpenGl/glu.h>
@@ -6,16 +11,13 @@
 
 //for writing bitmaps
 #include "bitmap/bitmap_image.hpp"
-
 //scale of the display window
 float windowScale = 3;
 int topBorder = 60;
 int sideBorder = 60;
-
 //this is the array holding what's shown at any given moment
 //the displayBuffer in the display object is what gets changed and PUSHED to this
 char screenPixels[128][64];
-
 bool openGLready = false;
 GLFWwindow* window;
 
@@ -231,7 +233,7 @@ GLFWwindow* initGlfw(){
     return window;
 }
 
-//custom circle drawing
+//custom circle filling
 void glFillCircle(int x1, int y1, int r, int numberOfVertices){
     float theta = 2.0*M_PI/float(numberOfVertices);
     glBegin(GL_POLYGON);
@@ -250,7 +252,7 @@ void glDrawCircle(int x1, int y1, int r, int numberOfVertices){
     }
     glEnd();
 }
-
+//drawing radians
 void glDrawRadian(int x, int y, int r, float angle){
     float x2 = r*cos(angle)+x;
     float y2 = r*sin(angle)+y;
@@ -259,7 +261,7 @@ void glDrawRadian(int x, int y, int r, float angle){
     glVertex2f(x2,y2);
     glEnd();
 }
-
+//filling an arc, for round rects
 void glFillCircleSegment(float cx, float cy, float r, int startAngle, int endAngle) {
     glBegin(GL_TRIANGLE_FAN);
     glVertex2f(cx, cy);
@@ -271,7 +273,7 @@ void glFillCircleSegment(float cx, float cy, float r, int startAngle, int endAng
     }
     glEnd();
 }
-
+//filling round rects
 void glFillRoundRect(float x, float y, float width, float height, float radius) {
     if (radius > width / 2.0f) radius = width / 2.0f;
     if (radius > height / 2.0f) radius = height / 2.0f;
@@ -339,10 +341,7 @@ void displayWindow(void)
 {
     //update the display if there's been an update
     if(openGLready){
-        
-        //filling bg with white
-        glClearColor(1.0f,1.0f,1.0f,1.0f);//white
-//        glClearColor(0.0f,0.0f,0.0f,0.0f);//clear
+        glClearColor(1.0f,1.0f,1.0f,1.0f);//White
         glClear( GL_COLOR_BUFFER_BIT);
         
         int w, h;
@@ -384,7 +383,7 @@ void displayWindow(void)
             else{
                 glColor3f(0.0,0.0,0.0); //dark
             }
-            glFillCircle((ledLength)/16*i+ledStartX,(i%2)?buttonY-20:buttonY,10,20);
+            glFillCircle((ledLength)/16*i+ledStartX,(i%2)?buttonY-20:buttonY,3,6);
         }
         
         //joystick
@@ -432,7 +431,6 @@ void displayWindow(void)
                 }
             }
         }
-        
         glFlush();
         glfwSwapBuffers(window);
     }

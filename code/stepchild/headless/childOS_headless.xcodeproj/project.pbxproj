@@ -47,6 +47,90 @@
 		FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		FA01CE702AC35CBB005BBB0F /* headlessMIDI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = headlessMIDI.h; sourceTree = "<group>"; };
 		FA0A413D2AD5252500013622 /* headlessFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headlessFileSystem.h; sourceTree = "<group>"; };
+		FA16CCCA2CBE003D00329124 /* applications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = applications.h; sourceTree = "<group>"; };
+		FA16CCCB2CBE003D00329124 /* chordBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chordBuilder.cpp; sourceTree = "<group>"; };
+		FA16CCCC2CBE003D00329124 /* chordDJ.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chordDJ.cpp; sourceTree = "<group>"; };
+		FA16CCCD2CBE003D00329124 /* drumPads.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = drumPads.cpp; sourceTree = "<group>"; };
+		FA16CCCE2CBE003D00329124 /* exampleFunction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = exampleFunction.cpp; sourceTree = "<group>"; };
+		FA16CCCF2CBE003D00329124 /* keyboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = keyboard.h; sourceTree = "<group>"; };
+		FA16CCD02CBE003D00329124 /* knobs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = knobs.cpp; sourceTree = "<group>"; };
+		FA16CCD12CBE003D00329124 /* liveLoop.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = liveLoop.cpp; sourceTree = "<group>"; };
+		FA16CCD22CBE003D00329124 /* planets.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = planets.cpp; sourceTree = "<group>"; };
+		FA16CCD32CBE003D00329124 /* rain.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rain.cpp; sourceTree = "<group>"; };
+		FA16CCD42CBE003D00329124 /* rattle.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rattle.cpp; sourceTree = "<group>"; };
+		FA16CCD52CBE003D00329124 /* userApplications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = userApplications.h; sourceTree = "<group>"; };
+		FA16CCD62CBE003D00329124 /* xy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = xy.cpp; sourceTree = "<group>"; };
+		FA16CCD82CBE003D00329124 /* Arp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Arp.h; sourceTree = "<group>"; };
+		FA16CCD92CBE003D00329124 /* AutoTrack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AutoTrack.h; sourceTree = "<group>"; };
+		FA16CCDA2CBE003D00329124 /* Knob.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Knob.h; sourceTree = "<group>"; };
+		FA16CCDB2CBE003D00329124 /* Note.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Note.h; sourceTree = "<group>"; };
+		FA16CCDC2CBE003D00329124 /* NoteID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoteID.h; sourceTree = "<group>"; };
+		FA16CCDD2CBE003D00329124 /* PlayList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlayList.h; sourceTree = "<group>"; };
+		FA16CCDE2CBE003D00329124 /* Progression.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Progression.h; sourceTree = "<group>"; };
+		FA16CCDF2CBE003D00329124 /* SelectionBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SelectionBox.h; sourceTree = "<group>"; };
+		FA16CCE02CBE003D00329124 /* Track.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Track.h; sourceTree = "<group>"; };
+		FA16CCE22CBE003D00329124 /* chop.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chop.cpp; sourceTree = "<group>"; };
+		FA16CCE32CBE003D00329124 /* echo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = echo.cpp; sourceTree = "<group>"; };
+		FA16CCE42CBE003D00329124 /* humanizeMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = humanizeMenu.cpp; sourceTree = "<group>"; };
+		FA16CCE52CBE003D00329124 /* quantizeMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = quantizeMenu.cpp; sourceTree = "<group>"; };
+		FA16CCE62CBE003D00329124 /* randomMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = randomMenu.cpp; sourceTree = "<group>"; };
+		FA16CCE72CBE003D00329124 /* reverseMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = reverseMenu.cpp; sourceTree = "<group>"; };
+		FA16CCE82CBE003D00329124 /* strumMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = strumMenu.cpp; sourceTree = "<group>"; };
+		FA16CCE92CBE003D00329124 /* warpMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = warpMenu.cpp; sourceTree = "<group>"; };
+		FA16CCEB2CBE003D00329124 /* 7_segment.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = 7_segment.cpp; sourceTree = "<group>"; };
+		FA16CCEC2CBE003D00329124 /* arp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = arp.cpp; sourceTree = "<group>"; };
+		FA16CCED2CBE003D00329124 /* chunky.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chunky.cpp; sourceTree = "<group>"; };
+		FA16CCEE2CBE003D00329124 /* cursive.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cursive.cpp; sourceTree = "<group>"; };
+		FA16CCEF2CBE003D00329124 /* italic.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = italic.cpp; sourceTree = "<group>"; };
+		FA16CCF02CBE003D00329124 /* small.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = small.cpp; sourceTree = "<group>"; };
+		FA16CCF22CBE003D00329124 /* sequenceRender.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sequenceRender.h; sourceTree = "<group>"; };
+		FA16CCF32CBE003D00329124 /* stepchildGraphics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stepchildGraphics.h; sourceTree = "<group>"; };
+		FA16CCF42CBE003D00329124 /* stepchildGraphics.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stepchildGraphics.cpp; sourceTree = "<group>"; };
+		FA16CCF52CBE003D00329124 /* WireFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WireFrame.h; sourceTree = "<group>"; };
+		FA16CCF62CBE003D00329124 /* wireframeObjects.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = wireframeObjects.h; sourceTree = "<group>"; };
+		FA16CCF82CBE003D00329124 /* arpMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = arpMenu.cpp; sourceTree = "<group>"; };
+		FA16CCF92CBE003D00329124 /* autotrackMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = autotrackMenu.cpp; sourceTree = "<group>"; };
+		FA16CCFA2CBE003D00329124 /* clockMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = clockMenu.cpp; sourceTree = "<group>"; };
+		FA16CCFB2CBE003D00329124 /* consoleMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = consoleMenu.cpp; sourceTree = "<group>"; };
+		FA16CCFC2CBE003D00329124 /* fileMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fileMenu.cpp; sourceTree = "<group>"; };
+		FA16CCFD2CBE003D00329124 /* fragmentMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fragmentMenu.cpp; sourceTree = "<group>"; };
+		FA16CCFE2CBE003D00329124 /* fxMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fxMenu.cpp; sourceTree = "<group>"; };
+		FA16CCFF2CBE003D00329124 /* instrumentMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = instrumentMenu.cpp; sourceTree = "<group>"; };
+		FA16CD002CBE003D00329124 /* loopMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = loopMenu.cpp; sourceTree = "<group>"; };
+		FA16CD012CBE003D00329124 /* mainMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mainMenu.cpp; sourceTree = "<group>"; };
+		FA16CD022CBE003D00329124 /* midiMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = midiMenu.cpp; sourceTree = "<group>"; };
+		FA16CD032CBE003D00329124 /* noteEditMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = noteEditMenu.cpp; sourceTree = "<group>"; };
+		FA16CD042CBE003D00329124 /* settingsMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = settingsMenu.cpp; sourceTree = "<group>"; };
+		FA16CD052CBE003D00329124 /* StepchildMenu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StepchildMenu.h; sourceTree = "<group>"; };
+		FA16CD062CBE003D00329124 /* trackMenus.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = trackMenus.cpp; sourceTree = "<group>"; };
+		FA16CD082CBE003D00329124 /* bitmaps.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bitmaps.h; sourceTree = "<group>"; };
+		FA16CD092CBE003D00329124 /* CCSelector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CCSelector.h; sourceTree = "<group>"; };
+		FA16CD0A2CBE003D00329124 /* ChildOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChildOS.h; sourceTree = "<group>"; };
+		FA16CD0B2CBE003D00329124 /* clock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = clock.h; sourceTree = "<group>"; };
+		FA16CD0C2CBE003D00329124 /* CV.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CV.h; sourceTree = "<group>"; };
+		FA16CD0D2CBE003D00329124 /* display.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = display.h; sourceTree = "<group>"; };
+		FA16CD0E2CBE003D00329124 /* fileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fileSystem.h; sourceTree = "<group>"; };
+		FA16CD0F2CBE003D00329124 /* functionPrototypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = functionPrototypes.h; sourceTree = "<group>"; };
+		FA16CD102CBE003D00329124 /* global.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = global.h; sourceTree = "<group>"; };
+		FA16CD112CBE003D00329124 /* grooves.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = grooves.h; sourceTree = "<group>"; };
+		FA16CD122CBE003D00329124 /* hardware.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hardware.h; sourceTree = "<group>"; };
+		FA16CD132CBE003D00329124 /* helperFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helperFunctions.h; sourceTree = "<group>"; };
+		FA16CD142CBE003D00329124 /* internalCC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = internalCC.h; sourceTree = "<group>"; };
+		FA16CD152CBE003D00329124 /* mainSequence.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mainSequence.h; sourceTree = "<group>"; };
+		FA16CD162CBE003D00329124 /* pins.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pins.h; sourceTree = "<group>"; };
+		FA16CD172CBE003D00329124 /* playback.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = playback.h; sourceTree = "<group>"; };
+		FA16CD182CBE003D00329124 /* programChange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = programChange.h; sourceTree = "<group>"; };
+		FA16CD192CBE003D00329124 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		FA16CD1A2CBE003D00329124 /* sequence.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sequence.h; sourceTree = "<group>"; };
+		FA16CD1B2CBE003D00329124 /* sequence.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sequence.cpp; sourceTree = "<group>"; };
+		FA16CD1C2CBE003D00329124 /* sleep.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sleep.h; sourceTree = "<group>"; };
+		FA16CD1D2CBE003D00329124 /* stepchild.ino */ = {isa = PBXFileReference; lastKnownFileType = text; path = stepchild.ino; sourceTree = "<group>"; };
+		FA16CD1E2CBE003D00329124 /* stepchildGUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stepchildGUI.h; sourceTree = "<group>"; };
+		FA16CD1F2CBE003D00329124 /* StepchildMIDI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StepchildMIDI.h; sourceTree = "<group>"; };
+		FA16CD202CBE003D00329124 /* TBA_Features.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TBA_Features.h; sourceTree = "<group>"; };
+		FA16CD212CBE003D00329124 /* trackEditing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = trackEditing.h; sourceTree = "<group>"; };
+		FA16CD222CBE003D00329124 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
+		FA16CD232CBE003D00329124 /* webInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = webInterface.h; sourceTree = "<group>"; };
 		FA3C21892AD4DBB8004634E6 /* RtMidi.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = "childOS_headless/rtmidi-6.0.0/RtMidi.cpp"; sourceTree = "<group>"; };
 		FA3C218B2AD4DBC8004634E6 /* RtMidi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = "childOS_headless/rtmidi-6.0.0/RtMidi.h"; sourceTree = "<group>"; };
 		FA3C21922AD4E009004634E6 /* libtool */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = libtool; sourceTree = "<group>"; };
@@ -305,6 +389,146 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FA16CCD72CBE003D00329124 /* applications */ = {
+			isa = PBXGroup;
+			children = (
+				FA16CCCA2CBE003D00329124 /* applications.h */,
+				FA16CCCB2CBE003D00329124 /* chordBuilder.cpp */,
+				FA16CCCC2CBE003D00329124 /* chordDJ.cpp */,
+				FA16CCCD2CBE003D00329124 /* drumPads.cpp */,
+				FA16CCCE2CBE003D00329124 /* exampleFunction.cpp */,
+				FA16CCCF2CBE003D00329124 /* keyboard.h */,
+				FA16CCD02CBE003D00329124 /* knobs.cpp */,
+				FA16CCD12CBE003D00329124 /* liveLoop.cpp */,
+				FA16CCD22CBE003D00329124 /* planets.cpp */,
+				FA16CCD32CBE003D00329124 /* rain.cpp */,
+				FA16CCD42CBE003D00329124 /* rattle.cpp */,
+				FA16CCD52CBE003D00329124 /* userApplications.h */,
+				FA16CCD62CBE003D00329124 /* xy.cpp */,
+			);
+			path = applications;
+			sourceTree = "<group>";
+		};
+		FA16CCE12CBE003D00329124 /* classes */ = {
+			isa = PBXGroup;
+			children = (
+				FA16CCD82CBE003D00329124 /* Arp.h */,
+				FA16CCD92CBE003D00329124 /* AutoTrack.h */,
+				FA16CCDA2CBE003D00329124 /* Knob.h */,
+				FA16CCDB2CBE003D00329124 /* Note.h */,
+				FA16CCDC2CBE003D00329124 /* NoteID.h */,
+				FA16CCDD2CBE003D00329124 /* PlayList.h */,
+				FA16CCDE2CBE003D00329124 /* Progression.h */,
+				FA16CCDF2CBE003D00329124 /* SelectionBox.h */,
+				FA16CCE02CBE003D00329124 /* Track.h */,
+			);
+			path = classes;
+			sourceTree = "<group>";
+		};
+		FA16CCEA2CBE003D00329124 /* fx */ = {
+			isa = PBXGroup;
+			children = (
+				FA16CCE22CBE003D00329124 /* chop.cpp */,
+				FA16CCE32CBE003D00329124 /* echo.cpp */,
+				FA16CCE42CBE003D00329124 /* humanizeMenu.cpp */,
+				FA16CCE52CBE003D00329124 /* quantizeMenu.cpp */,
+				FA16CCE62CBE003D00329124 /* randomMenu.cpp */,
+				FA16CCE72CBE003D00329124 /* reverseMenu.cpp */,
+				FA16CCE82CBE003D00329124 /* strumMenu.cpp */,
+				FA16CCE92CBE003D00329124 /* warpMenu.cpp */,
+			);
+			path = fx;
+			sourceTree = "<group>";
+		};
+		FA16CCF12CBE003D00329124 /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				FA16CCEB2CBE003D00329124 /* 7_segment.cpp */,
+				FA16CCEC2CBE003D00329124 /* arp.cpp */,
+				FA16CCED2CBE003D00329124 /* chunky.cpp */,
+				FA16CCEE2CBE003D00329124 /* cursive.cpp */,
+				FA16CCEF2CBE003D00329124 /* italic.cpp */,
+				FA16CCF02CBE003D00329124 /* small.cpp */,
+			);
+			path = fonts;
+			sourceTree = "<group>";
+		};
+		FA16CCF72CBE003D00329124 /* graphics */ = {
+			isa = PBXGroup;
+			children = (
+				FA16CCF12CBE003D00329124 /* fonts */,
+				FA16CCF22CBE003D00329124 /* sequenceRender.h */,
+				FA16CCF32CBE003D00329124 /* stepchildGraphics.h */,
+				FA16CCF42CBE003D00329124 /* stepchildGraphics.cpp */,
+				FA16CCF52CBE003D00329124 /* WireFrame.h */,
+				FA16CCF62CBE003D00329124 /* wireframeObjects.h */,
+			);
+			path = graphics;
+			sourceTree = "<group>";
+		};
+		FA16CD072CBE003D00329124 /* menus */ = {
+			isa = PBXGroup;
+			children = (
+				FA16CCF82CBE003D00329124 /* arpMenu.cpp */,
+				FA16CCF92CBE003D00329124 /* autotrackMenu.cpp */,
+				FA16CCFA2CBE003D00329124 /* clockMenu.cpp */,
+				FA16CCFB2CBE003D00329124 /* consoleMenu.cpp */,
+				FA16CCFC2CBE003D00329124 /* fileMenu.cpp */,
+				FA16CCFD2CBE003D00329124 /* fragmentMenu.cpp */,
+				FA16CCFE2CBE003D00329124 /* fxMenu.cpp */,
+				FA16CCFF2CBE003D00329124 /* instrumentMenu.cpp */,
+				FA16CD002CBE003D00329124 /* loopMenu.cpp */,
+				FA16CD012CBE003D00329124 /* mainMenu.cpp */,
+				FA16CD022CBE003D00329124 /* midiMenu.cpp */,
+				FA16CD032CBE003D00329124 /* noteEditMenu.cpp */,
+				FA16CD042CBE003D00329124 /* settingsMenu.cpp */,
+				FA16CD052CBE003D00329124 /* StepchildMenu.h */,
+				FA16CD062CBE003D00329124 /* trackMenus.cpp */,
+			);
+			path = menus;
+			sourceTree = "<group>";
+		};
+		FA16CD242CBE003D00329124 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				FA16CCD72CBE003D00329124 /* applications */,
+				FA16CCE12CBE003D00329124 /* classes */,
+				FA16CCEA2CBE003D00329124 /* fx */,
+				FA16CCF72CBE003D00329124 /* graphics */,
+				FA16CD072CBE003D00329124 /* menus */,
+				FA16CD082CBE003D00329124 /* bitmaps.h */,
+				FA16CD092CBE003D00329124 /* CCSelector.h */,
+				FA16CD0A2CBE003D00329124 /* ChildOS.h */,
+				FA16CD0B2CBE003D00329124 /* clock.h */,
+				FA16CD0C2CBE003D00329124 /* CV.h */,
+				FA16CD0D2CBE003D00329124 /* display.h */,
+				FA16CD0E2CBE003D00329124 /* fileSystem.h */,
+				FA16CD0F2CBE003D00329124 /* functionPrototypes.h */,
+				FA16CD102CBE003D00329124 /* global.h */,
+				FA16CD112CBE003D00329124 /* grooves.h */,
+				FA16CD122CBE003D00329124 /* hardware.h */,
+				FA16CD132CBE003D00329124 /* helperFunctions.h */,
+				FA16CD142CBE003D00329124 /* internalCC.h */,
+				FA16CD152CBE003D00329124 /* mainSequence.h */,
+				FA16CD162CBE003D00329124 /* pins.h */,
+				FA16CD172CBE003D00329124 /* playback.h */,
+				FA16CD182CBE003D00329124 /* programChange.h */,
+				FA16CD192CBE003D00329124 /* README */,
+				FA16CD1A2CBE003D00329124 /* sequence.h */,
+				FA16CD1B2CBE003D00329124 /* sequence.cpp */,
+				FA16CD1C2CBE003D00329124 /* sleep.h */,
+				FA16CD1D2CBE003D00329124 /* stepchild.ino */,
+				FA16CD1E2CBE003D00329124 /* stepchildGUI.h */,
+				FA16CD1F2CBE003D00329124 /* StepchildMIDI.h */,
+				FA16CD202CBE003D00329124 /* TBA_Features.h */,
+				FA16CD212CBE003D00329124 /* trackEditing.h */,
+				FA16CD222CBE003D00329124 /* utils.h */,
+				FA16CD232CBE003D00329124 /* webInterface.h */,
+			);
+			name = include;
+			path = ../include;
+			sourceTree = SOURCE_ROOT;
+		};
 		FA3C21912AD4E009004634E6 /* rtmidi-6.0.0 */ = {
 			isa = PBXGroup;
 			children = (
@@ -977,6 +1201,7 @@
 		FAA06AF129942167004BEC01 = {
 			isa = PBXGroup;
 			children = (
+				FA16CD242CBE003D00329124 /* include */,
 				FA3C21912AD4E009004634E6 /* rtmidi-6.0.0 */,
 				FA3C218B2AD4DBC8004634E6 /* RtMidi.h */,
 				FA3C21892AD4DBB8004634E6 /* RtMidi.cpp */,

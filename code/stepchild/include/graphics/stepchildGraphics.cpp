@@ -341,13 +341,16 @@ void StepchildGraphics::printFraction_small_centered(uint8_t x1, uint8_t y1, Str
     }
     printSmall(x1-length*2,y1,whole,SSD1306_WHITE);
 }
+void StepchildGraphics::drawCheckmark(int16_t x, int16_t y, uint8_t size, uint16_t c){
+  display.drawLine(x+2,y+2,x+size-3,y+size-3,c);
+  display.drawLine(x+size-3,y+size-3,x+size+3,y+size-9,c);
+}
 void StepchildGraphics::drawCheckbox(int x, int y, bool checked, bool selected){
     int size = 7;
     display.fillRect(x,y,size,size,SSD1306_BLACK);
     display.drawRect(x,y,size,size,SSD1306_WHITE);
     if(checked){
-        display.drawLine(x+2,y+2,x+size-3,y+size-3,SSD1306_WHITE);
-        display.drawLine(x+size-3,y+size-3,x+size+3,y+size-9,SSD1306_WHITE);
+        drawCheckmark( x,  y,  size, 1);
     }
     if(selected){
         display.drawRoundRect(x-2,y-2,size+4,size+4,3,SSD1306_WHITE);

@@ -237,7 +237,8 @@ void mainSequencerButtons(){
         }
         //if there is a note here, cut it in half/thirds (depending on if you're in triplet mode or not)
         else{
-          sequence.chopNote(sequence.activeTrack,sequence.cursorPos,sequence.isQuarterGrid()?2:3);
+          lastTime = millis();
+          chop(sequence.activeTrack,sequence.cursorPos);
           lastTime = millis();
         }
       }

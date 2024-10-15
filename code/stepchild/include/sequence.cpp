@@ -450,28 +450,6 @@ bool StepchildSequence::moveNotes(int16_t xAmount, int8_t yAmount){
         return this->moveSelectedNotes(xAmount,yAmount);
     }
 }
-//slices a note into N equal pieces
-void StepchildSequence::chopNote(uint8_t track, uint16_t step, uint8_t pieces){
-    if(!IDAt(track,step))
-        return;
-    Note targetNote = noteAt(track,step);
-    uint16_t length = targetNote.endPos - targetNote.startPos;
-    //if the length is too short to cut, don't
-    if(!((length+1)/pieces))
-        return;
-    
-    //the new length of each sub note
-    uint16_t newLength = length/pieces;
-
-    //start on the second note, since the first one is already there (it just needs to be truncated)
-    for(uint16_t N = 1; N<pieces; N++){
-        //if you're about to make the last note, set newLength to be equal to the remaining length
-        if(N == pieces-1)
-            this->makeNote(track,targetNote.startPos+N*newLength,length - N*newLength,false);
-        else
-            this->makeNote(track,targetNote.startPos+N*newLength,newLength,false);
-    }
-}
 /*
 ----------------------------------------------------------
                     EDITING SEQ

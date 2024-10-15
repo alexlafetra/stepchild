@@ -24,9 +24,9 @@ class Note {
     Timestep endPos;
     Superposition superposition;//note superposition
     Note();
+    Note(uint16_t s, uint16_t e);
     Note(unsigned short int, unsigned short int, unsigned char, unsigned char, bool, bool);
     Note(unsigned short int, unsigned short int, unsigned char);
-    Note(unsigned short int, unsigned char, unsigned char);
     Note(uint16_t, uint16_t, uint8_t, uint8_t, uint8_t);
     enum NoteFlagBit:uint8_t{
       SELECTED = 0,
@@ -88,6 +88,13 @@ Note::Note(){
   chance = 100;
   superposition = Superposition(255,0);
 }
+Note::Note(uint16_t s, uint16_t e){
+  startPos = s;
+  endPos = e;
+  velocity = 127;
+  chance = 100;
+  superposition = Superposition(255,0);
+}
 Note::Note(uint16_t start, uint16_t end, uint8_t vel, uint8_t chnce, uint8_t flgs){
   startPos = start;
   endPos = end;
@@ -109,13 +116,6 @@ Note::Note(unsigned short int xPos, unsigned short int xEnd, unsigned char vel){
   endPos = xEnd;
   velocity = vel;
   chance = 100;
-  superposition = Superposition(255,0);
-}
-Note::Note(unsigned short int xPos, unsigned char vel, unsigned char odds){
-  startPos = xPos;
-  endPos = xPos + 24;//1/4 note by default
-  velocity = vel;
-  chance = odds;
   superposition = Superposition(255,0);
 }
 uint16_t Note::getLength(){

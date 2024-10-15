@@ -160,8 +160,6 @@ class StepchildSequence{
   bool moveSelectedNotes(int16_t xOffset, int8_t yOffset);
   //this should move the note the cursor is on (if any)
   bool moveNotes(int16_t xAmount, int8_t yAmount);
-  //slices a note into N equal pieces
-  void chopNote(uint8_t track, uint16_t step, uint8_t pieces);
   int16_t changeNoteLength(int val, unsigned short int track, unsigned short int id);
   int16_t changeNoteLength(int amount);
   //this one jumps the cursor to the end or start of the note

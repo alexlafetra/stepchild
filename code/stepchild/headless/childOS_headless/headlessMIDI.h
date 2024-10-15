@@ -9,8 +9,14 @@
  + -------------------
  */
 
-bool playing = false;
-bool recording = false;
+enum PlayState{
+    STOPPED,
+    PLAYING,
+    RECORDING,
+    LIVELOOPING
+};
+
+PlayState sequenceState = STOPPED;
 
 #include <CoreAudio/CoreAudio.h>
 #include <CoreMIDI/CoreMIDI.h>
@@ -66,7 +72,7 @@ void MidiInputCallback( double deltatime, vector< unsigned char > *message, void
     cout<<"velocity: "<<to_string(velocity)<<endl;
     #endif
     
-    if(sequence.playing()){
+    if(sequenceState == PLAYING){
         switch(type){
             //note off -- 1000
             case 8:
@@ -100,7 +106,7 @@ void MidiInputCallback( double deltatime, vector< unsigned char > *message, void
                 
         }
     }
-    else if(sequence.recording()){
+    else if(sequenceState == RECORDING){
         switch(type){
             //note off
             case 8:

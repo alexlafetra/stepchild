@@ -441,6 +441,14 @@ class StepchildHardwareInput{
     this->joystickY = 0;
     this->stepButtonState = 0;
   }
+  void countDownA(){
+    if(counterA)
+     counterA += counterA<0?1:-1;
+  }
+  void countDownB(){
+    if(counterB)
+     counterB += counterB<0?1:-1;
+  }
   /*
     LEDs
   */

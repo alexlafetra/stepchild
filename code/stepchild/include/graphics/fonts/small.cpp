@@ -345,7 +345,7 @@ const unsigned char* small_font[69] = {
   epd_bitmap_small_divide,
   epd_bitmap_degree,
   epd_bitmap_stop,
-  epd_bitmap_play
+  epd_bitmap_play,
 };
 
 // 'smallFont', 24x40px (8 x 8 characters)

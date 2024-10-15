@@ -292,6 +292,8 @@ void rotaryActionB_Handler(){
 #include "fx/quantizeMenu.cpp"
 #include "fx/humanizeMenu.cpp"
 #include "fx/echo.cpp"
+#include "fx/chop.cpp"
+
 
 //Instrument apps
 #include "applications/rattle.cpp"

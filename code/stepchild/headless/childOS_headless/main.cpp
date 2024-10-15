@@ -16,6 +16,7 @@ void cpu1(){
     }
 }
 int main(){
+    delay(1000);
     //setup graphics window
     window = initGlfw();
     while(!openGLready){

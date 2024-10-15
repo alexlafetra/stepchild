@@ -30,6 +30,7 @@ class StepchildGraphics{
   uint8_t printFraction_small(uint8_t x1, uint8_t y1, String fraction);
   //centers the fractions
   void printFraction_small_centered(uint8_t x1, uint8_t y1, String fraction);
+  void drawCheckmark(int16_t x, int16_t y, uint8_t size, uint16_t c);
   void drawCheckbox(int x, int y, bool checked, bool selected);
   void drawRadian(uint8_t h, uint8_t k, int a, int b, float angle, uint16_t c);
   void drawCircleRadian(uint8_t h, uint8_t k, int r, float angle, uint16_t c);

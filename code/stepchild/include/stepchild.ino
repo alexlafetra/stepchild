@@ -64,7 +64,6 @@ void setup() {
   setNormalMode();
   core0ready = true;
   lastTime = millis();
-  makeHouse();
   graphics.bootscreen_2();
 }
 
@@ -83,6 +82,9 @@ void loop() {
 
 //this cpu handles time-sensitive things
 void loop1(){
+  #ifdef HEADLESS
+  sequenceState = PlayState(sequence.playState);
+  #endif
   //play mode
   if(sequence.playing()){
     playingLoop();

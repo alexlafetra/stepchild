@@ -208,6 +208,14 @@ class HeadlessHardwareInput{
     else
       this->encoderButtons &= 0b11111110;
   }
+    void countDownB(){
+        if(counterB)
+         counterB += counterB<0?1:-1;
+    }
+    void countDownA(){
+        if(counterA)
+         counterA += counterA<0?1:-1;
+    }
   void setMainButton(uint8_t which, bool val){
     if(val)
       this->mainButtons |= (val<<which);
