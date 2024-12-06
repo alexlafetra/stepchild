@@ -85,21 +85,20 @@ void loop1(){
   #ifdef HEADLESS
   sequenceState = PlayState(sequence.playState);
   #endif
-  //play mode
-  if(sequence.playing()){
-    playingLoop();
+  ledPulse(16);
+  switch(sequence.playState){
+    case StepchildSequence::PLAYING:
+      playingLoop();
+      break;
+    case StepchildSequence::RECORDING:
+      recordingLoop();
+      break;
+    case StepchildSequence::LIVELOOPING:
+    case StepchildSequence::STOPPED:
+      defaultLoop();
+      break;
   }
-  //record mode
-  else if(sequence.recording()){
-    recordingLoop();
-  }
-  //default state
-  else{
-    defaultLoop();
-  }
-  
   if(arp.isActive){
     arpLoop();
   }
-  ledPulse(16);
 }

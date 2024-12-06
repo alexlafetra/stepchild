@@ -18,6 +18,7 @@
 #include "../headless/childOS_headless/headlessMIDI.h"
 #include "../headless/childOS_headless/headlessFileSystem.h"
 #include "../headless/childOS_headless/headlessArduino.h"
+#include "../headless/childOS_headless/headlessPico.h"
 #include "../headless/childOS_headless/headlessDisplay.h"
 #else
 #include <Arduino.h>

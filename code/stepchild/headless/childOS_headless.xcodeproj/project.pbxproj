@@ -47,6 +47,8 @@
 		FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		FA01CE702AC35CBB005BBB0F /* headlessMIDI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = headlessMIDI.h; sourceTree = "<group>"; };
 		FA0A413D2AD5252500013622 /* headlessFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headlessFileSystem.h; sourceTree = "<group>"; };
+		FA12D85A2CC05F5800031637 /* headlessPico.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headlessPico.h; sourceTree = "<group>"; };
+		FA12D85B2CC05FAE00031637 /* headlessArduino.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headlessArduino.h; sourceTree = "<group>"; };
 		FA16CCCA2CBE003D00329124 /* applications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = applications.h; sourceTree = "<group>"; };
 		FA16CCCB2CBE003D00329124 /* chordBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chordBuilder.cpp; sourceTree = "<group>"; };
 		FA16CCCC2CBE003D00329124 /* chordDJ.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chordDJ.cpp; sourceTree = "<group>"; };
@@ -1224,7 +1226,9 @@
 			children = (
 				FAA06B0B29943B71004BEC01 /* Fonts */,
 				FAC12CDF2C1A06E20099C357 /* headlessControls.h */,
+				FA12D85B2CC05FAE00031637 /* headlessArduino.h */,
 				FA0A413D2AD5252500013622 /* headlessFileSystem.h */,
+				FA12D85A2CC05F5800031637 /* headlessPico.h */,
 				FA01CE702AC35CBB005BBB0F /* headlessMIDI.h */,
 				FAB6ECBA2AB2340500A32AD2 /* headlessDisplay.h */,
 				FA7578F92996F34000378FA9 /* bitmap */,

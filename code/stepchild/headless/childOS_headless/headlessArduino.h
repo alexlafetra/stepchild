@@ -51,6 +51,19 @@
 #define charAt at
 #define substring substr
 
+string stringify(int a){
+    return to_string(a);
+}
+string stringify(string s){
+    return s;
+}
+int toInt(string s){
+    if(s == "")
+        return 0;
+    else
+        return stoi(s);
+}
+
 //converts degrees to radians
 float radians(int deg){
     return deg*M_PI/180.0;
@@ -99,12 +112,6 @@ void shiftOut(int dataPin, int clockPin, int style, int data){
 unsigned char shiftIn(int dataPin, int clockPin, int style){
     return 0;
 }
-void reset_usb_boot(int a, int b){
-    return;
-}
-float analogReadTemp(){
-    return 0.0;
-}
 
 /*
 ----------------------------------------
@@ -147,43 +154,6 @@ unsigned long millis(){
     auto rn = chrono::high_resolution_clock::now();
     return chrono::duration_cast<std::chrono::milliseconds>(rn-progStartTime).count();
 }
-/*
-----------------------------------------
-                Pi Pico
-----------------------------------------
-*/
-//dummy class for faking the rp2040 methods
-class DummyRP2040{
-    public:
-        DummyRP2040();
-        long getUsedHeap();
-        void reboot();
-        long getTotalHeap();
-        long getFreeHeap();
-        int f_cpu();
-        unsigned long getCycleCount();
-};
-DummyRP2040::DummyRP2040(){
-}
-int DummyRP2040::f_cpu(){
-    return 0;
-}
-long  DummyRP2040::getUsedHeap(){
-    return getMemoryUsage();
-}
-long DummyRP2040::getTotalHeap(){
-    return 2000;
-}
-long DummyRP2040::getFreeHeap(){
-    return 700;
-}
-void DummyRP2040::reboot(){
-    return;
-}
-unsigned long DummyRP2040::getCycleCount(){
-    return millis();
-}
-DummyRP2040 rp2040;
 /*
 ----------------------------------------
             Serial
