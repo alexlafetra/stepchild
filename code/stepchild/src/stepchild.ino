@@ -13,6 +13,12 @@ void setup() {
   //doing the same to the screen twoWire connection
   Wire.setSDA(I2C_SDA);
   Wire.setSCL(I2C_SCL);
+
+  SPI.setCS(OLED_CS);
+  SPI.setRX(SPI0_RX);
+  SPI.setTX(SPI0_TX);
+  SPI.setSCK(SPI0_SCK);
+  
   #endif
   
   MIDI.start();
@@ -20,6 +26,7 @@ void setup() {
   #ifndef HEADLESS
   //starting serial monitor output @ 9600baud
   Serial.begin(9600);
+  SPI.begin();
 
   display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR);
   //Set the display rotation (which is ~technically~ upside down)

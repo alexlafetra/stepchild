@@ -342,7 +342,7 @@ bool SettingsMenu::settingsMenuControls(){
               break;
             //toggle screen sharing
             case 2:
-              display.sendScreenViaUSB = !display.sendScreenViaUSB;
+              // display.sendScreenViaUSB = !display.sendScreenViaUSB;
               lastTime = millis();
               break;
           }
@@ -531,12 +531,12 @@ void SettingsMenu::displaySettingsMenu(uint8_t x2,uint8_t whichTemplate){
           break;
         //screen sharing
         case 2:
-          display.fillRoundRect(18,2+(display.sendScreenViaUSB?(millis()/100%2):0),24,24,3,1);
+          // display.fillRoundRect(18,2+(display.sendScreenViaUSB?(millis()/100%2):0),24,24,3,1);
           graphics.drawArrow(44+((millis()/200)%2),14,4,1,true);
           printSmall(0,59,"share screen via USB",1);
           break;
       }
-      display.drawBitmap(20,4+(display.sendScreenViaUSB?(millis()/100%2):0),screen_capture_bmp,20,20,2);
+      // display.drawBitmap(20,4+(display.sendScreenViaUSB?(millis()/100%2):0),screen_capture_bmp,20,20,2);
       display.drawBitmap(20,32,connect_to_interface_bmp,20,20,2);
     }
       break;
