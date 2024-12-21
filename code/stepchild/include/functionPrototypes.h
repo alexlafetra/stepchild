@@ -69,6 +69,11 @@ void drumPadAnimation(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t n
 //Icons
 void drawArpModeIcon(uint8_t x1, int8_t y1, uint8_t which,uint16_t c);
 
+//Graphics
+void alert(String text, int time);
+void selectKeysAnimation(bool);
+void printItalic_wave(int16_t x, int16_t y, string text, int8_t height, uint8_t timing, uint16_t c);
+
 //Menus
 void saveMenu();
 void settingsMenu();
@@ -246,11 +251,6 @@ bool quantizeNote(uint8_t track, uint16_t id, bool move, bool deleteNote);
 void disarmTracksWithNotes();
 uint8_t countDigits_byte(uint8_t number);
 NoteCoords getNoteCoords(Note& note, uint8_t track);
-
-//Graphics
-void alert(String text, int time);
-void selectKeysAnimation(bool);
-void printItalic_wave(int16_t x, int16_t y, string text, int8_t height, uint8_t timing, uint16_t c);
 
 //MIDI
 void handleInternalCC(uint8_t, uint8_t, uint8_t, uint8_t);

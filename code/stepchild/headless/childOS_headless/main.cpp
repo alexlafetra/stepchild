@@ -3,7 +3,7 @@ using namespace std;
 
 #define HEADLESS
 
-#include "../../include/stepchild.ino"
+#include "../../src/stepchild.ino"
 
 void cpu0(){
     while (!glfwWindowShouldClose(window)){
@@ -22,7 +22,7 @@ int main(){
     while(!openGLready){
     }
     //setup sequence data
-    setup();
+    headlessSetup();
     
     //launch the cpu1 thread to run the clock
     thread core1(cpu1);
