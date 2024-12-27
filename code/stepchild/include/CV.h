@@ -32,7 +32,7 @@ class StepchildCV{
         pinMode(CV2_PIN, OUTPUT);
         pinMode(CV3_PIN, OUTPUT);
         //frequency of the oscillation
-        analogWriteFreq(1000000);//1,000,000 (1MHz)
+        analogWriteFreq(1000);//100,000 (0.1MHz)
         //max value you can put into it (65535 @ 16bit res let's us do a 100% duty cycle)
         analogWriteRange(65535);
         //16 bit resolution
@@ -59,10 +59,27 @@ class StepchildCV{
         float V = this->pitchToVoltage(pitch);
         uint16_t dCycle = this->getDutyCycleFromVoltage(V);
         analogWrite(CV1_PIN,dCycle);
+        analogWrite(CV2_PIN,dCycle);
+        analogWrite(CV3_PIN,dCycle);
     }
     void writeGate(bool on){
         uint16_t dCycle = on?65535:0;
         analogWrite(CV2_PIN,dCycle);
+    }
+    void write(uint16_t val, uint8_t port){
+        uint8_t pin = CV1_PIN;
+        switch(port){
+            case 0:
+                pin = CV1_PIN;
+                break;
+            case 1:
+                pin = CV2_PIN;
+                break;
+            case 2:
+                pin = CV3_PIN;
+                break;
+        }
+        analogWrite(pin,val);
     }
     //writes a clock pulse
     void writeClock(){
@@ -135,10 +152,11 @@ void testCVPitches(){
     bool gate = false;
     while(true){
         display.clearDisplay();
+        printSmall_centered(64,26,pitchToString(pitch,true,true),1);
         printSmall_centered(64,32,stringify(pitch),1);
         printSmall_centered(64,38,stringify(CV.pitchToVoltage(pitch))+"V",1);
         display.display();
-        if(utils.itsbeen(1000)){
+        if(utils.itsbeen(3000)){
             lastTime = millis();
             CV.writePitch(pitch);
             // writeCVGate(gate);

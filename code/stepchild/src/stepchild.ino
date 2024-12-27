@@ -85,6 +85,10 @@ void setup1() {
 void loop() {
   mainSequence();
   screenSaverCheck();
+  // analogWrite(CV1_PIN,65535);
+  // analogWrite(CV2_PIN,65535);
+  // analogWrite(CV3_PIN,65535);
+  // testCVPitches();
 }
 
 //this cpu handles time-sensitive things

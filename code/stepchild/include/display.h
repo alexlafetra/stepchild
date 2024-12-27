@@ -50,14 +50,14 @@ class USBSerialCaptureCard: public Adafruit_SSD1306{
 #define SPI0_TX 7
 #define OLED_CS 17
 #define OLED_DC 6
-#define OLED_RESET 5
+// #define OLED_RESET 5
 #define SPI0_SCK 18
 
 //Defining capture card switches the Adafruit_SSD1306 object to the USBSerialCaptureCard object
 // #ifdef CAPTURECARD
-// USBSerialCaptureCard display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT,
-  &SPI, OLED_DC, OLED_RESET, OLED_CS);
+USBSerialCaptureCard display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+// Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT,
+//   &SPI, OLED_DC, OLED_RESET, OLED_CS);
 // #else
 // Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 // #endif
