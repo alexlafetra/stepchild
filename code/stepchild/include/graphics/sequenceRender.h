@@ -217,7 +217,7 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
 void drawTopIcons(SequenceRenderSettings& settings){
   //music symbol while receiving notes
   if(sequence.isReceivingOrSending()){
-    if(!((animOffset/10)%2)){
+    if(!((millis()/200)%2)){
       display.drawChar(21,0,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
     }
     else{

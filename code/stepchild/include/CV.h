@@ -21,7 +21,7 @@ analogWrite(GPIO, duty cycle) to output a PWM signal to a specified pin with a d
 
 #define PWM_RESOLUTION 16 //16-bit res
 #define PWM_MAX_VAL 65535 //16-bit max resolution
-#define PWM_FREQUENCY 1000000 //1,000,000 (1MHz)
+#define PWM_FREQUENCY 1000 //1,000 (1kHz)
 
 enum CV_VOLTAGE:uint8_t{
     THREE_POINT_THREE,
@@ -33,21 +33,21 @@ class StepchildCV{
     int8_t currentPitch = -1;
     int8_t gateState = 0;
     bool on = true;
-    CV_VOLTAGE maxVoltage = TWELVE;
+    CV_VOLTAGE maxVoltage = THREE_POINT_THREE;
     StepchildCV(){
     }
     void init(){
-#ifndef HEADLESS
+// #ifndef HEADLESS
         pinMode(CV1_PIN, OUTPUT);
         pinMode(CV2_PIN, OUTPUT);
         pinMode(CV3_PIN, OUTPUT);
         //frequency of the oscillation
-        analogWriteFreq(PWM_FREQUENCY);//1,000,000 (1MHz)
+        analogWriteFreq(PWM_FREQUENCY);//100,000 (0.1MHz)
         //max value you can put into it (65535 @ 16bit res let's us do a 100% duty cycle)
         analogWriteRange(PWM_MAX_VAL);
         //16 bit resolution
         analogWriteResolution(PWM_RESOLUTION);
-#endif
+// #endif
     }
 
     //this converts a midi 8-bit pitch to a 12note/V CV voltage
@@ -66,31 +66,27 @@ class StepchildCV{
         // return twoByteNumber;
         return voltage/((maxVoltage == TWELVE)?12.0:3.3) * float(PWM_MAX_VAL);
     }
-    void write(uint16_t val, uint8_t port){
-        uint8_t CV_PORT = CV1_PIN;
-        switch(port){
+    void write(uint16_t val, uint8_t which){
+        uint8_t port = CV1_PIN;
+        switch(which){
             case 0:
-                CV_PORT = CV1_PIN;
+                port = CV1_PIN;
                 break;
             case 1:
-                CV_PORT = CV2_PIN;
+                port = CV2_PIN;
                 break;
             case 2:
-                CV_PORT = CV3_PIN;
+                port = CV3_PIN;
                 break;
         }
-        analogWrite(CV_PORT,val);
+        analogWrite(port,val);
     }
     void writePitch(uint8_t pitch){
         float V = this->pitchToVoltage(pitch);
         uint16_t dCycle = this->getDutyCycleFromVoltage(V);
-        // analogWrite(CV1_PIN,dCycle);
-        // analogWrite(CV2_PIN,dCycle);
-        // analogWrite(CV3_PIN,dCycle);
-        // analogWrite(CV1_PIN,PWM_MAX_VAL);
-        // analogWrite(CV2_PIN,0);
-        // analogWrite(CV3_PIN,PWM_MAX_VAL/2);
-
+        digitalWrite(CV1_PIN,LOW);
+        digitalWrite(CV2_PIN,LOW);
+        digitalWrite(CV3_PIN,LOW);
     }
     void writeGate(bool on){
         uint16_t dCycle = on?65535:0;
@@ -98,15 +94,6 @@ class StepchildCV{
     }
     //writes a clock pulse
     void writeClock(){
-        // digitalWrite(CV3_PIN,HIGH);
-        // digitalWrite(CV2_PIN,HIGH);
-        // digitalWrite(CV1_PIN,HIGH);
-        // digitalWrite(CV3_PIN,LOW);
-        // digitalWrite(CV2_PIN,LOW);
-        // digitalWrite(CV1_PIN,LOW);
-
-        // analogWrite(CV3_PIN,65535);
-        // analogWrite(CV3_PIN,0);
     }
     void check(){
         //if the CV functionality is turned off, just return immediately
@@ -165,24 +152,30 @@ void testCVPitches(){
     lastTime = millis();
     uint8_t pitch = 0;
     bool gate = false;
-    CV.write(PWM_MAX_VAL,0);
-    CV.write(PWM_MAX_VAL/2,1);
-    CV.write(0,2);
+    digitalWrite(CV1_PIN,LOW);
+    digitalWrite(CV2_PIN,LOW);
+    digitalWrite(CV3_PIN,LOW);
+    // CV.writePitch(pitch);
     while(true){
         display.clearDisplay();
         printSmall_centered(64,32,stringify(pitch),1);
         printSmall_centered(64,38,stringify(CV.pitchToVoltage(pitch))+"V",1);
         printSmall_centered(64,26,pitchToString(pitch,true,true),1);
         display.display();
-        if(utils.itsbeen(3000)){
-            lastTime = millis();
-            // CV.writePitch(pitch);
-            // writeCVGate(gate);
-            pitch++;
-            if(pitch>127){
-                pitch = 0;
+        controls.readButtons();
+        if(utils.itsbeen(400)){
+            if(controls.NEW()){
+                lastTime = millis();
+                pitch++;
+                pitch%=127;
+                // CV.writePitch(pitch);
             }
-            gate = !gate;
+            if(controls.SHIFT()){
+                lastTime = millis();
+                pitch--;
+                pitch%=127;
+                // CV.writePitch(pitch);
+            }
         }
     }
 }
