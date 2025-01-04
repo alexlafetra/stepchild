@@ -336,6 +336,7 @@ void webInterface(){}
 #include "fileSystem.h"
 #include "CCSelector.h"
 #include "grooves.h"
+#include "superPosition.h"
 #include "mainSequence.h"
 
 #include "TBA_Features.h"

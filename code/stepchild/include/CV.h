@@ -19,25 +19,33 @@ analogWrite(GPIO, duty cycle) to output a PWM signal to a specified pin with a d
 #define CV_GATE 1
 #define CV_CLOCK 2
 
+#define PWM_RESOLUTION 16 //16-bit res
+#define PWM_MAX_VAL 65535 //16-bit max resolution
+#define PWM_FREQUENCY 1000 //1,000 (1kHz)
+
+enum CV_VOLTAGE:uint8_t{
+    THREE_POINT_THREE,
+    TWELVE
+};
+
 class StepchildCV{
     public:
     int8_t currentPitch = -1;
     int8_t gateState = 0;
     bool on = true;
+    CV_VOLTAGE maxVoltage = THREE_POINT_THREE;
     StepchildCV(){
     }
     void init(){
-        #ifndef HEADLESS
         pinMode(CV1_PIN, OUTPUT);
         pinMode(CV2_PIN, OUTPUT);
         pinMode(CV3_PIN, OUTPUT);
-        //frequency of the oscillation
-        analogWriteFreq(1000);//100,000 (0.1MHz)
+        //frequency of the PWM driver
+        analogWriteFreq(PWM_FREQUENCY);
         //max value you can put into it (65535 @ 16bit res let's us do a 100% duty cycle)
-        analogWriteRange(65535);
+        analogWriteRange(PWM_MAX_VAL);
         //16 bit resolution
-        analogWriteResolution(16);
-        #endif
+        analogWriteResolution(PWM_RESOLUTION);
     }
 
     //this converts a midi 8-bit pitch to a 12note/V CV voltage
@@ -51,9 +59,25 @@ class StepchildCV{
         return voltage;
     }
     uint16_t getDutyCycleFromVoltage(float voltage){
-        float dutyCycle = voltage/3.3;
-        uint16_t twoByteNumber = dutyCycle*65535;
-        return twoByteNumber;
+        // float dutyCycle = voltage/3.3;
+        // uint16_t twoByteNumber = dutyCycle*65535.0;
+        // return twoByteNumber;
+        return voltage/((maxVoltage == TWELVE)?12.0:3.3) * float(PWM_MAX_VAL);
+    }
+    void write(uint16_t val, uint8_t which){
+        uint8_t port = CV1_PIN;
+        switch(which){
+            case 0:
+                port = CV1_PIN;
+                break;
+            case 1:
+                port = CV2_PIN;
+                break;
+            case 2:
+                port = CV3_PIN;
+                break;
+        }
+        analogWrite(port,val);
     }
     void writePitch(uint8_t pitch){
         float V = this->pitchToVoltage(pitch);
@@ -66,32 +90,8 @@ class StepchildCV{
         uint16_t dCycle = on?65535:0;
         analogWrite(CV2_PIN,dCycle);
     }
-    void write(uint16_t val, uint8_t port){
-        uint8_t pin = CV1_PIN;
-        switch(port){
-            case 0:
-                pin = CV1_PIN;
-                break;
-            case 1:
-                pin = CV2_PIN;
-                break;
-            case 2:
-                pin = CV3_PIN;
-                break;
-        }
-        analogWrite(pin,val);
-    }
     //writes a clock pulse
     void writeClock(){
-        // digitalWrite(CV3_PIN,HIGH);
-        // digitalWrite(CV2_PIN,HIGH);
-        // digitalWrite(CV1_PIN,HIGH);
-        // digitalWrite(CV3_PIN,LOW);
-        // digitalWrite(CV2_PIN,LOW);
-        // digitalWrite(CV1_PIN,LOW);
-
-        // analogWrite(CV3_PIN,65535);
-        // analogWrite(CV3_PIN,0);
     }
     void check(){
         //if the CV functionality is turned off, just return immediately
@@ -151,20 +151,19 @@ void testCVPitches(){
     uint8_t pitch = 0;
     bool gate = false;
     while(true){
-        display.clearDisplay();
-        printSmall_centered(64,26,pitchToString(pitch,true,true),1);
-        printSmall_centered(64,32,stringify(pitch),1);
-        printSmall_centered(64,38,stringify(CV.pitchToVoltage(pitch))+"V",1);
-        display.display();
-        if(utils.itsbeen(3000)){
+        // display.clearDisplay();
+        // printSmall_centered(64,32,stringify(pitch),1);
+        // printSmall_centered(64,38,stringify(CV.pitchToVoltage(pitch))+"V",1);
+        // printSmall_centered(64,26,pitchToString(pitch,true,true),1);
+        // display.display();
+        ledPulse(16);
+        controls.readButtons();
+        if(utils.itsbeen(2000)){
             lastTime = millis();
-            CV.writePitch(pitch);
-            // writeCVGate(gate);
             pitch++;
-            if(pitch>127){
-                pitch = 0;
-            }
-            gate = !gate;
+            pitch+=127;
+            Serial.println("P: "+stringify(pitch));
+            Serial.println("V: "+stringify(CV.pitchToVoltage(pitch))+"v");
         }
     }
 }

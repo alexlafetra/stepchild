@@ -718,7 +718,7 @@ void Display::display(void){
         }
     }
     displayWindow();
-    delay(20);
+    // delay(20);
 }
 
 Display display;

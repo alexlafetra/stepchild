@@ -48,6 +48,14 @@ class StepchildSequence{
   };
 
   PlayState playState = STOPPED;
+
+  enum SequenceTemplate{
+    DEFAULT,
+    SP404MKII,
+    VOLCA,
+    SR_16
+  };
+  
   uint8_t defaultChannel = 1;
   uint8_t defaultPitch = 36;
   uint8_t defaultVel = 127;

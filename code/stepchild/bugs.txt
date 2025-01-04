@@ -1,3 +1,9 @@
-stack overflow error when switching between edit and track menus
-arpeggiating while playing is broken
-- seems like arp playlist isn't getting updated while sequence is playing
+voltage is messed up on CV amp!
+try:
+
+plugging in external 5v/12v source
+comparing to old CV board
+idk... severing gnd connection?
+
+When unconnected (jumper is open) both the 3.3+ and 12+ rails are fine
+but when closed, 12V line goes to ~2.34 and 3.3+ line to... 3.3??
