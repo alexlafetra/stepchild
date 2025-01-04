@@ -109,33 +109,29 @@ void loop() {
   // screenSaverCheck();
 
   // testAllInputs();
-  // testCVPitches();
-
-  analogWrite(CV1_PIN,0);
-  analogWrite(CV2_PIN,0);
-  analogWrite(CV3_PIN,0);
+  testCVPitches();
 }
 
 //this cpu handles time-sensitive things
 void loop1(){
-  // #ifdef HEADLESS
-  // sequenceState = PlayState(sequence.playState);
-  // #endif
+  #ifdef HEADLESS
+  sequenceState = PlayState(sequence.playState);
+  #endif
   // ledPulse(16);
-  // switch(sequence.playState){
-  //   case StepchildSequence::PLAYING:
-  //     playingLoop();
-  //     break;
-  //   case StepchildSequence::RECORDING:
-  //     recordingLoop();
-  //     break;
-  //   case StepchildSequence::LIVELOOPING:
-  //   case StepchildSequence::STOPPED:
-  //     defaultLoop();
-  //     break;
-  // }
-  // //run the arpeggiator, if it's active
-  // if(arp.isActive){
-  //   arpLoop();
-  // }
+  switch(sequence.playState){
+    case StepchildSequence::PLAYING:
+      playingLoop();
+      break;
+    case StepchildSequence::RECORDING:
+      recordingLoop();
+      break;
+    case StepchildSequence::LIVELOOPING:
+    case StepchildSequence::STOPPED:
+      defaultLoop();
+      break;
+  }
+  //run the arpeggiator, if it's active
+  if(arp.isActive){
+    arpLoop();
+  }
 }

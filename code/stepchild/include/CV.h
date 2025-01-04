@@ -37,17 +37,15 @@ class StepchildCV{
     StepchildCV(){
     }
     void init(){
-// #ifndef HEADLESS
         pinMode(CV1_PIN, OUTPUT);
         pinMode(CV2_PIN, OUTPUT);
         pinMode(CV3_PIN, OUTPUT);
-        //frequency of the oscillation
-        analogWriteFreq(PWM_FREQUENCY);//100,000 (0.1MHz)
+        //frequency of the PWM driver
+        analogWriteFreq(PWM_FREQUENCY);
         //max value you can put into it (65535 @ 16bit res let's us do a 100% duty cycle)
         analogWriteRange(PWM_MAX_VAL);
         //16 bit resolution
         analogWriteResolution(PWM_RESOLUTION);
-// #endif
     }
 
     //this converts a midi 8-bit pitch to a 12note/V CV voltage
@@ -84,9 +82,9 @@ class StepchildCV{
     void writePitch(uint8_t pitch){
         float V = this->pitchToVoltage(pitch);
         uint16_t dCycle = this->getDutyCycleFromVoltage(V);
-        digitalWrite(CV1_PIN,LOW);
-        digitalWrite(CV2_PIN,LOW);
-        digitalWrite(CV3_PIN,LOW);
+        analogWrite(CV1_PIN,dCycle);
+        analogWrite(CV2_PIN,dCycle);
+        analogWrite(CV3_PIN,dCycle);
     }
     void writeGate(bool on){
         uint16_t dCycle = on?65535:0;
@@ -152,30 +150,20 @@ void testCVPitches(){
     lastTime = millis();
     uint8_t pitch = 0;
     bool gate = false;
-    digitalWrite(CV1_PIN,LOW);
-    digitalWrite(CV2_PIN,LOW);
-    digitalWrite(CV3_PIN,LOW);
-    // CV.writePitch(pitch);
     while(true){
-        display.clearDisplay();
-        printSmall_centered(64,32,stringify(pitch),1);
-        printSmall_centered(64,38,stringify(CV.pitchToVoltage(pitch))+"V",1);
-        printSmall_centered(64,26,pitchToString(pitch,true,true),1);
-        display.display();
+        // display.clearDisplay();
+        // printSmall_centered(64,32,stringify(pitch),1);
+        // printSmall_centered(64,38,stringify(CV.pitchToVoltage(pitch))+"V",1);
+        // printSmall_centered(64,26,pitchToString(pitch,true,true),1);
+        // display.display();
+        ledPulse(16);
         controls.readButtons();
-        if(utils.itsbeen(400)){
-            if(controls.NEW()){
-                lastTime = millis();
-                pitch++;
-                pitch%=127;
-                // CV.writePitch(pitch);
-            }
-            if(controls.SHIFT()){
-                lastTime = millis();
-                pitch--;
-                pitch%=127;
-                // CV.writePitch(pitch);
-            }
+        if(utils.itsbeen(2000)){
+            lastTime = millis();
+            pitch++;
+            pitch+=127;
+            Serial.println("P: "+stringify(pitch));
+            Serial.println("V: "+stringify(CV.pitchToVoltage(pitch))+"v");
         }
     }
 }
