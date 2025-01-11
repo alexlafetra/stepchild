@@ -1,40 +1,3 @@
-CoordinatePair selectNotesAndArea(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)){
-    CoordinatePair bounds;
-    //storing a copy of the current loop, so we can edit the current loop to set our bounds
-    //and then reset it back to the original loop
-    while(true){
-        controls.readJoystick();
-        controls.readButtons();
-        defaultSelectBoxControls();
-        defaultJoystickControls(false);
-        defaultEncoderControls();
-        if(utils.itsbeen(200)){
-            defaultLoopControls();
-            defaultSelectControls();
-            if(controls.MENU()){
-                lastTime = millis();
-                clearSelection();
-                break;
-            }
-            if(controls.NEW()){
-                lastTime = millis();
-                break;
-            }
-        }
-        display.clearDisplay();
-        SequenceRenderSettings settings;
-        settings.topLabels = false;
-        settings.shadeOutsideLoop = true;
-        drawSeq(settings);
-        printSmall(trackDisplay,0,text,1);
-        iconFunction(7,1,14,true);
-        display.display();
-    }
-    bounds.start.x = sequence.loopData[sequence.activeLoop].start;
-    bounds.end.x = sequence.loopData[sequence.activeLoop].end;
-    return bounds;
-}
-
 //lines floating to the left
 void drawRevIcon(uint8_t x1, uint8_t y1, uint8_t height, bool animated){
     for(uint8_t i = 0; i<height; i++){
@@ -47,11 +10,12 @@ void drawRevIcon(uint8_t x1, uint8_t y1, uint8_t height, bool animated){
 
 //Reverses all selected notes within a start/stop bound
 //Notes must be totally within bound to be affected
-void reverse(){
+bool reverse(){
     //this is for making it transition nicely from the fx menu
     //but it doesn't play well with the edit menu :(
     // slideMenuOut(0,20);
     Loop tempLoop = sequence.loopData[sequence.activeLoop];
+    bool atLeastOnce = false;
     while(true){
         clearSelection();
         CoordinatePair bounds = selectNotesAndArea("Sel notes + bounds to rev",drawRevIcon);
@@ -96,8 +60,9 @@ void reverse(){
                 }
             }
         }
+        atLeastOnce = true;
     }
-    
     //reset the loop points to the loop we stored in the beginning
     sequence.loopData[sequence.activeLoop] = tempLoop;
+    return atLeastOnce;
 }

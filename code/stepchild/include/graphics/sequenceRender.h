@@ -7,6 +7,8 @@ struct SequenceRenderSettings{
     bool drawLoopFlags;
     bool drawLoopPoints;
 
+    bool drawSteps = true;
+
     bool trackLabels;
     bool topLabels;
     bool trackSelection = false;
@@ -162,7 +164,7 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
     if(settings.drawLoopPoints){//check
       if(step == sequence.loopData[sequence.activeLoop].start){
         if(settings.drawLoopFlags){
-          if(movingLoop == -1 || movingLoop == 2){
+          if(movingLoop == MOVING_LOOP_END || movingLoop == MOVING_BOTH_LOOP_POINTS){
             display.fillTriangle(trackDisplay+(step-settings.start)*sequence.viewScale, settings.startHeight-3-sin(millis()/50), trackDisplay+(step-settings.start)*sequence.viewScale, settings.startHeight-7-sin(millis()/50), trackDisplay+(step-settings.start)*sequence.viewScale+4, settings.startHeight-7-sin(millis()/50),SSD1306_WHITE);
             display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale,settings.startHeight-3,3,SSD1306_WHITE);
           }
@@ -176,14 +178,14 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
             }
           }
         }
-        if(!movingLoop || (movingLoop != 1 && (millis()/400)%2)){
+        if((movingLoop == MOVING_NO_LOOP_POINTS) || (movingLoop != MOVING_LOOP_START && (millis()/400)%2)){
           display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
           display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale-1,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
         }
       }
       if(step == sequence.loopData[sequence.activeLoop].end-1){
         if(settings.drawLoopFlags){
-          if(movingLoop == 1 || movingLoop == 2){
+          if(movingLoop == MOVING_LOOP_START || movingLoop == MOVING_BOTH_LOOP_POINTS){
             display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-3-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale-4, settings.startHeight-7-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-7-sin(millis()/50),SSD1306_WHITE);
             display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale,settings.startHeight-3,3,SSD1306_WHITE);
           }
@@ -197,12 +199,12 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
             }
           }
         }
-        if(!movingLoop || (movingLoop != -1 && (millis()/400)%2)){
+        if((movingLoop == MOVING_NO_LOOP_POINTS) || (movingLoop != MOVING_LOOP_END && (millis()/400)%2)){
           display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale+1,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
           display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale+2,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
         }
       }
-      if(movingLoop == 2){
+      if(movingLoop == MOVING_BOTH_LOOP_POINTS){
         if(step>sequence.loopData[sequence.activeLoop].start && step<sequence.loopData[sequence.activeLoop].end && settings.startHeight>8){
           display.drawPixel(trackDisplay+(step-settings.start)*sequence.viewScale, settings.startHeight-7-sin(millis()/50),SSD1306_WHITE);
         }
@@ -228,7 +230,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
   //note presence indicator(if notes are offscreen)
   if(sequence.areThereMoreNotes(true)){
     uint8_t y1 = settings.shrinkTopDisplay?8:headerHeight;
-    if(!((animOffset/10)%2)){
+    if(millis()%1000>500){
       display.fillTriangle(trackDisplay-7,y1+3,trackDisplay-3,y1+3,trackDisplay-5,y1+1, SSD1306_WHITE);
     }
     else{
@@ -236,7 +238,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
     }
   }
   if(sequence.areThereMoreNotes(false)){
-    if(!((animOffset/10)%2)){
+    if(millis()%1000>500){
       display.fillTriangle(trackDisplay-7,screenHeight-5,trackDisplay-3,screenHeight-5,trackDisplay-5,screenHeight-3, SSD1306_WHITE);
     }
     else{
@@ -550,7 +552,7 @@ void drawSeq(SequenceRenderSettings& settings){
     sequence.endTrack++;
   //drawin all da steps
   //---------------------------------------------------
-  for (uint8_t track = sequence.startTrack; track < sequence.endTrack; track++) {
+  for(uint8_t track = sequence.startTrack; track < sequence.endTrack; track++) {
       unsigned short int y1 = (track-sequence.startTrack) * trackHeight + settings.startHeight;
       uint8_t xCoord = 5;
       //track info display
@@ -601,7 +603,7 @@ void drawSeq(SequenceRenderSettings& settings){
           graphics.shadeArea(trackDisplay,y1,screenWidth-trackDisplay,trackHeight,9);
           continue;
       }
-      else{
+      else if(settings.drawSteps){
           //highlight for solo'd tracks
           // if(sequence.trackData[track].isSolo())
           //     graphics.drawNoteBracket(trackDisplay+3,y1-1,screenWidth-trackDisplay-5,trackHeight+2,true);

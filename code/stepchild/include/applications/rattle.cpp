@@ -1,4 +1,4 @@
-void rattle(){
+bool rattle(){
     //speed when y is min
     uint32_t minLength = 0;
     //speed when y is max
@@ -108,4 +108,5 @@ void rattle(){
         printSmall_centered(64,screenHeight-y1+1,s,1);
         display.display();
     }
+    return true;
 }

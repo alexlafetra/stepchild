@@ -37,6 +37,7 @@ class StepchildCV{
     StepchildCV(){
     }
     void init(){
+        #ifndef HEADLESS
         pinMode(CV1_PIN, OUTPUT);
         pinMode(CV2_PIN, OUTPUT);
         pinMode(CV3_PIN, OUTPUT);
@@ -46,6 +47,7 @@ class StepchildCV{
         analogWriteRange(PWM_MAX_VAL);
         //16 bit resolution
         analogWriteResolution(PWM_RESOLUTION);
+        #endif
     }
 
     //this converts a midi 8-bit pitch to a 12note/V CV voltage

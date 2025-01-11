@@ -1,3 +1,32 @@
+enum MovingLoopState{
+  MOVING_NO_LOOP_POINTS,
+  MOVING_LOOP_END,
+  MOVING_LOOP_START,
+  MOVING_BOTH_LOOP_POINTS
+};
+
+#ifndef HEADLESS
+enum PlayState{
+  STOPPED,
+  PLAYING,
+  RECORDING,
+  LIVELOOPING
+};
+#endif
+
+enum SequenceTemplate{
+  DEFAULT,
+  SP404MKII,
+  VOLCA,
+  SR_16
+};
+
+enum NoteProperty{
+  VELOCITY,
+  CHANCE,
+  PITCH
+};
+
 //Providing all the data and functions that the stepchild needs to run the sequence, but none of the graphics
 class StepchildSequence{
   public:
@@ -31,30 +60,8 @@ class StepchildSequence{
 
   uint8_t subDivision = 24;
 
-  enum MovingLoopState{
-    NONE,
-    START,
-    END,
-    BOTH
-  };
-
   MovingLoopState movingLoop;
-
-  enum PlayState{
-      STOPPED,
-      PLAYING,
-      RECORDING,
-      LIVELOOPING
-  };
-
   PlayState playState = STOPPED;
-
-  enum SequenceTemplate{
-    DEFAULT,
-    SP404MKII,
-    VOLCA,
-    SR_16
-  };
   
   uint8_t defaultChannel = 1;
   uint8_t defaultPitch = 36;
@@ -63,11 +70,6 @@ class StepchildSequence{
 
   uint16_t selectionCount = 0;
 
-  enum NoteProperty{
-      VELOCITY,
-      CHANCE,
-      PITCH
-  };
 
   StepchildSequence(){}
   /*

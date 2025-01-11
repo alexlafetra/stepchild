@@ -139,13 +139,15 @@ void displayStrumMenu(uint8_t cursor, uint8_t sortType, uint8_t sortedValue, uin
     }
 }
 
-void strumMenu(){
+bool strumMenu(){
     uint8_t sortType = 1;
     uint8_t sortValue = 0;
     int8_t randomness = 10;
     uint16_t amount = 6;
 
     uint8_t cursor = 0;
+
+    bool atLeastOnce = false;
 
     vector<NoteID> ids;
     while(true){
@@ -213,6 +215,7 @@ void strumMenu(){
             }
             if(controls.NEW()){
                 lastTime = millis();
+                atLeastOnce = true;
                 strum(sortType, sortValue, amount, randomness);
             }
             if(controls.joystickX != 0){
@@ -240,4 +243,5 @@ void strumMenu(){
         displayStrumMenu(cursor, sortType,sortValue,amount,randomness);
         display.display();
     }
+    return atLeastOnce;
 }

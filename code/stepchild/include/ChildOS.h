@@ -227,6 +227,7 @@ uint16_t animOffset = 0;//for animating curves
 #include "classes/Track.h"
 #include "classes/Knob.h"
 #include "sequence.h"
+#include "classes/NoteID.h"
 #include "classes/AutoTrack.h"
 
 //original ChildOS fonts
@@ -246,6 +247,16 @@ struct NoteCoords{
     y1+=y;
     y2+=y;
   }
+};
+
+struct NoteTrackPair{
+    public:
+        Note note;
+        uint8_t trackID;
+        NoteTrackPair(Note n, uint8_t t){
+            note = n;
+            trackID = t;
+        }
 };
 
 //Basic graphic functions
@@ -272,7 +283,6 @@ void rotaryActionB_Handler(){
 
 #include "classes/SelectionBox.h"
 #include "classes/Arp.h"
-#include "classes/NoteID.h"
 #include "classes/Progression.h"
 
 #include "CV.h"

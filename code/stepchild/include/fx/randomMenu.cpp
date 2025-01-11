@@ -703,36 +703,37 @@ bool randMenuControls(uint8_t * whichTab){
     return true;
 }
 
-void randMenu(){
-    //start by jumping into randomizer
-    randomData.maxLength = sequence.subDivision;
-    if(sequence.subDivision/2 > 1)
-      randomData.minLength = sequence.subDivision/2;
-    else
-      randomData.minLength = sequence.subDivision;
-    genRandom(randomData);
-    //once the user exits, build them the options screen:
+bool randMenu(){
+  //start by jumping into randomizer
+  randomData.maxLength = sequence.subDivision;
+  if(sequence.subDivision/2 > 1)
+    randomData.minLength = sequence.subDivision/2;
+  else
+    randomData.minLength = sequence.subDivision;
+  // genRandom(randomData);
+  //once the user exits, build them the options screen:
 
-    //which menu you're on
-    uint8_t whichTab = 1;
-    //vars for randomizer are stored in randomData struct
-    WireFrame cube = makeCube(70);
-    cube.xPos = 64;
-    cube.yPos = 32;
-    while(true){
-        if(!randMenuControls(&whichTab)){
-            break;
-        }
-        //rotating cube
-        cube.rotate(1,0);
-        cube.rotate(1,1);
-        
-        display.clearDisplay();
-        cube.renderDie();
-        printItalic(29,0,"randomize",1);//printing title
-        drawRandMenu(whichTab);//printing the side tabs (and bouncing arrows)
-        //printing the submenus
-        drawRandMenuOptions(whichTab,randomData);
-        display.display();
+  //which menu you're on
+  uint8_t whichTab = 1;
+  //vars for randomizer are stored in randomData struct
+  WireFrame cube = makeCube(70);
+  cube.xPos = 64;
+  cube.yPos = 32;
+  while(true){
+    if(!randMenuControls(&whichTab)){
+      break;
     }
+    //rotating cube
+    cube.rotate(1,0);
+    cube.rotate(1,1);
+    
+    display.clearDisplay();
+    cube.renderDie();
+    printItalic(29,0,"randomize",1);//printing title
+    drawRandMenu(whichTab);//printing the side tabs (and bouncing arrows)
+    //printing the submenus
+    drawRandMenuOptions(whichTab,randomData);
+    display.display();
+  }
+  return false;
 }

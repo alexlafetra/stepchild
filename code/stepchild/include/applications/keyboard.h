@@ -200,8 +200,10 @@ void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numbe
   }
 }
 
+#define KEYBOARD_ANIMATION_IN_DELAY 10
+#define KEYBOARD_ANIMATION_OUT_DELAY 10
+
 void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t numberOfKeys, bool into){
-  display.clearDisplay();
   uint8_t keyLength = 40;
   uint8_t keyHeight = 5;
   uint8_t keyWidth = 3;
@@ -209,6 +211,8 @@ void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t nu
   uint8_t offset = 3;
   uint8_t whiteKeys = 0;
   uint8_t blackKeys = 0;
+
+  // display.clearDisplay();
 
   if(into){
     //moves through every key. if it's a whitekey, it uses the whiteKeys variable to step through each white key
@@ -225,13 +229,13 @@ void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t nu
         graphics.drawBox(xStart+(blackKeys+blackKeyOffset)*(xSlant+offset)+25, yStart+(blackKeys+blackKeyOffset)*(keyWidth+offset)-3,keyLength-10, keyHeight, keyWidth, xSlant,3);
         blackKeys++;
         display.display();
-        // delay(2);
+        delay(KEYBOARD_ANIMATION_IN_DELAY);
       }
       else{
         graphics.drawBox(xStart+whiteKeys*(xSlant+offset), yStart+whiteKeys*(keyWidth+offset),keyLength, keyHeight, keyWidth, xSlant,1);
         whiteKeys++;
         display.display();
-        // delay(2);
+        delay(KEYBOARD_ANIMATION_IN_DELAY);
       }
     }
   }
@@ -260,10 +264,37 @@ void keyboardAnimation(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t nu
         }
       }
       numberOfKeys--;
-      if(!(numberOfKeys%4)){
-        display.display();
-        // delay(5);
+      delay(KEYBOARD_ANIMATION_OUT_DELAY);
+    }
+  }
+}
+
+void drawKeyboard(uint8_t xStart,uint8_t yStart,uint8_t startKey,uint8_t numberOfKeysToDraw){
+  const uint8_t keyLength = 40;
+  const uint8_t keyHeight = 5;
+  const uint8_t keyWidth = 3;
+  const uint8_t xSlant = 8;
+  const uint8_t offset = 3;
+  uint8_t whiteKeys = 0;
+  uint8_t blackKeys = 0;
+
+  //moves through every key. if it's a whitekey, it uses the whiteKeys variable to step through each white key
+  for(int key = startKey; key<startKey+numberOfKeysToDraw; key++){
+    //if it's a black key
+    if((startKey+key)%12 == 1 || (startKey+key)%12 == 3 || (startKey+key)%12 == 6 || (startKey+key)%12 == 8 || (startKey+key)%12 == 10){
+      uint8_t blackKeyOffset = 0;
+      if(blackKeys%12>1 && blackKeys%12<4){
+        blackKeyOffset = key/12+1;
       }
+      if(blackKeys%12>=4 && blackKeys%12<=6){
+        blackKeyOffset = key/12+1;
+      }
+      graphics.drawBox(xStart+(blackKeys+blackKeyOffset)*(xSlant+offset)+25, yStart+(blackKeys+blackKeyOffset)*(keyWidth+offset)-3,keyLength-10, keyHeight, keyWidth, xSlant,3);
+      blackKeys++;
+    }
+    else{
+      graphics.drawBox(xStart+whiteKeys*(xSlant+offset), yStart+whiteKeys*(keyWidth+offset),keyLength, keyHeight, keyWidth, xSlant,1);
+      whiteKeys++;
     }
   }
 }

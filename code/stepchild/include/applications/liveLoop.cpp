@@ -29,7 +29,7 @@ void exitRecAndStartPlaying(uint8_t& layerCount){
     layerCount++;
 }
 
-void liveLoop(){
+bool liveLoop(){
     //save loop!
     Loop originalLoop = sequence.loopData[sequence.activeLoop];
     uint8_t originalRecMode = recMode;
@@ -144,4 +144,5 @@ void liveLoop(){
     }
     recMode = originalRecMode;
     sequence.loopData[sequence.activeLoop] = originalLoop;
+    return true;
 }

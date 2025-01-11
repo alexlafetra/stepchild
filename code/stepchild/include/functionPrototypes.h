@@ -57,7 +57,7 @@ void printItalic(int16_t x, int16_t y, String text, uint16_t c);
 void drawKeys(uint8_t xStart,uint8_t yStart,uint8_t octave,uint8_t numberOfKeys, bool fromPlaylist);
 void drawDrumPads(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numberOfPads);
 void drawArpStepLengths(uint8_t xStart, uint8_t yStart, uint8_t startNote, uint8_t xCursor, bool selected);
-void drawEchoMenu(uint8_t cursor);
+// void drawEchoMenu(uint8_t cursor);
 void drawSeq();
 void printSmall_centered(int16_t x, int16_t y, String t, uint16_t c);
 void printSmall(int16_t, int16_t, String, uint16_t);
@@ -85,18 +85,18 @@ void loopMenu();
 void fragmentMenu();
 void fileMenu();
 void recMenu();
-void xyGrid();
+// void xyGrid();
 void displayMiniMenu();
 void routeMenu();
-void warp();
+// void warp();
 void reverseNotes();
 void inputMenu();
 void midiMenu();
 void chordBuilder();
-void echoMenu();
-void humanizeMenu();
-void quantizeMenu();
-void strumMenu();
+// void echoMenu();
+// void humanizeMenu();
+// void quantizeMenu();
+// void strumMenu();
 
 //Note editing
 void echoNote(int track, int id);
@@ -122,8 +122,8 @@ void toggleSelectNote(uint8_t, uint16_t, bool);
 vector<vector<uint8_t>> selectMultipleNotes(String,String);
 vector<uint8_t> selectSeqArea(String);
 bool warpAintoB(CoordinatePair A, CoordinatePair B, bool onlySelected);
-void reverse();
-void rattle();
+// void reverse();
+// void rattle();
 
 //Track editing
 int16_t makeTrackWithPitch(int,int);

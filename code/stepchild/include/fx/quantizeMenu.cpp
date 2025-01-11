@@ -117,7 +117,7 @@ void drawLittleQuantCubes(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
   graphics.drawBox(6+(millis()/500)%4,5-(millis()/500)%4,8,8,3,3,0);
 }
 
-bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
+bool quantizeMenuControls(uint8_t &whichParam, bool &deleteNote){
   if(utils.itsbeen(200)){
     if(controls.MENU()){
       lastTime = millis();
@@ -127,7 +127,7 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
       lastTime = millis();
       while(true){
         if(selectNotes("quantize",drawLittleQuantCubes)){
-          quantizeSelectedNotes(*deleteNote);
+          quantizeSelectedNotes(deleteNote);
         }
         else{
           break;
@@ -136,7 +136,7 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
     }
     if(controls.SELECT() ){
       lastTime = millis();
-      (*deleteNote) = !(*deleteNote);
+      deleteNote = !deleteNote;
     }
   }
   //changing sequence.subDivision
@@ -153,8 +153,8 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
       sequence.toggleTriplets();
     }
     controls.counterB += controls.counterB<0?1:-1;;
-    if(*whichParam != 1){
-      (*whichParam) = 1;
+    if(whichParam != 1){
+      whichParam = 1;
     }
   }
   //changing quantize amount
@@ -183,37 +183,35 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
         quantizeAmount = 0;
       }
     }
-    if(*whichParam != 0){
-      (*whichParam) = 0;
+    if(whichParam != 0){
+      whichParam = 0;
     }
     controls.counterA += controls.counterA<0?1:-1;;
   }
   if(utils.itsbeen(60)){
     if(controls.joystickY != 0){
-      if(controls.joystickY == 1 && (*whichParam) == 1){
-        *whichParam = 0;
-        lastTime = millis();
-      }
-      else if(controls.joystickY == -1 && (*whichParam) == 0){
-        *whichParam = 1;
-        lastTime = millis();
+      switch(whichParam){
+        case 2:
+        case 1:
+          if(controls.joystickY == 1){
+            lastTime = millis();
+            whichParam = 0;
+          }
+          break;
+        case 0:
+          if(controls.joystickY == -1){
+            lastTime = millis();
+            whichParam = 1;
+          }
+          break;
+
       }
     }
     if(controls.joystickX !=0 ){
-      switch(*whichParam){
+      switch(whichParam){
         //editing quantize amount
         case 0:
           if(controls.SHIFT()){
-            if(controls.joystickX == 1 && quantizeAmount>0){
-              quantizeAmount--;
-              lastTime = millis();
-            }
-            else if(controls.joystickX == -1 && quantizeAmount<100){
-              quantizeAmount++;
-              lastTime = millis();
-            }
-          }
-          else{
             if(controls.joystickX == 1){
               if(quantizeAmount>=10){
                 quantizeAmount-=10;
@@ -235,14 +233,17 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
               }
             }
           }
-          break;
-        //changing sequence.subDivision
-        case 1:
-          if(controls.SHIFT()){
-            sequence.toggleTriplets();
-            lastTime = millis();
-          }
+          //move to grid editing
           else{
+            if(controls.joystickX == -1){
+              lastTime = millis();
+              whichParam = 2;
+            }
+          }
+          break;
+        //changing grid
+        case 2:
+          if(controls.SHIFT()){
             if(controls.joystickX == -1){
               sequence.changeSubDivInt(true);
               lastTime = millis();
@@ -252,6 +253,23 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
               lastTime = millis();
             }
           }
+          //move cursor to collisions
+          else{
+            if(controls.joystickX == -1){
+              lastTime = millis();
+              whichParam = 1;
+            }
+          }
+          break;
+        case 1:          
+          if(controls.SHIFT()){
+            lastTime = millis();
+            deleteNote = !deleteNote;
+          }
+          else{
+            if(controls.joystickX == 1)
+              whichParam = 2;
+          }
           break;
       }
     }
@@ -259,38 +277,50 @@ bool quantizeMenuControls(uint8_t* whichParam, bool* deleteNote){
   return true;
 }
 
-void quantizeMenu(){
+bool quantizeMenu(){
+  bool atLeastOnce = false;
   uint8_t whichParam = 0;
   bool deleteNote = true;
   while(true){
     display.clearDisplay();
+
+    //amount
+    switch(whichParam){
+      //amount
+      case 0:
+        graphics.drawArrow(96+16+((millis()/400)%2),56,2,1,true);
+        display.fillRoundRect(63,52,47,9,3,1);
+        break;
+      //collisions
+      case 1:
+        graphics.drawArrow(96,((millis()/400)%2)+18,2,2,true);
+        break;
+      //grid
+      case 2:
+        graphics.drawArrow(14+((millis()/400)%2),8,2,0,true);
+        display.fillRoundRect(16,4,36,9,3,1);
+        drawSubDivBackground();
+        break;
+    }
 
     //draw quant amount
     String q = stringify(quantizeAmount);
     while(q.length()<3){
       q = "0"+q;
     }
-    print7SegSmall(90,53,q+"%",1);
+    print7SegSmall(90,53,q+"%",2);
+    printSmall(65,54,"amount",2);
+    
     //draw subDiv
     q = stepsToMeasures(sequence.subDivision);
-    printSmall(28,6,q,1);
+    printSmall(18,6,q,2);
+    printSmall(33,6," grid",2);
 
-    //draw swing indicator
-    // printSmall(90,6,deleteNote?"del":"leave",1);
-    graphics.drawLabel(100,1,deleteNote?"del":"leave",1);
+    //collision options
+    graphics.drawLabel(100,1,deleteNote?"delete":"leave",1);
     printSmall_centered(100,8,"collisions",1);
-    printSmall(0,53,"quantize",1);
 
-    if(whichParam == 0){
-      graphics.drawArrow(96+16+2*((millis()/400)%2),56,2,1,true);
-      printSmall(90,46,"amount",1);
-    }
-    else{
-      graphics.drawArrow(24+2*((millis()/400)%2),8,2,0,true);
-      printSmall(0,6," grid",1);
-      //bracket
-      drawSubDivBackground();
-    }
+    printSmall(0,54,"[N] to apply",1);
 
     //graphic
     drawQuantCubes((100-quantizeAmount)/(5));
@@ -299,8 +329,9 @@ void quantizeMenu(){
 
     controls.readJoystick();
     controls.readButtons();
-    if(!quantizeMenuControls(&whichParam,&deleteNote)){
+    if(!quantizeMenuControls(whichParam,deleteNote)){
       break;
     }
   }
+  return atLeastOnce;
 }

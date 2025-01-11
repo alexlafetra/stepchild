@@ -68,6 +68,8 @@ void Vertex::coordTransform(vector<vector<float>> transformer){
 
 //rotates a vertex around x (0) y (1) or z (2) axes
 void Vertex::rotate(float angle, uint8_t axis){
+  if(axis>2)
+    return;
   vector<vector<float>> rotationMatrix;
   //convert to radians
   angle = angle*(PI/180.0);

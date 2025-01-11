@@ -370,7 +370,11 @@ class StepchildHardwareInput{
     this->readButtons();
     this->readStepButtonState();
     this->readJoystick();
-    return (this->mainButtonState || this->joystickX || this->joystickY || this->stepButtonState);
+    Serial.println("main: "+stringify(mainButtonState));
+    Serial.println("X: "+stringify(joystickX));
+    Serial.println("Y: "+stringify(joystickY));
+    Serial.println("Stepbuttons: "+stringify(stepButtonState));
+    return ((this->mainButtonState&~0b1100000000) || this->joystickX || this->joystickY || this->stepButtonState);
   }
 
   /*

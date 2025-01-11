@@ -21,6 +21,7 @@ This COULD actually "turn off" the screen via SSD1306_command but it looks like 
 using the reset pin... which isn't always exposed on the breakout boards
 */
 
+// uint16_t sleepTime = 30000;//10s
 uint16_t sleepTime = 30000;//10s
 
 //60,000ms = 1min
@@ -400,6 +401,7 @@ void screenSaver(){
   //running a random screen saver from the list
   vector<void (*)()> screenSaverList = {screenSaver_prams,screenSaver_droplets,screenSaver_cassette,screenSaver_ripples,screenSaver_text};
   screenSaverList[random(0,screenSaverList.size())]();
+  screenSaver_droplets();
 }
 
 void screenSaverCheck(){

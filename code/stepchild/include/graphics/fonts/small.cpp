@@ -993,7 +993,7 @@ void printSmall(int16_t x1, int16_t y1, float a, uint16_t c){
 }
 
 //this one prints out one word at a time, with bounds
-void printSmall_overflow(int16_t x, int16_t y, int margin, String text, uint16_t c){
+void printSmall_overflow(int16_t x, int16_t y, int8_t margin, String text, uint16_t c){
   int xCoord = x;
   int yCoord = y;
   String word = "";

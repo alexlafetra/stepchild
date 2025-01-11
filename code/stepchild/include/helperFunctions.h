@@ -263,6 +263,45 @@ vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
   return selectedNotes;
 }
 
+CoordinatePair selectNotesAndArea(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)){
+    CoordinatePair bounds;
+    //storing a copy of the current loop, so we can edit the current loop to set our bounds
+    //and then reset it back to the original loop
+    while(true){
+        controls.readJoystick();
+        controls.readButtons();
+        defaultSelectBoxControls();
+        defaultJoystickControls(false);
+        defaultEncoderControls();
+        if(utils.itsbeen(200)){
+            defaultLoopControls();
+            defaultSelectControls();
+            if(controls.MENU()){
+                lastTime = millis();
+                clearSelection();
+                break;
+            }
+            if(controls.NEW()){
+                lastTime = millis();
+                break;
+            }
+        }
+        display.clearDisplay();
+        SequenceRenderSettings settings;
+        settings.topLabels = false;
+        settings.shadeOutsideLoop = true;
+        settings.drawPram = false;
+        settings.shrinkTopDisplay = false;
+        drawSeq(settings);
+        printSmall(trackDisplay,0,text,1);
+        iconFunction(7,1,14,true);
+        display.display();
+    }
+    bounds.start.x = sequence.loopData[sequence.activeLoop].start;
+    bounds.end.x = sequence.loopData[sequence.activeLoop].end;
+    return bounds;
+}
+
 //Functions and definitions for generating scales
 // #define MAJOR 0
 // #define DORIAN 1
@@ -751,4 +790,16 @@ void selectKeysAnimation(bool in) {
       display.display();
     }
   }
+}
+
+vector<NoteID> getSelectedNoteIDs(){
+  vector<NoteID> ids = {};
+  for(uint16_t i = 0; i<sequence.noteData.size(); i++){
+    for(uint16_t j = 1; j<sequence.noteData[i].size(); j++){
+      if(sequence.noteData[i][j].isSelected()){
+        ids.push_back(NoteID(i,j));
+      }
+    }
+  }
+  return ids;
 }

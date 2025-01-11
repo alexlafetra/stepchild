@@ -1448,7 +1448,7 @@ void StepchildGraphics::drawLogo(uint8_t x1, uint8_t y1){
 }
 
 void StepchildGraphics::bootscreen_2(){
-  uint16_t frameCount = 0;
+  float frameCount = 0;
   display.setTextColor(SSD1306_WHITE);
   int16_t xCoord;
   int16_t yCoord;
@@ -1480,8 +1480,8 @@ void StepchildGraphics::bootscreen_2(){
     }
     display.display();
     // writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
-    controls.writeLEDs(0b1111111111111111>>(15-(frameCount/8)));
-    frameCount+=2;
+    controls.writeLEDs(0b1111111111111111>>(15-uint8_t(frameCount/8)));
+    frameCount+=0.4;
   }
   controls.turnOffLEDs();
 }
@@ -1579,15 +1579,6 @@ void StepchildGraphics::drawChanceIcon(uint8_t x1, uint8_t y1, uint8_t w, bool a
     display.drawRect(x1+1,y1+1,w-2,w-2,SSD1306_BLACK);
     printSmall(x1+w/2-1,y1+3,"%",2);
   }
-}
-
-void StepchildGraphics::drawWarpIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
-  w--;
-  this->drawDottedRect(x1,y1,w,w,2);
-  if(anim)
-    display.fillRect(x1,y1,(millis()/100)%(w)+2,(millis()/100)%(w)+2,SSD1306_WHITE);
-  else
-    display.fillRect(x1,y1,w/2,w/2,SSD1306_WHITE);
 }
 
 //inverting square

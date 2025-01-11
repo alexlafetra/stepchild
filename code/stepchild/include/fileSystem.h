@@ -655,7 +655,10 @@ void loadSavedSettingsFromFile(){
       case CLOCK_SOURCE:{
         uint8_t clockData[1];
         f.read(clockData,1);
-        clockSource = clockData[0];
+        if(clockData[0] == 0)
+          clockSource = INTERNAL_CLOCK;
+        else
+          clockSource = EXTERNAL_CLOCK;
         break;}
       case REC_MODE:{
         uint8_t playAfterRec[1];

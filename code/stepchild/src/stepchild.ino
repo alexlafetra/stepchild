@@ -105,11 +105,11 @@ void setup1() {
 }
 
 void loop() {
-  // mainSequence();
-  // screenSaverCheck();
+  mainSequence();
+  screenSaverCheck();
 
   // testAllInputs();
-  testCVPitches();
+  // testCVPitches();
 }
 
 //this cpu handles time-sensitive things
@@ -117,16 +117,16 @@ void loop1(){
   #ifdef HEADLESS
   sequenceState = PlayState(sequence.playState);
   #endif
-  // ledPulse(16);
+  ledPulse(16);
   switch(sequence.playState){
-    case StepchildSequence::PLAYING:
+    case PLAYING:
       playingLoop();
       break;
-    case StepchildSequence::RECORDING:
+    case RECORDING:
       recordingLoop();
       break;
-    case StepchildSequence::LIVELOOPING:
-    case StepchildSequence::STOPPED:
+    case LIVELOOPING:
+    case STOPPED:
       defaultLoop();
       break;
   }

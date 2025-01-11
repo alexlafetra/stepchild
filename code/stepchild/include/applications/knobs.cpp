@@ -113,7 +113,7 @@ void knobsAnimationOut(uint8_t activeA, uint8_t activeB, uint8_t activeRow){
   }
 }
 
-void knobs(){
+bool knobs(){
   knobsAnimationIn();
   uint8_t activeKnobA = 0;
   uint8_t activeKnobB = 0;//this is also between 0 and 7
@@ -256,4 +256,5 @@ void knobs(){
     }
   }
   knobsAnimationOut(activeKnobA, activeKnobB, activeRow);
+  return true;
 }

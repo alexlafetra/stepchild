@@ -87,57 +87,57 @@ bool viewLoopControls(uint8_t which){
     if (controls.joystickX == 1 && !controls.SHIFT()) {
       //if cursor isn't on a measure marker, move it to the nearest one
       if(sequence.cursorPos%sequence.subDivision){
-        if(!movingLoop)
+        if((movingLoop == MOVING_NO_LOOP_POINTS))
           moveCursorWithinLoop(-sequence.cursorPos%sequence.subDivision,which);
         else
           sequence.moveCursor(-sequence.cursorPos%sequence.subDivision);
         lastTime = millis();
         //moving entire loop
-        if(movingLoop == 2)
+        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(-sequence.cursorPos%sequence.subDivision);
       }
       else{
-        if(!movingLoop)
+        if((movingLoop == MOVING_NO_LOOP_POINTS))
           moveCursorWithinLoop(-sequence.subDivision,which);
         else
           sequence.moveCursor(-sequence.subDivision);
         lastTime = millis();
         //moving entire loop
-        if(movingLoop == 2)
+        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(-sequence.subDivision);
       }
       //moving loop start/end
-      if(movingLoop == -1){
+      if(movingLoop == MOVING_LOOP_END){
         sequence.setLoopPoint(sequence.cursorPos,true);
       }
-      else if(movingLoop == 1){
+      else if(movingLoop == MOVING_LOOP_START){
         sequence.setLoopPoint(sequence.cursorPos,false);
       }
     }
     if (controls.joystickX == -1 && !controls.SHIFT()) {
       if(sequence.cursorPos%sequence.subDivision){
-        if(!movingLoop)
+        if((movingLoop == MOVING_NO_LOOP_POINTS))
           moveCursorWithinLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision,which);
         else
           sequence.moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
         lastTime = millis();
-        if(movingLoop == 2)
+        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
       }
       else{
-        if(!movingLoop)
+        if((movingLoop == MOVING_NO_LOOP_POINTS))
           moveCursorWithinLoop(sequence.subDivision,which);
         else
           sequence.moveCursor(sequence.subDivision);
         lastTime = millis();
-        if(movingLoop == 2)
+        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(sequence.subDivision);
       }
       //moving loop start/end
-      if(movingLoop == -1){
+      if(movingLoop == MOVING_LOOP_END){
         sequence.setLoopPoint(sequence.cursorPos,true);
       }
-      else if(movingLoop == 1){
+      else if(movingLoop == MOVING_LOOP_START){
         sequence.setLoopPoint(sequence.cursorPos,false);
       }
     }
@@ -163,29 +163,29 @@ bool viewLoopControls(uint8_t which){
   if (utils.itsbeen(50)) {
     //moving
     if (controls.joystickX == 1 && controls.SHIFT()) {
-      if(!movingLoop)
+      if((movingLoop == MOVING_NO_LOOP_POINTS))
         moveCursorWithinLoop(-1,which);
       else
         sequence.moveCursor(-1);
       lastTime = millis();
-      if(movingLoop == 2)
+      if(movingLoop == MOVING_BOTH_LOOP_POINTS)
         sequence.moveLoop(-1);
-      else if(movingLoop == -1)
+      else if(movingLoop == MOVING_LOOP_END)
         sequence.setLoopPoint(sequence.cursorPos,true);
-      else if(movingLoop == 1)
+      else if(movingLoop == MOVING_LOOP_START)
         sequence.setLoopPoint(sequence.cursorPos,false);
     }
     if (controls.joystickX == -1 && controls.SHIFT()) {
-      if(!movingLoop)
+      if((movingLoop == MOVING_NO_LOOP_POINTS))
         moveCursorWithinLoop(1,which);
       else
         sequence.moveCursor(1);
       lastTime = millis();
-      if(movingLoop == 2)
+      if(movingLoop == MOVING_BOTH_LOOP_POINTS)
         sequence.moveLoop(1);
-      else if(movingLoop == -1)
+      else if(movingLoop == MOVING_LOOP_END)
         sequence.loopData[sequence.activeLoop].start = sequence.cursorPos;
-      else if(movingLoop == 1)
+      else if(movingLoop == MOVING_LOOP_START)
         sequence.loopData[sequence.activeLoop].end = sequence.cursorPos;
     }
     //changing vel
@@ -278,24 +278,24 @@ bool viewLoopControls(uint8_t which){
     //loop
     if(controls.LOOP()){
       //if you're not moving a loop, start
-      if(movingLoop == 0){
+      if(movingLoop == MOVING_NO_LOOP_POINTS){
         //if you're on the start, move the start
         if(sequence.cursorPos == sequence.loopData[sequence.activeLoop].start){
-          movingLoop = StepchildSequence::START;
+          movingLoop = MOVING_LOOP_END;
         }
         //if you're on the end
         else if(sequence.cursorPos == sequence.loopData[sequence.activeLoop].end){
-          movingLoop = StepchildSequence::END;
+          movingLoop = MOVING_LOOP_START;
         }
         //if you're not on either, move the whole loop
         else{
-          movingLoop = StepchildSequence::BOTH;
+          movingLoop = MOVING_BOTH_LOOP_POINTS;
         }
         lastTime = millis();
       }
       //if you were moving, stop
       else{
-        movingLoop = StepchildSequence::NONE;
+        movingLoop = MOVING_NO_LOOP_POINTS;
         lastTime = millis();
       }
     }

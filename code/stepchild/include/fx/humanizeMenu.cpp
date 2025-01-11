@@ -239,10 +239,11 @@ bool humanizeMenuControls(uint8_t* cursor){
 }
 
 
-void humanizeMenu(){
+bool humanizeMenu(){
   //cursor can be time, velocity, or chance
   uint8_t cursor = 0;
   HumanizeBlob blob = HumanizeBlob(20,30);
+  bool atLeastOnce = false;
   while(true){
     //timing, vel, chance
     controls.readJoystick();
@@ -313,4 +314,5 @@ void humanizeMenu(){
     }
     display.display();
   }
+  return atLeastOnce;
 }

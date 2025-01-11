@@ -829,7 +829,7 @@ WireFrame makeCassette(){
   b.rotate(15,2);
   return b;
 }
-WireFrame makeGraphBox(float offset){
+WireFrame makeGraphBox_old(float offset){
   // WireFrame box = makeBox(12,8,8);
   WireFrame box;
   //backHalf
@@ -852,6 +852,33 @@ WireFrame makeGraphBox(float offset){
   box.drawDots = true;
   box.scale = 2;
   box.rotate(20,2);
+  box.rotate(15,0);
+  return box;
+}
+
+WireFrame makeGraphBox(float offset){
+
+  WireFrame box;
+
+  const uint16_t numberOfPoints = 20;
+  const float width = 10;
+  const float height = 6;
+
+  // WireFrame box = makeBox(width,height,height);
+  // box.verts[0] = Vertex(-width/2,sin(offset),0);
+  for(uint16_t i = 0; i<numberOfPoints; i++){
+    float x = float(i)/float(numberOfPoints) * width-width/2.0;
+    float y = height*sin(x*PI/(width/4.0)+offset);
+    box.verts.push_back(Vertex(x,y,0));
+    if(i != 0)
+      box.edges.push_back({uint16_t(i-1),i});
+  }
+
+  box.xPos = screenWidth/2;
+  box.yPos = screenHeight/2;
+  // box.drawDots = true;
+  box.scale = 2;
+  // box.rotate(20,2);
   box.rotate(15,0);
   return box;
 }
@@ -971,7 +998,7 @@ WireFrame makeLoopArrows(float angle){
   return arrows;
 }
 
-WireFrame makeMobius(){
+WireFrame makeMobius(float offset){
   //mobius parametric representation
   /*
   x = (R+s*cos(1/2*t))*cos(t)
@@ -984,23 +1011,25 @@ WireFrame makeMobius(){
   */
  //for this loop, we'll make two edges of the mobius band with different widths
   const uint8_t R = 5;
-  // const uint8_t num = 16;
-  const uint8_t num = 12;
-  float w = -2;
+  const uint8_t num = 16;
+  // const uint8_t num = 12;
+  float w = -1.5;
   //make each edge
   vector<Vertex> verts1;
   vector<vector<uint16_t>> edges;
   for(uint8_t edge = 0; edge<2; edge++){
     for(float t = 0; t<(2*PI); t+=float(2*PI)/float(num)){
-      float x1 = (R+w*cos(t/2))*cos(t);
-      float y1 = (R+w*cos(t/2))*sin(t);
-      float z1 = w*sin(t/2);
+      float x1 = (R+w*cos(t/2+offset/2))*cos(t+offset);
+      float y1 = (R+w*cos(t/2+offset/2))*sin(t+offset);
+      float z1 = w*sin(t/2+offset/2);
       verts1.push_back(Vertex(x1,y1,z1));
     }
-    w+=4;
+    w = -w;
   }
   for(uint8_t i = 0; i<verts1.size()-1; i++){
+    //ring edges
     edges.push_back({i,uint16_t(i+1)});
+    //edges connecting the two rings
     if(i<num && i>0)
       edges.push_back({i,uint16_t(i+num)});
   }
@@ -1010,6 +1039,8 @@ WireFrame makeMobius(){
   mobius.xPos = screenWidth/2;
   mobius.yPos = screenHeight/2;
   mobius.scale = 2.5;
+  mobius.rotate(60,0);
+  mobius.rotate(30,2);
   return mobius;
 }
 
@@ -1436,7 +1467,8 @@ void metAnimation(WireFrame* w){
 
 void graphAnimation(WireFrame* w){
   //make a new folder wireframe with the right open amount
-  WireFrame  n = makeGraphBox(6*sin(millis()/float(400)));
+  // WireFrame  n = makeGraphBox(6*sin(millis()/float(400)));
+    WireFrame  n = makeGraphBox(millis()/float(400));
   //rotate it so it's at the same position as the current folder
   n.rotate(w->currentAngle[1],1);
   //then swap their vertices

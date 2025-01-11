@@ -29,10 +29,10 @@ class ProgramChange{
         //(not implemented yet)
 
         //timestep the PC occurs on
-        uint16_t timestep;
+        Timestep timestep;
         ProgramChange(){
         }
-        ProgramChange(uint8_t ch, uint8_t b, uint8_t sb, uint8_t v, uint16_t t){
+        ProgramChange(uint8_t ch, uint8_t b, uint8_t sb, uint8_t v, Timestep t){
             channel = ch;
             bank = b;
             subBank = sb;
@@ -71,21 +71,21 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
                     sequence.moveCursor(-sequence.cursorPos%sequence.subDivision);
                     lastTime = millis();
                     //moving entire loop
-                    if(movingLoop == 2)
+                    if(movingLoop == MOVING_BOTH_LOOP_POINTS)
                     sequence.moveLoop(-sequence.cursorPos%sequence.subDivision);
                 }
                 else{
                     sequence.moveCursor(-sequence.subDivision);
                     lastTime = millis();
                     //moving entire loop
-                    if(movingLoop == 2)
+                    if(movingLoop == MOVING_BOTH_LOOP_POINTS)
                     sequence.moveLoop(-sequence.subDivision);
                 }
                 //moving loop start/end
-                if(movingLoop == -1){
+                if(movingLoop == MOVING_LOOP_END){
                     sequence.setLoopPoint(sequence.cursorPos,true);
                 }
-                else if(movingLoop == 1){
+                else if(movingLoop == MOVING_LOOP_START){
                     sequence.setLoopPoint(sequence.cursorPos,false);
                 }
                 }
@@ -93,20 +93,20 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
                 if(sequence.cursorPos%sequence.subDivision){
                     sequence.moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
                     lastTime = millis();
-                    if(movingLoop == 2)
+                    if(movingLoop == MOVING_BOTH_LOOP_POINTS)
                     sequence.moveLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
                 }
                 else{
                     sequence.moveCursor(sequence.subDivision);
                     lastTime = millis();
-                    if(movingLoop == 2)
+                    if(movingLoop == MOVING_BOTH_LOOP_POINTS)
                     sequence.moveLoop(sequence.subDivision);
                 }
                 //moving loop start/end
-                if(movingLoop == -1){
+                if(movingLoop == MOVING_LOOP_END){
                     sequence.setLoopPoint(sequence.cursorPos,true);
                 }
-                else if(movingLoop == 1){
+                else if(movingLoop == MOVING_LOOP_START){
                     sequence.setLoopPoint(sequence.cursorPos,false);
                 }
             }
@@ -128,21 +128,21 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
             if (controls.joystickX == 1 && controls.SHIFT()) {
             sequence.moveCursor(-1);
             lastTime = millis();
-            if(movingLoop == 2)
+            if(movingLoop == MOVING_BOTH_LOOP_POINTS)
                 sequence.moveLoop(-1);
-            else if(movingLoop == -1)
+            else if(movingLoop == MOVING_LOOP_END)
                 sequence.setLoopPoint(sequence.cursorPos,true);
-            else if(movingLoop == 1)
+            else if(movingLoop == MOVING_LOOP_START)
                 sequence.setLoopPoint(sequence.cursorPos,false);
             }
             if (controls.joystickX == -1 && controls.SHIFT()) {
             sequence.moveCursor(1);
             lastTime = millis();
-            if(movingLoop == 2)
+            if(movingLoop == MOVING_BOTH_LOOP_POINTS)
                 sequence.moveLoop(1);
-            else if(movingLoop == -1)
+            else if(movingLoop == MOVING_LOOP_END)
                 sequence.loopData[sequence.activeLoop].start = sequence.cursorPos;
-            else if(movingLoop == 1)
+            else if(movingLoop == MOVING_LOOP_START)
                 sequence.loopData[sequence.activeLoop].end = sequence.cursorPos;
             }
         }
@@ -216,7 +216,7 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
 
 void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor){
     const uint8_t portHeight = 11;
-    //grid lines
+    //grid lines -- THIS IS REALLY INEFFICIENT!! you shouldn't check each step here
     for (uint16_t step = sequence.viewStart; step < sequence.viewEnd; step++) {
         unsigned short int x1 = trackDisplay+int((step-sequence.viewStart)*sequence.viewScale);
         unsigned short int x2 = x1 + (step-sequence.viewStart)*sequence.viewScale;
@@ -227,64 +227,63 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
         if(!(step%96)){
             graphics.drawDottedLineV2(x1,9,64,6);
         }
-      if(step == sequence.loopData[sequence.activeLoop].start){
-          if(movingLoop == -1 || movingLoop == 2){
-            display.fillTriangle(trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-3-sin(millis()/50), trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-7-sin(millis()/50), trackDisplay+(step-sequence.viewStart)*sequence.viewScale+4, 9-7-sin(millis()/50),SSD1306_WHITE);
-            display.drawFastVLine(trackDisplay+(step-sequence.viewStart)*sequence.viewScale,9-3,3,SSD1306_WHITE);
-          }
-          else{
-            if(sequence.cursorPos == step){
-              display.fillTriangle(trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-3, trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-7, trackDisplay+(step-sequence.viewStart)*sequence.viewScale+4, 9-7,SSD1306_WHITE);
-              display.drawFastVLine(trackDisplay+(step-sequence.viewStart)*sequence.viewScale,9-3,3,SSD1306_WHITE);
+        //loop point stuff
+        if(step == sequence.loopData[sequence.activeLoop].start){
+            if(movingLoop == MOVING_LOOP_END || movingLoop == MOVING_BOTH_LOOP_POINTS){
+                display.fillTriangle(trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-3-sin(millis()/50), trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-7-sin(millis()/50), trackDisplay+(step-sequence.viewStart)*sequence.viewScale+4, 9-7-sin(millis()/50),SSD1306_WHITE);
+                display.drawFastVLine(trackDisplay+(step-sequence.viewStart)*sequence.viewScale,9-3,3,SSD1306_WHITE);
             }
             else{
-              display.fillTriangle(trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-1, trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-5, trackDisplay+(step-sequence.viewStart)*sequence.viewScale+4, 9-5,SSD1306_WHITE);
+                if(sequence.cursorPos == step){
+                    display.fillTriangle(trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-3, trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-7, trackDisplay+(step-sequence.viewStart)*sequence.viewScale+4, 9-7,SSD1306_WHITE);
+                    display.drawFastVLine(trackDisplay+(step-sequence.viewStart)*sequence.viewScale,9-3,3,SSD1306_WHITE);
+                }
+                else{
+                    display.fillTriangle(trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-1, trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-5, trackDisplay+(step-sequence.viewStart)*sequence.viewScale+4, 9-5,SSD1306_WHITE);
+                }
             }
-          }
-        // if(!movingLoop || (movingLoop != 1 && (millis()/400)%2)){
-        //   display.drawFastVLine(trackDisplay+(step-sequence.viewStart)*sequence.viewScale,9,screenHeight-9-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
-        //   display.drawFastVLine(trackDisplay+(step-sequence.viewStart)*sequence.viewScale-1,9,screenHeight-9-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
-        // }
-      }
-      if(step == sequence.loopData[sequence.activeLoop].end-1){
-          if(movingLoop == 1 || movingLoop == 2){
-            display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale, 9-3-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale-4, 9-7-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale, 9-7-sin(millis()/50),SSD1306_WHITE);
-            display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale,9-3,3,SSD1306_WHITE);
-          }
-          else{
-            if(sequence.cursorPos == step+1){
-              display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale, 9-3, trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale-4, 9-7, trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale, 9-7,SSD1306_WHITE);
-              display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale,9-3,3,SSD1306_WHITE);
-            }
-            else{
-              display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale, 9-1, trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale-4, 9-5, trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale, 9-5,SSD1306_WHITE);
-            }
-          }
-        // if(!movingLoop || (movingLoop != -1 && (millis()/400)%2)){
-        //   display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale+1,9,screenHeight-9-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
-        //   display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale+2,9,screenHeight-9-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
-        // }
-      }
-      if(movingLoop == 2){
-        if(step>sequence.loopData[sequence.activeLoop].start && step<sequence.loopData[sequence.activeLoop].end && step%2){
-          display.drawPixel(trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-7-sin(millis()/50),SSD1306_WHITE);
         }
-      }
-      if(step == sequence.loopData[sequence.activeLoop].start+(sequence.loopData[sequence.activeLoop].end-sequence.loopData[sequence.activeLoop].start)/2)
-        printSmall(trackDisplay+(step-sequence.viewStart)*sequence.viewScale-1,0,stringify(sequence.activeLoop),SSD1306_WHITE);
+        if(step == sequence.loopData[sequence.activeLoop].end-1){
+            if(movingLoop == MOVING_LOOP_START || movingLoop == MOVING_BOTH_LOOP_POINTS){
+                display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale, 9-3-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale-4, 9-7-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale, 9-7-sin(millis()/50),SSD1306_WHITE);
+                display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale,9-3,3,SSD1306_WHITE);
+            }
+            else{
+                if(sequence.cursorPos == step+1){
+                    display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale, 9-3, trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale-4, 9-7, trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale, 9-7,SSD1306_WHITE);
+                    display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale,9-3,3,SSD1306_WHITE);
+                }
+                else{
+                    display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale, 9-1, trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale-4, 9-5, trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale, 9-5,SSD1306_WHITE);
+                }
+            }
+        }
+        if(movingLoop == MOVING_BOTH_LOOP_POINTS){
+            if(step>sequence.loopData[sequence.activeLoop].start && step<sequence.loopData[sequence.activeLoop].end && step%2){
+                display.drawPixel(trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-7-sin(millis()/50),SSD1306_WHITE);
+            }
+        }
+        if(step == sequence.loopData[sequence.activeLoop].start+(sequence.loopData[sequence.activeLoop].end-sequence.loopData[sequence.activeLoop].start)/2)
+            printSmall(trackDisplay+(step-sequence.viewStart)*sequence.viewScale-1,0,stringify(sequence.activeLoop),SSD1306_WHITE);
     }
     //one lane for each port
     for(uint8_t port = 0; port<5; port++){
+        if(port == activePort)
+            display.fillRoundRect(3,port*portHeight+9,30,11,3,1);
         if(port == 0)
-            display.drawBitmap(port == activePort?5:0,port*portHeight+13,tiny_usb,10,4,1);
+            display.drawBitmap(port == activePort?5:0,port*portHeight+13,tiny_usb,10,4,2);
         else{
-            display.drawBitmap(port == activePort?5:0,port*portHeight+11,tiny_midi_bmp,7,7,1);
-            printSmall(port == activePort?13:8,port*portHeight+12,stringify(port),1);
+            display.drawBitmap(port == activePort?5:0,port*portHeight+11,tiny_midi_bmp,7,7,2);
+            printSmall(port == activePort?13:8,port*portHeight+12,stringify(port),2);
         }
         for(uint16_t event = 0; event<PCData[port].size(); event++){
             //if the event is in view
             if(PCData[port][event].timestep<sequence.viewEnd && PCData[port][event].timestep>=sequence.viewStart){
-                if(sequence.cursorPos == PCData[port][event].timestep && activePort == port){
+                if(sequence.playing() && sequence.playheadPos == PCData[port][event].timestep ){
+                    display.drawBitmap((PCData[port][event].timestep-sequence.viewStart)*sequence.viewScale+trackDisplay-2,port*portHeight+6,PCIcon_full,15,14,1);
+                    printSmall((PCData[port][event].timestep-sequence.viewStart)*sequence.viewScale+trackDisplay,port*portHeight+12,stringify(PCData[port][event].val),0);
+                }
+                else if(sequence.cursorPos == PCData[port][event].timestep && activePort == port && (millis()%500>250)){
                     display.drawBitmap((PCData[port][event].timestep-sequence.viewStart)*sequence.viewScale+trackDisplay-2,port*portHeight+6,PCIcon_full,15,14,1);
                     printSmall((PCData[port][event].timestep-sequence.viewStart)*sequence.viewScale+trackDisplay,port*portHeight+12,stringify(PCData[port][event].val),0);
                 }
@@ -297,9 +296,15 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
         }
     }
     //drawing the title (if no info should be drawn)
-    printItalic(8,0,"PC",1);
+    // printItalic(8,0,"PC",1);
+    printItalic(0,0,"P",1);
+    printSmall(8,2,"rg",1);
+    printItalic(16,0,"C",1);
+    printSmall(23,2,"hng",1);
     if(sequence.cursorPos<sequence.viewEnd && sequence.cursorPos>=sequence.viewStart){
         graphics.drawArrow((sequence.cursorPos-sequence.viewStart)*sequence.viewScale+trackDisplay+((millis()/200)%2)-1,activePort*portHeight+14,3,0,false);
+        if(millis()%500>250)
+            display.drawFastVLine((sequence.cursorPos-sequence.viewStart)*sequence.viewScale+trackDisplay,8,screenHeight-8,1);
     }
     if(sequence.playing() && sequence.playheadPos<sequence.viewEnd && sequence.playheadPos>=sequence.viewStart){
         display.drawRoundRect(trackDisplay+(sequence.playheadPos-sequence.viewStart)*sequence.viewScale,9,3, screenHeight-9, 3, SSD1306_WHITE);

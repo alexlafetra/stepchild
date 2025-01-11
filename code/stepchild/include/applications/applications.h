@@ -215,7 +215,7 @@ const unsigned char* instrumentApplicationIcons[16] = {
 };
 
 //loading all the functions
-void (*const instrumentApplicationFunctions[16])() = {
+bool (*const instrumentApplicationFunctions[16])() = {
     INSTRUMENT_APP1_FUNCTION,
     INSTRUMENT_APP2_FUNCTION,
     INSTRUMENT_APP3_FUNCTION,
@@ -313,6 +313,7 @@ const unsigned char warp_bmp []  = {
 	0x2a, 0x20, 0x0a, 0x00, 0x08, 0x00, 0x00, 0x00
 };
 
+
 //TBD, because they have sick little icons
 /*
   epd_bitmap_scramble,
@@ -323,26 +324,33 @@ const unsigned char warp_bmp []  = {
 
 //Default ChildOS FX applications
 
-#define FX_APP1_ICON quantize_bmp
-#define FX_APP2_ICON humanize_bmp
-#define FX_APP3_ICON strum_bmp
-#define FX_APP4_ICON echo_bmp
-#define FX_APP5_ICON reverse_bmp
-#define FX_APP6_ICON warp_bmp
+#define FX_APP1_ICON random_bmp
+#define FX_APP2_ICON quantize_bmp
+#define FX_APP3_ICON humanize_bmp
+#define FX_APP4_ICON strum_bmp
+#define FX_APP5_ICON echo_bmp
+#define FX_APP6_ICON reverse_bmp
+#define FX_APP7_ICON warp_bmp
+#define FX_APP8_ICON chop2_bmp
 
-#define FX_APP1_FUNCTION quantizeMenu
-#define FX_APP2_FUNCTION humanizeMenu
-#define FX_APP3_FUNCTION strumMenu
-#define FX_APP4_FUNCTION echoMenu
-#define FX_APP5_FUNCTION reverse
-#define FX_APP6_FUNCTION warp
 
-#define FX_APP1_TEXT "quantize"
-#define FX_APP2_TEXT "humanize"
-#define FX_APP3_TEXT "strum"
-#define FX_APP4_TEXT "echo"
-#define FX_APP5_TEXT "reverse"
-#define FX_APP6_TEXT "warp"
+#define FX_APP1_FUNCTION randMenu
+#define FX_APP2_FUNCTION quantizeMenu
+#define FX_APP3_FUNCTION humanizeMenu
+#define FX_APP4_FUNCTION strumMenu
+#define FX_APP5_FUNCTION echoMenu
+#define FX_APP6_FUNCTION reverse
+#define FX_APP7_FUNCTION warp
+#define FX_APP8_FUNCTION getNotesToChop
+
+#define FX_APP1_TEXT "random"
+#define FX_APP2_TEXT "quantize"
+#define FX_APP3_TEXT "humanize"
+#define FX_APP4_TEXT "strum"
+#define FX_APP5_TEXT "echo"
+#define FX_APP6_TEXT "reverse"
+#define FX_APP7_TEXT "warp"
+#define FX_APP8_TEXT "chop"
 
 /*
     Check to see if the user has defined these in their code!
@@ -554,7 +562,7 @@ const unsigned char* fxApplicationIcons[24] = {
 };
 
 //loading all the functions
-void (*const fxApplicationFunctions[24])() = {
+bool (*const fxApplicationFunctions[24])() = {
     FX_APP1_FUNCTION,
     FX_APP2_FUNCTION,
     FX_APP3_FUNCTION,
@@ -581,7 +589,7 @@ void (*const fxApplicationFunctions[24])() = {
     FX_APP24_FUNCTION
 };
 
-const String fxApplicationTexts[24] = {
+const String fxApplicationTitles[24] = {
     FX_APP1_TEXT,
     FX_APP2_TEXT,
     FX_APP3_TEXT,

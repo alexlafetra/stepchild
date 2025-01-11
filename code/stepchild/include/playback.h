@@ -5,7 +5,7 @@ void playNote(Note& note, uint8_t track, uint16_t timestep){
     if(!note.isMuted()){
       //if the track was already sending a note, send note off
       if(sequence.trackData[track].noteLastSent != 255){
-        if(!arp.isActive || arp.source == EXTERNAL)
+        if(!arp.isActive || arp.source == NOTES_FROM_MIDI_INPUT)
           MIDI.noteOff(sequence.trackData[track].noteLastSent, 0, sequence.trackData[track].channel);
         sequence.trackData[track].noteLastSent = 255;
         triggerAutotracks(track,false);
@@ -55,11 +55,11 @@ void playNote(Note& note, uint8_t track, uint16_t timestep){
         if(sequence.trackData[track].muteGroup!=0){
           muteGroups(track, sequence.trackData[track].muteGroup);
         }
-        if(!arp.isActive || arp.source == EXTERNAL)
+        if(!arp.isActive || arp.source == NOTES_FROM_MIDI_INPUT)
           MIDI.noteOn(pitch, vel, sequence.trackData[track].channel);
         sequence.trackData[track].noteLastSent = pitch;
         if(sequence.trackData[track].isLatched()){
-          if(!arp.isActive || arp.source == EXTERNAL)
+          if(!arp.isActive || arp.source == NOTES_FROM_MIDI_INPUT)
             MIDI.noteOff(pitch, 0, sequence.trackData[track].channel);
         }
         sentNotes.addNote(pitch,vel,sequence.trackData[track].channel);
@@ -85,7 +85,7 @@ void playTrack(uint8_t track, uint16_t timestep){
   //if there's no note, skip to the next track
   if (sequence.lookupTable[track][timestep] == 0){
     if(sequence.trackData[track].noteLastSent != 255){//if the track was sending, send a note off
-      if(!arp.isActive || arp.source == EXTERNAL)//if the arp is off, or if it's just listening to notes from outside the seq
+      if(!arp.isActive || arp.source == NOTES_FROM_MIDI_INPUT)//if the arp is off, or if it's just listening to notes from outside the seq
         MIDI.noteOff(sequence.trackData[track].noteLastSent, 0, sequence.trackData[track].channel);
       sentNotes.subNote(sequence.trackData[track].noteLastSent);
       sequence.trackData[track].noteLastSent = 255;
@@ -755,11 +755,11 @@ void arpLoop(){
   //if it was active, but hadn't started playing yet
   if(!arp.playing){
     switch(arp.source){
-      case EXTERNAL:
+      case NOTES_FROM_MIDI_INPUT:
         if(receivedNotes.notes.size()>0)
           arp.start();
         break;
-      case INTERNAL:
+      case NOTES_FROM_SEQUENCE:
         if(sentNotes.notes.size()>0)
           arp.start();
         break;
@@ -767,7 +767,7 @@ void arpLoop(){
   }
   if(arp.playing){
     //if the arp isn't latched and there are no notes for it
-    if(!arp.holding  && ((arp.source == EXTERNAL && !receivedNotes.notes.size()) || (arp.source == INTERNAL && !sentNotes.notes.size()))){
+    if(!arp.holding  && ((arp.source == NOTES_FROM_MIDI_INPUT && !receivedNotes.notes.size()) || (arp.source == NOTES_FROM_SEQUENCE && !sentNotes.notes.size()))){
       arp.stop();
     }
     //if it IS latched or there are notes for it, then continue

@@ -342,7 +342,7 @@ void print7SegSmall(int x, int y, String text, uint16_t c){
         a = 11;
         break;
     }
-    display.drawBitmap(x,y,small7seg[a],4,7,1);
+    display.drawBitmap(x,y,small7seg[a],4,7,c);
     x+=5;
   }
 }

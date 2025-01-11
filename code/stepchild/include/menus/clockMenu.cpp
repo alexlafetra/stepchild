@@ -13,6 +13,12 @@ class ClockMenu:public StepchildMenu{
     void updatePendulum();
     bool clockMenuControls();
     void updateStepButtons();
+    void toggleClockSource(){
+      if(clockSource == INTERNAL_CLOCK)
+        clockSource = EXTERNAL_CLOCK;
+      else if(clockSource == EXTERNAL_CLOCK)
+        clockSource = INTERNAL_CLOCK;
+    }
 };
 
 
@@ -257,7 +263,10 @@ bool ClockMenu::clockMenuControls(){
         lastTime = millis();
       }
       else if(cursor == 3){
-        clockSource = !clockSource;
+        if(clockSource == INTERNAL_CLOCK)
+          clockSource = EXTERNAL_CLOCK;
+        else if(clockSource == EXTERNAL_CLOCK)
+          clockSource = INTERNAL_CLOCK;
         lastTime = millis();
       }
     }
@@ -293,7 +302,7 @@ bool ClockMenu::clockMenuControls(){
           break;
         //source
         case 3:
-          clockSource = !clockSource;
+          toggleClockSource();
           break;
       }
     }
@@ -328,7 +337,7 @@ bool ClockMenu::clockMenuControls(){
           break;
         //source
         case 3:
-          clockSource = !clockSource;
+toggleClockSource();
           break;
       }
     }
@@ -459,9 +468,9 @@ void tapBpm(){
 
 void clockMenu(){
   ClockMenu clockMenu;
-  clockMenu.slideIn(IN_FROM_BOTTOM,20);
+  clockMenu.slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
   while(clockMenu.clockMenuControls()){
     clockMenu.displayMenu();
   }
-  clockMenu.slideOut(OUT_FROM_BOTTOM,16);
+  clockMenu.slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
 }

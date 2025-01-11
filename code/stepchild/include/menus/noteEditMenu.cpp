@@ -133,7 +133,7 @@ void NoteEditMenu::displayMenu(){
       display.fillRect(screenWidth-fnWindowStart,(currentQuickFunction)*7+1,fnWindowStart,7,1);
       //printing labels
       for(uint8_t i = 0; i<25; i++){
-        printSmall(screenWidth-fnWindowStart+2,i*7+2,fxApplicationTexts[i],2);
+        printSmall(screenWidth-fnWindowStart+2,i*7+2,fxApplicationTitles[i],2);
       }
       display.drawBitmap(screenWidth-fnWindowStart-7,(currentQuickFunction)*7+6,mouse_cursor_fill_bmp,9,15,0);
       display.drawBitmap(screenWidth-fnWindowStart-7,(currentQuickFunction)*7+6,mouse_cursor_outline_bmp,9,15,1);
@@ -264,7 +264,7 @@ void NoteEditMenu::displayMenu(){
         printSmall(78,3,"[sh]+L",1);
         break;
       case 6:
-        txt = fxApplicationTexts[currentQuickFunction];
+        txt = fxApplicationTitles[currentQuickFunction];
         break;
     }
     //drawing edit param info
@@ -327,6 +327,7 @@ bool NoteEditMenu::editMenuControls_editing(){
     }
     controls.counterB += controls.counterB<0?1:-1;;
   }
+  controls.counterA = 0;
 
   //joystick
   if(utils.itsbeen(100)){
@@ -603,29 +604,13 @@ bool NoteEditMenu::editMenuControls_normal(){
   //joystick
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1){
-      if(controls.SHIFT()){
-        sequence.moveToNextNote_inTrack(true);
-        drawingNote = false;
-        lastTime = millis();
-      }
-      else{
-        sequence.setActiveTrack(sequence.activeTrack+1,false);
-        lastTime = millis();
-      }
+      sequence.setActiveTrack(sequence.activeTrack+1,false);
+      lastTime = millis();
     }
     if (controls.joystickY == -1){
-      if(controls.SHIFT()){
-        sequence.moveToNextNote_inTrack(false);
-        drawingNote = false;
-        lastTime = millis();
-      }
-      else{
-        sequence.setActiveTrack(sequence.activeTrack-1,false);
-        lastTime = millis();
-      }
+      sequence.setActiveTrack(sequence.activeTrack-1,false);
+      lastTime = millis();
     }
-  }
-  if(utils.itsbeen(100)){
     if (controls.joystickX == 1){
       if(!controls.SHIFT()){
         sequence.moveToNextNote(false,false);
@@ -655,12 +640,12 @@ bool NoteEditMenu::editMenuControls_normal(){
       return false;
     }
     if(controls.B()){
-      controls.setB(false);
+      // controls.setB(false);
       lastTime = millis();
       return false;
     }
     if(controls.A()){
-      controls.setA(false);
+      // controls.setA(false);
       lastTime = millis();
       return false;
     }
@@ -794,10 +779,10 @@ bool NoteEditMenu::editMenuControls(){
 
 void editMenu(){
   NoteEditMenu noteEditMenu;
-  noteEditMenu.slideIn(IN_FROM_RIGHT,48);
+  noteEditMenu.slideIn(IN_FROM_RIGHT,MENU_SLIDE_FAST);
   while(noteEditMenu.editMenuControls()){
     //draw seq without top info, side info, or menus
     noteEditMenu.displayMenu();
   }
-  noteEditMenu.slideOut(OUT_FROM_RIGHT,48);
+  noteEditMenu.slideOut(OUT_FROM_RIGHT,MENU_SLIDE_FAST);
 }

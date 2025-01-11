@@ -4,6 +4,26 @@ enum SlideDirection:uint8_t{
     OUT_FROM_RIGHT,
     OUT_FROM_BOTTOM
 };
+
+// #define MENU_SLIDE_FAST 48
+// #define MENU_SLIDE_MEDIUM_FAST 30
+// #define MENU_SLIDE_MEDIUM 20
+// #define MENU_SLIDE_MEDIUM_SLOW 16
+// #define MENU_SLIDE_SLOW 10
+
+
+enum MenuReturnValue:uint8_t{
+  NO_ACTION,
+  BACK_TO_MAIN_SEQUENCE,
+  BACK_TO_MAIN_MENU
+};
+
+#define MENU_SLIDE_FAST 20
+#define MENU_SLIDE_MEDIUM_FAST 10
+#define MENU_SLIDE_MEDIUM 10
+#define MENU_SLIDE_MEDIUM_SLOW 10
+#define MENU_SLIDE_SLOW 5
+
 //generic menu class
 class StepchildMenu{
     public:

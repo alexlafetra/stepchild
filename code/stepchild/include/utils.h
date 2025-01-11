@@ -246,8 +246,7 @@ String stepsToMeasures(int32_t stepVal){
 }
 
 int16_t getOctave(int val){
-  int16_t oct = val/12;
-  return oct;
+  return val/12;
 }
 
 

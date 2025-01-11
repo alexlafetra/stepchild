@@ -1,5 +1,4 @@
-void drawArpMenu(uint8_t cursor, bool justKeys);
-void drawArpMenu(uint8_t cursor);
+void drawArpMenu(uint8_t cursor, int8_t xStart);
 
 void deleteCustomLength(uint8_t which){
   vector <uint8_t> newNotes;
@@ -537,7 +536,7 @@ void arpModMenu(){
       }
     }
     display.clearDisplay();
-    drawArpMenu(2,true);
+    drawArpMenu(2,0);
     drawModBoxes(cursor);
     display.display();
   }
@@ -547,99 +546,119 @@ void drawArpModeIcon(uint8_t x1, int8_t y1, uint8_t which,uint16_t c){
   display.fillRect(x1,y1,11,11,0);
   display.drawBitmap(x1,y1,arpMode_icons[which],11,11,c);
 }
-void drawArpMenu(uint8_t cursor, bool justKeys){
-
-  drawKeys(38,14,getOctave(36),14,false);//always start on a C, for simplicity
+void drawArpMenu(uint8_t cursor, int8_t xStart){
 
   //last note played
   String lastNote = pitchToString(arp.lastPitchSent,true,true);
-  graphics.printPitch(115,0,lastNote,false,false, 1);
+  graphics.printPitch(115-xStart,0,lastNote,false,false, 1);
   if(arp.holding && millis()%800>400){
-    printSmall(106,9,"[HOLD]",1);
+    printSmall(106-xStart,9,"[HOLD]",1);
   }
   else if(!arp.holding){
-    printSmall(110,9,"cpy 2",1);
-      printSmall(112,15,"hold",1);
+    printSmall(110-xStart,9,"cpy 2",1);
+    printSmall(112-xStart,15,"hold",1);
   }
 
-  if(justKeys)
-    return;
   const uint8_t y1 = 15;
   //on/off
-  graphics.drawSlider(0,y1,"on","off",!arp.isActive);
+  graphics.drawSlider(xStart,y1,"on","off",!arp.isActive);
 
   //step lengths
   String stepLength = arp.uniformLength?stepsToMeasures(arp.arpSubDiv):"custom";
-  graphics.drawSlider(0,y1+20,"custom","uniform",arp.uniformLength);
-  printSmall(0,y1+14,"length:" + stepLength,1);
+  graphics.drawSlider(xStart,y1+20,"custom","uniform",arp.uniformLength);
+  printSmall(xStart,y1+14,"length:" + stepLength,1);
 
   //modulation
-  printArp(0,52,"MOD",1);
+  printArp(xStart,52,"MOD",1);
 
-  graphics.fillSquareVertically(20,50,11,float(arp.maxVelMod*100)/float(127));
-  printSmall(24,53,"v",2);
+  display.fillRect(xStart+20,50,11,11,0);
+  graphics.fillSquareVertically(xStart+20,50,11,float(arp.maxVelMod*100)/float(127));
+  printSmall(xStart+24,53,"v",2);
 
-  graphics.fillSquareVertically(33,50,11,float(arp.chanceMod));
-  printSmall(37,53,"%",2);
+  display.fillRect(xStart+33,50,11,11,0);
+  graphics.fillSquareVertically(xStart+33,50,11,float(arp.chanceMod));
+  printSmall(xStart+37,53,"%",2);
 
-  graphics.fillSquareVertically(46,50,11,float(arp.repMod*100)/float(127));
-  printSmall(50,53,"x",2);
+  display.fillRect(xStart+46,50,11,11,0);
+  graphics.fillSquareVertically(xStart+46,50,11,float(arp.repMod*100)/float(127));
+  printSmall(xStart+50,53,"x",2);
 
-  graphics.fillSquareVertically(59,50,11,float(arp.maxPitchMod*100)/float(127));
-  printSmall(63,53,"$",2);
+  display.fillRect(xStart+59,50,11,11,0);
+  graphics.fillSquareVertically(xStart+59,50,11,float(arp.maxPitchMod*100)/float(127));
+  printSmall(xStart+63,53,"$",2);
 
   //arp mode icon
-  drawArpModeIcon(72,50,arp.playStyle,1);
+  drawArpModeIcon(xStart+72,50,arp.playStyle,1);
 
   switch(cursor){
     case 0:
-      graphics.drawArrow(29+((millis()/400)%2),y1+5,3,1,false);
+      graphics.drawArrow(xStart+29+((millis()/400)%2),y1+5,3,1,false);
       break;
     case 1:
-      graphics.drawArrow(61+((millis()/400)%2),y1+25,3,1,false);
+      graphics.drawArrow(xStart+61+((millis()/400)%2),y1+25,3,1,false);
       break;
     case 2:
-      graphics.drawArrow(82+((millis()/400)%2),y1+40,3,1,false);
+      graphics.drawArrow(xStart+82+((millis()/400)%2),y1+40,3,1,false);
       break;
   }
   //channel icon
-  graphics.drawSmallChannelIcon(93,1,arp.channel);
+  graphics.drawSmallChannelIcon(93-xStart,1,arp.channel);
 
   //input icon
-  printSmall(50,1,"src:",1);
+  printSmall(xStart+50,1,"src:",1);
   switch(arp.source){
     //external
-    case EXTERNAL:
-      display.drawBitmap(64,0,tiny_midi_bmp,7,7,1);
+    case NOTES_FROM_MIDI_INPUT:
+      display.drawBitmap(xStart+64,0,tiny_midi_bmp,7,7,1);
       break;
     //internal
-    case INTERNAL:
-      display.drawBitmap(64,0,tiny_stepchild_bmp,7,7,1);
+    case NOTES_FROM_SEQUENCE:
+      display.drawBitmap(xStart+64,0,tiny_stepchild_bmp,7,7,1);
       break;
     //both
-    case BOTH:
-      display.drawBitmap(64,0,tiny_midi_bmp,7,7,1);
-      printSmall(72,1,"+",1);
-      display.drawBitmap(76,0,tiny_stepchild_bmp,7,7,1);
+    case NOTES_FROM_SEQUENCE_AND_MIDI_INPUT:
+      display.drawBitmap(xStart+64,0,tiny_midi_bmp,7,7,1);
+      printSmall(xStart+72,1,"+",1);
+      display.drawBitmap(xStart+76,0,tiny_stepchild_bmp,7,7,1);
       break;
   }  
   //title
-  printArp_wiggly(0,3,"arpeggi",1);
-}
-
-void drawArpMenu(uint8_t cursor){
-  drawArpMenu(cursor,false);
+  printArp_wiggly(xStart,3,"arpeggi",1);
 }
 
 //"notes" option adds notes from the 1scale onto whatever notes are playing
 void arpMenu(){
-  keyboardAnimation(38,14,0,14,true);
-  int spacing = 4;
-  //step boxes
   uint8_t cursor = 0;
+
+  SequenceRenderSettings settings;
+  settings.topLabels = false;
+  settings.trackLabels = false;
+  settings.drawPram = false;
+  settings.drawTrackChannel = false;
+  settings.drawLoopFlags = false;
+
+  //Animating the slide in
+  const int8_t startOffset = 88;
+  const int8_t animSpeed = 8;
+  int8_t xStart = -startOffset;
+  int8_t numberOfKeysToDraw = 0;
+  
+  while(xStart < 0){
+    display.clearDisplay();
+    drawSeq(settings);
+    drawArpMenu(cursor,xStart);
+    drawKeyboard(38,14,3,numberOfKeysToDraw);
+    display.display();
+    xStart+=animSpeed;
+    numberOfKeysToDraw = (startOffset+xStart)/(startOffset/14);
+  }
+  // keyboardAnimation(38,14,0,14,true);
+
   while(true){
     display.clearDisplay();
-    drawArpMenu(cursor);
+    drawSeq(settings);
+    drawKeys(38,14,3,14,false);//always start on a C, for simplicity
+    drawArpMenu(cursor,xStart);
     display.display();
 
     //controls
@@ -789,5 +808,14 @@ void arpMenu(){
       }
     }
   }
-  // keyboardAnimation();
+  //sliding back out
+  while(xStart > -startOffset){
+    display.clearDisplay();
+    drawSeq(settings);
+    drawArpMenu(cursor,xStart);
+    drawKeyboard(38,14,0,numberOfKeysToDraw);
+    display.display();
+    xStart-=animSpeed;
+    numberOfKeysToDraw = (startOffset+xStart)/(startOffset/14);
+  }
 }

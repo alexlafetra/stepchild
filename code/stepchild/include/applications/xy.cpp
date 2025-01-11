@@ -51,7 +51,7 @@ void gridAnimation(bool in){
   }
 }
 
-void xyGrid(){
+bool xyGrid(){
   int16_t xCoord = controls.getJoyX();
   int16_t yCoord = controls.getJoyY();
 
@@ -218,7 +218,7 @@ void xyGrid(){
       if(controls.MENU()){
         lastTime = millis();
         gridAnimation(false);
-        return;
+        return true;
       }
       //set offsets
       if(controls.LOOP()){
@@ -244,4 +244,5 @@ void xyGrid(){
       }
     }
   }
+  return true;
 }

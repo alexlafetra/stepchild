@@ -118,7 +118,6 @@ class StepchildGraphics{
   void drawHumanizeIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim);
   void drawVelIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim);
   void drawChanceIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim);
-  void drawWarpIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim);
   //inverting square
   void drawReverseIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim);
   //concentric circles

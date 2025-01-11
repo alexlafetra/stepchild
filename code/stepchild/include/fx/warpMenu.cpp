@@ -6,18 +6,14 @@ const unsigned char into_bmp [] = {
 	0x00, 0x20, 0x00, 0x00, 0x00, 0xc0, 0x01, 0x20, 0x00, 0xc0
 };
 
-
-struct NoteTrackPair{
-public:
-    Note note;
-    uint8_t trackID;
-    NoteTrackPair(Note n, uint8_t t);
-};
-NoteTrackPair::NoteTrackPair(Note n, uint8_t t){
-  note = n;
-  trackID = t;
+void drawWarpIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
+  w--;
+  graphics.drawDottedRect(x1,y1,w,w,2);
+  if(anim)
+    display.fillRect(x1,y1,(millis()/100)%(w)+2,(millis()/100)%(w)+2,SSD1306_WHITE);
+  else
+    display.fillRect(x1,y1,w/2,w/2,SSD1306_WHITE);
 }
-
 
 CoordinatePair selectArea_warp(bool AorB){
   CoordinatePair coords;
@@ -109,6 +105,7 @@ CoordinatePair selectArea_warp(bool AorB){
     SequenceRenderSettings settings;
     settings.drawPram = false;
     settings.topLabels = false;
+    settings.shrinkTopDisplay = false;
     drawSeq(settings);
     drawCoordinateBox(coords,settings);
     if(coords.start.x == 0 && coords.end.x == 0 && coords.start.y == 0 && coords.end.y == 0){
@@ -130,7 +127,7 @@ CoordinatePair selectArea_warp(bool AorB){
       if(millis()%500>250)
         printItalic(trackDisplay+50,0,AorB?"A":"B",1);
     }
-    graphics.drawWarpIcon(8,2,11,true);
+    drawWarpIcon(8,2,11,true);
     display.display();
   }
 }
@@ -198,27 +195,28 @@ bool warpAintoB(CoordinatePair A, CoordinatePair B, bool onlySelected){
   return true;
 }
 
-//flag for only warping selected notes
-void selectAreasAndWarp(bool onlySelected){
-    CoordinatePair A = selectArea_random();
-    CoordinatePair B = selectArea_random();
-    warpAintoB(A,B,onlySelected);
-}
-
-void warp(){
+bool warp(){
   CoordinatePair A;
   CoordinatePair B;
+  bool atLeastOnce = false;
   //0 is A, 1 is B, 2 is warp
   while(true){
     A = selectArea_warp(true);
     if(A.isVertical())
       break;
+    else
+      atLeastOnce = true;
     B = selectArea_warp(false);
     if(B.isVertical())
       break;
+    else
+      atLeastOnce = true;
     //only warps selected notes, if any are selected
     if(!warpAintoB(A,B,sequence.selectionCount != 0)){
       break;
     }
+    else
+      atLeastOnce = true;
   }
+  return atLeastOnce;
 }

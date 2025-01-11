@@ -16,6 +16,7 @@ class TrackMenu:public StepchildMenu{
     bool trackMenuControls();
     void displayMenu();
     void displayMenuSidebar();
+    String getMenuText();
 };
 
 void trackUtils(TrackMenu* t);
@@ -256,6 +257,21 @@ void TrackMenu::displayMenu(){
   display.display();
 }
 
+String TrackMenu::getMenuText(){
+  const vector<String> texts = {"pitch","octave","channel","prime","edit","mute","move","erase","solo","latch"};
+  switch(cursor){
+    case 0:
+      break;
+    case 1:
+      break;
+    case 2:
+      break;
+    case 3:
+      break;
+  }
+  return "hey";
+}
+
 void TrackMenu::displayMenuSidebar(){
 
   //title
@@ -270,8 +286,9 @@ void TrackMenu::displayMenuSidebar(){
   display.fillRoundRect(coords.start.x,coords.start.y+12,coords.end.x-coords.start.x+1,coords.end.y-coords.start.y-11,3,SSD1306_BLACK);
   display.drawRoundRect(coords.start.x,coords.start.y+12,coords.end.x-coords.start.x+1,coords.end.y-coords.start.y-11,3,SSD1306_WHITE);
   //top labels 
-  const vector<String> texts = {"track","pitch","octave","channel","prime","latch","mute"};
-  printChunky(coords.end.x-texts[xCursor].length()*6,coords.start.y+5,texts[xCursor],1);
+  String text = getMenuText();
+  // printChunky(coords.end.x-text.length()*6,coords.start.y+5,text,1);
+    printChunky(coords.end.x-6,coords.start.y+5,stringify(cursor),1);
   drawTrackMenuTopInfo(coords.start.x);
 
   //drawing menu options, and the highlight
@@ -347,11 +364,11 @@ void TrackMenu::displayMenuSidebar(){
 
 void trackMenu(){
   TrackMenu trackMenu;
-  trackMenu.slideIn(IN_FROM_RIGHT,10);
+  trackMenu.slideIn(IN_FROM_RIGHT,MENU_SLIDE_SLOW);
   while(trackMenu.trackMenuControls()){
     trackMenu.displayMenu();
   }
-  trackMenu.slideOut(OUT_FROM_RIGHT,10);
+  trackMenu.slideOut(OUT_FROM_RIGHT,MENU_SLIDE_SLOW);
 }
 
 /*

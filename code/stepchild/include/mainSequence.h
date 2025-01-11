@@ -22,21 +22,21 @@ void defaultJoystickControls(bool velocityEditingAllowed){
         sequence.moveCursor(-sequence.cursorPos%sequence.subDivision);
         lastTime = millis();
         //moving entire loop
-        if(movingLoop == 2)
+        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(-sequence.cursorPos%sequence.subDivision);
       }
       else{
         sequence.moveCursor(-sequence.subDivision);
         lastTime = millis();
         //moving entire loop
-        if(movingLoop == 2)
+        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(-sequence.subDivision);
       }
       //moving loop start/end
-      if(movingLoop == -1){
+      if(movingLoop == MOVING_LOOP_END){
         sequence.setLoopPoint(sequence.cursorPos,true);
       }
-      else if(movingLoop == 1){
+      else if(movingLoop == MOVING_LOOP_START){
         sequence.setLoopPoint(sequence.cursorPos,false);
       }
     }
@@ -44,20 +44,20 @@ void defaultJoystickControls(bool velocityEditingAllowed){
       if(sequence.cursorPos%sequence.subDivision){
         sequence.moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
         lastTime = millis();
-        if(movingLoop == 2)
+        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
       }
       else{
         sequence.moveCursor(sequence.subDivision);
         lastTime = millis();
-        if(movingLoop == 2)
+        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(sequence.subDivision);
       }
       //moving loop start/end
-      if(movingLoop == -1){
+      if(movingLoop == MOVING_LOOP_END){
         sequence.setLoopPoint(sequence.cursorPos,true);
       }
-      else if(movingLoop == 1){
+      else if(movingLoop == MOVING_LOOP_START){
         sequence.setLoopPoint(sequence.cursorPos,false);
       }
     }
@@ -79,22 +79,22 @@ void defaultJoystickControls(bool velocityEditingAllowed){
     if (controls.joystickX == 1 && controls.SHIFT()) {
       sequence.moveCursor(-1);
       lastTime = millis();
-      if(movingLoop == 2)
+      if(movingLoop == MOVING_BOTH_LOOP_POINTS)
         sequence.moveLoop(-1);
-      else if(movingLoop == -1)
+      else if(movingLoop == MOVING_LOOP_END)
         sequence.setLoopPoint(sequence.cursorPos,true);
-      else if(movingLoop == 1)
+      else if(movingLoop == MOVING_LOOP_START)
         sequence.setLoopPoint(sequence.cursorPos,false);
     }
     if (controls.joystickX == -1 && controls.SHIFT()) {
       sequence.moveCursor(1);
       lastTime = millis();
-      if(movingLoop == 2)
+      if(movingLoop == MOVING_BOTH_LOOP_POINTS)
         sequence.moveLoop(1);
-      else if(movingLoop == -1)
-        sequence.loopData[sequence.activeLoop].start = sequence.cursorPos;
-      else if(movingLoop == 1)
-        sequence.loopData[sequence.activeLoop].end = sequence.cursorPos;
+      else if(movingLoop == MOVING_LOOP_END)
+        sequence.setLoopPoint(sequence.cursorPos,true);
+      else if(movingLoop == MOVING_LOOP_START)
+        sequence.setLoopPoint(sequence.cursorPos,false);
     }
     //changing vel
     if(velocityEditingAllowed){
@@ -169,27 +169,27 @@ void defaultSelectControls(){
 void defaultLoopControls(){
   if(controls.LOOP()){
       //if you're not moving a loop, start
-      if(movingLoop == StepchildSequence::NONE){
+      if(movingLoop == MOVING_NO_LOOP_POINTS){
         //if you're on the start, move the start
         if(sequence.cursorPos == sequence.loopData[sequence.activeLoop].start){
-          movingLoop = StepchildSequence::START;
+          movingLoop = MOVING_LOOP_END;
           menuText = "Moving Loop Start";
         }
         //if you're on the end
         else if(sequence.cursorPos == sequence.loopData[sequence.activeLoop].end){
-          movingLoop = StepchildSequence::END;
+          movingLoop = MOVING_LOOP_START;
           menuText = "Moving Loop End";
         }
         //if you're not on either, move the whole loop
         else{
-          movingLoop = StepchildSequence::BOTH;
+          movingLoop = MOVING_BOTH_LOOP_POINTS;
           menuText = "Moving Loop";
         }
         lastTime = millis();
       }
       //if you were moving, stop
       else{
-        movingLoop = StepchildSequence::NONE;
+        movingLoop = MOVING_NO_LOOP_POINTS;
         lastTime = millis();
       }
   }
@@ -209,7 +209,6 @@ void mainSequencerButtons(){
   defaultSelectBoxControls();
   if(!controls.NEW())
     drawingNote = false;
-
   //del happens a liitle faster (so you can draw/erase fast)
   if(utils.itsbeen(75)){
     //del
@@ -238,7 +237,7 @@ void mainSequencerButtons(){
         //if there is a note here, cut it in half/thirds (depending on if you're in triplet mode or not)
         else{
           lastTime = millis();
-          chop(sequence.activeTrack,sequence.cursorPos);
+          chop(vector<NoteID> {NoteID(sequence.IDAtCursor(),sequence.activeTrack)});
           lastTime = millis();
         }
       }
@@ -288,7 +287,12 @@ void mainSequencerButtons(){
     //menu press
     if(controls.MENU()){
       lastTime = millis();
-      mainMenu();
+      if(controls.SHIFT()){
+        fxMenu();
+      }
+      else{
+        mainMenu();
+      }
       return;
     }
     if(controls.A()){

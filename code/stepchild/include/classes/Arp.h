@@ -1,8 +1,9 @@
 enum ArpSource:uint8_t{
-  EXTERNAL,
-  INTERNAL,
-  BOTH
+  NOTES_FROM_MIDI_INPUT,
+  NOTES_FROM_SEQUENCE,
+  NOTES_FROM_SEQUENCE_AND_MIDI_INPUT
 };
+
 ArpSource operator++(ArpSource &c,int) {
   c = static_cast<ArpSource>(static_cast<uint8_t>(c) + 1);
   return c;
@@ -53,7 +54,7 @@ public:
   bool playing;
   bool uniformLength;
   bool holding;
-  ArpSource source; //can be 0 (external only) 1 (internal only) or 2 (both)
+  ArpSource source = NOTES_FROM_SEQUENCE_AND_MIDI_INPUT; //can be 0 (external only) 1 (internal only) or 2 (both)
 
   void grabNotesFromTracks(bool);
   void grabNotesFromPlaylist();
@@ -93,7 +94,7 @@ Arp::Arp() {
   playing = false;
   uniformLength = true;
   holding = false;
-  source = EXTERNAL;
+  source = NOTES_FROM_MIDI_INPUT;
   channel = 1;
 
   maxVelMod = 0;
@@ -181,19 +182,19 @@ void Arp::grabNotesFromPlaylist() {
   for (int oct = 0; oct < range + 1; oct++) {
     switch(source){
       //if it's just external notes
-      case 0:
+      case NOTES_FROM_MIDI_INPUT:
         for (int i = 0; i < receivedNotes.notes.size(); i++) {
           notes.push_back(receivedNotes.notes[i].pitch + 12 * oct);
         }
       break;
       //if it's just internal notes
-      case 1:
+      case NOTES_FROM_SEQUENCE:
         for (int i = 0; i < sentNotes.notes.size(); i++) {
           notes.push_back(sentNotes.notes[i].pitch + 12 * oct);
         }
         break;
       //grabbing from both
-      case 2:
+      case NOTES_FROM_SEQUENCE_AND_MIDI_INPUT:
       //you don't need to do this every time! wasteful
         notes = getUnionPitchList();
         for(uint8_t i = 0; i<notes.size(); i++){
@@ -391,7 +392,7 @@ void Arp::setOrder() {
 void drawArpStepLengths(uint8_t xStart, uint8_t yStart, uint8_t startNote, uint8_t xCursor, bool selected){
   if(arp.uniformLength){
     graphics.drawCenteredBanner(64,20,"using uniform steps of "+stepsToMeasures(arp.arpSubDiv));
-    graphics.drawLabel(64,32,"[controls.SELECT() ] to toggle custom steps",true);
+    graphics.drawLabel(64,32,"[SEL] to toggle custom steps",true);
   }
   uint8_t spacing = 3;
   uint8_t thickness = (screenWidth-8)/arp.lengths.size()-spacing;

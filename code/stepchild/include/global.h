@@ -25,20 +25,17 @@ const vector<String> CCparameters = {"Bank Select","Mod Wheel","Breath Controlle
 const vector<String> MKIICCparameters = {"Ctrl ","EFX On/Off","EFX Selector"};
 const vector<String> stepChildCCParameters = {"Velocity","Probability","Pitch","BPM","Swing"};
 
-
-#ifndef HEADLESS
-// bool playing = false;
-// bool recording = false;
-#endif
-
 bool gotClock = false;
 bool hasStarted = false;
 bool drawingNote = false;
 bool pitchesOrNumbers = true;
 
-#define INTERNAL_CLOCK 1
-#define EXTERNAL_CLOCK 0
-uint8_t clockSource = INTERNAL_CLOCK;
+enum ClockSource:uint8_t{
+  INTERNAL_CLOCK,
+  EXTERNAL_CLOCK
+};
+
+ClockSource clockSource = INTERNAL_CLOCK;
 
 bool overwriteRecording = true;
 bool overWriteNotesWithEmptiness = false;//flag to set for overwriting notes on tracks that AREN'T receiving notes (overdubbing silence)

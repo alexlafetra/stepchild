@@ -62,6 +62,7 @@ uint16_t StepchildSequence::IDAt(uint8_t track, uint16_t step){
 uint16_t StepchildSequence::IDAtCursor(){
     return this->IDAt(this->activeTrack,this->cursorPos);
 }
+
 /*
 ----------------------------------------------------------
                     LOADING NOTES
@@ -794,19 +795,19 @@ void StepchildSequence::moveLoop(int16_t amount){
 }
 void StepchildSequence::toggleLoopMove(){
   switch(movingLoop){
-    case NONE:
-      movingLoop = END;
+    case MOVING_NO_LOOP_POINTS:
+      movingLoop = MOVING_LOOP_START;
       moveCursor(this->loopData[this->activeLoop].start-this->cursorPos);
       break;
-    case START:
-      movingLoop = END;
+    case MOVING_LOOP_END:
+      movingLoop = MOVING_LOOP_START;
       moveCursor(this->loopData[this->activeLoop].end-this->cursorPos);
       break;
-    case END:
-      movingLoop = BOTH;
+    case MOVING_LOOP_START:
+      movingLoop = MOVING_BOTH_LOOP_POINTS;
       break;
-    case BOTH:
-      movingLoop = NONE;
+    case MOVING_BOTH_LOOP_POINTS:
+      movingLoop = MOVING_NO_LOOP_POINTS;
       break;
   }
 }

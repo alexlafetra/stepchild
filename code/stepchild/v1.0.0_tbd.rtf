@@ -1,0 +1,68 @@
+graphical bugs/issues
+-------------------------------------------
+fix main menu wireframes 
+    - moving too fast, autotrack one is buggy
+    - mobius strip should have the mobius part move around
+^^FIXED
+
+reverse fx has pram overlapping its icon
+^^FIXED
+
+echo fx is too fast
+^^FIXED
+
+transition into instrument/app menu is too fast
+lines in MIDI menu can be seen thru empty muted ports
+    - also, need a tooltip for muting ports
+    - and a tooltip for channel filtering
+    - and change the text for the "thru" toggling (should be off/on not thru/off) (maybe add an in-->port graphic? to show what thru means)
+
+quant menu grid/amount labels should always be visible (right now it's just when cursor is on them)
+^^FIXED
+
+rand menu needs an overhall
+    - small die w/ dots on the right, options in a list? too much jumping around/can't view all settings at once
+
+moving tracks is visually very clunky (menu icon is weird, v empty)
+need A/B knob indicators on sort menu, also looks v clunky
+
+adding functionality
+-------------------------------------------
+swing should be global by default, or can be "applied" to a range of notes/track
+    - 'N' to create a swing functionality
+    - Second swing screen w/tabs gone, just for creating swing curve
+
+change FX menu to be accessible from main seq directly
+    - should be a list you can scroll down, with a quick desc. to the right of each item
+    - no wireframe (even though it's cool, it can be a screen saver)
+    - Shift+menu would be a good way to do it!
+^^FIXED/ADDED
+
+select box for PC messages
+
+instead of rand on main menu
+    - liveloop?
+    - CV?
+
+note edit menu FX should be faster/maybe totally redone to look like the normal FX menu
+
+refactoring/cleaning code
+-------------------------------------------
+fx should return true/false so that the FX menu knows whether or not to close after they’ve been triggered
+    - refactor echo menu to return t/f if it echos a note (to allow for backing out of FX menu)
+^^DONE -- Basically, FX menu checks if an FX has been run and if it has, it backs out to main seq immediately
+//better to not have it jump out of FX menu, so ppl explore more fx and don't have to re-dive each time
+
+bugs (broken features/crashes)
+-------------------------------------------
+moving loop in PC editor is bugged (looks like you reversed the controls)
+^^FIXED
+actually, ALL loop moving is busted
+    - moving both loops triggers, but doesn't move w/ cursor
+    - Moving loop start moves loop end
+    - moving loop end moves both
+^^FIXED
+
+Quantize fn is broken -- seems to delete notes when it shouldn't? quantizing same notes twice deletes them
+
+screensavers instantly quit?

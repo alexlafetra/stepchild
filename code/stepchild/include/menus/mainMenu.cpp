@@ -32,10 +32,7 @@ void MainMenu::updateMainMenuWireFrame(){
       break;
     //loops
     case 1:
-      icon = makeMobius();
-      icon.rotate(90,0);
-      icon.rotate(30,2);
-      icon.rotate(random(0,360),1);
+      icon = makeMobius(float(millis())/800.0);
       break;
     //cassette icon
     case 2:
@@ -93,12 +90,20 @@ void MainMenu::animateMainMenuWireFrame(){
     //autotracks
     case 0:
       graphAnimation(&icon);
-      icon.rotate(3,1);
+      icon.rotate(-2,0);
+      icon.rotate(2,1);
+      icon.rotate(2,2);
       break;
     //loop
     case 1:
       //cute idea to pause the loop icon, but you're never not looping!
       // if(sequence.isLooping)
+      icon = makeMobius(float(millis())/800.0);
+      icon.xPos = 112;
+      icon.yPos = 16;
+      icon.rotate(float(millis())/50.0,0);
+      icon.rotate(-float(millis())/75.0,1);
+      break;
     //keys
     case 2:
     //settings
@@ -107,12 +112,12 @@ void MainMenu::animateMainMenuWireFrame(){
     case 4:
     //fx
     case 5:
-      icon.rotate(3,1);
+      icon.rotate(2,1);
       break;
     //die
     case 6:
-      icon.rotate(1,0);
-      icon.rotate(1,1);
+      icon.rotate(2,0);
+      icon.rotate(2,1);
       break;
     //monitor
     case 7:
@@ -120,12 +125,12 @@ void MainMenu::animateMainMenuWireFrame(){
       break;
     //midi
     case 8:
-      icon.rotate(3,1);
+      icon.rotate(2,1);
       break;
     //files
     case 9:
       folderAnimation(icon);
-      icon.rotate(3,1);
+      icon.rotate(2,1);
       break;
     //clock
     case 10:
@@ -134,7 +139,7 @@ void MainMenu::animateMainMenuWireFrame(){
       break;
     //arp
     case 11:
-      icon = makeArpBoxes(millis());
+      icon = makeArpBoxes(millis()/1.5);
       icon.yPos = 16;
       icon.xPos = 112;
       break;
@@ -176,17 +181,21 @@ bool MainMenu::mainMenuControls(){
   if(utils.itsbeen(200)){
     if(controls.MENU()){
       lastTime = millis();
+      renderWireframes = false;
+      slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
       return false;
     }
     if(controls.LOOP()){
       lastTime = millis();
+      renderWireframes = false;
+      slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
       loopMenu();
     }
     if(controls.NEW()){
       lastTime = millis();
-      slideOut(OUT_FROM_BOTTOM,20);
-      fxMenu();
-      slideIn(IN_FROM_BOTTOM,20);
+      renderWireframes = false;
+      slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+      return fxMenu();
     }
     if(controls.SELECT() ){
       controls.setSELECT(false);
@@ -194,20 +203,28 @@ bool MainMenu::mainMenuControls(){
       switch(cursor){
         //autotracks
         case 0:
+          renderWireframes = false;
+          slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           autotrackViewer();
-          break;
+          return false;
         //loop
         case 1:
+          renderWireframes = false;
+          slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           loopMenu();
-          break;
+          return false;
         //keys
         case 2:
+          renderWireframes = false;
+          slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           selectInstrumentMenu();
-          break;
+          return false;
         //settings
         case 3:
+          renderWireframes = false;
+          slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           settingsMenu();
-          break;
+          return false;
         //quicksave
         case 4:
           //if you're shifting, load most recent backup
@@ -220,37 +237,48 @@ bool MainMenu::mainMenuControls(){
           break;
         //fx
         case 5:
-          slideOut(OUT_FROM_BOTTOM,20);
-          fxMenu();
-          slideIn(IN_FROM_BOTTOM,20);
-          break;
+          renderWireframes = false;
+          slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          switch(fxMenu()){
+            case BACK_TO_MAIN_SEQUENCE:
+              return false;
+            default:
+              renderWireframes = true;
+              slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+              return true;
+          }
         //rec
         case 6:
+          slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           randMenu();
-          break;
+          return false;
         //console
         case 7:
+          slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           PCEditor();
-          break;
+          return false;
         //midi
         case 8:
+          slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           midiMenu();
-          break;
+          return false;
         //files
         case 9:
-          slideOut(OUT_FROM_BOTTOM,20);
+          slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           fileMenu();
-          slideIn(IN_FROM_BOTTOM,20);
+          slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           break;
         //clock
         case 10:
-          slideOut(OUT_FROM_BOTTOM,20);
+          slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           clockMenu();
-          slideIn(IN_FROM_BOTTOM,20);
+          slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           break;
         //arp
         case 11:
+          slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           arpMenu();
+          slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           break;
       }
     }
@@ -367,7 +395,7 @@ void MainMenu::displayMenu(){
 
 void mainMenu(){
   MainMenu mainMenu;
-  mainMenu.slideIn(IN_FROM_BOTTOM,30);
+  mainMenu.slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
   mainMenu.renderWireframes = true;
   while(true){
     if(!mainMenu.mainMenuControls())
@@ -375,6 +403,6 @@ void mainMenu(){
     mainMenu.updateMainMenuWireFrame();
     mainMenu.displayMenu();
   }
-  mainMenu.renderWireframes = false;
-  mainMenu.slideOut(OUT_FROM_BOTTOM,20);
+  // mainMenu.renderWireframes = false;
+  // mainMenu.slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
 }

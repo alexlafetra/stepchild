@@ -1,77 +1,96 @@
+/*
+
+  FX Menu! A dropdown list allowing the user to select and use an FX function. Displays the FX icon, and short text describing it
+
+*/
+#define NUMBER_OF_FX 8
+
 class FxMenu:public StepchildMenu{
   public:
     WireFrame icon;
-    uint8_t page = 0;
+    uint8_t menuStart = 0;
+    SequenceRenderSettings settings;
+    bool usedAtLeastOneFx = false;
     FxMenu(){
-      coords = CoordinatePair(25,1,93,64);
-      icon = makeGyro(0,0,0,0,0,0);
+      coords = CoordinatePair(25,1,128,64);
+      settings.shrinkTopDisplay = false;
+      settings.topLabels = false;
+      settings.drawLoopFlags = false;
     }
+
+    const String fxApplicationInfo[NUMBER_OF_FX] = {
+      "Create random notes",
+      "Quantize notes to a grid",
+      "Add random offsets to note timing/velocity",
+      "Set notes to cascade up or down",
+      "Add an echo behind notes",
+      "Reverse a section of the sequence",
+      "Shrink/Grow a section of the sequence",
+      "subdivide notes into equal pieces"
+    };
     void drawFxLabel();
-    bool fxMenuControls();
+    MenuReturnValue fxMenuControls();
     void displayMenu();
 };
 
-bool FxMenu::fxMenuControls(){
+MenuReturnValue FxMenu::fxMenuControls(){
   controls.readJoystick();
   controls.readButtons();
   if(utils.itsbeen(100)){
     if(controls.joystickX != 0){
-      if(controls.joystickX == -1){
-        //if it's not divisible by four (in which case this would be 0)
-        if((cursor+1)%4)
-          cursor++;
-        lastTime = millis();
-      }
-      else if(controls.joystickX == 1){
-        if((cursor)%4)
-          cursor--;
-        lastTime = millis();
-      }
     }
     if(controls.joystickY != 0){
       if(controls.joystickY == 1){
-        //first row
-        if(cursor < 20)
-          cursor += 4;
+        if(cursor<2)
+          cursor++;
+        else if(cursor == 2 && menuStart < (NUMBER_OF_FX-3)){
+          menuStart++;
+        }
         lastTime = millis();
       }
       else if(controls.joystickY == -1){
-        //second row
-        if(cursor > 3)
-          cursor -= 4;
+        if(cursor > 0){
+          cursor--;
+        }
+        else if(cursor == 0 && menuStart>0){
+          menuStart--;
+        }
         lastTime = millis();
       }
-      page = cursor/12;
     }
   }
   if(utils.itsbeen(200)){
     if(controls.MENU()){
       lastTime = millis();
-      return false;
+      if(usedAtLeastOneFx)
+        return BACK_TO_MAIN_SEQUENCE;
+      else
+        return BACK_TO_MAIN_MENU;
     }
     if(controls.SELECT() ){
+      usedAtLeastOneFx = true;
       controls.setSELECT(false);
       lastTime = millis();
-      fxApplicationFunctions[cursor]();
+      slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+      if(fxApplicationFunctions[cursor+menuStart]()){
+        usedAtLeastOneFx = true;
+      }
+      slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+      // controls.clearButtons();
     }
   }
-  return true;
+  return NO_ACTION;
 }
 
 void FxMenu::drawFxLabel(){
-  String text = fxApplicationTexts[cursor];
+  String text = fxApplicationTitles[cursor+menuStart];
   printChunky(coords.start.x+coords.start.y+38,4,text,SSD1306_WHITE);
 }
 
-
 void FxMenu::displayMenu(){
   display.clearDisplay();
-  SequenceRenderSettings settings;
-  settings.topLabels = false;
+  settings.drawSteps = coords.start.y>headerHeight;
   drawSeq(settings);
-  graphics.drawPram(5,0);
-  display.fillCircle(111,13,23,0);
-  display.drawCircle(111,13,23,1);
   //drawing menu box (+16 so the title is transparent)
   display.fillRect(coords.start.x,coords.start.y+13, coords.end.x-coords.start.x, coords.end.y-coords.start.y, SSD1306_BLACK);
   display.drawRect(coords.start.x,coords.start.y+12, coords.end.x-coords.start.x, coords.end.y-coords.start.y-12, SSD1306_WHITE);
@@ -87,62 +106,42 @@ void FxMenu::displayMenu(){
   
   drawFxLabel();
   //printing page number/arrows
-  printSmall(coords.start.x+coords.start.y+21,2,stringify(page+1)+"/2",SSD1306_WHITE);
-  if(page == 0){
-    graphics.drawArrow(coords.start.x+coords.start.y+26,11+((millis()/400)%2),2,3,true);
-  }
-  else{
-    graphics.drawArrow(coords.start.x+coords.start.y+26,9+((millis()/400)%2),2,2,true);
-  }
+  printSmall(coords.start.x+coords.start.y+18,2,stringify(cursor+menuStart+1),SSD1306_WHITE);
+  if(menuStart>0)
+    graphics.drawArrow(coords.start.x+coords.start.y+26,1+(millis()/400+1)%2,2,2,true);
+  if(menuStart<NUMBER_OF_FX - 3)
+    graphics.drawArrow(coords.start.x+coords.start.y+26,10+(millis()/400)%2,2,3,true);
 
   const uint8_t width = 16;
-  uint8_t count = 0;
-  for(uint8_t j = 0; j<3; j++){
-    for(uint8_t i = 0; i<4; i++){
-      display.drawBitmap(coords.start.x+4+width*i,coords.start.y+j*(width-1)+17+sin(millis()/200+count),fxApplicationIcons[page*12+count],12,12,SSD1306_WHITE);
-      if(i+4*j == cursor-12*page){
-        display.drawRoundRect(coords.start.x+2+width*i,coords.start.y+j*(width-1)+15+sin(millis()/200+count),width,width,3,SSD1306_WHITE);
-      }
-      count++;
+  for(uint8_t i = 0; i<3; i++){
+    display.drawBitmap(coords.start.x+4,coords.start.y+i*(width-1)+17+sin(millis()/200+i),fxApplicationIcons[i+menuStart],12,12,SSD1306_WHITE);
+    if(i == cursor){
+      display.drawRoundRect(coords.start.x+2,coords.start.y+i*(width-1)+15+sin(millis()/200+i),width,width,3,SSD1306_WHITE);
     }
+    if(i==cursor)
+      display.fillRoundRect(coords.start.x+18,coords.start.y+i*(width-1)+15,84,width,3,1);
+    String text = fxApplicationInfo[i+menuStart];
+    printSmall_overflow(coords.start.x+((i==cursor)?19:18),coords.start.y+i*(width-1)+17,2,text,2);
   }
-  icon.render();
-  printItalic(103,13,"FX",1);
   display.display();
 }
 
-void fxMenu(){
-  int angleX = 0;
-  int angleY = 0;
-  int angleZ = 0;
-
-  int angle2X = 0;
-  int angle2Y = 0;
-  int angle2Z = 0;
-
+MenuReturnValue fxMenu(){
   FxMenu fxMenu;
-  fxMenu.slideIn(IN_FROM_BOTTOM,30);
+  fxMenu.slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM_FAST);
   while(true){
-    if(!fxMenu.fxMenuControls()){
-      break;
+    switch(fxMenu.fxMenuControls()){
+      case NO_ACTION:
+        break;
+      case BACK_TO_MAIN_MENU:
+        fxMenu.slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+        return BACK_TO_MAIN_MENU;
+      case BACK_TO_MAIN_SEQUENCE:
+        fxMenu.slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+        return BACK_TO_MAIN_SEQUENCE;
     }
     fxMenu.displayMenu();
-
-    angleX+=2;
-    angleY-=2;
-    // angleZ-=2;
-    angleX%=360;
-    angleY%=360;
-    angleZ%=360;
-    angle2X+=2;
-    // angle2Y+=2;
-    angle2Z+=2;
-    angle2X%=360;
-    angle2Y%=360;
-    angle2Z%=360;
-    fxMenu.icon = makeGyro(angleX,angleY,angleZ,
-                    angle2X,angle2Y,angle2Z);
   }
-  fxMenu.slideOut(OUT_FROM_BOTTOM,20);
+  return NO_ACTION;
 }
 

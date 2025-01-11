@@ -120,7 +120,7 @@ void printPitchList(vector<uint8_t> pitchList,uint8_t startPitch){
 //gradient on top representing rain flow, moveable 
 //drops velocities correspond to note vel
 //X axis is pitch bend? or pitch? and y-axis is intensity (can also be controlled with encoders)
-void rain(){
+bool rain(){
   vector<Raindrop> drops;
   int16_t xCoord = 64;
 
@@ -340,7 +340,7 @@ void rain(){
                 showingText = !showingText;
                 break;
               case 5:
-                return;
+                return true;
             }
           }
           if(controls.MENU()){
@@ -414,7 +414,7 @@ void rain(){
       const uint8_t y1 = 2;
       display.fillRoundRect(-2-menuOffset,y1-2,menuWidth,57,3,0);
       display.drawRoundRect(-2-menuOffset,y1-2,menuWidth,57,3,1);
-      printSmall(-menuOffset,y1,"$"+pitchToString(startPitch,false,true)+"[controls.SELECT() ]",1);
+      printSmall(-menuOffset,y1,"$"+pitchToString(startPitch,false,true)+"[SEL]",1);
       printSmall(-menuOffset,y1+spacing,"octaves:",1);
       printSmall(2-menuOffset,y1+spacing*2,stringify(minOct)+" to "+stringify(maxOct),1);
       printSmall(-menuOffset,y1+spacing*3,"vel:",1);
@@ -477,4 +477,5 @@ void rain(){
     }
   }
   controls.turnOffLEDs();
+  return true;
 }

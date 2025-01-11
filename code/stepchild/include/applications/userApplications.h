@@ -34,7 +34,7 @@
 //the default app function.
 //You can use this as a template, but only change this function after making a copy of it!
 // It's the actual default function.
-void defaultAppFunction(){
+bool defaultAppFunction(){
 
     //put your setup code here!
 
@@ -61,5 +61,6 @@ void defaultAppFunction(){
         display.display();
     }
     //put your exit code here!
+    return true;
 }
 

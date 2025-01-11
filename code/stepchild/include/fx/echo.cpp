@@ -1,4 +1,5 @@
 bool echoMenuControls(uint8_t* cursor);
+void drawEchoMenu(uint8_t cursor);
 
 void drawEcho(unsigned short int xStart, unsigned short int yStart, short unsigned int time, short unsigned int decay, short unsigned int repeats){
   unsigned short int previewLength = 12;
@@ -12,7 +13,7 @@ void drawEcho(unsigned short int xStart, unsigned short int yStart, short unsign
   }
 }
 
-void echoMenu(){
+bool echoMenu(){
   animOffset = 0;
   uint8_t cursor = 0;
   // echoAnimation();
@@ -20,7 +21,7 @@ void echoMenu(){
     controls.readButtons();
     controls.readJoystick();
     if(!echoMenuControls(&cursor)){
-      return;
+      return false;
     }
     display.clearDisplay();
     drawEchoMenu(cursor);
@@ -65,8 +66,8 @@ void echoSelectedNotes(){
 }
 
 void drawEchoMenu(uint8_t cursor){
-  int xCoord = 64;
-  int yCoord = 32;
+  uint8_t xCoord = 64;
+  uint8_t yCoord = 32;
   display.setTextColor(SSD1306_WHITE);
   display.setFont();
   // spacing  = float(echoData.delay*10)/float(24);
@@ -74,44 +75,52 @@ void drawEchoMenu(uint8_t cursor){
   int maxReps = echoData.repeats;
   display.clearDisplay();
 
-  int8_t triOffset = 2*((millis()/400)%2);
+  int8_t triOffset_0 = 2.0*sin(float(millis())/400.0);
+  int8_t triOffset_1 = 2.0*sin(float(millis())/400.0+1);
+  int8_t triOffset_2 = 2.0*sin(float(millis())/400.0+2);
+
+  //time
+  const uint8_t xCoord_0 = 0;
+  const uint8_t yCoord_0 = 15;
+  display.drawBitmap(xCoord_0,yCoord_0-triOffset_0,time_bmp,25,6,SSD1306_WHITE);
+  display.drawBitmap(xCoord_0,yCoord_0+24+triOffset_0,time_inverse_bmp,25,6,SSD1306_WHITE);
+  display.drawFastHLine(xCoord_0,yCoord_0+25,24,SSD1306_BLACK);
+  display.drawFastHLine(xCoord_0,yCoord_0+27,24,SSD1306_BLACK);
+  display.drawFastHLine(xCoord_0,yCoord_0+29,24,SSD1306_BLACK);
+  String text = stepsToMeasures(echoData.delay);
+  graphics.printFraction_small_centered(xCoord_0+12,yCoord_0+12,text);
+
+  //reps
+  const uint8_t xCoord_1 = 29;
+  const uint8_t yCoord_1 = 20;
+  display.drawBitmap(xCoord_1,yCoord_1-triOffset_1,repetitions_bmp,66,11,SSD1306_WHITE);
+  display.drawBitmap(xCoord_1,yCoord_1+20+triOffset_1,repetitions_inverse_bmp,66,11,SSD1306_WHITE);
+  display.drawFastHLine(xCoord_1,yCoord_1+25,66,SSD1306_BLACK);
+  display.drawFastHLine(xCoord_1,yCoord_1+27,66,SSD1306_BLACK);
+  display.drawFastHLine(xCoord_1,yCoord_1+29,66,SSD1306_BLACK);
+  printSmall(xCoord_1+35-stringify(echoData.repeats).length()*2,yCoord_1+12,stringify(echoData.repeats),SSD1306_WHITE);
+
+  //decay
+  const uint8_t xCoord_2 = 98;
+  const uint8_t yCoord_2 = 15;
+  display.drawBitmap(xCoord_2,yCoord_2-triOffset_2,decay_bmp,30,12,SSD1306_WHITE);
+  display.drawBitmap(xCoord_2,yCoord_2+20+triOffset_2,decay_inverse_bmp,30,12,SSD1306_WHITE);
+  display.drawFastHLine(xCoord_2,yCoord_2+25,30,SSD1306_BLACK);
+  display.drawFastHLine(xCoord_2,yCoord_2+27,30,SSD1306_BLACK);
+  display.drawFastHLine(xCoord_2,yCoord_2+29,30,SSD1306_BLACK);
+  printSmall(xCoord_2+15-(stringify(echoData.decay).length()+1)*2,yCoord_2+12,stringify(echoData.decay)+"%",SSD1306_WHITE);
+  
   switch(cursor){
     case 0:{
-      display.drawBitmap(52,17-triOffset,time_bmp,25,6,SSD1306_WHITE);
-      display.drawBitmap(52,41+triOffset,time_inverse_bmp,25,6,SSD1306_WHITE);
-      display.drawFastHLine(52,42,24,SSD1306_BLACK);
-      display.drawFastHLine(52,44,24,SSD1306_BLACK);
-      display.drawFastHLine(52,46,24,SSD1306_BLACK);
-
-      //time
-      String text = stepsToMeasures(echoData.delay);
-      graphics.printFraction_small_centered(64,29,text);
-
-      //arrows
-      graphics.drawArrow(78-((millis()/400)%2),31,3,0,false);
+        graphics.drawArrow(xCoord_0+12,yCoord_0+21-((millis()/400)%2),3,2,false);
       }
       break;
     case 1:{
-      display.drawBitmap(29,17-triOffset,repetitions_bmp,66,11,SSD1306_WHITE);
-      display.drawBitmap(29,41+triOffset,repetitions_inverse_bmp,66,11,SSD1306_WHITE);
-      display.drawFastHLine(29,42,66,SSD1306_BLACK);
-      display.drawFastHLine(29,44,66,SSD1306_BLACK);
-      display.drawFastHLine(29,46,66,SSD1306_BLACK);
-      printSmall(64-stringify(echoData.repeats).length()*2,29,stringify(echoData.repeats),SSD1306_WHITE);
-      
-      graphics.drawArrow(78-((millis()/400)%2),31,3,0,false);
-      graphics.drawArrow(50+((millis()/400)%2),31,3,1,false);
+        graphics.drawArrow(xCoord_1+34,yCoord_1+19-((millis()/400)%2),3,2,false);
       }
       break;
     case 2:{
-      display.drawBitmap(49,17-triOffset,decay_bmp,30,12,SSD1306_WHITE);
-      display.drawBitmap(49,41+triOffset,decay_inverse_bmp,30,12,SSD1306_WHITE);
-      display.drawFastHLine(49,42,30,SSD1306_BLACK);
-      display.drawFastHLine(49,44,30,SSD1306_BLACK);
-      display.drawFastHLine(49,46,30,SSD1306_BLACK);
-      printSmall(64-(stringify(echoData.decay).length()+1)*2,29,stringify(echoData.decay)+"%",SSD1306_WHITE);
-      
-      graphics.drawArrow(50+((millis()/400)%2),31,3,1,false);
+        graphics.drawArrow(xCoord_2+14,yCoord_2+19-((millis()/400)%2),3,2,false);
       }
       break;
   }
@@ -135,10 +144,10 @@ void drawEchoMenu(uint8_t cursor){
     }
   }
   if(animOffset<yCoord){
-    animOffset+=5;
+    animOffset+=1;
   }
   else
-    animOffset+=6;
+    animOffset+=4;
   if(animOffset>=8*spacing*maxReps/3+8*32+20){
     animOffset = 0;
   }
@@ -175,10 +184,10 @@ void echoAnimation(){
       }
     }
     if(animFrame<yCoord){
-      animFrame+=5;
+      animFrame+=1;
     }
     else
-      animFrame+=6;
+      animFrame+=1;
     display.display();
   }
 }

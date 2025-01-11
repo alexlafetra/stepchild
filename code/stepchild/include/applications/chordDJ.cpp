@@ -311,7 +311,7 @@ void insertChordIntoSequence(QChord chord){
     }
 }
 
-void chordDJ(){
+bool chordDJ(){
     //at most, 16 QChords that can be toggled by the step buttons (w/controls.SHIFT() for the second 8)
     //init with the major and minor chords in C
     vector<QChord> chords = initChordDjList(1,50);
@@ -410,4 +410,5 @@ void chordDJ(){
             }
         }
     }
+    return true;
 }
