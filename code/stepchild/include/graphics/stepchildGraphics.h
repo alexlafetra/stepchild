@@ -39,6 +39,7 @@ class StepchildGraphics{
   void drawPendulum(int16_t x2, int16_t y2, int8_t length, float val);
   void fillEllipse(uint8_t h, uint8_t k, int a, int b,uint16_t c);
   void drawEllipse(uint8_t h, uint8_t k, int a, int b, uint16_t c);
+  void drawEllipse(uint8_t h, uint8_t k, int a, int b, uint8_t skip, uint16_t c);
   void drawStar(uint8_t centerX, uint8_t centerY, uint8_t r1, uint8_t r2, uint8_t points);
   void printChannel(uint8_t xPos, uint8_t yPos, uint8_t channel, bool withBox);
   //draws a horizontal bar graph -- so far totally unused
@@ -47,8 +48,8 @@ class StepchildGraphics{
   //Draws percentage bar showing how full the sequence is
   void drawSequenceMemoryBar(uint8_t x1, uint8_t y1, uint8_t length);
 
-  #define RIGHT 0
-  #define LEFT 1
+  #define JOY_RIGHT 0
+  #define JOY_LEFT 1
   #define UP 2
   #define DOWN 3
   void drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, bool full);

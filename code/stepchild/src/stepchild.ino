@@ -63,7 +63,7 @@ void setup() {
   display.setTextWrap(false);
 
   //setup CV pins, frequency
-  CV.init();
+  // CV.init();
 
   //setting up the pinouts and the lower board
   controls.init();
@@ -93,6 +93,13 @@ void setup() {
   core0ready = true;
   lastTime = millis();
   graphics.bootscreen_2();
+  // uint16_t temp = 0;
+  // while(temp<10000){
+  //   display.clearDisplay();
+  //   display.drawBitmap(0,0,stepchild_logo_bmp,128,27,1);
+  //   display.display();
+  //   temp++;
+  // }
 }
 #endif
 
@@ -104,12 +111,26 @@ void setup1() {
   }
 }
 
+uint16_t TESTVAL = 65535;
+uint16_t gateVal = 0;
+
 void loop() {
   mainSequence();
-  screenSaverCheck();
-
+  // screenSaverCheck();
+  // Serial.println(millis());
   // testAllInputs();
   // testCVPitches();
+
+  analogWrite(CV1_PIN,TESTVAL);
+  analogWrite(CV2_PIN,gateVal);
+  analogWrite(CV3_PIN,0);
+  TESTVAL++;
+  TESTVAL%=PWM_MAX_VAL;
+  // delayMicroseconds(10);
+  if(utils.itsbeen(100)){
+    lastTime = millis();
+    gateVal = 65535-gateVal;
+  }
 }
 
 //this cpu handles time-sensitive things

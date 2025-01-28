@@ -280,6 +280,10 @@ uint8_t countChar(String text,unsigned char c){
   return count;
 }
 
+uint8_t getSmallTextLength(String t){
+  return t.length()*4-countChar(t,' ')*2;
+}
+
 //Convert a list of bytes into corresponding C-B pitches
 String convertVectorToPitches(vector<uint8_t> intervals){
   String text;

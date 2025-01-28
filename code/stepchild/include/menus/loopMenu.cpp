@@ -334,7 +334,7 @@ void viewLoop(uint8_t which){
     if(!viewLoopControls(which))
       return;
     tempText = menuText;
-    menuText = "loop-"+stringify(which)+" "+menuText;
+    menuText = "lp"+stringify(which+1)+" "+menuText;
     display.clearDisplay();
     SequenceRenderSettings settings;
     settings.shadeOutsideLoop = true;

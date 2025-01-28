@@ -237,7 +237,7 @@ void mainSequencerButtons(){
         //if there is a note here, cut it in half/thirds (depending on if you're in triplet mode or not)
         else{
           lastTime = millis();
-          chop(vector<NoteID> {NoteID(sequence.IDAtCursor(),sequence.activeTrack)});
+          chop();
           lastTime = millis();
         }
       }
@@ -252,6 +252,7 @@ void mainSequencerButtons(){
         else{
           lastTime = millis();
           setSuperposition(sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][sequence.cursorPos]],sequence.activeTrack);
+          lastTime = millis();
         }
       }
     }

@@ -1,35 +1,20 @@
 class NoteEditMenu:public StepchildMenu{
   public:
-    int8_t fnWindowStart = 0;
     //value determining how many subDivs are skipped when stencilling notes
     uint8_t stencil = 1;
     bool editingNote = false;
     uint8_t currentQuickFunction = 0;
-    uint8_t page = 0;
     NoteEditMenu(){
       coords = CoordinatePair(trackDisplay-7,0,screenWidth,headerHeight);
     }
     void displayMenu();
-    bool fxListControls();
+    // bool fxListControls();
     bool editMenuControls_editing();
     bool editMenuControls_normal();
     bool editMenuControls();
 };
 
 void NoteEditMenu::displayMenu(){
-
-  //sliding the function window in and out
-  if(page>0 && fnWindowStart<38){
-    fnWindowStart+=12;
-    if(fnWindowStart>38)
-      fnWindowStart = 38;
-  }
-  else if(page == 0 && fnWindowStart>0){
-    fnWindowStart-=16;
-    if(fnWindowStart<0)
-      fnWindowStart = 0;
-  }
-
   //drawing the sequence
   SequenceRenderSettings settings;
   bool doneMoving = (coords.start.x == trackDisplay-7);
@@ -110,12 +95,12 @@ void NoteEditMenu::displayMenu(){
           break;
         //quantize
         case 4:
-          txt = "QUANT";
+          txt = "SUPOS";
           xLoc = 66;
           break;
         //humanize
         case 5:
-          txt = "HUMAN";
+          txt = "STNCL";
           xLoc = 80;
           break;
         //warp
@@ -123,21 +108,12 @@ void NoteEditMenu::displayMenu(){
           txt = "FX";
           xLoc = 95;
           break;
+        default:
+          txt = "idk";
+          xLoc = 8;
       }
     }
     graphics.drawArrow(coords.start.x+xLoc,13+((millis()/400)%2),controls.SHIFT()?3:4,2,controls.SHIFT());
-    //drawing quick function list
-    if(fnWindowStart > 0){
-      display.fillRect(screenWidth-fnWindowStart,0,fnWindowStart,screenHeight,0);
-      display.drawRect(screenWidth-fnWindowStart,-1,fnWindowStart,screenHeight+2,1);
-      display.fillRect(screenWidth-fnWindowStart,(currentQuickFunction)*7+1,fnWindowStart,7,1);
-      //printing labels
-      for(uint8_t i = 0; i<25; i++){
-        printSmall(screenWidth-fnWindowStart+2,i*7+2,fxApplicationTitles[i],2);
-      }
-      display.drawBitmap(screenWidth-fnWindowStart-7,(currentQuickFunction)*7+6,mouse_cursor_fill_bmp,9,15,0);
-      display.drawBitmap(screenWidth-fnWindowStart-7,(currentQuickFunction)*7+6,mouse_cursor_outline_bmp,9,15,1);
-    }
     //target parameter text (just shows what param you're gonna edit)
     display.fillRect(0,coords.start.x-2,31,screenHeight-coords.start.x,0);
     // display.drawFastHLine(0,coords.start.x-3,32,1);
@@ -278,33 +254,6 @@ void NoteEditMenu::displayMenu(){
   if(sequence.selectionCount > 0)
     drawSelectionBracket(settings);
   display.display();
-}
-
-bool NoteEditMenu::fxListControls(){
-  if(utils.itsbeen(200)){
-    if(controls.MENU()){
-      page = 0;
-      lastTime = millis();
-    }
-    if(controls.joystickY != 0){
-      if(controls.joystickY == 1 && (currentQuickFunction)<5){
-        (currentQuickFunction)++;
-        lastTime = millis();
-      }
-      else if(controls.joystickY == -1 && (currentQuickFunction)>0){
-        (currentQuickFunction)--;
-        lastTime = millis();
-      }
-    }
-    //selecting an FX
-    if(controls.SELECT() || controls.LOOP()){
-      lastTime = millis();
-      controls.setSELECT(false);
-      controls.setLOOP(false);
-      fxApplicationFunctions[currentQuickFunction]();
-    }
-  }
-  return true;
 }
 
 bool NoteEditMenu::editMenuControls_editing(){
@@ -640,12 +589,10 @@ bool NoteEditMenu::editMenuControls_normal(){
       return false;
     }
     if(controls.B()){
-      // controls.setB(false);
       lastTime = millis();
       return false;
     }
     if(controls.A()){
-      // controls.setA(false);
       lastTime = millis();
       return false;
     }
@@ -675,30 +622,46 @@ bool NoteEditMenu::editMenuControls_normal(){
     if(controls.LOOP()){
       if(controls.SHIFT()){
         switch(cursor){
-          //quantize
+          //superpos
           case 4:
-            quantizeMenu();
+            if(sequence.IDAtCursor()){
+              lastTime = millis();
+              setSuperposition(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()],sequence.activeTrack);
+            }
             break;
-          //humanize
+          //stencil
           case 5:
-            humanizeMenu();
+            
             break;
           //quick fx
           case 6:
             //trigger fx selection
-            page = 1;
             lastTime = millis();
             controls.setLOOP(false);
+            slideOut(OUT_FROM_RIGHT,MENU_SLIDE_FAST);
+            fxMenu();
+            slideIn(IN_FROM_RIGHT,MENU_SLIDE_FAST);
             break;
         }
       }
       else{
+        //set superposition
+        if(cursor == 4){
+          if(sequence.IDAtCursor()){
+            lastTime = millis();
+            slideOut(OUT_FROM_RIGHT,MENU_SLIDE_FAST);
+            setSuperposition(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()],sequence.activeTrack);
+            slideIn(IN_FROM_RIGHT,MENU_SLIDE_FAST);
+          }
+        }
         //if it's a quickFX
-        if(cursor == 6){
+        else if(cursor == 6){
           //trigger fx
           controls.setLOOP(false);
           lastTime = millis();
-          page = 1;
+          slideOut(OUT_FROM_RIGHT,MENU_SLIDE_FAST);
+          fxMenu();
+          slideIn(IN_FROM_RIGHT,MENU_SLIDE_FAST);
         }
         //if there are ANY notes jump into edit mode
         else if(sequence.areThereAnyNotes()){
@@ -769,9 +732,7 @@ bool NoteEditMenu::editMenuControls_normal(){
 bool NoteEditMenu::editMenuControls(){
   controls.readJoystick();
   controls.readButtons();
-  if(page != 0)
-    return fxListControls();
-  else if(editingNote)
+  if(editingNote)
     return editMenuControls_editing();
   else
     return editMenuControls_normal();

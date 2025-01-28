@@ -947,17 +947,17 @@ int8_t printSmall(int16_t x, int16_t y, char character, uint16_t c){
 }
 
 enum TextAlign:uint8_t{
-  LEFT,
-  CENTER,
-  RIGHT
+  ALIGN_JOY_LEFT,
+  ALIGN_CENTER,
+  ALIGN_RIGHT
 };
 
 //converts text to char
 void printSmall(int16_t x, int16_t y, String text, uint16_t c, TextAlign a){
   switch(a){
-    case TextAlign::CENTER:
+    case TextAlign::ALIGN_CENTER:
       x-=text.length()*2+countChar(text,' ');
-    case TextAlign::LEFT:
+    case TextAlign::ALIGN_JOY_LEFT:
       for(uint16_t letter = 0; letter<text.length(); letter++){
         if(x>=screenWidth)
           return;
@@ -965,7 +965,7 @@ void printSmall(int16_t x, int16_t y, String text, uint16_t c, TextAlign a){
         x+=printSmall(x,y,character,c);
       }
       return;
-    case TextAlign::RIGHT:
+    case TextAlign::ALIGN_RIGHT:
       x+=text.length()*4-countChar(text,' ');
       for(uint16_t letter = text.length()-1; letter>=0; letter--){
         if(x>=screenWidth)
@@ -980,11 +980,11 @@ void printSmall(int16_t x, int16_t y, String text, uint16_t c, TextAlign a){
 }
 
 void printSmall_centered(int x, int y, String text, uint16_t c){
-  printSmall(x,y,text,c,TextAlign::CENTER);
+  printSmall(x,y,text,c,TextAlign::ALIGN_CENTER);
 }
 
 void printSmall(int16_t x, int16_t y, String text, uint16_t c){
-  printSmall(x,y,text,c,TextAlign::LEFT);
+  printSmall(x,y,text,c,TextAlign::ALIGN_JOY_LEFT);
 }
 
 //just converts a float to a string

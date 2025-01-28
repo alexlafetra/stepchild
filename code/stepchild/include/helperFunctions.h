@@ -90,6 +90,7 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
     SequenceRenderSettings settings;
     settings.topLabels = false;
     settings.drawPram = false;
+    settings.shrinkTopDisplay = false;
     drawSeq(settings);
     if(!sequence.selectionCount){
       printSmall(trackDisplay,0,"select notes to "+text,1);
@@ -803,3 +804,6 @@ vector<NoteID> getSelectedNoteIDs(){
   }
   return ids;
 }
+// float max(float a, float b){
+//   return a>b?a:b;
+// }

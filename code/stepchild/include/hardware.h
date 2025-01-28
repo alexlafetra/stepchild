@@ -10,6 +10,8 @@ https://forum.arduino.cc/t/how-to-read-a-register-value-using-the-wire-library/2
 */
 
 /*
+  I2C addresses for each MCP23017 (set using resistors on the PCB)
+
 	These addresses are hardware defined by pulling A0, A1, A2 pins high&low on the
 	LowerBoard PCB. 
 					|A0|A1|A2|
@@ -27,13 +29,16 @@ https://forum.arduino.cc/t/how-to-read-a-register-value-using-the-wire-library/2
 	0b0100010
   and the Main Buttons:
   0b0100100
-
 */
+
+#define MCP23017_LED_ADDR          0b0100001 //33 or 0x41
+#define MCP23017_LOWER_BUTTON_ADDR 0b0100010 //34 or 0x42
+#define MCP23017_MAIN_BUTTON_ADDR  0b0100100 //36 or 0x24
 
 //buttons/inputs
 /*
   These vals don't correspond to hardware pins; they're the bit place value of each buttons' state
-  As stored by the controls.mainButtons byte
+  As stored by the controls.mainButtonState byte
 */
 #define NEW_BUTTON 0
 #define SHIFT_BUTTON 1
@@ -46,12 +51,18 @@ https://forum.arduino.cc/t/how-to-read-a-register-value-using-the-wire-library/2
 #define B_BUTTON 8
 #define A_BUTTON 9
 
-#define MCP23017_LED_ADDR          0b0100001 //33 or 0x41
-#define MCP23017_LOWER_BUTTON_ADDR 0b0100010 //34 or 0x42
-#define MCP23017_MAIN_BUTTON_ADDR  0b0100100//
+// #define SHIFT_REGISTER_PROTOTYPE
 
 //range is (5-1023) aka 0-1018
 const float joystickScaleFactor = float(128)/float(1018);
+
+enum JoystickValue:int8_t{
+  CENTER = 0,
+  JOY_LEFT = 1,
+  JOY_RIGHT = -1,
+  UP = 1,
+  DOWN = -1
+};
 
 #include <MCP23017.h>
 class LowerBoard{
@@ -144,24 +155,28 @@ class LowerBoard{
   }
 };
 
-//Holds all the hardware input functions (and the headless overloads)
-//Accessed like Stepchild.buttons.buttonState(LOOP)?
-//or just buttons.play(), buttons.loop()
+/*
+  Holds all the hardware input functions (and the headless overloads)
+  Accessed like controls.PLAY(), buttons.loop()
+*/
 class StepchildHardwareInput{
   public:
 
   //stores the 16 step buttons
   uint16_t stepButtonState = 0;
 
+  //counters that are changed by the encoder interrupts
   volatile int8_t counterA = 0;
   volatile int8_t counterB = 0;
 
-  int8_t joystickX = 0;//These can also be compressed
+  //Joystick values
+  int8_t joystickX = 0;//These can also be compressed in a future update into the mainButtonState variable
   int8_t joystickY = 0;
 
   LowerBoard lowerBoard;
-
+  #ifndef SHIFT_REGISTER_PROTOTYPE
   MCP23017 mainButtons = MCP23017(MCP23017_MAIN_BUTTON_ADDR,Wire);
+  #endif
   //stores buttons 1-8, and encoders A, B
   uint16_t mainButtonState = 0;
 
@@ -183,6 +198,15 @@ class StepchildHardwareInput{
     pinMode(B_CLOCK, INPUT_PULLUP);
     pinMode(B_DATA, INPUT_PULLUP);
 
+    #ifdef SHIFT_REGISTER_PROTOTYPE
+    //button bit controls.SHIFT() reg
+    pinMode(BUTTONS_DATA, INPUT);
+    pinMode(BUTTONS_LOAD, OUTPUT);
+    pinMode(BUTTONS_CLOCK_IN, OUTPUT);
+    pinMode(BUTTONS_CLOCK_ENABLE, OUTPUT);
+    pinMode(A_PRESS, INPUT_PULLUP);
+    pinMode(B_PRESS, INPUT_PULLUP);
+    #else
     //default startup settings
     mainButtons.writeRegister(MCP23017Register::IOCON, 0b00100000);
     //Setting all button GPIO's to inputs
@@ -194,6 +218,7 @@ class StepchildHardwareInput{
     //slight error on PCB... encoder buttons are pulled DOWN via a resistor (shouldn't be!)
     mainButtons.writeRegister(MCP23017Register::GPPU_B, 0b11111111);
     mainButtons.writeRegister(MCP23017Register::GPIO_B,0b11111111);
+    #endif
   
 
     // CPU0 handles the encoder interrupts, so make sure to .init() the StepchildHardwareInput object in setup() not setup1()
@@ -213,7 +238,23 @@ class StepchildHardwareInput{
 
   //Reads in the main button values to the controls.mainButtonState variable
   void readMainButtons(){
+    #ifdef SHIFT_REGISTER_PROTOTYPE
+    //Shifting in the 8 main button values from the MPX
+    digitalWrite(BUTTONS_LOAD,LOW);
+    digitalWrite(BUTTONS_LOAD,HIGH);
+    digitalWrite(BUTTONS_CLOCK_IN, HIGH);
+    digitalWrite(BUTTONS_CLOCK_ENABLE,LOW);
+    uint8_t buttons = shiftIn(BUTTONS_DATA, BUTTONS_CLOCK_IN, LSBFIRST);
+    digitalWrite(BUTTONS_CLOCK_ENABLE, HIGH);
+    uint8_t A = digitalRead(A_PRESS);
+    uint8_t B = digitalRead(B_PRESS);
+
+    //invert logic values bc low voltage ==> button is pressed
+    this->mainButtonState = ~buttons|(B<<8)|(A<<9);
+    writeLEDs(this->mainButtonState);
+    #else
     this->mainButtonState = ~this->mainButtons.read();
+    #endif
   }
   //calls the LowerBoard's read function, which in turn updates the LowerBoard's buttonState var
   void readStepButtons(){
@@ -229,6 +270,8 @@ class StepchildHardwareInput{
   void readJoystick(){
     //X
     float val = analogRead(JOYSTICK_X);
+    Serial.println(val);
+    Serial.flush();
     if(val<24)
       this->joystickX = 1;
     else if(val>1000)
@@ -238,11 +281,11 @@ class StepchildHardwareInput{
     //Y
     val = analogRead(JOYSTICK_Y);
     if(val<24)
-      this->joystickY = -1;
+      this->joystickY = DOWN;
     else if(val>1000)
-      this->joystickY = 1;
+      this->joystickY = UP;
     else
-      this->joystickY = 0;
+      this->joystickY = CENTER;
   }
   int16_t getJoyX(){
     return abs(analogRead(JOYSTICK_X) * joystickScaleFactor);
@@ -265,16 +308,20 @@ class StepchildHardwareInput{
     for(uint8_t i = 0; i<8; i++){
       Serial.print((this->mainButtonState>>i)&1);
     }
-    // Serial.println("X:"+stringify(this->joystickX)+" ("+stringify(analogRead(JOYSTICK_X))+")");
-    // Serial.println("Y:"+stringify(this->joystickY)+" ("+stringify(analogRead(JOYSTICK_Y))+")");
+    Serial.println("X:"+stringify(this->joystickX)+" ("+stringify(analogRead(JOYSTICK_X))+")");
+    Serial.println("Y:"+stringify(this->joystickY)+" ("+stringify(analogRead(JOYSTICK_Y))+")");
     Serial.flush();
   }
-  // This is called by hardware interrupts on the encoder pins
-  //The hardware interrupt function is in childOS.h! void rotaryActionA_Handler() and void rotaryActionB_Handler()
-  //This comes from:
-  //https://www.pinteric.com/rotary.html
-  //and the C++ implementation at:
-  //https://github.com/RalphBacon/226-Better-Rotary-Encoder---no-switch-bounce
+  /*
+    Reading Encoder Increment/Decrement
+
+    This is called by hardware interrupts on the encoder pins
+    The hardware interrupt function is in childOS.h! void rotaryActionA_Handler() and void rotaryActionB_Handler()
+    This comes from:
+    https://www.pinteric.com/rotary.html
+    and the C++ implementation at:
+    https://github.com/RalphBacon/226-Better-Rotary-Encoder---no-switch-bounce
+  */
 
   int8_t readEncoder(bool which){
     int8_t r;
@@ -434,7 +481,7 @@ class StepchildHardwareInput{
   }
   void clearButtons(){
     this->resetEncoders();
-    this->mainButtonState = 0;
+    this->mainButtonState = 3<<8;
     this->joystickX = 0;
     this->joystickY = 0;
     this->stepButtonState = 0;

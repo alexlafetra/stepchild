@@ -298,9 +298,9 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
     //drawing the title (if no info should be drawn)
     // printItalic(8,0,"PC",1);
     printItalic(0,0,"P",1);
-    printSmall(8,2,"rg",1);
-    printItalic(16,0,"C",1);
-    printSmall(23,2,"hng",1);
+    printSmall(6,3,"rg",1);
+    printItalic(14,0,"C",1);
+    printSmall(20,3,"hng",1);
     if(sequence.cursorPos<sequence.viewEnd && sequence.cursorPos>=sequence.viewStart){
         graphics.drawArrow((sequence.cursorPos-sequence.viewStart)*sequence.viewScale+trackDisplay+((millis()/200)%2)-1,activePort*portHeight+14,3,0,false);
         if(millis()%500>250)

@@ -1448,18 +1448,17 @@ void keysAnimation(WireFrame* w){
 }
 
 void loopArrowAnimation(WireFrame* w){
-  //make a new folder wireframe with the right open amount
   WireFrame  n = makeLoopArrows(millis()/10);
-  //rotate it so it's at the same position as the current folder
+  //rotate it so it's at the same position as the current
   n.rotate(w->currentAngle[1],1);
   //then swap their vertices
   w->verts = n.verts;
 }
 
 void metAnimation(WireFrame* w){
-  //make a new folder wireframe with the right open amount
+  //make a new metronome  wireframe with the right open amount
   WireFrame  n = makeMetronome(float((millis())/100.0));
-  //rotate it so it's at the same position as the current folder
+  //rotate it so it's at the same position as the current metroniome
   n.rotate(w->currentAngle[1],1);
   //then swap their vertices
   w->verts = n.verts;

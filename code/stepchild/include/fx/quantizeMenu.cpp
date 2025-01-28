@@ -134,57 +134,70 @@ bool quantizeMenuControls(uint8_t &whichParam, bool &deleteNote){
         }
       }
     }
-    if(controls.SELECT() ){
-      lastTime = millis();
-      deleteNote = !deleteNote;
+    if(controls.SELECT()){
+      switch(whichParam){
+        //amount
+        case 0:
+          break;
+        //grid
+        case 1:
+          break;
+        //delete on/off
+        case 2:
+          deleteNote = !deleteNote;
+          lastTime = millis();
+          break;
+      }
     }
   }
-  //changing sequence.subDivision
-  while(controls.counterB != 0){
-    if(controls.counterB >= 1 && !controls.SHIFT()){
-      sequence.changeSubDivInt(true);
-    }
-    //changing subdivint
-    if(controls.counterB <= -1 && !controls.SHIFT()){
-      sequence.changeSubDivInt(false);
-    }
-    //if shifting, toggle between 1/3 and 1/4 mode
-    else while(controls.counterB != 0 && controls.SHIFT()){
-      sequence.toggleTriplets();
-    }
-    controls.counterB += controls.counterB<0?1:-1;;
-    if(whichParam != 1){
-      whichParam = 1;
-    }
-  }
-  //changing quantize amount
+  //changing params
   while(controls.counterA != 0){
-    if(controls.counterA >= 1){
-      if(quantizeAmount < 100){
-        if(controls.SHIFT())
-          quantizeAmount++;
-        else{
-          quantizeAmount+=5;
+    switch(whichParam){
+      //amount
+      case 0:
+        if(controls.counterA >= 1){
+          if(quantizeAmount < 100){
+            if(controls.SHIFT())
+              quantizeAmount++;
+            else{
+              quantizeAmount+=5;
+            }
+          }
+          if(quantizeAmount>100){
+            quantizeAmount = 100;
+          }
         }
-      }
-      if(quantizeAmount>100){
-        quantizeAmount = 100;
-      }
-    }
-    if(controls.counterA <= -1){
-      if(quantizeAmount>0){
-        if(controls.SHIFT())
-          quantizeAmount--;
-        else{
-          quantizeAmount-=5;
+        if(controls.counterA <= -1){
+          if(quantizeAmount>0){
+            if(controls.SHIFT())
+              quantizeAmount--;
+            else{
+              quantizeAmount-=5;
+            }
+          }
+          if(quantizeAmount<0){
+            quantizeAmount = 0;
+          }
         }
-      }
-      if(quantizeAmount<0){
-        quantizeAmount = 0;
-      }
-    }
-    if(whichParam != 0){
-      whichParam = 0;
+        break;
+      //changing grid
+      case 2:
+        if(controls.counterA >= 1 && !controls.SHIFT()){
+          sequence.changeSubDivInt(true);
+        }
+        //changing subdivint
+        else if(controls.counterA <= -1 && !controls.SHIFT()){
+          sequence.changeSubDivInt(false);
+        }
+        //if shifting, toggle between 1/3 and 1/4 mode
+        else if(controls.SHIFT()){
+          sequence.toggleTriplets();
+        }
+        break;
+      //delete collisions
+      case 1:
+        deleteNote = !deleteNote;
+        break;
     }
     controls.counterA += controls.counterA<0?1:-1;;
   }

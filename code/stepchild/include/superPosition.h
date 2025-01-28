@@ -48,7 +48,7 @@ bool SuperpositionMenu::setSuperpositionControls(){
     }
   }
   if(utils.itsbeen(200)){
-    if(controls.NEW() || controls.MENU()){
+    if(controls.NEW() || controls.MENU() || controls.LOOP()){
       lastTime = millis();
       if(note.superposition.pitch == sequence.trackData[track].pitch){
         note.superposition.pitch = 255;//set to 'unset' if it's on the same pitch
@@ -115,8 +115,8 @@ void SuperpositionMenu::drawSuperposSelect(){
     txt = "+"+txt;
 
   //draw superposition
-  graphics.fillRectWithMissingCorners(n2Coords.x1+1, n2Coords.y1, n2Coords.length-1, trackHeight, SSD1306_BLACK);
-  graphics.drawRectWithMissingCorners(n2Coords.x1+1, n2Coords.y1, n2Coords.length-1, trackHeight, SSD1306_WHITE);
+  graphics.fillRectWithMissingCorners(n2Coords.x1, n2Coords.y1-1, n2Coords.length+1, trackHeight, SSD1306_BLACK);
+  graphics.drawRectWithMissingCorners(n2Coords.x1, n2Coords.y1-1, n2Coords.length+1, trackHeight, SSD1306_WHITE);
 
   printSmall(n2Coords.x1+n2Coords.length+4,n2Coords.y1+2,txt+"("+pitchToString(note.superposition.pitch,true,true)+")",1);
   drawNote(note, track, nCoords, settings);//draw the note (like normal)

@@ -12,6 +12,7 @@
 #define MIDI_OUT_2 4
 
 //CV Outputs
+#define CV4_PIN 17
 #define CV3_PIN 5
 #define CV2_PIN 6
 #define CV1_PIN 15
@@ -42,3 +43,15 @@
 #define VOLTAGE_PIN 29
 #define USB_PIN 24
 #define ONBOARD_LED 25
+
+//Extra GPIO Access
+#define AUX_GPIO 20
+#define AUX_ADC 28
+
+//Deprecated pins from prototypes
+// #define BUTTONS_CLOCK_ENABLE 12
+// #define BUTTONS_LOAD 13
+// #define BUTTONS_CLOCK_IN 14
+// #define BUTTONS_DATA 15
+// #define A_PRESS 20
+// #define B_PRESS 17

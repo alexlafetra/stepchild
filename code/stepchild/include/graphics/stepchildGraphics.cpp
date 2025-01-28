@@ -403,7 +403,7 @@ void StepchildGraphics::fillEllipse(uint8_t h, uint8_t k, int a, int b,uint16_t 
         this->drawRadian(h,k,a,b,i,c);
     }
 }
-void StepchildGraphics::drawEllipse(uint8_t h, uint8_t k, int a, int b, uint16_t c) {
+void StepchildGraphics::drawEllipse(uint8_t h, uint8_t k, int a, int b, uint8_t skip, uint16_t c) {
     //centerX = h
     //centerY = k
     //horizontal radius = a
@@ -416,19 +416,22 @@ void StepchildGraphics::drawEllipse(uint8_t h, uint8_t k, int a, int b, uint16_t
     //for every x that falls along the length of the ellipse, get a y and draw a point
     else if (a > 0 && b > 0) {
         for (int x1 = h - a; x1 <= h + a; x1++) {
-        if (x1 < screenWidth && x1 >= 0) {
-            int root = b * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
-            y1 = k + root;
-            if (y1 < screenHeight) {
-            display.drawPixel(x1, y1, c);
-            }
-            y1 = k - root;
-            if (y1 >= 0) {
-            display.drawPixel(x1, y1, c);
-            }
-        }
+            if (x1 < screenWidth && x1 >= 0) {
+                int root = b * sqrt(1 - pow((x1 - h), 2) / pow(a, 2));
+                y1 = k + root;
+                if (y1 < screenHeight && !(y1%skip)) {
+                    display.drawPixel(x1, y1, c);
+                }
+                y1 = k - root;
+                if (y1 >= 0  && !(y1%skip)) {
+                    display.drawPixel(x1, y1, c);
+                }
+              }
         }
     }
+}
+void StepchildGraphics::drawEllipse(uint8_t h, uint8_t k, int a, int b, uint16_t c) {
+  drawEllipse(h,k,a,b,0,c);
 }
 void StepchildGraphics::drawStar(uint8_t centerX, uint8_t centerY, uint8_t r1, uint8_t r2, uint8_t points){
     uint8_t numberOfPoints = points*2;//the actual number of points (both convex and concave vertices)
@@ -484,15 +487,15 @@ void StepchildGraphics::drawSequenceMemoryBar(uint8_t x1, uint8_t y1, uint8_t le
     printSmall(x1-12,y1,"mem",1);
 }
 
-#define RIGHT 0
-#define LEFT 1
+#define JOY_RIGHT 0
+#define JOY_LEFT 1
 #define UP 2
 #define DOWN 3
 
 void StepchildGraphics::drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, bool full){
     switch(direction){
         //right
-        case RIGHT:
+        case JOY_RIGHT:
         if(full)
             display.fillTriangle(pointX, pointY, pointX-size, pointY-size, pointX-size, pointY+size,SSD1306_WHITE);
         else{
@@ -501,7 +504,7 @@ void StepchildGraphics::drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, 
         }
         break;
         //left
-        case LEFT:
+        case JOY_LEFT:
         if(full)
             display.fillTriangle(pointX, pointY,pointX+size, pointY-size, pointX+size, pointY+size,SSD1306_WHITE);
         else{
@@ -533,10 +536,10 @@ void StepchildGraphics::drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, 
 void StepchildGraphics::drawhighlight(uint8_t pointX,uint8_t pointY, uint8_t size, uint8_t direction){
     this->drawArrow(pointX,pointY,size+2,direction,true);
     switch(direction){
-        case RIGHT:
+        case JOY_RIGHT:
         this->drawArrow(pointX-1,pointY,size,direction,false);
         break;
-        case LEFT:
+        case JOY_LEFT:
         this->drawArrow(pointX+1,pointY,size,direction,false);
         break;
         case UP:

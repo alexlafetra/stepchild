@@ -414,6 +414,26 @@ NoteCoords getNoteCoords(Note& note, uint8_t track){
   return getNoteCoords(note,track,settings);
 }
 
+void drawNoteSprite(NoteCoords& noteCoords, uint8_t shade){
+  if(noteCoords.y1>=SCREEN_HEIGHT)
+    return;
+  if(noteCoords.x1>=SCREEN_WIDTH)
+    return;
+  if(shade != 1){//so it does this faster
+    display.fillRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_BLACK);//clearing out the note area
+    for(uint8_t j = 1; j<trackHeight-2; j++){//shading the note...
+      for(uint8_t i = noteCoords.x1+1;i+j%shade<noteCoords.x1+noteCoords.length-1; i+=shade){
+        display.drawPixel(i+j%shade,noteCoords.y1+j,SSD1306_WHITE);
+      }
+    }
+    display.drawRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_WHITE);
+  }
+  //if it's a solid note, fill it quickly
+  else{
+    display.fillRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_WHITE);
+  }
+}
+
 void drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSettings& settings){
   
   //if the note is currently superpositioned, draw it where it should be, but not if it's out of view
@@ -433,6 +453,7 @@ void drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSe
     graphics.fillRectWithMissingCorners(noteCoords.x1+((abs(offset)>5)?5:offset), noteCoords.y1-offset, noteCoords.length, trackHeight, SSD1306_BLACK);
     graphics.drawRectWithMissingCorners(noteCoords.x1+((abs(offset)>5)?5:offset), noteCoords.y1-offset, noteCoords.length, trackHeight, SSD1306_WHITE);
   }
+  uint8_t shade = settings.displayingVel?getVelShade(note.velocity):getChanceShade(note.chance);
   //if the noteCoords.length is less than 3, don't worry about shading it
   if(noteCoords.length<3){
     display.fillRect(noteCoords.x1, noteCoords.y1+1, noteCoords.length+2, trackHeight-2, SSD1306_WHITE);
@@ -450,20 +471,7 @@ void drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSe
       graphics.drawRectWithMissingCorners(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_WHITE);
     }
     else{
-      uint8_t shade = settings.displayingVel?getVelShade(note.velocity):getChanceShade(note.chance);
-      if(shade != 1){//so it does this faster
-        display.fillRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_BLACK);//clearing out the note area
-        for(uint8_t j = 1; j<trackHeight-2; j++){//shading the note...
-          for(uint8_t i = noteCoords.x1+1;i+j%shade<noteCoords.x1+noteCoords.length-1; i+=shade){
-            display.drawPixel(i+j%shade,noteCoords.y1+j,SSD1306_WHITE);
-          }
-        }
-        display.drawRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_WHITE);
-      }
-      //if it's a solid note, fill it quickly
-      else{
-        display.fillRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_WHITE);
-      }
+      drawNoteSprite(noteCoords,shade);
       //line at the end, if there's something at the end
       if(sequence.lookupTable[track][note.endPos] != 0)
         display.drawFastVLine(noteCoords.x1+noteCoords.length,noteCoords.y1+1,trackHeight-2,SSD1306_BLACK);

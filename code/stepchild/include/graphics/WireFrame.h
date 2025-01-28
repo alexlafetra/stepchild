@@ -307,13 +307,11 @@ void WireFrame::rotateVertRelative(uint8_t which, float angle, uint8_t axis){
 }
 //this one resets the rotation of the target axis, THEN applies the rotation
 void WireFrame::setRotation(float angle, uint8_t axis){
-  float oldAngles[3] = {currentAngle[0],currentAngle[1],currentAngle[2]};
-  resetExceptFor(axis);
-  rotate(angle,axis);
-  for(uint8_t i = 0; i<3; i++){
-    if(i != axis)
-      rotate(oldAngles[i],i);
-  }
+  if(axis>2)
+    return;
+  // float oldAngles[3] = {currentAngle[0],currentAngle[1],currentAngle[2]};
+  //reset current rotation, then rotate to the new rotation (in one line)
+  rotate(angle-currentAngle[axis],axis);
 }
 
 //resets the rotation of the WF based on the stored angle

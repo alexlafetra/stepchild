@@ -104,22 +104,22 @@ void MainMenu::animateMainMenuWireFrame(){
       icon.rotate(float(millis())/50.0,0);
       icon.rotate(-float(millis())/75.0,1);
       break;
-    //keys
+    //apps
     case 2:
-    //settings
+    //settings/preferences
     case 3:
-    //disc
+    //quicksave
     case 4:
     //fx
     case 5:
       icon.rotate(2,1);
       break;
-    //die
+    //random
     case 6:
       icon.rotate(2,0);
       icon.rotate(2,1);
       break;
-    //monitor
+    //Program Change
     case 7:
       animateMonitor(icon,3.0,14);
       break;
@@ -135,7 +135,8 @@ void MainMenu::animateMainMenuWireFrame(){
     //clock
     case 10:
       metAnimation(&icon);
-      icon.yPos = 16 + 2*sin(float(millis())/400);
+      icon.yPos = 16 + 2.0*sin(float(millis())/400);
+      icon.setRotation(20.0*sin(float(millis())/400.0),1);
       break;
     //arp
     case 11:

@@ -183,8 +183,9 @@ void sortTracks(){
   uint8_t sortType = 0;
   //0 = track pitch, 1 = track channel, 2 =  number of notes (wip)
   int8_t sortTarget = 0;
-  const uint8_t x1 = trackDisplay-2;
-  const uint8_t y1 = 0;
+  Coordinate coords(screenWidth-44,8);
+  uint8_t cursor = 0;
+  menuText = "sort tracks";
   while(true){
     controls.readButtons();
     controls.readJoystick();
@@ -193,48 +194,112 @@ void sortTracks(){
         lastTime = millis();
         break;
       }
-      if(controls.NEW() || controls.SELECT() ){
+      if(controls.NEW() || (controls.SELECT() && cursor == 2)){
         sortTrackData(sortType,sortTarget);
+        menuText = "sorted!";
+        lastTime = millis();
+        return;
+      }
+      if(controls.joystickY == 1 && cursor<3){
+        cursor++;
+        lastTime = millis();
+      }
+      if(controls.joystickY == -1 && cursor>0){
+        cursor--;
+        lastTime = millis();
+      }
+      if(controls.joystickX){
+        switch(cursor){
+          case 0:
+            sortTarget+=controls.joystickX;
+            if(sortTarget<0)
+              sortTarget = 2;
+            if(sortTarget == 3)
+              sortTarget = 0;
+            break;
+          case 1:
+            sortType = !sortType;
+            break;
+        }
         lastTime = millis();
       }
     }
     while(controls.counterA != 0){
-      sortType = !sortType;
+      switch(cursor){
+        case 0:
+          sortTarget+=controls.counterA<0?-1:1;
+          if(sortTarget<0)
+            sortTarget = 2;
+          if(sortTarget == 3)
+            sortTarget = 0;
+          break;
+        case 1:
+          sortType = !sortType;
+          break;
+      }
       controls.counterA+=controls.counterA<0?1:-1;
     }
     while(controls.counterB != 0){
-      sortTarget+=controls.counterB<0?-1:1;
-      if(sortTarget<0)
-        sortTarget = 2;
-      if(sortTarget == 3)
-        sortTarget = 0;
+      switch(cursor){
+        case 0:
+          sortTarget+=controls.counterB<0?-1:1;
+          if(sortTarget<0)
+            sortTarget = 2;
+          if(sortTarget == 3)
+            sortTarget = 0;
+          break;
+        case 1:
+          sortType = !sortType;
+          break;
+      }
       controls.counterB+=controls.counterB<0?1:-1;
     }
     display.clearDisplay();
     SequenceRenderSettings settings;
     settings.drawTrackChannel = true;
+    settings.shrinkTopDisplay = false;
     drawSeq(settings);
-    display.fillRoundRect(x1,y1,85,43,3,0);
-    display.drawRoundRect(x1,y1,85,43,3,1);
-    printSmall(x1+42,y1+3,"sort by:",1,CENTER);
-    if(true){
-      String target;
-      switch(sortTarget){
-        case 0:
-          target = "pitch";
-          break;
-        case 1:
-          target = "channel";
-          break;
-        case 2:
-          target = "note count";
-          break;
-      }
-      printItalic(x1+2,y1+10,target,1);
+    display.fillRoundRect(coords.x,coords.y,46,40,3,SSD1306_BLACK);
+    display.drawRoundRect(coords.x,coords.y,46,40,3,SSD1306_WHITE);
+    // display.fillRoundRect(x1,y1,85,43,3,0);
+    // display.drawRoundRect(x1,y1,85,43,3,1);
+    // printSmall(x1+42,y1+3,"sort by:",1,ALIGN_CENTER);
+    String target;
+    switch(sortTarget){
+      case 0:
+        target = "pitch";
+        break;
+      case 1:
+        target = "channel";
+        break;
+      case 2:
+        target = "note count";
+        break;
     }
-    printSmall(x1+42,y1+19,"in:",1,CENTER);
-    printItalic(x1+2,y1+26,sortType?"descending":"ascending",1);
-    printSmall(x1+42,y1+35,"order",1,CENTER);
+
+    //sort by
+    printSmall(coords.x+2,coords.y+2,"sort by:",1);
+    if(cursor == 0){
+      display.fillRoundRect(coords.x+1,coords.y+9,getSmallTextLength(target)+2,7,2,1);
+      graphics.drawArrow(coords.x+millis()/200%2,coords.y+12,3,0,0);
+    }
+    printSmall(coords.x+2,coords.y+10,target,2);
+
+    //order
+    printSmall(coords.x+2,coords.y+17,"order:",1);
+    String order = sortType?"descending":"ascending";
+    if(cursor == 1){
+      display.fillRoundRect(coords.x+1,coords.y+24,getSmallTextLength(order)+2,7,2,1);
+      graphics.drawArrow(coords.x+millis()/200%2,coords.y+27,3,0,0);
+    }
+    printSmall(coords.x+2,coords.y+25,order,2);
+
+    //commit
+    if(cursor == 2){
+      display.fillRoundRect(coords.x+11,coords.y+31,22,7,2,1);
+      graphics.drawArrow(coords.x+millis()/200%2+10,coords.y+34,3,0,0);
+    }
+    printSmall(coords.x+12,coords.y+32,"sort!",2);
     display.display();
   }
 }

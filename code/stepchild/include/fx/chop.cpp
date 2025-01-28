@@ -87,7 +87,7 @@ void drawChopIcon(uint8_t x1, uint8_t y1, uint8_t height, bool animated){
         display.drawBitmap(x1,y1,chop2_bmp,12,12,1);
 }
 
-bool chop(vector<NoteID> noteIDs){
+bool chopNotes(vector<NoteID> noteIDs){
     //store the note and remove it from the sequence
     vector<NoteTrackPair> targetNotes = {};
     for(uint16_t i = 0; i<noteIDs.size(); i++){
@@ -232,14 +232,28 @@ bool chop(vector<NoteID> noteIDs){
 
 bool getNotesToChop(){
     if(selectNotes("chop",drawChopIcon)){
-        return chop(getSelectedNoteIDs());
+        return chopNotes(getSelectedNoteIDs());
     }
     else
         return false;
 }
 
+bool chopSelectedNotes(){
+    vector <NoteID> selected = getSelectedNoteIDs();
+    return chopNotes(selected);
+}
+
 void chopNoteAt(uint8_t track, uint16_t step){
     if(!sequence.IDAt(track,step))
         return;
-    chop(vector<NoteID> {NoteID(track,sequence.IDAt(track,step))});
+    chopNotes(vector<NoteID> {NoteID(track,sequence.IDAt(track,step))});
+}
+
+void chop(){
+  if(sequence.selectionCount){
+    chopSelectedNotes();
+  }
+  else if(sequence.IDAtCursor() != 0){
+    chopNotes(vector<NoteID> {NoteID(sequence.activeTrack,sequence.IDAtCursor())});
+  }
 }

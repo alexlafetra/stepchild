@@ -140,10 +140,11 @@ void screenSaver_ripples(){
     }
     else
       animOffset+=6;
-    if(animOffset>=8*spacing*maxReps/3+8*32+28){
+    if(animOffset>=(8*spacing*maxReps/3+8*32+58)){
       animOffset = 0;
       done = true;
     }
+    delay(3);
     if(controls.anyActiveInputs()){
       lastTime = millis();
       return;

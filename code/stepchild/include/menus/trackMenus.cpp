@@ -258,7 +258,7 @@ void TrackMenu::displayMenu(){
 }
 
 String TrackMenu::getMenuText(){
-  const vector<String> texts = {"pitch","octave","channel","prime","edit","mute","move","erase","solo","latch"};
+  const vector<String> texts = {"change pitch","change octave","change channel","prime 4 rec","edit","mute","move","erase","solo","latch"};
   switch(cursor){
     case 0:
       break;
@@ -269,7 +269,7 @@ String TrackMenu::getMenuText(){
     case 3:
       break;
   }
-  return "hey";
+  return texts[cursor];
 }
 
 void TrackMenu::displayMenuSidebar(){
@@ -288,7 +288,9 @@ void TrackMenu::displayMenuSidebar(){
   //top labels 
   String text = getMenuText();
   // printChunky(coords.end.x-text.length()*6,coords.start.y+5,text,1);
-    printChunky(coords.end.x-6,coords.start.y+5,stringify(cursor),1);
+  // printChunky(coords.end.x-6,coords.start.y+5,stringify(cursor),1);
+  printSmall(coords.end.x-text.length()*4,coords.start.y+6,text,1);
+  printSmall(coords.end.x-60,coords.start.y,"[n]->new|[del]->del",1);
   drawTrackMenuTopInfo(coords.start.x);
 
   //drawing menu options, and the highlight
@@ -990,8 +992,9 @@ class TrackUtilMenu:public StepchildMenu{
   public:
     //storing a ref to the track menu so you can call the display method
     TrackMenu* trackMenu;
-    const vector<String> options = {"edit tracks","tune 2 scale","del empty tracks","disarm tracks w notes","sort tracks"};
-    TrackUtilMenu(TrackMenu* t){trackMenu = t;}
+    const vector<String> options = {"group edit tracks","tune 2 scale","delete empty tracks","disarm tracks w notes","sort tracks"};
+    TrackUtilMenu(TrackMenu* t){trackMenu = t;
+                                coords = CoordinatePair(0,16,128,64);}
     void drawTrackUtils();
     bool trackUtilMenuControls();
     void displayMenu();
@@ -999,6 +1002,15 @@ class TrackUtilMenu:public StepchildMenu{
 
 void TrackUtilMenu::displayMenu(){
   display.clearDisplay();
+  if(coords.start.y>16){
+  SequenceRenderSettings settings;
+    settings.shrinkTopDisplay = false;
+    settings.drawLoopFlags = false;
+    settings.drawPram = false;
+    settings.topLabels = false;
+    settings.drawTrackChannel = true;
+    drawSeq(settings);
+  }
   trackMenu->displayMenuSidebar();
   drawTrackUtils();
   display.display();
@@ -1006,16 +1018,14 @@ void TrackUtilMenu::displayMenu(){
 
 //shows options for edit, tune tracks, del empty tracks, and disarm tracks w/ notes
 void TrackUtilMenu::drawTrackUtils(){
-  const uint8_t x1 = 0;
-  const uint8_t y1 = headerHeight;
   const uint8_t length = 95;
-  display.fillRect(x1,y1,length,screenHeight-y1,0);
-  display.drawRect(x1,y1,length,screenHeight-y1,1);
+  display.fillRect(coords.start.x,coords.start.y,length,screenHeight-coords.start.y,0);
+  display.drawRect(coords.start.x,coords.start.y,length,screenHeight-coords.start.y,1);
   for(uint8_t i = 0; i<options.size(); i++){
     if(i == cursor){
-      display.fillRect(x1+1,y1+i*6+1,length-2,7,1);
+      display.fillRect(coords.start.x+1,coords.start.y+i*6+1,length-2,7,1);
     }
-    printSmall(x1+2,y1+i*6+2,options[i],2);
+    printSmall(coords.start.x+2,coords.start.y+i*6+2,options[i],2);
   }
 }
 
@@ -1063,9 +1073,11 @@ bool TrackUtilMenu::trackUtilMenuControls(){
 
 void trackUtils(TrackMenu* t){
   TrackUtilMenu trackUtilMenu(t);
+  trackUtilMenu.slideIn(IN_FROM_BOTTOM,MENU_SLIDE_FAST);
   while(trackUtilMenu.trackUtilMenuControls()){
     trackUtilMenu.displayMenu();
   }
+  trackUtilMenu.slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_FAST);
 }
 
 /*
