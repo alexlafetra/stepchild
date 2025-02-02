@@ -44,7 +44,7 @@ template <typename midiInterfaceObject> class midiObject{
 class StepchildMIDI{
   public:
   uint16_t midiChannelFilters[5] = {0b1111111111111111,0b1111111111111111,0b1111111111111111,0b1111111111111111,0b1111111111111111};
-  
+  uint8_t midiMuteSettings = 0b00000000;
   StepchildMIDI(){
   }
   void start(){
@@ -212,28 +212,32 @@ class StepchildMIDI{
       }
     }
   }
+  void allChannelsOff(uint8_t whichPort){
+    midiChannelFilters[whichPort] = 0;
+  }
+  void allChannelsOn(uint8_t whichPort){
+    midiChannelFilters[whichPort] = 65535;
+  }
+  void setAllChannels(bool state, uint8_t whichPort){
+    if(state)
+      allChannelsOn(whichPort);
+    else
+      allChannelsOff(whichPort);
+  }
   //checks if a port is filtering a channel
   bool isChannelActive(uint8_t whichChannel,uint8_t whichPort){
-    if(this->midiChannelFilters[whichPort] == 65535){
-      return true;
-    }
-    else{
-      bool value = (this->midiChannelFilters[whichPort] & (1 << whichChannel-1)) != 0 ;
-      return value;
-    }
+    return (this->midiChannelFilters[whichPort] & (1 << whichChannel)) != 0 ;
   }
-  bool toggleThru(uint8_t output){
-    bool isActive = this->isThru(output);
-    this->setThru(output, !isActive);
-    return !isActive;
+  bool isMuted(uint8_t whichPort){
+    return (midiMuteSettings>>whichPort)&1;
+  }
+  void toggleMute(uint8_t whichPort){
+    midiMuteSettings ^= 1 << whichPort;
+  }
+  void toggleThru(uint8_t output){
+    this->setThru(output, !this->isThru(output));
   }
 
-  bool isTotallyMuted(uint8_t which){
-    if(!this->midiChannelFilters[which])
-      return true;
-    else
-      return false;
-  }
   void setMidiChannel(uint8_t channel, uint8_t output, bool status){
     //for activating, you use OR
     if(status){
@@ -248,9 +252,8 @@ class StepchildMIDI{
   }
   //toggles the channel on an output, and returns its new value
   bool toggleMidiChannel(uint8_t channel, uint8_t output){
-    bool isActive = this->isChannelActive(channel, output);
-    this->setMidiChannel(channel, output, !isActive);
-    return !isActive;//return new state of channel
+    midiChannelFilters[output] ^= 1 << channel;
+    return this->isChannelActive(channel, output);
   }
   void muteMidiPort(uint8_t which){
     this->midiChannelFilters[which] = 0;

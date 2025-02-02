@@ -874,11 +874,9 @@ WireFrame makeGraphBox(float offset){
       box.edges.push_back({uint16_t(i-1),i});
   }
 
-  box.xPos = screenWidth/2;
-  box.yPos = screenHeight/2;
-  // box.drawDots = true;
+  // box.xPos = screenWidth/2;
+  // box.yPos = screenHeight/2;
   box.scale = 2;
-  // box.rotate(20,2);
   box.rotate(15,0);
   return box;
 }

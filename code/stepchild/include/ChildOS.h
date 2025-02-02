@@ -1,6 +1,11 @@
+/*
+
+  Header file for ChildOS
+
+*/
+
 #define FIRMWARE_VERSION '0.9.2'
 
-#include "pins.h"   //pin definitions
 #include <vector>
 #include <algorithm>
 
@@ -13,7 +18,7 @@
 #include <chrono>//for emulating millis() and micros()
 #include <unistd.h>
 #include <thread>//for multithreading
-
+#include "../headless/childOS_headless/headlessControls.h"
 #include "../headless/childOS_headless/headlessOpenGL.h"
 #include "../headless/childOS_headless/headlessMIDI.h"
 #include "../headless/childOS_headless/headlessFileSystem.h"
@@ -41,11 +46,10 @@ extern "C" {
 #undef CFG_TUH_RPI_PIO_USB
 #define CFG_TUH_RPI_PIO_USB 1
 
+#include "hardware.h"   //button/input reading functions
 #include "display.h"
-
-//Don't include this if you're in headless mode
-//Headless has it's own midi.h
 #include "StepchildMIDI.h"
+
 #endif
 
 using namespace std;
@@ -73,9 +77,9 @@ class NoteID;
 
 //Objects for accessing stepchild functions
 class StepchildCV;
-class StepchildSequence;//unfinished
+class StepchildSequence;
 class StepchildGraphics;
-class StepchildHardwareInput;
+class StepchildHardware;
 class StepchildUtilities;
 class StepchildMIDI;
 class LowerBoard;
@@ -105,7 +109,6 @@ struct RandomData;
 struct NoteCoords;
 struct SequenceRenderSettings;
 
-
 enum ScaleName:uint8_t{
   MAJOR,
   HARMONIC_MINOR,
@@ -125,9 +128,9 @@ ScaleName& operator++(ScaleName& e) {
     using underlying_type = std::underlying_type<ScaleName>::type;
     e = static_cast<ScaleName>(static_cast<underlying_type>(e) + 1);
     
-    // Wrap-around logic if necessary
+    // Wrap-around logic
     if (e > LOCRIAN) {
-        e = MAJOR; // or handle wrap-around as per your logic
+        e = MAJOR;
     }
     
     return e;
@@ -137,6 +140,7 @@ ScaleName operator++(ScaleName& e, int) {
     ++e;               // Increment the original value
     return result;     // Return the copy (the original value before increment)
 }
+
 // Define a free-standing function to overload --
 ScaleName& operator--(ScaleName& e) {
     using underlying_type = std::underlying_type<ScaleName>::type;
@@ -210,11 +214,6 @@ uint16_t animOffset = 0;//for animating curves
 #include "functionPrototypes.h" //function prototypes (eventually these should all be refactored into respective files)
 #include "clock.h"              //timing functions
 #include "global.h"             //program boolean flags and global data, constants
-#ifdef HEADLESS
-  #include "../headless/childOS_headless/headlessControls.h"
-#else
-  #include "hardware.h"   //button/input reading functions
-#endif
 #include "utils.h"              //common helper functions/utilities
 #include "internalCC.h"
 

@@ -1941,3 +1941,18 @@ void drawMiniDT(uint8_t x1, uint8_t y1, uint8_t height, uint8_t which){
     display.drawLine(x1+2,y1-2,x1-2,y1+2,1);
   }
 }
+
+
+/*
+
+In the viewer, selecting an autotrack should give you the options:
+edit curve, set trigger, apply as function
+
+edit curve --> normal curve editor
+
+set trigger --> trigger editor, more compact. Should slide in, and doesn't display both track and channel triggers
+(instead you should flip between the two) and also has a tooltip describing what it does eg "track will play when a note is sent on "
+
+apply as function --> let's you apply the autotrack to note timing, velocity, or chance
+
+*/

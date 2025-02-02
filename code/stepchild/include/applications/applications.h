@@ -56,40 +56,64 @@ const unsigned char live_loop_bmp [] = {
 	0x7f, 0x80, 0x3e, 0x00, 0x10, 0x00, 0x00, 0x00
 };
 
-//----------------TBD----------------
-
 // 'chord', 12x12px
 const unsigned char chord_dj_bmp []  = {
 	0x6d, 0xb0, 0x6d, 0x80, 0x6c, 0x30, 0x61, 0xa0, 0x0d, 0x20, 0x69, 0x60, 0x4b, 0x60, 0x5b, 0x00, 
 	0xd8, 0x60, 0xc3, 0x60, 0x1b, 0x60, 0xdb, 0x60
 };
 
-//Default ChildOS instrument applications
+//ChildOS instrument applications
 
-//max 8 characters! otherwise it'll run off the screen
-#define INSTRUMENT_APP1_TEXT "joystick"
-#define INSTRUMENT_APP1_FUNCTION xyGrid
-#define INSTRUMENT_APP1_ICON xy_bmp
+//Generators
+#define INSTRUMENT_APP1_FUNCTION rain
+#define INSTRUMENT_APP1_TEXT "rain"
+#define INSTRUMENT_APP1_ICON rain_bmp
+#define INSTRUMENT_APP1_INFO "Send notes in a range of pitches using rainfall"
 
-#define INSTRUMENT_APP2_FUNCTION rain
-#define INSTRUMENT_APP2_TEXT "rain"
-#define INSTRUMENT_APP2_ICON rain_bmp
+#define INSTRUMENT_APP2_FUNCTION testSolarSystem
+#define INSTRUMENT_APP2_TEXT "solar sys"
+#define INSTRUMENT_APP2_ICON planets_bmp
+#define INSTRUMENT_APP2_INFO "Send notes based on an orbiting solar system"
 
-#define INSTRUMENT_APP3_FUNCTION knobs
-#define INSTRUMENT_APP3_TEXT "knobs"
-#define INSTRUMENT_APP3_ICON knobs_bmp
+//Tools
+#define INSTRUMENT_APP3_FUNCTION rattle
+#define INSTRUMENT_APP3_TEXT "rattle"
+#define INSTRUMENT_APP3_ICON rattle_bmp
+#define INSTRUMENT_APP3_INFO "Send weird note rolls using the joystick"
 
-#define INSTRUMENT_APP4_FUNCTION chordDJ
-#define INSTRUMENT_APP4_TEXT "chord dj"
-#define INSTRUMENT_APP4_ICON chord_dj_bmp
+#define INSTRUMENT_APP4_TEXT "joystick"
+#define INSTRUMENT_APP4_FUNCTION xyGrid
+#define INSTRUMENT_APP4_ICON xy_bmp
+#define INSTRUMENT_APP4_INFO "Send CC data using the joystick"
 
-#define INSTRUMENT_APP5_FUNCTION liveLoop
-#define INSTRUMENT_APP5_TEXT "liveloop"
-#define INSTRUMENT_APP5_ICON live_loop_bmp
+#define INSTRUMENT_APP5_FUNCTION knobs
+#define INSTRUMENT_APP5_TEXT "knobs"
+#define INSTRUMENT_APP5_ICON knobs_bmp
+#define INSTRUMENT_APP5_INFO "Use the Stepchild knobs to send CC data"
 
-#define INSTRUMENT_APP6_FUNCTION rattle
-#define INSTRUMENT_APP6_TEXT "rattle"
-#define INSTRUMENT_APP6_ICON rattle_bmp
+#define INSTRUMENT_APP6_FUNCTION chordDJ
+#define INSTRUMENT_APP6_TEXT "chord dj"
+#define INSTRUMENT_APP6_ICON chord_dj_bmp
+#define INSTRUMENT_APP6_INFO "Create, edit, and play back full chords using the step buttons"
+
+#define INSTRUMENT_APP7_FUNCTION liveLoop
+#define INSTRUMENT_APP7_TEXT "liveloop"
+#define INSTRUMENT_APP7_ICON live_loop_bmp
+#define INSTRUMENT_APP7_INFO "live looper! record and trigger playback for live performance"
+
+
+#define NUMBER_OF_APPLICATIONS 7
+#define NUMBER_OF_GENERATIVE_INSTRUMENTS 2
+
+const String instrumentApplicationInfo[NUMBER_OF_APPLICATIONS] = {
+    INSTRUMENT_APP1_INFO,
+    INSTRUMENT_APP2_INFO,
+    INSTRUMENT_APP3_INFO,
+    INSTRUMENT_APP4_INFO,
+    INSTRUMENT_APP5_INFO,
+    INSTRUMENT_APP6_INFO,
+    INSTRUMENT_APP7_INFO
+};
 
 /*
     Check to see if the user has defined these in their code!
@@ -234,7 +258,7 @@ bool (*const instrumentApplicationFunctions[16])() = {
     INSTRUMENT_APP16_FUNCTION
 };
 
-const String instrumentApplicationTexts[16] = {
+const String instrumentApplicationTitles[16] = {
     INSTRUMENT_APP1_TEXT,
     INSTRUMENT_APP2_TEXT,
     INSTRUMENT_APP3_TEXT,
@@ -313,15 +337,6 @@ const unsigned char warp_bmp []  = {
 	0x2a, 0x20, 0x0a, 0x00, 0x08, 0x00, 0x00, 0x00
 };
 
-
-//TBD, because they have sick little icons
-/*
-  epd_bitmap_scramble,
-  epd_bitmap_splinter,
-  epd_bitmap_chop,
-  epd_bitmap_mayhem,
-*/
-
 //Default ChildOS FX applications
 
 #define FX_APP1_ICON random_bmp
@@ -333,8 +348,7 @@ const unsigned char warp_bmp []  = {
 #define FX_APP7_ICON warp_bmp
 #define FX_APP8_ICON chop2_bmp
 
-
-#define FX_APP1_FUNCTION randMenu
+#define FX_APP1_FUNCTION randomMenu
 #define FX_APP2_FUNCTION quantizeMenu
 #define FX_APP3_FUNCTION humanizeMenu
 #define FX_APP4_FUNCTION strumMenu
@@ -351,6 +365,28 @@ const unsigned char warp_bmp []  = {
 #define FX_APP6_TEXT "reverse"
 #define FX_APP7_TEXT "warp"
 #define FX_APP8_TEXT "chop"
+
+#define FX_APP1_INFO "Create random notes"
+#define FX_APP2_INFO "Quantize notes to a grid"
+#define FX_APP3_INFO "Add random offsets to note timing/velocity"
+#define FX_APP4_INFO "Set notes to cascade up or down"
+#define FX_APP5_INFO "Add an echo behind notes"
+#define FX_APP6_INFO "Reverse a section of the sequence"
+#define FX_APP7_INFO "Shrink/Grow a section of the sequence"
+#define FX_APP8_INFO "subdivide notes into equal pieces"
+
+#define NUMBER_OF_FX 8
+
+const String fxApplicationInfo[NUMBER_OF_FX] = {
+    FX_APP1_INFO,
+    FX_APP2_INFO,
+    FX_APP3_INFO,
+    FX_APP4_INFO,
+    FX_APP5_INFO,
+    FX_APP6_INFO,
+    FX_APP7_INFO,
+    FX_APP8_INFO
+};
 
 /*
     Check to see if the user has defined these in their code!

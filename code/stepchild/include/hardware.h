@@ -1,4 +1,68 @@
 /*
+
+  Code for the stepchild's inputs and pin defs
+
+*/
+
+/*
+--------------------------------------
+          Pin Definitions
+--------------------------------------
+*/
+
+//MIDI I/O
+#define MIDI_OUT_1 0
+#define MIDI_IN 1
+#define MIDI_OUT_4 2
+#define MIDI_OUT_3 3
+#define MIDI_OUT_2 4
+
+//CV Outputs
+#define CV4_PIN 17
+#define CV3_PIN 5
+#define CV2_PIN 6
+#define CV1_PIN 15
+
+//I2C bus for the MCP23017's
+#define I2C_SDA 8
+#define I2C_SCL 9
+
+//SPI Bus for the screen
+#define SPI1_RX 12
+#define SPI1_TX 11
+#define OLED_CS 13
+#define OLED_DC 16
+#define OLED_RESET 7
+#define SPI1_SCK 10
+
+//Encoders (these are hardware interrupts on the Pico)
+#define B_CLOCK 19
+#define B_DATA 18
+#define A_CLOCK 22
+#define A_DATA 21
+
+//Joystick
+#define JOYSTICK_X 27
+#define JOYSTICK_Y 26
+
+//Misc. Hardware (These are onboard pins)
+#define VOLTAGE_PIN 29
+#define USB_PIN 24
+#define ONBOARD_LED 25
+
+//Extra GPIO Access
+#define AUX_GPIO 20
+#define AUX_ADC 28
+
+//Deprecated pins from prototypes
+// #define BUTTONS_CLOCK_ENABLE 12
+// #define BUTTONS_LOAD 13
+// #define BUTTONS_CLOCK_IN 14
+// #define BUTTONS_DATA 15
+// #define A_PRESS 20
+// #define B_PRESS 17
+
+/*
 --------------------------------------
           Button Inputs
 --------------------------------------
@@ -51,17 +115,19 @@ https://forum.arduino.cc/t/how-to-read-a-register-value-using-the-wire-library/2
 #define B_BUTTON 8
 #define A_BUTTON 9
 
-// #define SHIFT_REGISTER_PROTOTYPE
-
 //range is (5-1023) aka 0-1018
 const float joystickScaleFactor = float(128)/float(1018);
+
+//prototypes for the rotary encoder callbacks, defined here so the control object can attach them to interrupts
+void rotaryActionA_Handler();
+void rotaryActionB_Handler();
 
 enum JoystickValue:int8_t{
   CENTER = 0,
   JOY_LEFT = 1,
   JOY_RIGHT = -1,
-  UP = 1,
-  DOWN = -1
+  JOY_UP = 1,
+  JOY_DOWN = -1
 };
 
 #include <MCP23017.h>
@@ -159,7 +225,7 @@ class LowerBoard{
   Holds all the hardware input functions (and the headless overloads)
   Accessed like controls.PLAY(), buttons.loop()
 */
-class StepchildHardwareInput{
+class StepchildHardware{
   public:
 
   //stores the 16 step buttons
@@ -168,6 +234,8 @@ class StepchildHardwareInput{
   //counters that are changed by the encoder interrupts
   volatile int8_t counterA = 0;
   volatile int8_t counterB = 0;
+
+  bool LEDsActive = true;
 
   //Joystick values
   int8_t joystickX = 0;//These can also be compressed in a future update into the mainButtonState variable
@@ -181,7 +249,7 @@ class StepchildHardwareInput{
   uint16_t mainButtonState = 0;
 
   //this should probably do all the hardware inits, and get passed a "settings" struct with the pins
-  StepchildHardwareInput(){}
+  StepchildHardware(){}
 
   void init(){
     //joystick analog inputs
@@ -198,15 +266,6 @@ class StepchildHardwareInput{
     pinMode(B_CLOCK, INPUT_PULLUP);
     pinMode(B_DATA, INPUT_PULLUP);
 
-    #ifdef SHIFT_REGISTER_PROTOTYPE
-    //button bit controls.SHIFT() reg
-    pinMode(BUTTONS_DATA, INPUT);
-    pinMode(BUTTONS_LOAD, OUTPUT);
-    pinMode(BUTTONS_CLOCK_IN, OUTPUT);
-    pinMode(BUTTONS_CLOCK_ENABLE, OUTPUT);
-    pinMode(A_PRESS, INPUT_PULLUP);
-    pinMode(B_PRESS, INPUT_PULLUP);
-    #else
     //default startup settings
     mainButtons.writeRegister(MCP23017Register::IOCON, 0b00100000);
     //Setting all button GPIO's to inputs
@@ -217,9 +276,7 @@ class StepchildHardwareInput{
     mainButtons.writeRegister(MCP23017Register::GPIO_A,0b11111111);
     //slight error on PCB... encoder buttons are pulled DOWN via a resistor (shouldn't be!)
     mainButtons.writeRegister(MCP23017Register::GPPU_B, 0b11111111);
-    mainButtons.writeRegister(MCP23017Register::GPIO_B,0b11111111);
-    #endif
-  
+    mainButtons.writeRegister(MCP23017Register::GPIO_B,0b11111111);  
 
     // CPU0 handles the encoder interrupts, so make sure to .init() the StepchildHardwareInput object in setup() not setup1()
     //Do you need interrupts on both of these lines? Check this!
@@ -238,28 +295,12 @@ class StepchildHardwareInput{
 
   //Reads in the main button values to the controls.mainButtonState variable
   void readMainButtons(){
-    #ifdef SHIFT_REGISTER_PROTOTYPE
-    //Shifting in the 8 main button values from the MPX
-    digitalWrite(BUTTONS_LOAD,LOW);
-    digitalWrite(BUTTONS_LOAD,HIGH);
-    digitalWrite(BUTTONS_CLOCK_IN, HIGH);
-    digitalWrite(BUTTONS_CLOCK_ENABLE,LOW);
-    uint8_t buttons = shiftIn(BUTTONS_DATA, BUTTONS_CLOCK_IN, LSBFIRST);
-    digitalWrite(BUTTONS_CLOCK_ENABLE, HIGH);
-    uint8_t A = digitalRead(A_PRESS);
-    uint8_t B = digitalRead(B_PRESS);
-
-    //invert logic values bc low voltage ==> button is pressed
-    this->mainButtonState = ~buttons|(B<<8)|(A<<9);
-    writeLEDs(this->mainButtonState);
-    #else
     this->mainButtonState = ~this->mainButtons.read();
-    #endif
   }
   //calls the LowerBoard's read function, which in turn updates the LowerBoard's buttonState var
   void readStepButtons(){
     //only read it if the LB is active!
-    if(LEDsOn)
+    if(this->LEDsActive)
       this->stepButtonState = this->lowerBoard.readChangedButtons();
     else
       this->stepButtonState = 0;
@@ -270,8 +311,6 @@ class StepchildHardwareInput{
   void readJoystick(){
     //X
     float val = analogRead(JOYSTICK_X);
-    Serial.println(val);
-    Serial.flush();
     if(val<24)
       this->joystickX = 1;
     else if(val>1000)
@@ -281,9 +320,9 @@ class StepchildHardwareInput{
     //Y
     val = analogRead(JOYSTICK_Y);
     if(val<24)
-      this->joystickY = DOWN;
+      this->joystickY = JOY_DOWN;
     else if(val>1000)
-      this->joystickY = UP;
+      this->joystickY = JOY_UP;
     else
       this->joystickY = CENTER;
   }
@@ -302,15 +341,6 @@ class StepchildHardwareInput{
     this->readStepButtons();
     //reading joystick
     this->readJoystick();
-  }
-  void debugPrintButtons(){
-    Serial.println("-- main buttons --");
-    for(uint8_t i = 0; i<8; i++){
-      Serial.print((this->mainButtonState>>i)&1);
-    }
-    Serial.println("X:"+stringify(this->joystickX)+" ("+stringify(analogRead(JOYSTICK_X))+")");
-    Serial.println("Y:"+stringify(this->joystickY)+" ("+stringify(analogRead(JOYSTICK_Y))+")");
-    Serial.flush();
   }
   /*
     Reading Encoder Increment/Decrement
@@ -380,13 +410,13 @@ class StepchildHardwareInput{
   }
   //returns the stored state of one of the 8 main buttons
   bool getMainButtonState(uint8_t which){
-    return (this->mainButtonState>>which) & 1;
+    return (this->mainButtonState>>which)&1;
   }
   bool A(){
-    return !(this->getMainButtonState(A_BUTTON));
+    return !this->getMainButtonState(A_BUTTON);
   }
   bool B(){
-    return !(this->getMainButtonState(B_BUTTON));
+    return !this->getMainButtonState(B_BUTTON);
   }
   bool NEW(){
     return this->getMainButtonState(NEW_BUTTON);
@@ -412,16 +442,24 @@ class StepchildHardwareInput{
   bool MENU(){
     return this->getMainButtonState(MENU_BUTTON);
   }
+  bool UP(){
+    return joystickY == JOY_UP;
+  }
+  bool DOWN(){
+    return joystickY == JOY_DOWN;
+  }
+  bool LEFT(){
+    return joystickX == JOY_LEFT;
+  }
+  bool RIGHT(){
+    return joystickX == JOY_RIGHT;
+  }
 
   bool anyActiveInputs(){
     this->readButtons();
     this->readStepButtonState();
     this->readJoystick();
-    Serial.println("main: "+stringify(mainButtonState));
-    Serial.println("X: "+stringify(joystickX));
-    Serial.println("Y: "+stringify(joystickY));
-    Serial.println("Stepbuttons: "+stringify(stepButtonState));
-    return ((this->mainButtonState&~0b1100000000) || this->joystickX || this->joystickY || this->stepButtonState);
+    return ((this->mainButtonState&~0b0000000000) || this->joystickX || this->joystickY || this->stepButtonState);
   }
 
   /*
@@ -523,113 +561,4 @@ class StepchildHardwareInput{
   }
 };
 
-StepchildHardwareInput controls;
-
-void hardReset(){
-  rp2040.reboot();
-}
-
-//update mode
-void enterBootsel(){
-  display.clearDisplay();
-  display.drawBitmap(0,0,childOS,128,64,SSD1306_WHITE);
-  display.display();
-  reset_usb_boot(1<<PICO_DEFAULT_LED_PIN,0);
-}
-
-bool isConnectedToUSBPower(){
-  return digitalRead(USB_PIN);
-}
-
-#define BATTSCALE 0.00966796875
-//3.0*3.3/1024.0;
-//idk why ^^this isn't 4095.0, but it ain't
-
-float getBattLevel(){
-  //So when USB is in, VSYS is ~5.0
-  //When all 3AA's are in, if they're 1.5v batts VSYS is ~4.5
-  //But if they're 1.2v batts VSYS is ~3.6;
-  float val = float(analogRead(VOLTAGE_PIN))*BATTSCALE;
-  return val;
-}
-
-void maxCurrentDrawTest(){
-  controls.writeLEDs(0b1111111111111111);
-  display.fillRect(0,0,128,64,1);
-  display.display();
-  while(true){
-  }
-}
-
-//pulses the onboard LED
-void ledPulse(uint8_t speed){
-  //use abs() so that it counts DOWN when millis() overflows into the negatives
-  //Multiply by 4 so that it's 'saturated' for a while --> goes on, waits, then pulses
-  analogWrite(ONBOARD_LED,4*abs(int8_t(millis()/speed)));
-}
-
-void testButton(uint8_t bit){
-  do{
-    controls.readMainButtons();
-  }
-  while(!(controls.mainButtonState&(1<<bit)));
-}
-
-/*
-  Test routine that prompts the user to use each input, one by one, on the Stepchild to see if everything is working correctly
-*/
-void testAllInputs(){
-  Serial.println("--- Input Test! ---");
-  Serial.print("Press 'New': ");
-  Serial.flush();
-  testButton(NEW_BUTTON);
-  Serial.println("NEW!");
-  Serial.print("Press 'Shift': ");
-  Serial.flush();
-  testButton(SHIFT_BUTTON);
-  Serial.println("SHIFT!");
-  Serial.print("Press 'Select': ");
-  Serial.flush();
-  testButton(SELECT_BUTTON);
-  Serial.println("SELECT!");
-  Serial.print("Press 'Delete': ");
-  Serial.flush();
-  testButton(DELETE_BUTTON);
-  Serial.println("DELETE!");
-  Serial.print("Press 'Loop': ");
-  Serial.flush();
-  testButton(LOOP_BUTTON);
-  Serial.println("LOOP!");
-  Serial.print("Press 'Play': ");
-  Serial.flush();
-  testButton(PLAY_BUTTON);
-  Serial.println("PLAY!");
-  Serial.print("Press 'Copy': ");
-  Serial.flush();
-  testButton(COPY_BUTTON);
-  Serial.println("COPY!");
-  Serial.print("Press 'Menu': ");
-  Serial.flush();
-  testButton(MENU_BUTTON);
-  Serial.println("Menu!");
-  Serial.print("Press 'A': ");
-  Serial.flush();
-  testButton(A_BUTTON);
-  Serial.println("A!");
-  Serial.print("Press 'B': ");
-  Serial.flush();
-  testButton(B_BUTTON);
-  Serial.println("B!");
-
-  //Encoder Dials
-  controls.clearButtons();
-  Serial.print("Roll A: ");
-  while(!controls.counterA){};
-  Serial.println(controls.counterA>0?"UP!":"DOWN!");
-  controls.clearButtons();
-  Serial.print("Roll B: ");
-  while(!controls.counterB){};
-  Serial.println(controls.counterB>0?"UP!":"DOWN!");
-
-  //Joystick
-}
+StepchildHardware controls;

@@ -122,12 +122,12 @@ class HeadlessHardwareInput{
     this->joystickX = xKeyVal;
     this->joystickY = yKeyVal;
   }
-    float getJoyX(){
-        return 0;
-    }
-    float getJoyY(){
-        return 0;
-    }
+  float getJoyX(){
+      return 0;
+  }
+  float getJoyY(){
+      return 0;
+  }
 
   void readButtons(){
     try{
@@ -189,6 +189,18 @@ class HeadlessHardwareInput{
   }
   bool MENU(){
     return this->mainButtonState(MENU_BUTTON);
+  }
+  bool UP(){
+    return joystickY == 1;
+  }
+  bool DOWN(){
+    return joystickY == -1;
+  }
+  bool LEFT(){
+    return joystickX == 1;
+  }
+  bool RIGHT(){
+    return joystickX == -1;
   }
   bool anyActiveInputs(){
     this->readButtons();

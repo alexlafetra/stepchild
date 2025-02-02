@@ -178,6 +178,8 @@ RtMidiOut *virtualMidiOut;
 
 class HeadlessMIDI{
     public:
+    bool dummyThruSettings[5] = {true,true,true,true,true};
+    uint8_t muteSettings = 0;
     uint16_t midiChannelFilters[5] = {65535,65535,65535,65535,65535};
     HeadlessMIDI(){
     }
@@ -290,10 +292,10 @@ class HeadlessMIDI{
         virtualMidiOut->openVirtualPort("Stepchild (headless)");
     }
     bool isThru(uint8_t output){
-        return false;
+        return dummyThruSettings[output];
     }
     void setThru(uint8_t which, bool value){
-        
+        dummyThruSettings[which] = value;
     }
     //checks if a port is filtering a channel
   bool isChannelActive(uint8_t whichChannel,uint8_t whichPort){
@@ -301,40 +303,56 @@ class HeadlessMIDI{
       return true;
     }
     else{
-        bool value = (this->midiChannelFilters[whichPort] & (1 << (whichChannel-1))) != 0 ;
+        bool value = (this->midiChannelFilters[whichPort] & (1 << (whichChannel))) != 0 ;
       return value;
     }
   }
+    void allChannelsOff(uint8_t whichPort){
+      midiChannelFilters[whichPort] = 0;
+    }
+    void allChannelsOn(uint8_t whichPort){
+      midiChannelFilters[whichPort] = 65535;
+    }
+    void setAllChannels(bool state, uint8_t whichPort){
+      if(state)
+        allChannelsOn(whichPort);
+      else
+        allChannelsOff(whichPort);
+    }
   bool toggleThru(uint8_t output){
-    bool isActive = this->isThru(output);
-    this->setThru(output, !isActive);
-    return !isActive;
+      dummyThruSettings[output] = !dummyThruSettings[output];
+    return dummyThruSettings[output];
   }
-
+  bool isMuted(uint8_t which){
+    return (muteSettings>>which)&1;
+  }
+  void toggleMute(uint8_t whichPort){
+      muteSettings ^= 1 << whichPort;
+  }
   bool isTotallyMuted(uint8_t which){
     if(!this->midiChannelFilters[which])
       return true;
     else
       return false;
   }
-  void setMidiChannel(uint8_t channel, uint8_t output, bool status){
-    //for activating, you use OR
-    if(status){
-      uint16_t byte = 1 << (channel-1);
-      this->midiChannelFilters[output] = this->midiChannelFilters[output] | byte;
+    void setMidiChannel(uint8_t channel, uint8_t output, bool status){
+      //for activating, you use OR
+      if(status){
+        uint16_t byte = 1 << channel-1;
+        this->midiChannelFilters[output] = this->midiChannelFilters[output] | byte;
+      }
+      //for deactivating, you use AND (and NOT to create the mask)
+      else{
+        uint16_t byte = ~(1 << channel-1);
+        this->midiChannelFilters[output] = this->midiChannelFilters[output] & byte;
+      }
     }
-    //for deactivating, you use AND (and NOT to create the mask)
-    else{
-        uint16_t byte = ~(1 << (channel-1));
-      this->midiChannelFilters[output] = this->midiChannelFilters[output] & byte;
-    }
-  }
   //toggles the channel on an output, and returns its new value
-  bool toggleMidiChannel(uint8_t channel, uint8_t output){
-    bool isActive = this->isChannelActive(channel, output);
-    this->setMidiChannel(channel, output, !isActive);
-    return !isActive;//return new state of channel
-  }
+    //toggles the channel on an output, and returns its new value
+    bool toggleMidiChannel(uint8_t channel, uint8_t output){
+      midiChannelFilters[output] ^= 1 << channel;
+      return this->isChannelActive(channel, output);
+    }
   void muteMidiPort(uint8_t which){
     this->midiChannelFilters[which] = 0;
   }

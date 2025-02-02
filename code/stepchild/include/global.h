@@ -1,3 +1,8 @@
+/*
+
+  Code for global vars. Most of these should be phased out in future updates!
+
+*/
 unsigned const char screenWidth = 128;
 unsigned const char screenHeight = 64;
 
@@ -46,7 +51,6 @@ bool waitingToReceiveANote = true;//wait to receive note to begin recording
 bool isShrunk = false;
 
 bool screenSaverActive = false;
-bool LEDsOn = true;
 
 //when true, new notes that are recorded will start off selected
 bool recordedNotesAreSelected = false;
@@ -107,12 +111,11 @@ struct RandomData{
   int8_t odds = 60;
   int8_t minChance = 100;
   int8_t maxChance = 100;
-  uint16_t minLength = 24;
-  uint16_t maxLength = 24;
+  uint8_t minLength = 24;
+  uint8_t maxLength = 24;
   uint8_t minVel = 100;
   uint8_t maxVel = 127;
-  bool onlyOnGrid = true;//true is on the grid, false is off grid
-  bool target = 0;//0 is all, 1 is selected
+  uint8_t everyNSteps = 24;
 };
 
 RandomData randomData;

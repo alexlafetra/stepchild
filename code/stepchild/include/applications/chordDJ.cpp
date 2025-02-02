@@ -331,7 +331,7 @@ bool chordDJ(){
             uint8_t startY = 24;
             if(i<chords.size()){
                 if(i == activeChord){
-                    graphics.drawArrow(8+i*16,startY+(millis()/200)%2-7,3,DOWN,true);
+                    graphics.drawArrow(8+i*16,startY+(millis()/200)%2-7,3,ARROW_DOWN,true);
                     startY = 20;
                 }
                 printSmall_centered(9+i*16,startY-12,stringify(i+1),1);

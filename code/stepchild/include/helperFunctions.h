@@ -1,3 +1,9 @@
+/*
+
+  Contains a lot of commonly reused miscellaneous functions for grabbing notes from the sequence or performing 
+  stepchild-related tasks. The reason these aren't in "utils.h" is that these need access to the sequence object
+
+*/
 
 //Enter note selection screen, and display a custom icon in the corner
 //Used for the FX a lot
@@ -804,6 +810,104 @@ vector<NoteID> getSelectedNoteIDs(){
   }
   return ids;
 }
-// float max(float a, float b){
-//   return a>b?a:b;
-// }
+
+void drawCoordinateBox(CoordinatePair coords, SequenceRenderSettings& settings){
+  if(!selBox.begun && (coords.start.x != coords.end.x)){
+    //correcting bounds for view
+    unsigned short int X1;
+    unsigned short int X2;
+    unsigned short int Y1;
+    unsigned short int Y2;
+
+    if(coords.start.x>coords.end.x){
+      X1 = coords.end.x;
+      X2 = coords.start.x;
+    }
+    else{
+      X1 = coords.start.x;
+      X2 = coords.end.x;
+    }
+    if(coords.start.y>coords.end.y){
+      Y1 = coords.end.y;
+      Y2 = coords.start.y;
+    }
+    else{
+      Y1 = coords.start.y;
+      Y2 = coords.end.y;
+    }
+
+    //if it's offscreen, return
+    if(X2<=sequence.viewStart || X1>=sequence.viewEnd || Y1 > sequence.startTrack+sequence.endTrack || Y2<sequence.startTrack){
+      return;
+    }
+
+    if(X1<sequence.viewStart){
+      X1 = sequence.viewStart;
+    }
+    if(X2>sequence.viewEnd){
+      X2 = sequence.viewEnd;
+    }
+    if(Y1<sequence.startTrack){
+      Y1 = sequence.startTrack;
+    }
+    if(Y2>(sequence.startTrack+sequence.maxTracksShown)){
+      Y2 = sequence.startTrack+sequence.maxTracksShown;
+    }
+    uint8_t startX = trackDisplay+(X1-sequence.viewStart)*sequence.viewScale;
+    uint8_t length = (X2-X1)*sequence.viewScale;
+    uint8_t startHeight = sequence.shrinkTopDisplay?8:headerHeight;
+    uint8_t startY = (Y1-sequence.startTrack)*trackHeight+startHeight;
+    uint8_t height = ((Y2 - sequence.startTrack + 1)*trackHeight - startY)%(screenHeight-startHeight) + startHeight;
+   
+   if((millis())%400>200){
+      graphics.shadeRect(startX,startY,length,height,3);
+    }
+    else{
+      display.drawRect(startX,startY,length,height,1);
+    }
+  }
+}
+
+bool compareTracks(NoteID n1, NoteID n2){
+    return n1.track>n2.track;
+}
+bool comparePitches(NoteID n1, NoteID n2){
+    return n1.getPitch()>n2.getPitch();
+}
+
+//sorts a list of [track,note] pairs
+vector<NoteID> sortNotes(vector<NoteID> ids, uint8_t sortBy, uint8_t type){
+    vector<NoteID> sortedVec = ids;
+    switch(sortBy){
+        //sort by pitch
+        case 0:
+           sort(sortedVec.begin(), sortedVec.end(),comparePitches);
+           break;
+        //sort by track
+        case 1:
+           sort(sortedVec.begin(), sortedVec.end(),compareTracks);
+           break;
+    }
+    //if it's ascending
+    if(type == 0){
+        return sortedVec;
+    }
+    //if it's descending, reverse it
+    else{
+        reverse(sortedVec.begin(),sortedVec.end());
+        return sortedVec;
+    }
+}
+
+vector<NoteID> grabSelectedNotesAsNoteIDs(){
+    vector<NoteID> notes;
+    for(uint8_t i = 0; i<sequence.noteData.size(); i++){
+        for(uint8_t j = 1; j<sequence.noteData[i].size(); j++){
+            if(sequence.noteData[i][j].isSelected()){
+                NoteID newNote = NoteID(i,j);
+                notes.push_back(newNote);
+            }
+        }
+    }
+    return notes;
+}

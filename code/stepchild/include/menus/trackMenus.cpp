@@ -74,7 +74,7 @@ bool TrackMenu::trackMenuControls(){
           break;
         //midi route/channel
         case 2:
-          routeMenu();
+//          routeMenu();
           lastTime = millis();
           break;
         case 3:

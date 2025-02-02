@@ -1,8 +1,12 @@
+/*
 
+  Code for the Stepchild's screen. It's a derivation of the Adafruit_SSD1306 class, so it inherits the same Adafruit_GFX
+  behavior but has some added functionality like writing the screen buffer to the USB port for video capture
+
+*/
 //Adafruit GFX library
 //there's a pico optimized version here, but it's unclear what's optimized in it/if it matters for the SSD1306: https://github.com/Bodmer/Adafruit-GFX-Library
 #include <Adafruit_GFX.h>
-
 //grab the display libraries
 #include <Adafruit_SSD1306.h>
 //for a nice font

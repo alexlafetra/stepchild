@@ -1,3 +1,8 @@
+/*
+
+  Header file for the StepchildSequence class, contains enums too
+
+*/
 enum MovingLoopState{
   MOVING_NO_LOOP_POINTS,
   MOVING_LOOP_END,
@@ -277,10 +282,8 @@ class StepchildSequence{
                           Subdiv
   ----------------------------------------------------------
   */
-  uint16_t changeSubDiv(bool direction, uint8_t subDiv, bool allowZero);
   void changeSubDivInt(bool down);
   void changeSubDivInt(bool down, bool limitToView);
-  uint16_t toggleTriplets(uint16_t subDiv);
   void toggleTriplets();
 };
 

@@ -52,6 +52,46 @@ class StepchildUtilities{
 
 StepchildUtilities utils;
 
+uint16_t changeSubDiv(bool direction, uint8_t subDiv, bool allowZero){
+  //down
+  if(!direction){
+    if(subDiv == 1 && allowZero)
+      subDiv = 0;
+    else if(subDiv>3)
+      subDiv /= 2;
+    else if(subDiv == 3)
+      subDiv = 1;
+  }
+  else{
+    if(subDiv == 0)
+      subDiv = 1;
+    else if(subDiv == 1)//if it's one, set it to 3
+      subDiv = 3;
+    else if(subDiv !=  96 && subDiv != 32){
+      //if triplet mode
+      if(!(subDiv%2))
+        subDiv *= 2;
+      else if(!(subDiv%3))
+        subDiv *=2;
+    }
+  }
+  return subDiv;
+}
+
+uint16_t toggleTriplets(uint16_t subDiv){
+  //this breaks the pattern, but lets you swap from 2/1 to 3/1 (rare case probs)
+  if(subDiv == 192){
+    subDiv = 32;
+  }
+  else if(!(subDiv%3)){//if it's in 1/4 mode...
+    subDiv = 2*subDiv/3;//set it to triplet mode
+  }
+  else if(!(subDiv%2)){//if it was in triplet mode...
+    subDiv = 3*subDiv/2;//set it to 1/4 mode
+  }
+  return subDiv;
+}
+
 //Formats a number 1-13 into its Roman Numeral equivalent
 //This is really only used for printing intervals in Roman Numeral notation
 //eg. printing the 3rd degree of a scale as "III"
@@ -370,5 +410,125 @@ bool isInVector(int val, vector<uint8_t> vec){
     }
   }
   return false;
+}
+
+
+void hardReset(){
+  rp2040.reboot();
+}
+
+//update mode
+void enterBootsel(){
+  display.clearDisplay();
+  display.drawBitmap(0,0,childOS,128,64,SSD1306_WHITE);
+  display.display();
+  reset_usb_boot(1<<PICO_DEFAULT_LED_PIN,0);
+}
+
+bool isConnectedToUSBPower(){
+  return digitalRead(USB_PIN);
+}
+
+#define BATTSCALE 0.00966796875
+//3.0*3.3/1024.0;
+//idk why ^^this isn't 4095.0, but it ain't
+
+float getBattLevel(){
+  //So when USB is in, VSYS is ~5.0
+  //When all 3AA's are in, if they're 1.5v batts VSYS is ~4.5
+  //But if they're 1.2v batts VSYS is ~3.6;
+  float val = float(analogRead(VOLTAGE_PIN))*BATTSCALE;
+  return val;
+}
+
+void maxCurrentDrawTest(){
+  controls.writeLEDs(0b1111111111111111);
+  display.fillRect(0,0,128,64,1);
+  display.display();
+  while(true){
+  }
+}
+
+//pulses the onboard LED
+void ledPulse(uint8_t speed){
+  //use abs() so that it counts DOWN when millis() overflows into the negatives
+  //Multiply by 4 so that it's 'saturated' for a while --> goes on, waits, then pulses
+  analogWrite(ONBOARD_LED,4*abs(int8_t(millis()/speed)));
+}
+
+void testButton(uint8_t bit){
+  do{
+    controls.readMainButtons();
+  }
+  while(!(controls.mainButtonState&(1<<bit)));
+}
+
+/*
+  Test routine that prompts the user to use each input, one by one, on the Stepchild to see if everything is working correctly
+*/
+void testAllInputs(){
+  Serial.println("--- Input Test! ---");
+  Serial.print("Press 'New': ");
+  Serial.flush();
+  testButton(NEW_BUTTON);
+  Serial.println("NEW!");
+  Serial.print("Press 'Shift': ");
+  Serial.flush();
+  testButton(SHIFT_BUTTON);
+  Serial.println("SHIFT!");
+  Serial.print("Press 'Select': ");
+  Serial.flush();
+  testButton(SELECT_BUTTON);
+  Serial.println("SELECT!");
+  Serial.print("Press 'Delete': ");
+  Serial.flush();
+  testButton(DELETE_BUTTON);
+  Serial.println("DELETE!");
+  Serial.print("Press 'Loop': ");
+  Serial.flush();
+  testButton(LOOP_BUTTON);
+  Serial.println("LOOP!");
+  Serial.print("Press 'Play': ");
+  Serial.flush();
+  testButton(PLAY_BUTTON);
+  Serial.println("PLAY!");
+  Serial.print("Press 'Copy': ");
+  Serial.flush();
+  testButton(COPY_BUTTON);
+  Serial.println("COPY!");
+  Serial.print("Press 'Menu': ");
+  Serial.flush();
+  testButton(MENU_BUTTON);
+  Serial.println("Menu!");
+  Serial.print("Press 'A': ");
+  Serial.flush();
+  testButton(A_BUTTON);
+  Serial.println("A!");
+  Serial.print("Press 'B': ");
+  Serial.flush();
+  testButton(B_BUTTON);
+  Serial.println("B!");
+
+  //Encoder Dials
+  controls.clearButtons();
+  Serial.print("Roll A: ");
+  while(!controls.counterA){};
+  Serial.println(controls.counterA>0?"UP!":"DOWN!");
+  controls.clearButtons();
+  Serial.print("Roll B: ");
+  while(!controls.counterB){};
+  Serial.println(controls.counterB>0?"UP!":"DOWN!");
+
+  //Joystick
+}
+
+void debugPrintButtons(){
+  Serial.println("-- main buttons --");
+  for(uint8_t i = 0; i<8; i++){
+    Serial.print((controls.mainButtonState>>i)&1);
+  }
+  Serial.println("X:"+stringify(controls.joystickX)+" ("+stringify(analogRead(JOYSTICK_X))+")");
+  Serial.println("Y:"+stringify(controls.joystickY)+" ("+stringify(analogRead(JOYSTICK_Y))+")");
+  Serial.flush();
 }
 

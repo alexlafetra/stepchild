@@ -1,107 +1,114 @@
-// 'mouse cursor', 9x15px
-const unsigned char mouse_cursor_outline_bmp []  = {
-	0x00, 0x80, 0x01, 0x80, 0x02, 0x80, 0x04, 0x80, 0x08, 0x80, 0x10, 0x80, 0x20, 0x80, 0x40, 0x80, 
-	0xf0, 0x80, 0x12, 0x80, 0x25, 0x80, 0x24, 0x80, 0x48, 0x00, 0x48, 0x00, 0x30, 0x00
+/*
+
+two kinds of instruments: tools and generative
+generative instruments (more) passively send midi data according to parameters
+tools let you use the stepchild's controls to control other instruments
+
+*/
+
+class InstrumentMenu:public StepchildMenu{
+  public:
+    uint8_t menuStart = 0;
+    SequenceRenderSettings settings;
+    InstrumentMenu(){
+      coords = CoordinatePair(25,1,128,64);
+      settings.shrinkTopDisplay = false;
+      settings.topLabels = false;
+      settings.drawLoopFlags = false;
+    }
+    bool instrumentMenuControls(){
+      controls.readButtons();
+      controls.readJoystick();
+      if(utils.itsbeen(100)){
+        if(controls.UP() && cursor < NUMBER_OF_APPLICATIONS-1){
+          if(cursor<2)
+            cursor++;
+          else if(menuStart < (NUMBER_OF_APPLICATIONS-3)){
+            menuStart++;
+          }
+          lastTime = millis();
+        }
+        if(controls.DOWN()){
+          if(cursor > 0){
+            cursor--;
+          }
+          else if(menuStart>0){
+            menuStart--;
+          }
+          lastTime = millis();
+        }
+      }
+      if(utils.itsbeen(200)){
+        if(controls.MENU()){
+          lastTime = millis();
+          return false;
+        }
+        if(controls.SELECT() ){
+          lastTime = millis();
+          slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          instrumentApplicationFunctions[cursor+menuStart]();
+          slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+        }
+      }
+      return true;
+    }
+    void displayMenu(){
+      display.clearDisplay();
+      settings.drawSteps = coords.start.y>headerHeight;
+      drawSeq(settings);
+      //drawing menu box (+16 so the title is transparent)
+      display.fillRect(coords.start.x,coords.start.y+13, coords.end.x-coords.start.x, coords.end.y-coords.start.y, SSD1306_BLACK);
+      display.drawRect(coords.start.x,coords.start.y+12, coords.end.x-coords.start.x, coords.end.y-coords.start.y-12, SSD1306_WHITE);
+
+      //if the title will be on screen
+      if(coords.start.x+coords.start.y-1<screenWidth){
+        display.setCursor(coords.start.x+coords.start.y-1,5);
+        display.setFont(&FreeSerifItalic9pt7b);
+        display.print("Apps");
+        display.setFont();
+      }
+      
+      String text = instrumentApplicationTitles[cursor+menuStart];
+      printChunky(coords.start.x+coords.start.y+31,17,text,SSD1306_WHITE);
+
+      //say if it's a tool or generator
+      display.drawFastHLine(coords.start.x+coords.start.y+21,20,8,1);
+      if((menuStart+cursor)>NUMBER_OF_GENERATIVE_INSTRUMENTS){
+        display.drawBitmap(coords.start.x+coords.start.y+48,4,tool_bmp,19,6,1);
+      }
+      else{
+        display.drawBitmap(coords.start.x+coords.start.y+48,4,generator_bmp,44,6,1);
+      }
+
+      //printing arrows
+      if(menuStart>0)
+        graphics.drawArrow(coords.start.x+coords.start.y+38,1+(millis()/400+1)%2,2,2,true);
+      if(menuStart<NUMBER_OF_APPLICATIONS - 3)
+        graphics.drawArrow(coords.start.x+coords.start.y+38,10+(millis()/400)%2,2,3,true);
+
+      //frame for the info text
+      display.drawRoundRect(coords.start.x+19,coords.start.y+14,82,47,3,1);
+      text = instrumentApplicationInfo[cursor+menuStart];
+      printSmall_overflow(coords.start.x+23,coords.start.y+24,4,text,1);
+      const uint8_t width = 16;
+      for(uint8_t i = 0; i<3; i++){
+        display.drawBitmap(coords.start.x+4,coords.start.y+i*(width-1)+17+(millis()/400+i)%2,instrumentApplicationIcons[i+menuStart],12,12,SSD1306_WHITE);
+        if(i == cursor){
+          display.drawRoundRect(coords.start.x+2,coords.start.y+i*(width-1)+15+(millis()/400+i)%2,width,width,3,SSD1306_WHITE);
+        }
+        if(i==cursor)
+          graphics.drawArrow(coords.start.x+21,coords.start.y+i*(width-1)+23+(millis()/400+i)%2,3,ARROW_RIGHT,true);
+          // display.fillRoundRect(coords.start.x+18,coords.start.y+i*(width-1)+15,84,width,3,1);
+      }
+      display.display();
+    }
 };
-// 'cursor_fill', 9x15px
-const unsigned char mouse_cursor_fill_bmp []  = {
-	0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x03, 0x00, 0x07, 0x00, 0x0f, 0x00, 0x1f, 0x00, 0x3f, 0x00, 
-	0x0f, 0x00, 0x0d, 0x00, 0x18, 0x00, 0x18, 0x00, 0x30, 0x00, 0x30, 0x00, 0x00, 0x00
-};
 
-void drawInstrumentPanel(uint8_t x1, uint8_t y1){
-  const uint8_t width = 14;
-  const uint8_t height = 14;
-  uint8_t count = 0;
-  for(uint8_t j = 0; j<4; j++){
-    for(uint8_t i = 0; i<4; i++){
-      display.drawRoundRect(x1+16*i,y1+16*j+sin(millis()/200+j*4+i),width,height,3,1);
-      // display.drawBitmap(x1+16*i+1,y1+16*j+sin(millis()/200+j*4+i)+1,instrument_icons[count],12,12,1);
-      display.drawBitmap(x1+16*i+1,y1+16*j+sin(millis()/200+j*4+i)+1,instrumentApplicationIcons[count],12,12,1);
-      count++;
-    }
+void instrumentMenu(){
+  InstrumentMenu menu;
+  menu.slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+  while(menu.instrumentMenuControls()){
+    menu.displayMenu();
   }
-}
-void instrumentPanelAnimation(bool in){
-  uint8_t counter = in?1:4;
-  while(in?(counter < 4):(counter>0)){
-    const uint8_t width = 14;
-    const uint8_t height = 14;
-    const uint8_t x1 = 36;
-    const uint8_t y1 = 1;
-    uint8_t count = 0;
-    display.clearDisplay();
-    for(uint8_t j = 0; j<counter; j++){
-      for(uint8_t i = 0; i<counter; i++){
-        display.drawRoundRect(x1+16*i,y1+16*j+sin(millis()/200+j*4+i),width,height,3,1);
-        display.drawBitmap(x1+16*i+1,y1+16*j+sin(millis()/200+j*4+i)+1,instrumentApplicationIcons[count],12,12,1);
-        count++;
-      }
-    }
-    counter+=in?1:-1;
-    display.display();
-    delay(12);
-  }
-}
-
-void selectInstrumentMenu(){
-  instrumentPanelAnimation(true);
-  lastTime = millis();
-  uint8_t cursor = 0;
-  while(true){
-    controls.readButtons();
-    controls.readJoystick();
-    if(utils.itsbeen(100)){
-      if(controls.joystickX != 0){
-        if(controls.joystickX == -1 && (cursor%4!=3)){
-          cursor++;
-          lastTime = millis();
-        }
-        else if(controls.joystickX == 1 && (cursor%4)){
-          cursor--;
-          lastTime = millis();
-        }
-      }
-      if(controls.joystickY != 0){
-        if(controls.joystickY == 1 && (cursor<12)){
-          cursor+=4;
-          lastTime = millis();
-        }
-        else if(controls.joystickY == -1 && (cursor>3)){
-          cursor-=4;
-          lastTime = millis();
-        }
-      }
-    }
-    if(utils.itsbeen(200)){
-      if(controls.MENU()){
-        lastTime = millis();
-        controls.setMENU(false) ;
-        return;
-      }
-      if(controls.SELECT() ){
-        lastTime = millis();
-        controls.setSELECT(false);
-        instrumentApplicationFunctions[cursor]();
-      }
-    }
-    display.clearDisplay();
-    const uint8_t x1 = 36;
-    const uint8_t y1 = 1;
-    const uint8_t width = 14;
-    const uint8_t height = 14;
-    drawInstrumentPanel(x1,y1);
-
-    //cursor
-    display.drawBitmap(x1+16*(cursor%4)+width/2-12,y1+16*(cursor/4)+height/2+2,mouse_cursor_fill_bmp,9,15,0);
-    display.drawBitmap(x1+16*(cursor%4)+width/2-12,y1+16*(cursor/4)+height/2+2,mouse_cursor_outline_bmp,9,15,1);
-    
-    //title
-    display.drawPixel(64,5,0);
-    String text = instrumentApplicationTexts[cursor];
-    display.setRotation(1);
-    printItalic_wave(screenHeight-text.length()*8,27,text,5,200,1);
-    display.setRotation(DISPLAY_UPRIGHT);
-    display.display();
-  }
+  menu.slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
 }

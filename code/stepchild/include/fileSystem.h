@@ -606,7 +606,7 @@ void writeCurrentSettingsToFile(){
         f.write(pOrN,1);
         break;}
       case LEDS_ACTIVE:{
-        uint8_t leds[1] = {LEDsOn};
+        uint8_t leds[1] = {controls.LEDsActive};
         f.write(leds,1);
         break;}
       case CLOCK_SOURCE:{
@@ -650,7 +650,7 @@ void loadSavedSettingsFromFile(){
       case LEDS_ACTIVE:{
         uint8_t leds[1];
         f.read(leds,1);
-        LEDsOn = leds[0];
+        controls.LEDsActive = leds[0];
         break;}
       case CLOCK_SOURCE:{
         uint8_t clockData[1];

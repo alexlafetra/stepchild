@@ -218,8 +218,10 @@ bool MainMenu::mainMenuControls(){
         case 2:
           renderWireframes = false;
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
-          selectInstrumentMenu();
-          return false;
+          instrumentMenu();
+          slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          renderWireframes = true;
+          break;
         //settings
         case 3:
           renderWireframes = false;
@@ -251,8 +253,9 @@ bool MainMenu::mainMenuControls(){
         //rec
         case 6:
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
-          randMenu();
-          return false;
+          randomMenu();
+          slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          break;
         //console
         case 7:
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
@@ -262,7 +265,8 @@ bool MainMenu::mainMenuControls(){
         case 8:
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           midiMenu();
-          return false;
+          slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          break;
         //files
         case 9:
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);

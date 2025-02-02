@@ -82,17 +82,17 @@ void customLengthsMenu(){
       if(utils.itsbeen(120)){
         if(controls.joystickY != 0){
           if(controls.SHIFT()){
-            arp.lengths[cursorX] = sequence.toggleTriplets(arp.lengths[cursorX]);
+            arp.lengths[cursorX] = toggleTriplets(arp.lengths[cursorX]);
             lastTime = millis();
           }
           else{
             if(controls.joystickY == -1){
               lastTime = millis();
-              arp.lengths[cursorX] = sequence.changeSubDiv(true,arp.lengths[cursorX],false);
+              arp.lengths[cursorX] = changeSubDiv(true,arp.lengths[cursorX],false);
             }
             else if(controls.joystickY == 1){
               lastTime = millis();
-              arp.lengths[cursorX] = sequence.changeSubDiv(false,arp.lengths[cursorX],false);
+              arp.lengths[cursorX] = changeSubDiv(false,arp.lengths[cursorX],false);
             }
           }
         }
@@ -766,16 +766,16 @@ void arpMenu(){
             break;
           case 1:
             if(controls.SHIFT()){
-              arp.arpSubDiv = sequence.toggleTriplets(arp.arpSubDiv);
+              arp.arpSubDiv = toggleTriplets(arp.arpSubDiv);
               controls.counterA += controls.counterA<0?1:-1;;
             }
             else{
               if(controls.counterA > 0){
-                arp.arpSubDiv = sequence.changeSubDiv(true,arp.arpSubDiv,false);
+                arp.arpSubDiv = changeSubDiv(true,arp.arpSubDiv,false);
                 controls.counterA += controls.counterA<0?1:-1;;
               }
               else{
-                arp.arpSubDiv = sequence.changeSubDiv(false,arp.arpSubDiv,false);
+                arp.arpSubDiv = changeSubDiv(false,arp.arpSubDiv,false);
                 controls.counterA += controls.counterA<0?1:-1;;
               }
             }

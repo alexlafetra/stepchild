@@ -1,13 +1,11 @@
 /*
 
   FX Menu! A dropdown list allowing the user to select and use an FX function. Displays the FX icon, and short text describing it
-
+  See applications.h for a list of the FX and the data that this menu pulls from
 */
-#define NUMBER_OF_FX 8
 
 class FxMenu:public StepchildMenu{
   public:
-    WireFrame icon;
     uint8_t menuStart = 0;
     SequenceRenderSettings settings;
     bool usedAtLeastOneFx = false;
@@ -17,17 +15,6 @@ class FxMenu:public StepchildMenu{
       settings.topLabels = false;
       settings.drawLoopFlags = false;
     }
-
-    const String fxApplicationInfo[NUMBER_OF_FX] = {
-      "Create random notes",
-      "Quantize notes to a grid",
-      "Add random offsets to note timing/velocity",
-      "Set notes to cascade up or down",
-      "Add an echo behind notes",
-      "Reverse a section of the sequence",
-      "Shrink/Grow a section of the sequence",
-      "subdivide notes into equal pieces"
-    };
     void drawFxLabel();
     MenuReturnValue fxMenuControls();
     void displayMenu();

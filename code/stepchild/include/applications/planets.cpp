@@ -108,7 +108,7 @@ void SolarSystem::draw(){
 }
 
 
-void testSolarSystem(){
+bool testSolarSystem(){
   Planet sun = Planet(Vertex(0,0,0),8,true);
   Planet mercury = Planet(Vertex(15,0,0),1,false);
   Planet venus = Planet(Vertex(30,0,0),2,false);
@@ -152,11 +152,12 @@ void testSolarSystem(){
     }
     if(utils.itsbeen(200)){
       if(controls.MENU()){
-        return;
+        return false;
       }
     }
     display.clearDisplay();
     system.draw();
     display.display();
   }
+  return true;
 }

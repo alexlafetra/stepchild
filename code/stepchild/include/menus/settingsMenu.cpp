@@ -266,7 +266,7 @@ bool SettingsMenu::settingsMenuControls(){
               break;
             //leds on/off
             case 2:
-              LEDsOn = !LEDsOn;
+              controls.LEDsActive = !controls.LEDsActive;
               lastTime = millis();
               break;
             case 3:
@@ -415,7 +415,7 @@ void SettingsMenu::displaySettingsMenu(uint8_t x2,uint8_t whichTemplate){
       graphics.drawLabel(x1+62,y1,pitchesOrNumbers?"pitches":"numbers",true);
       
       printSmall(x1-5,y1+8,"leds:",1);
-      graphics.drawLabel(x1+22,y1+8,LEDsOn?"on":"off",LEDsOn);
+      graphics.drawLabel(x1+22,y1+8,controls.LEDsActive?"on":"off",controls.LEDsActive);
 
       display.drawFastHLine(x1-7,y1+16,53,1);
       printSmall(x1+47,y1+14,"rec",1);

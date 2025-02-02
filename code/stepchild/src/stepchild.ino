@@ -26,7 +26,9 @@ void headlessSetup(){
   setNormalMode();
   core0ready = true;
   lastTime = millis();
-  graphics.bootscreen_2();
+  display.setTextColor(SSD1306_WHITE);
+  display.setTextSize(1);
+  // graphics.bootscreen_2();
 }
 #ifndef HEADLESS
 //CPU 0 setup
@@ -61,9 +63,10 @@ void setup() {
   display.setRotation(DISPLAY_UPRIGHT);
   //turn text wrapping off, so our menus look ok
   display.setTextWrap(false);
+  display.setTextColor(SSD1306_WHITE);
 
   //setup CV pins, frequency
-  // CV.init();
+  CV.init();
 
   //setting up the pinouts and the lower board
   controls.init();
@@ -116,21 +119,25 @@ uint16_t gateVal = 0;
 
 void loop() {
   mainSequence();
-  // screenSaverCheck();
+  screenSaverCheck();
+  // digitalWrite(CV1_PIN,0);
+  // digitalWrite(CV2_PIN,0);
+  // digitalWrite(CV3_PIN,0);
+  // digitalWrite(CV4_PIN,0);
   // Serial.println(millis());
   // testAllInputs();
   // testCVPitches();
 
-  analogWrite(CV1_PIN,TESTVAL);
-  analogWrite(CV2_PIN,gateVal);
-  analogWrite(CV3_PIN,0);
-  TESTVAL++;
-  TESTVAL%=PWM_MAX_VAL;
-  // delayMicroseconds(10);
-  if(utils.itsbeen(100)){
-    lastTime = millis();
-    gateVal = 65535-gateVal;
-  }
+  // analogWrite(CV1_PIN,TESTVAL);
+  // analogWrite(CV2_PIN,gateVal);
+  // analogWrite(CV3_PIN,0);
+  // TESTVAL++;
+  // TESTVAL%=PWM_MAX_VAL;
+  // // delayMicroseconds(10);
+  // if(utils.itsbeen(100)){
+  //   lastTime = millis();
+  //   gateVal = 65535-gateVal;
+  // }
 }
 
 //this cpu handles time-sensitive things

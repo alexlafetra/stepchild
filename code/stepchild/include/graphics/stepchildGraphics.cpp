@@ -487,15 +487,15 @@ void StepchildGraphics::drawSequenceMemoryBar(uint8_t x1, uint8_t y1, uint8_t le
     printSmall(x1-12,y1,"mem",1);
 }
 
-#define JOY_RIGHT 0
-#define JOY_LEFT 1
-#define UP 2
-#define DOWN 3
+#define ARROW_RIGHT 0
+#define ARROW_LEFT 1
+#define ARROW_UP 2
+#define ARROW_DOWN 3
 
 void StepchildGraphics::drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, bool full){
     switch(direction){
         //right
-        case JOY_RIGHT:
+        case ARROW_RIGHT:
         if(full)
             display.fillTriangle(pointX, pointY, pointX-size, pointY-size, pointX-size, pointY+size,SSD1306_WHITE);
         else{
@@ -504,7 +504,7 @@ void StepchildGraphics::drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, 
         }
         break;
         //left
-        case JOY_LEFT:
+        case ARROW_LEFT:
         if(full)
             display.fillTriangle(pointX, pointY,pointX+size, pointY-size, pointX+size, pointY+size,SSD1306_WHITE);
         else{
@@ -513,7 +513,7 @@ void StepchildGraphics::drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, 
         }
         break;
         //up
-        case UP:
+        case ARROW_UP:
         if(full)
             display.fillTriangle(pointX, pointY, pointX-size, pointY+size, pointX+size, pointY+size, SSD1306_WHITE);
         else{
@@ -522,7 +522,7 @@ void StepchildGraphics::drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, 
         }
         break;
         //down
-        case DOWN:
+        case ARROW_DOWN:
         if(full)
             display.fillTriangle(pointX, pointY, pointX-size, pointY-size, pointX+size, pointY-size, SSD1306_WHITE);
         else{
@@ -533,19 +533,19 @@ void StepchildGraphics::drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, 
     }
 }
 
-void StepchildGraphics::drawhighlight(uint8_t pointX,uint8_t pointY, uint8_t size, uint8_t direction){
+void StepchildGraphics::drawHighlightArrow(uint8_t pointX,uint8_t pointY, uint8_t size, uint8_t direction){
     this->drawArrow(pointX,pointY,size+2,direction,true);
     switch(direction){
-        case JOY_RIGHT:
+        case ARROW_RIGHT:
         this->drawArrow(pointX-1,pointY,size,direction,false);
         break;
-        case JOY_LEFT:
+        case ARROW_LEFT:
         this->drawArrow(pointX+1,pointY,size,direction,false);
         break;
-        case UP:
+        case ARROW_UP:
         this->drawArrow(pointX,pointY+1,size,direction,false);
         break;
-        case DOWN:
+        case ARROW_DOWN:
         this->drawArrow(pointX,pointY-1,size,direction,false);
         break;
     }
@@ -1452,7 +1452,6 @@ void StepchildGraphics::drawLogo(uint8_t x1, uint8_t y1){
 
 void StepchildGraphics::bootscreen_2(){
   float frameCount = 0;
-  display.setTextColor(SSD1306_WHITE);
   int16_t xCoord;
   int16_t yCoord;
 

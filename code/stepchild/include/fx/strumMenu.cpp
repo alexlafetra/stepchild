@@ -1,52 +1,14 @@
+/*
+    Code for the strum FX and strum menu
+*/
 
-#define BYTRACK_DESC 0//sorts notes by track order
+//macros defining different sort orders
+#define BYTRACK_DESC 0
 #define BYTRACK_ASC 1
 #define BYPITCH_DESC 2
 #define BYPITCH_ASC 3
 #define RANDOM_ORDER 4
 
-bool compareTracks(NoteID n1, NoteID n2){
-    return n1.track>n2.track;
-}
-bool comparePitches(NoteID n1, NoteID n2){
-    return n1.getPitch()>n2.getPitch();
-}
-//sorts a list of [track,note] pairs
-vector<NoteID> sortNotes(vector<NoteID> ids, uint8_t sortBy, uint8_t type){
-    vector<NoteID> sortedVec = ids;
-    switch(sortBy){
-        //sort by pitch
-        case 0:
-           sort(sortedVec.begin(), sortedVec.end(),comparePitches);
-           break;
-        //sort by track
-        case 1:
-           sort(sortedVec.begin(), sortedVec.end(),compareTracks);
-           break;
-    }
-    //if it's ascending
-    if(type == 0){
-        return sortedVec;
-    }
-    //if it's descending, reverse it
-    else{
-        reverse(sortedVec.begin(),sortedVec.end());
-        return sortedVec;
-    }
-}
-
-vector<NoteID> grabSelectedNotesAsNoteIDs(){
-    vector<NoteID> notes;
-    for(uint8_t i = 0; i<sequence.noteData.size(); i++){
-        for(uint8_t j = 1; j<sequence.noteData[i].size(); j++){
-            if(sequence.noteData[i][j].isSelected()){
-                NoteID newNote = NoteID(i,j);
-                notes.push_back(newNote);
-            }
-        }
-    }
-    return notes;
-}
 void drawStrumIcon(uint8_t x1, uint8_t y1, uint8_t height, bool animated){
     const uint8_t numberOfStrings = 4; 
     const uint8_t spacing = 3;
@@ -158,9 +120,9 @@ bool strumMenu(){
                 //amount (delay)
                 case 0:
                     if(controls.SHIFT())
-                        sequence.toggleTriplets(amount);
+                        toggleTriplets(amount);
                     else
-                        amount = sequence.changeSubDiv(controls.counterA>0,amount,false);
+                        amount = changeSubDiv(controls.counterA>0,amount,false);
                 //type
                 case 1:
                     sortType = !sortType;
@@ -185,9 +147,9 @@ bool strumMenu(){
                 //amount (delay)
                 case 0:
                     if(controls.SHIFT())
-                        sequence.toggleTriplets(amount);
+                        toggleTriplets(amount);
                     else
-                        amount = sequence.changeSubDiv(controls.counterB>0,amount,false);
+                        amount = changeSubDiv(controls.counterB>0,amount,false);
                     break;
                 //type
                 case 1:

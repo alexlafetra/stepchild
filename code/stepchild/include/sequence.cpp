@@ -1,3 +1,9 @@
+/*
+
+  Code for the StepchildSequence class
+
+*/
+
 //creates a sequence object with default values
 void StepchildSequence::init(uint8_t numberOfTracks,uint16_t length){
     //What should happen if length<192?
@@ -34,6 +40,7 @@ void StepchildSequence::init(){
 bool StepchildSequence::isQuarterGrid(){
     return !(this->subDivision%3);
 }
+
 //swaps all the data vars in the sequence for new, blank data
 void StepchildSequence::erase(){
     this->selectionCount = 0;
@@ -97,7 +104,7 @@ void StepchildSequence::deleteNote_byID(uint8_t track, uint16_t targetNoteID){
     //if there's a note/something here, and it's in data
     if (targetNoteID > 0 && targetNoteID < this->noteData[track].size()) {
         //clearing note from this->lookupTable
-        for (int i = this->noteData[track][targetNoteID].startPos; i < this->noteData[track][targetNoteID].endPos; i++) {
+        for (uint16_t i = this->noteData[track][targetNoteID].startPos; i < this->noteData[track][targetNoteID].endPos; i++) {
             this->lookupTable[track][i] = 0;
         }
         //lowering selectionCount
@@ -108,7 +115,7 @@ void StepchildSequence::deleteNote_byID(uint8_t track, uint16_t targetNoteID){
         //hopefully, this does a better job of freeing memory
         //swapping it like this! this is so the memory is free'd up again
         vector<Note> temp = {Note()};
-        for(int i = 1; i<=this->noteData[track].size()-1; i++){
+        for(uint16_t i = 1; i<=this->noteData[track].size()-1; i++){
         if(i != targetNoteID){//if it's not the target note, or an empty spot, copy it to the temp vector
             temp.push_back(this->noteData[track][i]);
         }
@@ -235,7 +242,7 @@ void StepchildSequence::makeNoteEveryNDivisions(uint8_t n){
 ----------------------------------------------------------
 */
 
-//edits a single note
+//edits a single note accessed via its ID
 void StepchildSequence::editNoteProperty_byID(uint16_t id, uint8_t track, int8_t amount, NoteProperty which){
     switch(which){
         case VELOCITY:{
@@ -563,7 +570,7 @@ void StepchildSequence::displayMainSequenceLEDs(){
         return;
     }
     uint16_t dat = 0;//00000000
-    if(LEDsOn && !screenSaverActive){
+    if(controls.LEDsActive && !screenSaverActive){
         uint16_t viewLength = this->viewEnd-this->viewStart;
         //move through the view, check every this->subDivision
         const uint16_t jump = this->isQuarterGrid()?(viewLength/16):(viewLength/12);
@@ -1212,31 +1219,6 @@ bool StepchildSequence::isInView(int target){
     return false;
 }
 
-uint16_t StepchildSequence::changeSubDiv(bool direction, uint8_t subDiv, bool allowZero){
-  //down
-  if(!direction){
-    if(subDiv == 1 && allowZero)
-      subDiv = 0;
-    else if(subDiv>3)
-      subDiv /= 2;
-    else if(subDiv == 3)
-      subDiv = 1;
-  }
-  else{
-    if(subDiv == 0)
-      subDiv = 1;
-    else if(subDiv == 1)//if it's one, set it to 3
-      subDiv = 3;
-    else if(subDiv !=  96 && subDiv != 32){
-      //if triplet mode
-      if(!(subDiv%2))
-        subDiv *= 2;
-      else if(!(subDiv%3))
-        subDiv *=2;
-    }
-  }
-  return subDiv;
-}
 
 void StepchildSequence::changeSubDivInt(bool down){
   changeSubDivInt(down,false);
@@ -1261,21 +1243,6 @@ void StepchildSequence::changeSubDivInt(bool down, bool limitToView){
     }
   }
   menuText = "~"+stepsToMeasures(this->subDivision);
-}
-
-uint16_t StepchildSequence::toggleTriplets(uint16_t subDiv){
-  //this breaks the pattern, but lets you swap from 2/1 to 3/1 (rare case probs)
-  if(subDiv == 192){
-    subDiv = 32;
-  }
-  else if(!(subDiv%3)){//if it's in 1/4 mode...
-    subDiv = 2*subDiv/3;//set it to triplet mode
-  }
-  else if(!(subDiv%2)){//if it was in triplet mode...
-    subDiv = 3*subDiv/2;//set it to 1/4 mode
-  }
-  menuText = stepsToMeasures(this->subDivision);
-  return subDiv;
 }
 
 void StepchildSequence::toggleTriplets(){

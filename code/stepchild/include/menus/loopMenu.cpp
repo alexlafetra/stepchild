@@ -345,7 +345,7 @@ void viewLoop(uint8_t which){
 }
 const uint8_t maxLoopsShown = 6;
 
-void loopMenu(){
+void loopMenu_old(){
   menuText = "";
   uint8_t xStart = 32;
   uint8_t targetL = sequence.activeLoop;
@@ -973,5 +973,129 @@ bool pushToNewLoop(){
     sequence.setCursor(newLoop.start);
     sequence.setViewStart(newLoop.start);
     return true;
+  }
+}
+
+  // NORMAL,
+  // RANDOM,
+  // RANDOM_SAME,
+  // RETURN,
+  // INFINITE
+
+void drawLoopChunk(uint8_t x, uint8_t y, uint8_t w, uint8_t h, LoopType type, String s, bool selected){
+  display.fillRect(x,y,w,h,1);
+  switch(type){
+    case NORMAL:
+      display.fillTriangle(x+w,y,x+w,y+h-1,x+w+3,y+h/2,1);
+      display.drawLine(x+w+1,y,x+w+4,y+h/2,0);
+      display.drawLine(x+w+1,y+h-1,x+w+4,y+h/2,0);
+      break;
+    case RANDOM:
+      // display.drawLine(x+w+1,y,x+w+1,y+h,0);
+      display.drawPixel(x+w-1,y,0);
+      display.drawPixel(x+w,y+1,0);
+      display.drawLine(x+w+1,y+2,x+w+1,y+h,0);
+      graphics.drawArrow(x+w-2,y+h+2,2,ARROW_DOWN,true);
+      display.drawBitmap(x+w-5,y+h+4,rnd_bmp,7,7,SSD1306_WHITE);
+      break;
+    case RETURN:
+      break;
+    case INFINITE:
+      break;
+  }
+  if(selected){
+    graphics.drawArrow(x+w/2,y-3+(millis()/200)%2,2,ARROW_DOWN,true);
+  }
+  display.drawPixel(x+w/2-4,y+3,0);
+  printSmall(x+w/2-2,y+1,s,0);
+}
+void printLoopInfo(uint8_t whichLoop){
+  //reps
+  
+}
+
+class LoopMenu:public StepchildMenu{
+  public:
+  WireFrame icon;
+  LoopMenu(){
+    icon = makeLoopArrows(0);
+    icon.xPos = 10;
+    icon.yPos = 10;
+    icon.scale = 1.5;
+    coords = CoordinatePair(0,0,128,64);
+  }
+  void displayMenu(){
+    //title stuff
+    icon.rotate(-1,2);
+    display.clearDisplay();
+    display.drawBitmap(coords.start.x+20,coords.start.y,loop_L,7,9,SSD1306_WHITE);
+    display.drawBitmap(coords.start.x+27,coords.start.y,loop_O,7,9,SSD1306_WHITE);
+    display.drawBitmap(coords.start.x+34,coords.start.y,loop_O,7,9,SSD1306_WHITE);
+    display.drawBitmap(coords.start.x+41,coords.start.y,loop_P,7,9,SSD1306_WHITE);
+    printSmall(coords.start.x+51,coords.start.y+2,"menu",1);
+    icon.render();
+
+    uint16_t totalLength = 0;
+    for(uint8_t i = 0; i<sequence.loopData.size(); i++){
+      totalLength += sequence.loopData[i].length()/3;
+    }
+    uint8_t rows = totalLength/128;
+    int16_t x1 = totalLength;
+    for(int8_t i = sequence.loopData.size()-1; i>=0; i--){
+      drawLoopChunk(x1,32,sequence.loopData[i].length()/3,7,sequence.loopData[i].type,stringify(sequence.loopData[i].reps),cursor == i);
+      x1-=sequence.loopData[i].length()/3;
+    }
+    display.display();
+  }
+  bool loopMenuControls(){
+    controls.readButtons();
+    controls.readJoystick();
+    if(utils.itsbeen(200)){
+      if(controls.MENU()){
+        lastTime = millis();
+        return false;
+      }
+      if(controls.DELETE() && sequence.loopData.size()>1){
+        if(binarySelectionBox(64,32,"NO","YEA","delete loop?")==1)
+          sequence.deleteLoop(cursor);
+        lastTime = millis();
+      }
+      if(controls.NEW()){
+        dupeLoop(cursor);
+        lastTime = millis();
+      }
+      if(controls.LEFT()){
+        cursor--;
+        lastTime = millis();
+      }
+      if(controls.RIGHT()){
+        cursor++;
+        lastTime = millis();
+      }
+    }
+    //changing the loop type
+    while(controls.counterB != 0){
+      if(controls.counterB>0){
+        if(sequence.loopData[cursor].type<INFINITE)
+          sequence.loopData[cursor].type++;
+        else
+          sequence.loopData[cursor].type = NORMAL;
+      }
+      else{
+        if(sequence.loopData[cursor].type>NORMAL)
+          sequence.loopData[cursor].type--;
+        else
+          sequence.loopData[cursor].type = INFINITE;
+      }
+      controls.counterB += controls.counterB<0?1:-1;
+    }
+    return true;
+  }
+};
+
+void loopMenu(){
+  LoopMenu menu;
+  while(menu.loopMenuControls()){
+    menu.displayMenu();
   }
 }

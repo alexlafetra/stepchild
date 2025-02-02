@@ -48,12 +48,12 @@ class StepchildGraphics{
   //Draws percentage bar showing how full the sequence is
   void drawSequenceMemoryBar(uint8_t x1, uint8_t y1, uint8_t length);
 
-  #define JOY_RIGHT 0
-  #define JOY_LEFT 1
-  #define UP 2
-  #define DOWN 3
+  // #define JOY_RIGHT 0
+  // #define JOY_LEFT 1
+  // #define UP 2
+  // #define DOWN 3
   void drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, bool full);
-  void drawhighlight(uint8_t pointX,uint8_t pointY, uint8_t size, uint8_t direction);
+  void drawHighlightArrow(uint8_t pointX,uint8_t pointY, uint8_t size, uint8_t direction);
   void drawBanner(int8_t x1, int8_t y1, String text);
   void drawCenteredBanner(int8_t x1, int8_t y1, String text);
   //draws a VU meter, where val is the angle of the needle
@@ -127,7 +127,6 @@ class StepchildGraphics{
   void drawRandomIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim);
   void drawQuickFunctionIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim);
   void drawQuantBrackets(uint8_t x1, uint8_t y1);
-
 };
 
 #include "stepchildGraphics.cpp"
