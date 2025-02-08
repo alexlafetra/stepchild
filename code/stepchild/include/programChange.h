@@ -159,56 +159,43 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
                 lastTime = millis();
             }
             //jumping up and down tracks
-            if(controls.SHIFT()){
-                if (controls.joystickY == 1) {
-                    uint8_t originalP = activePort;
-                    bool success = false;
-                    while(activePort<4){
-                        activePort++;
-                        //try to jump on the next one
-                        if(jumpCursorToPC(activePort,true,true)){
-                            success = true;
-                            break;
-                        }
-                        else if(jumpCursorToPC(activePort,false,true)){
-                            success = true;
-                            break;
-                        }
+            if (controls.joystickY == 1) {
+                uint8_t originalP = activePort;
+                bool success = false;
+                while(activePort<4){
+                    activePort++;
+                    //try to jump on the next one
+                    if(jumpCursorToPC(activePort,true,true)){
+                        success = true;
+                        break;
                     }
-                    if(!success)
-                        activePort = originalP;
-                    lastTime = millis();
-                }
-                if (controls.joystickY == -1) {
-                    uint8_t originalP = activePort;
-                    bool success = false;
-                    while(activePort>0){
-                        activePort--;
-                        //try to jump on the next one
-                        if(jumpCursorToPC(activePort,true,true)){
-                            success = true;
-                            break;
-                        }
-                        else if(jumpCursorToPC(activePort,false,true)){
-                            success = true;
-                            break;
-                        }
+                    else if(jumpCursorToPC(activePort,false,true)){
+                        success = true;
+                        break;
                     }
-                    if(!success)
-                        activePort = originalP;
-                    lastTime = millis();
                 }
+                if(!success)
+                    activePort = originalP;
+                lastTime = millis();
             }
-            //moving editing cursor
-            else{
-                if(controls.joystickY == -1 && editingCursor > 0){
-                    editingCursor--;
-                    lastTime = millis();
+            if (controls.joystickY == -1) {
+                uint8_t originalP = activePort;
+                bool success = false;
+                while(activePort>0){
+                    activePort--;
+                    //try to jump on the next one
+                    if(jumpCursorToPC(activePort,true,true)){
+                        success = true;
+                        break;
+                    }
+                    else if(jumpCursorToPC(activePort,false,true)){
+                        success = true;
+                        break;
+                    }
                 }
-                else if(controls.joystickY == 1 && editingCursor < 1){
-                    editingCursor++;
-                    lastTime = millis();
-                }
+                if(!success)
+                    activePort = originalP;
+                lastTime = millis();
             }
         }
     }
@@ -219,7 +206,6 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
     //grid lines -- THIS IS REALLY INEFFICIENT!! you shouldn't check each step here
     for (uint16_t step = sequence.viewStart; step < sequence.viewEnd; step++) {
         unsigned short int x1 = trackDisplay+int((step-sequence.viewStart)*sequence.viewScale);
-        unsigned short int x2 = x1 + (step-sequence.viewStart)*sequence.viewScale;
         //measure bars
         if (!(step % sequence.subDivision) && (step%96) && (sequence.subDivision*sequence.viewScale)>1) {
             graphics.drawDottedLineV(x1,9,64,2);
@@ -316,13 +302,16 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
     //message editing box
     if(editingMessage){
         uint8_t x1;
+        bool toTheRight;
         //the box will be to the right
         if((sequence.cursorPos-sequence.viewStart)*sequence.viewScale+trackDisplay<64){
             x1 = (sequence.cursorPos-sequence.viewStart)*sequence.viewScale+trackDisplay+15;
+            toTheRight = true;
         }
         //the box will be to the left
         else{
             x1 = (sequence.cursorPos-sequence.viewStart)*sequence.viewScale+trackDisplay-38;
+            toTheRight = false;
         }
         uint8_t y1 = 9+activePort*portHeight;
         if(y1>47)
@@ -334,6 +323,20 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
 
         printSmall(x1+2,y1+2,"val:  "+stringify(getPCAtCursor(activePort).val),2);
         printSmall(x1+2,y1+9,"ch:    "+stringify(getPCAtCursor(activePort).channel+1),2);
+
+        if(!toTheRight){
+            display.fillCircle(x1-6,y1+2,4,1);
+            printSmall(x1-7,y1,"A",0);
+            display.fillCircle(x1-6,y1+12,4,1);
+            printSmall(x1-7,y1+10,"B",0);
+        }
+        else{
+            display.fillCircle(x1+38,y1+2,4,1);
+            printSmall(x1+37,y1,"A",0);
+            display.fillCircle(x1+38,y1+12,4,1);
+            printSmall(x1+37,y1+10,"B",0);
+        }
+
     }
 }
 

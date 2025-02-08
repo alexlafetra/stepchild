@@ -1,3 +1,26 @@
+void applyClockToSequence(){
+  vector<uint8_t> trackIDs = selectMultipleTracks("select tracks to alter");
+  //minimum amount of uSecs that results in a note move. Values smaller than this are ignored bc
+  //they'd end up on the same timestep
+  const int32_t minimumTimestepOffset = sequenceClock.uSecPerStep;
+  //iterate over selected tracks
+  for(uint8_t track = 0; track<trackIDs.size(); track++){
+    //if a track has no notes, skip it
+    if(sequence.noteData[track].size()<=1)
+      continue;
+    for(uint16_t note = 1; note<sequence.noteData[track].size(); note++){
+      float timingOffset = sequenceClock.swingOffset(sequence.noteData[track][note].startPos);
+      //if the offset is too small to adjust, skip it
+      if(timingOffset < minimumTimestepOffset)
+        continue;
+      //get the new note start
+      uint16_t newStart = sequence.noteData[track][note].startPos+(timingOffset/float(minimumTimestepOffset));
+      //move the note!
+      sequence.moveNote(note,track,track,newStart);
+    }
+  }
+}
+
 class ClockMenu:public StepchildMenu{
   public:
     float tVal = 0;
@@ -14,10 +37,10 @@ class ClockMenu:public StepchildMenu{
     bool clockMenuControls();
     void updateStepButtons();
     void toggleClockSource(){
-      if(clockSource == INTERNAL_CLOCK)
-        clockSource = EXTERNAL_CLOCK;
-      else if(clockSource == EXTERNAL_CLOCK)
-        clockSource = INTERNAL_CLOCK;
+      if(sequenceClock.clockSource == INTERNAL_CLOCK)
+        sequenceClock.clockSource = EXTERNAL_CLOCK;
+      else if(sequenceClock.clockSource == EXTERNAL_CLOCK)
+        sequenceClock.clockSource = INTERNAL_CLOCK;
     }
 };
 
@@ -171,7 +194,7 @@ void ClockMenu::displayMenu(){
       {
       x3 = 10+((millis()/200)%2);
       graphics.drawArrow(66+coords.start.y,13+31+x3+2,3,2,false);
-      if(clockSource == EXTERNAL_CLOCK){
+      if(sequenceClock.clockSource == EXTERNAL_CLOCK){
         graphics.drawBanner(84,52,"external");
         drawSmallStepchild(88,30+2*((millis()/400)%2));
         display.drawBitmap(95,15+((millis()/400)%2),down_arrow,9,12,SSD1306_WHITE);
@@ -210,7 +233,7 @@ void ClockMenu::displayMenu(){
   display.print("Clock");
   display.setFont();
   //clock animation
-  if(clockSource == INTERNAL_CLOCK){
+  if(sequenceClock.clockSource == INTERNAL_CLOCK){
       display.fillRect(0,coords.start.y,32,screenHeight-coords.start.y,SSD1306_BLACK);
       display.drawFastVLine(11,coords.start.y+33,31-coords.start.y,1);
       display.drawFastVLine(20,coords.start.y+33,31-coords.start.y,1);
@@ -263,10 +286,10 @@ bool ClockMenu::clockMenuControls(){
         lastTime = millis();
       }
       else if(cursor == 3){
-        if(clockSource == INTERNAL_CLOCK)
-          clockSource = EXTERNAL_CLOCK;
-        else if(clockSource == EXTERNAL_CLOCK)
-          clockSource = INTERNAL_CLOCK;
+        if(sequenceClock.clockSource == INTERNAL_CLOCK)
+          sequenceClock.clockSource = EXTERNAL_CLOCK;
+        else if(sequenceClock.clockSource == EXTERNAL_CLOCK)
+          sequenceClock.clockSource = INTERNAL_CLOCK;
         lastTime = millis();
       }
     }
@@ -337,7 +360,7 @@ bool ClockMenu::clockMenuControls(){
           break;
         //source
         case 3:
-toggleClockSource();
+          toggleClockSource();
           break;
       }
     }
@@ -394,9 +417,8 @@ void tapBpm(){
   // bool leds[8] = {0,0,0,0,0,0,0,0};
   uint16_t leds = 1;
   long t1;
-  long timeE;
-  long timeL;
-  bool time1 = false;
+  long timeE = 0;
+  long timeL = 0;
   display.fillRect(0,8,screenWidth,30,SSD1306_BLACK);
   display.drawFastHLine(0,8,screenWidth,SSD1306_WHITE);
   display.drawFastHLine(0,40,screenWidth,SSD1306_WHITE);

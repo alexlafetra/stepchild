@@ -181,7 +181,7 @@ void drawCVOsc(int8_t pitch, uint8_t vel, bool gate){
 void testCVPitches(){
     lastTime = millis();
     uint16_t pitch = 0;
-    bool gate = false;
+//    bool gate = false;
     while(true){
         // display.clearDisplay();
         // printSmall_centered(64,32,stringify(pitch),1);

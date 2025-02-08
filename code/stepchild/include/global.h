@@ -30,18 +30,10 @@ const vector<String> CCparameters = {"Bank Select","Mod Wheel","Breath Controlle
 const vector<String> MKIICCparameters = {"Ctrl ","EFX On/Off","EFX Selector"};
 const vector<String> stepChildCCParameters = {"Velocity","Probability","Pitch","BPM","Swing"};
 
-bool gotClock = false;
 bool hasStarted = false;
+//flag set while holding down NEW() in the main editor so you can draw notes
 bool drawingNote = false;
 bool pitchesOrNumbers = true;
-
-enum ClockSource:uint8_t{
-  INTERNAL_CLOCK,
-  EXTERNAL_CLOCK
-};
-
-ClockSource clockSource = INTERNAL_CLOCK;
-
 bool overwriteRecording = true;
 bool overWriteNotesWithEmptiness = false;//flag to set for overwriting notes on tracks that AREN'T receiving notes (overdubbing silence)
 bool onlyRecToPrimedTracks = true;//Not implemented yet

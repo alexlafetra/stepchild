@@ -87,7 +87,7 @@ bool viewLoopControls(uint8_t which){
     if (controls.joystickX == 1 && !controls.SHIFT()) {
       //if cursor isn't on a measure marker, move it to the nearest one
       if(sequence.cursorPos%sequence.subDivision){
-        if((movingLoop == MOVING_NO_LOOP_POINTS))
+        if(movingLoop == MOVING_NO_LOOP_POINTS)
           moveCursorWithinLoop(-sequence.cursorPos%sequence.subDivision,which);
         else
           sequence.moveCursor(-sequence.cursorPos%sequence.subDivision);
@@ -97,7 +97,7 @@ bool viewLoopControls(uint8_t which){
           sequence.moveLoop(-sequence.cursorPos%sequence.subDivision);
       }
       else{
-        if((movingLoop == MOVING_NO_LOOP_POINTS))
+        if(movingLoop == MOVING_NO_LOOP_POINTS)
           moveCursorWithinLoop(-sequence.subDivision,which);
         else
           sequence.moveCursor(-sequence.subDivision);
@@ -116,7 +116,7 @@ bool viewLoopControls(uint8_t which){
     }
     if (controls.joystickX == -1 && !controls.SHIFT()) {
       if(sequence.cursorPos%sequence.subDivision){
-        if((movingLoop == MOVING_NO_LOOP_POINTS))
+        if(movingLoop == MOVING_NO_LOOP_POINTS)
           moveCursorWithinLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision,which);
         else
           sequence.moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
@@ -125,7 +125,7 @@ bool viewLoopControls(uint8_t which){
           sequence.moveLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
       }
       else{
-        if((movingLoop == MOVING_NO_LOOP_POINTS))
+        if(movingLoop == MOVING_NO_LOOP_POINTS)
           moveCursorWithinLoop(sequence.subDivision,which);
         else
           sequence.moveCursor(sequence.subDivision);
@@ -163,7 +163,7 @@ bool viewLoopControls(uint8_t which){
   if (utils.itsbeen(50)) {
     //moving
     if (controls.joystickX == 1 && controls.SHIFT()) {
-      if((movingLoop == MOVING_NO_LOOP_POINTS))
+      if(movingLoop == MOVING_NO_LOOP_POINTS)
         moveCursorWithinLoop(-1,which);
       else
         sequence.moveCursor(-1);
@@ -176,7 +176,7 @@ bool viewLoopControls(uint8_t which){
         sequence.setLoopPoint(sequence.cursorPos,false);
     }
     if (controls.joystickX == -1 && controls.SHIFT()) {
-      if((movingLoop == MOVING_NO_LOOP_POINTS))
+      if(movingLoop == MOVING_NO_LOOP_POINTS)
         moveCursorWithinLoop(1,which);
       else
         sequence.moveCursor(1);
@@ -347,7 +347,6 @@ const uint8_t maxLoopsShown = 6;
 
 void loopMenu_old(){
   menuText = "";
-  uint8_t xStart = 32;
   uint8_t targetL = sequence.activeLoop;
   uint8_t dispStart = sequence.activeLoop;
   int blockZoom = getLongestLoop()/30;
@@ -998,6 +997,8 @@ void drawLoopChunk(uint8_t x, uint8_t y, uint8_t w, uint8_t h, LoopType type, St
       graphics.drawArrow(x+w-2,y+h+2,2,ARROW_DOWN,true);
       display.drawBitmap(x+w-5,y+h+4,rnd_bmp,7,7,SSD1306_WHITE);
       break;
+    case RANDOM_SAME:
+      break;
     case RETURN:
       break;
     case INFINITE:
@@ -1039,7 +1040,7 @@ class LoopMenu:public StepchildMenu{
     for(uint8_t i = 0; i<sequence.loopData.size(); i++){
       totalLength += sequence.loopData[i].length()/3;
     }
-    uint8_t rows = totalLength/128;
+//    uint8_t rows = totalLength/128;
     int16_t x1 = totalLength;
     for(int8_t i = sequence.loopData.size()-1; i>=0; i--){
       drawLoopChunk(x1,32,sequence.loopData[i].length()/3,7,sequence.loopData[i].type,stringify(sequence.loopData[i].reps),cursor == i);

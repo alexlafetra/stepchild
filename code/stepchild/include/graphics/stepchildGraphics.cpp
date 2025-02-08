@@ -54,7 +54,7 @@ void StepchildGraphics::drawDottedLineV2(unsigned short int x1, unsigned short i
 }
 
 void StepchildGraphics::drawDottedLineDiagonal(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t dot){
-    uint8_t count;
+  	uint8_t count = 0;
     int16_t steep = abs(y1 - y0) > abs(x1 - x0);
     if (steep) {
         uint8_t x2 = x0;
@@ -199,18 +199,18 @@ void StepchildGraphics::printFraction(uint8_t x1, uint8_t y1, String fraction){
     String denominator = "";
     String numerator = "";
     bool foundSpaceOrSlash = false;
-    uint8_t wholeIndex;
+  	uint8_t wholeIndex = 0;
     for(uint8_t i = 0; i<fraction.length(); i++){
         if(fraction.charAt(i) == ' '){
-        foundSpaceOrSlash = true;
-        whole = fraction.substring(0,i);
-        wholeIndex = i;
+        	foundSpaceOrSlash = true;
+        	whole = fraction.substring(0,i);
+        	wholeIndex = i;
         }
         if(fraction.charAt(i) == '/'){
-        foundSpaceOrSlash = true;
-        numerator = fraction.substring(wholeIndex,i);
-        denominator = fraction.substring(i+1,fraction.length());
-        break;
+        	foundSpaceOrSlash = true;
+        	numerator = fraction.substring(wholeIndex,i);
+        	denominator = fraction.substring(i+1,fraction.length());
+        	break;
         }
     }
     //if you didn't find a space or a slash, treat the fraction as a wholenumber
@@ -231,7 +231,7 @@ void StepchildGraphics::printFractionCentered(uint8_t x1, uint8_t y1, String fra
     String whole;
     String denominator;
     String numerator;
-    uint8_t wholeIndex;
+  	uint8_t wholeIndex = 0;
     bool foundSpaceOrSlash = false;
     for(uint8_t i = 0; i<fraction.length(); i++){
         if(fraction.charAt(i) == ' '){
@@ -273,19 +273,19 @@ uint8_t StepchildGraphics::printFraction_small(uint8_t x1, uint8_t y1, String fr
     String whole;
     String denominator;
     String numerator;
-    uint8_t wholeIndex;
+  	uint8_t wholeIndex = 0;
     bool foundSpaceOrSlash = false;
     for(uint8_t i = 0; i<fraction.length(); i++){
         if(fraction.charAt(i) == ' '){
-        whole = fraction.substring(0,i);
-        wholeIndex = i;
-        foundSpaceOrSlash = true;
+        	whole = fraction.substring(0,i);
+        	wholeIndex = i;
+        	foundSpaceOrSlash = true;
         }
         if(fraction.charAt(i) == '/'){
-        numerator = fraction.substring(wholeIndex,i);
-        denominator = fraction.substring(i+1,fraction.length());
-        foundSpaceOrSlash = true;
-        break;
+        	numerator = fraction.substring(wholeIndex,i);
+        	denominator = fraction.substring(i+1,fraction.length());
+        	foundSpaceOrSlash = true;
+        	break;
         }
     }
     if(!foundSpaceOrSlash){
@@ -311,7 +311,7 @@ void StepchildGraphics::printFraction_small_centered(uint8_t x1, uint8_t y1, Str
     String whole;
     String denominator;
     String numerator;
-    uint8_t wholeIndex;
+  	uint8_t wholeIndex = 0;
     bool foundSpaceOrSlash = false;
     for(uint8_t i = 0; i<fraction.length(); i++){
         if(fraction.charAt(i) == ' '){
@@ -431,7 +431,7 @@ void StepchildGraphics::drawEllipse(uint8_t h, uint8_t k, int a, int b, uint8_t 
     }
 }
 void StepchildGraphics::drawEllipse(uint8_t h, uint8_t k, int a, int b, uint16_t c) {
-  drawEllipse(h,k,a,b,0,c);
+  drawEllipse(h,k,a,b,1,c);
 }
 void StepchildGraphics::drawStar(uint8_t centerX, uint8_t centerY, uint8_t r1, uint8_t r2, uint8_t points){
     uint8_t numberOfPoints = points*2;//the actual number of points (both convex and concave vertices)
@@ -551,7 +551,7 @@ void StepchildGraphics::drawHighlightArrow(uint8_t pointX,uint8_t pointY, uint8_
     }
 }
 
-void StepchildGraphics::drawBanner(int8_t x1, int8_t y1, String text){
+void StepchildGraphics::drawBanner(uint8_t x1, uint8_t y1, String text){
   if(x1 > SCREEN_WIDTH || y1 > SCREEN_HEIGHT)
     return;
   display.drawBitmap(x1-13,y1-4,bannerL_bmp,12,9,SSD1306_WHITE);
@@ -563,7 +563,7 @@ void StepchildGraphics::drawBanner(int8_t x1, int8_t y1, String text){
   printSmall(x1,y1,text,SSD1306_BLACK);
 }
 
-void StepchildGraphics::drawCenteredBanner(int8_t x1, int8_t y1, String text){
+void StepchildGraphics::drawCenteredBanner(uint8_t x1, uint8_t y1, String text){
     uint8_t len = text.length()*4-countSpaces(text)*2+countChar(text,'#')*2;
     x1-=len/2;
     this->drawBanner(x1,y1,text);
@@ -592,6 +592,46 @@ void StepchildGraphics::drawLabel(uint8_t x1, uint8_t y1, String text, bool wOrB
         this->drawLabel_outline(x1,y1,text);
     }
 }
+void StepchildGraphics::drawOutlinedButton(uint8_t x, uint8_t y, String t, bool wOrB){
+  if(wOrB){
+    display.fillRoundRect(x,y,getSmallTextLength(t)+4,9,3,1);
+  }
+  else{
+    display.drawRoundRect(x,y,getSmallTextLength(t)+4,9,3,1);
+  }
+  printSmall(x+2,y+2,t,!wOrB);
+}
+void StepchildGraphics::drawButton(uint8_t x, uint8_t y, String t, bool wOrB){
+  if(wOrB){
+    display.fillRoundRect(x,y,getSmallTextLength(t)+3,7,3,1);
+  }
+  printSmall(x+2,y+1,t,!wOrB);
+}
+//draws a multi-option slider
+void StepchildGraphics::drawSlider(uint8_t x, uint8_t y, vector<String> &options, uint8_t which){
+  uint8_t textLength = 0;
+  uint8_t lengthToHighlight = 0;
+  for(uint8_t i = 0; i<options.size(); i++){
+    if(i == which)
+      lengthToHighlight = textLength;
+    textLength += getSmallTextLength(options[i])+3;
+  }
+  display.fillRoundRect(x,y,textLength,9,3,0);
+  display.drawRoundRect(x,y,textLength,9,3,1);
+  display.fillRoundRect(x+lengthToHighlight,y,getSmallTextLength(options[which])+4,9,3,1);
+  textLength = 0;
+  for(uint8_t i = 0; i<options.size(); i++){
+    printSmall(x+2+textLength,y+2,options[i],2);
+    textLength += getSmallTextLength(options[i])+3;
+  }
+}
+
+void StepchildGraphics::drawInputIcon(uint8_t x, uint8_t y, String t){
+  display.fillCircle(x+1,y+2,3,1);
+  printSmall(x,y,t,0);
+}
+
+
 //Draws a yes/no slider
 void StepchildGraphics::drawSlider(uint8_t x1, uint8_t y1, uint8_t w, uint8_t h, bool state){
     display.fillRect(x1,y1,w,h,0);
@@ -733,7 +773,7 @@ void StepchildGraphics::drawTinyPram(){
 }
 //draws a play icon shaded according to the sequence clock state
 void StepchildGraphics::drawPlayIcon(int8_t x1, int8_t y1){
-    if(clockSource == EXTERNAL_CLOCK && !gotClock){
+    if(sequenceClock.clockSource == EXTERNAL_CLOCK && !sequenceClock.receivedClockMessage){
         display.drawTriangle(x1,y1+6,x1,y1,x1+6,y1+3,SSD1306_WHITE);
     }
     else{
@@ -1458,7 +1498,7 @@ void StepchildGraphics::bootscreen_2(){
   uint8_t xOffset = 30;
   uint8_t yOffset = 15;
   //each letter pops in and swings into place with a x^2 parabolic motion
-  while(frameCount<128){
+  while(frameCount<80){
     display.clearDisplay();
     display.setTextSize(2);
     xCoord = 20;
@@ -1480,8 +1520,9 @@ void StepchildGraphics::bootscreen_2(){
     else{
       display.drawBitmap(48,32,carriage_bmp,14,15,SSD1306_WHITE);
     }
+    // display.clearDisplay();
+    // display.drawBitmap(0,0,stepchild_logo_bmp,60,17,1);
     display.display();
-    // writeLEDs(uint8_t(0),uint8_t(2*frameCount/15));
     controls.writeLEDs(0b1111111111111111>>(15-uint8_t(frameCount/8)));
     frameCount+=0.4;
   }
@@ -1490,7 +1531,7 @@ void StepchildGraphics::bootscreen_2(){
 
 void StepchildGraphics::drawOSScreen(){
   display.clearDisplay();
-  display.drawBitmap(0,0,childOS,128,64,SSD1306_WHITE);
+  display.drawBitmap(0,0,childOS_bmp,128,64,SSD1306_WHITE);
   display.display();
   controls.clearButtons();
   lastTime = millis();

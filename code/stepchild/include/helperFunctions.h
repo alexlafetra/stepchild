@@ -444,14 +444,14 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
         activeScale = MAJOR;
       }
       else{
-        if(controls.counterB >= 1){
+        if(controls.counterB > 0){
           activeScale++;
         }
-        if(controls.counterB <= -1){
+        if(controls.counterB < 0){
           activeScale--;
         }
       }
-      vector<uint8_t> newScale = genScale(activeScale,root);
+      vector<uint8_t> newScale = genScale(activeScale,0);
       //clear out old scale
       for(uint8_t i = 0; i<12; i++){
         keys[i] = false;
@@ -491,9 +491,6 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
               lastTime = millis();
             }
             if(controls.joystickY == -1){
-              if(activeScale)
-                activeScale = BLUE;
-              else 
               activeScale--;
               lastTime = millis();
             }

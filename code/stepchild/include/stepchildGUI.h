@@ -161,8 +161,6 @@ int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, void (*d
 //returns -1 (no answer/exit), 0 (no) or 1 (yes)
 //Binary Selection box w a title, returns -1 for 
 int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String title, void (*drawingFunction)()){
-  //bool for breaking from the loop
-  bool notChosenYet = true;
   //storing the state
   bool state = false;
   lastTime = millis();

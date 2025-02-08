@@ -31,7 +31,6 @@ void quantize(bool move_the_cursor,bool deleteNote){
   }
   //quantizing the note at the cursor
   else if(sequence.IDAtCursor() != 0){
-    uint16_t id = sequence.IDAtCursor();
     quantizeNote(sequence.activeTrack,sequence.IDAtCursor(),move_the_cursor,deleteNote);
   }
 }

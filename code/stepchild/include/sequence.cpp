@@ -935,8 +935,8 @@ float StepchildSequence::getDistanceFromNoteToCursor(Note note,uint8_t track){
 void StepchildSequence::setCursorToNearestNote(){
   const float maxPossibleDist = this->sequenceLength*this->viewScale+this->trackData.size()*trackHeight;
   float minDist = maxPossibleDist;
-  int minTrack;
-  int minNote;
+  uint16_t minTrack = 0;
+  uint16_t minNote = 0;
   for(int track = 0; track<this->noteData.size(); track++){
     for(int note = 1; note<this->noteData[track].size(); note++){
       // //Serial.println("checking n:"+stringify(note)+" t:"+stringify(track));
@@ -980,7 +980,7 @@ float StepchildSequence::getNoteDensity(uint16_t timestep){
   return density/float(this->trackData.size());
 }
 float StepchildSequence::getNoteDensity(uint16_t start, uint16_t end){
-  float density;
+  float density = 0;
   for(int i = start; i<= end; i++){
     density+=getNoteDensity(i);
   }
@@ -1008,12 +1008,12 @@ uint16_t StepchildSequence::countNotesInRange(uint16_t start, uint16_t end){
 //changes which track is active, changing only to valid tracks
 bool StepchildSequence::setActiveTrack(uint8_t newActiveTrack, bool loudly) {
   if (newActiveTrack >= 0 && newActiveTrack < this->trackData.size()) {
-    if((this->activeTrack == this->maxTracksShown-1) && (newActiveTrack == this->maxTracksShown) && (this->shrinkTopDisplay == false)){
-      // this->maxTracksShown++;
+    //if you're about to run off the screen for the first time, shrink the top area
+    if((this->activeTrack == this->maxTracksShown-1) && (newActiveTrack == this->maxTracksShown)){
       this->shrinkTopDisplay = true;
     }
-    else if((this->activeTrack == 1) && (newActiveTrack == 0) && (this->shrinkTopDisplay)){
-      // this->maxTracksShown--;
+    //if you're about to come back up to the within the first few tracks, unshrink the top area
+    else if((this->activeTrack == 1) && (newActiveTrack == 0)){
       this->shrinkTopDisplay = false;
     }
     this->activeTrack = newActiveTrack;
@@ -1046,7 +1046,6 @@ void StepchildSequence::changeAllTrackChannels(int newChannel){
 
 void StepchildSequence::moveToNextNote_inTrack(bool up){
   uint8_t track = this->activeTrack;
-  uint16_t currentID = this->IDAtCursor();
   bool foundTrack = false;
   //moving the track up/down until it hits a track with notes
   //and checking bounds

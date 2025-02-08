@@ -20,13 +20,13 @@ void console(){
   //stores channel the message was received on 
   uint8_t lastChannelReceived;
 
-  uint8_t lastCCReceived;
-  uint8_t lastCCValReceived;
-  uint8_t lastCCChannelReceived;
+  uint8_t lastCCReceived = 0;
+  uint8_t lastCCValReceived = 0;
+  uint8_t lastCCChannelReceived = 0;
 
-  uint8_t lastPitchSent;
-  uint8_t lastVelSent;
-  uint8_t lastChannelSent;
+//  uint8_t lastPitchSent;
+//  uint8_t lastVelSent;
+//  uint8_t lastChannelSent;
 
   const uint8_t maxLines = 8;
 

@@ -10,6 +10,7 @@
 #include <algorithm>
 
 #ifdef HEADLESS
+using namespace std;
 #include <string>
 #include <iostream>
 #include <cstdlib>
@@ -18,13 +19,13 @@
 #include <chrono>//for emulating millis() and micros()
 #include <unistd.h>
 #include <thread>//for multithreading
-#include "../headless/childOS_headless/headlessControls.h"
 #include "../headless/childOS_headless/headlessOpenGL.h"
 #include "../headless/childOS_headless/headlessMIDI.h"
 #include "../headless/childOS_headless/headlessFileSystem.h"
 #include "../headless/childOS_headless/headlessArduino.h"
 #include "../headless/childOS_headless/headlessPico.h"
 #include "../headless/childOS_headless/headlessDisplay.h"
+#include "../headless/childOS_headless/headlessControls.h"
 #else
 #include <Arduino.h>
 #include <Adafruit_TinyUSB.h>
@@ -125,14 +126,13 @@ enum ScaleName:uint8_t{
 };
 
 ScaleName& operator++(ScaleName& e) {
-    using underlying_type = std::underlying_type<ScaleName>::type;
-    e = static_cast<ScaleName>(static_cast<underlying_type>(e) + 1);
-    
     // Wrap-around logic
-    if (e > LOCRIAN) {
+    if (e == LOCRIAN) {
         e = MAJOR;
     }
-    
+    else{
+        e = static_cast<ScaleName>(static_cast<uint8_t>(e) + 1);
+    }
     return e;
 }
 ScaleName operator++(ScaleName& e, int) {
@@ -143,14 +143,12 @@ ScaleName operator++(ScaleName& e, int) {
 
 // Define a free-standing function to overload --
 ScaleName& operator--(ScaleName& e) {
-    using underlying_type = std::underlying_type<ScaleName>::type;
-    e = static_cast<ScaleName>(static_cast<underlying_type>(e) - 1);
-    
-    // Wrap-around logic if necessary
-    if (e < MAJOR) {
-        e = LOCRIAN; // or handle wrap-around as per your logic
+    if (e == MAJOR) {
+        e = LOCRIAN;
     }
-    
+    else{
+        e = static_cast<ScaleName>(static_cast<uint8_t>(e) - 1);
+    }
     return e;
 }
 
@@ -210,7 +208,8 @@ struct Loop{
 
 uint16_t animOffset = 0;//for animating curves
 
-#include "bitmaps.h"            //bitmaps for graphics
+#include "classes/Curve.h"
+#include "graphics/bitmaps.h"            //bitmaps for graphics
 #include "functionPrototypes.h" //function prototypes (eventually these should all be refactored into respective files)
 #include "clock.h"              //timing functions
 #include "global.h"             //program boolean flags and global data, constants

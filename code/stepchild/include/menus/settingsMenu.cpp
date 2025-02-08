@@ -3,6 +3,22 @@
 - system (memory, overclock, temp)
 - display (shrunk, notes/numbers,vel/chance)
 - seq (length,presets (sp, piano, sr16)
+
+rethinking this:
+
+  - hardware
+    - leds, oled brightness, memory
+    - CV on/off, CV voltage limit?
+    - update/enter bootsel
+    - broadcast screen via USB
+  - Sequence
+    - presets
+    - canvas size
+    - display notes/numbers
+    - display vel/chance
+
+  "would you like to save these as default settings?" on exit
+
 */
 
 // 'save', 12x12px

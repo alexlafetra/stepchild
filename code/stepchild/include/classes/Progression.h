@@ -134,7 +134,7 @@ void Progression::drawProg(uint8_t x1, uint8_t y1,int8_t activeChord){
   if(chords.size()==0)
     return;
   uint16_t x2 = x1;
-  uint8_t height = getLargestChordSize()*(chordHeight+1);
+//  uint8_t height = getLargestChordSize()*(chordHeight+1);
   String pitches = "(";
   //go thru each chord
   for(uint8_t i = 0; i<chords.size(); i++){

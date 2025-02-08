@@ -3,10 +3,15 @@
 //the parameter gets modified
 //gets added to notes in the vel modifier channel
 //0 is the global channel
+struct ccChannelValue{
+  uint8_t channel = 0;
+  uint8_t value = 0;
+};
+
 struct GlobalModifiers{
-  int8_t velocity[2] = {0,0};
-  int8_t chance[2] = {0,0};
-  int8_t pitch[2] = {0,0};
+  ccChannelValue velocity;
+  ccChannelValue chance;
+  ccChannelValue pitch;
 };
 
 GlobalModifiers globalModifiers;
@@ -15,20 +20,20 @@ void handleInternalCC(uint8_t ccNumber, uint8_t val, uint8_t channel, uint8_t yP
   switch(ccNumber){
     //velocity
     case 0:
-      globalModifiers.velocity[0] = channel;
-      globalModifiers.velocity[1] = val-63;
+      globalModifiers.velocity.channel = channel;
+      globalModifiers.velocity.value = val-63;
       break;
     //chance
     case 1:
-      globalModifiers.chance[0] = channel;
-      globalModifiers.chance[1] = float(val)/float(127) * 100 - 50;
+      globalModifiers.chance.channel = channel;
+      globalModifiers.chance.value = float(val)/float(127) * 100 - 50;
       break;
     break;
     //track pitch
     case 2:
-      globalModifiers.pitch[0] = channel;
+      globalModifiers.pitch.channel = channel;
       //this can at MOST change the pitch by 2 octaves up or down, so a span of 48 notes
-      globalModifiers.pitch[1] = float(val)/float(127) * 48 - 24;
+      globalModifiers.pitch.value = float(val)/float(127) * 48 - 24;
       break;
     //sequenceClock.BPM
     case 3:

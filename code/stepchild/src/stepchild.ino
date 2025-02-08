@@ -95,7 +95,7 @@ void setup() {
   setNormalMode();
   core0ready = true;
   lastTime = millis();
-  graphics.bootscreen_2();
+  // graphics.bootscreen_2();
   // uint16_t temp = 0;
   // while(temp<10000){
   //   display.clearDisplay();

@@ -420,7 +420,7 @@ void hardReset(){
 //update mode
 void enterBootsel(){
   display.clearDisplay();
-  display.drawBitmap(0,0,childOS,128,64,SSD1306_WHITE);
+  display.drawBitmap(0,0,childOS_bmp,128,64,SSD1306_WHITE);
   display.display();
   reset_usb_boot(1<<PICO_DEFAULT_LED_PIN,0);
 }
@@ -457,10 +457,12 @@ void ledPulse(uint8_t speed){
 }
 
 void testButton(uint8_t bit){
+#ifndef HEADLESS
   do{
     controls.readMainButtons();
   }
   while(!(controls.mainButtonState&(1<<bit)));
+#endif
 }
 
 /*
@@ -523,6 +525,7 @@ void testAllInputs(){
 }
 
 void debugPrintButtons(){
+#ifndef HEADLESS
   Serial.println("-- main buttons --");
   for(uint8_t i = 0; i<8; i++){
     Serial.print((controls.mainButtonState>>i)&1);
@@ -530,5 +533,6 @@ void debugPrintButtons(){
   Serial.println("X:"+stringify(controls.joystickX)+" ("+stringify(analogRead(JOYSTICK_X))+")");
   Serial.println("Y:"+stringify(controls.joystickY)+" ("+stringify(analogRead(JOYSTICK_Y))+")");
   Serial.flush();
+#endif
 }
 

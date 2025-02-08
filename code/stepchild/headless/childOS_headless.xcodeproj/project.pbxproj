@@ -119,20 +119,19 @@
 		FA16CD132CBE003D00329124 /* helperFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helperFunctions.h; sourceTree = "<group>"; };
 		FA16CD142CBE003D00329124 /* internalCC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = internalCC.h; sourceTree = "<group>"; };
 		FA16CD152CBE003D00329124 /* mainSequence.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mainSequence.h; sourceTree = "<group>"; };
-		FA16CD162CBE003D00329124 /* pins.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pins.h; sourceTree = "<group>"; };
 		FA16CD172CBE003D00329124 /* playback.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = playback.h; sourceTree = "<group>"; };
 		FA16CD182CBE003D00329124 /* programChange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = programChange.h; sourceTree = "<group>"; };
 		FA16CD192CBE003D00329124 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		FA16CD1A2CBE003D00329124 /* sequence.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sequence.h; sourceTree = "<group>"; };
 		FA16CD1B2CBE003D00329124 /* sequence.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sequence.cpp; sourceTree = "<group>"; };
 		FA16CD1C2CBE003D00329124 /* sleep.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sleep.h; sourceTree = "<group>"; };
-		FA16CD1D2CBE003D00329124 /* stepchild.ino */ = {isa = PBXFileReference; lastKnownFileType = text; path = stepchild.ino; sourceTree = "<group>"; };
 		FA16CD1E2CBE003D00329124 /* stepchildGUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stepchildGUI.h; sourceTree = "<group>"; };
 		FA16CD1F2CBE003D00329124 /* StepchildMIDI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StepchildMIDI.h; sourceTree = "<group>"; };
 		FA16CD202CBE003D00329124 /* TBA_Features.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TBA_Features.h; sourceTree = "<group>"; };
 		FA16CD212CBE003D00329124 /* trackEditing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = trackEditing.h; sourceTree = "<group>"; };
 		FA16CD222CBE003D00329124 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		FA16CD232CBE003D00329124 /* webInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = webInterface.h; sourceTree = "<group>"; };
+		FA1852DD2D53413A00979694 /* stepchild.ino */ = {isa = PBXFileReference; lastKnownFileType = text; path = stepchild.ino; sourceTree = "<group>"; };
 		FA3C21892AD4DBB8004634E6 /* RtMidi.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = "childOS_headless/rtmidi-6.0.0/RtMidi.cpp"; sourceTree = "<group>"; };
 		FA3C218B2AD4DBC8004634E6 /* RtMidi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = "childOS_headless/rtmidi-6.0.0/RtMidi.h"; sourceTree = "<group>"; };
 		FA3C21922AD4E009004634E6 /* libtool */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = libtool; sourceTree = "<group>"; };
@@ -512,14 +511,12 @@
 				FA16CD132CBE003D00329124 /* helperFunctions.h */,
 				FA16CD142CBE003D00329124 /* internalCC.h */,
 				FA16CD152CBE003D00329124 /* mainSequence.h */,
-				FA16CD162CBE003D00329124 /* pins.h */,
 				FA16CD172CBE003D00329124 /* playback.h */,
 				FA16CD182CBE003D00329124 /* programChange.h */,
 				FA16CD192CBE003D00329124 /* README */,
 				FA16CD1A2CBE003D00329124 /* sequence.h */,
 				FA16CD1B2CBE003D00329124 /* sequence.cpp */,
 				FA16CD1C2CBE003D00329124 /* sleep.h */,
-				FA16CD1D2CBE003D00329124 /* stepchild.ino */,
 				FA16CD1E2CBE003D00329124 /* stepchildGUI.h */,
 				FA16CD1F2CBE003D00329124 /* StepchildMIDI.h */,
 				FA16CD202CBE003D00329124 /* TBA_Features.h */,
@@ -529,6 +526,15 @@
 			);
 			name = include;
 			path = ../include;
+			sourceTree = SOURCE_ROOT;
+		};
+		FA1852DE2D53413A00979694 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				FA1852DD2D53413A00979694 /* stepchild.ino */,
+			);
+			name = src;
+			path = ../src;
 			sourceTree = SOURCE_ROOT;
 		};
 		FA3C21912AD4E009004634E6 /* rtmidi-6.0.0 */ = {
@@ -1210,6 +1216,7 @@
 				FAA06AFC29942167004BEC01 /* childOS_headless */,
 				FAA06AFB29942167004BEC01 /* Products */,
 				FAA06B04299423D4004BEC01 /* Frameworks */,
+				FA1852DE2D53413A00979694 /* src */,
 			);
 			sourceTree = "<group>";
 		};

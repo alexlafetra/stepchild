@@ -178,17 +178,18 @@ void selectAll() {
 
 void selectBox(){
   if(selBox.coords.start.x>selBox.coords.end.x){
-    unsigned short int x1_old = selBox.coords.start.x;
+    Timestep x1_old = selBox.coords.start.x;
     selBox.coords.start.x = selBox.coords.end.x;
     selBox.coords.end.x = x1_old;
   }
   if(selBox.coords.start.y>selBox.coords.end.y){
-    unsigned short int y1_old = selBox.coords.start.y;
+    Timestep y1_old = selBox.coords.start.y;
     selBox.coords.start.y = selBox.coords.end.y;
     selBox.coords.end.y = y1_old;
   }
-  for(int track = selBox.coords.start.y; track<=selBox.coords.end.y; track++){
-    for(int time = selBox.coords.start.x; time<selBox.coords.end.x; time++){//< and not <= so it doesn't grab trailing notes
+  for(uint16_t track = selBox.coords.start.y; track<=selBox.coords.end.y; track++){
+    // < and not <= so it doesn't grab trailing notes
+    for(Timestep time = selBox.coords.start.x; time<selBox.coords.end.x; time++){
       if(sequence.lookupTable[track][time] != 0){
         //this is a little inconsistent with how select usually works, but it allows whatever's in the box to DEFINITELY be selected.
         //it makes sense (a little) because it seems rare that you would ever need to deselect notes using the box

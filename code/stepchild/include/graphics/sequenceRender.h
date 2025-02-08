@@ -32,7 +32,7 @@ struct SequenceRenderSettings{
         drawLoopPoints = true;
         trackSelection = false;
         shrinkTopDisplay = sequence.shrinkTopDisplay;
-        maxTracksShown = sequence.maxTracksShown;
+        maxTracksShown = 6;
         startHeight = headerHeight;
         drawLoopFlags = true;
         drawTrackChannel = controls.SHIFT();
@@ -120,7 +120,7 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
   //drawing the measure bars
   for (uint16_t step = settings.start; step < settings.end; step++) {
     unsigned short int x1 = trackDisplay+int((step-settings.start)*sequence.viewScale);
-    unsigned short int x2 = x1 + (step-settings.start)*sequence.viewScale;
+//    unsigned short int x2 = x1 + (step-settings.start)*sequence.viewScale;
 
     //shade everything outside the loop
     if(settings.shadeOutsideLoop){
@@ -248,7 +248,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
   uint8_t x1 = 32;
   //rec/play icon
   if(sequence.recording()){
-    if(clockSource == EXTERNAL_CLOCK && !gotClock){
+    if(sequenceClock.clockSource == EXTERNAL_CLOCK && !sequenceClock.receivedClockMessage){
       if(waitingToReceiveANote){
         if(millis()%1000>500){
           display.drawCircle(trackDisplay+3,3,3,SSD1306_WHITE);
@@ -257,7 +257,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
       else
         display.drawCircle(trackDisplay+3,3,3,SSD1306_WHITE);
     }
-    else if((clockSource == EXTERNAL_CLOCK && gotClock) || clockSource == INTERNAL_CLOCK){
+    else if((sequenceClock.clockSource == EXTERNAL_CLOCK && sequenceClock.receivedClockMessage) || sequenceClock.clockSource == INTERNAL_CLOCK){
       if(waitingToReceiveANote){
         if(millis()%1000>500){
           display.fillCircle(trackDisplay+3,3,3,SSD1306_WHITE);
@@ -488,21 +488,32 @@ void drawNote(Note& note, uint8_t track, SequenceRenderSettings& settings){
   drawNote(note, track, getNoteCoords(note,track,settings), settings);
 }
 
-//this function is a mess!
+//this function is a mess! especially the shrinktopdisplay logic
 void drawSeq(SequenceRenderSettings& settings){
+
+  //loading in the settings for the shrunk top display
   if(settings.shrinkTopDisplay){
     settings.startHeight = 8;
     settings.drawLoopFlags = false;
-    settings.maxTracksShown = sequence.maxTracksShown+1;
+    settings.maxTracksShown = 6;
   }
+  //calc track height
+  trackHeight = (screenHeight-settings.startHeight)/settings.maxTracksShown;
 
-  trackHeight = (screenHeight-settings.startHeight)/settings.maxTracksShown;//calc track height
-
+  //if there are more tracks than you're going to draw (typically the case), figure out which to draw
   if(sequence.trackData.size()>settings.maxTracksShown){
-    sequence.endTrack = sequence.startTrack + settings.maxTracksShown;
+    //if you're already looking at the last track, lower your start track
+    if(sequence.endTrack == sequence.trackData.size()){
+        sequence.startTrack = sequence.endTrack-settings.maxTracksShown;
+    }
+    //if not, then increase your end track
+    else{
+        sequence.endTrack = sequence.startTrack + settings.maxTracksShown;
+    }
+    //if the active track is beyond the end track
     if(sequence.activeTrack>=sequence.endTrack){
-      sequence.endTrack = sequence.activeTrack+1;
-      sequence.startTrack = sequence.endTrack-settings.maxTracksShown;
+      sequence.endTrack = sequence.activeTrack;
+      sequence.startTrack = sequence.endTrack-settings.maxTracksShown+1;
     }
     else if(sequence.activeTrack<sequence.startTrack){
       sequence.startTrack = sequence.activeTrack;
@@ -516,13 +527,14 @@ void drawSeq(SequenceRenderSettings& settings){
   if(selBox.begun){
       selBox.render(settings);
   }
-  uint8_t height;
-  if(sequence.endTrack == sequence.trackData.size())
-      height = settings.startHeight+trackHeight*settings.maxTracksShown;
-  else if(sequence.trackData.size()>settings.maxTracksShown)
-      height = settings.startHeight+trackHeight*(settings.maxTracksShown+1);
-  else
-      height = settings.startHeight+trackHeight*sequence.trackData.size();
+  //calculating height
+  uint8_t height = settings.startHeight+trackHeight*settings.maxTracksShown;
+  // if(sequence.endTrack == sequence.trackData.size())
+  //     height = settings.startHeight+trackHeight*settings.maxTracksShown;
+  // else if(sequence.trackData.size()>settings.maxTracksShown)
+  //     height = settings.startHeight+trackHeight*(settings.maxTracksShown+1);
+  // else
+  //     height = settings.startHeight+trackHeight*sequence.trackData.size();
 
   //drawing measure bars, loop points
   drawSeqBackground(settings, height);
@@ -533,8 +545,8 @@ void drawSeq(SequenceRenderSettings& settings){
       if(cPos>127)
           cPos = 126;
       if(sequence.endTrack == sequence.trackData.size()){
-          display.drawFastVLine(cPos, settings.startHeight, (sequence.endTrack-sequence.startTrack)*trackHeight, SSD1306_WHITE);
-          display.drawFastVLine(cPos+1, settings.startHeight, (sequence.endTrack-sequence.startTrack)*trackHeight, SSD1306_WHITE);
+          display.drawFastVLine(cPos, settings.startHeight, height, SSD1306_WHITE);
+          display.drawFastVLine(cPos+1, settings.startHeight, height, SSD1306_WHITE);
       }
       else{
           display.drawFastVLine(cPos, settings.startHeight, screenHeight-settings.startHeight, SSD1306_WHITE);
@@ -550,14 +562,12 @@ void drawSeq(SequenceRenderSettings& settings){
 
   //top and bottom bounds
   if(sequence.startTrack == 0){
-      display.drawFastHLine(trackDisplay,settings.startHeight,screenWidth,SSD1306_WHITE);
+    display.drawFastHLine(trackDisplay,settings.startHeight,screenWidth,SSD1306_WHITE);
   }
   //if the bottom is in view
   if(sequence.endTrack == sequence.trackData.size()){
     display.drawFastHLine(trackDisplay,settings.startHeight+trackHeight*settings.maxTracksShown,screenWidth,SSD1306_WHITE);
   }
-  else if(sequence.endTrack < sequence.trackData.size())
-    sequence.endTrack++;
   //drawin all da steps
   //---------------------------------------------------
   for(uint8_t track = sequence.startTrack; track < sequence.endTrack; track++) {
@@ -602,7 +612,7 @@ void drawSeq(SequenceRenderSettings& settings){
           continue;
         }
         else{
-          display.fillRect(0,y1,trackDisplay,trackHeight,2);
+          display.fillRect(0,y1+1,trackDisplay,trackHeight,2);
         }
       }
       //if the track is muted, just hatch it out (don't draw any notes)

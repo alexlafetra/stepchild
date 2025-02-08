@@ -59,8 +59,10 @@ class StepchildSequence{
   uint16_t viewEnd = 192;
   bool shrinkTopDisplay = false;
   uint8_t maxTracksShown = 5;
-  uint8_t startTrack = 0;
-  uint8_t endTrack = 4;
+  // uint8_t startTrack = 0;
+  // uint8_t endTrack = 4;
+  uint16_t startTrack = 0;
+  uint16_t endTrack = 5;
   float viewScale = 0.5;
 
   uint8_t subDivision = 24;

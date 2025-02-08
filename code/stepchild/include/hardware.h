@@ -459,7 +459,7 @@ class StepchildHardware{
     this->readButtons();
     this->readStepButtonState();
     this->readJoystick();
-    return ((this->mainButtonState&~0b0000000000) || this->joystickX || this->joystickY || this->stepButtonState);
+    return ((this->mainButtonState&~0b1100000000) || this->joystickX || this->joystickY || this->stepButtonState);
   }
 
   /*

@@ -24,8 +24,8 @@ void playNote(Note& note, uint8_t track, uint16_t timestep){
 
       //global mods
       //adjusting chance
-      if(sequence.trackData[track].channel == globalModifiers.chance[0] || globalModifiers.chance[0] == 0){
-        chance += globalModifiers.chance[1];
+      if(sequence.trackData[track].channel == globalModifiers.chance.channel || globalModifiers.chance.channel == 0){
+        chance += globalModifiers.chance.value;
         if(chance<0)
           chance = 0;
         else if(chance>100)
@@ -33,8 +33,8 @@ void playNote(Note& note, uint8_t track, uint16_t timestep){
       }
 
       //adjusting pitch
-      if(sequence.trackData[track].channel == globalModifiers.pitch[0] || globalModifiers.pitch[0] == 0){ 
-        pitch += globalModifiers.pitch[1];
+      if(sequence.trackData[track].channel == globalModifiers.pitch.channel || globalModifiers.pitch.channel == 0){ 
+        pitch += globalModifiers.pitch.value;
         if(pitch<0)
           pitch = 0;
         else if(pitch>127)
@@ -42,8 +42,8 @@ void playNote(Note& note, uint8_t track, uint16_t timestep){
       }
 
       //adjusting vel
-      if(sequence.trackData[track].channel == globalModifiers.velocity[0] || globalModifiers.velocity[0] == 0){
-        vel += globalModifiers.velocity[1];
+      if(sequence.trackData[track].channel == globalModifiers.velocity.channel || globalModifiers.velocity.channel == 0){
+        vel += globalModifiers.velocity.value;
         if(vel<0)
           vel = 0;
         else if(vel>127)
@@ -101,7 +101,7 @@ void playTrack(uint8_t track, uint16_t timestep){
 
 void playDT(uint8_t dt, uint16_t timestep){
   //normal Autotracks that use the global timestep
-  if(sequence.autotrackData[dt].triggerSource == global){
+  if(sequence.autotrackData[dt].triggerSource == GLOBAL_TRIGGER){
     if(sequence.autotrackData[dt].isActive){
       sequence.autotrackData[dt].sendData(timestep);
     }
@@ -323,7 +323,7 @@ void handleStop_playing(){
 }
 
 void handleClock_playing(){
-  gotClock = true;
+  sequenceClock.receivedClockMessage = true;
 }
 
 void handleStart_playing(){
@@ -332,7 +332,7 @@ void handleStart_playing(){
 }
 
 void handleClock_recording(){
-  gotClock = true;
+  sequenceClock.receivedClockMessage = true;
 }
 
 void handleStart_recording(){
@@ -420,7 +420,7 @@ void handleNoteOff_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
 }
 
 void handleStart_Normal(){
-  if(clockSource == EXTERNAL_CLOCK){
+  if(sequenceClock.clockSource == EXTERNAL_CLOCK){
     if(!sequence.playing() && !sequence.recording()){
       togglePlayMode();
     }
@@ -428,7 +428,7 @@ void handleStart_Normal(){
 }
 
 void handleStop_Normal(){
-  if(clockSource == EXTERNAL_CLOCK){
+  if(sequenceClock.clockSource == EXTERNAL_CLOCK){
     if(sequence.playing()){
       togglePlayMode();
     }
@@ -506,7 +506,7 @@ void cleanupRecording(uint16_t stopTime){
 //runs while "recording" is true
 void recordingLoop(){
   MIDI.read();
-  if(clockSource == INTERNAL_CLOCK){
+  if(sequenceClock.clockSource == INTERNAL_CLOCK){
     if(sequenceClock.hasItBeenEnoughTime(sequence.recheadPos)){
       sequenceClock.timeLastStepPlayed = micros();
       checkAutotracks();
@@ -519,9 +519,9 @@ void recordingLoop(){
       }
     }
   }
-  else if(clockSource == EXTERNAL_CLOCK){
-    if(gotClock && hasStarted){
-      gotClock = false;
+  else if(sequenceClock.clockSource == EXTERNAL_CLOCK){
+    if(sequenceClock.receivedClockMessage && hasStarted){
+      sequenceClock.receivedClockMessage = false;
       continueStep(sequence.recheadPos);
       sequence.recheadPos++;
       checkLoop();
@@ -565,9 +565,9 @@ void togglePlayMode(){
     stop();
     setNormalMode();
     MIDI.sendStop();
-    globalModifiers.velocity[1] = 0;
-    globalModifiers.chance[1] = 0;
-    globalModifiers.pitch[1] = 0;
+    globalModifiers.velocity.value = 0;
+    globalModifiers.chance.value = 0;
+    globalModifiers.pitch.value = 0;
     CV.off();
   }
 }
@@ -669,7 +669,7 @@ void toggleRecordingMode(bool butWait){
 //runs while "playing" is true
 void playingLoop(){
   //internal timing
-  if(clockSource == INTERNAL_CLOCK){
+  if(sequenceClock.clockSource == INTERNAL_CLOCK){
     if(sequenceClock.hasItBeenEnoughTime(sequence.playheadPos)){
       MIDI.sendClock();
       playStep(sequence.playheadPos);
@@ -680,10 +680,10 @@ void playingLoop(){
     }
   }
   //external timing
-  else if(clockSource == EXTERNAL_CLOCK){
+  else if(sequenceClock.clockSource == EXTERNAL_CLOCK){
     MIDI.read();
-    if(gotClock && hasStarted){
-      gotClock = false;
+    if(sequenceClock.receivedClockMessage && hasStarted){
+      sequenceClock.receivedClockMessage = false;
       playStep(sequence.playheadPos);
       sequence.playheadPos += 1;
       checkLoop();

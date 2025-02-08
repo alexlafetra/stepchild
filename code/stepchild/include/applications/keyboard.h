@@ -106,7 +106,6 @@ void drumPadAnimation(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t n
   uint8_t thickness = 4;
   uint8_t rows = 4;
   uint8_t columns = 4;
-  bool pressed;
   uint8_t pad = startPad+numberOfPads-1;
   if(into){
     display.clearDisplay();

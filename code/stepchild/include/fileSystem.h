@@ -114,6 +114,7 @@ void writeSeqFile(String filename){
   File seqFile = LittleFS.open(path,"w");
   if(!seqFile)
     return;
+  
   // return;
   writeFileHeader(seqFile);
   for(FileFormatCode code:sequenceFileHeader){
@@ -363,7 +364,6 @@ void loadSeqFile(String filename){
           uint8_t end[2];
           seqFile.read(start,2);
           seqFile.read(end,2);
-          // seqStart = (uint16_t(start[0])<<8)+uint16_t(start[1]);
           sequence.sequenceLength = (uint16_t(end[0])<<8)+uint16_t(end[1]);
           break;}
         case TRACK_AND_NOTE_DATA:{
@@ -610,7 +610,7 @@ void writeCurrentSettingsToFile(){
         f.write(leds,1);
         break;}
       case CLOCK_SOURCE:{
-        uint8_t clockData[1] = {clockSource};
+        uint8_t clockData[1] = {sequenceClock.clockSource};
         f.write(clockData,1);
         break;}
       case REC_MODE:{
@@ -656,9 +656,9 @@ void loadSavedSettingsFromFile(){
         uint8_t clockData[1];
         f.read(clockData,1);
         if(clockData[0] == 0)
-          clockSource = INTERNAL_CLOCK;
+          sequenceClock.clockSource = INTERNAL_CLOCK;
         else
-          clockSource = EXTERNAL_CLOCK;
+          sequenceClock.clockSource = EXTERNAL_CLOCK;
         break;}
       case REC_MODE:{
         uint8_t playAfterRec[1];

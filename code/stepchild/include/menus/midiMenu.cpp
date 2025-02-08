@@ -204,11 +204,19 @@ class MidiMenu:public StepchildMenu{
       for(uint8_t midiPort = 0; midiPort<5; midiPort++){
         if(midiPort == 0){
           printSmall(xOffset+3+midiPort*16,yOffset,"USB",SSD1306_WHITE);
-          display.drawBitmap(xOffset+midiPort*16,yOffset+6,usb_logo_bmp,17,17,SSD1306_WHITE);
+          if(MIDI.isMuted(0)){
+            display.drawBitmap(xOffset+midiPort*16+3,yOffset+6,usb_logo_muted_bmp,11,16,SSD1306_WHITE);
+          }
+          else{
+            display.drawBitmap(xOffset+midiPort*16+4,yOffset+7,usb_logo_bmp,9,15,SSD1306_WHITE);
+          }
         }
         else{
           printSmall(xOffset+7+midiPort*16,yOffset,stringify(midiPort),SSD1306_WHITE);
-          display.drawBitmap(xOffset+midiPort*16,yOffset+6,MIDI_no_outline_bmp,17,17,SSD1306_WHITE);
+          display.drawBitmap(xOffset+midiPort*16+2,yOffset+8,MIDI.isMuted(midiPort)?MIDI_port_muted_bmp:MIDI_port_bmp,13,13,SSD1306_WHITE);
+        }
+        if(MIDI.isThru(midiPort)){
+          display.drawBitmap(xOffset+midiPort*16+14,yOffset+5,thru_arrow_bmp,4,4,SSD1306_WHITE);
         }
         if(cursor == midiPort)
           graphics.drawArrow(xOffset+midiPort*16+8,yOffset+24+sin(midiPort+millis()/100),3,ARROW_UP,false);
@@ -251,6 +259,9 @@ class MidiMenu:public StepchildMenu{
           }
         }
       }
+      display.setRotation(DISPLAY_SIDEWAYS_R);
+      printSmall(16,0,"chnl filters",1);
+      display.setRotation(DISPLAY_UPRIGHT);
       display.display();
     }
 };

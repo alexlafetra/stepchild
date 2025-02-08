@@ -54,12 +54,16 @@ class StepchildGraphics{
   // #define DOWN 3
   void drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, bool full);
   void drawHighlightArrow(uint8_t pointX,uint8_t pointY, uint8_t size, uint8_t direction);
-  void drawBanner(int8_t x1, int8_t y1, String text);
-  void drawCenteredBanner(int8_t x1, int8_t y1, String text);
+  void drawBanner(uint8_t x1, uint8_t y1, String text);
+  void drawCenteredBanner(uint8_t x1, uint8_t y1, String text);
   //draws a VU meter, where val is the angle of the needle
   void drawVU(int8_t x1, int8_t y1, float val);
   void drawLabel_outline(uint8_t x1, uint8_t y1, String text);
   void drawLabel(uint8_t x1, uint8_t y1, String text, bool wOrB);
+  void drawOutlinedButton(uint8_t x, uint8_t y, String t, bool wOrB);
+  void drawButton(uint8_t x, uint8_t y, String t, bool wOrB);
+  void drawSlider(uint8_t x, uint8_t y, vector<String> &options, uint8_t which);
+  void drawInputIcon(uint8_t x, uint8_t y, String t);
   //Draws a yes/no slider
   void drawSlider(uint8_t x1, uint8_t y1, uint8_t w, uint8_t h, bool state);
   //draws a yes/no slider w/two text labels

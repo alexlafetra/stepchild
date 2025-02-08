@@ -79,7 +79,7 @@ bool xyGrid(){
     display.clearDisplay();
     //rec/play icon
     if(sequence.recording()){
-      if(clockSource == EXTERNAL_CLOCK && !gotClock){
+      if(sequenceClock.clockSource == EXTERNAL_CLOCK && !sequenceClock.receivedClockMessage){
         if(waitingToReceiveANote){
           if(millis()%1000>500){
             display.drawCircle(3,3,3,SSD1306_WHITE);
@@ -88,7 +88,7 @@ bool xyGrid(){
         else
           display.drawCircle(3,3,3,SSD1306_WHITE);
       }
-      else if((clockSource == EXTERNAL_CLOCK && gotClock) || clockSource == INTERNAL_CLOCK){
+      else if((sequenceClock.clockSource == EXTERNAL_CLOCK && sequenceClock.receivedClockMessage) || sequenceClock.clockSource == INTERNAL_CLOCK){
         if(waitingToReceiveANote){
           if(millis()%1000>500){
             display.fillCircle(3,3,3,SSD1306_WHITE);
@@ -99,7 +99,7 @@ bool xyGrid(){
       }
     }
     else if(sequence.playing()){
-      if(clockSource == EXTERNAL_CLOCK && !gotClock){
+      if(sequenceClock.clockSource == EXTERNAL_CLOCK && !sequenceClock.receivedClockMessage){
         display.drawTriangle(0,6,0,0,6,3,SSD1306_WHITE);
       }
       else{
@@ -124,16 +124,22 @@ bool xyGrid(){
     //printing values
     printSmall(40,57,"<"+stringify(channelX)+">",SSD1306_WHITE);
     display.setRotation(1);
+    printSmall(0,10,"[Sh] to lock axis",1);
     printSmall(7,34,"<"+stringify(channelY)+">",SSD1306_WHITE);
-    display.drawBitmap(8,26,ch_tiny,6,3,1);
+    display.drawBitmap(11,25,ch_tiny,6,3,1);
     display.setRotation(DISPLAY_UPRIGHT);
+    display.fillCircle(26,59,4,1);
+    printSmall(25,57,"A",0);
 
     //printing controller numbers
     printSmall(81-stringify(controlX).length()*4,2,"<"+stringify(controlX)+">",SSD1306_WHITE);
     display.setRotation(3);
-    display.drawBitmap(8,26,cc_tiny,5,3,1);
+    display.drawBitmap(12,25,cc_tiny,5,3,1);
     printSmall(7,34,"<"+stringify(controlY)+">",SSD1306_WHITE);
     display.setRotation(DISPLAY_UPRIGHT);
+    display.fillCircle(101,5,4,1);
+    printSmall(100,3,"B",0);
+
 
     //x and y
     display.setFont(&FreeSerifItalic24pt7b);

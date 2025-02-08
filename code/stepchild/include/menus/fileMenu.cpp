@@ -29,11 +29,11 @@ void FileMenu::fileAnimation(bool in){
     cursor = -1;
     int xDistance = screenWidth-coords.start.x;//how far the display is gonna need to slide over
     int width = coords.end.x - coords.start.x;
-    for(int i = 0; i< xDistance; i+=10){
+    for(uint16_t i = 0; i< xDistance; i+=1){
       //this literally just shifts where the menu is over and over again
       coords.start.x = screenWidth-i;
       coords.end.x = coords.start.x + width;
-      displayMenu(20-i/10,false);
+      displayMenu(20-i/20,false);
     }
     cursor = 0;
     display.drawBitmap(0,0,folder_open_bmp,24,26,SSD1306_WHITE);
@@ -42,11 +42,11 @@ void FileMenu::fileAnimation(bool in){
     cursor = -1;
     int xDistance = screenWidth-coords.start.x;//how far the display is gonna need to slide over
     int width = coords.end.x - coords.start.x;
-    for(int i = xDistance; i> 0; i-=10){
+    for(uint16_t i = xDistance; i> 0; i-=1){
       //this literally just shifts where the menu is over and over again
       coords.start.x = screenWidth-i;
       coords.end.x = coords.start.x + width;
-      displayMenu(20-i/10,false);
+      displayMenu(20-i/20,false);
     }
     cursor = 0;
   }
@@ -135,8 +135,9 @@ bool FileMenu::fileMenuControls_miniMenu(){
         case 4:
         {
           String filename = filenames[page];
-          if(deleteSeqFile(filename));
-          filenames = loadFiles();
+          if(deleteSeqFile(filename)){
+            filenames = loadFiles();
+          }
           cursor = page-1;
           page = 0;
           openFolderAnimation(folderWireframe,30);

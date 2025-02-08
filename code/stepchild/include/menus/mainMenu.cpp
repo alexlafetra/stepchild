@@ -3,6 +3,9 @@ class MainMenu:public StepchildMenu{
     WireFrame icon;
     uint8_t wireFrameID;
     bool renderWireframes = false;
+    //set this to false if a submenu needs to jump right back
+    //to the main seq (used by FX menu after you use an FX)
+    bool shouldSlideOut = true;
     SequenceRenderSettings settings;
     MainMenu(){
       coords = CoordinatePair(25,1,93,64);
@@ -183,7 +186,6 @@ bool MainMenu::mainMenuControls(){
     if(controls.MENU()){
       lastTime = millis();
       renderWireframes = false;
-      slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
       return false;
     }
     if(controls.LOOP()){
@@ -206,14 +208,18 @@ bool MainMenu::mainMenuControls(){
         case 0:
           renderWireframes = false;
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
-          autotrackViewer();
-          return false;
+          autotrackMenu();
+          slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          renderWireframes = true;
+          break;
         //loop
         case 1:
           renderWireframes = false;
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           loopMenu();
-          return false;
+          slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          renderWireframes = true;
+          break;
         //keys
         case 2:
           renderWireframes = false;
@@ -244,6 +250,7 @@ bool MainMenu::mainMenuControls(){
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           switch(fxMenu()){
             case BACK_TO_MAIN_SEQUENCE:
+              shouldSlideOut = false;
               return false;
             default:
               renderWireframes = true;
@@ -260,7 +267,8 @@ bool MainMenu::mainMenuControls(){
         case 7:
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           PCEditor();
-          return false;
+          slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          break;
         //midi
         case 8:
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
@@ -358,7 +366,7 @@ void MainMenu::displayMenu(){
 
   //drawing menu box (+16 so the title is transparent)
   display.fillRect(coords.start.x,coords.start.y+12, coords.end.x-coords.start.x, coords.end.y-coords.start.y, SSD1306_BLACK);
-  display.drawRect(coords.start.x,coords.start.y+12, coords.end.x-coords.start.x, coords.end.y-coords.start.y-12, SSD1306_WHITE);
+  display.drawRoundRect(coords.start.x,coords.start.y+12, coords.end.x-coords.start.x, coords.end.y-coords.start.y-12, 3, SSD1306_WHITE);
 
   //if the title will be on screen
   if(coords.start.x+coords.start.y-1<screenWidth){
@@ -402,12 +410,11 @@ void mainMenu(){
   MainMenu mainMenu;
   mainMenu.slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
   mainMenu.renderWireframes = true;
-  while(true){
-    if(!mainMenu.mainMenuControls())
-      break;
+  while(mainMenu.mainMenuControls()){
     mainMenu.updateMainMenuWireFrame();
     mainMenu.displayMenu();
   }
+  if(mainMenu.shouldSlideOut)
+    mainMenu.slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
   // mainMenu.renderWireframes = false;
-  // mainMenu.slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
 }

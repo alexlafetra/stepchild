@@ -28,8 +28,6 @@ void NoteEditMenu::displayMenu(){
   display.clearDisplay();
   drawSeq(settings);
 
-  unsigned short int menuHeight = abs(coords.end.y-coords.start.y);
-
   if(!editingNote){
     //pencil
     if(controls.SHIFT()){

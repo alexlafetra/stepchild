@@ -1,3 +1,59 @@
+/*
+
+  Code for the stepchild's inputs and pin defs
+
+*/
+
+/*
+--------------------------------------
+          Pin Definitions
+--------------------------------------
+*/
+
+//MIDI I/O
+#define MIDI_OUT_1 0
+#define MIDI_IN 1
+#define MIDI_OUT_4 2
+#define MIDI_OUT_3 3
+#define MIDI_OUT_2 4
+
+//CV Outputs
+#define CV4_PIN 17
+#define CV3_PIN 5
+#define CV2_PIN 6
+#define CV1_PIN 15
+
+//I2C bus for the MCP23017's
+#define I2C_SDA 8
+#define I2C_SCL 9
+
+//SPI Bus for the screen
+#define SPI1_RX 12
+#define SPI1_TX 11
+#define OLED_CS 13
+#define OLED_DC 16
+#define OLED_RESET 7
+#define SPI1_SCK 10
+
+//Encoders (these are hardware interrupts on the Pico)
+#define B_CLOCK 19
+#define B_DATA 18
+#define A_CLOCK 22
+#define A_DATA 21
+
+//Joystick
+#define JOYSTICK_X 27
+#define JOYSTICK_Y 26
+
+//Misc. Hardware (These are onboard pins)
+#define VOLTAGE_PIN 29
+#define USB_PIN 24
+#define ONBOARD_LED 25
+
+//Extra GPIO Access
+#define AUX_GPIO 20
+#define AUX_ADC 28
+
 #define PICO_DEFAULT_LED_PIN 0
 
 //buttons/inputs
@@ -13,6 +69,8 @@
 #define PLAY_BUTTON 2
 #define COPY_BUTTON 1
 #define MENU_BUTTON 0
+#define A_BUTTON 8
+#define B_BUTTON 9
 
 class DummyLowerBoard{
   public:
@@ -95,6 +153,7 @@ class HeadlessHardwareInput{
   uint8_t encoderButtons = 0;
   int8_t joystickX = 0;
   int8_t joystickY = 0;
+    bool LEDsActive = true;
   DummyLowerBoard lowerBoard;
   HeadlessHardwareInput(){}
   void init(){}
@@ -109,7 +168,7 @@ class HeadlessHardwareInput{
   void readStepButtons(){
     //Headless mode condition isn't needed! The headless lower board class
     //Has a fallback
-    if(LEDsOn)
+    if(LEDsActive)
       this->stepButtons = this->lowerBoard.readButtons();
     else
       this->stepButtons = 0;
@@ -300,42 +359,42 @@ class HeadlessHardwareInput{
 };
 
 HeadlessHardwareInput controls;
-
-//update mode
-void enterBootsel(){
-  display.clearDisplay();
-  display.drawBitmap(0,0,childOS,128,64,SSD1306_WHITE);
-  display.display();
-  reset_usb_boot(1<<PICO_DEFAULT_LED_PIN,0);
-}
-
-bool isConnectedToUSBPower(){
-  return digitalRead(USB_PIN);
-}
-
-#define BATTSCALE 0.00966796875
-//3.0*3.3/1024.0;
-//idk why ^^this isn't 4095.0, but it ain't
-
-float getBattLevel(){
-  //So when USB is in, VSYS is ~5.0
-  //When all 3AA's are in, if they're 1.5v batts VSYS is ~4.5
-  //But if they're 1.2v batts VSYS is ~3.6;
-  float val = float(analogRead(VOLTAGE_PIN))*BATTSCALE;
-  return val;
-}
-
-void maxCurrentDrawTest(){
-  controls.writeLEDs(0b1111111111111111);
-  display.fillRect(0,0,128,64,1);
-  display.display();
-  while(true){
-  }
-}
-
-//pulses the onboard LED
-void ledPulse(uint8_t speed){
-  //use abs() so that it counts DOWN when millis() overflows into the negatives
-  //Multiply by 4 so that it's 'saturated' for a while --> goes on, waits, then pulses
-  analogWrite(ONBOARD_LED,4*abs(int8_t(millis()/speed)));
-}
+//
+////update mode
+//void enterBootsel(){
+//  display.clearDisplay();
+//  display.drawBitmap(0,0,childOS,128,64,SSD1306_WHITE);
+//  display.display();
+//  reset_usb_boot(1<<PICO_DEFAULT_LED_PIN,0);
+//}
+//
+//bool isConnectedToUSBPower(){
+//  return digitalRead(USB_PIN);
+//}
+//
+//#define BATTSCALE 0.00966796875
+////3.0*3.3/1024.0;
+////idk why ^^this isn't 4095.0, but it ain't
+//
+//float getBattLevel(){
+//  //So when USB is in, VSYS is ~5.0
+//  //When all 3AA's are in, if they're 1.5v batts VSYS is ~4.5
+//  //But if they're 1.2v batts VSYS is ~3.6;
+//  float val = float(analogRead(VOLTAGE_PIN))*BATTSCALE;
+//  return val;
+//}
+//
+//void maxCurrentDrawTest(){
+//  controls.writeLEDs(0b1111111111111111);
+//  display.fillRect(0,0,128,64,1);
+//  display.display();
+//  while(true){
+//  }
+//}
+//
+////pulses the onboard LED
+//void ledPulse(uint8_t speed){
+//  //use abs() so that it counts DOWN when millis() overflows into the negatives
+//  //Multiply by 4 so that it's 'saturated' for a while --> goes on, waits, then pulses
+//  analogWrite(ONBOARD_LED,4*abs(int8_t(millis()/speed)));
+//}

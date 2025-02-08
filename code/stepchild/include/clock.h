@@ -1,8 +1,13 @@
+enum ClockSource:uint8_t{
+    INTERNAL_CLOCK,
+    EXTERNAL_CLOCK
+};
 //Encapsulates all the special timing functions!
-
 class StepchildClock{
     public:
 
+    ClockSource clockSource = INTERNAL_CLOCK;
+    bool receivedClockMessage = false;
     bool isSwinging = false;
     int32_t swingAmplitude = 4000;
     uint16_t swingSubDiv = 96;
@@ -13,10 +18,10 @@ class StepchildClock{
     //==> ~4295 S
     //==> ~71 hours
     uint32_t uSecPerStep = 20833;//length of a timestep in uSeconds (corresponds to bpm), rounded to nearest uS
-    uint32_t timeLastStepPlayed;//stores the time in uSeconds of the last timing fn call
-    uint32_t startTime;//stores uS since playing/recording started
+    uint32_t timeLastStepPlayed = 0;//stores the time in uSeconds of the last timing fn call
+    uint32_t startTime = 0;//stores uS since playing/recording started
 
-    int32_t offBy;//Stores the amount of uSeconds that the last step over/undershot by
+    int32_t offBy = 0;//Stores the amount of uSeconds that the last step over/undershot by
 
     StepchildClock(){}
 

@@ -44,7 +44,7 @@ void Vertex::render(uint8_t xOffset,uint8_t yOffset, float scale, uint8_t size, 
 
 //multiplies a vertex by a transformation matrix
 void Vertex::coordTransform(vector<vector<float>> transformer){
-  float x1,y1,z1;
+  float x1 = 0, y1 = 0, z1 = 0;
   if(transformer.size() == 3){
     //multiplying columns
     for(uint8_t a = 0; a<3; a++){

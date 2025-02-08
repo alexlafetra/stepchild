@@ -83,7 +83,7 @@ void enterDeepSleepMode(){
 void screenSaver_cassette(){
   WireFrame cassette = makeCassette();
   cassette.scale = 4;
-  uint8_t rotationAmount = 0;
+  uint16_t rotationAmount = 0;
   bool done = false;
   while(true){
     display.clearDisplay();
@@ -140,7 +140,7 @@ void screenSaver_ripples(){
     }
     else
       animOffset+=6;
-    if(animOffset>=(8*spacing*maxReps/3+8*32+58)){
+    if(animOffset>=(8*spacing*maxReps/3+8*32+108)){
       animOffset = 0;
       done = true;
     }
@@ -184,7 +184,6 @@ void screenSaver_moon(){
 }
 
 void screenSaver_template(){
-  bool done = false;
   //loop that runs while the screensaver is active
   while(true){
     display.clearDisplay();
@@ -202,7 +201,6 @@ void screenSaver_template(){
 }
 
 void screenSaver_die(){
-  bool done = false;
   WireFrame cube = makeCube(20);
   cube.xPos = 64;
   cube.yPos = 32;
@@ -299,7 +297,6 @@ void screenSaver_droplets(){
 }
 
 void screenSaver_keys(){
-  bool done = true;
   //loop that runs while the screensaver is active
   while(true){
     display.clearDisplay();

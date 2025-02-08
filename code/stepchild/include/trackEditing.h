@@ -9,10 +9,8 @@ void disarmTracksWithNotes(){
 
 vector<uint8_t> selectMultipleTracks(String text){
   //clearing out the selected tracks
-  for(int i = 0; i<sequence.trackData.size(); i++){
-    if(sequence.trackData[i].isSelected()){
-      sequence.trackData[i].setSelected(false);
-    }
+  for(uint8_t i = 0; i<sequence.trackData.size(); i++){
+    sequence.trackData[i].setSelected(false);
   }
   //to hold the id's and return
   vector<uint8_t> selection = {};

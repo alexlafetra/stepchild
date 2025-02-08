@@ -1,6 +1,3 @@
-
-using namespace std;
-
 #define HEADLESS
 
 #include "../../src/stepchild.ino"

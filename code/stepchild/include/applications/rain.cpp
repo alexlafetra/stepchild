@@ -30,7 +30,8 @@ Raindrop::Raindrop(){
   madeSound = false;
 }
 Raindrop::Raindrop(uint8_t xPos, uint8_t maxVel, uint8_t minVel){
-  vel = pow(float(random(float(minVel),float(maxVel))),1.1);
+//  vel = pow(float(random(float(minVel),float(maxVel))),1.1);
+  vel = random(float(minVel),float(maxVel));
   length = vel+3;
   this->x = xPos;
   this->y = -length;//starts so the bottom of the line is on the top pixel of the screen
@@ -169,192 +170,190 @@ bool rain(){
         lastTime = millis();
       }
     }
-    switch(menuState){
-      //messing with the rain as an instrument
-      case 0:
-        //B changes the intensity
-        while(controls.counterB != 0){
-          if(controls.counterB > 0 && stormIntensity<maxIntensity){
-            stormIntensity++;
-            maxDrops++;
-          }
-          else if(controls.counterB < 0 && stormIntensity>1){
-            stormIntensity--;
-            maxDrops--;
-          }
-          controls.counterB += controls.counterB<0?1:-1;;
+    //messing with the rain as an instrument
+    if(!menuState){
+      //B changes the intensity
+      while(controls.counterB != 0){
+        if(controls.counterB > 0 && stormIntensity<maxIntensity){
+          stormIntensity++;
+          maxDrops++;
         }
-        //A changes the width/spread
-        while(controls.counterA != 0){
-          if(controls.SHIFT()){
+        else if(controls.counterB < 0 && stormIntensity>1){
+          stormIntensity--;
+          maxDrops--;
+        }
+        controls.counterB += controls.counterB<0?1:-1;;
+      }
+      //A changes the width/spread
+      while(controls.counterA != 0){
+        if(controls.SHIFT()){
+          if(controls.counterA>0 && startPitch<127){
+            startPitch++;
+          }
+          else if(controls.counterA<0 && startPitch>0){
+            startPitch--;
+          }
+        }
+        else{
+          if(controls.counterA > 0 && xVariance<screenWidth){
+            xVariance+=3;
+          }
+          if(controls.counterA < 0 && xVariance>10){
+            xVariance-=3;
+          }
+        }
+        controls.counterA += controls.counterA<0?1:-1;
+      }
+      //X joystick changes the centerPoint
+      if(controls.joystickX == -1 && xCoord<screenWidth){
+        xCoord+=2;
+        lastTime = millis();
+      }
+      else if(controls.joystickX == 1 && xCoord>0){
+        xCoord-=2;
+        lastTime = millis();
+      }
+      if(utils.itsbeen(200)){
+        if(controls.SHIFT()){
+          lastTime = millis();
+          menuState = !menuState;
+        }
+        if(controls.MENU()){
+          lastTime = millis();
+          menuState = !menuState;
+        }
+      }
+    }
+    //editing the rain parameters
+    else{
+      if(utils.itsbeen(100)){
+        if(controls.joystickX != 0){
+          lastTime = millis();
+          menuState = false;
+        }
+      }
+      switch(cursor){
+          //changing startPitch w/encoders
+        case 0:
+          while(controls.counterA != 0){
             if(controls.counterA>0 && startPitch<127){
               startPitch++;
             }
             else if(controls.counterA<0 && startPitch>0){
               startPitch--;
             }
+            controls.counterA += controls.counterA<0?1:-1;
+          }
+          while(controls.counterB != 0){
+            if(controls.counterB>0 && startPitch<127){
+              startPitch++;
+            }
+            else if(controls.counterB<0 && startPitch>0){
+              startPitch--;
+            }
+            controls.counterB += controls.counterB<0?1:-1;
+          }
+          break;
+          //changing octave range
+        case 1:
+          while(controls.counterB != 0){
+            if(controls.counterB > 0 && maxOct<8){
+              maxOct++;
+            }
+            if(controls.counterB < 0 && maxOct>1){
+              maxOct--;
+            }
+            if(maxOct<minOct){
+              minOct = maxOct-1;
+            }
+            controls.counterB += controls.counterB<0?1:-1;
+          }
+          while(controls.counterA != 0){
+            if(controls.counterA > 0 && minOct<7){
+              minOct++;
+            }
+            if(controls.counterA < 0 && minOct>0){
+              minOct--;
+            }
+            if(minOct>maxOct){
+              maxOct = minOct+1;
+            }
+            controls.counterA += controls.counterA<0?1:-1;
+          }
+          break;
+          //changing velocity range
+        case 2:
+          while(controls.counterB != 0){
+            if(controls.counterB > 0 && maxVel<127){
+              maxVel++;
+            }
+            if(controls.counterB < 0 && maxVel>1){
+              maxVel--;
+            }
+            if(maxVel<minVel){
+              minVel = maxVel-1;
+            }
+            controls.counterB += controls.counterB<0?1:-1;
+          }
+          while(controls.counterA != 0){
+            if(controls.counterA > 0 && minVel<126){
+              minVel++;
+            }
+            if(controls.counterA < 0 && minVel>0){
+              minVel--;
+            }
+            if(minVel>maxVel){
+              maxVel = minVel+1;
+            }
+            controls.counterA += controls.counterA<0?1:-1;
+          }
+          break;
+      }
+      if(utils.itsbeen(100)){
+        if(controls.joystickY != 0){
+          if(controls.joystickY == 1 && cursor<5){
+            cursor++;
+            lastTime = millis();
+          }
+          else if(controls.joystickY == -1 && cursor>0){
+            cursor--;
+            lastTime = millis();
+          }
+        }
+      }
+      if(utils.itsbeen(200)){
+        if(controls.SELECT() ){
+          lastTime = millis();
+          switch(cursor){
+            case 0:
+              pitchList = selectKeys(startPitch);
+              lastTime = millis();
+              break;
+            case 1:
+              break;
+            case 2:
+              break;
+            case 3:
+              grabNotesFromPlaylist = !grabNotesFromPlaylist;
+              break;
+            case 4:
+              showingText = !showingText;
+              break;
+            case 5:
+              return true;
+          }
+        }
+        if(controls.MENU()){
+          if(menuState && cursor != 5){
+            cursor = 5;
+            lastTime = millis();
           }
           else{
-            if(controls.counterA > 0 && xVariance<screenWidth){
-              xVariance+=3;
-            }
-            if(controls.counterA < 0 && xVariance>10){
-              xVariance-=3;
-            }
-          }
-          controls.counterA += controls.counterA<0?1:-1;
-        }
-        //X joystick changes the centerPoint
-        if(controls.joystickX == -1 && xCoord<screenWidth){
-          xCoord+=2;
-          lastTime = millis();
-        }
-        else if(controls.joystickX == 1 && xCoord>0){
-          xCoord-=2;
-          lastTime = millis();
-        }
-        if(utils.itsbeen(200)){
-          if(controls.SHIFT()){
-            lastTime = millis();
-            menuState = !menuState;
-          }
-          if(controls.MENU()){
-            lastTime = millis();
-            menuState = !menuState;
-          }
-        }
-        break;
-      //editing the rain parameters
-      case 1:
-        if(utils.itsbeen(100)){
-          if(controls.joystickX != 0){
-            lastTime = millis();
             menuState = false;
-          }
-        }
-        switch(cursor){
-          //changing startPitch w/encoders
-          case 0:
-            while(controls.counterA != 0){
-              if(controls.counterA>0 && startPitch<127){
-                startPitch++;
-              }
-              else if(controls.counterA<0 && startPitch>0){
-                startPitch--;
-              }
-              controls.counterA += controls.counterA<0?1:-1;
-            }
-            while(controls.counterB != 0){
-              if(controls.counterB>0 && startPitch<127){
-                startPitch++;
-              }
-              else if(controls.counterB<0 && startPitch>0){
-                startPitch--;
-              }
-              controls.counterB += controls.counterB<0?1:-1;
-            }
-            break;
-          //changing octave range
-          case 1:
-            while(controls.counterB != 0){
-              if(controls.counterB > 0 && maxOct<8){
-                maxOct++;
-              }
-              if(controls.counterB < 0 && maxOct>1){
-                maxOct--;
-              }
-              if(maxOct<minOct){
-                minOct = maxOct-1;
-              }
-              controls.counterB += controls.counterB<0?1:-1;
-            }
-            while(controls.counterA != 0){
-              if(controls.counterA > 0 && minOct<7){
-                minOct++;
-              }
-              if(controls.counterA < 0 && minOct>0){
-                minOct--;
-              }
-              if(minOct>maxOct){
-                maxOct = minOct+1;
-              }
-              controls.counterA += controls.counterA<0?1:-1;
-            }
-            break;
-          //changing velocity range
-          case 2:
-            while(controls.counterB != 0){
-              if(controls.counterB > 0 && maxVel<127){
-                maxVel++;
-              }
-              if(controls.counterB < 0 && maxVel>1){
-                maxVel--;
-              }
-              if(maxVel<minVel){
-                minVel = maxVel-1;
-              }
-              controls.counterB += controls.counterB<0?1:-1;
-            }
-            while(controls.counterA != 0){
-              if(controls.counterA > 0 && minVel<126){
-                minVel++;
-              }
-              if(controls.counterA < 0 && minVel>0){
-                minVel--;
-              }
-              if(minVel>maxVel){
-                maxVel = minVel+1;
-              }
-              controls.counterA += controls.counterA<0?1:-1;
-            }
-            break;
-        }
-        if(utils.itsbeen(100)){
-          if(controls.joystickY != 0){
-            if(controls.joystickY == 1 && cursor<5){
-              cursor++;
-              lastTime = millis();
-            }
-            else if(controls.joystickY == -1 && cursor>0){
-              cursor--;
-              lastTime = millis();
-            }
-          }
-        }
-        if(utils.itsbeen(200)){
-          if(controls.SELECT() ){
             lastTime = millis();
-            switch(cursor){
-              case 0:
-                pitchList = selectKeys(startPitch);
-                lastTime = millis();
-                break;
-              case 1:
-                break;
-              case 2:
-                break;
-              case 3:
-                grabNotesFromPlaylist = !grabNotesFromPlaylist;
-                break;
-              case 4:
-                showingText = !showingText;
-                break;
-              case 5:
-                return true;
-            }
-          }
-          if(controls.MENU()){
-            if(menuState && cursor != 5){
-              cursor = 5;
-              lastTime = millis();
-            }
-            else{
-              menuState = false;
-              lastTime = millis();
-            }
           }
         }
-        break;
+      }
     }
     //----------------------------
 
@@ -370,7 +369,6 @@ bool rain(){
     }
     //loop for updating and playing sound from each raindrop
     if(isPlaying){
-      // bool leds[8] = {false,false,false,false,false,false,false,false};
       uint16_t leds = 0;
       for(uint8_t i = 0; i<drops.size(); i++){
         if(!drops[i].update()){

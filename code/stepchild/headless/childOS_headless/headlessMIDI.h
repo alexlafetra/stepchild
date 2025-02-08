@@ -22,7 +22,7 @@ PlayState sequenceState = STOPPED;
 #include <CoreMIDI/CoreMIDI.h>
 #include <CoreFoundation/CoreFoundation.h>
 
-#define __MACOSX_CORE__
+//#define __MACOSX_CORE__
 #include "rtmidi-6.0.0/RtMidi.h"
 
 void handleCC_Normal(uint8_t channel, uint8_t cc, uint8_t value);
@@ -338,12 +338,12 @@ class HeadlessMIDI{
     void setMidiChannel(uint8_t channel, uint8_t output, bool status){
       //for activating, you use OR
       if(status){
-        uint16_t byte = 1 << channel-1;
+        uint16_t byte = 1 << (channel-1);
         this->midiChannelFilters[output] = this->midiChannelFilters[output] | byte;
       }
       //for deactivating, you use AND (and NOT to create the mask)
       else{
-        uint16_t byte = ~(1 << channel-1);
+        uint16_t byte = ~(1 << (channel-1));
         this->midiChannelFilters[output] = this->midiChannelFilters[output] & byte;
       }
     }
