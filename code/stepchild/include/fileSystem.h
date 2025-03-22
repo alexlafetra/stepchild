@@ -181,10 +181,10 @@ void writeSeqFile(String filename){
         uint8_t bpmBytes[2] = {uint8_t(sequenceClock.BPM>>8),uint8_t(sequenceClock.BPM)};
         seqFile.write(bpmBytes,2);
         //swing amount
-        uint8_t swingAmountBytes[2] = {uint8_t(sequenceClock.swingAmplitude>>8),uint8_t(sequenceClock.swingAmplitude)};
+        uint8_t swingAmountBytes[2] = {uint8_t(uint16_t(sequenceClock.swingCurve.amplitude)>>8),uint8_t(uint16_t(sequenceClock.swingCurve.amplitude))};
         seqFile.write(swingAmountBytes,2);
         //swing subDiv
-        uint8_t swingSubDivBytes[2] = {uint8_t(sequenceClock.swingSubDiv>>8),uint8_t(sequenceClock.swingSubDiv)};
+        uint8_t swingSubDivBytes[2] = {uint8_t(sequenceClock.swingCurve.period>>8),uint8_t(sequenceClock.swingCurve.period)};
         seqFile.write(swingSubDivBytes,2);
         //swing on/off
         uint8_t swingByte[1] = {uint8_t(sequenceClock.isSwinging)};
@@ -304,10 +304,10 @@ void writeCurrentSeqToSerial(bool waitForResponse){
         uint8_t bpmBytes[2] = {uint8_t(sequenceClock.BPM>>8),uint8_t(sequenceClock.BPM)};
         writeBytesToSerial(bpmBytes,2);
         //swing amount
-        uint8_t swingAmountBytes[2] = {uint8_t(sequenceClock.swingAmplitude>>8),uint8_t(sequenceClock.swingAmplitude)};
+        uint8_t swingAmountBytes[2] = {uint8_t(sequenceClock.swingCurve.amplitude)>>8,uint8_t(sequenceClock.swingCurve.amplitude)};
         writeBytesToSerial(swingAmountBytes,2);
         //swing subDiv
-        uint8_t swingSubDivBytes[2] = {uint8_t(sequenceClock.swingSubDiv>>8),uint8_t(sequenceClock.swingSubDiv)};
+        uint8_t swingSubDivBytes[2] = {uint8_t(sequenceClock.swingCurve.period>>8),uint8_t(sequenceClock.swingCurve.period)};
         writeBytesToSerial(swingSubDivBytes,2);
         //swing on/off
         uint8_t swingByte[1] = {uint8_t(sequenceClock.isSwinging)};
@@ -459,8 +459,8 @@ void loadSeqFile(String filename){
           seqFile.read(swingSubDivBytes,2);
           seqFile.read(swingByte,1);
           sequenceClock.setBPM(uint16_t(bpmBytes[0]<<8) + uint16_t(bpmBytes[1]));
-          sequenceClock.swingAmplitude = uint16_t(swingAmountBytes[0]<<8) + uint16_t(swingAmountBytes[1]);
-          sequenceClock.swingSubDiv = uint16_t(swingSubDivBytes[0]<<8) + uint16_t(swingSubDivBytes[1]);
+          sequenceClock.swingCurve.amplitude = float(uint16_t(swingAmountBytes[0]<<8) + uint16_t(swingAmountBytes[1]));
+          sequenceClock.swingCurve.period = uint16_t(swingSubDivBytes[0]<<8) + uint16_t(swingSubDivBytes[1]);
           sequenceClock.isSwinging = swingByte[0];
           break;}
         case MIDI_PORT_DATA:{

@@ -106,7 +106,7 @@ void fragmentMenu(){
         }
       }
       if(controls.PLAY()){
-        togglePlayMode();
+        sequence.togglePlay();
         lastTime = millis();
       }
     }

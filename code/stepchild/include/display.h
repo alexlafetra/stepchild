@@ -39,6 +39,15 @@ class USBSerialCaptureCard: public Adafruit_SSD1306{
     //second ridiculous derived constructor (SPI)
     USBSerialCaptureCard(uint8_t w, uint8_t h, SPIClass *spi, int8_t dc_pin,
                    int8_t rst_pin, int8_t cs_pin, uint32_t bitrate = 8000000UL):Adafruit_SSD1306(w,h,spi,dc_pin,rst_pin,cs_pin,bitrate){}
+    void init(){
+      //start display
+      begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR);
+      //Set the display rotation (which is ~technically~ upside down)
+      setRotation(DISPLAY_UPRIGHT);
+      //turn text wrapping off, so our menus look ok
+      setTextWrap(false);
+      setTextColor(SSD1306_WHITE);
+    }
     void writeScreenToSerial(){
       if((millis()-timeLastFrameSent)>minMsDelay){
         Serial.write(getBuffer(),1024);

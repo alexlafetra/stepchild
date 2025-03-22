@@ -14,10 +14,11 @@ class Curve{
     //this is just for the osc-based waveforms
     uint16_t period = 96;
     uint16_t phase = 0;
-    int8_t amplitude = 48;
+    int16_t amplitude = 48;
+
     uint8_t yPos = 64;
     Curve(){}
-    Curve(CurveType t, uint16_t per, uint16_t ph, int8_t a, uint8_t y){
+    Curve(CurveType t, uint16_t per, uint16_t ph, int16_t a, uint8_t y){
         type = t;
         period = per;
         phase = ph;

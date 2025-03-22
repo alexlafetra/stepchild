@@ -37,6 +37,8 @@ class MidiMenu:public StepchildMenu{
     uint8_t filterCursor = 0;
     uint8_t filterMenuStart = 0;
     WireFrame icon;
+    SequenceRenderSettings settings;
+
     //displaying port options
     PortWindow portWindow[5] = {
       PortWindow(Coordinate(0,16)),
@@ -53,8 +55,13 @@ class MidiMenu:public StepchildMenu{
       icon.scale = 2;
       icon.xPos = 12;
       icon.yPos = 8;
+      settings.topLabels = false;
+      settings.drawPram = false;
+      settings.stepSequencerLEDs = false;
     }
-
+    void writeLEDs(){
+      controls.writeLEDs(MIDI.isMuted(cursor)?0:MIDI.midiChannelFilters[cursor]);
+    }
     bool midiMenuControls(){
       controls.readButtons();
       controls.readJoystick();
@@ -145,9 +152,6 @@ class MidiMenu:public StepchildMenu{
       return true;
     }
     void displayMenu(){
-      SequenceRenderSettings settings;
-      settings.topLabels = false;
-      settings.drawPram = false;
       icon.rotate(1,1);
       display.clearDisplay();
       drawSeq(settings);
@@ -271,6 +275,7 @@ void midiMenu(){
   menu.slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
   while(menu.midiMenuControls()){
     menu.displayMenu();
+    menu.writeLEDs();
   }
   menu.slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
   controls.clearButtons();

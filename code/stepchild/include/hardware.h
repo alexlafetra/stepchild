@@ -54,14 +54,6 @@
 #define AUX_GPIO 20
 #define AUX_ADC 28
 
-//Deprecated pins from prototypes
-// #define BUTTONS_CLOCK_ENABLE 12
-// #define BUTTONS_LOAD 13
-// #define BUTTONS_CLOCK_IN 14
-// #define BUTTONS_DATA 15
-// #define A_PRESS 20
-// #define B_PRESS 17
-
 /*
 --------------------------------------
           Button Inputs
@@ -109,9 +101,9 @@ https://forum.arduino.cc/t/how-to-read-a-register-value-using-the-wire-library/2
 #define SELECT_BUTTON 2
 #define DELETE_BUTTON 3
 #define LOOP_BUTTON 4
-#define PLAY_BUTTON 5
+#define PLAY_BUTTON 7
 #define COPY_BUTTON 6
-#define MENU_BUTTON 7
+#define MENU_BUTTON 5
 #define B_BUTTON 8
 #define A_BUTTON 9
 
@@ -413,10 +405,10 @@ class StepchildHardware{
     return (this->mainButtonState>>which)&1;
   }
   bool A(){
-    return !this->getMainButtonState(A_BUTTON);
+    return this->getMainButtonState(A_BUTTON);
   }
   bool B(){
-    return !this->getMainButtonState(B_BUTTON);
+    return this->getMainButtonState(B_BUTTON);
   }
   bool NEW(){
     return this->getMainButtonState(NEW_BUTTON);

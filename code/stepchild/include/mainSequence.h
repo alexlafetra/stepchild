@@ -277,12 +277,12 @@ void mainSequencerButtons(){
 
     //Modes: play, listen, and record
     if(controls.PLAY() && !controls.SHIFT() && !sequence.recording()){
-      togglePlayMode();
+      sequence.togglePlay();
       lastTime = millis();
     }
     //if play+controls.SHIFT(), or if play and it's already sequence.recording()
     if((controls.PLAY() && controls.SHIFT()) || (controls.PLAY() && sequence.recording())){
-      toggleRecordingMode(waitForNoteBeforeRec);
+      sequence.toggleRecording(waitForNoteBeforeRec);
       lastTime = millis();
     }
     //menu press

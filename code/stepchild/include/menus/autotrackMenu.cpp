@@ -251,23 +251,23 @@ void autotrackEditor(uint8_t whichAutotrack){
       //if any of these controls are pressed, then set the current data track param to it
       if(controls.counterA != 0){
         controls.counterA = 0;
-        sequence.autotrackData[whichAutotrack].recordFrom = 1;
+        sequence.autotrackData[whichAutotrack].recordFrom = ENCODER_A;
         recInputSet = true;
         lastTime = millis();
       }
       else if(controls.counterB != 0){
         controls.counterB = 0;
-        sequence.autotrackData[whichAutotrack].recordFrom = 2;
+        sequence.autotrackData[whichAutotrack].recordFrom = ENCODER_B;
         recInputSet = true;
         lastTime = millis();
       }
       else if(controls.joystickX != 0){
-        sequence.autotrackData[whichAutotrack].recordFrom = 3;
+        sequence.autotrackData[whichAutotrack].recordFrom = JOY_X;
         recInputSet = true;
         lastTime = millis();
       }
       else if(controls.joystickY != 0){
-        sequence.autotrackData[whichAutotrack].recordFrom = 4;
+        sequence.autotrackData[whichAutotrack].recordFrom = JOY_Y;
         recInputSet = true;
         lastTime = millis();
       }
@@ -341,7 +341,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput, uint8_
     controls.countDownB();
   }
 
-  if(!recordingToAutotrack || sequence.autotrackData[whichAutotrack].recordFrom != 3){
+  if(!recordingToAutotrack || sequence.autotrackData[whichAutotrack].recordFrom != JOY_X){
     if (utils.itsbeen(50)) {
       //moving
       if (controls.LEFT() && controls.SHIFT()) {
@@ -377,7 +377,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput, uint8_
       }
     }
   }
-  if(!recordingToAutotrack || sequence.autotrackData[whichAutotrack].recordFrom != 4){
+  if(!recordingToAutotrack || sequence.autotrackData[whichAutotrack].recordFrom != JOY_Y){
     if(utils.itsbeen(50)){
       if(controls.DOWN()){
         if(controls.SHIFT()){
@@ -421,10 +421,10 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput, uint8_
         recentCC.val = 0;
         controls.counterA = 64;
         controls.counterB = 64;
-        toggleRecordingMode(true);
+        sequence.toggleRecording(true);
       }
       else{
-        togglePlayMode();
+        sequence.togglePlay();
         lastTime = millis();
       }
     }
@@ -484,7 +484,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput, uint8_
     if(controls.COPY()){
       *settingRecInput = true;
       //by default, set it to midi input
-      sequence.autotrackData[whichAutotrack].recordFrom = 0;
+      sequence.autotrackData[whichAutotrack].recordFrom = EXTERNAL_MIDI;
     }
     else{
       *settingRecInput = false;
@@ -556,7 +556,7 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput, uin
       }
     }
     if(controls.PLAY()){
-      togglePlayMode();
+      sequence.togglePlay();
       lastTime = millis();
     }
     if(controls.MENU()){
@@ -696,23 +696,23 @@ bool autotrackCurveEditingControls(bool* translation, bool* settingRecInput, uin
 void drawAutotrackInputIcon(uint8_t x1, uint8_t y1, uint8_t id){
   switch(sequence.autotrackData[id].recordFrom){
     //external midi
-    case 0:
+    case EXTERNAL_MIDI:
       display.drawBitmap(x1,y1,tiny_midi_bmp,7,7,1);
       break;
     //encoder A
-    case 1:
+    case ENCODER_A:
       printItalic(x1,y1,'A',1);
       break;
     //encoder B
-    case 2:
+    case ENCODER_B:
       printItalic(x1,y1,'B',1);
       break;
     //joy X
-    case 3:
+    case JOY_X:
       printItalic(x1,y1,'X',1);
       break;
     //joy Y
-    case 4:
+    case JOY_Y:
       printItalic(x1,y1,'Y',1);
       break;
   }
@@ -1026,7 +1026,7 @@ class AutotrackMenu:public StepchildMenu{
           lastTime = millis();
         }
         if(controls.PLAY()){
-          togglePlayMode();
+          sequence.togglePlay();
           lastTime = millis();
         }
         if(controls.SELECT()){

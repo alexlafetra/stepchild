@@ -2,6 +2,41 @@ enum ClockSource:uint8_t{
     INTERNAL_CLOCK,
     EXTERNAL_CLOCK
 };
+
+class SwingCurve{
+    public:
+    CurveType type = LINEAR_CURVE;
+    uint16_t period = 96;
+    uint16_t phase = 0;
+    float amplitude = 1.0;
+    SwingCurve(CurveType t, float per, uint16_t ph, float a){
+        type = t;
+        period = per;
+        phase = ph;
+        amplitude = a;
+    }
+    float getValueAt(uint16_t point){
+        switch(type){
+            //default
+            case LINEAR_CURVE:
+                return 0;
+            //sinewave
+            case SINEWAVE_CURVE:
+                return amplitude*sin(float(point+phase)*float(2.0*PI)/float(period));
+            //square wave
+            case SQUAREWAVE_CURVE:
+                float loc = float(point+phase)/float(period) - trunc((point+phase)/period);
+                //if you're less than half a period, it's high. Else, it's low
+                if(loc<0.5)
+                    return amplitude;
+                else
+                    return -amplitude;
+            //saw
+        }
+        return 0;
+
+    }
+};
 //Encapsulates all the special timing functions!
 class StepchildClock{
     public:
@@ -9,8 +44,9 @@ class StepchildClock{
     ClockSource clockSource = INTERNAL_CLOCK;
     bool receivedClockMessage = false;
     bool isSwinging = false;
-    int32_t swingAmplitude = 4000;
-    uint16_t swingSubDiv = 96;
+    // int32_t swingAmplitude = 4000;
+    // uint16_t swingSubDiv = 96;
+    SwingCurve swingCurve = SwingCurve(SINEWAVE_CURVE,96.0,0,4000);
 
     uint16_t BPM = 120;
 
@@ -30,8 +66,9 @@ class StepchildClock{
     }
 
     //returns the amount a timestep should be shifted (in uSeconds) based on the swing curve
-    float swingOffset(uint16_t step){
-        return this->swingAmplitude*sin(2*PI/this->swingSubDiv * (step-this->swingSubDiv/4));
+    int32_t swingOffset(uint16_t step){
+        // return this->swingAmplitude*sin(2*PI/this->swingSubDiv * (step-this->swingSubDiv/4));
+        return swingCurve.getValueAt(step);
     }
 
     //this is a sloppy lil function that returns true if the time is within (x) of the subDiv
@@ -52,7 +89,7 @@ class StepchildClock{
         int32_t timeElapsed = micros()-this->timeLastStepPlayed;
         if(timeElapsed >= this->uSecPerStep+this->swingOffset(step)){
             //if it's a multiple of the swing subDiv, it should be perfectly on time, so grab the offset from here
-            if(!(step%this->swingSubDiv))
+            if(!(step%swingCurve.period))
                 this->offBy = (micros()-this->startTime)%(this->uSecPerStep);
             //if it's dead on, reset the start timer so it doesn't overflow (it'll prob overflow sometimes)
             if(this->offBy == 0)
@@ -96,8 +133,8 @@ class StepchildClock{
         this->uSecPerStep = round(2500000/(this->BPM));
         //if the swing val would produce a sub-1uS offset, lower it
         //is this right?? setting it to negative uS/timestep? doesn't look right but not fixing it rn
-        if(abs(this->swingAmplitude)>this->uSecPerStep)
-            this->swingAmplitude = this->swingAmplitude<0?-this->uSecPerStep:this->uSecPerStep;
+        if(abs(swingCurve.amplitude)>this->uSecPerStep)
+            swingCurve.amplitude = swingCurve.amplitude<0?-this->uSecPerStep:this->uSecPerStep;
     }
 
 };

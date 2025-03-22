@@ -16,14 +16,15 @@ void headlessSetup(){
   //load settings
   loadSettings();
   //setting up sequence w/ 16 tracks, 768 steps
-  sequence.init(16,768);
+  // sequence.init(16,768); 
+  sequence.init(SP404MK2_TEMPLATE);
   //turn off LEDs (since they might be in some random configuration)
   controls.turnOffLEDs();
   //set the control knobs up w/ default values
   for(uint8_t i = 0; i<16; i++){
     controlKnobs[i].cc = i+1;
   }
-  setNormalMode();
+  sequence.setNormalMode();
   core0ready = true;
   lastTime = millis();
   display.setTextColor(SSD1306_WHITE);
@@ -43,7 +44,8 @@ void setup() {
   // these two strings must be exactly 32 characters long:
   //                                   0123456789ABCDEF0123456789ABCDEF
   USBDevice.setManufacturerDescriptor("Alex LaFetra Thompson           ");
-  USBDevice.setProductDescriptor     ("Stepchild Firmware 0.9.2        ");
+  // USBDevice.setProductDescriptor     ("Stepchild Firmware 0.9.5        ");
+  USBDevice.setProductDescriptor     ("ChildOS V0.9.5                  ");
 
   //start I^2C bus to communicate with MCP23017's
   Wire.setSDA(I2C_SDA);
@@ -58,12 +60,7 @@ void setup() {
   SPI1.begin();
 
   //start display
-  display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDR);
-  //Set the display rotation (which is ~technically~ upside down)
-  display.setRotation(DISPLAY_UPRIGHT);
-  //turn text wrapping off, so our menus look ok
-  display.setTextWrap(false);
-  display.setTextColor(SSD1306_WHITE);
+  display.init();
 
   //setup CV pins, frequency
   CV.init();
@@ -83,7 +80,9 @@ void setup() {
   //load settings
   loadSettings();
   //setting up sequence w/ 16 tracks, 768 steps
-  sequence.init(16,768);
+  // sequence.init(16,768);
+  sequence.init(SP404MK2_TEMPLATE);
+  // sequence.init(GENERIC_KEYBOARD_TEMPLATE);
 
   //turn off LEDs (since they might be in some random configuration)
   controls.turnOffLEDs();
@@ -92,17 +91,10 @@ void setup() {
     controlKnobs[i].cc = i+1;
   }
 
-  setNormalMode();
+  sequence.setNormalMode();
   core0ready = true;
   lastTime = millis();
   // graphics.bootscreen_2();
-  // uint16_t temp = 0;
-  // while(temp<10000){
-  //   display.clearDisplay();
-  //   display.drawBitmap(0,0,stepchild_logo_bmp,128,27,1);
-  //   display.display();
-  //   temp++;
-  // }
 }
 #endif
 
@@ -114,30 +106,29 @@ void setup1() {
   }
 }
 
-uint16_t TESTVAL = 65535;
-uint16_t gateVal = 0;
+void testCV(){
+  uint16_t TESTVAL = 65535;
+  uint16_t gateVal = 0;
+  while(true){
+    analogWrite(CV1_PIN,TESTVAL);
+    analogWrite(CV2_PIN,TESTVAL);
+    analogWrite(CV3_PIN,TESTVAL);
+    TESTVAL++;
+    TESTVAL%=PWM_MAX_VAL;
+    // delayMicroseconds(10);
+    if(utils.itsbeen(100)){
+      lastTime = millis();
+      gateVal = 65535-gateVal;
+    }
+    display.clearDisplay();
+    printSmall(0,0,stringify(TESTVAL),1);
+    display.display();
+  }
+}
 
 void loop() {
   mainSequence();
   screenSaverCheck();
-  // digitalWrite(CV1_PIN,0);
-  // digitalWrite(CV2_PIN,0);
-  // digitalWrite(CV3_PIN,0);
-  // digitalWrite(CV4_PIN,0);
-  // Serial.println(millis());
-  // testAllInputs();
-  // testCVPitches();
-
-  // analogWrite(CV1_PIN,TESTVAL);
-  // analogWrite(CV2_PIN,gateVal);
-  // analogWrite(CV3_PIN,0);
-  // TESTVAL++;
-  // TESTVAL%=PWM_MAX_VAL;
-  // // delayMicroseconds(10);
-  // if(utils.itsbeen(100)){
-  //   lastTime = millis();
-  //   gateVal = 65535-gateVal;
-  // }
 }
 
 //this cpu handles time-sensitive things
@@ -148,18 +139,18 @@ void loop1(){
   ledPulse(16);
   switch(sequence.playState){
     case PLAYING:
-      playingLoop();
+      sequence.playingLoop();
       break;
     case RECORDING:
-      recordingLoop();
+      sequence.recordingLoop();
       break;
     case LIVELOOPING:
     case STOPPED:
-      defaultLoop();
+      sequence.defaultLoop();
       break;
   }
   //run the arpeggiator, if it's active
   if(arp.isActive){
-    arpLoop();
+    sequence.arpLoop();
   }
 }

@@ -26,6 +26,8 @@ struct StepchildMIDISettings:public midi::DefaultSettings{
   static const long BaudRate = 31250;//This one isn't documented, but you need it. Default val is 31250, will this work w/ USB?
 };
 
+const StepchildMIDISettings midiSettings;
+
 //Macro from Arduino MIDI that creates MIDI instances
 MIDI_CREATE_CUSTOM_INSTANCE(Adafruit_USBD_MIDI, usb_midi, MIDI0, StepchildMIDISettings);
 MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial1, MIDI1, StepchildMIDISettings);
@@ -34,11 +36,9 @@ MIDI_CREATE_CUSTOM_INSTANCE(SoftwareSerial, Serial3, MIDI3, StepchildMIDISetting
 MIDI_CREATE_CUSTOM_INSTANCE(SoftwareSerial, Serial4, MIDI4, StepchildMIDISettings);
 
 //at some point, create a template class that can store all the MIDI objects
-template <typename midiInterfaceObject> class midiObject{
+class BasicMidiObject{
   public:
-  midiInterfaceObject interface;
-  midiObject(){
-  }
+    virtual ~BasicMidiObject() = default;
 };
 
 class StepchildMIDI{
@@ -140,7 +140,6 @@ class StepchildMIDI{
     MIDI2.sendRealTime(midi::Clock);
     MIDI3.sendRealTime(midi::Clock);
     MIDI4.sendRealTime(midi::Clock);
-
   }
   void sendStop(){
     MIDI0.sendRealTime(midi::Stop);
@@ -267,6 +266,90 @@ class StepchildMIDI{
       this->setMidiChannel(i+1,which,isActive);
     }
   }
+  #ifdef HEADLESS
+  void sendThruOn(uint8_t c, uint8_t n, uint8_t v){
+    return;
+  }
+  void sendThruOff(uint8_t c, uint8_t n){
+    return;
+  }
+  void sendThruCC(uint8_t ch, uint8_t cc, uint8_t val){
+    return;
+  }
+  #else
+  void sendThruOn(uint8_t channel, uint8_t note, uint8_t vel){
+    //if it's a valid thru & channel
+    if(isThru(0) && isChannelActive(channel, 0)){
+      MIDI0.sendNoteOn(note,vel,channel);
+    }
+    if(isThru(1) && isChannelActive(channel, 1)){
+      MIDI1.sendNoteOn(note,vel,channel);
+    }
+    if(isThru(2) && isChannelActive(channel, 2)){
+      MIDI2.sendNoteOn(note,vel,channel);
+    }
+    if(isThru(3) && isChannelActive(channel, 3)){
+      MIDI3.sendNoteOn(note,vel,channel);
+    }
+    if(isThru(4) && isChannelActive(channel, 4)){
+      MIDI4.sendNoteOn(note,vel,channel);
+    }
+  }
+  void sendThruOff(uint8_t channel, uint8_t note){
+    //if it's a valid thru & channel
+    if(isThru(0) && isChannelActive(channel, 0)){
+      MIDI0.sendNoteOff(note,0,channel);
+    }
+    if(isThru(1) && isChannelActive(channel, 1)){
+      MIDI1.sendNoteOff(note,0,channel);
+    }
+    if(isThru(2) && isChannelActive(channel, 2)){
+      MIDI2.sendNoteOff(note,0,channel);
+    }
+    if(isThru(3) && isChannelActive(channel, 3)){
+      MIDI3.sendNoteOff(note,0,channel);
+    }
+    if(isThru(4) && isChannelActive(channel, 4)){
+      MIDI4.sendNoteOff(note,0,channel);
+    }
+  }
+  void sendThruCC(uint8_t channel, uint8_t cc, uint8_t val){
+    //if it's a valid thru & channel
+    if(isThru(0) && isChannelActive(channel, 0)){
+      MIDI0.sendControlChange(cc,val,channel);
+    }
+    if(isThru(1) && isChannelActive(channel, 1)){
+      MIDI1.sendControlChange(cc,val,channel);
+    }
+    if(isThru(2) && isChannelActive(channel, 2)){
+      MIDI2.sendControlChange(cc,val,channel);
+    }
+    if(isThru(3) && isChannelActive(channel, 3)){
+      MIDI3.sendControlChange(cc,val,channel);
+    }
+    if(isThru(4) && isChannelActive(channel, 4)){
+      MIDI4.sendControlChange(cc,val,channel);
+    }
+  }
+  void sendThruPB(uint8_t ch, int val){
+    //if it's a valid thru & ch
+    if(isThru(0) && isChannelActive(ch, 0)){
+      MIDI0.sendPitchBend(val, ch);
+    }
+    if(isThru(1) && isChannelActive(ch, 1)){
+      MIDI1.sendPitchBend(val, ch);
+    }
+    if(isThru(2) && isChannelActive(ch, 2)){
+      MIDI2.sendPitchBend(val, ch);
+    }
+    if(isThru(3) && isChannelActive(ch, 3)){
+      MIDI3.sendPitchBend(val, ch);
+    }
+    if(isThru(4) && isChannelActive(ch, 4)){
+      MIDI4.sendPitchBend(val, ch);
+    }
+  }
+  #endif
 };
 
 //instance that the stepchild's code uses

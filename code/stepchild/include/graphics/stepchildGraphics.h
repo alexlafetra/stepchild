@@ -1,3 +1,11 @@
+//original ChildOS fonts
+#include "fonts/7_segment.cpp"
+#include "fonts/cursive.cpp"
+#include "fonts/small.cpp"
+#include "fonts/arp.cpp"
+#include "fonts/italic.cpp"
+#include "fonts/chunky.cpp"
+
 //Holds all the graphics functions
 //Accessed thru Stepchild.graphics.function();
 class StepchildGraphics{

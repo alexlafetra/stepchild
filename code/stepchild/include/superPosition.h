@@ -57,13 +57,13 @@ bool SuperpositionMenu::setSuperpositionControls(){
     }
     if(controls.PLAY()){
       if(controls.SHIFT() || sequence.recording()){
-        toggleRecordingMode(waitForNoteBeforeRec);
+        sequence.toggleRecording(waitForNoteBeforeRec);
         lastTime = millis();
         if(sequence.recording())
           menuText = "ready!";
       }
       else{
-        togglePlayMode();
+        sequence.togglePlay();
         lastTime = millis();
         menuText = sequence.playing()?"playing!":"stopped";
       }

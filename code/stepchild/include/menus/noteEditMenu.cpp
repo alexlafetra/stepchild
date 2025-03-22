@@ -710,9 +710,9 @@ bool NoteEditMenu::editMenuControls_normal(){
     }
     if(controls.PLAY()){
       if(controls.SHIFT())
-        toggleRecordingMode(waitForNoteBeforeRec);
+      sequence.toggleRecording(waitForNoteBeforeRec);
       else
-        togglePlayMode();
+        sequence.togglePlay();
       lastTime = millis();
     }
     if(controls.COPY()){

@@ -41,7 +41,7 @@ void handleInternalCC(uint8_t ccNumber, uint8_t val, uint8_t channel, uint8_t yP
       break;
     //swing amount
     case 4:
-      sequenceClock.swingAmplitude += val-63;
+      sequenceClock.swingCurve.amplitude += val-63;
     //track channel
     case 5:
       break;

@@ -7,6 +7,13 @@ TriggerSource operator--(TriggerSource &c,int) {
   c = static_cast<TriggerSource>(static_cast<uint8_t>(c) - 1);
   return c;
 }
+enum RecordingFrom:uint8_t{
+  EXTERNAL_MIDI,
+  ENCODER_A,
+  ENCODER_B,
+  JOY_X,
+  JOY_Y
+};
 //unimplemented
 // enum TargetType:uint8_t{GENERAL_MIDI,SP404MKII,INTERNAL};
 
@@ -34,7 +41,7 @@ class Autotrack{
     bool isPrimed = true;
 
     // 0 is from external, 1 is encoder A, 2 is encoder B, 3 is X, 4 is Y
-    uint8_t recordFrom = 0;
+    RecordingFrom recordFrom = EXTERNAL_MIDI;
 
     //can be global, track, or channel
     TriggerSource triggerSource = GLOBAL_TRIGGER;
@@ -563,45 +570,6 @@ void Autotrack::play(uint16_t timestep){
   }
 }
 
-//looks for autotracks to trigger and triggers them
-void triggerAutotracks(uint8_t trackID, bool state){
-  for(uint8_t i = 0; i<sequence.autotrackData.size(); i++){
-    switch(sequence.autotrackData[i].triggerSource){
-      case GLOBAL_TRIGGER:
-        break;
-      case TRACK_TRIGGER:
-        //if it's a targeted autotrack
-        if(sequence.autotrackData[i].triggerTarget == trackID){
-          //triggering it on
-          if(state){
-            sequence.autotrackData[i].isActive = true;
-            sequence.autotrackData[i].playheadPos = 0;
-          }
-          //triggering it off
-          else if(sequence.autotrackData[i].gated){
-            sequence.autotrackData[i].isActive = false;
-            sequence.autotrackData[i].playheadPos = 0;
-          }
-        }
-        break;
-      case CHANNEL_TRIGGER:
-        //if it's a targeted autotrack
-        if(sequence.autotrackData[i].triggerTarget == sequence.trackData[trackID].channel){
-          //triggering it on
-          if(state){
-            sequence.autotrackData[i].isActive = true;
-            sequence.autotrackData[i].playheadPos = 0;
-          }
-          //triggering it off
-          else if(sequence.autotrackData[i].gated){
-            sequence.autotrackData[i].isActive = false;
-            sequence.autotrackData[i].playheadPos = 0;
-          }
-        }
-        break;
-    }
-  }
-}
 void Autotrack::setTrigger(TriggerSource trigSource, uint8_t trigTarget){
   triggerSource = trigSource;
   playheadPos = 0;
@@ -612,10 +580,7 @@ void Autotrack::setTrigger(TriggerSource trigSource, uint8_t trigTarget){
       break;
     case TRACK_TRIGGER:
       isActive = false;
-      if(trigTarget<sequence.trackData.size())
-        triggerTarget = trigTarget;
-      else
-        triggerTarget = 0;
+      triggerTarget = trigTarget;
       break;
     case CHANNEL_TRIGGER:
       isActive = false;

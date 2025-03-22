@@ -417,11 +417,11 @@ void PCEditingEncoderControls(uint8_t activePort,uint8_t* editingCursor){
         if((*editingCursor) == 0)
             (*editingCursor) = 1;
         if(controls.counterA<0){
-            if(PCData[activePort][targetPC].channel>0)
+            if(PCData[activePort][targetPC].channel>1)
                 PCData[activePort][targetPC].channel--;
         }
         if(controls.counterA>0){
-            if(PCData[activePort][targetPC].channel<15)
+            if(PCData[activePort][targetPC].channel<16)
                 PCData[activePort][targetPC].channel++;
         }
         controls.counterA += controls.counterA<0?1:-1;
@@ -498,7 +498,7 @@ void PCEditor(){
                 lastTime = millis();
             }
             if(controls.PLAY()){
-                togglePlayMode();
+                sequence.togglePlay();
                 lastTime = millis();
             }
         }

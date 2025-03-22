@@ -10,7 +10,7 @@ void exitRecAndStartPlaying(uint8_t& layerCount){
     CoordinatePair A = CoordinatePair(sequence.loopData[sequence.activeLoop].start,sequence.recheadPos);
     CoordinatePair B = CoordinatePair(sequence.loopData[sequence.activeLoop].start,sequence.loopData[sequence.activeLoop].end);
     //make sure to call this first, so that the recording is cleaned up
-    togglePlayMode();
+    sequence.togglePlay();
     //only warp selected notes
     warpAintoB(A,B,true);
     sequence.isLooping = true;
@@ -94,12 +94,12 @@ bool liveLoop(){
                     if(sequence.playing()){
                         uint16_t oldPlayheadPos = sequence.playheadPos;
                         recMode = LOOP_MODE;
-                        toggleRecordingMode(false);
+                        sequence.toggleRecording(false);
                         sequence.recheadPos = oldPlayheadPos;
                     }
                     else{
                         recMode = FULL;
-                        toggleRecordingMode(waitForNoteBeforeRec);
+                        sequence.toggleRecording(waitForNoteBeforeRec);
                     }
                 }
                 //if you are already recording
@@ -135,7 +135,7 @@ bool liveLoop(){
                     exitRecAndStartPlaying(layerCount);
                 }
                 else{
-                    togglePlayMode();
+                    sequence.togglePlay();
                 }
                 recentNote.pitch = 255;//set this to something weird so you don't double-trigger it
             }

@@ -233,7 +233,7 @@ bool xyGrid(){
         offsetY = 64-yCoord;
       }
       if(controls.PLAY()){
-        togglePlayMode();
+        sequence.togglePlay();
         lastTime = millis();
       }
       if(controls.A()){

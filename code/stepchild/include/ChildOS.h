@@ -10,22 +10,7 @@
 #include <algorithm>
 
 #ifdef HEADLESS
-using namespace std;
-#include <string>
-#include <iostream>
-#include <cstdlib>
-#include <vector>
-#include <cmath>
-#include <chrono>//for emulating millis() and micros()
-#include <unistd.h>
-#include <thread>//for multithreading
-#include "../headless/childOS_headless/headlessOpenGL.h"
-#include "../headless/childOS_headless/headlessMIDI.h"
-#include "../headless/childOS_headless/headlessFileSystem.h"
-#include "../headless/childOS_headless/headlessArduino.h"
-#include "../headless/childOS_headless/headlessPico.h"
-#include "../headless/childOS_headless/headlessDisplay.h"
-#include "../headless/childOS_headless/headlessControls.h"
+#include "../headless/childOS_headless/headless.h"
 #else
 #include <Arduino.h>
 #include <Adafruit_TinyUSB.h>
@@ -49,6 +34,7 @@ extern "C" {
 
 #include "hardware.h"   //button/input reading functions
 #include "display.h"
+using namespace std;
 #include "StepchildMIDI.h"
 
 #endif
@@ -65,49 +51,22 @@ typedef uint8_t TrackID;
 */
 
 //Objects for storing data
-class Knob;
-class WireFrame;
 class Note;
 class Track;
-class Autotrack;
-class SelectionBox;
-class ProgramChange;
-class Arp;
-class Menu;
-class NoteID;
-
-//Objects for accessing stepchild functions
-class StepchildCV;
-class StepchildSequence;
-class StepchildGraphics;
-class StepchildHardware;
-class StepchildUtilities;
-class StepchildMIDI;
-class LowerBoard;
-
-//objects specifically used for menus, apps
-class ConsoleLog;
-class PlayList;
-class Chord;
-class Progression;
-class Humanizer;
-class HumanizeBlob;
-class QChord;
-class Moon;
-class Planet;
-class SolarSystem;
-class Raindrop;
 
 //structs
+struct NoteCoords{
+  uint8_t x1;
+  int16_t length;
+  int16_t y1;
+  int16_t y2;
+  void offsetY(int16_t y){
+    y1+=y;
+    y2+=y;
+  }
+};
+
 struct CoordinatePair;
-struct Coordinate;
-struct CCData;
-struct NoteData;
-struct PolarVertex2D;
-struct NoteTrackPair;
-struct EchoData;
-struct RandomData;
-struct NoteCoords;
 struct SequenceRenderSettings;
 
 enum ScaleName:uint8_t{
@@ -220,41 +179,26 @@ uint16_t animOffset = 0;//for animating curves
 #include "graphics/WireFrame.h"//wireframe stuff
 #include "graphics/wireframeObjects.h"//wireframe stuff
 #include "classes/PlayList.h"
-#include "menus/StepchildMenu.h"
+#include "classes/StepchildMenu.h"
 #include "classes/Note.h"
 #include "classes/Track.h"
 #include "classes/Knob.h"
-#include "sequence.h"
-#include "classes/NoteID.h"
+#include "classes/SequenceTemplate.cpp"
 #include "classes/AutoTrack.h"
+#include "classes/Arp.h"
+#include "classes/CV.h"
+#include "sequence.cpp"
+#include "classes/NoteID.h"
 
-//original ChildOS fonts
-#include "graphics/fonts/7_segment.cpp"
-#include "graphics/fonts/cursive.cpp"
-#include "graphics/fonts/small.cpp"
-#include "graphics/fonts/arp.cpp"
-#include "graphics/fonts/italic.cpp"
-#include "graphics/fonts/chunky.cpp"
-
-struct NoteCoords{
-  uint8_t x1;
-  int16_t length;
-  int16_t y1;
-  int16_t y2;
-  void offsetY(int16_t y){
-    y1+=y;
-    y2+=y;
-  }
-};
 
 struct NoteTrackPair{
-    public:
-        Note note;
-        uint8_t trackID;
-        NoteTrackPair(Note n, uint8_t t){
-            note = n;
-            trackID = t;
-        }
+  public:
+      Note note;
+      uint8_t trackID;
+      NoteTrackPair(Note n, uint8_t t){
+          note = n;
+          trackID = t;
+      }
 };
 
 //Basic graphic functions
@@ -267,24 +211,20 @@ Knob controlKnobs[16];
 //These need to be referenced after Autotracks are defined
 void rotaryActionA_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  controls.counterA += (recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == 1)?controls.readEncoder(0)*4:controls.readEncoder(0);
-  if(recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == 1)
+  controls.counterA += (recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == ENCODER_A)?controls.readEncoder(0)*4:controls.readEncoder(0);
+  if(recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == ENCODER_A)
     waitingToReceiveANote = false;
 }
 
 void rotaryActionB_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  controls.counterB += (recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == 2)?controls.readEncoder(1)*4:controls.readEncoder(1);
-  if(recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == 2)
+  controls.counterB += (recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == ENCODER_B)?controls.readEncoder(1)*4:controls.readEncoder(1);
+  if(recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == ENCODER_B)
     waitingToReceiveANote = false;
 }
 
 #include "classes/SelectionBox.h"
-#include "classes/Arp.h"
 #include "classes/Progression.h"
-
-#include "CV.h"
-#include "playback.h"
 #include "programChange.h"
 
 //including custom users apps
@@ -293,29 +233,7 @@ void rotaryActionB_Handler(){
 
 #include "helperFunctions.h"
 
-//FX Apps
-#include "fx/randomMenu.cpp"
-#include "fx/warpMenu.cpp"
-#include "fx/strumMenu.cpp"
-#include "fx/reverseMenu.cpp"
-#include "fx/quantizeMenu.cpp"
-#include "fx/humanizeMenu.cpp"
-#include "fx/echo.cpp"
-#include "fx/chop.cpp"
-
-
 //Instrument apps
-#include "applications/rattle.cpp"
-#include "applications/chordDJ.cpp"
-#include "applications/chordBuilder.cpp"
-#include "applications/planets.cpp"
-#include "applications/rain.cpp"
-#include "applications/liveLoop.cpp"
-#include "applications/knobs.cpp"
-#include "applications/drumPads.cpp"
-#include "applications/xy.cpp"
-#include "applications/keyboard.h"
-
 #include "applications/applications.h"
 
 #ifndef HEADLESS
@@ -325,6 +243,7 @@ void webInterface(){}
 #endif
 
 //Menus
+#include "menus/CVMenu.cpp"
 #include "menus/loopMenu.cpp"
 #include "menus/consoleMenu.cpp"
 #include "menus/instrumentMenu.cpp"
@@ -332,6 +251,7 @@ void webInterface(){}
 #include "menus/arpMenu.cpp"
 #include "menus/autotrackMenu.cpp"
 #include "menus/trackMenus.cpp"
+#include "menus/templateMenu.cpp"
 #include "menus/settingsMenu.cpp"
 #include "menus/fileMenu.cpp"
 #include "menus/noteEditMenu.cpp"

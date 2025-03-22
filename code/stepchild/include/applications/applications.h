@@ -10,6 +10,28 @@
 
 */
 
+
+//FX Apps
+#include "../fx/randomMenu.cpp"
+#include "../fx/warpMenu.cpp"
+#include "../fx/strumMenu.cpp"
+#include "../fx/reverseMenu.cpp"
+#include "../fx/quantizeMenu.cpp"
+#include "../fx/humanizeMenu.cpp"
+#include "../fx/echo.cpp"
+#include "../fx/chop.cpp"
+
+#include "rattle.cpp"
+#include "chordDJ.cpp"
+#include "chordBuilder.cpp"
+#include "planets.cpp"
+#include "rain.cpp"
+#include "liveLoop.cpp"
+#include "knobs.cpp"
+#include "drumPads.cpp"
+#include "xy.cpp"
+#include "keyboard.h"
+
 // 'xy', 12x12px
 const unsigned char xy_bmp []  = {
 	0x00, 0x00, 0x50, 0xe0, 0x20, 0x20, 0x50, 0xa0, 0x01, 0x00, 0x02, 0x00, 0x04, 0x00, 0x08, 0x00, 

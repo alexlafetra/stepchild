@@ -48,9 +48,6 @@ void debugNoteCount();
 void debugPrint();
 void debugPrintLookup();
 
-//Rec/play
-void writeNoteOn(unsigned short int step, uint8_t pitch, uint8_t vel, uint8_t channel);
-
 //Drawing functions
 void printItalic(int16_t x, int16_t y, char character, uint16_t c);
 void printItalic(int16_t x, int16_t y, String text, uint16_t c);
@@ -85,18 +82,11 @@ void loopMenu();
 void fragmentMenu();
 void fileMenu();
 void recMenu();
-// void xyGrid();
 void displayMiniMenu();
-// void routeMenu();
-// void warp();
 void reverseNotes();
 void inputMenu();
 void midiMenu();
 void chordBuilder();
-// void echoMenu();
-// void humanizeMenu();
-// void quantizeMenu();
-// void strumMenu();
 
 //Note editing
 void echoNote(int track, int id);
@@ -122,8 +112,6 @@ void toggleSelectNote(uint8_t, uint16_t, bool);
 vector<vector<uint8_t>> selectMultipleNotes(String,String);
 vector<uint8_t> selectSeqArea(String);
 bool warpAintoB(CoordinatePair A, CoordinatePair B, bool onlySelected);
-// void reverse();
-// void rattle();
 
 //Track editing
 int16_t makeTrackWithPitch(int,int);
@@ -170,29 +158,10 @@ void defaultCopyControls();
 void rotaryActionA_Handler();
 void rotaryActionB_Handler();
 
-//MIDI
-void handleStop_playing();
-void handleClock_playing();
-void handleStart_playing();
-void handleClock_recording();
-void handleStart_recording();
-void handleStop_recording();
-void handleNoteOn_Recording(uint8_t channel, uint8_t note, uint8_t velocity);
-void handleNoteOff_Recording(uint8_t channel, uint8_t note, uint8_t velocity);
-void handleCC_Recording(uint8_t channel, uint8_t cc, uint8_t value);
-void handleCC_Normal(uint8_t channel, uint8_t cc, uint8_t value);
-void handleNoteOn_Normal(uint8_t channel, uint8_t note, uint8_t velocity);
-void handleNoteOff_Normal(uint8_t channel, uint8_t note, uint8_t velocity);
-void handleStart_Normal();
-void handleStop_Normal();
-
 
 //sequence
 void updateLookupData_track(unsigned short int);
 void selectBox();
-void togglePlayMode();
-void toggleRecordingMode(bool);
-void checkAutotracks();
 
 //Loops
 void setLoopToInfinite(uint8_t targetL);
@@ -222,9 +191,7 @@ vector<uint16_t> getSelectedNotesBoundingBox();
 vector<uint8_t> selectKeys(uint8_t startRoot);
 vector<uint8_t> genScale(ScaleName, uint8_t);
 vector<uint8_t> genScale(ScaleName, uint8_t, int8_t,uint8_t);
-// float swingOffset(unsigned short int step);
 String stepsToMeasures(int32_t stepVal);
-// void sequence.changeSubDivInt(bool);
 String pitchToString(uint8_t input, bool oct, bool sharps);
 bool isInVector(int val, vector<uint8_t> vec);
 uint8_t getLowestVal(vector<uint8_t> vec);
@@ -242,7 +209,6 @@ int8_t binarySelectionBox(int8_t x1, int8_t y1, String op1, String op2, String t
 uint8_t countSpaces(String text);
 String convertVectorToPitches(vector<uint8_t> intervals);
 String getInterval(int root, int pitch);
-void setNormalMode();
 String enterText(String title);
 String enterText(String title,uint8_t count);
 uint8_t countChar(String text,unsigned char c);
