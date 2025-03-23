@@ -178,7 +178,7 @@ void Progression::commit(){
   uint8_t trackOffset = sequence.trackData.size();
   //make a new track for each unique pitch
   for(uint8_t i = 0; i<uniquePitches.size(); i++){
-    addTrack(Track(uniquePitches[i],1), false);
+    sequence.addTrack(Track(uniquePitches[i],1), false);
   }
   // //Serial.println("made it here 2");
   // //Serial.println("created "+String(uniquePitches.size())+" new tracks");
@@ -189,7 +189,7 @@ void Progression::commit(){
     // //Serial.println("i:"+String(i));
     for(uint8_t j = 0; j<chords[i].intervals.size(); j++){
       // //Serial.println("j:"+String(j));
-      uint8_t track = getTrackWithPitch_above(chords[i].intervals[j]+chords[i].root,trackOffset);
+      uint8_t track = sequence.getTrackWithPitch_above(chords[i].intervals[j]+chords[i].root,trackOffset);
       // delay(10);
       Note newNote = Note(writeHead,writeHead+chords[i].length,127,100,false,false);
       sequence.makeNote(newNote,track,false);

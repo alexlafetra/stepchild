@@ -81,63 +81,63 @@ bool viewLoopControls(uint8_t which){
     selBox.begun = false;
   }
   if(!controls.NEW())
-    drawingNote = false;
+    sequence.drawingNote = false;
   mainSequencerEncoders();
   if (utils.itsbeen(100)) {
     if (controls.joystickX == 1 && !controls.SHIFT()) {
       //if cursor isn't on a measure marker, move it to the nearest one
       if(sequence.cursorPos%sequence.subDivision){
-        if(movingLoop == MOVING_NO_LOOP_POINTS)
+        if(sequence.movingLoop == MOVING_NO_LOOP_POINTS)
           moveCursorWithinLoop(-sequence.cursorPos%sequence.subDivision,which);
         else
           sequence.moveCursor(-sequence.cursorPos%sequence.subDivision);
         lastTime = millis();
         //moving entire loop
-        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+        if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(-sequence.cursorPos%sequence.subDivision);
       }
       else{
-        if(movingLoop == MOVING_NO_LOOP_POINTS)
+        if(sequence.movingLoop == MOVING_NO_LOOP_POINTS)
           moveCursorWithinLoop(-sequence.subDivision,which);
         else
           sequence.moveCursor(-sequence.subDivision);
         lastTime = millis();
         //moving entire loop
-        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+        if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(-sequence.subDivision);
       }
       //moving loop start/end
-      if(movingLoop == MOVING_LOOP_END){
+      if(sequence.movingLoop == MOVING_LOOP_END){
         sequence.setLoopPoint(sequence.cursorPos,true);
       }
-      else if(movingLoop == MOVING_LOOP_START){
+      else if(sequence.movingLoop == MOVING_LOOP_START){
         sequence.setLoopPoint(sequence.cursorPos,false);
       }
     }
     if (controls.joystickX == -1 && !controls.SHIFT()) {
       if(sequence.cursorPos%sequence.subDivision){
-        if(movingLoop == MOVING_NO_LOOP_POINTS)
+        if(sequence.movingLoop == MOVING_NO_LOOP_POINTS)
           moveCursorWithinLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision,which);
         else
           sequence.moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
         lastTime = millis();
-        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+        if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
       }
       else{
-        if(movingLoop == MOVING_NO_LOOP_POINTS)
+        if(sequence.movingLoop == MOVING_NO_LOOP_POINTS)
           moveCursorWithinLoop(sequence.subDivision,which);
         else
           sequence.moveCursor(sequence.subDivision);
         lastTime = millis();
-        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+        if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(sequence.subDivision);
       }
       //moving loop start/end
-      if(movingLoop == MOVING_LOOP_END){
+      if(sequence.movingLoop == MOVING_LOOP_END){
         sequence.setLoopPoint(sequence.cursorPos,true);
       }
-      else if(movingLoop == MOVING_LOOP_START){
+      else if(sequence.movingLoop == MOVING_LOOP_START){
         sequence.setLoopPoint(sequence.cursorPos,false);
       }
     }
@@ -148,7 +148,7 @@ bool viewLoopControls(uint8_t which){
         sequence.setActiveTrack(sequence.activeTrack + 1, false);
       else
         sequence.setActiveTrack(sequence.activeTrack + 1, true);
-      drawingNote = false;
+      sequence.drawingNote = false;
       lastTime = millis();
     }
     if (controls.joystickY == -1 && !controls.SHIFT() && !controls.LOOP()) {
@@ -156,36 +156,36 @@ bool viewLoopControls(uint8_t which){
         sequence.setActiveTrack(sequence.activeTrack - 1, false);
       else
         sequence.setActiveTrack(sequence.activeTrack - 1, true);
-      drawingNote = false;
+      sequence.drawingNote = false;
       lastTime = millis();
     }
   }
   if (utils.itsbeen(50)) {
     //moving
     if (controls.joystickX == 1 && controls.SHIFT()) {
-      if(movingLoop == MOVING_NO_LOOP_POINTS)
+      if(sequence.movingLoop == MOVING_NO_LOOP_POINTS)
         moveCursorWithinLoop(-1,which);
       else
         sequence.moveCursor(-1);
       lastTime = millis();
-      if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+      if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
         sequence.moveLoop(-1);
-      else if(movingLoop == MOVING_LOOP_END)
+      else if(sequence.movingLoop == MOVING_LOOP_END)
         sequence.setLoopPoint(sequence.cursorPos,true);
-      else if(movingLoop == MOVING_LOOP_START)
+      else if(sequence.movingLoop == MOVING_LOOP_START)
         sequence.setLoopPoint(sequence.cursorPos,false);
     }
     if (controls.joystickX == -1 && controls.SHIFT()) {
-      if(movingLoop == MOVING_NO_LOOP_POINTS)
+      if(sequence.movingLoop == MOVING_NO_LOOP_POINTS)
         moveCursorWithinLoop(1,which);
       else
         sequence.moveCursor(1);
       lastTime = millis();
-      if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+      if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
         sequence.moveLoop(1);
-      else if(movingLoop == MOVING_LOOP_END)
+      else if(sequence.movingLoop == MOVING_LOOP_END)
         sequence.loopData[sequence.activeLoop].start = sequence.cursorPos;
-      else if(movingLoop == MOVING_LOOP_START)
+      else if(sequence.movingLoop == MOVING_LOOP_START)
         sequence.loopData[sequence.activeLoop].end = sequence.cursorPos;
     }
     //changing vel
@@ -229,15 +229,15 @@ bool viewLoopControls(uint8_t which){
   }
   if(utils.itsbeen(200)){
     //new
-    if(controls.NEW() && !controls.A() && !drawingNote && !controls.SELECT() ){
+    if(controls.NEW() && !controls.A() && !sequence.drawingNote && !controls.SELECT() ){
       if((!controls.SHIFT())&&(sequence.IDAtCursor() == 0 || sequence.cursorPos != sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()].startPos)){
         sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision,true);
-        drawingNote = true;
+        sequence.drawingNote = true;
         lastTime = millis();
         moveCursorWithinLoop(sequence.subDivision,which);
       }
       if(controls.SHIFT()){
-        addTrack(sequence.defaultPitch, sequence.defaultChannel);
+        sequence.addTrack(sequence.defaultPitch, sequence.defaultChannel,false);
         lastTime = millis();
       }
     }
@@ -278,24 +278,24 @@ bool viewLoopControls(uint8_t which){
     //loop
     if(controls.LOOP()){
       //if you're not moving a loop, start
-      if(movingLoop == MOVING_NO_LOOP_POINTS){
+      if(sequence.movingLoop == MOVING_NO_LOOP_POINTS){
         //if you're on the start, move the start
         if(sequence.cursorPos == sequence.loopData[sequence.activeLoop].start){
-          movingLoop = MOVING_LOOP_END;
+          sequence.movingLoop = MOVING_LOOP_END;
         }
         //if you're on the end
         else if(sequence.cursorPos == sequence.loopData[sequence.activeLoop].end){
-          movingLoop = MOVING_LOOP_START;
+          sequence.movingLoop = MOVING_LOOP_START;
         }
         //if you're not on either, move the whole loop
         else{
-          movingLoop = MOVING_BOTH_LOOP_POINTS;
+          sequence.movingLoop = MOVING_BOTH_LOOP_POINTS;
         }
         lastTime = millis();
       }
       //if you were moving, stop
       else{
-        movingLoop = MOVING_NO_LOOP_POINTS;
+        sequence.movingLoop = MOVING_NO_LOOP_POINTS;
         lastTime = millis();
       }
     }

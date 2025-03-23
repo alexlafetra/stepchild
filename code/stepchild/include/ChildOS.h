@@ -171,7 +171,68 @@ uint16_t animOffset = 0;//for animating curves
 #include "graphics/bitmaps.h"            //bitmaps for graphics
 #include "functionPrototypes.h" //function prototypes (eventually these should all be refactored into respective files)
 #include "clock.h"              //timing functions
-#include "global.h"             //program boolean flags and global data, constants
+
+/*
+
+  Code for global vars. Most of these should be phased out in future updates!
+
+*/
+
+unsigned const char screenWidth = 128;
+unsigned const char screenHeight = 64;
+
+const unsigned char headerHeight = 16;
+const unsigned char trackDisplay = 32;
+
+//could probably get rid of these! put them in drawSeq
+uint8_t trackHeight;
+
+uint8_t screenBrightness = 255;
+bool screenSaverActive = false;
+bool core0ready = false;
+bool core1ready = false;
+
+bool overwriteRecording = true;
+bool overWriteNotesWithEmptiness = false;//flag to set for overwriting notes on tracks that AREN'T receiving notes (overdubbing silence)
+bool waitForNoteBeforeRec = true;
+bool waitingToReceiveANote = true;//wait to receive note to begin recording
+//controls whether or not fragmenting is on
+bool isFragmenting = false;
+
+//humanize values are timing, velocity, and chance
+//i very well might go back to using this array instead of the humanizer object
+// int8_t humanizeParameters[3] = {0,0,0};
+int8_t quantizeAmount = 100;
+
+//holds all the data for the echo fx
+struct EchoData{
+  uint8_t delay = 24;
+  uint8_t decay = 75;
+  uint8_t repeats = 2;
+};
+
+EchoData echoData;
+
+struct RandomData{
+  int8_t odds = 60;
+  int8_t minChance = 100;
+  int8_t maxChance = 100;
+  uint8_t minLength = 24;
+  uint8_t maxLength = 24;
+  uint8_t minVel = 100;
+  uint8_t maxVel = 127;
+  uint8_t everyNSteps = 24;
+};
+
+RandomData randomData;
+
+String menuText = "";
+String currentFile = "";
+
+//stores recent received note as pitch, vel, channel
+volatile bool noteOnReceived = false;
+volatile bool noteOffReceived = false;
+
 #include "utils.h"              //common helper functions/utilities
 #include "internalCC.h"
 
@@ -187,7 +248,9 @@ uint16_t animOffset = 0;//for animating curves
 #include "classes/AutoTrack.h"
 #include "classes/Arp.h"
 #include "classes/CV.h"
+
 #include "sequence.cpp"
+
 #include "classes/NoteID.h"
 
 
@@ -211,15 +274,15 @@ Knob controlKnobs[16];
 //These need to be referenced after Autotracks are defined
 void rotaryActionA_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  controls.counterA += (recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == ENCODER_A)?controls.readEncoder(0)*4:controls.readEncoder(0);
-  if(recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == ENCODER_A)
+  controls.counterA += (sequence.recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == ENCODER_A)?controls.readEncoder(0)*4:controls.readEncoder(0);
+  if(sequence.recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == ENCODER_A)
     waitingToReceiveANote = false;
 }
 
 void rotaryActionB_Handler(){
   //this is bad programming! prob shouldn't have this in an interrupt
-  controls.counterB += (recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == ENCODER_B)?controls.readEncoder(1)*4:controls.readEncoder(1);
-  if(recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == ENCODER_B)
+  controls.counterB += (sequence.recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == ENCODER_B)?controls.readEncoder(1)*4:controls.readEncoder(1);
+  if(sequence.recordingToAutotrack && sequence.autotrackData[sequence.activeAutotrack].recordFrom == ENCODER_B)
     waitingToReceiveANote = false;
 }
 
@@ -259,7 +322,6 @@ void webInterface(){}
 #include "menus/mainMenu.cpp"
 #include "menus/midiMenu.cpp"
 
-#include "trackEditing.h"
 #include "sleep.h"
 #include "fileSystem.h"
 #include "CCSelector.h"

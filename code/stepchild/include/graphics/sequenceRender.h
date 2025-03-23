@@ -164,7 +164,7 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
     if(settings.drawLoopPoints){//check
       if(step == sequence.loopData[sequence.activeLoop].start){
         if(settings.drawLoopFlags){
-          if(movingLoop == MOVING_LOOP_END || movingLoop == MOVING_BOTH_LOOP_POINTS){
+          if(sequence.movingLoop == MOVING_LOOP_END || sequence.movingLoop == MOVING_BOTH_LOOP_POINTS){
             display.fillTriangle(trackDisplay+(step-settings.start)*sequence.viewScale, settings.startHeight-3-sin(millis()/50), trackDisplay+(step-settings.start)*sequence.viewScale, settings.startHeight-7-sin(millis()/50), trackDisplay+(step-settings.start)*sequence.viewScale+4, settings.startHeight-7-sin(millis()/50),SSD1306_WHITE);
             display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale,settings.startHeight-3,3,SSD1306_WHITE);
           }
@@ -178,14 +178,14 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
             }
           }
         }
-        if((movingLoop == MOVING_NO_LOOP_POINTS) || (movingLoop != MOVING_LOOP_START && (millis()/400)%2)){
+        if((sequence.movingLoop == MOVING_NO_LOOP_POINTS) || (sequence.movingLoop != MOVING_LOOP_START && (millis()/400)%2)){
           display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
           display.drawFastVLine(trackDisplay+(step-settings.start)*sequence.viewScale-1,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
         }
       }
       if(step == sequence.loopData[sequence.activeLoop].end-1){
         if(settings.drawLoopFlags){
-          if(movingLoop == MOVING_LOOP_START || movingLoop == MOVING_BOTH_LOOP_POINTS){
+          if(sequence.movingLoop == MOVING_LOOP_START || sequence.movingLoop == MOVING_BOTH_LOOP_POINTS){
             display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-3-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale-4, settings.startHeight-7-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale, settings.startHeight-7-sin(millis()/50),SSD1306_WHITE);
             display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale,settings.startHeight-3,3,SSD1306_WHITE);
           }
@@ -199,12 +199,12 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
             }
           }
         }
-        if((movingLoop == MOVING_NO_LOOP_POINTS) || (movingLoop != MOVING_LOOP_END && (millis()/400)%2)){
+        if((sequence.movingLoop == MOVING_NO_LOOP_POINTS) || (sequence.movingLoop != MOVING_LOOP_END && (millis()/400)%2)){
           display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale+1,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
           display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale+2,settings.startHeight,screenHeight-settings.startHeight-(sequence.endTrack == sequence.trackData.size()),SSD1306_WHITE);
         }
       }
-      if(movingLoop == MOVING_BOTH_LOOP_POINTS){
+      if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS){
         if(step>sequence.loopData[sequence.activeLoop].start && step<sequence.loopData[sequence.activeLoop].end && settings.startHeight>8){
           display.drawPixel(trackDisplay+(step-settings.start)*sequence.viewScale, settings.startHeight-7-sin(millis()/50),SSD1306_WHITE);
         }
@@ -267,9 +267,9 @@ void drawTopIcons(SequenceRenderSettings& settings){
         display.fillCircle(trackDisplay+3,3,3,SSD1306_WHITE);
     }
     x1+=9;
-    switch(recMode){
+    switch(sequence.recMode){
       //if one-shot rec
-      case 0:
+      case ONESHOT:
         // display.drawBitmap(x1+((millis()/200)%2),0,oneShot_rec,7,7,SSD1306_WHITE);
         printSmall(x1,1,"1",1);
         x1+=4;
@@ -278,7 +278,7 @@ void drawTopIcons(SequenceRenderSettings& settings){
         x1+=4;
         break;
       //if continuous recording
-      case 1:
+      case CURRENT_LOOP:
         display.drawBitmap(x1,1,continuous_bmp,9,5,SSD1306_WHITE);
         x1+=10;
         break;
@@ -580,27 +580,14 @@ void drawSeq(SequenceRenderSettings& settings){
               graphics.drawArrow(6+((millis()/400)%2),y1+trackHeight/2+1,2,0,true);
       }
       if(settings.trackLabels){
-          if(!isShrunk){
-              //printing note names
-              if(pitchesOrNumbers){
-                  graphics.printTrackPitch(xCoord, y1+trackHeight/2-2,track,false,settings.drawTrackChannel,SSD1306_WHITE);
-              }
-              //just printing pitch numbers
-              else{
-                  display.setCursor(xCoord,y1+2);
-                  display.print(sequence.trackData[track].pitch);
-              }
+          //printing note names
+          if(sequence.pitchesOrNumbers){
+              graphics.printTrackPitch(xCoord, y1+trackHeight/2-2,track,false,settings.drawTrackChannel,SSD1306_WHITE);
           }
-          //if it's shrunk, draw it small
+          //just printing pitch numbers
           else{
-              String pitch = sequence.trackData[track].getPitchAndOctave();
-              if(track%2)
-                  printSmall(18, y1, pitchToString(sequence.trackData[track].pitch,true,true), SSD1306_WHITE);
-              else
-                  printSmall(2, y1, pitchToString(sequence.trackData[track].pitch,true,true), SSD1306_WHITE);
-              if(sequence.trackData[track].noteLastSent != 255){
-                  display.drawRect(0,y1,trackDisplay,trackHeight+2,SSD1306_WHITE);
-              }
+              display.setCursor(xCoord,y1+2);
+              display.print(sequence.trackData[track].pitch);
           }
       }
       //if you're drawing selected tracks highlight

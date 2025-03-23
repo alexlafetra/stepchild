@@ -71,21 +71,21 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
                     sequence.moveCursor(-sequence.cursorPos%sequence.subDivision);
                     lastTime = millis();
                     //moving entire loop
-                    if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+                    if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
                     sequence.moveLoop(-sequence.cursorPos%sequence.subDivision);
                 }
                 else{
                     sequence.moveCursor(-sequence.subDivision);
                     lastTime = millis();
                     //moving entire loop
-                    if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+                    if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
                     sequence.moveLoop(-sequence.subDivision);
                 }
                 //moving loop start/end
-                if(movingLoop == MOVING_LOOP_END){
+                if(sequence.movingLoop == MOVING_LOOP_END){
                     sequence.setLoopPoint(sequence.cursorPos,true);
                 }
-                else if(movingLoop == MOVING_LOOP_START){
+                else if(sequence.movingLoop == MOVING_LOOP_START){
                     sequence.setLoopPoint(sequence.cursorPos,false);
                 }
                 }
@@ -93,20 +93,20 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
                 if(sequence.cursorPos%sequence.subDivision){
                     sequence.moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
                     lastTime = millis();
-                    if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+                    if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
                     sequence.moveLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
                 }
                 else{
                     sequence.moveCursor(sequence.subDivision);
                     lastTime = millis();
-                    if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+                    if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
                     sequence.moveLoop(sequence.subDivision);
                 }
                 //moving loop start/end
-                if(movingLoop == MOVING_LOOP_END){
+                if(sequence.movingLoop == MOVING_LOOP_END){
                     sequence.setLoopPoint(sequence.cursorPos,true);
                 }
-                else if(movingLoop == MOVING_LOOP_START){
+                else if(sequence.movingLoop == MOVING_LOOP_START){
                     sequence.setLoopPoint(sequence.cursorPos,false);
                 }
             }
@@ -128,21 +128,21 @@ void PCEditor_joystick(uint8_t &activePort, bool editingMode, uint8_t &editingCu
             if (controls.joystickX == 1 && controls.SHIFT()) {
             sequence.moveCursor(-1);
             lastTime = millis();
-            if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+            if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
                 sequence.moveLoop(-1);
-            else if(movingLoop == MOVING_LOOP_END)
+            else if(sequence.movingLoop == MOVING_LOOP_END)
                 sequence.setLoopPoint(sequence.cursorPos,true);
-            else if(movingLoop == MOVING_LOOP_START)
+            else if(sequence.movingLoop == MOVING_LOOP_START)
                 sequence.setLoopPoint(sequence.cursorPos,false);
             }
             if (controls.joystickX == -1 && controls.SHIFT()) {
             sequence.moveCursor(1);
             lastTime = millis();
-            if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+            if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
                 sequence.moveLoop(1);
-            else if(movingLoop == MOVING_LOOP_END)
+            else if(sequence.movingLoop == MOVING_LOOP_END)
                 sequence.loopData[sequence.activeLoop].start = sequence.cursorPos;
-            else if(movingLoop == MOVING_LOOP_START)
+            else if(sequence.movingLoop == MOVING_LOOP_START)
                 sequence.loopData[sequence.activeLoop].end = sequence.cursorPos;
             }
         }
@@ -215,7 +215,7 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
         }
         //loop point stuff
         if(step == sequence.loopData[sequence.activeLoop].start){
-            if(movingLoop == MOVING_LOOP_END || movingLoop == MOVING_BOTH_LOOP_POINTS){
+            if(sequence.movingLoop == MOVING_LOOP_END || sequence.movingLoop == MOVING_BOTH_LOOP_POINTS){
                 display.fillTriangle(trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-3-sin(millis()/50), trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-7-sin(millis()/50), trackDisplay+(step-sequence.viewStart)*sequence.viewScale+4, 9-7-sin(millis()/50),SSD1306_WHITE);
                 display.drawFastVLine(trackDisplay+(step-sequence.viewStart)*sequence.viewScale,9-3,3,SSD1306_WHITE);
             }
@@ -230,7 +230,7 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
             }
         }
         if(step == sequence.loopData[sequence.activeLoop].end-1){
-            if(movingLoop == MOVING_LOOP_START || movingLoop == MOVING_BOTH_LOOP_POINTS){
+            if(sequence.movingLoop == MOVING_LOOP_START || sequence.movingLoop == MOVING_BOTH_LOOP_POINTS){
                 display.drawTriangle(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale, 9-3-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale-4, 9-7-sin(millis()/50), trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale, 9-7-sin(millis()/50),SSD1306_WHITE);
                 display.drawFastVLine(trackDisplay+(sequence.loopData[sequence.activeLoop].end-sequence.viewStart)*sequence.viewScale,9-3,3,SSD1306_WHITE);
             }
@@ -244,7 +244,7 @@ void drawPCViewer(uint8_t activePort, bool editingMessage, uint8_t editingCursor
                 }
             }
         }
-        if(movingLoop == MOVING_BOTH_LOOP_POINTS){
+        if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS){
             if(step>sequence.loopData[sequence.activeLoop].start && step<sequence.loopData[sequence.activeLoop].end && step%2){
                 display.drawPixel(trackDisplay+(step-sequence.viewStart)*sequence.viewScale, 9-7-sin(millis()/50),SSD1306_WHITE);
             }

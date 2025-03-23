@@ -1,330 +1,13 @@
-/*
-
-  file for the StepchildSequence class, contains enums too
-
-*/
-enum MovingLoopState{
-  MOVING_NO_LOOP_POINTS,
-  MOVING_LOOP_END,
-  MOVING_LOOP_START,
-  MOVING_BOTH_LOOP_POINTS
-};
-
-#ifndef HEADLESS
-enum PlayState{
-  STOPPED,
-  PLAYING,
-  RECORDING,
-  LIVELOOPING
-};
-#endif
-
-enum NoteProperty{
-  VELOCITY,
-  CHANCE,
-  PITCH
-};
-
-//MIDI callbacks for different play modes
-void handleStop_playing();
-void handleClock_playing();
-void handleStart_playing();
-void handleClock_recording();
-void handleStart_recording();
-void handleStop_recording();
-void handleNoteOn_Recording(uint8_t channel, uint8_t note, uint8_t velocity);
-void handleNoteOff_Recording(uint8_t channel, uint8_t note, uint8_t velocity);
-void handleCC_Recording(uint8_t channel, uint8_t cc, uint8_t value);
-void handleCC_Normal(uint8_t channel, uint8_t cc, uint8_t value);
-void handleNoteOn_Normal(uint8_t channel, uint8_t note, uint8_t velocity);
-void handleNoteOff_Normal(uint8_t channel, uint8_t note, uint8_t velocity);
-void handleStart_Normal();
-void handleStop_Normal();
-void handlePB(uint8_t ch, int val);
-
-//Providing all the data and functions that the stepchild needs to run the sequence, but none of the graphics
-class StepchildSequence{
-  public:
-  vector<vector<uint16_t>> lookupTable;
-  vector<vector<Note>> noteData;
-  vector<Track> trackData;
-
-  uint16_t activeTrack = 0;
-  uint16_t cursorPos = 0;
-
-  //Not implemented yet! Still using global vars
-  uint16_t recheadPos = 0;
-  uint16_t playheadPos = 0;
-
-  vector<Loop> loopData;
-  uint8_t activeLoop = 0;
-  uint8_t isLooping = true;
-  uint8_t loopCount = 0;
-
-  vector<Autotrack> autotrackData;
-  uint8_t activeAutotrack = 0;
-
-  uint16_t sequenceLength = 192;
-  uint16_t viewStart = 0;
-  uint16_t viewEnd = 192;
-  bool shrinkTopDisplay = false;
-  uint8_t maxTracksShown = 5;
-  // uint8_t startTrack = 0;
-  // uint8_t endTrack = 4;
-  uint16_t startTrack = 0;
-  uint16_t endTrack = 5;
-  float viewScale = 0.5;
-
-  uint8_t subDivision = 24;
-
-  MovingLoopState movingLoop;
-  PlayState playState = STOPPED;
-  
-  uint8_t defaultChannel = 1;
-  uint8_t defaultPitch = 36;
-  uint8_t defaultVel = 127;
-  uint8_t defaultChance = 100;
-
-  uint16_t selectionCount = 0;
-
-
-  StepchildSequence(){}
-  /*
-  ----------------------------------------------------------
-                      UTILITIES
-  ----------------------------------------------------------
-  */
-  
-  //creates a sequence object with default values
-  void init(uint8_t numberOfTracks,uint16_t length);
-  void init();
-  void init(SequenceTemplate t);
-  bool isQuarterGrid();
-  //swaps all the data vars in the sequence for new, blank data
-  void erase();
-  Note noteAt(uint8_t track, uint16_t step);
-  Note noteAtCursor();
-  uint16_t IDAt(uint8_t track, uint16_t step);
-  uint16_t IDAtCursor();
-
-    /*
-  ----------------------------------------------------------
-                      PLAYBACK/RECORDING
-  ----------------------------------------------------------
-  */
-  void togglePlay();
-  void toggleRecording(bool butWait);
-  void triggerAutotracks(uint8_t trackID, bool state);
-  void setNormalMode();
-  void playNote(Note& note, uint8_t track, uint16_t timestep);
-  void playTrack(uint8_t track, uint16_t timestep);
-  void playStep(uint16_t timestep);
-  void stop();
-  void defaultLoop();
-  void arpLoop();
-  void checkAutotracks();
-  void playingLoop();
-  void recordingLoop();
-  void checkLoop();
-  void cleanupRecording(uint16_t stopTime);
-  void updateLookupData();
-  void continueStep(uint16_t step);
-  void writeCC(uint16_t step, uint8_t channel, uint8_t controller, uint8_t value);
-  void writeNoteOn(uint16_t step, uint8_t pitch, uint8_t vel, uint8_t channel);
-  void writeNoteOff(uint16_t step, uint8_t pitch, uint8_t channel);
-
-
-  /*
-  ----------------------------------------------------------
-                      LOADING NOTES
-  ----------------------------------------------------------
-  */
-  //adds a note w/o checking for overlaps
-  //Only use this when loading notes from a file into a blank sequence
-  void loadNote(Note newNote, uint8_t track);
-  void loadNote(uint16_t id, uint8_t track, uint16_t start, uint8_t velocity, bool isMuted, uint8_t chance, uint16_t end, bool selected);
-  void loadNote(uint8_t whichTrack, uint16_t start, uint16_t end, uint8_t velocity, uint8_t chance, uint8_t flags);
-  /*
-  ----------------------------------------------------------
-                      DELETING NOTES
-  ----------------------------------------------------------
-  */
-  //Deletes a note on a given track with a given ID
-  void deleteNote_byID(uint8_t track, uint16_t targetNoteID);
-  //deletes a note at a specific time/place
-  void deleteNote(uint8_t track, uint16_t time);
-  //deletes a note at the current track/cursor position
-  void deleteNote();
-  void deleteSelected();
-  /*
-  ----------------------------------------------------------
-                      CREATING NOTES
-  ----------------------------------------------------------
-  Lots of these are redundant/deprecated overloads... go thru em and get rid of them!
-  */
-  void makeNote(Note newNoteOn, uint8_t track, bool loudly);
-  void makeNote(int track, int time, int length, int velocity, int chance, bool mute, bool select, bool loudly);
-  void makeNote(Note newNoteOn, uint8_t track);
-  void makeNote(uint8_t track, uint16_t time, uint16_t length, uint8_t velocity, uint8_t chance, bool loudly);
-  //this one is for quickly placing a ntoe at the cursor, on the active track
-  void makeNote(uint8_t track, uint16_t time, uint16_t length, bool loudly);
-  void makeNote(uint16_t length, bool loudly);
-  //draws notes every "count" subDivs, from viewStart to viewEnd
-  //this is a super useful idea for sequencing, but currently only used by the edit menu
-  void stencilNotes(uint8_t count);
-
-  //checks if there's a note first, and if there is it deletes it/if not it places one
-  void toggleNote(uint8_t track, uint16_t step, uint16_t length);
-  void makeNoteEveryNDivisions(uint8_t n);
-  /*
-  ----------------------------------------------------------
-                      EDITING NOTES
-  ----------------------------------------------------------
-  */
-  //edits a single note
-  void editNoteProperty_byID(uint16_t id, uint8_t track, int8_t amount, NoteProperty which);
-  //edits all selected notes
-  void editNotePropertyOfSelectedNotes(int8_t amount, NoteProperty which);
-  //edits a note, and all selected notes, checking to make sure it doesn't double-edit
-  void editNoteAndSelected(int8_t amount, NoteProperty which);
-  //called by main controls, edits all selected notes
-  void changeVel(int8_t amount);
-  void changeChance(int8_t amount);
-  //changes JUST a specific note
-  void changeChance_byID(uint16_t id, uint8_t track, int8_t amount);
-  void changeVel_byID(uint16_t id, uint8_t track, int8_t amount);
-  void muteNote(uint8_t track, uint16_t id, bool toggle);
-  void unmuteNote(uint8_t track, uint16_t id, bool toggle);
-  //mutes/unmutes all selected notes
-  void setMuteStateOfSelectedNotes(bool state);
-  void muteSelectedNotes();
-  void unmuteSelectedNotes();
-  //cuts a note short at a specific time
-  void truncateNote(uint8_t track, uint16_t atTime);
-  bool checkNoteMove(Note targetNote, int track, int newTrack, int newStart);
-  bool checkNoteMove(uint16_t id, uint8_t track, uint8_t newTrack, uint16_t newStart);
-  //moves a note
-  bool moveNote(uint16_t id, uint8_t track, uint8_t newTrack, uint16_t newStart);
-  bool moveSelectedNotes(int16_t xOffset, int8_t yOffset);
-  //this should move the note the cursor is on (if any)
-  bool moveNotes(int16_t xAmount, int8_t yAmount);
-  int16_t changeNoteLength(int val, unsigned short int track, unsigned short int id);
-  int16_t changeNoteLength(int amount);
-  //this one jumps the cursor to the end or start of the note
-  void changeNoteLength_jumpToEnds(int16_t amount);
-  void changeNoteLengthSelected(int amount);
-  /*
-  ----------------------------------------------------------
-                      Editing Tracks
-  ----------------------------------------------------------
-  */
-  void changeTrackChannel(int id, int newChannel);
-  void changeAllTrackChannels(int newChannel);
-  /*
-  ----------------------------------------------------------
-                      EDITING SEQ
-  ----------------------------------------------------------
-  */
-  void addTimeToSeq(uint16_t amount, uint16_t insertPoint);
-  void removeTimeFromSeq(uint16_t amount, uint16_t insertPoint);
-  /*
-  ----------------------------------------------------------
-                          Graphics??
-  ----------------------------------------------------------
-  */
-  //displays notes on LEDs
-  void displayMainSequenceLEDs();
-  /*
-  ----------------------------------------------------------
-                          Loops
-  ----------------------------------------------------------
-  */
-  void setLoopPoint(int32_t start, bool which);
-  void addLoop(Loop newLoop);
-  void insertLoop(Loop newLoop, uint8_t index);
-  void setActiveLoop(unsigned int id);
-  void addLoop();
-  void addLoop(unsigned short int start, unsigned short int end, unsigned short int iter, uint8_t type);
-  void deleteLoop(uint8_t id);
-  void toggleLoop();
-  //moves to the next loop in loopSeq
-  void nextLoop();
-  //cuts notes off when loop repeats, then starts new note at beginning
-  void cutLoop();
-  //moves the whole loop
-  void moveLoop(int16_t amount);
-  void toggleLoopMove();
-  /*
-  ----------------------------------------------------------
-                          Status/info
-  ----------------------------------------------------------
-  */
-  //true if Stepchild is sending or receiving notes
-  bool isReceiving();
-  bool isSending();
-  bool isReceivingOrSending();
-  bool areThereAnyNotes();
-  //checks for notes above or below a track
-  bool areThereMoreNotes(bool above);
-  uint16_t getNoteCount();
-  float getNoteDensity(uint16_t timestep);
-  float getNoteDensity(uint16_t start, uint16_t end);
-  //counts notes within a range
-  uint16_t countNotesInRange(uint16_t start, uint16_t end);
-  bool playing();
-  bool recording();
-  bool liveLooping();
-  /*
-  ----------------------------------------------------------
-                          Cursor
-  ----------------------------------------------------------
-  */
-  //sets cursor to the visually nearest note
-  //steps to pixels = steps*scale
-  //for a note to be "visually" closer, it needs to have a smaller pixel
-  //distance from the cursor than another note
-  //compare trackDistance * trackHeight to stepDistance * scale
-  float getDistanceFromNoteToCursor(Note note,uint8_t track);
-  void setCursorToNearestNote();
-  //changes which track is active, changing only to valid tracks
-  bool setActiveTrack(uint8_t newActiveTrack, bool loudly);
-  void moveToNextNote_inTrack(bool up);
-  //moves thru each step, forward or backward, and moves the cursor to the first note it finds
-  void moveToNextNote(bool forward,bool endSnap);
-  void moveToNextNote(bool forward);
-  //moving the cursor around
-  int16_t moveCursor(int moveAmount);
-  void setCursor(uint16_t loc);
-  void moveCursorIntoView();
-  /*
-  ----------------------------------------------------------
-                          View
-  ----------------------------------------------------------
-  */
-  void setViewStart(uint16_t step);
-  void moveView(int16_t val);
-  bool isInView(int target);
-  //makes sure scale/viewend line up with the display
-  void checkView();
-  //zooms in/out
-  void zoom(bool in);
-  /*
-  ----------------------------------------------------------
-                          Subdiv
-  ----------------------------------------------------------
-  */
-  void changeSubDivInt(bool down);
-  void changeSubDivInt(bool down, bool limitToView);
-  void toggleTriplets();
-};
+#include "sequence.h"
 
 void StepchildSequence::writeNoteOn(uint16_t step, uint8_t pitch, uint8_t vel, uint8_t channel){
   uint8_t trackID = makeTrackWithPitch(pitch,channel);
   if(trackData[trackID].isPrimed()){
     Note newNote(step, step, vel);//this constuctor sets the endPos of the note at the same position
-    newNote.setSelected(recordedNotesAreSelected);
-    if(newNote.isSelected())
+    if(liveLooping()){
+      newNote.setSelected(true);
       selectionCount++;
+    }
     if(lookupTable[trackID][step] != 0){
       deleteNote(trackID,step);
     }
@@ -455,7 +138,7 @@ void StepchildSequence::recordingLoop(){
     }
   }
   else if(sequenceClock.clockSource == EXTERNAL_CLOCK){
-    if(sequenceClock.receivedClockMessage && hasStarted){
+    if(sequenceClock.receivedClockMessage && startedPlaying){
       sequenceClock.receivedClockMessage = false;
       continueStep(recheadPos);
       recheadPos++;
@@ -492,13 +175,13 @@ void StepchildSequence::checkLoop(){
       }
     }
     //record to one loop over and over again
-    else if(recMode == LOOP_MODE){
+    else if(recMode == CURRENT_LOOP){
       if(recheadPos>=loopData[activeLoop].end){
         recheadPos = loopData[activeLoop].start;
       }
     }
     //record to loops as they play in sequence
-    else if(recMode == LOOPSEQUENCE){
+    else if(recMode == LOOP_SEQUENCE){
       if(recheadPos>=loopData[activeLoop].end){
         cutLoop();
         loopCount++;
@@ -527,7 +210,7 @@ void StepchildSequence::playingLoop(){
   //external timing
   else if(sequenceClock.clockSource == EXTERNAL_CLOCK){
     MIDI.read();
-    if(sequenceClock.receivedClockMessage && hasStarted){
+    if(sequenceClock.receivedClockMessage && startedPlaying){
       sequenceClock.receivedClockMessage = false;
       playStep(playheadPos);
       playheadPos += 1;
@@ -1790,6 +1473,65 @@ for(uint8_t t = 0; t<this->trackData.size(); t++){
 return count;
 }
 
+
+//above index is an INCLUSIVE lower bound!
+int16_t StepchildSequence::getTrackWithPitch_above(uint8_t pitch, uint8_t aboveIndex){
+  for(int i=aboveIndex ; i<trackData.size();i++){
+    if(trackData[i].pitch == pitch)
+      return i;
+  }
+  return 0;
+}
+//returns id of track with a specific pitch, returns -1 if track doesn't exist
+int16_t StepchildSequence::getTrackWithPitch(int16_t pitch, uint8_t channel){
+  for(int i=0;i<trackData.size();i++){
+    if(trackData[i].pitch == pitch && trackData[i].channel == channel)
+      return i;
+  }
+  return -1;
+}
+int16_t StepchildSequence::getTrackWithPitch(int16_t pitch){
+  for(uint16_t i=0;i<trackData.size();i++){
+    if(trackData[i].pitch == pitch)
+      return i;
+  }
+  return -1;
+}
+
+int16_t StepchildSequence::makeTrackWithPitch(int16_t pitch, uint8_t channel){
+  int16_t track = getTrackWithPitch(pitch,channel);
+  if(track == -1){
+    return addTrack_return(pitch, channel, false);
+  }
+  return track;
+}
+
+
+
+void StepchildSequence::addTrack(Track newTrack, bool loudly){
+  if(trackData.size()<255){
+    insertTrack(newTrack,activeTrack);
+    if(loudly){
+      MIDI.noteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+    }
+  }
+}
+
+//this function should add a new row to the sequence.noteData, and sequence.lookupTable initialized with 64 zeroes
+void StepchildSequence::addTrack(uint8_t pitch, uint8_t channel, bool latch, uint8_t muteGroup, bool primed, bool loudly){
+  if(trackData.size()<255){
+    Track newTrack(pitch, channel);
+    newTrack.setLatched(latch);
+    newTrack.muteGroup = muteGroup;
+    newTrack.setPrimed(primed);
+    addTrack(newTrack,loudly);
+  }
+}
+void StepchildSequence::addTrack(unsigned char pitch, unsigned char channel, bool loudly) {
+  addTrack(pitch, channel, false, 0, true, loudly);
+}
+
 //changes which track is active, changing only to valid tracks
 bool StepchildSequence::setActiveTrack(uint8_t newActiveTrack, bool loudly) {
 if (newActiveTrack >= 0 && newActiveTrack < this->trackData.size()) {
@@ -1817,11 +1559,379 @@ return false;
 }
 
 void StepchildSequence::changeTrackChannel(int id, int newChannel){
-if(newChannel>=0 && newChannel<=16){
-  this->trackData[id].channel = newChannel;
+  if(newChannel>=0 && newChannel<=16){
+    this->trackData[id].channel = newChannel;
+  }
 }
+//unarms any tracks with notes on them
+void StepchildSequence::disarmTracksWithNotes(){
+  for(uint8_t i = 0; i<trackData.size(); i++){
+    if(noteData[i].size()>1){
+      trackData[i].setPrimed(false);
+    }
+  }
 }
 
+void StepchildSequence::muteTrack(uint16_t id){
+  trackData[id].setMuted(true);
+}
+void StepchildSequence::unMuteTrack(uint16_t id){
+  trackData[id].setMuted(false);
+}
+
+void StepchildSequence::toggleMute(uint16_t id){
+  trackData[id].setMuted(!trackData[id].isMuted());
+}
+
+void StepchildSequence::muteMultipleTracks(vector<uint8_t> ids){
+  for(int track = 0; track<ids.size(); track++){
+    muteTrack(ids[track]);
+  }
+}
+
+void StepchildSequence::soloTrack(unsigned short int id){
+  for(int track = 0; track<trackData.size(); track++){
+    if(track != id){
+      muteTrack(track);
+      trackData[track].setSolo(false);
+    }
+    else 
+      trackData[id].setSolo(true);
+  }
+}
+
+void StepchildSequence::unSoloTrack(uint16_t id){
+  for(int track = 0; track<trackData.size(); track++){
+    if(track != id)
+      unMuteTrack(track);
+    else
+      trackData[id].setSolo(false);
+  }
+}
+
+void StepchildSequence::toggleSolo(uint16_t id){
+  if(trackData[id].isSolo())
+    unSoloTrack(id);
+  else
+    soloTrack(id);
+}
+
+void StepchildSequence::eraseMultipleTracks(vector<uint8_t> ids){
+  for(uint16_t track = 0; track<ids.size(); track++){
+    eraseTrack(ids[track]);
+  }
+}
+
+
+//returns the index of the new track
+int16_t StepchildSequence::addTrack_return(unsigned short int pitch, unsigned short int channel, bool loudly) {
+  if(trackData.size()<256){
+    Track newTrack(pitch, channel);
+    addTrack(newTrack,loudly);
+    return (activeTrack);
+  }
+  else{
+    return -1;
+  }
+}
+
+void StepchildSequence::insertTrack(Track newTrack, uint8_t index){
+  //if you're trying to insert past the end!
+  if(index>=trackData.size()){
+    //inserting new track
+    trackData.push_back(newTrack);
+    //inserting new lookupTable lane
+    vector<uint16_t> blankLookupData(sequenceLength,0);
+    lookupTable.push_back(blankLookupData);
+    //inserting new noteData lane
+    noteData.push_back({Note()});
+  }
+  else{
+    //inserting new track
+    trackData.insert(trackData.begin()+index,newTrack);
+    //inserting new lookupTable lane
+    vector<uint16_t> blankLookupData(sequenceLength,0);
+    lookupTable.insert(lookupTable.begin()+index,blankLookupData);
+    //inserting new noteData lane
+    noteData.insert(noteData.begin()+index,{Note()});
+  }
+}
+
+int16_t StepchildSequence::insertTrack_return(unsigned short int pitch, unsigned short int channel, bool loudly, uint8_t loc){
+  if(trackData.size()<256){
+    Track newTrack(pitch, channel);
+    insertTrack(newTrack,loc);
+    if(loudly){
+      MIDI.noteOn(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+      MIDI.noteOff(trackData[activeTrack].pitch, defaultVel, trackData[activeTrack].channel);
+    }
+    return (loc);
+  }
+  else{
+    return -1;
+  }
+}
+
+void StepchildSequence::dupeTrack(unsigned short int track){
+  if(trackData.size()<256){
+    Track newTrack = trackData[track];
+    insertTrack(newTrack,track);
+  }
+}
+
+void StepchildSequence::eraseTrack(int track) {
+  noteData[track].resize(1);
+  for (int i = 0; i < sequenceLength; i++) {
+    clearSelection(track, i);
+    lookupTable[track][i] = 0;
+  }
+}
+//erases notes, but doesn't del track
+void StepchildSequence::eraseTrack() {
+  eraseTrack(activeTrack);
+}
+
+
+void StepchildSequence::deleteDuplicateEmptyTracks(){
+  for(uint8_t t = 0; t<trackData.size(); t++){
+    for(uint8_t t2 = 0; t2<trackData.size(); t2++){
+      if(t2 == t)
+        continue;
+      //if a track has the same pitch, channel, and is empty, del it
+      if(trackData[t].pitch == trackData[t2].pitch &&
+        trackData[t].channel == trackData[t2].channel &&
+        noteData[t2].size() == 1){
+        deleteTrack(t2);
+      }
+    }
+  }
+}
+
+uint8_t StepchildSequence::countEmptyTracks(){
+  uint8_t count = 0;
+  for(auto track:noteData){
+    if(track.size()==1){
+      count++;
+    }
+  }
+  return count;
+}
+void StepchildSequence::deleteEmptyTracks(){
+  if(binarySelectionBox(64,32,"nah","yea","delete "+stringify(countEmptyTracks())+" tracks?",drawSeq) != 1){
+    return;
+  }
+  for(uint8_t i = 0; i<trackData.size(); i++){
+    //leave at least 1 track
+    if(noteData[i].size()-1 == 0 && trackData.size()>1){
+      deleteTrack(i);
+      i--;
+    }
+  }
+  if(activeTrack>=trackData.size())
+    activeTrack = trackData.size()-1;
+}
+
+//CHECK do you need to update trackID's??? idk if this will cause problems
+//dels the track AND notes stored within it (from noteData and lookupTable)
+//as long as you del tracks from the back, i think this is okay
+void StepchildSequence::deleteTrack(unsigned short int track){
+  deleteTrack(track,false);
+}
+
+void StepchildSequence::deleteTrack(unsigned short int track, bool hard, bool askFirst){
+  int choice = 1;
+  if(askFirst && noteData[track].size()-1>0){
+    vector<String> ops = {"nay","yeah"};                                                                                    //this is == 2 instead of 1 because noteData[track] always has the default note
+    choice = binarySelectionBox(64,32,"nay","yeah","del track w/"+stringify(noteData[track].size()-1)+(noteData[track].size() == 2?" note?":" notes?"),drawSeq);
+  }
+  if(choice == 1){
+    if(trackData.size() == 1 && !hard){
+      eraseTrack(track);
+      return;
+    }
+    //if the end track is within view
+    if(endTrack == trackData.size()){
+      endTrack--;
+      if(startTrack>0)
+        startTrack--;
+    }
+    if(activeTrack == track && activeTrack>0){
+      activeTrack--;
+    }
+
+    eraseTrack(track);
+
+    //making new data without the deld track
+    vector<Track> tempTrackData;
+    vector<vector<Note>> tempSeqData;
+    vector<vector<uint16_t>> tempLookupData;
+    for(uint8_t t = 0; t<trackData.size(); t++){
+      if(t != track){
+        tempTrackData.push_back(trackData[t]);
+        tempSeqData.push_back(noteData[t]);
+        tempLookupData.push_back(lookupTable[t]);
+      }
+    }
+    trackData.swap(tempTrackData);
+    noteData.swap(tempSeqData);
+    lookupTable.swap(tempLookupData);
+  }
+}
+
+void StepchildSequence::deleteTrack(unsigned short int track, bool hard){
+  deleteTrack(track, hard, true);
+}
+//dels all tracks
+void StepchildSequence::deleteAllTracks(){
+  while(trackData.size()>0){
+    deleteTrack(0,true,false);
+  }
+}
+
+
+void StepchildSequence::transposeAllChannels(int8_t increment){
+  for(int i = 0; i<trackData.size(); i++){
+    if(i == activeTrack)
+      setTrackChannel(i,trackData[i].channel+increment,true);//only the active track makes a noise
+    else
+      setTrackChannel(i,trackData[i].channel+increment,false);//quiet bc it'd be crazy
+  }
+}
+
+void StepchildSequence::setTrackChannel(uint16_t track, uint8_t channel, bool loud){
+  if(channel>=1 && channel<=16){
+    MIDI.noteOff(trackData[track].pitch,0,trackData[track].channel);
+    trackData[track].channel = channel;
+    if(loud){
+      MIDI.noteOn(trackData[track].pitch,63,trackData[track].channel);
+      MIDI.noteOff(trackData[track].pitch,0,trackData[track].channel);
+    }
+  }
+}
+
+void StepchildSequence::transposeAllPitches(int16_t increment){
+  for(int i = 0; i<trackData.size(); i++){
+    if(i == activeTrack)
+      setTrackPitch(i,trackData[i].pitch+increment,true);//only the active track makes a noise
+    else
+      setTrackPitch(i,trackData[i].pitch+increment,false);//quiet bc it'd be crazy
+  }
+}
+
+
+void StepchildSequence::sortTrackData(uint8_t type,uint8_t target){
+  //type is either 0 (ascending) or 1 (descending)
+  //target is either pitch, channel, or the number of notes
+  vector<Track> tempData = trackData;
+  switch(target){
+    case 0:
+      sort(tempData.begin(),tempData.end(),sortTracksByPitch);
+      break;
+    case 1:
+      sort(tempData.begin(),tempData.end(),sortTracksByChannel);
+      break;
+  }
+  if(type)
+    reverse(tempData.begin(),tempData.end());
+  trackData = tempData;
+}
+
+
+void StepchildSequence::setTrackToNearestPitch(vector<uint8_t>pitches,uint8_t track,bool allowDuplicates){
+  int oldPitch = trackData[track].pitch;
+  int pitchDistance = 127;
+  int closestPitch = 0;
+  int octaveOffset = 12*getOctave(oldPitch);
+  for(int i = 0; i<pitches.size(); i++){
+    if(abs(pitches[i]+octaveOffset-oldPitch)<pitchDistance){
+      pitchDistance = abs(pitches[i]+octaveOffset-oldPitch);
+      closestPitch = i;
+      //if the track is already that pitch, return
+      if(pitchDistance == 0){
+        return;
+      }
+    }
+  }
+  //if no duplicates are allowed, check to see if there are any other tracks
+  //with this pitch
+  if(!allowDuplicates){
+    for(uint8_t t = 0; t<trackData.size(); t++){
+      if(t!=track && trackData[t].pitch == pitches[closestPitch]+octaveOffset){
+        return;
+      }
+    }
+  }
+  setTrackPitch(track,pitches[closestPitch]+octaveOffset,false);
+}
+
+void StepchildSequence::setTrackPitch(int track, int note, bool loud) {
+  if(note>=0 && note<=127){
+    MIDI.noteOff(trackData[track].pitch,0,trackData[track].channel);
+    trackData[track].pitch = note;
+    if(loud){
+      MIDI.noteOn(trackData[track].pitch,63,trackData[track].channel);
+      MIDI.noteOff(trackData[track].pitch,0,trackData[track].channel);
+    }
+  }
+}
+
+//this one won't double up on a pitch, and will instead choose the next closes pitch in the list
+void StepchildSequence::setTrackToNearestUniquePitch(vector<uint8_t>pitches,int track){
+  int oldPitch = trackData[track].pitch;
+  int pitchDistance = 127;
+  int closestPitch = 0;
+  int octaveOffset = 12*getOctave(oldPitch);
+  for(int i = 0; i<pitches.size(); i++){
+    if(abs(pitches[i]+octaveOffset-oldPitch)<pitchDistance){
+      pitchDistance = abs(pitches[i]+octaveOffset-oldPitch);
+      closestPitch = i;
+      //if the distance is 0, then the track is already in tune
+      if(pitchDistance == 0){
+        return;
+      }
+    }
+  }
+  //if there's no track already with this pitch, set the track to the pitch
+  if(getTrackWithPitch(pitches[closestPitch]+octaveOffset) == -1){
+    setTrackPitch(track, pitches[closestPitch]+octaveOffset,false);
+  }
+  //if there is, run it again without this pitch (as long as there're still pitches left)
+  else{
+    if(pitches.size()>1){
+      vector<uint8_t>newPitches;
+      for(uint8_t i = 0; i<pitches.size(); i++){
+        if(i != closestPitch)
+          newPitches.push_back(pitches[i]);
+      }
+      pitches.swap(newPitches);
+      //recursively run the function again, just without the already-occupied pitch as an option
+      setTrackToNearestUniquePitch(pitches, track);
+    }
+    //if there's only one pitch,set it to it
+    else{
+      setTrackPitch(track, pitches[closestPitch]+octaveOffset,false);
+    }
+  }
+}
+
+
+void StepchildSequence::swapTracks(unsigned short int track1, unsigned short int track2){
+  //making sure the tracks are real
+  if(track1 < trackData.size() && track2 < trackData.size() && track1>=0 && track2 >= 0){
+    //swapping track data
+    Track old_activeTrack = trackData[track1];
+    trackData[track1] = trackData[track2];
+    trackData[track2] = old_activeTrack;
+    //swapping lookupData
+    vector<unsigned short int> old_lookupTable = lookupTable[track1];
+    lookupTable[track1] = lookupTable[track2];
+    lookupTable[track2] = old_lookupTable;
+    //swapping sequence data
+    vector<Note> old_noteData = noteData[track1];
+    noteData[track1] = noteData[track2];
+    noteData[track2] = old_noteData;
+  }
+}
 
 void StepchildSequence::changeAllTrackChannels(int newChannel){
 for(int track = 0; track<this->trackData.size(); track++){
@@ -1942,57 +2052,57 @@ else{
 
 //moving the cursor around
 int16_t StepchildSequence::moveCursor(int moveAmount){
-int16_t amt = 0;
-//if you're trying to move back at the start
-if(this->cursorPos == 0 && moveAmount < 0){
-  return 0;
-}
-if(moveAmount<0 && this->cursorPos+moveAmount<0){
-  amt = this->cursorPos;
-  this->cursorPos = 0;
-}
-else{
-  this->cursorPos += moveAmount;
-  amt = moveAmount;
-}
-if(this->cursorPos > this->sequenceLength) {
-  amt += (this->sequenceLength-this->cursorPos);
-  this->cursorPos = this->sequenceLength;
-}
-//extend the note if one is being drawn (and if you're moving forward)
-if(drawingNote && moveAmount>0){
-  if(this->noteData[this->activeTrack][this->noteData[this->activeTrack].size()-1].endPos<this->cursorPos)
-    changeNoteLength(this->cursorPos-this->noteData[this->activeTrack][this->noteData[this->activeTrack].size()-1].endPos,this->activeTrack,this->noteData[this->activeTrack].size()-1);
-}
-//Move the view along with the cursor
-if(this->cursorPos<this->viewStart+this->subDivision && this->viewStart>0){
-  moveView(this->cursorPos - (this->viewStart+this->subDivision));
-}
-else if(this->cursorPos > this->viewEnd-this->subDivision && this->viewEnd<this->sequenceLength){
-  moveView(this->cursorPos - (this->viewEnd-this->subDivision));
-}
-//update the LEDs
-menuText = ((moveAmount>0)?(stepsToPosition(this->cursorPos,true)+">>"):("<<"+stepsToPosition(this->cursorPos,true)));
-return amt;
+  int16_t amt = 0;
+  //if you're trying to move back at the start
+  if(this->cursorPos == 0 && moveAmount < 0){
+    return 0;
+  }
+  if(moveAmount<0 && this->cursorPos+moveAmount<0){
+    amt = this->cursorPos;
+    this->cursorPos = 0;
+  }
+  else{
+    this->cursorPos += moveAmount;
+    amt = moveAmount;
+  }
+  if(this->cursorPos > this->sequenceLength) {
+    amt += (this->sequenceLength-this->cursorPos);
+    this->cursorPos = this->sequenceLength;
+  }
+  //extend the note if one is being drawn (and if you're moving forward)
+  if(drawingNote && moveAmount>0){
+    if(this->noteData[this->activeTrack][this->noteData[this->activeTrack].size()-1].endPos<this->cursorPos)
+      changeNoteLength(this->cursorPos-this->noteData[this->activeTrack][this->noteData[this->activeTrack].size()-1].endPos,this->activeTrack,this->noteData[this->activeTrack].size()-1);
+  }
+  //Move the view along with the cursor
+  if(this->cursorPos<this->viewStart+this->subDivision && this->viewStart>0){
+    moveView(this->cursorPos - (this->viewStart+this->subDivision));
+  }
+  else if(this->cursorPos > this->viewEnd-this->subDivision && this->viewEnd<this->sequenceLength){
+    moveView(this->cursorPos - (this->viewEnd-this->subDivision));
+  }
+  //update the LEDs
+  menuText = ((moveAmount>0)?(stepsToPosition(this->cursorPos,true)+">>"):("<<"+stepsToPosition(this->cursorPos,true)));
+  return amt;
 }
 
 void StepchildSequence::setCursor(uint16_t loc){
-moveCursor(loc-this->cursorPos);
+  moveCursor(loc-this->cursorPos);
 }
 
 void StepchildSequence::moveCursorIntoView(){
-if (this->cursorPos < 0) {
-  this->cursorPos = 0;
-}
-if (this->cursorPos > this->sequenceLength-1) {
-  this->cursorPos = this->sequenceLength-1;
-}
-if (this->cursorPos < this->viewStart) {
-  moveView(this->cursorPos-this->viewStart);
-}
-if (this->cursorPos >= this->viewEnd) {//doin' it this way so the last column of pixels is drawn, but you don't interact with it
-  moveView(this->cursorPos-this->viewEnd);
-}
+  if (this->cursorPos < 0) {
+    this->cursorPos = 0;
+  }
+  if (this->cursorPos > this->sequenceLength-1) {
+    this->cursorPos = this->sequenceLength-1;
+  }
+  if (this->cursorPos < this->viewStart) {
+    moveView(this->cursorPos-this->viewStart);
+  }
+  if (this->cursorPos >= this->viewEnd) {//doin' it this way so the last column of pixels is drawn, but you don't interact with it
+    moveView(this->cursorPos-this->viewEnd);
+  }
 }
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -2202,7 +2312,7 @@ void StepchildSequence::toggleRecording(bool butWait){
   if(!recording())
     cleanupRecording(recheadPos);
   //if it's recording to the loop
-  if(recMode == ONESHOT || recMode == LOOP_MODE)
+  if(recMode == ONESHOT || recMode == CURRENT_LOOP)
     recheadPos = loopData[activeLoop].start;
   // else
   //   recheadPos = ONESHOT;
@@ -2301,7 +2411,7 @@ StepchildSequence sequence;
   */
 
 void handleStop_playing(){
-  hasStarted = false;
+  sequence.startedPlaying = false;
   sequence.stop();
 }
 
@@ -2310,7 +2420,7 @@ void handleClock_playing(){
 }
 
 void handleStart_playing(){
-  hasStarted = true;
+  sequence.startedPlaying = true;
   sequenceClock.startTime = micros();
 }
 
@@ -2319,7 +2429,7 @@ void handleClock_recording(){
 }
 
 void handleStart_recording(){
-  hasStarted = true;
+  sequence.startedPlaying = true;
   sequenceClock.startTime = micros();
   if(waitForNoteBeforeRec && waitingToReceiveANote){
     waitingToReceiveANote = false;
@@ -2327,7 +2437,7 @@ void handleStart_recording(){
 }
 
 void handleStop_recording(){
-  hasStarted = false;
+  sequence.startedPlaying = false;
 }
 
 void handleNoteOn_Recording(uint8_t channel, uint8_t note, uint8_t velocity){
@@ -2376,7 +2486,7 @@ void handleCC_Normal(uint8_t channel, uint8_t cc, uint8_t value){
 }
 
 void handleNoteOn_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
-  int track = getTrackWithPitch(note);
+  int track = sequence.getTrackWithPitch(note);
   if(track != -1){
     sequence.trackData[track].noteLastSent = note;
   }
@@ -2390,7 +2500,7 @@ void handleNoteOn_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
 }
 
 void handleNoteOff_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
-  int track = getTrackWithPitch(note);
+  int track = sequence.getTrackWithPitch(note);
   if(track != -1){
     sequence.trackData[track].noteLastSent = 255;
   }

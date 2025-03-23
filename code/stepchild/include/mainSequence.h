@@ -2,12 +2,12 @@ void yControls(){
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1) {
       sequence.setActiveTrack(sequence.activeTrack + 1, !sequence.playing());
-      drawingNote = false;
+      sequence.drawingNote = false;
       lastTime = millis();
     }
     if (controls.joystickY == -1) {
       sequence.setActiveTrack(sequence.activeTrack - 1, !sequence.playing());
-      drawingNote = false;
+      sequence.drawingNote = false;
       lastTime = millis();
     }
   }
@@ -22,21 +22,21 @@ void defaultJoystickControls(bool velocityEditingAllowed){
         sequence.moveCursor(-sequence.cursorPos%sequence.subDivision);
         lastTime = millis();
         //moving entire loop
-        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+        if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(-sequence.cursorPos%sequence.subDivision);
       }
       else{
         sequence.moveCursor(-sequence.subDivision);
         lastTime = millis();
         //moving entire loop
-        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+        if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(-sequence.subDivision);
       }
       //moving loop start/end
-      if(movingLoop == MOVING_LOOP_END){
+      if(sequence.movingLoop == MOVING_LOOP_END){
         sequence.setLoopPoint(sequence.cursorPos,true);
       }
-      else if(movingLoop == MOVING_LOOP_START){
+      else if(sequence.movingLoop == MOVING_LOOP_START){
         sequence.setLoopPoint(sequence.cursorPos,false);
       }
     }
@@ -44,20 +44,20 @@ void defaultJoystickControls(bool velocityEditingAllowed){
       if(sequence.cursorPos%sequence.subDivision){
         sequence.moveCursor(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
         lastTime = millis();
-        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+        if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(sequence.subDivision-sequence.cursorPos%sequence.subDivision);
       }
       else{
         sequence.moveCursor(sequence.subDivision);
         lastTime = millis();
-        if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+        if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
           sequence.moveLoop(sequence.subDivision);
       }
       //moving loop start/end
-      if(movingLoop == MOVING_LOOP_END){
+      if(sequence.movingLoop == MOVING_LOOP_END){
         sequence.setLoopPoint(sequence.cursorPos,true);
       }
-      else if(movingLoop == MOVING_LOOP_START){
+      else if(sequence.movingLoop == MOVING_LOOP_START){
         sequence.setLoopPoint(sequence.cursorPos,false);
       }
     }
@@ -65,12 +65,12 @@ void defaultJoystickControls(bool velocityEditingAllowed){
   if(utils.itsbeen(100)){
     if (controls.joystickY == 1 && !controls.SHIFT() && !controls.LOOP()) {
       sequence.setActiveTrack(sequence.activeTrack + 1, !sequence.playing()  && !sequence.recording());
-      drawingNote = false;
+      sequence.drawingNote = false;
       lastTime = millis();
     }
     if (controls.joystickY == -1 && !controls.SHIFT() && !controls.LOOP()) {
       sequence.setActiveTrack(sequence.activeTrack - 1, !sequence.playing()  && !sequence.recording());
-      drawingNote = false;
+      sequence.drawingNote = false;
       lastTime = millis();
     }
   }
@@ -79,21 +79,21 @@ void defaultJoystickControls(bool velocityEditingAllowed){
     if (controls.joystickX == 1 && controls.SHIFT()) {
       sequence.moveCursor(-1);
       lastTime = millis();
-      if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+      if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
         sequence.moveLoop(-1);
-      else if(movingLoop == MOVING_LOOP_END)
+      else if(sequence.movingLoop == MOVING_LOOP_END)
         sequence.setLoopPoint(sequence.cursorPos,true);
-      else if(movingLoop == MOVING_LOOP_START)
+      else if(sequence.movingLoop == MOVING_LOOP_START)
         sequence.setLoopPoint(sequence.cursorPos,false);
     }
     if (controls.joystickX == -1 && controls.SHIFT()) {
       sequence.moveCursor(1);
       lastTime = millis();
-      if(movingLoop == MOVING_BOTH_LOOP_POINTS)
+      if(sequence.movingLoop == MOVING_BOTH_LOOP_POINTS)
         sequence.moveLoop(1);
-      else if(movingLoop == MOVING_LOOP_END)
+      else if(sequence.movingLoop == MOVING_LOOP_END)
         sequence.setLoopPoint(sequence.cursorPos,true);
-      else if(movingLoop == MOVING_LOOP_START)
+      else if(sequence.movingLoop == MOVING_LOOP_START)
         sequence.setLoopPoint(sequence.cursorPos,false);
     }
     //changing vel
@@ -169,27 +169,27 @@ void defaultSelectControls(){
 void defaultLoopControls(){
   if(controls.LOOP()){
       //if you're not moving a loop, start
-      if(movingLoop == MOVING_NO_LOOP_POINTS){
+      if(sequence.movingLoop == MOVING_NO_LOOP_POINTS){
         //if you're on the start, move the start
         if(sequence.cursorPos == sequence.loopData[sequence.activeLoop].start){
-          movingLoop = MOVING_LOOP_END;
+          sequence.movingLoop = MOVING_LOOP_END;
           menuText = "Moving Loop Start";
         }
         //if you're on the end
         else if(sequence.cursorPos == sequence.loopData[sequence.activeLoop].end){
-          movingLoop = MOVING_LOOP_START;
+          sequence.movingLoop = MOVING_LOOP_START;
           menuText = "Moving Loop End";
         }
         //if you're not on either, move the whole loop
         else{
-          movingLoop = MOVING_BOTH_LOOP_POINTS;
+          sequence.movingLoop = MOVING_BOTH_LOOP_POINTS;
           menuText = "Moving Loop";
         }
         lastTime = millis();
       }
       //if you were moving, stop
       else{
-        movingLoop = MOVING_NO_LOOP_POINTS;
+        sequence.movingLoop = MOVING_NO_LOOP_POINTS;
         lastTime = millis();
       }
   }
@@ -208,7 +208,7 @@ void defaultCopyControls(){
 void mainSequencerButtons(){
   defaultSelectBoxControls();
   if(!controls.NEW())
-    drawingNote = false;
+    sequence.drawingNote = false;
   //del happens a liitle faster (so you can draw/erase fast)
   if(utils.itsbeen(75)){
     //del
@@ -225,13 +225,13 @@ void mainSequencerButtons(){
   }
   if(utils.itsbeen(200)){
     //new
-    if(controls.NEW() && !drawingNote && !controls.SELECT() ){
+    if(controls.NEW() && !sequence.drawingNote && !controls.SELECT() ){
       if(controls.SHIFT()){
         //if there's no note starting here, make a new note 1/2 the subdiv
         if(!sequence.IDAtCursor()){
           sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision/2,true);
           sequence.moveCursor(sequence.subDivision/2);
-          drawingNote = true;
+          sequence.drawingNote = true;
           lastTime = millis();
         }
         //if there is a note here, cut it in half/thirds (depending on if you're in triplet mode or not)
@@ -245,7 +245,7 @@ void mainSequencerButtons(){
         if((sequence.IDAtCursor() == 0 || sequence.cursorPos != sequence.noteAtCursor().startPos)){
           sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision,true);
           sequence.moveCursor(sequence.subDivision);
-          drawingNote = true;
+          sequence.drawingNote = true;
           lastTime = millis();
         }
         //if you are on the start pos of a note
@@ -395,10 +395,10 @@ void mainSequencerEncoders(){
     //changing pitch
     if(controls.SHIFT()){
       if(controls.counterA >= 1){
-        setTrackPitch(sequence.activeTrack,sequence.trackData[sequence.activeTrack].pitch+1,true);
+        sequence.setTrackPitch(sequence.activeTrack,sequence.trackData[sequence.activeTrack].pitch+1,true);
       }
       if(controls.counterA <= -1){
-        setTrackPitch(sequence.activeTrack,sequence.trackData[sequence.activeTrack].pitch-1,true);
+        sequence.setTrackPitch(sequence.activeTrack,sequence.trackData[sequence.activeTrack].pitch-1,true);
       }
     }
     //changing zoom

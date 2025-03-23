@@ -277,7 +277,7 @@ bool SettingsMenu::settingsMenuControls(){
           switch(xCursor){
             //showing pitches
             case 1:
-              pitchesOrNumbers = !pitchesOrNumbers;
+              sequence.pitchesOrNumbers = !sequence.pitchesOrNumbers;
               lastTime = millis();
               break;
             //leds on/off
@@ -296,8 +296,8 @@ bool SettingsMenu::settingsMenuControls(){
               break;
             //rec mode
             case 5:
-              recMode++;
-              recMode%=4;
+              sequence.recMode = static_cast<RecordingMode>(uint8_t(sequence.recMode)+1);
+              sequence.recMode = static_cast<RecordingMode>(uint8_t(sequence.recMode)%4);
               lastTime = millis();
               break;
             //remove time
@@ -428,7 +428,7 @@ void SettingsMenu::displaySettingsMenu(uint8_t x2,uint8_t whichTemplate){
       const uint8_t y1 = 2;
 
       printSmall(x1-5,y1,"track labels:",1);
-      graphics.drawLabel(x1+62,y1,pitchesOrNumbers?"pitches":"numbers",true);
+      graphics.drawLabel(x1+62,y1,sequence.pitchesOrNumbers?"pitches":"numbers",true);
       
       printSmall(x1-5,y1+8,"leds:",1);
       graphics.drawLabel(x1+22,y1+8,controls.LEDsActive?"on":"off",controls.LEDsActive);
@@ -443,7 +443,7 @@ void SettingsMenu::displaySettingsMenu(uint8_t x2,uint8_t whichTemplate){
       graphics.drawLabel(x1+42,y1+28,overwriteRecording?"on":"off",overwriteRecording);
 
       printSmall(x1-5,y1+36,"rec mode:",1);
-      graphics.drawLabel(x1+50,y1+36,recMode?"continuous":"1-shot",true);
+      graphics.drawLabel(x1+50,y1+36,sequence.recMode?"continuous":"1-shot",true);
       
       //length
       printSmall(x1+3,y1+48,"length -- "+stepsToMeasures(sequence.sequenceLength),1);

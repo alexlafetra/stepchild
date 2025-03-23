@@ -312,7 +312,7 @@ bool NoteEditMenu::editMenuControls_editing(){
       else if(cursor == 5){
         sequence.moveToNextNote_inTrack(true);
       }
-      drawingNote = false;
+      sequence.drawingNote = false;
       lastTime = millis();
     }
     if (controls.joystickY == -1){
@@ -345,7 +345,7 @@ bool NoteEditMenu::editMenuControls_editing(){
       else if(cursor == 5){
         sequence.moveToNextNote_inTrack(false);
       }
-      drawingNote = false;
+      sequence.drawingNote = false;
       lastTime = millis();
     }
   }
@@ -508,7 +508,7 @@ bool NoteEditMenu::editMenuControls_normal(){
     selBox.begun = false;
   }
   if(!controls.NEW()){
-    drawingNote = false;
+    sequence.drawingNote = false;
   }
   //encoderA changes zoom AND +controls.SHIFT() changes the stencil
   while(controls.counterA != 0){
@@ -671,7 +671,7 @@ bool NoteEditMenu::editMenuControls_normal(){
         }
       }
     }
-    if(controls.NEW() && !drawingNote && !controls.SELECT() ){
+    if(controls.NEW() && !sequence.drawingNote && !controls.SELECT() ){
       if(controls.SHIFT()){
         lastTime = millis();
         sequence.stencilNotes(stencil);

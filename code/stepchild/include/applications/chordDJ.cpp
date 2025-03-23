@@ -230,7 +230,7 @@ QChord getChordFromPlaylist(){
 //Inserts a chord and makes a new track for each pitch
 void insertChordAt(uint16_t timestep,uint16_t length, uint8_t trackLoc, QChord chord, uint8_t channel, uint8_t velocity){
     for(uint8_t i = 0; i<chord.intervals.size(); i++){
-        int16_t trackID = insertTrack_return(chord.intervals[i]+chord.octave()*12,channel,false, trackLoc);
+        int16_t trackID = sequence.insertTrack_return(chord.intervals[i]+chord.octave()*12,channel,false, trackLoc);
         sequence.makeNote(trackID,timestep,length,velocity,100,false,false,false);
     }
 }

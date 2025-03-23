@@ -296,7 +296,7 @@ void autotrackEditor(uint8_t whichAutotrack){
 
 bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput, uint8_t& whichAutotrack){
   //zoom/subdiv zoom
-  while(controls.counterA != 0 && !recordingToAutotrack){
+  while(controls.counterA != 0 && !sequence.recordingToAutotrack){
     //changing zoom
     if(!controls.SHIFT()){
       if(controls.counterA >= 1){
@@ -320,7 +320,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput, uint8_
     }
     controls.countDownA();
   }
-  while(controls.counterB != 0 && !recordingToAutotrack){
+  while(controls.counterB != 0 && !sequence.recordingToAutotrack){
     if(!controls.SHIFT()){   
       if(controls.counterB >= 1){
         sequence.changeSubDivInt(true);
@@ -341,7 +341,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput, uint8_
     controls.countDownB();
   }
 
-  if(!recordingToAutotrack || sequence.autotrackData[whichAutotrack].recordFrom != JOY_X){
+  if(!sequence.recordingToAutotrack || sequence.autotrackData[whichAutotrack].recordFrom != JOY_X){
     if (utils.itsbeen(50)) {
       //moving
       if (controls.LEFT() && controls.SHIFT()) {
@@ -377,7 +377,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput, uint8_
       }
     }
   }
-  if(!recordingToAutotrack || sequence.autotrackData[whichAutotrack].recordFrom != JOY_Y){
+  if(!sequence.recordingToAutotrack || sequence.autotrackData[whichAutotrack].recordFrom != JOY_Y){
     if(utils.itsbeen(50)){
       if(controls.DOWN()){
         if(controls.SHIFT()){
@@ -417,7 +417,7 @@ bool autotrackEditingControls(uint8_t *interpType, bool *settingRecInput, uint8_
     if(controls.PLAY()){
       if(controls.SHIFT() || sequence.recording()){
         lastTime = millis();
-        recordingToAutotrack = true;
+        sequence.recordingToAutotrack = true;
         recentCC.val = 0;
         controls.counterA = 64;
         controls.counterB = 64;

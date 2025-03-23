@@ -113,38 +113,6 @@ vector<vector<uint8_t>> selectMultipleNotes(String,String);
 vector<uint8_t> selectSeqArea(String);
 bool warpAintoB(CoordinatePair A, CoordinatePair B, bool onlySelected);
 
-//Track editing
-int16_t makeTrackWithPitch(int,int);
-void deleteAllTracks();
-int getTrackWithPitch(int);
-int getTrackWithPitch(int,int);
-int getTrackWithPitch_above(uint8_t pitch, uint8_t aboveIndex);
-int16_t addTrack_return(unsigned short int,unsigned short int,bool);
-int16_t insertTrack_return(unsigned short int,unsigned short int,bool,uint8_t);
-void addTrack(Track,bool);
-void addTrack(unsigned char);
-void addTrack(unsigned char, bool);
-void eraseTrack();
-void deleteTrack(unsigned short int);
-void deleteTrack(unsigned short int track, bool hard);
-void setTrackPitch(int, int, bool);
-vector<uint8_t> selectMultipleTracks(String);
-void muteMultipleTracks(vector<uint8_t> ids);
-void toggleMute(uint16_t id);
-void swapTracks(unsigned short int track1, unsigned short int track2);
-void swapTracks();
-void eraseMultipleTracks(vector<uint8_t> ids);
-void eraseTrack();
-void eraseTrack(int track);
-void toggleSolo(uint16_t id);
-void deleteEmptyTracks();
-void dupeTrack(unsigned short int track);
-void transposeAllPitches(int increment);
-void transposeAllChannels(int increment);
-void setTrackChannel(int track, int channel, bool loud);
-void sortTracks();
-void tuneTracksToScale();
-
 //controls
 void mainSequencerStepButtons();
 void mainSequencerEncoders();

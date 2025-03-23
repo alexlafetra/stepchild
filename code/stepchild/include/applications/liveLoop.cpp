@@ -29,15 +29,23 @@ void exitRecAndStartPlaying(uint8_t& layerCount){
     layerCount++;
 }
 
+//Recorded notes are selected
+
 bool liveLoop(){
+
+    sequence.playState = LIVELOOPING;
+
     //save loop!
     Loop originalLoop = sequence.loopData[sequence.activeLoop];
-    uint8_t originalRecMode = recMode;
-    recMode = FULL;
+    RecordingMode originalRecMode = sequence.recMode;
+    sequence.recMode = FULL_SEQUENCE;
     Knob knobA;
     Knob knobB;
-    recordedNotesAreSelected = true;
     overwriteRecording = false;
+
+    //length of the loop that will be created from whatever you record
+    //the recorded notes are "squashed" into this, so the longer the better
+    uint16_t targetLength = 192;
 
     //note that can trigger play/stop
     int8_t startStopTriggerNote = -1; //this is disabled by default
@@ -93,12 +101,12 @@ bool liveLoop(){
                     //but if you haven't been playing/recording anything, wait for a note
                     if(sequence.playing()){
                         uint16_t oldPlayheadPos = sequence.playheadPos;
-                        recMode = LOOP_MODE;
+                        sequence.recMode = CURRENT_LOOP;
                         sequence.toggleRecording(false);
                         sequence.recheadPos = oldPlayheadPos;
                     }
                     else{
-                        recMode = FULL;
+                        sequence.recMode = FULL_SEQUENCE;
                         sequence.toggleRecording(waitForNoteBeforeRec);
                     }
                 }
@@ -142,7 +150,7 @@ bool liveLoop(){
         }
 
     }
-    recMode = originalRecMode;
+    sequence.recMode = originalRecMode;
     sequence.loopData[sequence.activeLoop] = originalLoop;
     return true;
 }

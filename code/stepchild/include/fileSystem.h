@@ -381,7 +381,7 @@ void loadSeqFile(String filename){
             newTrack.muteGroup = trackDat[4];
             newTrack.flags = trackDat[5];
 
-            addTrack(newTrack,false);
+            sequence.addTrack(newTrack,false);
 
             noteCount.push_back((uint16_t(trackDat[0])<<8)+trackDat[1]);
           }
@@ -602,7 +602,7 @@ void writeCurrentSettingsToFile(){
   for(uint8_t which:settingsFileHeader){
     switch(which){
       case TRACK_DISPLAY:{
-        uint8_t pOrN[1] = {pitchesOrNumbers};
+        uint8_t pOrN[1] = {sequence.pitchesOrNumbers};
         f.write(pOrN,1);
         break;}
       case LEDS_ACTIVE:{
@@ -645,7 +645,7 @@ void loadSavedSettingsFromFile(){
       case TRACK_DISPLAY:{
         uint8_t pOrN[1];
         f.read(pOrN,1);
-        pitchesOrNumbers = pOrN[0];
+        sequence.pitchesOrNumbers = pOrN[0];
         break;}
       case LEDS_ACTIVE:{
         uint8_t leds[1];
