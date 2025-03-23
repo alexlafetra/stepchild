@@ -183,7 +183,22 @@ class HeadlessMIDI{
     uint16_t midiChannelFilters[5] = {65535,65535,65535,65535,65535};
     HeadlessMIDI(){
     }
-
+	
+  void sendThruOn(uint8_t t, uint8_t a, uint8_t b){
+    
+  }
+  void sendThruOff(uint8_t t, uint8_t a){
+    
+  }
+  void sendThruCC(uint8_t t, uint8_t a, uint8_t b){
+    
+  }
+  void sendThruPB(uint8_t t, int a){
+    
+  }
+  void sendClock(uint8_t t){
+    
+  }
     void sendCC(uint8_t cc, uint8_t v, uint8_t c){
         // 11<<4 to turn it into 10110000, then | with the channel to add the channel
 //        vector<uint8_t> message = {static_cast<unsigned char>((11<<4)|(c&15)),cc,v};

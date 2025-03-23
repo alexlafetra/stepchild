@@ -129,6 +129,7 @@ class StepchildGraphics{
   void drawDrumIcon(uint8_t x1, uint8_t y1, uint8_t note);
   //one square, one rotated square
   void drawHumanizeIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim);
+  void drawChopIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim);
   void drawVelIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim);
   void drawChanceIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim);
   //inverting square

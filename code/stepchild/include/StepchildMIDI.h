@@ -43,6 +43,8 @@ class BasicMidiObject{
 
 class StepchildMIDI{
   public:
+  //channels are 0 indexed here, but in stepchild world
+  //channels are 1-16, with 0 indicating global channel
   uint16_t midiChannelFilters[5] = {0b1111111111111111,0b1111111111111111,0b1111111111111111,0b1111111111111111,0b1111111111111111};
   uint8_t midiMuteSettings = 0b00000000;
   StepchildMIDI(){
@@ -225,6 +227,11 @@ class StepchildMIDI{
   }
   //checks if a port is filtering a channel
   bool isChannelActive(uint8_t whichChannel,uint8_t whichPort){
+    //if its a global channel, then yeah the port is never filtering it
+    if(!whichChannel)
+      return true;
+    //decrement by 1!
+    whichChannel -= 1;
     return (this->midiChannelFilters[whichPort] & (1 << whichChannel)) != 0 ;
   }
   bool isMuted(uint8_t whichPort){
@@ -238,6 +245,9 @@ class StepchildMIDI{
   }
 
   void setMidiChannel(uint8_t channel, uint8_t output, bool status){
+    if(!channel)
+      return;
+    else channel -= 1;
     //for activating, you use OR
     if(status){
       uint16_t byte = 1 << channel-1;
@@ -251,6 +261,9 @@ class StepchildMIDI{
   }
   //toggles the channel on an output, and returns its new value
   bool toggleMidiChannel(uint8_t channel, uint8_t output){
+    if(!channel)
+      return true;
+    else channel -= 1;
     midiChannelFilters[output] ^= 1 << channel;
     return this->isChannelActive(channel, output);
   }

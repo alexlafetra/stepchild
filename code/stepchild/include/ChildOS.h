@@ -266,7 +266,6 @@ struct NoteTrackPair{
 
 //Basic graphic functions
 #include "graphics/stepchildGraphics.h"
-#include "stepchildGUI.h"
 
 //16 knobs for the 'controlknobs' instrument
 Knob controlKnobs[16];

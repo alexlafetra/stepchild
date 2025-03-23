@@ -71,13 +71,13 @@ class MidiMenu:public StepchildMenu{
           if(filterCursor == 9 && filterMenuStart<8){
             filterMenuStart++;
             if(controls.SELECT()){
-              MIDI.toggleMidiChannel(filterCursor-2+filterMenuStart,cursor);
+              MIDI.toggleMidiChannel(filterCursor-1+filterMenuStart,cursor);
             }
           }
           else if(filterCursor<9){
             filterCursor++;
             if(controls.SELECT()){
-              MIDI.toggleMidiChannel(filterCursor-2+filterMenuStart,cursor);
+              MIDI.toggleMidiChannel(filterCursor-1+filterMenuStart,cursor);
             }
           }
           lastTime = millis();
@@ -86,13 +86,13 @@ class MidiMenu:public StepchildMenu{
           if(filterCursor == 0 && filterMenuStart>0){
             filterMenuStart--;
             if(controls.SELECT()){
-              MIDI.toggleMidiChannel(filterCursor-2+filterMenuStart,cursor);
+              MIDI.toggleMidiChannel(filterCursor-1+filterMenuStart,cursor);
             }
           }
           else if(filterCursor>0){
             filterCursor--;
             if(controls.SELECT()){
-              MIDI.toggleMidiChannel(filterCursor-2+filterMenuStart,cursor);
+              MIDI.toggleMidiChannel(filterCursor-1+filterMenuStart,cursor);
             }
           }
           lastTime = millis();
@@ -126,6 +126,13 @@ class MidiMenu:public StepchildMenu{
           lastTime = millis();
           return false;
         }
+        //use step buttons to toggle channels
+        for(uint8_t i = 0; i<16; i++){
+          if(controls.stepButton(i)){
+            MIDI.toggleMidiChannel(i+1,cursor);
+            lastTime = millis();
+          }
+        }
         if(controls.SELECT()){
           switch(filterCursor+filterMenuStart){
             //set mute
@@ -139,10 +146,10 @@ class MidiMenu:public StepchildMenu{
             //toggle midi channel filter
             default:
               if(controls.SHIFT()){
-                MIDI.setAllChannels(!MIDI.isChannelActive(filterCursor-2+filterMenuStart,cursor),cursor);
+                MIDI.setAllChannels(!MIDI.isChannelActive(filterCursor-1+filterMenuStart,cursor),cursor);
               }
               else{
-                MIDI.toggleMidiChannel(filterCursor-2+filterMenuStart,cursor);
+                MIDI.toggleMidiChannel(filterCursor-1+filterMenuStart,cursor);
               }
               break;
           }
@@ -248,7 +255,7 @@ class MidiMenu:public StepchildMenu{
           //print channel numbers
           printSmall(x1+12, y1+i*6, stringify(i+filterMenuStart-1),SSD1306_WHITE);
           //if channel is active
-          if(MIDI.isChannelActive(filterMenuStart+i-2,cursor)){
+          if(MIDI.isChannelActive(filterMenuStart+i-1,cursor)){
             //if this box is cursore'd, AND if it's the active midi port
             if(i == filterCursor)
               graphics.drawCheckbox(x1+1, y1+i*6+1, true, true);
@@ -264,7 +271,7 @@ class MidiMenu:public StepchildMenu{
         }
       }
       display.setRotation(DISPLAY_SIDEWAYS_R);
-      printSmall(16,0,"chnl filters",1);
+      printSmall(max(16-filterMenuStart*6,2),0,"chnl filters",1);
       display.setRotation(DISPLAY_UPRIGHT);
       display.display();
     }

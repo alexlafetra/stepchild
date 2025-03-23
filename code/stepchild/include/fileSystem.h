@@ -139,9 +139,9 @@ void writeSeqFile(String filename){
             //and then vel, chance, flags
             //                              first 8 bits                          last 8 bits
             uint8_t notePosData[4] = {uint8_t(sequence.noteData[track][note].startPos>>8),uint8_t(sequence.noteData[track][note].startPos),uint8_t(sequence.noteData[track][note].endPos>>8),uint8_t(sequence.noteData[track][note].endPos)};
-            uint8_t noteData[3] = {uint8_t(sequence.noteData[track][note].velocity), uint8_t(sequence.noteData[track][note].chance),sequence.noteData[track][note].flags};
+            uint8_t noteData[5] = {uint8_t(sequence.noteData[track][note].velocity), uint8_t(sequence.noteData[track][note].chance),sequence.noteData[track][note].flags,sequence.noteData[track][note].superposition.pitch,sequence.noteData[track][note].superposition.odds};
             seqFile.write(notePosData,4);
-            seqFile.write(noteData,3);
+            seqFile.write(noteData,5);
           }
         }
         break;}
@@ -385,18 +385,22 @@ void loadSeqFile(String filename){
 
             noteCount.push_back((uint16_t(trackDat[0])<<8)+trackDat[1]);
           }
+          //you need to reverse the tracks... for some reason
+          reverse(sequence.trackData.begin(),sequence.trackData.end());
 
           //loading notes
           for(uint8_t track = 0; track<sequence.trackData.size(); track++){
             for(uint16_t note = 0; note<noteCount[track]; note++){
               //notes are stored start, end,
-              //and then vel, chance, flags
+              //and then vel, chance, flags, superpos1,superpos2
               uint8_t notePosData[4];
-              uint8_t noteData[3];
+              uint8_t noteData[5];
               seqFile.read(notePosData,4);
-              seqFile.read(noteData,3);
+              seqFile.read(noteData,5);
               uint16_t notePos[2] = {uint16_t((notePosData[0]<<8)+notePosData[1]),uint16_t((notePosData[2]<<8)+notePosData[3])};
-              sequence.loadNote(track,notePos[0],notePos[1],noteData[0],noteData[1],noteData[2]);
+              Note newNote = Note(notePos[0],notePos[1],noteData[0],noteData[1],noteData[2]);
+              newNote.superposition = Superposition(noteData[3],noteData[4]);
+              sequence.loadNote(newNote,track);
             }
           }
           break;}
@@ -552,7 +556,7 @@ bool deleteSeqFile(String filename){
   return false;
 }
 
-void quickSave(){
+bool quickSave(){
   //if it hasn't been saved yet
   if(currentFile == ""){
     String fileName = enterText("filename?");
@@ -560,13 +564,16 @@ void quickSave(){
       writeSeqFile(fileName);
       currentFile = fileName;
       menuText = "saved \'"+currentFile+"\'";
+      return true;
     }
   }
   //if there is a filename for it
   else{
     writeSeqFile(currentFile);
     menuText = "saved \'"+currentFile+"\'";
+    return true;
   }
+  return false;
 }
 
 void duplicateSeqFile(String filename){

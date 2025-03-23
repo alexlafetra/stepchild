@@ -1330,11 +1330,15 @@ class AutotrackTriggerMenu:public StepchildMenu{
           case TRACK_TRIGGER:
             sequence.autotrackData[underlyingMenu->cursor].setTrigger(CHANNEL_TRIGGER,0);
             break;
+          case CHANNEL_TRIGGER:
+            break;
         }
         lastTime = millis();
       }
       if(controls.LEFT()){
         switch(sequence.autotrackData[underlyingMenu->cursor].triggerSource){
+          case GLOBAL_TRIGGER:
+            break;
           case TRACK_TRIGGER:
             sequence.autotrackData[underlyingMenu->cursor].setTrigger(GLOBAL_TRIGGER,0);
             break;

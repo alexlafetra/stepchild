@@ -92,7 +92,7 @@ bool chopNotes(vector<NoteID> noteIDs){
     vector<NoteTrackPair> targetNotes = {};
     for(uint16_t i = 0; i<noteIDs.size(); i++){
         targetNotes.push_back(NoteTrackPair(noteIDs[i].getNote(),noteIDs[i].track));
-        sequence.deleteNote(noteIDs[i].track,noteIDs[i].id);
+        sequence.deleteNote_byID(noteIDs[i].track,noteIDs[i].id);
     }
 
     //set up render settings
@@ -100,6 +100,7 @@ bool chopNotes(vector<NoteID> noteIDs){
     settings.topLabels = false;
     settings.drawPram = false;
     settings.drawLoopFlags = false;
+    settings.shrinkTopDisplay = false;
 
     //number of pieces
     uint8_t numberOfPieces = 1;
@@ -205,7 +206,8 @@ bool chopNotes(vector<NoteID> noteIDs){
             display.drawBitmap(3,3,chop1_bmp,12,12,1);
         printSmall(20,0,"chopping into ",1);
         printCursive(71,0,stringify(numberOfPieces),1);
-        printSmall(80+numberOfPieces/10*6,0,"pcs",1);
+        printSmall(72+stringify(numberOfPieces).length()*6,0,"pcs",1);
+        graphics.drawButton(84+stringify(numberOfPieces).length()*6,0,"A",1);
         printSmall(20,8,"roll:",1);
         //drawing vel slope display
         if(velSlope<0){
@@ -217,6 +219,7 @@ bool chopNotes(vector<NoteID> noteIDs){
         else{
             display.drawFastHLine(30,10,20,1);
         }
+        graphics.drawButton(64,8,"B",1);
         //tooltip
         printSmall(105,0,"[n]:",1);
         graphics.drawCheckmark(118,0,7,1);

@@ -61,7 +61,7 @@ void NoteEditMenu::displayMenu(){
       //quantize
       graphics.drawQuantIcon(coords.start.x+61,1,11,cursor == 4);
       //humanize
-      graphics.drawHumanizeIcon(coords.start.x+75,1,10,cursor == 5);
+      graphics.drawChopIcon(coords.start.x+75,1,10,cursor == 5);
       //warp
       graphics.drawQuickFunctionIcon(coords.start.x+90,1,11,cursor == 6);
     }
@@ -98,7 +98,7 @@ void NoteEditMenu::displayMenu(){
           break;
         //humanize
         case 5:
-          txt = "STNCL";
+          txt = "CHOP";
           xLoc = 80;
           break;
         //warp
@@ -210,32 +210,11 @@ void NoteEditMenu::displayMenu(){
         printSmall(80,3,"^/&+[sh]",1);
         txt = "CHANCE";
         break;
-      //quantize
+      //setting superposition happens in its own window
       case 4:
-        //title
-        graphics.drawBox(9-(millis()/500)%4,1+(millis()/500)%4,8,8,3,3,4);
-        graphics.drawBox(2+(millis()/500)%4,6-(millis()/500)%4,8,8,3,3,0);
-        txt = "QUANT";
-        //amount
-        printSmall(70,3,stringify(quantizeAmount)+"%",1);
-        graphics.printFraction(60,3,stepsToMeasures(sequence.subDivision));
-        printSmall(88,3,"[sh]+L",1);
         break;
-      //draw humanize wiggly arc
+      //chopping notes happens in its own window
       case 5:
-        txt = "HUMANIZE";
-        //data
-        display.fillRoundRect(-4,20,38,25,3,0);
-        display.drawRoundRect(-4,20,38,25,3,1);
-        printSmall(sin(millis()/300),23,"tmng:"+stringify(humanizerParameters.timingAmount)+"%",1);
-        printSmall(sin(millis()/300+1),30,"vel:"+stringify(humanizerParameters.velocityAmount)+"%",1);
-        printSmall(sin(millis()/300+2),37,"chnc:"+stringify(humanizerParameters.chanceAmount)+"%",1);
-        for(uint8_t i = 0; i<4; i++){
-          if(i<(millis()/200)%4){
-            display.drawRect(4+3*i,8-3*i,8,8,1);
-          }
-        }
-        printSmall(78,3,"[sh]+L",1);
         break;
       case 6:
         txt = fxApplicationTitles[currentQuickFunction];
@@ -245,12 +224,13 @@ void NoteEditMenu::displayMenu(){
     display.fillRoundRect(32,2,txt.length()*4+5,7,3,SSD1306_WHITE);
     printSmall(35,3,txt,SSD1306_BLACK);
   }
-  //draw cursor bracket
-  if(sequence.IDAtCursor() != 0)
-    drawNoteBracket(sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][sequence.cursorPos]],sequence.activeTrack,settings);
-  //or draw brackets around the selection
+  //draw brackets around the selection
   if(sequence.selectionCount > 0)
     drawSelectionBracket(settings);
+  //or draw cursor bracket
+  else if(sequence.IDAtCursor() != 0)
+    drawNoteBracket(sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][sequence.cursorPos]],sequence.activeTrack,settings);
+
   display.display();
 }
 
@@ -462,25 +442,11 @@ bool NoteEditMenu::editMenuControls_editing(){
         case 1:
         case 2:
         case 3:
+        case 4:
+        case 5:
           editingNote = false;
           lastTime = millis();
           return true;
-        //quantize
-        case 4:
-          if(controls.SHIFT())
-            quantizeMenu();
-          else
-            quantize(true,false);
-          lastTime = millis();
-          break;
-        //humanize
-        case 5:
-          if(controls.SHIFT())
-            humanizeMenu();
-          else
-            humanize(true);
-          lastTime = millis();
-          break;
         case 6:
           lastTime = millis();
           controls.setLOOP(false);
@@ -620,17 +586,6 @@ bool NoteEditMenu::editMenuControls_normal(){
     if(controls.LOOP()){
       if(controls.SHIFT()){
         switch(cursor){
-          //superpos
-          case 4:
-            if(sequence.IDAtCursor()){
-              lastTime = millis();
-              setSuperposition(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()],sequence.activeTrack);
-            }
-            break;
-          //stencil
-          case 5:
-            
-            break;
           //quick fx
           case 6:
             //trigger fx selection
@@ -649,6 +604,17 @@ bool NoteEditMenu::editMenuControls_normal(){
             lastTime = millis();
             slideOut(OUT_FROM_RIGHT,MENU_SLIDE_FAST);
             setSuperposition(sequence.noteData[sequence.activeTrack][sequence.IDAtCursor()],sequence.activeTrack);
+            slideIn(IN_FROM_RIGHT,MENU_SLIDE_FAST);
+          }
+        }
+        //chop
+        else if(cursor == 5){
+          if(sequence.IDAtCursor()){
+            //trigger fx
+            controls.setLOOP(false);
+            lastTime = millis();
+            slideOut(OUT_FROM_RIGHT,MENU_SLIDE_FAST);
+            chop();
             slideIn(IN_FROM_RIGHT,MENU_SLIDE_FAST);
           }
         }

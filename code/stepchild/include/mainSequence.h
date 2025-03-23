@@ -252,7 +252,7 @@ void mainSequencerButtons(){
         else{
           lastTime = millis();
           setSuperposition(sequence.noteData[sequence.activeTrack][sequence.lookupTable[sequence.activeTrack][sequence.cursorPos]],sequence.activeTrack);
-          lastTime = millis();
+          return;
         }
       }
     }
@@ -299,15 +299,12 @@ void mainSequencerButtons(){
     if(controls.A()){
       lastTime = millis();
       trackMenu();
+      return;
     }
     if(controls.B()){
-      if(controls.SHIFT() && sequence.IDAtCursor()){
-        sequence.setCursor(sequence.noteAtCursor().startPos);
-      }
-      else{
-        lastTime = millis();
-        editMenu();
-      }
+      lastTime = millis();
+      editMenu();
+      return;
     }
   }
 }

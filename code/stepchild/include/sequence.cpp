@@ -284,6 +284,10 @@ void StepchildSequence::arpLoop(){
         if(sentNotes.notes.size()>0)
           arp.start();
         break;
+      case NOTES_FROM_SEQUENCE_AND_MIDI_INPUT:
+        if(sentNotes.notes.size()>0 || receivedNotes.notes.size()>0)
+          arp.start();
+        break;
     }
   }
   if(arp.playing){
@@ -526,6 +530,7 @@ Note StepchildSequence::noteAt(uint8_t track, uint16_t step){
       return this->noteData[track][this->lookupTable[track][step]];
   else return this->noteData[track][0];
 }
+
 Note StepchildSequence::noteAtCursor(){
   return this->noteAt(this->activeTrack,this->cursorPos);
 }
@@ -553,14 +558,6 @@ void StepchildSequence::loadNote(Note newNote, uint8_t track){
   for (uint16_t i =  newNote.startPos; i < newNote.endPos; i++) { //sets id
       this->lookupTable[track][i] = this->noteData[track].size()-1;
   }
-}
-void StepchildSequence::loadNote(uint16_t id, uint8_t track, uint16_t start, uint8_t velocity, bool isMuted, uint8_t chance, uint16_t end, bool selected){
-  Note newNoteOn(start, end, velocity, chance, isMuted, false);
-  this->loadNote(newNoteOn, track);
-}
-void StepchildSequence::loadNote(uint8_t whichTrack, uint16_t start, uint16_t end, uint8_t velocity, uint8_t chance, uint8_t flags){
-  Note newNote(start, end, velocity, chance, flags);
-  this->loadNote(newNote,whichTrack);
 }
 /*
 ----------------------------------------------------------
@@ -836,10 +833,11 @@ void StepchildSequence::truncateNote(uint8_t track, uint16_t atTime){
   //set the note end to the new cut point
   this->noteData[track][id].endPos = atTime;
 }
-bool StepchildSequence::checkNoteMove(Note targetNote, int track, int newTrack, int newStart){
-  unsigned short int length = targetNote.endPos-targetNote.startPos;
+bool StepchildSequence::checkNoteMove(Note& targetNote, uint16_t track, uint16_t newTrack, uint16_t newStart){
+  
+  uint16_t length = targetNote.endPos-targetNote.startPos;
   //checking bounds
-  if(newStart<0 || newStart>this->sequenceLength || newTrack>=this->trackData.size() || newTrack<0)
+  if((newStart+length)>this->sequenceLength || newTrack>=this->trackData.size())
       return false;
   //checking lookupData
   for(uint16_t start = newStart; start < newStart+length; start++){
@@ -858,17 +856,21 @@ bool StepchildSequence::checkNoteMove(uint16_t id, uint8_t track, uint8_t newTra
 }
 //moves a note
 bool StepchildSequence::moveNote(uint16_t id, uint8_t track, uint8_t newTrack, uint16_t newStart){
+  Note targetNote = this->noteData[track][id];
+  //remove note
+  deleteNote_byID(track,id);
   //if there's room
-  if(checkNoteMove(id, track, newTrack, newStart)){
-      Note targetNote = this->noteData[track][id];
+  if(checkNoteMove(targetNote, track, newTrack, newStart)){
       uint16_t length = targetNote.endPos-targetNote.startPos;
-      //clear out old note
-      this->deleteNote(track, targetNote.startPos);
-      //make room
-      this->makeNote(newTrack, newStart, length+1, targetNote.velocity, targetNote.chance, targetNote.isMuted(), targetNote.isSelected(), false);
+      targetNote.startPos = newStart;
+      targetNote.endPos = newStart+length;
+      makeNote(targetNote,newTrack, false);
       return true;
   }
-  else return false;
+  else{
+    makeNote(targetNote,track,false);
+    return false;
+  }
 }
 bool StepchildSequence::moveSelectedNotes(int16_t xOffset, int8_t yOffset){
   //to temporarily store all the notes
@@ -916,8 +918,8 @@ bool StepchildSequence::moveSelectedNotes(int16_t xOffset, int8_t yOffset){
 }
 //this should move the note the cursor is on (if any)
 bool StepchildSequence::moveNotes(int16_t xAmount, int8_t yAmount){
-  if(this->selectionCount == 0){
-      if(this->IDAtCursor() != 0){
+  if(!selectionCount){
+      if(this->IDAtCursor()){
           return this->moveNote(this->IDAtCursor(),this->activeTrack,this->activeTrack+yAmount,this->noteData[this->activeTrack][this->IDAtCursor()].startPos+xAmount);
       }
       else return false;

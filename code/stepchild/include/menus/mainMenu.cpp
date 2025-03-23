@@ -239,9 +239,10 @@ bool MainMenu::mainMenuControls(){
           //if you're shifting, load most recent backup
           if(controls.SHIFT()){
             loadBackup();
+            return false;
           }
           else{
-            quickSave();
+            return !quickSave();
           }
           break;
         //fx
@@ -278,7 +279,10 @@ bool MainMenu::mainMenuControls(){
         //files
         case 9:
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
-          fileMenu();
+          //if you load a file, exit
+          if(fileMenu()){
+            return false;
+          }
           slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           break;
         //clock

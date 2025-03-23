@@ -172,8 +172,6 @@ enum RecordingMode:uint8_t{
     //adds a note w/o checking for overlaps
     //Only use this when loading notes from a file into a blank sequence
     void loadNote(Note newNote, uint8_t track);
-    void loadNote(uint16_t id, uint8_t track, uint16_t start, uint8_t velocity, bool isMuted, uint8_t chance, uint16_t end, bool selected);
-    void loadNote(uint8_t whichTrack, uint16_t start, uint16_t end, uint8_t velocity, uint8_t chance, uint8_t flags);
     /*
     ----------------------------------------------------------
                         DELETING NOTES
@@ -231,7 +229,7 @@ enum RecordingMode:uint8_t{
     void unmuteSelectedNotes();
     //cuts a note short at a specific time
     void truncateNote(uint8_t track, uint16_t atTime);
-    bool checkNoteMove(Note targetNote, int track, int newTrack, int newStart);
+    bool checkNoteMove(Note& targetNote, uint16_t track, uint16_t newTrack, uint16_t newStart);
     bool checkNoteMove(uint16_t id, uint8_t track, uint8_t newTrack, uint16_t newStart);
     //moves a note
     bool moveNote(uint16_t id, uint8_t track, uint8_t newTrack, uint16_t newStart);

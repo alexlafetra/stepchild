@@ -1597,6 +1597,16 @@ void StepchildGraphics::drawHumanizeIcon(uint8_t x1, uint8_t y1, uint8_t size, b
   this->drawDottedRect(x1,y1,size,size,2);
   this->drawRotatedRect(x1+size/2,y1+size/2,size-2,size-2,angle,SSD1306_WHITE);
 }
+void StepchildGraphics::drawChopIcon(uint8_t x1, uint8_t y1, uint8_t size, bool anim){
+  float state = 2;
+  if(anim){
+    state = (millis()/200)%4+1;
+  }
+  display.fillRect(x1,y1,size,size,1);
+  for(uint8_t i = 0; i<size; i+=float(size)/state){
+    display.drawFastVLine(x1+i,y1,size,0);
+  }
+}
 
 void StepchildGraphics::drawVelIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
   if(anim){

@@ -282,6 +282,8 @@ void drawTopIcons(SequenceRenderSettings& settings){
         display.drawBitmap(x1,1,continuous_bmp,9,5,SSD1306_WHITE);
         x1+=10;
         break;
+      case LOOP_SEQUENCE:
+        break;
     }
     if(overwriteRecording){
       display.drawBitmap(x1,0,((millis()/10)%100>50)?overwrite_1:overwrite_2,7,7,SSD1306_WHITE);

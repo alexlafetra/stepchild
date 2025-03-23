@@ -5,6 +5,7 @@ class FileMenu:public StepchildMenu{
     uint8_t menuStart = 0;
     uint8_t menuEnd = 4;
     uint8_t page = 0;
+    bool loadedAFile = false;
     FileMenu(){
       coords = CoordinatePair(7,3,128,64);
       folderWireframe = makeFolder(30);
@@ -112,7 +113,8 @@ bool FileMenu::fileMenuControls_miniMenu(){
           loadSeqFile(fileName);
           currentFile = fileName;
           alert("loaded "+currentFile+"!",500);
-          break;
+          loadedAFile = true;
+          return false;
         }
         //rename
         case 2:
@@ -277,7 +279,7 @@ void FileMenu::displayMenu(){
 }
 
 
-void fileMenu(){
+bool fileMenu(){
   controls.clearButtons();
   FileMenu fileMenu;
   fileMenu.fileMenuAnimation(false,true);
@@ -286,6 +288,9 @@ void fileMenu(){
     fileMenu.displayMenu();
   }
   fileMenu.fileMenuAnimation(false,false);
+  if(fileMenu.loadedAFile)
+    return true;
+  return false;
 }
 
 void FileMenu::displayMiniMenu(){
