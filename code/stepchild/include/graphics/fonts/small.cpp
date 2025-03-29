@@ -947,7 +947,7 @@ int8_t printSmall(int16_t x, int16_t y, char character, uint16_t c){
 }
 
 enum TextAlign:uint8_t{
-  ALIGN_JOY_LEFT,
+  ALIGN_LEFT,
   ALIGN_CENTER,
   ALIGN_RIGHT
 };
@@ -957,7 +957,7 @@ void printSmall(int16_t x, int16_t y, String text, uint16_t c, TextAlign a){
   switch(a){
     case TextAlign::ALIGN_CENTER:
       x-=text.length()*2+countChar(text,' ');
-    case TextAlign::ALIGN_JOY_LEFT:
+    case TextAlign::ALIGN_LEFT:
       for(uint16_t letter = 0; letter<text.length(); letter++){
         if(x>=screenWidth)
           return;
@@ -984,7 +984,7 @@ void printSmall_centered(int x, int y, String text, uint16_t c){
 }
 
 void printSmall(int16_t x, int16_t y, String text, uint16_t c){
-  printSmall(x,y,text,c,TextAlign::ALIGN_JOY_LEFT);
+  printSmall(x,y,text,c,TextAlign::ALIGN_LEFT);
 }
 
 //just converts a float to a string

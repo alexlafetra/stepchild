@@ -421,7 +421,7 @@ void drawNoteSprite(NoteCoords& noteCoords, uint8_t shade){
     return;
   if(noteCoords.x1>=SCREEN_WIDTH)
     return;
-  if(shade != 1){//so it does this faster
+  if(shade != 1 && shade){//so it does this faster
     display.fillRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_BLACK);//clearing out the note area
     for(uint8_t j = 1; j<trackHeight-2; j++){//shading the note...
       for(uint8_t i = noteCoords.x1+1;i+j%shade<noteCoords.x1+noteCoords.length-1; i+=shade){
@@ -431,9 +431,32 @@ void drawNoteSprite(NoteCoords& noteCoords, uint8_t shade){
     display.drawRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_WHITE);
   }
   //if it's a solid note, fill it quickly
-  else{
+  else if(shade == 1){
     display.fillRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_WHITE);
   }
+  else if(!shade){
+    display.fillRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_BLACK);//clearing out the note area
+    display.drawRect(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, trackHeight-2, SSD1306_WHITE);
+  }
+}
+
+void drawNotePreviewOutline(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSettings& settings){
+  if(noteCoords.y1>=SCREEN_HEIGHT)
+    return;
+  if(noteCoords.x1>=SCREEN_WIDTH)
+    return;
+  //if the noteCoords.length is less than 3, don't worry about shading it
+  if(noteCoords.length<3){
+    display.fillRect(noteCoords.x1, noteCoords.y1+1, noteCoords.length+2, trackHeight-2, SSD1306_WHITE);
+  }
+  else{
+    // graphics.drawDottedRect(noteCoords.x1,noteCoords.y1,noteCoords.length,trackHeight-2,2);
+    graphics.shadeArea(noteCoords.x1,noteCoords.y1+1,noteCoords.length,trackHeight-2,2);
+  }
+}
+
+void drawNotePreviewOutline(Note& note, uint8_t track, SequenceRenderSettings& settings){
+  drawNotePreviewOutline(note, track, getNoteCoords(note,track,settings), settings);
 }
 
 void drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSettings& settings){
@@ -611,9 +634,6 @@ void drawSeq(SequenceRenderSettings& settings){
           continue;
       }
       else if(settings.drawSteps){
-          //highlight for solo'd tracks
-          // if(sequence.trackData[track].isSolo())
-          //     graphics.drawNoteBracket(trackDisplay+3,y1-1,screenWidth-trackDisplay-5,trackHeight+2,true);
           //Check to see if you only want to render the region in the active loop, and shade everything else!
           for (uint16_t step = settings.shadeOutsideLoop?sequence.loopData[sequence.activeLoop].start:settings.start; step < (settings.shadeOutsideLoop?sequence.loopData[sequence.activeLoop].end:settings.end); step++) {
               uint16_t id = sequence.lookupTable[track][step];

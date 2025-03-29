@@ -536,3 +536,16 @@ void debugPrintButtons(){
 #endif
 }
 
+
+//decrements each note ID if it's larger than the last, so that if these notes are 
+//deleted in this order their IDs stay referenced
+vector<NoteID> crunchNoteIDsForDeletion(vector<NoteID> targetNoteIDs){
+  for(uint8_t i = 0; i<targetNoteIDs.size(); i++){
+    //start w/ the next note
+    for(uint8_t j = i+1; j<targetNoteIDs.size(); j++){
+      if(targetNoteIDs[i].id<targetNoteIDs[j].id)
+        targetNoteIDs[j].id--;
+    }
+  }
+  return targetNoteIDs;
+}

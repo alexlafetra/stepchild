@@ -564,6 +564,15 @@ void StepchildSequence::loadNote(Note newNote, uint8_t track){
                   DELETING NOTES
 ----------------------------------------------------------
 */
+
+void StepchildSequence::deleteNotes_byID(vector<NoteID> targetNoteIDs){
+  //make sure IDs stay referenced
+  targetNoteIDs = crunchNoteIDsForDeletion(targetNoteIDs);
+  //delete notes from sequence
+  for(NoteID n:targetNoteIDs){
+    deleteNote_byID(n.track,n.id);
+  }
+}
 //Deletes a note on a given track with a given ID
 void StepchildSequence::deleteNote_byID(uint8_t track, uint16_t targetNoteID){
   //if there's a note/something here, and it's in data
@@ -595,6 +604,7 @@ void StepchildSequence::deleteNote_byID(uint8_t track, uint16_t targetNoteID){
       }
   }
 }
+
 //deletes a note at a specific time/place
 void StepchildSequence::deleteNote(uint8_t track, uint16_t time){
   this->deleteNote_byID(track,this->IDAt(track,time));

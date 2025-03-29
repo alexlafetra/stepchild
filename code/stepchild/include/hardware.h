@@ -331,8 +331,11 @@ class StepchildHardware{
     this->readMainButtons();
     //reading stepbuttons
     this->readStepButtons();
+  }
+  void readInputs(){
     //reading joystick
     this->readJoystick();
+    this->readButtons();
   }
   /*
     Reading Encoder Increment/Decrement

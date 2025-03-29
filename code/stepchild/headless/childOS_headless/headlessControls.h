@@ -204,7 +204,10 @@ class HeadlessHardwareInput{
     this->readMainButtons();
     this->readEncoderButtons();
     this->readStepButtons();
-    this->readJoystick();
+  }
+  void readInputs(){
+    readButtons();
+    readJoystick();
   }
   void debugPrintButtons(){}
   int8_t readEncoder(bool which){return 0;}

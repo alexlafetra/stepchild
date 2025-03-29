@@ -179,6 +179,7 @@ enum RecordingMode:uint8_t{
     */
     //Deletes a note on a given track with a given ID
     void deleteNote_byID(uint8_t track, uint16_t targetNoteID);
+    void deleteNotes_byID(vector<NoteID> targetNoteIDs);
     //deletes a note at a specific time/place
     void deleteNote(uint8_t track, uint16_t time);
     //deletes a note at the current track/cursor position

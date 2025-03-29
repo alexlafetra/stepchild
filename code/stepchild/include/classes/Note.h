@@ -45,6 +45,7 @@ class Note {
     bool isPlaying();
     bool checkFlag(NoteFlagBit);
     void setFlag(NoteFlagBit, bool);
+    void shift(int16_t);
 };
 //sets a flag
 void Note::setFlag(NoteFlagBit b, bool state){
@@ -120,4 +121,8 @@ Note::Note(unsigned short int xPos, unsigned short int xEnd, unsigned char vel){
 }
 uint16_t Note::getLength(){
   return endPos-startPos+1;
+}
+void Note::shift(int16_t amount){
+  endPos += amount;
+  startPos += amount;
 }

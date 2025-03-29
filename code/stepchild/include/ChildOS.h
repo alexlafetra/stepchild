@@ -53,10 +53,23 @@ typedef uint8_t TrackID;
 //Objects for storing data
 class Note;
 class Track;
+class NoteID{
+  public:
+      NoteID(uint8_t, uint16_t);
+      Note getNote();
+      uint8_t getPitch();
+      uint8_t track;
+      uint16_t id;
+};
+
+NoteID::NoteID(uint8_t t, uint16_t i){
+  track = t;
+  id = i;
+}
 
 //structs
 struct NoteCoords{
-  uint8_t x1;
+  int16_t x1;
   int16_t length;
   int16_t y1;
   int16_t y2;
@@ -199,9 +212,7 @@ bool waitingToReceiveANote = true;//wait to receive note to begin recording
 //controls whether or not fragmenting is on
 bool isFragmenting = false;
 
-//humanize values are timing, velocity, and chance
-//i very well might go back to using this array instead of the humanizer object
-// int8_t humanizeParameters[3] = {0,0,0};
+//this could definitely get consumed into the quantize() function (doesn't need to be global)
 int8_t quantizeAmount = 100;
 
 //holds all the data for the echo fx
@@ -251,7 +262,12 @@ volatile bool noteOffReceived = false;
 
 #include "sequence.cpp"
 
-#include "classes/NoteID.h"
+Note NoteID::getNote(){
+  return sequence.noteData[track][id];
+}
+uint8_t NoteID::getPitch(){
+  return sequence.trackData[track].pitch;
+}
 
 
 struct NoteTrackPair{

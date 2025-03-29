@@ -16,7 +16,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "30"
             endingLineNumber = "30"
-            landmarkName = "getChoppedNotes(targetNote, pieces, velSlope)"
+            landmarkName = "getChoppedNotes(targetNotes, pieces, velSlope)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -30,9 +30,9 @@
             filePath = "../include/graphics/sequenceRender.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "497"
-            endingLineNumber = "497"
-            landmarkName = "drawSeq(settings)"
+            startingLineNumber = "498"
+            endingLineNumber = "498"
+            landmarkName = "drawNote(note, track, noteCoords, settings)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -94,10 +94,10 @@
             filePath = "../include/graphics/sequenceRender.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "515"
-            endingLineNumber = "515"
-            landmarkName = "drawSeq(settings)"
-            landmarkType = "9">
+            startingLineNumber = "516"
+            endingLineNumber = "516"
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -112,8 +112,22 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "863"
             endingLineNumber = "863"
-            landmarkName = "StepchildSequence::moveNote(id, track, newTrack, newStart)"
+            landmarkName = "StepchildSequence::checkNoteMove(id, track, newTrack, newStart)"
             landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7F24FBE3-6860-49AE-A6D4-794C6C71A80E"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../include/fx/humanizeMenu.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "389"
+            endingLineNumber = "389">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

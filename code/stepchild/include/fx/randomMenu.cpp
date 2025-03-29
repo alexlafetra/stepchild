@@ -177,7 +177,8 @@ class RandomMenu:public StepchildMenu{
       icon.rotate(1,1);
       display.clearDisplay();
       drawSeq(settings);
-      printSmall(32,0,"[N] to add notes",1);
+      graphics.drawButton(32,0,"n",1);
+      printSmall(41,1,"to add notes",1);
       display.fillRoundRect(coords.start.x-2,12,coords.end.x-coords.start.x+2,coords.end.y-12,5,0);
       display.drawRoundRect(coords.start.x-2,12,coords.end.x-coords.start.x+5,coords.end.y-12,5,1);
       display.drawFastHLine(coords.start.x+51,12,77-coords.start.x,0);

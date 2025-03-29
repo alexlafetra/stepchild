@@ -102,7 +102,8 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
       printSmall(trackDisplay,0,"select notes to "+text,1);
     }
     else{
-      printSmall(trackDisplay,0,"[n] to "+text+" "+stringify(sequence.selectionCount)+(sequence.selectionCount == 1?" note":" notes"),1);
+      graphics.drawButton(trackDisplay,0,"n",1);
+      printSmall(trackDisplay+9,1,"to "+text+" "+stringify(sequence.selectionCount)+(sequence.selectionCount == 1?" note":" notes"),1);
     }
     iconFunction(7,1,14,true);
     display.display();
@@ -1155,4 +1156,48 @@ unsigned short int horzSelectionBox(String caption, vector<String> options, unsi
   lastTime = millis();
   display.invertDisplay(false);
   return select;
+}
+
+uint8_t dropDownMenu(vector<String> options, void (*drawingFunction)()){
+  uint8_t x = 0;
+  uint8_t y = 0;
+  uint8_t menuStart = 0;
+  uint8_t cursor = 0;
+  uint8_t longestOptionLength = 0;
+  for(String s:options){
+    if(getSmallTextLength(s)>longestOptionLength)
+      longestOptionLength = getSmallTextLength(s);
+  }
+  //each is 9px tall ==> 64/9 = 7
+  uint8_t maxNumberOfOptionsShown = options.size()>7?7:options.size();
+  while(true){
+    display.clearDisplay();
+    drawingFunction();
+    display.fillRect(x,y,longestOptionLength,maxNumberOfOptionsShown*9,0);
+    display.drawRect(x,y,longestOptionLength,maxNumberOfOptionsShown*9,1);
+    for(uint8_t i = 0; i<maxNumberOfOptionsShown; i++){
+      printSmall(x,y+i*9,options[i+menuStart],1);
+      if(i == cursor-menuStart)
+        graphics.drawArrow(x,y+i*9+3,3,ARROW_RIGHT,false);
+    }
+    display.display();
+
+    controls.readJoystick();
+    controls.readButtons();
+    if(utils.itsbeen(200)){
+      if(controls.DOWN() && cursor < options.size()){
+        cursor++;
+        if(cursor-menuStart>7)
+          menuStart++;
+        lastTime = millis();
+      }
+      if(controls.UP() && cursor > 0){
+        cursor--;
+        while(cursor<menuStart)
+          menuStart--;
+        lastTime = millis();
+      }
+    }
+  }
+  return cursor;
 }

@@ -90,10 +90,10 @@ void drawChopIcon(uint8_t x1, uint8_t y1, uint8_t height, bool animated){
 bool chopNotes(vector<NoteID> noteIDs){
     //store the note and remove it from the sequence
     vector<NoteTrackPair> targetNotes = {};
-    for(uint16_t i = 0; i<noteIDs.size(); i++){
-        targetNotes.push_back(NoteTrackPair(noteIDs[i].getNote(),noteIDs[i].track));
-        sequence.deleteNote_byID(noteIDs[i].track,noteIDs[i].id);
+    for(NoteID n:noteIDs){
+        targetNotes.push_back(NoteTrackPair(n.getNote(),n.track));
     }
+    sequence.deleteNotes_byID(noteIDs);
 
     //set up render settings
     SequenceRenderSettings settings;
@@ -141,15 +141,7 @@ bool chopNotes(vector<NoteID> noteIDs){
             }
             controls.countDownB();
         }
-        if(utils.itsbeen(200)){
-            //cancel out of it
-            if(controls.MENU()){
-                lastTime = millis();
-                for(uint16_t i = 0; i<targetNotes.size(); i++){
-                    sequence.makeNote(targetNotes[i].note,targetNotes[i].trackID,false);
-                }
-                return false;
-            }
+        if(utils.itsbeen(50)){
             //change vel slope
             if(controls.joystickX == 1 && velSlope < 1.0){
                 lastTime = millis();
@@ -160,6 +152,16 @@ bool chopNotes(vector<NoteID> noteIDs){
                 lastTime = millis();
                 velSlope -= 0.1;
                 changed = true;
+            }
+        }
+        if(utils.itsbeen(200)){
+            //cancel out of it
+            if(controls.MENU()){
+                lastTime = millis();
+                for(uint16_t i = 0; i<targetNotes.size(); i++){
+                    sequence.makeNote(targetNotes[i].note,targetNotes[i].trackID,false);
+                }
+                return false;
             }
             //increase the number of chops
             if(controls.joystickY == -1 && !maxedOut){
@@ -199,15 +201,15 @@ bool chopNotes(vector<NoteID> noteIDs){
         //update display
         display.clearDisplay();
         drawSeq(settings);
-        uint16_t timing = 2000/numberOfPieces;
+        uint16_t timing = 2000/max(numberOfPieces,1);
         if(millis()%timing>(timing/2))
             display.drawBitmap(4,4,chop2_bmp,12,12,1);
         else
             display.drawBitmap(3,3,chop1_bmp,12,12,1);
-        printSmall(20,0,"chopping into ",1);
+        printSmall(20,1,"chopping into ",1);
         printCursive(71,0,stringify(numberOfPieces),1);
-        printSmall(72+stringify(numberOfPieces).length()*6,0,"pcs",1);
-        graphics.drawButton(84+stringify(numberOfPieces).length()*6,0,"A",1);
+        printSmall(72+stringify(numberOfPieces).length()*6,1,"pcs",1);
+        graphics.drawButton(85+stringify(numberOfPieces).length()*6,0,"Y/A",1);
         printSmall(20,8,"roll:",1);
         //drawing vel slope display
         if(velSlope<0){
@@ -219,11 +221,12 @@ bool chopNotes(vector<NoteID> noteIDs){
         else{
             display.drawFastHLine(30,10,20,1);
         }
-        graphics.drawButton(64,8,"B",1);
+        graphics.drawButton(64,8,"X/B",1);
         //tooltip
-        printSmall(105,0,"[n]:",1);
-        graphics.drawCheckmark(118,0,7,1);
-        printSmall(94,8,"[menu]: x",1);
+        graphics.drawButton(111,0,"n",1);
+      	graphics.drawCheckmark(118,1,7,1);
+        graphics.drawButton(111,8,"m",1);
+        printSmall(121,9,"x",1);
         //drawing notes
         for(uint16_t i = 0; i<notes.size(); i++){
             drawNote(notes[i].note,notes[i].trackID,settings);

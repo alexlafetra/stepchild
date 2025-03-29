@@ -369,7 +369,7 @@ void defaultEncoderControls(){
     if(controls.counterA <= -1){
       sequence.zoom(false);
     }
-    controls.counterA += controls.counterA<0?1:-1;;
+    controls.counterA += controls.counterA<0?1:-1;
   }
   while(controls.counterB != 0){
     //if shifting, toggle between 1/3 and 1/4 mode
@@ -383,7 +383,7 @@ void defaultEncoderControls(){
     else if(controls.counterB <= -1){
       sequence.changeSubDivInt(false);
     }
-    controls.counterB += controls.counterB<0?1:-1;;
+    controls.counterB += controls.counterB<0?1:-1;
   }
 }
 

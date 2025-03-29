@@ -125,10 +125,28 @@ int random(int lower, int upper){
         upper = temp;
     }
     else if(upper==lower){
-        return 0;
+        return upper;
     }
     return rand()%(upper-lower)+lower;
 }
+int max(int a , int b){
+  return a>b?a:b;
+}
+float random_f(float lower, float upper){
+    if(lower>upper){
+        float temp = lower;
+        lower = upper;
+        upper = temp;
+    }
+    else if(upper==lower){
+        return upper;
+    }
+    return lower + (rand() / ( RAND_MAX / (upper-lower) ) ) ;
+}
+void randomSeed(float rS){
+  srand(rS);
+}
+
 int random(int upper){
     return random(0,upper);
 }
