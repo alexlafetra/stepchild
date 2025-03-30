@@ -227,18 +227,11 @@ void mainSequencerButtons(){
     //new
     if(controls.NEW() && !sequence.drawingNote && !controls.SELECT() ){
       if(controls.SHIFT()){
-        //if there's no note starting here, make a new note 1/2 the subdiv
-        if(!sequence.IDAtCursor()){
-          sequence.makeNote(sequence.activeTrack,sequence.cursorPos,sequence.subDivision/2,true);
-          sequence.moveCursor(sequence.subDivision/2);
-          sequence.drawingNote = true;
-          lastTime = millis();
-        }
-        //if there is a note here, cut it in half/thirds (depending on if you're in triplet mode or not)
-        else{
-          lastTime = millis();
-          chop();
-          lastTime = millis();
+        lastTime = millis();
+        uint8_t selectedFX = quickFX();
+        if(selectedFX != 255){
+          fxApplicationFunctions[selectedFX]();
+          return;
         }
       }
       else if(!controls.SHIFT()){

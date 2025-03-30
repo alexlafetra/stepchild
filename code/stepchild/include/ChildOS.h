@@ -339,6 +339,7 @@ void webInterface(){}
 #include "menus/clockMenu.cpp"
 #include "menus/mainMenu.cpp"
 #include "menus/midiMenu.cpp"
+#include "menus/quickFXMenu.cpp"
 
 #include "sleep.h"
 #include "fileSystem.h"

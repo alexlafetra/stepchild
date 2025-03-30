@@ -1,7 +1,9 @@
 enum SlideDirection:uint8_t{
     IN_FROM_RIGHT,
+    IN_FROM_LEFT,
     IN_FROM_BOTTOM,
     OUT_FROM_RIGHT,
+    OUT_FROM_LEFT,
     OUT_FROM_BOTTOM
 };
 

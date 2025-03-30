@@ -998,13 +998,17 @@ void printSmall_overflow(int16_t x, int16_t y, int8_t margin, String text, uint1
   int yCoord = y;
   String word = "";
   int wordlength = 0;
-  for(uint8_t letter = 0; letter<text.length(); letter++){
+  for(int letter = 0; letter<text.length(); letter++){
+#ifdef HEADLESS
+    String character = text.substr(letter,1);
+#else
     String character = text.substring(letter,letter+1);
+#endif
     if(character != " " && character != "-"){
+      //if you run over the margin
       if(wordlength+xCoord>=screenWidth-margin){
         xCoord = x;
         yCoord += 7;
-        // //Serial.println(word);
         if(yCoord>screenHeight)
           return;
       }

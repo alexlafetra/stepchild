@@ -112,20 +112,21 @@ CoordinatePair selectArea_random(){
       dieModel.renderDie();
     }
     if(coords.start.x == 0 && coords.end.x == 0 && coords.start.y == 0 && coords.end.y == 0){
-      printSmall(trackDisplay,0,"select an area!",1);
+      printSmall(trackDisplay,1,"select an area!",1);
     }
     else{
-      printSmall(trackDisplay,0,"[n] to randomize",1);
+      graphics.drawButton(trackDisplay,0,"n",1);
+      printSmall(trackDisplay+9,1,"to randomize",1);
     }
     display.display();
   }
 }
 
 void genRandom(RandomData randData){
-  while(true){
+  // while(true){
     CoordinatePair coords = selectArea_random();
     if(coords.start.x == coords.end.x && coords.start.y == coords.end.y){
-      break;
+      return;
     }
     if(coords.start.x>coords.end.x){
       uint16_t temp = coords.start.x;
@@ -156,7 +157,7 @@ void genRandom(RandomData randData){
         }
       }
     }
-  }
+  // }
 }
 /*
   Note options: vel, chance, length

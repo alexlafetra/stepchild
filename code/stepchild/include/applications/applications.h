@@ -137,166 +137,35 @@ const String instrumentApplicationInfo[NUMBER_OF_APPLICATIONS] = {
     INSTRUMENT_APP7_INFO
 };
 
-/*
-    Check to see if the user has defined these in their code!
-    If not, set them to a default function or bitmap
-*/
-
-//Icons
-
-#ifndef INSTRUMENT_APP7_ICON
-    #define INSTRUMENT_APP7_ICON default_bmp
-#endif
-#ifndef INSTRUMENT_APP8_ICON
-    #define INSTRUMENT_APP8_ICON default_bmp
-#endif
-#ifndef INSTRUMENT_APP9_ICON
-    #define INSTRUMENT_APP9_ICON default_bmp
-#endif
-#ifndef INSTRUMENT_APP10_ICON
-    #define INSTRUMENT_APP10_ICON default_bmp
-#endif
-#ifndef INSTRUMENT_APP11_ICON
-    #define INSTRUMENT_APP11_ICON default_bmp
-#endif
-#ifndef INSTRUMENT_APP12_ICON
-    #define INSTRUMENT_APP12_ICON default_bmp
-#endif
-#ifndef INSTRUMENT_APP13_ICON
-    #define INSTRUMENT_APP13_ICON default_bmp
-#endif
-#ifndef INSTRUMENT_APP14_ICON
-    #define INSTRUMENT_APP14_ICON default_bmp
-#endif
-#ifndef INSTRUMENT_APP15_ICON
-    #define INSTRUMENT_APP15_ICON default_bmp
-#endif
-#ifndef INSTRUMENT_APP16_ICON
-    #define INSTRUMENT_APP16_ICON default_bmp
-#endif
-
-//Functions
-
-#ifndef INSTRUMENT_APP7_FUNCTION
-    #define INSTRUMENT_APP7_FUNCTION defaultAppFunction
-#endif
-#ifndef INSTRUMENT_APP8_FUNCTION
-    #define INSTRUMENT_APP8_FUNCTION defaultAppFunction
-#endif
-#ifndef INSTRUMENT_APP9_FUNCTION
-    #define INSTRUMENT_APP9_FUNCTION defaultAppFunction
-#endif
-#ifndef INSTRUMENT_APP10_FUNCTION
-    #define INSTRUMENT_APP10_FUNCTION defaultAppFunction
-#endif
-#ifndef INSTRUMENT_APP11_FUNCTION
-    #define INSTRUMENT_APP11_FUNCTION defaultAppFunction
-#endif
-#ifndef INSTRUMENT_APP12_FUNCTION
-    #define INSTRUMENT_APP12_FUNCTION defaultAppFunction
-#endif
-#ifndef INSTRUMENT_APP13_FUNCTION
-    #define INSTRUMENT_APP13_FUNCTION defaultAppFunction
-#endif
-#ifndef INSTRUMENT_APP14_FUNCTION
-    #define INSTRUMENT_APP14_FUNCTION defaultAppFunction
-#endif
-#ifndef INSTRUMENT_APP15_FUNCTION
-    #define INSTRUMENT_APP15_FUNCTION defaultAppFunction
-#endif
-#ifndef INSTRUMENT_APP16_FUNCTION
-    #define INSTRUMENT_APP16_FUNCTION defaultAppFunction
-#endif
-
-//Texts
-
-#ifndef INSTRUMENT_APP7_TEXT
-    #define INSTRUMENT_APP7_TEXT ""
-#endif
-#ifndef INSTRUMENT_APP8_TEXT
-    #define INSTRUMENT_APP8_TEXT ""
-#endif
-#ifndef INSTRUMENT_APP9_TEXT
-    #define INSTRUMENT_APP9_TEXT ""
-#endif
-#ifndef INSTRUMENT_APP10_TEXT
-    #define INSTRUMENT_APP10_TEXT ""
-#endif
-#ifndef INSTRUMENT_APP11_TEXT
-    #define INSTRUMENT_APP11_TEXT ""
-#endif
-#ifndef INSTRUMENT_APP12_TEXT
-    #define INSTRUMENT_APP12_TEXT ""
-#endif
-#ifndef INSTRUMENT_APP13_TEXT
-    #define INSTRUMENT_APP13_TEXT ""
-#endif
-#ifndef INSTRUMENT_APP14_TEXT
-    #define INSTRUMENT_APP14_TEXT ""
-#endif
-#ifndef INSTRUMENT_APP15_TEXT
-    #define INSTRUMENT_APP15_TEXT ""
-#endif
-#ifndef INSTRUMENT_APP16_TEXT
-    #define INSTRUMENT_APP16_TEXT ""
-#endif
-
-const unsigned char* instrumentApplicationIcons[16] = {
+const unsigned char* instrumentApplicationIcons[NUMBER_OF_APPLICATIONS] = {
     INSTRUMENT_APP1_ICON,
     INSTRUMENT_APP2_ICON,
     INSTRUMENT_APP3_ICON,
     INSTRUMENT_APP4_ICON,
     INSTRUMENT_APP5_ICON,
     INSTRUMENT_APP6_ICON,
-    INSTRUMENT_APP7_ICON,
-    INSTRUMENT_APP8_ICON,
-    INSTRUMENT_APP9_ICON,
-    INSTRUMENT_APP10_ICON,
-    INSTRUMENT_APP11_ICON,
-    INSTRUMENT_APP12_ICON,
-    INSTRUMENT_APP13_ICON,
-    INSTRUMENT_APP14_ICON,
-    INSTRUMENT_APP15_ICON,
-    INSTRUMENT_APP16_ICON
+    INSTRUMENT_APP7_ICON
 };
 
 //loading all the functions
-bool (*const instrumentApplicationFunctions[16])() = {
+bool (*const instrumentApplicationFunctions[NUMBER_OF_APPLICATIONS])() = {
     INSTRUMENT_APP1_FUNCTION,
     INSTRUMENT_APP2_FUNCTION,
     INSTRUMENT_APP3_FUNCTION,
     INSTRUMENT_APP4_FUNCTION,
     INSTRUMENT_APP5_FUNCTION,
     INSTRUMENT_APP6_FUNCTION,
-    INSTRUMENT_APP7_FUNCTION,
-    INSTRUMENT_APP8_FUNCTION,
-    INSTRUMENT_APP9_FUNCTION,
-    INSTRUMENT_APP10_FUNCTION,
-    INSTRUMENT_APP11_FUNCTION,
-    INSTRUMENT_APP12_FUNCTION,
-    INSTRUMENT_APP13_FUNCTION,
-    INSTRUMENT_APP14_FUNCTION,
-    INSTRUMENT_APP15_FUNCTION,
-    INSTRUMENT_APP16_FUNCTION
+    INSTRUMENT_APP7_FUNCTION
 };
 
-const String instrumentApplicationTitles[16] = {
+const String instrumentApplicationTitles[NUMBER_OF_APPLICATIONS] = {
     INSTRUMENT_APP1_TEXT,
     INSTRUMENT_APP2_TEXT,
     INSTRUMENT_APP3_TEXT,
     INSTRUMENT_APP4_TEXT,
     INSTRUMENT_APP5_TEXT,
     INSTRUMENT_APP6_TEXT,
-    INSTRUMENT_APP7_TEXT,
-    INSTRUMENT_APP8_TEXT,
-    INSTRUMENT_APP9_TEXT,
-    INSTRUMENT_APP10_TEXT,
-    INSTRUMENT_APP11_TEXT,
-    INSTRUMENT_APP12_TEXT,
-    INSTRUMENT_APP13_TEXT,
-    INSTRUMENT_APP14_TEXT,
-    INSTRUMENT_APP15_TEXT,
-    INSTRUMENT_APP16_TEXT
+    INSTRUMENT_APP7_TEXT
 };
 
 /* 
@@ -410,189 +279,7 @@ const String fxApplicationInfo[NUMBER_OF_FX] = {
     FX_APP8_INFO
 };
 
-/*
-    Check to see if the user has defined these in their code!
-    If not, set them to a default function or bitmap
-*/
-
-//Icons
-#ifndef FX_APP6_ICON
-    #define FX_APP6_ICON default_bmp
-#endif
-#ifndef FX_APP7_ICON
-    #define FX_APP7_ICON default_bmp
-#endif
-#ifndef FX_APP8_ICON
-    #define FX_APP8_ICON default_bmp
-#endif
-#ifndef FX_APP9_ICON
-    #define FX_APP9_ICON default_bmp
-#endif
-#ifndef FX_APP10_ICON
-    #define FX_APP10_ICON default_bmp
-#endif
-#ifndef FX_APP11_ICON
-    #define FX_APP11_ICON default_bmp
-#endif
-#ifndef FX_APP12_ICON
-    #define FX_APP12_ICON default_bmp
-#endif
-#ifndef FX_APP13_ICON
-    #define FX_APP13_ICON default_bmp
-#endif
-#ifndef FX_APP14_ICON
-    #define FX_APP14_ICON default_bmp
-#endif
-#ifndef FX_APP15_ICON
-    #define FX_APP15_ICON default_bmp
-#endif
-#ifndef FX_APP16_ICON
-    #define FX_APP16_ICON default_bmp
-#endif
-#ifndef FX_APP17_ICON
-    #define FX_APP17_ICON default_bmp
-#endif
-#ifndef FX_APP18_ICON
-    #define FX_APP18_ICON default_bmp
-#endif
-#ifndef FX_APP19_ICON
-    #define FX_APP19_ICON default_bmp
-#endif
-#ifndef FX_APP20_ICON
-    #define FX_APP20_ICON default_bmp
-#endif
-#ifndef FX_APP21_ICON
-    #define FX_APP21_ICON default_bmp
-#endif
-#ifndef FX_APP22_ICON
-    #define FX_APP22_ICON default_bmp
-#endif
-#ifndef FX_APP23_ICON
-    #define FX_APP23_ICON default_bmp
-#endif
-#ifndef FX_APP24_ICON
-    #define FX_APP24_ICON default_bmp
-#endif
-
-//Functions
-#ifndef FX_APP6_FUNCTION
-    #define FX_APP6_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP7_FUNCTION
-    #define FX_APP7_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP8_FUNCTION
-    #define FX_APP8_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP9_FUNCTION
-    #define FX_APP9_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP10_FUNCTION
-    #define FX_APP10_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP11_FUNCTION
-    #define FX_APP11_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP12_FUNCTION
-    #define FX_APP12_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP13_FUNCTION
-    #define FX_APP13_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP14_FUNCTION
-    #define FX_APP14_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP15_FUNCTION
-    #define FX_APP15_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP16_FUNCTION
-    #define FX_APP16_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP17_FUNCTION
-    #define FX_APP17_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP18_FUNCTION
-    #define FX_APP18_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP19_FUNCTION
-    #define FX_APP19_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP20_FUNCTION
-    #define FX_APP20_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP21_FUNCTION
-    #define FX_APP21_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP22_FUNCTION
-    #define FX_APP22_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP23_FUNCTION
-    #define FX_APP23_FUNCTION defaultAppFunction
-#endif
-#ifndef FX_APP24_FUNCTION
-    #define FX_APP24_FUNCTION defaultAppFunction
-#endif
-
-//Texts
-#ifndef FX_APP6_TEXT
-    #define FX_APP6_TEXT ""
-#endif
-#ifndef FX_APP7_TEXT
-    #define FX_APP7_TEXT ""
-#endif
-#ifndef FX_APP8_TEXT
-    #define FX_APP8_TEXT ""
-#endif
-#ifndef FX_APP9_TEXT
-    #define FX_APP9_TEXT ""
-#endif
-#ifndef FX_APP10_TEXT
-    #define FX_APP10_TEXT ""
-#endif
-#ifndef FX_APP11_TEXT
-    #define FX_APP11_TEXT ""
-#endif
-#ifndef FX_APP12_TEXT
-    #define FX_APP12_TEXT ""
-#endif
-#ifndef FX_APP13_TEXT
-    #define FX_APP13_TEXT ""
-#endif
-#ifndef FX_APP14_TEXT
-    #define FX_APP14_TEXT ""
-#endif
-#ifndef FX_APP15_TEXT
-    #define FX_APP15_TEXT ""
-#endif
-#ifndef FX_APP16_TEXT
-    #define FX_APP16_TEXT ""
-#endif
-#ifndef FX_APP17_TEXT
-    #define FX_APP17_TEXT ""
-#endif
-#ifndef FX_APP18_TEXT
-    #define FX_APP18_TEXT ""
-#endif
-#ifndef FX_APP19_TEXT
-    #define FX_APP19_TEXT ""
-#endif
-#ifndef FX_APP20_TEXT
-    #define FX_APP20_TEXT ""
-#endif
-#ifndef FX_APP21_TEXT
-    #define FX_APP21_TEXT ""
-#endif
-#ifndef FX_APP22_TEXT
-    #define FX_APP22_TEXT ""
-#endif
-#ifndef FX_APP23_TEXT
-    #define FX_APP23_TEXT ""
-#endif
-#ifndef FX_APP24_TEXT
-    #define FX_APP24_TEXT ""
-#endif
-
-const unsigned char* fxApplicationIcons[24] = {
+const unsigned char* fxApplicationIcons[NUMBER_OF_FX] = {
     FX_APP1_ICON,
     FX_APP2_ICON,
     FX_APP3_ICON,
@@ -600,27 +287,11 @@ const unsigned char* fxApplicationIcons[24] = {
     FX_APP5_ICON,
     FX_APP6_ICON,
     FX_APP7_ICON,
-    FX_APP8_ICON,
-    FX_APP9_ICON,
-    FX_APP10_ICON,
-    FX_APP11_ICON,
-    FX_APP12_ICON,
-    FX_APP13_ICON,
-    FX_APP14_ICON,
-    FX_APP15_ICON,
-    FX_APP16_ICON,
-    FX_APP17_ICON,
-    FX_APP18_ICON,
-    FX_APP19_ICON,
-    FX_APP20_ICON,
-    FX_APP21_ICON,
-    FX_APP22_ICON,
-    FX_APP23_ICON,
-    FX_APP24_ICON
+    FX_APP8_ICON
 };
 
 //loading all the functions
-bool (*const fxApplicationFunctions[24])() = {
+bool (*const fxApplicationFunctions[NUMBER_OF_FX])() = {
     FX_APP1_FUNCTION,
     FX_APP2_FUNCTION,
     FX_APP3_FUNCTION,
@@ -628,26 +299,10 @@ bool (*const fxApplicationFunctions[24])() = {
     FX_APP5_FUNCTION,
     FX_APP6_FUNCTION,
     FX_APP7_FUNCTION,
-    FX_APP8_FUNCTION,
-    FX_APP9_FUNCTION,
-    FX_APP10_FUNCTION,
-    FX_APP11_FUNCTION,
-    FX_APP12_FUNCTION,
-    FX_APP13_FUNCTION,
-    FX_APP14_FUNCTION,
-    FX_APP15_FUNCTION,
-    FX_APP16_FUNCTION,
-    FX_APP17_FUNCTION,
-    FX_APP18_FUNCTION,
-    FX_APP19_FUNCTION,
-    FX_APP20_FUNCTION,
-    FX_APP21_FUNCTION,
-    FX_APP22_FUNCTION,
-    FX_APP23_FUNCTION,
-    FX_APP24_FUNCTION
+    FX_APP8_FUNCTION
 };
 
-const String fxApplicationTitles[24] = {
+const String fxApplicationTitles[NUMBER_OF_FX] = {
     FX_APP1_TEXT,
     FX_APP2_TEXT,
     FX_APP3_TEXT,
@@ -655,21 +310,5 @@ const String fxApplicationTitles[24] = {
     FX_APP5_TEXT,
     FX_APP6_TEXT,
     FX_APP7_TEXT,
-    FX_APP8_TEXT,
-    FX_APP9_TEXT,
-    FX_APP10_TEXT,
-    FX_APP11_TEXT,
-    FX_APP12_TEXT,
-    FX_APP13_TEXT,
-    FX_APP14_TEXT,
-    FX_APP15_TEXT,
-    FX_APP16_TEXT,
-    FX_APP17_TEXT,
-    FX_APP18_TEXT,
-    FX_APP19_TEXT,
-    FX_APP20_TEXT,
-    FX_APP21_TEXT,
-    FX_APP22_TEXT,
-    FX_APP23_TEXT,
-    FX_APP24_TEXT
+    FX_APP8_TEXT
 };
