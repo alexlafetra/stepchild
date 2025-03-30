@@ -122,6 +122,7 @@ Note::Note(unsigned short int xPos, unsigned short int xEnd, unsigned char vel){
 uint16_t Note::getLength(){
   return endPos-startPos+1;
 }
+//moves both timepoints by the same amount -- DOESN'T check bounds!
 void Note::shift(int16_t amount){
   endPos += amount;
   startPos += amount;

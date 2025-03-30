@@ -14,8 +14,8 @@
 //FX Apps
 #include "../fx/randomMenu.cpp"
 #include "../fx/warpMenu.cpp"
-#include "../fx/strumMenu.cpp"
-#include "../fx/reverseMenu.cpp"
+#include "../fx/strum.cpp"
+#include "../fx/reverse.cpp"
 #include "../fx/quantize.cpp"
 #include "../fx/humanize.cpp"
 #include "../fx/echo.cpp"
@@ -373,7 +373,7 @@ const unsigned char warp_bmp []  = {
 #define FX_APP1_FUNCTION randomMenu
 #define FX_APP2_FUNCTION quantize
 #define FX_APP3_FUNCTION humanize
-#define FX_APP4_FUNCTION strumMenu
+#define FX_APP4_FUNCTION strum
 #define FX_APP5_FUNCTION echo
 #define FX_APP6_FUNCTION reverse
 #define FX_APP7_FUNCTION warp

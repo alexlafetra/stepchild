@@ -866,35 +866,64 @@ void drawCoordinateBox(CoordinatePair coords, SequenceRenderSettings& settings){
   }
 }
 
-bool compareTracks(NoteID n1, NoteID n2){
+bool compareTracks_NoteID(NoteID n1, NoteID n2){
     return n1.track>n2.track;
 }
-bool comparePitches(NoteID n1, NoteID n2){
+bool comparePitches_NoteID(NoteID n1, NoteID n2){
     return n1.getPitch()>n2.getPitch();
+}
+bool compareTracks_NoteTrackPair(NoteTrackPair n1, NoteTrackPair n2){
+  return n1.trackID>n2.trackID;
+}
+bool comparePitches_NoteTrackPair(NoteTrackPair n1, NoteTrackPair n2){
+  return n1.getPitch()>n2.getPitch();
+}
+
+vector<NoteTrackPair> sortNotes(vector<NoteTrackPair> notes, uint8_t sortBy, uint8_t type){
+  vector<NoteTrackPair> sortedVec = notes;
+  switch(sortBy){
+    //sort by pitch
+    case 0:
+      sort(sortedVec.begin(), sortedVec.end(),comparePitches_NoteTrackPair);
+      break;
+    //sort by track
+    case 1:
+      sort(sortedVec.begin(), sortedVec.end(),compareTracks_NoteTrackPair);
+      break;
+  }
+  //if it's ascending
+  if(type == 0){
+    return sortedVec;
+  }
+  //if it's descending, reverse it
+  else{
+    reverse(sortedVec.begin(),sortedVec.end());
+    return sortedVec;
+  }
 }
 
 //sorts a list of [track,note] pairs
 vector<NoteID> sortNotes(vector<NoteID> ids, uint8_t sortBy, uint8_t type){
-    vector<NoteID> sortedVec = ids;
-    switch(sortBy){
-        //sort by pitch
-        case 0:
-           sort(sortedVec.begin(), sortedVec.end(),comparePitches);
-           break;
-        //sort by track
-        case 1:
-           sort(sortedVec.begin(), sortedVec.end(),compareTracks);
-           break;
-    }
-    //if it's ascending
-    if(type == 0){
-        return sortedVec;
-    }
-    //if it's descending, reverse it
-    else{
-        reverse(sortedVec.begin(),sortedVec.end());
-        return sortedVec;
-    }
+  vector<NoteID> sortedVec = ids;
+  switch(sortBy){
+    //sort by pitch
+    case 0:
+      sort(sortedVec.begin(), sortedVec.end(),comparePitches_NoteID);
+      break;
+    //sort by track
+    case 1:
+      sort(sortedVec.begin(), sortedVec.end(),compareTracks_NoteID);
+      break;
+  }
+  //if it's ascending
+  if(type == 0){
+    return sortedVec;
+  }
+  //if it's descending, reverse it
+  else{
+    reverse(sortedVec.begin(),sortedVec.end());
+    return sortedVec;
+  }
 }
 
 vector<NoteID> grabSelectedNotesAsNoteIDs(){

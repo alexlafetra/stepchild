@@ -16,10 +16,8 @@ void headlessSetup(){
   //load settings
   loadSettings();
   //setting up sequence w/ 16 tracks, 768 steps
-  // sequence.init(16,768); 
   sequence.init(SP404MK2_TEMPLATE);
-  //turn off LEDs (since they might be in some random configuration)
-  controls.turnOffLEDs();
+
   //set the control knobs up w/ default values
   for(uint8_t i = 0; i<16; i++){
     controlKnobs[i].cc = i+1;
@@ -40,11 +38,11 @@ void setup() {
 
   //starting serial monitor output @ 9600baud for USB communication
   Serial.begin(9600);
+
   //Set USB device info
   // these two strings must be exactly 32 characters long:
   //                                   0123456789ABCDEF0123456789ABCDEF
   USBDevice.setManufacturerDescriptor("Alex LaFetra Thompson           ");
-  // USBDevice.setProductDescriptor     ("Stepchild Firmware 0.9.5        ");
   USBDevice.setProductDescriptor     ("ChildOS V0.9.5                  ");
 
   //start I^2C bus to communicate with MCP23017's
@@ -79,19 +77,15 @@ void setup() {
   srand(1);
   //load settings
   loadSettings();
-  //setting up sequence w/ 16 tracks, 768 steps
-  // sequence.init(16,768);
-  sequence.init(SP404MK2_TEMPLATE);
-  // sequence.init(GENERIC_KEYBOARD_TEMPLATE);
 
-  //turn off LEDs (since they might be in some random configuration)
-  controls.turnOffLEDs();
+  //setting up sequence w/ 16 tracks, 768 steps
+  sequence.init(SP404MK2_TEMPLATE);
+
   //set the control knobs up w/ default values
   for(uint8_t i = 0; i<16; i++){
     controlKnobs[i].cc = i+1;
   }
 
-  sequence.setNormalMode();
   core0ready = true;
   lastTime = millis();
   // graphics.bootscreen_2();

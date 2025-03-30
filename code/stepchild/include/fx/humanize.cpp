@@ -147,7 +147,6 @@ bool humanize(){
   }
 
   sequence.deleteNotes_byID(targetNoteIDs);
-  randomSeed(seed);
 
   //set up render settings
   SequenceRenderSettings settings;

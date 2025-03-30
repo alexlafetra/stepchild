@@ -194,9 +194,9 @@ class LowerBoard{
     //setting both banks of IO to outputs
     this->LEDs.writeRegister(MCP23017Register::IODIR_A, 0b00000000);
     this->LEDs.writeRegister(MCP23017Register::IODIR_B, 0b00000000);
-    //writing the GPIO pins to high, which set the values the Output Latch Registers will turn on&off
-    this->LEDs.writeRegister(MCP23017Register::GPIO_A,0b11111111);
-    this->LEDs.writeRegister(MCP23017Register::GPIO_B,0b11111111);
+    //turn the LEDs off
+    this->LEDs.writeRegister(MCP23017Register::GPIO_A,0);
+    this->LEDs.writeRegister(MCP23017Register::GPIO_B,0);
 
     //default startup settings
     this->Buttons.writeRegister(MCP23017Register::IOCON, 0b00100000);
@@ -207,7 +207,7 @@ class LowerBoard{
     //Enabling internal pullup resistors
     this->Buttons.writeRegister(MCP23017Register::GPPU_A, 0b11111111);
     this->Buttons.writeRegister(MCP23017Register::GPPU_B, 0b11111111);
-
+    
     this->Buttons.writeRegister(MCP23017Register::GPIO_A,0b11111111);
     this->Buttons.writeRegister(MCP23017Register::GPIO_B,0b11111111);
   }
@@ -277,6 +277,7 @@ class StepchildHardware{
     attachInterrupt(B_CLOCK,rotaryActionB_Handler, CHANGE);
     attachInterrupt(B_DATA,rotaryActionB_Handler, CHANGE);
     this->lowerBoard.initialize();
+    this->turnOffLEDs();
   }
 
   /*

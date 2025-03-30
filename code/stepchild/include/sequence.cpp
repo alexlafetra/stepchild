@@ -478,6 +478,7 @@ void StepchildSequence::init(uint8_t numberOfTracks,uint16_t length){
       this->trackData.push_back(Track(pitch,this->defaultChannel));
       pitch--;
   }
+  setNormalMode();
 }
 void StepchildSequence::init(){
   this->init(16,768);
@@ -505,6 +506,7 @@ void StepchildSequence::init(SequenceTemplate t){
       this->lookupTable[i].resize(769,0);
       this->noteData[i] = {Note()};
   }
+  setNormalMode();
 }
 
 bool StepchildSequence::isQuarterGrid(){

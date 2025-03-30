@@ -37,12 +37,12 @@ vector<NoteTrackPair> getQuantizedNotes(vector<NoteTrackPair> targetNotes){
   for(NoteTrackPair n:targetNotes){
     temp.push_back(NoteTrackPair(getQuantizedNote(n.note),n.trackID));
   }
-  //check to make sure no two notes have the same start
+  //check to make sure no two notes have the same start on the same track
   vector<NoteTrackPair> notes = {};
   for(uint8_t i = 0; i<temp.size(); i++){
     bool collision = false;
     for(uint8_t j = 0; j<notes.size(); j++){
-      if(j != i && temp[i].note.startPos == notes[j].note.startPos){
+      if(j != i && temp[i].note.startPos == notes[j].note.startPos && notes[i].trackID == notes[j].trackID){
         collision = true;
       }
     }

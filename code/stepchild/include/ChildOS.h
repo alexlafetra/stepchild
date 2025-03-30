@@ -278,6 +278,9 @@ struct NoteTrackPair{
           note = n;
           trackID = t;
       }
+      uint8_t getPitch(){
+        return sequence.trackData[trackID].pitch;
+      }
 };
 
 //Basic graphic functions
