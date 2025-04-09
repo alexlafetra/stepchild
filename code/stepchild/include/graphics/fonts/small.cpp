@@ -2,9 +2,13 @@
 const unsigned char epd_bitmap_small_0 []  = {
 	0x40, 0xa0, 0xa0, 0xa0, 0x40
 };
-// '1', 3x5px
-const unsigned char epd_bitmap_small_1 []  = {
-	0x40, 0xc0, 0x40, 0x40, 0xe0
+// // '1', 3x5px
+// const unsigned char epd_bitmap_small_1 []  = {
+// 	0x40, 0xc0, 0x40, 0x40, 0xe0
+// };
+// '1_new', 3x5px
+const unsigned char epd_bitmap_small_1 [] = {
+	0x40, 0xc0, 0x40, 0x40, 0x40
 };
 // '2', 3x5px
 const unsigned char epd_bitmap_small_2 []  = {
@@ -993,11 +997,12 @@ void printSmall(int16_t x1, int16_t y1, float a, uint16_t c){
 }
 
 //this one prints out one word at a time, with bounds
-void printSmall_overflow(int16_t x, int16_t y, int8_t margin, String text, uint16_t c){
+uint8_t printSmall_overflow(int16_t x, int16_t y, int8_t margin, String text, uint16_t c){
   int xCoord = x;
   int yCoord = y;
   String word = "";
   int wordlength = 0;
+  uint8_t lines = 0;
   for(int letter = 0; letter<text.length(); letter++){
 #ifdef HEADLESS
     String character = text.substr(letter,1);
@@ -1010,7 +1015,8 @@ void printSmall_overflow(int16_t x, int16_t y, int8_t margin, String text, uint1
         xCoord = x;
         yCoord += 7;
         if(yCoord>screenHeight)
-          return;
+          return lines;
+        lines++;
       }
       word+=character;
       wordlength+=4;
@@ -1025,4 +1031,5 @@ void printSmall_overflow(int16_t x, int16_t y, int8_t margin, String text, uint1
   }
   //print whatever's remaining
   printSmall(xCoord, yCoord, word, c);
+  return lines+1;
 }

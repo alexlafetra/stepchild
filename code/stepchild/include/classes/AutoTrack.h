@@ -385,7 +385,7 @@ class Autotrack{
         //default
         case LINEAR_CURVE:
           for(uint16_t point = start; point<end; point++){
-            data[point] = 64;
+            data[point] = yPos;
           }
           break;
         //sinewave
@@ -395,7 +395,7 @@ class Autotrack{
               //this one is crazy, and cool, but busted and idk why
               // int pt = amplitude*sin( (period/(2*PI)) * (point+phase) ) + yPos;
               //format is A * sin((2pi/Per)*(x+Phase))+yPos
-              int pt = amplitude*sin(float(point+phase)*float(2*PI)/float(period)) + yPos;
+              int pt = amplitude*sin(float(point+phase)*float(2.0*PI)/float(period)) + yPos;
               if(pt>127)
                 pt=127;
               if(pt<0)

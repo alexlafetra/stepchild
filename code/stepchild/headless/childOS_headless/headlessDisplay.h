@@ -390,10 +390,10 @@ void Display::drawPixel(int x1, int y1, int c){
     //writing pixel (if it's on screen)
     //black or white
     if(c != 2)
-        displayBuffer[x1][y1] = c;
+      displayBuffer[x1][y1] = c;
     //inverting
     else
-        displayBuffer[x1][y1] = !displayBuffer[x1][y1];
+      displayBuffer[x1][y1] = !displayBuffer[x1][y1];
 }
 void Display::drawLine(int x0, int y0, int x1, int y1, int c){
     int16_t steep = abs(y1 - y0) > abs(x1 - x0);
@@ -693,6 +693,8 @@ void Display::drawBitmap(int x1, int y1, const uint8_t bitmap[], int w, int h, i
         b = bitmap[j * byteWidth + i / 8];
       if (b & 0x80)
         drawPixel(x1 + i, y1, c);
+      else
+        drawPixel(x1 + i, y1, bg);
     }
   }
 }

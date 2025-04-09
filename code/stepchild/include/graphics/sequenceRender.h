@@ -593,6 +593,12 @@ void drawSeq(SequenceRenderSettings& settings){
   if(sequence.endTrack == sequence.trackData.size()){
     display.drawFastHLine(trackDisplay,settings.startHeight+trackHeight*settings.maxTracksShown,screenWidth,SSD1306_WHITE);
   }
+  //tiny trk label
+  // display.setRotation(DISPLAY_SIDEWAYS_R);
+  // display.drawBitmap(settings.startHeight,125,trk_tiny,10,3,1);
+  // display.setRotation(DISPLAY_UPRIGHT);
+
+
   //drawin all da steps
   //---------------------------------------------------
   for(uint8_t track = sequence.startTrack; track < sequence.endTrack; track++) {

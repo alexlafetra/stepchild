@@ -1196,8 +1196,17 @@ class AutotrackMenu:public StepchildMenu{
           printSmall(coords.start.x+6,coords.start.y+16+i*(height+1)+1,"#"+stringify(i+menuStart),0);
         }
         if(sequence.autotrackData.size()<6){
-          printSmall(coords.start.x+8,coords.start.y+16+sequence.autotrackData.size()*8,"[N]",1);
-          printSmall(coords.start.x+12,coords.start.y+21+sequence.autotrackData.size()*8,"+",1);
+          graphics.drawButton(coords.start.x+10,coords.start.y+16+sequence.autotrackData.size()*8,"n",1);
+          printSmall(coords.start.x+12,coords.start.y+23+sequence.autotrackData.size()*8,"+",1);
+        }
+        //if there are more than 6 tracks (and therefore some are offscreen), draw arrows indicating where they are
+        //if there's some 'above'
+        if(menuStart > 0){
+          graphics.drawArrow(coords.start.x+24,coords.start.y+2+millis()/200%2,2,ARROW_UP,true);
+        }
+        //if there's some below
+        if(sequence.autotrackData.size() > menuStart + 6){
+          graphics.drawArrow(coords.start.x+24,coords.start.y+12-millis()/200%2,2,ARROW_DOWN,true);
         }
 
         //holder for the AT display
@@ -1283,9 +1292,8 @@ class AutotrackMenu:public StepchildMenu{
       }
       //if there are no autotracks
       else{
-        printSmall(coords.start.x+8,coords.start.y+17,"[N]",1);
-        printSmall(coords.start.x+12,coords.start.y+22,"+",1);
-        // printSmall(coords.start.x+48,coords.start.y+40,"zero tracks!",1);
+        graphics.drawButton(coords.start.x+10,coords.start.y+17,"n",1);
+        printSmall(coords.start.x+12,coords.start.y+24,"+",1);
         printSmall(coords.start.x+33,coords.start.y+35,"no automation data!",1);
 
       }

@@ -1566,7 +1566,9 @@ if (newActiveTrack >= 0 && newActiveTrack < this->trackData.size()) {
       MIDI.noteOff(this->trackData[this->activeTrack].pitch, 0, this->trackData[this->activeTrack].channel);
     }
   }
-  menuText = pitchToString(this->trackData[this->activeTrack].pitch,true,true);
+  // menuText = pitchToString(this->trackData[this->activeTrack].pitch,true,true);
+  // menuText = "tk"+stringify(activeTrack)+" ch"+stringify(trackData[activeTrack].channel)+" $"+pitchToString(trackData[activeTrack].pitch,true,true);
+  menuText = "tk"+stringify(activeTrack);
   return true;
 }
 return false;

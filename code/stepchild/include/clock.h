@@ -8,30 +8,41 @@ class SwingCurve{
     CurveType type = LINEAR_CURVE;
     uint16_t period = 96;
     uint16_t phase = 0;
-    float amplitude = 1.0;
+    int16_t amplitude = 1;
     SwingCurve(CurveType t, float per, uint16_t ph, float a){
         type = t;
         period = per;
         phase = ph;
         amplitude = a;
     }
-    float getValueAt(uint16_t point){
+    int16_t getValueAt(uint16_t point){
         switch(type){
             //default
             case LINEAR_CURVE:
                 return 0;
             //sinewave
             case SINEWAVE_CURVE:
-                return amplitude*sin(float(point+phase)*float(2.0*PI)/float(period));
+                return amplitude*sin(float(point+phase)*float(2.0*PI)/float(period));   
             //square wave
             case SQUAREWAVE_CURVE:
-                float loc = float(point+phase)/float(period) - trunc((point+phase)/period);
                 //if you're less than half a period, it's high. Else, it's low
-                if(loc<0.5)
+                if((point+phase)%period<period/2)
                     return amplitude;
                 else
                     return -amplitude;
             //saw
+            case SAWTOOTH_CURVE:{
+                float slope = float(amplitude*2)/float(period);
+                return ((point+phase)%period)*slope-amplitude;
+            }
+            case TRIANGLE_CURVE:{
+                float slope = float(amplitude*2)/float(period/2);
+                //point gets % by period (gives position within period). If pos within period is greater than period/2, then the slope should be inverted and you should +amplitude
+                if((point+phase)%period>(period/2))
+                    return ((point+phase)%period) * (-slope) + 3*amplitude;
+                else
+                    return ((point+phase)%period) * slope - amplitude;
+            }
         }
         return 0;
 
@@ -44,10 +55,9 @@ class StepchildClock{
     ClockSource clockSource = INTERNAL_CLOCK;
     bool receivedClockMessage = false;
     bool isSwinging = false;
-    // int32_t swingAmplitude = 4000;
-    // uint16_t swingSubDiv = 96;
-    SwingCurve swingCurve = SwingCurve(SINEWAVE_CURVE,96.0,0,4000);
 
+    SwingCurve swingCurve = SwingCurve(SINEWAVE_CURVE,96.0,0,4000);
+    int16_t swingCurveSource = -1; //-1 ==> swing curve, >= 0 ==> autotrack
     uint16_t BPM = 120;
 
     //Maximum val in a 4byte number is 4294967296 uS
