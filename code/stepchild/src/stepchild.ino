@@ -27,7 +27,7 @@ void headlessSetup(){
   lastTime = millis();
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
-  // graphics.bootscreen_2();
+  graphics.bootscreen_3();
 }
 #ifndef HEADLESS
 //CPU 0 setup
@@ -88,7 +88,7 @@ void setup() {
 
   core0ready = true;
   lastTime = millis();
-  // graphics.bootscreen_2();
+  graphics.bootscreen_3();
 }
 #endif
 

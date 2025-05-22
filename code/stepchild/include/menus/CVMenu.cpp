@@ -64,14 +64,14 @@ void MIDItoCV(){
             gate = true;
             pitch = recentNote.pitch;
             CV.writeGate(gate);
-            CV.writePitch(pitch);
+            CV.checkPitch(pitch);
         }
         if(noteOffReceived && recentNote.pitch == pitch && (channel == 0 || channel == recentNote.channel)){
             noteOffReceived = false;
             gate = false;
             pitch = recentNote.pitch;
             CV.writeGate(gate);
-            CV.writePitch(pitch);
+            CV.checkPitch(pitch);
         }
         controls.readJoystick();
         controls.readButtons();

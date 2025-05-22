@@ -17,6 +17,27 @@ void StepchildSequence::writeNoteOn(uint16_t step, uint8_t pitch, uint8_t vel, u
   }
 }
 
+void StepchildSequence::checkCV(){
+  //if the CV functionality is turned off, just return immediately
+  if(!CV.on){
+    return;
+  }
+  //if a track is sending a pitch
+  if(sentNotes.notes.size()){
+    CV.checkPitch(sentNotes.notes[sentNotes.notes.size()-1].pitch);
+  }
+  //this is soooo inefficient, u should just check each jack to see if it's a track jack first
+  for(uint8_t i = 0; i < trackData.size(); i++){
+    if(trackData[i].noteLastSent != 255){
+      CV.checkGate(true,i);
+    }
+    else{
+      CV.checkGate(true,i);
+    }
+  }
+  CV.checkClock();
+}
+
 
 void StepchildSequence::writeNoteOff(uint16_t step, uint8_t pitch, uint8_t channel){
   int8_t track = getTrackWithPitch(pitch,channel);
@@ -204,7 +225,7 @@ void StepchildSequence::playingLoop(){
       playheadPos++;
       checkLoop();
       if(!playheadPos%24)
-        CV.writeClock();
+        CV.checkClock();
     }
   }
   //external timing
@@ -339,7 +360,7 @@ void StepchildSequence::playStep(uint16_t timestep) {
   for(uint8_t dT = 0; dT < autotrackData.size(); dT++){
     autotrackData[dT].play(timestep);
   }
-  CV.check();
+  checkCV();
 }
 
 
@@ -734,7 +755,7 @@ void StepchildSequence::editNoteProperty_byID(uint16_t id, uint8_t track, int8_t
           break;
       }
       case PITCH:{
-
+        break;
       }
       case CHANCE:{
           int8_t chance = this->noteData[track][id].chance;

@@ -532,6 +532,35 @@ void StepchildGraphics::drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, 
         break;
     }
 }
+void StepchildGraphics::drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, uint8_t fillColor, uint8_t highlightColor, bool drawHighlight){
+    switch(direction){
+      //right
+      case ARROW_RIGHT:
+        display.fillTriangle(pointX, pointY, pointX-size, pointY-size, pointX-size, pointY+size,fillColor);
+        if(drawHighlight)
+          display.drawTriangle(pointX, pointY, pointX-size, pointY-size, pointX-size, pointY+size,highlightColor);
+      break;
+      //left
+      case ARROW_LEFT:
+        display.fillTriangle(pointX, pointY,pointX+size, pointY-size, pointX+size, pointY+size,fillColor);
+        if(drawHighlight)
+          display.drawTriangle(pointX, pointY,pointX+size, pointY-size, pointX+size, pointY+size,highlightColor);
+      break;
+      //up
+      case ARROW_UP:
+        display.fillTriangle(pointX, pointY, pointX-size, pointY+size, pointX+size, pointY+size, fillColor);
+        if(drawHighlight)
+          display.drawTriangle(pointX, pointY, pointX-size, pointY+size, pointX+size, pointY+size, highlightColor);
+      break;
+      //down
+      case ARROW_DOWN:
+        display.fillTriangle(pointX, pointY, pointX-size, pointY-size, pointX+size, pointY-size, fillColor);
+        if(drawHighlight)
+          display.drawTriangle(pointX, pointY, pointX-size, pointY-size, pointX+size, pointY-size, highlightColor);
+      break;
+  }
+}
+
 
 void StepchildGraphics::drawHighlightArrow(uint8_t pointX,uint8_t pointY, uint8_t size, uint8_t direction){
     this->drawArrow(pointX,pointY,size+2,direction,true);
@@ -1525,6 +1554,48 @@ void StepchildGraphics::bootscreen_2(){
     display.display();
     controls.writeLEDs(0b1111111111111111>>(15-uint8_t(frameCount/8)));
     frameCount+=0.4;
+  }
+  controls.turnOffLEDs();
+}
+void StepchildGraphics::bootscreen_3(){
+  float frameCount = 0;
+  //each letter pops in and swings into place with a x^2 parabolic motion
+  while(frameCount<80){
+    display.clearDisplay();
+    display.setTextSize(2);
+    // display.drawBitmap(10,10,child_blocks_bmp,78,23,1);
+    uint8_t maxLetters = frameCount/8;
+    // const uint8_t x = 0;
+    // const uint8_t y = 20;
+    const uint8_t x = 25;
+    const uint8_t y = 15;
+    if(maxLetters>=1)//c
+      display.drawBitmap(x,y+6,child_blocks_logo[0],18,18,1,0);
+    if(maxLetters>=2)//h
+      display.drawBitmap(x+16,y,child_blocks_logo[1],18,17,1,0);
+    if(maxLetters>=3)//i
+      display.drawBitmap(x+30,y+4,child_blocks_logo[2],19,19,1,0);
+    if(maxLetters>=4)//l
+      display.drawBitmap(x+46,y,child_blocks_logo[3],18,17,1,0);
+    if(maxLetters>=5)//d
+      display.drawBitmap(x+59,y+8,child_blocks_logo[4],18,16,1,0);
+
+    if(maxLetters >= 6){
+      display.setTextSize(1);
+      display.setFont(&FreeSerifItalic12pt7b);
+      // display.setCursor(x+80,y+18);
+      display.setCursor(x+24,y+40);
+      display.print("OS");
+      display.setFont();
+      drawStar(x+80,y,3,7,5);
+    }
+
+
+    // drawStar(x+115,y,3,7,5);
+
+    display.display();
+    controls.writeLEDs(0b1111111111111111>>(15-uint8_t(frameCount/8)));
+    frameCount+=1;
   }
   controls.turnOffLEDs();
 }

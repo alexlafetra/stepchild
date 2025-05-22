@@ -61,6 +61,7 @@ class StepchildGraphics{
   // #define UP 2
   // #define DOWN 3
   void drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, bool full);
+  void drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, uint8_t fillColor, uint8_t highlightColor, bool drawHighlight);
   void drawHighlightArrow(uint8_t pointX,uint8_t pointY, uint8_t size, uint8_t direction);
   void drawBanner(uint8_t x1, uint8_t y1, String text);
   void drawCenteredBanner(uint8_t x1, uint8_t y1, String text);
@@ -119,6 +120,7 @@ class StepchildGraphics{
   void helloChild_5();
   void drawLogo(uint8_t x1, uint8_t y1);
   void bootscreen_2();
+  void bootscreen_3();
   void drawOSScreen();
   void drawSmallChannelIcon(uint8_t x1, uint8_t y1, uint8_t ch);
   void drawMoveIcon(uint8_t x1, uint8_t y1, bool anim);

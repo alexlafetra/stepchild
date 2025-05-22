@@ -76,7 +76,7 @@ class StepchildClock{
     }
 
     //returns the amount a timestep should be shifted (in uSeconds) based on the swing curve
-    int32_t swingOffset(uint16_t step){
+    int16_t swingOffset(uint16_t step){
         // return this->swingAmplitude*sin(2*PI/this->swingSubDiv * (step-this->swingSubDiv/4));
         return swingCurve.getValueAt(step);
     }

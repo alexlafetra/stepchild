@@ -321,7 +321,7 @@ uint8_t countChar(String text,unsigned char c){
 }
 
 uint8_t getSmallTextLength(String t){
-  return t.length()*4-countChar(t,' ')*2;
+  return t.length()*4-countChar(t,' ')*2-countChar(t,':')*2;
 }
 
 //Convert a list of bytes into corresponding C-B pitches

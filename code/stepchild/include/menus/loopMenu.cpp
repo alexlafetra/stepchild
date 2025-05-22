@@ -1,4 +1,3 @@
-void drawLoopBlocksVertically(int,int,int);
 // 'loop_next_reverse', 13x16px
 const unsigned char loop_next_reverse_bmp [] = {
 	0x0f, 0xf8, 0x37, 0xf8, 0x43, 0xf8, 0x25, 0xf8, 0xa2, 0xf8, 0xd5, 0x78, 0xcf, 0xf8, 0xe0, 0x00, 
@@ -22,10 +21,6 @@ const unsigned char loop_corner_bottom_bmp []  = {
 const unsigned char loop_arrow_top_bmp []  = {
 	0x0f, 0xe0, 0x3f, 0xf6, 0x7f, 0xfa, 0x7f, 0xfc, 0xff, 0xf8, 0xff, 0xf2, 0xff, 0xe6, 0xff, 0x0e
 };
-// // 'corner_top', 8x8px
-// const unsigned char loop_corner_top_bmp []  = {
-// 	0x0f, 0x3f, 0x7f, 0x7f, 0xff, 0xff, 0xff, 0xff
-// };
 // 'loop_arrow_workaround', 8x16px
 const unsigned char loop_arrow_workaround_bmp [] = {
 	0xf0, 0xfc, 0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe, 0xfc, 0xf0
@@ -490,6 +485,7 @@ class LoopMenu:public StepchildMenu{
   uint8_t menuStart = 0;
   uint8_t numberOfLoopsShown = 5;
   int8_t yCoordOffset = 0;
+  const uint8_t loopHeight = 9;
 
   LoopMenu(){
     icon = makeLoopArrows(0);
@@ -516,7 +512,12 @@ class LoopMenu:public StepchildMenu{
       return false;
     return isThisATrickyLoop(loopID+1);
   }
-
+  bool loopAboveIsPointingToThisLoop(uint8_t id){
+    if(id){
+      return (sequence.loopData[id - 1].type == NORMAL);
+    }
+    return false;
+  }
   void drawLoopChunk(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t loopID, bool selected){
     if(sequence.playing() && sequence.activeLoop == loopID){
       uint8_t progress = float(w) * float(sequence.playheadPos - sequence.loopData[loopID].start)/float(sequence.loopData[loopID].end - sequence.loopData[loopID].start);
@@ -540,14 +541,25 @@ class LoopMenu:public StepchildMenu{
               display.drawBitmap(x-14,y,loop_next_reverse_overlay_bmp,14,16,1,0);
             else
               display.drawBitmap(x-13,y,loop_next_reverse_bmp,13,16,1,0);
+            if(!loopAboveIsPointingToThisLoop(loopID)){
+              display.drawFastVLine(x+w,y,h,1);
+              display.drawFastVLine(x+w+1,y+1,h-2,1);
+              display.drawFastVLine(x+w+2,y+2,h-4,1);
+            }
           }
-          else
+          else{
             display.drawBitmap(x+w,y,loop_next_bmp,13,16,1,0);
+            if(!loopAboveIsPointingToThisLoop(loopID)){
+              display.drawFastVLine(x-1,y,h,1);
+              display.drawFastVLine(x-2,y+1,h-2,1);
+              display.drawFastVLine(x-3,y+2,h-4,1);
+            }
+          }
           break;
         }
       case RETURN:
         //if you need to snake underneath the loop to draw the arrow
-        if(isThisATrickyLoop(loopID)){
+        if(isThisATrickyLoop(loopID) || !loopAboveIsPointingToThisLoop(loopID)){
           display.drawFastVLine(x+w,y+1,h-2,1);
           display.drawFastVLine(x+w+1,y+2,h-4,1);
         }
@@ -561,41 +573,67 @@ class LoopMenu:public StepchildMenu{
         break;
       case RANDOM_SAME:
         if(loopID%2){
-          display.drawFastHLine(x-12,y+2,3,1);
-          display.drawFastHLine(x-12,y+4,3,1);
+          display.drawFastHLine(x-14,y+2,3,1);
+          display.drawFastHLine(x-14,y+4,3,1);
         }
         else{
-          display.drawFastHLine(x+w+10,y+2,3,1);
-          display.drawFastHLine(x+w+10,y+4,3,1);
+          display.drawFastHLine(x+w+11,y+2,3,1);
+          display.drawFastHLine(x+w+11,y+4,3,1);
         }
       case RANDOM:
-        if(loopID%2)
-          display.drawBitmap(x-8,y,rnd_bmp,7,7,SSD1306_WHITE);
-        else
-          display.drawBitmap(x+w+1,y,rnd_bmp,7,7,SSD1306_WHITE);
+        if(loopID%2){
+          display.drawBitmap(x-10,y,rnd_bmp,7,7,SSD1306_WHITE);
+          display.drawFastVLine(x-1,y+1,h-2,1);
+          display.drawFastVLine(x-2,y+2,h-4,1);
+          display.drawPixel(x-3,y+3,1);
+          if(!loopAboveIsPointingToThisLoop(loopID)){
+            display.drawFastVLine(x+w,y,h,1);
+            display.drawFastVLine(x+w+1,y+1,h-2,1);
+            display.drawFastVLine(x+w+2,y+2,h-4,1);
+          }
+        }
+        else{
+          display.drawBitmap(x+w+3,y,rnd_bmp,7,7,SSD1306_WHITE);
+          display.drawFastVLine(x+w,y+1,h-2,1);
+          display.drawFastVLine(x+w+1,y+2,h-4,1);
+          display.drawPixel(x+w+2,y+3,1);
+          if(!loopAboveIsPointingToThisLoop(loopID)){
+            display.drawFastVLine(x-1,y,h,1);
+            display.drawFastVLine(x-2,y+1,h-2,1);
+            display.drawFastVLine(x-3,y+2,h-4,1);
+          }
+        }
+        
         break;
       case INFINITE:
-        if(loopID%2)
+        if(loopID%2){
           display.drawBitmap(x-10,y+1,inf_bmp,9,5,SSD1306_WHITE);
-        else
+          display.drawFastVLine(x-1,y+1,h-2,1);
+          display.drawFastVLine(x-2,y+2,h-4,1);
+          display.drawPixel(x-3,y+3,1);
+          if(!loopAboveIsPointingToThisLoop(loopID)){
+            display.drawFastVLine(x+w,y,h,1);
+            display.drawFastVLine(x+w+1,y+1,h-2,1);
+            display.drawFastVLine(x+w+2,y+2,h-4,1);
+          }
+        }
+        else{
           display.drawBitmap(x+w+1,y+1,inf_bmp,9,5,SSD1306_WHITE);
+          display.drawFastVLine(x+w,y+1,h-2,1);
+          display.drawFastVLine(x+w+1,y+2,h-4,1);
+          display.drawPixel(x+w+2,y+3,1);
+          if(!loopAboveIsPointingToThisLoop(loopID)){
+            display.drawFastVLine(x-1,y,h,1);
+            display.drawFastVLine(x-2,y+1,h-2,1);
+            display.drawFastVLine(x-3,y+2,h-4,1);
+          }
+        }
         break;
     }
     printSmall(x+w/2-2,y+1,stringify(loopID+1),2);
   }
-  void displayMenu(){
-    icon.rotate(-1,2);
-    display.clearDisplay();
-
-    //drawing loop blocks
-    const uint8_t loopHeight = 9;
-    //if the last loop drawn is a return loop, and it's a snake-around loop,
-    //then move it up and draw one less loop
-    uint8_t firstLoopToDraw = min(numberOfLoopsShown,sequence.loopData.size()-1);
-    uint8_t yStart = coords.start.y + 12 + yCoordOffset;
-
+  void drawReturnBar(uint8_t yStart, uint8_t firstLoopToDraw){
     uint8_t lastReturnID = lastReturnLoopID();
-    //drawing return bar
     //if there's just one loop
     if(sequence.loopData.size() == 1 && lastReturnID == 0 && (sequence.loopData[0].type == NORMAL || sequence.loopData[0].type == RETURN)){
       display.drawBitmap(coords.start.x+2,yStart-1,loop_arrow_top_bmp,15,8,1);
@@ -618,7 +656,7 @@ class LoopMenu:public StepchildMenu{
       display.fillRect(2,yStart+7,7,57-yStart,1);
     }
     //if the return loop is onscreen
-    else if(lastReturnID <= (menuStart+firstLoopToDraw)){
+    else if(lastReturnID <= (menuStart+firstLoopToDraw) && lastReturnID){
       //if the first loop is onscreen too
       if(menuStart == 0){
         display.drawBitmap(2,yStart-1,loop_arrow_top_bmp,15,8,1);
@@ -634,6 +672,18 @@ class LoopMenu:public StepchildMenu{
     else{
       display.fillRect(2,yStart,7,64-yStart,1);
     }
+  }
+  void displayMenu(){
+    icon.rotate(-1,2);
+    display.clearDisplay();
+
+    //if the last loop drawn is a return loop, and it's a snake-around loop,
+    //then move it up and draw one less loop
+    uint8_t firstLoopToDraw = min(numberOfLoopsShown,sequence.loopData.size()-1);
+    uint8_t yStart = coords.start.y + 12 + yCoordOffset;
+
+    //drawing return bar
+    drawReturnBar(yStart,firstLoopToDraw);
 
     //draw the loop blocks
     for(int8_t i = firstLoopToDraw; i>=0; i--){
@@ -646,7 +696,7 @@ class LoopMenu:public StepchildMenu{
       //crop it
       display.fillRect(coords.start.x,coords.start.y,48,12,0);
     }
-    display.drawFastHLine(coords.start.x+16,coords.start.y+11,48,1);
+    display.drawFastHLine(coords.start.x+16,coords.start.y+10,48,1);
 
     //title stuff
     display.drawBitmap(coords.start.x+20,coords.start.y,loop_L,7,9,SSD1306_WHITE);
@@ -658,7 +708,7 @@ class LoopMenu:public StepchildMenu{
 
     //draw the highlight arrow
     if(cursor <=  menuStart + firstLoopToDraw && cursor >= menuStart)
-      graphics.drawArrow(coords.start.x+24+millis()/200%2,coords.start.y + 15 + (cursor-menuStart)*loopHeight,3,ARROW_RIGHT,0);
+      graphics.drawArrow(coords.start.x+24+millis()/200%2,yStart + 3 + (cursor-menuStart)*loopHeight,2,ARROW_RIGHT,0,0,false);
 
     //decrement the interpolate distance var
     if(yCoordOffset)
