@@ -89,15 +89,15 @@ void midiMenu();
 void chordBuilder();
 
 //Note editing
-void echoNote(int track, int id);
-void echoTrack(int track);
-void quantize(bool move_the_cursor,bool deleteNote);
-void humanize(bool move);
+// void echoNote(int track, int id);
+// void echoTrack(int track);
+// void quantize(bool move_the_cursor,bool deleteNote);
+// void humanize(bool move);
 void setSuperposition(Note& note,uint8_t t);
 
-void quantizeSelectedNotes(bool deleteNote);
-bool quantizeNote(uint8_t track, uint16_t id, bool deleteNote);
-bool quantizeNote(uint8_t track, uint16_t id,bool move,bool deleteNote);
+// void quantizeSelectedNotes(bool deleteNote);
+// bool quantizeNote(uint8_t track, uint16_t id, bool deleteNote);
+// bool quantizeNote(uint8_t track, uint16_t id,bool move,bool deleteNote);
 
 vector<vector<Note>> grabAndDeleteSelectedNotes();
 void selectAll(bool, bool, bool);
@@ -157,8 +157,8 @@ uint32_t getByteCount_standAlone(String filename);
 //Misc. helper functions
 vector<uint16_t> getSelectedNotesBoundingBox();
 vector<uint8_t> selectKeys(uint8_t startRoot);
-vector<uint8_t> genScale(ScaleName, uint8_t);
-vector<uint8_t> genScale(ScaleName, uint8_t, int8_t,uint8_t);
+// vector<uint8_t> genScale(ScaleName, uint8_t);
+// vector<uint8_t> genScale(ScaleName, uint8_t, int8_t,uint8_t);
 String stepsToMeasures(int32_t stepVal);
 String pitchToString(uint8_t input, bool oct, bool sharps);
 bool isInVector(int val, vector<uint8_t> vec);

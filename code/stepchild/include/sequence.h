@@ -15,7 +15,6 @@ enum PlayState{
   STOPPED,
   PLAYING,
   RECORDING,
-  LIVELOOPING
 };
 #endif
 
@@ -79,6 +78,8 @@ class StepchildSequence{
   uint8_t isLooping = true;
   uint8_t loopCount = 0;
 
+  bool liveLooping = false;
+
   vector<Autotrack> autotrackData;
   uint8_t activeAutotrack = 0;
 
@@ -97,7 +98,8 @@ class StepchildSequence{
 
   MovingLoopState movingLoop = MOVING_NO_LOOP_POINTS;
   PlayState playState = STOPPED;
-  RecordingMode recMode = ONESHOT;
+  // RecordingMode recMode = ONESHOT;
+  RecordingMode recMode = CURRENT_LOOP;
   
   uint8_t defaultChannel = 1;
   uint8_t defaultPitch = 36;
@@ -116,7 +118,6 @@ class StepchildSequence{
   bool drawingNote = false;
   //setting controlling whether track pitches are rendered as note letter names or note numbers
   bool pitchesOrNumbers = true;
-
 
   StepchildSequence(){}
   /*
@@ -142,14 +143,19 @@ class StepchildSequence{
                       PLAYBACK/RECORDING
   ----------------------------------------------------------
   */
+  void disconnectMIDICallbacks();
+  void setMIDICallbacks(PlayState);
+  void setPlayMode();
+  void setRecMode(bool);
+  void setNormalMode();
+  void stop();
+  void stop(bool);
   void togglePlay();
   void toggleRecording(bool butWait);
   void triggerAutotracks(uint8_t trackID, bool state);
-  void setNormalMode();
   void playNote(Note& note, uint8_t track, uint16_t timestep);
   void playTrack(uint8_t track, uint16_t timestep);
   void playStep(uint16_t timestep);
-  void stop();
   void defaultLoop();
   void arpLoop();
   void checkAutotracks();
@@ -287,6 +293,10 @@ class StepchildSequence{
   void transposeAllChannels(int8_t increment);
   void setTrackChannel(uint16_t track, uint8_t channel, bool loud);
   void transposeAllPitches(int16_t increment);
+  void unprimeTracksWithNotes();
+  void temporarilyUnprimeTracksWithNotes();
+  void reprimeTracks();
+
 
   /*
   ----------------------------------------------------------
@@ -341,7 +351,6 @@ class StepchildSequence{
   uint16_t countNotesInRange(uint16_t start, uint16_t end);
   bool playing();
   bool recording();
-  bool liveLooping();
   /*
   ----------------------------------------------------------
                           Cursor

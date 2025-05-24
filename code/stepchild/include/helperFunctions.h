@@ -110,6 +110,10 @@ bool selectNotes(String text, void (*iconFunction)(uint8_t,uint8_t,uint8_t,bool)
   }
 }
 
+void defaultIconFunction(uint8_t x, uint8_t y, uint8_t w, bool s){return;}
+bool selectNotes(String t){
+  return selectNotes(t,defaultIconFunction);
+}
 
 vector<vector<uint8_t>> selectMultipleNotes(String text1, String text2){
   vector<vector<uint8_t>> selectedNotes;
@@ -310,80 +314,6 @@ CoordinatePair selectNotesAndArea(String text, void (*iconFunction)(uint8_t,uint
     return bounds;
 }
 
-//Functions and definitions for generating scales
-// #define MAJOR 0
-// #define DORIAN 1
-// #define PHRYGIAN 2
-// #define LYDIAN 3
-// #define MIXOLYDIAN 4
-// #define AEOLIAN 5
-// #define LOCRIAN 6
-
-// #define MELODIC_MINOR 7
-// #define HARMONIC_MINOR 8
-// #define MAJOR_PENTATONIC 9
-// #define MINOR_PENTATONIC 10
-// #define BLUE 10
-
-
-String getScaleName(ScaleName scale){
-  const String scales[12] = {"major","dorian","phrygian","lydian","mixolydian","aeolian","locrian","melodic minor","harmonic minor","major pentatonic","minor pentatonoic","blue"};
-  return scales[static_cast<uint8_t>(scale)];
-}
-
-vector<uint8_t> genScale(ScaleName scale, uint8_t root, int8_t numOctaves, uint8_t octave){
-  vector<uint8_t> newScale;
-  for(int8_t i = octave; i<numOctaves+octave; i++){
-    vector<uint8_t> temp = genScale(scale,root%12+(i*12));
-    for(uint8_t j = 0; j<temp.size(); j++){
-      newScale.push_back(temp[j]);
-    }
-  }
-  return newScale;
-}
-//make sure 'root' isn't passed to this fn as a negative number
-vector<uint8_t> genScale(ScaleName scale, uint8_t root){
-  vector<uint8_t> newScale;
-  switch(scale){
-    case MAJOR:
-      newScale = {root,uint8_t(root+2),uint8_t(root+4),uint8_t(root+5),uint8_t(root+7),uint8_t(root+9),uint8_t(root+11)};
-      break;
-    case DORIAN:
-      newScale = {root,uint8_t(root+2),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+9),uint8_t(root+10)};
-      break;
-    case PHRYGIAN:
-      newScale = {root,uint8_t(root+1),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+8),uint8_t(root+10)};
-      break;
-    case LYDIAN:
-      newScale = {root,uint8_t(root+2),uint8_t(root+4),uint8_t(root+6),uint8_t(root+7),uint8_t(root+9),uint8_t(root+11)};
-      break;
-    case MIXOLYDIAN:
-      newScale = {root,uint8_t(root+2),uint8_t(root+4),uint8_t(root+5),uint8_t(root+7),uint8_t(root+9),uint8_t(root+10)};
-      break;
-    case AEOLIAN:
-      newScale = {root,uint8_t(root+2),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+8),uint8_t(root+10)};
-      break;
-    case LOCRIAN:
-      newScale = {root,uint8_t(root+1),uint8_t(root+3),uint8_t(root+5),uint8_t(root+6),uint8_t(root+8),uint8_t(root+10)};
-      break;
-    case MELODIC_MINOR:
-      newScale = {root,uint8_t(root+2),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+8),uint8_t(root+10)};
-      break;
-    case HARMONIC_MINOR:
-      newScale = {root,uint8_t(root+2),uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+8),uint8_t(root+11)};
-    case MAJOR_PENTATONIC:
-      newScale = {root,uint8_t(root+2),uint8_t(root+4),uint8_t(root+7),uint8_t(root+9)};
-      break;
-    case MINOR_PENTATONIC:
-      newScale = {root,uint8_t(root+3),uint8_t(root+5),uint8_t(root+7),uint8_t(root+10)};
-      break;
-    case BLUE:
-      newScale = {root,uint8_t(root+3),uint8_t(root+5),uint8_t(root+6),uint8_t(root+7),uint8_t(root+10)};
-      break;
-  }
-  return newScale;
-}
-
 vector<uint8_t> selectKeys(uint8_t startRoot) {
   uint8_t selected = 0;
   bool keys[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -391,7 +321,6 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
   bool done = false;
   uint8_t root = startRoot%12;
   //FUCK
-  // const ScaleName scaleOptions[12] =  { MAJOR , HARMONIC_MINOR , MELODIC_MINOR , MAJOR_PENTATONIC , MINOR_PENTATONIC , BLUE , DORIAN , PHRYGIAN , LYDIAN , MIXOLYDIAN , AEOLIAN , LOCRIAN };
   ScaleName activeScale = MAJOR;
   bool showingScale = false;
   while (!done) {
@@ -1230,3 +1159,4 @@ uint8_t dropDownMenu(vector<String> options, void (*drawingFunction)()){
   }
   return cursor;
 }
+

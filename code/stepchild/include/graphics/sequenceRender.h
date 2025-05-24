@@ -219,11 +219,13 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
 void drawTopIcons(SequenceRenderSettings& settings){
   //music symbol while receiving notes
   if(sequence.isReceivingOrSending()){
-    if(!((millis()/200)%2)){
-      display.drawChar(21,0,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
-    }
-    else{
-      display.drawChar(21,1,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
+    display.drawChar(21,(millis()/200)%2,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
+  }
+
+  if(liveLoop.active){
+    display.fillCircle(23,10,3,1);
+    if(liveLoop.triggerNote.pitch != 255){
+      printSmall(28,8,pitchToString(liveLoop.triggerNote.pitch,true,true),1);
     }
   }
 
@@ -645,8 +647,9 @@ void drawSeq(SequenceRenderSettings& settings){
               uint16_t id = sequence.lookupTable[track][step];
               //drawing note
               if (id != 0){
-                drawNote(sequence.noteData[track][id],track,settings);
-                step = sequence.noteData[track][id].endPos;//skip to the end of the note
+                Note n = sequence.noteData[track][id];
+                drawNote(n,track,settings);
+                step = n.endPos;//skip to the end of the note
               }
           }
       }

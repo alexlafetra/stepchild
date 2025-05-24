@@ -26,7 +26,6 @@
 #include "chordBuilder.cpp"
 #include "planets.cpp"
 #include "rain.cpp"
-#include "liveLoop.cpp"
 #include "knobs.cpp"
 #include "drumPads.cpp"
 #include "xy.cpp"
@@ -72,11 +71,6 @@ const unsigned char rattle_bmp [] = {
 	0x00, 0x00, 0x26, 0x40, 0x0d, 0x00, 0x52, 0xa0, 0x19, 0x80, 0x54, 0xa0, 0x0b, 0x00, 0x26, 0x40, 
 	0x06, 0x00, 0x06, 0x00, 0x06, 0x00, 0x00, 0x00
 };
-// 'live_loop', 12x12px
-const unsigned char live_loop_bmp [] = {
-	0x00, 0x00, 0x5e, 0x00, 0x2f, 0x80, 0x03, 0xc0, 0x01, 0xa0, 0x00, 0x60, 0x11, 0xe0, 0x3f, 0xc0, 
-	0x7f, 0x80, 0x3e, 0x00, 0x10, 0x00, 0x00, 0x00
-};
 
 // 'chord', 12x12px
 const unsigned char chord_dj_bmp []  = {
@@ -118,13 +112,7 @@ const unsigned char chord_dj_bmp []  = {
 #define INSTRUMENT_APP6_ICON chord_dj_bmp
 #define INSTRUMENT_APP6_INFO "Create, edit, and play back full chords using the step buttons"
 
-#define INSTRUMENT_APP7_FUNCTION liveLoop
-#define INSTRUMENT_APP7_TEXT "liveloop"
-#define INSTRUMENT_APP7_ICON live_loop_bmp
-#define INSTRUMENT_APP7_INFO "live looper! record and trigger playback for live performance"
-
-
-#define NUMBER_OF_APPLICATIONS 7
+#define NUMBER_OF_APPLICATIONS 6
 #define NUMBER_OF_GENERATIVE_INSTRUMENTS 2
 
 const String instrumentApplicationInfo[NUMBER_OF_APPLICATIONS] = {
@@ -134,7 +122,6 @@ const String instrumentApplicationInfo[NUMBER_OF_APPLICATIONS] = {
     INSTRUMENT_APP4_INFO,
     INSTRUMENT_APP5_INFO,
     INSTRUMENT_APP6_INFO,
-    INSTRUMENT_APP7_INFO
 };
 
 const unsigned char* instrumentApplicationIcons[NUMBER_OF_APPLICATIONS] = {
@@ -144,7 +131,6 @@ const unsigned char* instrumentApplicationIcons[NUMBER_OF_APPLICATIONS] = {
     INSTRUMENT_APP4_ICON,
     INSTRUMENT_APP5_ICON,
     INSTRUMENT_APP6_ICON,
-    INSTRUMENT_APP7_ICON
 };
 
 //loading all the functions
@@ -155,7 +141,6 @@ bool (*const instrumentApplicationFunctions[NUMBER_OF_APPLICATIONS])() = {
     INSTRUMENT_APP4_FUNCTION,
     INSTRUMENT_APP5_FUNCTION,
     INSTRUMENT_APP6_FUNCTION,
-    INSTRUMENT_APP7_FUNCTION
 };
 
 const String instrumentApplicationTitles[NUMBER_OF_APPLICATIONS] = {
@@ -165,7 +150,6 @@ const String instrumentApplicationTitles[NUMBER_OF_APPLICATIONS] = {
     INSTRUMENT_APP4_TEXT,
     INSTRUMENT_APP5_TEXT,
     INSTRUMENT_APP6_TEXT,
-    INSTRUMENT_APP7_TEXT
 };
 
 /* 

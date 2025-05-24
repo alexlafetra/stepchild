@@ -1,23 +1,90 @@
-void applyClockToSequence(){
-  vector<uint8_t> trackIDs = selectMultipleTracks("select tracks to alter");
-  //minimum amount of uSecs that results in a note move. Values smaller than this are ignored bc
-  //they'd end up on the same timestep
-  const int32_t minimumTimestepOffset = sequenceClock.uSecPerStep;
+void applySwingToSequence(){
+  if(!selectNotes("swing")){
+    return;
+  }
+  vector<NoteID> noteIDs = getSelectedNoteIDs();
+
+  //get actual note objects from IDs, so you can delete all the notes
+  vector<NoteTrackPair> notes;
+  for(NoteID n:noteIDs){
+    notes.push_back(NoteTrackPair(n.getNote(),n.track));
+  }
+  //delete all the notes
+  sequence.deleteNotes_byID(noteIDs);
+
   //iterate over selected tracks
-  for(uint8_t track = 0; track<trackIDs.size(); track++){
-    //if a track has no notes, skip it
-    if(sequence.noteData[track].size()<=1)
-      continue;
-    for(uint16_t note = 1; note<sequence.noteData[track].size(); note++){
-      float timingOffset = sequenceClock.swingOffset(sequence.noteData[track][note].startPos);
-      //if the offset is too small to adjust, skip it
-      if(timingOffset < minimumTimestepOffset)
-        continue;
-      //get the new note start
-      uint16_t newStart = sequence.noteData[track][note].startPos+(timingOffset/float(minimumTimestepOffset));
-      //move the note!
-      sequence.moveNote(note,track,track,newStart);
+  for(NoteTrackPair note:notes){
+    uint16_t startPos = note.note.startPos;
+    uint16_t endPos = note.note.endPos;
+    float timingOffset = sequenceClock.swingOffset(startPos);
+    int32_t stepOffset = timingOffset/float(sequenceClock.uSecPerStep);
+    //if the offset is big enough to register
+    if(!(abs(stepOffset) < 1 || (stepOffset + int(startPos)) < 0)){
+      //set the new note positions
+      note.note.startPos = int32_t(startPos)+(stepOffset);
+      note.note.endPos = int32_t(endPos)+(stepOffset);
     }
+    
+    //create the note
+    sequence.makeNote(note.note,note.trackID,false);
+  }
+}
+
+
+void tapBpm(){
+
+  long t1 = 0;
+
+  uint16_t lastButtonState = 0;
+  uint16_t lastStepButtonState = 0;
+
+  bool atLeastOnce = false;
+  bool started = false;
+  bool buttonsReleasedSinceTimeStarted = false;
+  lastTime = millis();
+
+  while(true){
+
+    display.clearDisplay();
+    display.drawFastHLine(0,16,128,1);
+    display.drawCircle(78,32,9,1);
+
+    if(t1){
+      display.fillCircle(50,32,9,1);
+      printSmall_centered(64,43,stringify(millis()-t1)+"ms",1);
+    }
+    else{
+      display.drawCircle(50,32,9,1);
+      printSmall_centered(64,43,"press any button to set tempo",1);
+    }
+
+    display.drawFastHLine(0,49,128,1);
+    display.display();
+    if(!utils.itsbeen(1000) && !atLeastOnce)
+      continue;
+    controls.readButtons();
+    controls.readJoystick();
+    if(controls.MENU()){
+      lastTime = millis();
+      break;
+    }
+//    if(started && !controls.mainButtonState && !controls.stepButtonState){
+//      buttonsReleasedSinceTimeStarted = true;
+//    }
+//    if((controls.mainButtonState || controls.stepButtonState)){
+//      if(!started){
+//        started = true;
+//        t1 = millis();
+//        atLeastOnce = true;
+//        buttonsReleasedSinceTimeStarted = false;
+//      }
+//      else{
+//        sequenceClock.setBPM(float(60000)/float(millis()-t1));
+//        t1 = 0;
+//        buttonsReleasedSinceTimeStarted = false;
+//        started = false;
+//      }
+//    }
   }
 }
 
@@ -34,10 +101,8 @@ class ClockMenu:public StepchildMenu{
       angle = 0;
       coords = CoordinatePair(0,0,35,64);
     }
-    void displayMenu_old();
     void displayMenu();
     void drawSmallStepchild(uint8_t, uint8_t);
-    void drawSwingCurve_old(int8_t,int8_t);
     void drawSwingCurve(uint8_t,uint8_t,uint8_t,uint8_t);
     void updatePendulum();
     bool clockMenuControls();
@@ -61,14 +126,13 @@ void ClockMenu::updatePendulum(){
 }
 
 void ClockMenu::drawSwingCurve(uint8_t x, uint8_t y, uint8_t w, uint8_t h){
-  int16_t oldY = sequenceClock.swingOffset(0);
+  int16_t oldY = h - mapVal(long(sequenceClock.swingOffset(0)),-long(sequenceClock.uSecPerStep),sequenceClock.uSecPerStep,0,h);
   for(uint8_t i = 1; i<w; i++){
-        int16_t y1 = sequenceClock.swingOffset(i)/sequenceClock.swingCurve.amplitude*20+h/2;
-    
-    // int16_t y1 = sequenceClock.swingOffset(i)/sequenceClock.swingCurve.amplitude*h/2;
+    int16_t y1 = h - mapVal(long(sequenceClock.swingOffset(i*2)),-long(sequenceClock.uSecPerStep),sequenceClock.uSecPerStep,0,h);
     display.drawLine(i-1+x,oldY+y,i+x,y1+y,1);
     oldY = y1;
   }
+  display.drawFastVLine(x+(sequence.playheadPos/2)%w,y,h,1);
 }
 
 void ClockMenu::updateStepButtons(){
@@ -97,48 +161,6 @@ void ClockMenu::drawSmallStepchild(uint8_t x1, uint8_t y1){
   display.fillCircle(x1+19,y1+9,1,SSD1306_BLACK);
 }
 
-void ClockMenu::drawSwingCurve_old(int8_t xPos, int8_t yPos){
-  display.fillRect(xPos,16,96,48,SSD1306_BLACK);
-  //If swing is off, don't draw the curve
-  if(!sequenceClock.isSwinging){
-    printSmall(xPos+(screenWidth-xPos)/2-6,42,"off",1);
-    if(millis()%1000>500){
-      printSmall(xPos+(screenWidth-xPos)/2-10,54,"[sel]",1);
-    }
-    display.drawFastVLine(xPos,16,48,1);
-    display.drawFastHLine(xPos,16,screenWidth-xPos,1);
-    return;
-  }
-  //starting point is the viewstart, end point is viewend
-  float oldPoint = 0;
-  uint16_t mid = (yPos);
-  for(float i = sequence.viewStart; i<sequence.viewEnd; i+=0.5){
-    float y1 = float(22.0*sequenceClock.swingOffset(i))/sequenceClock.uSecPerStep;
-    if(y1<0)
-      graphics.shadeLineV(xPos+(i-sequence.viewStart)*sequence.viewScale,mid+ceil(y1),-ceil(y1),2);
-    else
-      graphics.shadeLineV(xPos+(i-sequence.viewStart)*sequence.viewScale,mid,ceil(y1),2);
-    if(i == sequence.viewStart)
-        display.drawLine(xPos,oldPoint+yPos+1,xPos,y1+yPos+1,SSD1306_WHITE);
-    else
-      display.drawLine(xPos+(i-0.5-sequence.viewStart)*sequence.viewScale,oldPoint+yPos+1,xPos+(i-sequence.viewStart)*sequence.viewScale,y1+yPos+1,SSD1306_WHITE);
-    oldPoint = y1;
-  }
-
-  //loop points
-  if(sequence.isInView(sequence.loopData[sequence.activeLoop].start)){
-    display.drawFastVLine(trackDisplay + (sequence.loopData[sequence.activeLoop].start)*sequence.viewScale,16,screenHeight-16,SSD1306_WHITE);
-  }
-  if(sequence.isInView(sequence.loopData[sequence.activeLoop].end)){
-    display.drawFastVLine(trackDisplay + (sequence.loopData[sequence.activeLoop].end)*sequence.viewScale,16,screenHeight-16,SSD1306_WHITE);
-  }
-  //playhead
-  if(sequence.playing() || sequence.recording()){
-    display.drawFastVLine(trackDisplay + ((sequence.playing() ? sequence.playheadPos:sequence.recheadPos)-sequence.viewStart)*sequence.viewScale,16,screenHeight-16,SSD1306_WHITE);
-  }
-  display.drawFastHLine(xPos,16,screenWidth-xPos,1);
-}
-
 /*
 BPM submenu has:
   - bpm indicator
@@ -157,6 +179,7 @@ clock source submenu has
 void ClockMenu::displayMenu(){
   updatePendulum();
   updateStepButtons();
+  String helptext;
   display.clearDisplay();
   //draw the sequence, if it's visible
   if(coords.start.x>32){
@@ -169,10 +192,53 @@ void ClockMenu::displayMenu(){
   graphics.drawButton(coords.start.x+28,coords.start.y+36,"src",cursor == 2);
   display.drawRoundRect(coords.start.x+52,coords.start.y+18,76,45,3,1);
 
+  if(internalMenuActive){
+    switch(cursor){
+      //bpm
+      case 0:
+        switch(internalMenuCursor){
+          case 0:
+            helptext = "tap buttons to set tempo";
+            break;
+          case 1:
+            helptext = "halve bpm";
+            break;
+          case 2:
+            helptext = "double bpm";
+            break;
+        }
+        break;
+      case 1:
+        switch(internalMenuCursor){
+          case 0:
+            helptext = stringify(sequenceClock.isSwinging?"disable":"enable")+" swing";
+            break;
+          case 1:
+            helptext = "curve type: "+getCurveTypeString(sequenceClock.swingCurve.type);
+            break;
+          case 2:
+            helptext = "amplitude";
+            break;
+          case 3:
+            helptext = "subdivision";
+            break;
+          case 4:
+            helptext = "phase";
+            break;
+        }
+        break;
+      case 2:
+        helptext = "clock src: "+stringify((sequenceClock.clockSource == INTERNAL_CLOCK)?"stepchild":"external midi");
+        break;
+    }
+  }
+
   //submenu info
   switch(cursor){
     //BPM
     case 0:{
+      if(!internalMenuActive)
+        helptext = "tempo";
       //bpm number
       String beatsPerMin = stringify(sequenceClock.BPM);
       while(beatsPerMin.length()<3){
@@ -201,28 +267,32 @@ void ClockMenu::displayMenu(){
     }
     //swing
     case 1:
+      if(!internalMenuActive)
+        helptext = "swing properties";
       //swing curve
-      printSmall(coords.start.x+74,39,"[N] to apply",1);
-      graphics.drawDottedRect(coords.start.x+74,21,51,16,2);
-      drawSwingCurve(coords.start.x+76,coords.start.y+21,50,16);
+      printSmall(coords.start.x+80,56,"[N] to apply",1);
+      graphics.drawDottedRect(coords.start.x+74,21,51,32,2);
+      drawSwingCurve(coords.start.x+75,coords.start.y+21,50,32);
+
       //on/off
-      graphics.drawButton(coords.start.x+54,21,sequenceClock.isSwinging?"on":"off",internalMenuCursor==0 && internalMenuActive);
+      graphics.drawButton(coords.start.x+54,coords.start.y+20,sequenceClock.isSwinging?"on":"off",internalMenuCursor==0 && internalMenuActive);
       //type
-      graphics.drawButton(coords.start.x+54,29,"type",internalMenuCursor==1 && internalMenuActive);
+      graphics.drawButton(coords.start.x+54,coords.start.y+28,"type",internalMenuCursor==1 && internalMenuActive);
       //amplitude
-      graphics.drawButton(coords.start.x+54,37,"%:",internalMenuCursor==2 && internalMenuActive);
-      printSmall(coords.start.x+64,38,stringify(float(sequenceClock.swingCurve.amplitude*100)/float(sequenceClock.uSecPerStep)).substring(0,2),SSD1306_WHITE);
+      graphics.drawButton(coords.start.x+54,coords.start.y+37,stringify(float(sequenceClock.swingCurve.amplitude*100)/float(sequenceClock.uSecPerStep))+"%",internalMenuCursor==2 && internalMenuActive);
       //period
-      graphics.drawButton(coords.start.x+54,45,"$:",internalMenuCursor==3 && internalMenuActive);
-      graphics.printFraction_small(coords.start.x+64,46,stepsToMeasures(sequenceClock.swingCurve.period));
+      graphics.drawButton(coords.start.x+54,coords.start.y+46,"$:",internalMenuCursor==3 && internalMenuActive);
+      graphics.printFraction_small(coords.start.x+64,coords.start.y+47,stepsToMeasures(sequenceClock.swingCurve.period));
       //phase
-      graphics.drawButton(coords.start.x+54,53,"@:",internalMenuCursor==4 && internalMenuActive);
-      graphics.printFraction_small(coords.start.x+64,54,stepsToMeasures(sequenceClock.swingCurve.phase));
+      graphics.drawButton(coords.start.x+54,coords.start.y+54,"@:",internalMenuCursor==4 && internalMenuActive);
+      printSmall(coords.start.x+64,coords.start.y+55,stringify(sequenceClock.swingCurve.phase),1);
       break;
     //source
     case 2:
+      if(!internalMenuActive)
+        helptext = "midi clock source";
       //src
-      graphics.drawButton(coords.start.x+54,21,sequenceClock.clockSource==INTERNAL_CLOCK?"INTERNAL":"EXTERNAL",internalMenuCursor==0 && internalMenuActive);
+      graphics.drawButton(coords.start.x+54,20,sequenceClock.clockSource==INTERNAL_CLOCK?"INTERNAL":"EXTERNAL",internalMenuCursor==0 && internalMenuActive);
       break;
   }
 
@@ -234,17 +304,41 @@ void ClockMenu::displayMenu(){
         switch(internalMenuCursor){
           // tap bpm
           case 0:
-            graphics.drawArrow(coords.start.x+54+(millis()/400)%2,23,3,ARROW_RIGHT,false);
+            graphics.drawArrow(coords.start.x+54+(millis()/400)%2,coords.start.y+23,3,ARROW_RIGHT,false);
             break;
           // /2
           case 1:
-            graphics.drawArrow(coords.start.x+54+(millis()/400)%2,32,3,ARROW_RIGHT,false);
+            graphics.drawArrow(coords.start.x+54+(millis()/400)%2,coords.start.y+32,3,ARROW_RIGHT,false);
             break;
           // x2
           case 2:
-            graphics.drawArrow(coords.start.x+54+(millis()/400)%2,41,3,ARROW_RIGHT,false);
+            graphics.drawArrow(coords.start.x+54+(millis()/400)%2,coords.start.y+41,3,ARROW_RIGHT,false);
             break;
         }
+        break;
+      //swing
+      case 1:
+        switch(internalMenuCursor){
+          case 0:
+            graphics.drawArrow(coords.start.x+54+(millis()/400)%2,coords.start.y+23,3,ARROW_RIGHT,false);
+            break;
+          case 1:
+            graphics.drawArrow(coords.start.x+54+(millis()/400)%2,coords.start.y+31,3,ARROW_RIGHT,false);
+            break;
+          case 2:
+            graphics.drawArrow(coords.start.x+54+(millis()/400)%2,coords.start.y+40,3,ARROW_RIGHT,false);
+            break;
+          case 3:
+            graphics.drawArrow(coords.start.x+54+(millis()/400)%2,coords.start.y+49,3,ARROW_RIGHT,false);
+            break;
+          case 4:
+            graphics.drawArrow(coords.start.x+54+(millis()/400)%2,coords.start.y+57,3,ARROW_RIGHT,false);
+            break;
+        }
+        break;
+      //src
+      case 2:
+        graphics.drawArrow(coords.start.x+54+(millis()/400)%2,coords.start.y+23,3,ARROW_RIGHT,false);
         break;
     }
   }
@@ -264,14 +358,12 @@ void ClockMenu::displayMenu(){
   }
   //title
   display.drawFastHLine(trackDisplay,headerHeight,screenWidth-trackDisplay,SSD1306_WHITE);
-  // display.fillRect(34+coords.start.y-2,0,39,16,SSD1306_BLACK);
-  display.setCursor(34+coords.start.y-2,5);
+  display.setCursor(coords.start.x+30+coords.start.y-2,5);
   display.setFont(&FreeSerifItalic9pt7b);
   display.print("Clock");
   display.setFont();
   //clock animation
   if(sequenceClock.clockSource == INTERNAL_CLOCK){
-    // display.fillRect(0,coords.start.y,32,screenHeight-coords.start.y,SSD1306_BLACK);
     graphics.drawPendulum(16,coords.start.y+18,26,angle);
     display.fillRect(10,coords.start.y+18,12,10,SSD1306_BLACK);
     display.drawBitmap(6,coords.start.y,clock_1_bmp,20,38,SSD1306_WHITE);
@@ -280,145 +372,12 @@ void ClockMenu::displayMenu(){
     graphics.drawCircleRadian(15,coords.start.y+10,3,float(millis())/20.0,0);
   }
   else{
-    // display.fillRect(0,coords.start.y,32,screenHeight-coords.start.y,SSD1306_BLACK);
     graphics.drawPendulum(16,coords.start.y+18,26,90);
     display.fillRect(10,coords.start.y+18,12,10,SSD1306_BLACK);
     display.drawBitmap(6,coords.start.y,clock_1_bmp,20,38,SSD1306_WHITE);
     display.drawLine(15,coords.start.y+10,15,coords.start.y+13,SSD1306_BLACK);
   }
-  display.display();
-}
-
-void ClockMenu::displayMenu_old(){
-  updatePendulum();
-  updateStepButtons();
-  display.clearDisplay();
-
-  //if you're on the swing menu, no need to draw the seq
-  if(cursor != 2){
-    SequenceRenderSettings settings;
-    settings.trackLabels = false;
-    settings.topLabels = false;
-    settings.shrinkTopDisplay = false;
-    settings.drawLoopPoints = false;
-    settings.drawLoopFlags = false;
-    settings.trackSelection = false;
-    settings.stepSequencerLEDs = false;
-    drawSeq(settings);
-  }
-  //lines
-  display.drawFastHLine(trackDisplay,headerHeight,screenWidth-trackDisplay,SSD1306_WHITE);
-  uint8_t x1 = 0;
-  int8_t x2 = 0;//needs to be signed! for whatever reason, you use this to do the tiny clock hands and it needs
-  uint8_t x3 = 0;//to be able to accept -1,1 from a cosine function
-  switch(cursor){
-    //sequenceClock.BPM
-    case 0:
-      {
-      //sequenceClock.BPM label
-      display.fillRoundRect(coords.start.y+screenWidth-52,36,70,34,6,SSD1306_BLACK);
-      display.drawRoundRect(coords.start.y+screenWidth-52,36,70,34,6,SSD1306_WHITE);
-      String b = stringify(sequenceClock.BPM);
-      while(b.length()<3){
-        b = "0"+b;
-      }
-      if((millis()%1000)>500)
-        print7SegString(coords.start.y+screenWidth-48,40,b,true);
-      else
-        print7SegString(coords.start.y+screenWidth-48,40,b,false);
-      printCursive(coords.start.y+76,3,"bpm",SSD1306_WHITE);
-      x1 = 10+((millis()/200)%2);
-      graphics.drawArrow(42+coords.start.y,13+19+x1+2,3,2,false);
-      }
-      break;
-    //swing amplitude
-    case 1:
-      {
-      x2 = 10+((millis()/200)%2);
-      graphics.drawArrow(54+coords.start.y,13+27+x2+2,3,2,false);
-      drawSwingCurve_old(coords.start.y+32,40);
-      display.drawFastHLine(coords.start.y+70,16,58,SSD1306_WHITE);
-      printCursive(coords.start.y+76,3,"swing",SSD1306_WHITE);
-      if(!sequenceClock.isSwinging)
-        break;
-      printSmall(109,4,stringify(float(sequenceClock.swingCurve.amplitude*100)/float(sequenceClock.uSecPerStep))+"%",SSD1306_WHITE);
-      }
-      break;
-    //swing sub div
-    case 2:
-      {
-      x2 = 10+((millis()/200)%2);
-      graphics.drawArrow(54+coords.start.y,13+27+x2+2,3,2,false);
-      drawSwingCurve_old(coords.start.y+32,40);
-      display.drawFastHLine(coords.start.y+70,16,58,SSD1306_WHITE);
-      printCursive(coords.start.y+76,3,"swing",SSD1306_WHITE);
-      if(!sequenceClock.isSwinging)
-        break;
-      graphics.printFraction_small(109,4,stepsToMeasures(sequenceClock.swingCurve.period));
-      }
-      break;
-    //internal/external
-    case 3:
-      {
-      x3 = 10+((millis()/200)%2);
-      graphics.drawArrow(66+coords.start.y,13+31+x3+2,3,2,false);
-      if(sequenceClock.clockSource == EXTERNAL_CLOCK){
-        graphics.drawBanner(84,52,"external");
-        drawSmallStepchild(88,30+2*((millis()/400)%2));
-        display.drawBitmap(95,15+((millis()/400)%2),down_arrow,9,12,SSD1306_WHITE);
-      }
-      else{
-        graphics.drawBanner(84,52,"internal");
-        drawSmallStepchild(88,30+2*((millis()/400)%2));
-        display.drawBitmap(95,15+((millis()/400)%2),up_arrow,9,12,SSD1306_WHITE);
-      }
-      printCursive(coords.start.y+76, 3, "source",SSD1306_WHITE);
-      }
-      break;
-  }
-  //sequenceClock.BPM
-  display.fillRoundRect(38+coords.start.y,13,9,19+x1,3,SSD1306_BLACK);
-  display.drawRoundRect(38+coords.start.y,13,9,19+x1,3,SSD1306_WHITE);
-  display.setRotation(1);
-  printSmall(screenHeight-29-x1,coords.start.y+40,"BPM",SSD1306_WHITE);
-  display.setRotation(2);
-  //swing
-  display.fillRoundRect(50+coords.start.y,13,9,27+x2,3,SSD1306_BLACK);
-  display.drawRoundRect(50+coords.start.y,13,9,27+x2,3,SSD1306_WHITE);
-  display.setRotation(1);
-  printSmall(screenHeight-37-x2,coords.start.y+52,"swing",SSD1306_WHITE);
-  display.setRotation(2);
-  //source
-  display.fillRoundRect(62+coords.start.y,13,9,31+x3,3,SSD1306_BLACK);
-  display.drawRoundRect(62+coords.start.y,13,9,31+x3,3,SSD1306_WHITE);
-  display.setRotation(1);
-  printSmall(screenHeight-41-x3,coords.start.y+64,"source",SSD1306_WHITE);
-  display.setRotation(2);
-  //title
-  display.fillRect(34+coords.start.y-2,0,39,16,SSD1306_BLACK);
-  display.setCursor(34+coords.start.y-2,5);
-  display.setFont(&FreeSerifItalic9pt7b);
-  display.print("Clock");
-  display.setFont();
-  //clock animation
-  if(sequenceClock.clockSource == INTERNAL_CLOCK){
-      display.fillRect(0,coords.start.y,32,screenHeight-coords.start.y,SSD1306_BLACK);
-      display.drawFastVLine(11,coords.start.y+33,31-coords.start.y,1);
-      display.drawFastVLine(20,coords.start.y+33,31-coords.start.y,1);
-      graphics.drawPendulum(16,coords.start.y+23,26,angle);
-      display.fillRect(10,coords.start.y+23,12,10,SSD1306_BLACK);
-      display.drawBitmap(6,coords.start.y+5,clock_1_bmp,20,38,SSD1306_WHITE);
-      
-      //drawing hands on clock
-      graphics.drawCircleRadian(15,coords.start.y+15,3,float(millis())/20.0,0);
-  }
-  else{
-      display.fillRect(0,coords.start.y,32,screenHeight-coords.start.y,SSD1306_BLACK);
-      graphics.drawPendulum(16,coords.start.y+23,26,90);
-      display.fillRect(10,coords.start.y+23,12,10,SSD1306_BLACK);
-      display.drawBitmap(6,coords.start.y+5,clock_1_bmp,20,38,SSD1306_WHITE);
-      display.drawLine(15,coords.start.y+15,15,coords.start.y+13,SSD1306_BLACK);
-  }
+  printSmall_overflow(coords.start.x+70,coords.start.y,8,helptext,1);
   display.display();
 }
 
@@ -440,12 +399,60 @@ bool ClockMenu::clockMenuControls(){
       switch(cursor){
         //BPM
         case 0:
+          //changing cursor
           if(controls.DOWN() && internalMenuCursor){
             internalMenuCursor--;
             lastTime = millis();
           }
           if(controls.UP() && internalMenuCursor < 2){
             internalMenuCursor++;
+            lastTime = millis();
+          }
+          while(controls.counterA != 0){
+            if(controls.counterA > 0){
+              if(!controls.SHIFT())
+                sequenceClock.setBPM(sequenceClock.BPM+10);
+              else
+                sequenceClock.setBPM(sequenceClock.BPM+1);
+            }
+            else{
+              if(!controls.SHIFT())
+                sequenceClock.setBPM(sequenceClock.BPM-10);
+              else
+                sequenceClock.setBPM(sequenceClock.BPM-1);
+            }
+            controls.countDownA();
+          }
+          while(controls.counterB != 0){
+            if(controls.counterB > 0){
+              if(!controls.SHIFT())
+                sequenceClock.setBPM(sequenceClock.BPM+10);
+              else
+                sequenceClock.setBPM(sequenceClock.BPM+1);
+            }
+            else{
+              if(!controls.SHIFT())
+                sequenceClock.setBPM(sequenceClock.BPM-10);
+              else
+                sequenceClock.setBPM(sequenceClock.BPM-1);
+            }
+            controls.countDownB();
+          }
+          if(controls.SELECT()){
+            switch(internalMenuCursor){
+              //tap bpm
+              case 0:
+                tapBpm();
+                break;
+              //div 2
+              case 1:
+                sequenceClock.setBPM(sequenceClock.BPM/2);
+                break;
+              //mult 2
+              case 2:
+                sequenceClock.setBPM(sequenceClock.BPM*2);
+                break;
+            }
             lastTime = millis();
           }
           break;
@@ -459,14 +466,130 @@ bool ClockMenu::clockMenuControls(){
             internalMenuCursor++;
             lastTime = millis();
           }
+          if(controls.NEW()){
+            lastTime = millis();
+            applySwingToSequence();
+          }
+          while(controls.counterA){
+            switch(internalMenuCursor){
+              //swing on/off
+              case 0:
+                sequenceClock.isSwinging = !sequenceClock.isSwinging;
+                break;
+              //type
+              case 1:
+                if(controls.counterA > 0){
+                  sequenceClock.swingCurve.type++;
+                }
+                else{
+                  sequenceClock.swingCurve.type--;
+                }
+                break;
+              //amplitude
+              case 2:
+                if(controls.counterA > 0){
+                  if(!controls.SHIFT()){
+                    sequenceClock.swingCurve.amplitude+=sequenceClock.uSecPerStep/10;
+                  }
+                  else{
+                    sequenceClock.swingCurve.amplitude+=sequenceClock.uSecPerStep/100;
+                  }
+                }
+                else{
+                  if(!controls.SHIFT()){
+                    sequenceClock.swingCurve.amplitude-=sequenceClock.uSecPerStep/10;
+                  }
+                  else{
+                    sequenceClock.swingCurve.amplitude-=sequenceClock.uSecPerStep/100;
+                  }
+                }
+                if(abs(sequenceClock.swingCurve.amplitude)>sequenceClock.uSecPerStep)
+                  sequenceClock.swingCurve.amplitude = sequenceClock.swingCurve.amplitude<0?-sequenceClock.uSecPerStep:sequenceClock.uSecPerStep;
+                break;
+              //subdiv
+              case 3:
+                if(controls.counterA > 0){
+                  if(controls.SHIFT() && sequenceClock.swingCurve.period<768)
+                    sequenceClock.swingCurve.period++;
+                  else if(sequenceClock.swingCurve.period%24)
+                    sequenceClock.swingCurve.period+=24-sequenceClock.swingCurve.period%24;
+                  else if(sequenceClock.swingCurve.period<=384)
+                    sequenceClock.swingCurve.period *= 2;
+                }
+                else{
+                  if(controls.SHIFT() && sequenceClock.swingCurve.period>1)
+                    sequenceClock.swingCurve.period--;
+                  else if(sequenceClock.swingCurve.period%24){
+                    sequenceClock.swingCurve.period-=sequenceClock.swingCurve.period%24;
+                    if(sequenceClock.swingCurve.period == 0)
+                      sequenceClock.swingCurve.period = 1;
+                  }
+                  else if(sequenceClock.swingCurve.period >= 2)
+                    sequenceClock.swingCurve.period /= 2;
+                }
+                break;
+              //phase
+              case 4:
+                if(controls.counterA > 0){
+                  sequenceClock.swingCurve.phase++;
+                }
+                else if(sequenceClock.swingCurve.phase){
+                  sequenceClock.swingCurve.phase--;
+                }
+                sequenceClock.swingCurve.phase%=sequenceClock.swingCurve.period;
+                break;
+            }
+            controls.countDownA();
+          }
           break;
         //Source
         case 2:
-
+          //src
+          if(controls.counterA && internalMenuCursor == 0){
+            toggleClockSource();
+            controls.countDownA();
+          }
+          if(controls.counterB && internalMenuCursor == 0){
+            toggleClockSource();
+            controls.countDownB();
+          }
           break;
       }
     }
+    //if you're not in a submenu
     else{
+      if(cursor == 0){
+          while(controls.counterA != 0){
+            if(controls.counterA > 0){
+              if(!controls.SHIFT())
+                sequenceClock.setBPM(sequenceClock.BPM+10);
+              else
+                sequenceClock.setBPM(sequenceClock.BPM+1);
+            }
+            else{
+              if(!controls.SHIFT())
+                sequenceClock.setBPM(sequenceClock.BPM-10);
+              else
+                sequenceClock.setBPM(sequenceClock.BPM-1);
+            }
+            controls.countDownA();
+          }
+          while(controls.counterB != 0){
+            if(controls.counterB > 0){
+              if(!controls.SHIFT())
+                sequenceClock.setBPM(sequenceClock.BPM+10);
+              else
+                sequenceClock.setBPM(sequenceClock.BPM+1);
+            }
+            else{
+              if(!controls.SHIFT())
+                sequenceClock.setBPM(sequenceClock.BPM-10);
+              else
+                sequenceClock.setBPM(sequenceClock.BPM-1);
+            }
+            controls.countDownB();
+          }      
+      }
       if(controls.MENU()){
         lastTime = millis();
         return false;
@@ -495,198 +618,7 @@ bool ClockMenu::clockMenuControls(){
       }
     }
   }
-  while(controls.counterA != 0){
-    if(controls.counterA > 0){
-      switch(cursor){
-        //sequenceClock.BPM
-        case 0:
-          if(!controls.SHIFT())
-            sequenceClock.setBPM(sequenceClock.BPM+10);
-          else
-            sequenceClock.setBPM(sequenceClock.BPM+1);
-          break;
-        case 2:
-          cursor = 1;
-          break;
-        //swing val
-        //(complicated checking bc you're scaling it
-        // and it needs to switch between division and mult. when
-        //if goes from + to -)
-        case 1:
-          if(!sequenceClock.isSwinging)
-            break;
-          if(!controls.SHIFT()){
-            sequenceClock.swingCurve.amplitude+=sequenceClock.uSecPerStep/10;
-          }
-          else{
-            sequenceClock.swingCurve.amplitude+=sequenceClock.uSecPerStep/100;
-          }
-          if(abs(sequenceClock.swingCurve.amplitude)>sequenceClock.uSecPerStep)
-            sequenceClock.swingCurve.amplitude = sequenceClock.swingCurve.amplitude<0?-sequenceClock.uSecPerStep:sequenceClock.uSecPerStep;
-          break;
-        //source
-        case 3:
-          toggleClockSource();
-          break;
-      }
-    }
-    else if(controls.counterA < 0){
-      switch(cursor){
-        //sequenceClock.BPM
-        case 0:
-          if(!controls.SHIFT())
-            sequenceClock.setBPM(sequenceClock.BPM-10);
-          else
-            sequenceClock.setBPM(sequenceClock.BPM-1);
-          lastTime = millis();
-          break;
-        case 2:
-          cursor = 1;
-          break;
-        //swing val
-        //(complicated checking bc you're scaling it
-        // and it needs to switch between division and mult. when
-        //if goes from + to -)
-        case 1:
-          if(!sequenceClock.isSwinging)
-            break;
-          if(!controls.SHIFT()){
-            sequenceClock.swingCurve.amplitude-=sequenceClock.uSecPerStep/10;
-          }
-          else{
-            sequenceClock.swingCurve.amplitude-=sequenceClock.uSecPerStep/100;
-          }
-          if(abs(sequenceClock.swingCurve.amplitude)>sequenceClock.uSecPerStep)
-            sequenceClock.swingCurve.amplitude = sequenceClock.swingCurve.amplitude<0?-sequenceClock.uSecPerStep:sequenceClock.uSecPerStep;
-          break;
-        //source
-        case 3:
-          toggleClockSource();
-          break;
-      }
-    }
-    controls.countDownA();
-  }
-  while(controls.counterB != 0){
-    if(controls.counterB >= 1){
-      switch(cursor){
-        case 1:
-          cursor = 2;
-          break;
-        //swing subdiv
-        case 2:
-          if(!sequenceClock.isSwinging)
-            break;
-          if(controls.SHIFT() && sequenceClock.swingCurve.period<768)
-            sequenceClock.swingCurve.period++;
-          else if(sequenceClock.swingCurve.period%24)
-            sequenceClock.swingCurve.period+=24-sequenceClock.swingCurve.period%24;
-          else if(sequenceClock.swingCurve.period<=384)
-            sequenceClock.swingCurve.period *= 2;
-          break;
-      }
-    }
-    else if(controls.counterB <= -1){
-      switch(cursor){
-        case 1:
-          cursor = 2;
-          break;
-        //swing subdiv
-        case 2:
-          if(!sequenceClock.isSwinging)
-            break;
-          if(controls.SHIFT() && sequenceClock.swingCurve.period>1)
-            sequenceClock.swingCurve.period--;
-          else if(sequenceClock.swingCurve.period%24){
-            sequenceClock.swingCurve.period-=sequenceClock.swingCurve.period%24;
-            if(sequenceClock.swingCurve.period == 0)
-              sequenceClock.swingCurve.period = 1;
-          }
-          else if(sequenceClock.swingCurve.period >= 2)
-            sequenceClock.swingCurve.period /= 2;
-          break;
-      }
-    }
-    controls.counterB += controls.counterB<0?1:-1;
-  }
   return true;
-}
-
-
-void tapBpm(){
-  int activeLED = 0;
-  // bool leds[8] = {0,0,0,0,0,0,0,0};
-  uint16_t leds = 1;
-  long t1;
-  long timeE = 0;
-  long timeL = 0;
-  display.fillRect(0,8,screenWidth,30,SSD1306_BLACK);
-  display.drawFastHLine(0,8,screenWidth,SSD1306_WHITE);
-  display.drawFastHLine(0,40,screenWidth,SSD1306_WHITE);
-  display.setCursor(46,12);
-  display.print("BPM");
-  display.setFont(&FreeSerifItalic9pt7b);
-  display.setCursor(64-stringify(int(sequenceClock.BPM)).length()*4,35);
-  print7SegNumber(64,35,sequenceClock.BPM,true);
-  // display.print(int(sequenceClock.BPM));
-  display.setFont();
-  display.display();
-  t1 = millis();
-  while(true){
-    //checking if it's been a 1/4 note
-    timeE = micros()-timeL;
-    if(timeE  >= sequenceClock.uSecPerStep*24){
-      timeL = micros();
-      // leds[activeLED] = 0;
-      leds = leds<<1;
-      if(leds == 32768)
-        leds = 1;
-      activeLED += 1;
-      controls.writeLEDs(leds);
-    }
-    controls.readButtons();
-    controls.readJoystick();
-    if(controls.MENU()){
-      lastTime = millis();
-      break;
-    }
-    if(utils.itsbeen(75)){
-      if(controls.anyStepButtons()){
-        sequenceClock.setBPM(float(60000)/float(millis()-t1));
-        t1 = millis();
-        display.fillRect(0,8,screenWidth,30,SSD1306_BLACK);
-        display.drawFastHLine(0,8,screenWidth,SSD1306_WHITE);
-        display.drawFastHLine(0,40,screenWidth,SSD1306_WHITE);
-        display.setCursor(46,12);
-        display.print("BPM");
-        display.setFont(&FreeSerifItalic9pt7b);
-        display.setCursor(64-stringify(int(sequenceClock.BPM)).length()*4,35);
-        display.print(sequenceClock.BPM);
-        display.setFont();
-        display.display();
-        controls.clearButtons();
-        lastTime = millis();
-      }
-    }
-    while(controls.counterA != 0){
-      if(controls.counterA >= 1){
-        if(controls.SHIFT()){
-          sequenceClock.setBPM(sequenceClock.BPM+1);
-        }
-        else{
-          sequenceClock.setBPM(sequenceClock.BPM+10);
-        }
-      }
-      if(controls.counterA <= -1){
-        if(controls.SHIFT()){
-          sequenceClock.setBPM(sequenceClock.BPM-1);
-        }
-        else{
-          sequenceClock.setBPM(sequenceClock.BPM-10);
-        }
-      }
-    }
-  }
 }
 
 void clockMenu(){

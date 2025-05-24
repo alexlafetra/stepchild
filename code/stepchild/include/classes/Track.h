@@ -12,9 +12,10 @@ class Track {
     MUTED = 1,
     LATCHED = 2,
     PRIMED = 3,
-    SOLO = 4
+    SOLO = 4,
+    PRIME_BACKUP_WHILE_LIVELOOPING = 5
   };
-  uint8_t flags = 0b00001000;//tracks start primed
+  uint8_t flags = 0b00101000;//tracks start primed
   
   //constructor for each track
   Track() {
@@ -44,6 +45,8 @@ class Track {
   bool isLatched();
   bool isPrimed();
   bool isSolo();
+  void reprime();
+  void storePrimeState();
   void setPrimed(bool);
   void setLatched(bool);
   void setSelected(bool);
@@ -52,6 +55,13 @@ class Track {
   bool checkFlag(TrackFlagBit);
 
 };
+
+void Track::reprime(){
+  setPrimed(checkFlag(PRIME_BACKUP_WHILE_LIVELOOPING));
+}
+void Track::storePrimeState(){
+  setFlag(PRIME_BACKUP_WHILE_LIVELOOPING,isPrimed());
+}
 void Track::setFlag(TrackFlagBit b, bool state){
   if(state)
     flags |= (1<<b);

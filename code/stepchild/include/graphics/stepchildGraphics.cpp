@@ -780,11 +780,11 @@ void StepchildGraphics::drawPram(uint8_t x1, uint8_t y1){
 }
 void StepchildGraphics::drawBigPram(){
     if(!sequence.playing() && !sequence.recording()){
-        this->drawPram(5,0);
+        this->drawPram(3,0);
     }
     else if(sequence.playing() || sequence.recording()){
         //if the playhead/rechead is on a subdiv, bounce the pram 
-        display.drawBitmap(5,!((sequence.playheadPos%24/12)%2),carriage_bmp,14,15,SSD1306_WHITE);
+        display.drawBitmap(3,!((sequence.playheadPos%24/12)%2),carriage_bmp,14,15,SSD1306_WHITE);
     }
 }
 void StepchildGraphics::drawTinyPram(){

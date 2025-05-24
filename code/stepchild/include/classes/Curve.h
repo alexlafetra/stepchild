@@ -1,12 +1,18 @@
 enum CurveType:uint8_t{LINEAR_CURVE,SINEWAVE_CURVE,SQUAREWAVE_CURVE,SAWTOOTH_CURVE,TRIANGLE_CURVE,RANDOM_CURVE,NOISE_CURVE};
 CurveType operator++(CurveType &c,int) {
-  c = static_cast<CurveType>(static_cast<uint8_t>(c) + 1);
-  return c;
+    if(c == NOISE_CURVE)
+        return LINEAR_CURVE;
+    c = static_cast<CurveType>(static_cast<uint8_t>(c) + 1);
+    return c;
 }
 CurveType operator--(CurveType &c,int) {
-  c = static_cast<CurveType>(static_cast<uint8_t>(c) - 1);
-  return c;
+    if(c == LINEAR_CURVE)
+        return NOISE_CURVE;
+    c = static_cast<CurveType>(static_cast<uint8_t>(c) - 1);
+    return c;
 }
+
+
 
 class Curve{
     public:

@@ -36,10 +36,14 @@ extern "C" {
 #include "display.h"
 using namespace std;
 #include "StepchildMIDI.h"
-
 #endif
 
 using namespace std;
+
+//reimplementing the map() fn with a new name because it conflicts
+long mapVal(long x, long in_min, long in_max, long out_min, long out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
 typedef uint16_t Timestep;
 typedef uint8_t TrackID;
@@ -81,55 +85,6 @@ struct NoteCoords{
 
 struct CoordinatePair;
 struct SequenceRenderSettings;
-
-enum ScaleName:uint8_t{
-  MAJOR,
-  HARMONIC_MINOR,
-  MELODIC_MINOR,
-  MAJOR_PENTATONIC,
-  MINOR_PENTATONIC,
-  BLUE,
-  DORIAN,
-  PHRYGIAN,
-  LYDIAN,
-  MIXOLYDIAN,
-  AEOLIAN,
-  LOCRIAN
-};
-
-ScaleName& operator++(ScaleName& e) {
-    // Wrap-around logic
-    if (e == LOCRIAN) {
-        e = MAJOR;
-    }
-    else{
-        e = static_cast<ScaleName>(static_cast<uint8_t>(e) + 1);
-    }
-    return e;
-}
-ScaleName operator++(ScaleName& e, int) {
-    ScaleName result = e; // Make a copy of the current value
-    ++e;               // Increment the original value
-    return result;     // Return the copy (the original value before increment)
-}
-
-// Define a free-standing function to overload --
-ScaleName& operator--(ScaleName& e) {
-    if (e == MAJOR) {
-        e = LOCRIAN;
-    }
-    else{
-        e = static_cast<ScaleName>(static_cast<uint8_t>(e) - 1);
-    }
-    return e;
-}
-
-// Define a free-standing function to overload postfix --
-ScaleName operator--(ScaleName& e, int) {
-    ScaleName result = e; // Make a copy of the current value
-    --e;               // Decrement the original value
-    return result;     // Return the copy (the original value before decrement)
-}
 
 enum LoopType : uint8_t{
   NORMAL,
@@ -180,6 +135,7 @@ struct Loop{
 
 uint16_t animOffset = 0;//for animating curves
 
+#include "scales.h"
 #include "classes/Curve.h"
 #include "graphics/bitmaps.h"            //bitmaps for graphics
 #include "functionPrototypes.h" //function prototypes (eventually these should all be refactored into respective files)
@@ -247,6 +203,8 @@ volatile bool noteOffReceived = false;
 #include "utils.h"              //common helper functions/utilities
 #include "internalCC.h"
 
+// #include "sequence.h"
+
 //classes
 #include "graphics/WireFrame.h"//wireframe stuff
 #include "graphics/wireframeObjects.h"//wireframe stuff
@@ -260,7 +218,11 @@ volatile bool noteOffReceived = false;
 #include "classes/Arp.h"
 #include "classes/CV.h"
 
+#include "classes/LiveLooper.h"
 #include "sequence.cpp"
+#include "classes/LiveLooper.cpp"
+
+#include "midiInputHandlers.cpp"
 
 Note NoteID::getNote(){
   return sequence.noteData[track][id];
@@ -268,7 +230,6 @@ Note NoteID::getNote(){
 uint8_t NoteID::getPitch(){
   return sequence.trackData[track].pitch;
 }
-
 
 struct NoteTrackPair{
   public:
@@ -337,6 +298,7 @@ void webInterface(){}
 #include "menus/fileMenu.cpp"
 #include "menus/noteEditMenu.cpp"
 #include "menus/clockMenu.cpp"
+#include "menus/liveLoopMenu.cpp"
 #include "menus/mainMenu.cpp"
 #include "menus/midiMenu.cpp"
 #include "menus/quickFXMenu.cpp"

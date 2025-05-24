@@ -55,19 +55,6 @@ bool SuperpositionMenu::setSuperpositionControls(){
       }
       return false;
     }
-    if(controls.PLAY()){
-      if(controls.SHIFT() || sequence.recording()){
-        sequence.toggleRecording(waitForNoteBeforeRec);
-        lastTime = millis();
-        if(sequence.recording())
-          menuText = "ready!";
-      }
-      else{
-        sequence.togglePlay();
-        lastTime = millis();
-        menuText = sequence.playing()?"playing!":"stopped";
-      }
-    }
     if(controls.DELETE()){
       lastTime = millis();
       note.superposition.pitch = sequence.trackData[track].pitch;//reset

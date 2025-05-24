@@ -295,17 +295,6 @@ bool viewLoopControls(uint8_t which){
       sequence.muteNote(sequence.activeTrack, sequence.IDAtCursor(), true);
       lastTime = millis();
     }
-
-    //Modes: play, listen, and record
-    if(controls.PLAY() && !controls.SHIFT() && !sequence.recording()){
-      sequence.togglePlay();
-      lastTime = millis();
-    }
-    //if play+controls.SHIFT(), or if play and it's already recording
-    if((controls.PLAY() && controls.SHIFT()) || (controls.PLAY() && sequence.recording())){
-      sequence.toggleRecording(waitForNoteBeforeRec);
-      lastTime = millis();
-    }
  
     //loop
     if(controls.LOOP()){
@@ -747,6 +736,12 @@ class LoopMenu:public StepchildMenu{
     if(utils.itsbeen(200)){
       if(controls.MENU()){
         lastTime = millis();
+        return false;
+      }
+      if(controls.SELECT()){
+        //should trigger a dropdown menu for: set active, move loop points, delete
+        lastTime = millis();
+        sequence.activeLoop = cursor;
         return false;
       }
       if(controls.DELETE() && sequence.loopData.size()>1){

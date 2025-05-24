@@ -10,10 +10,9 @@
  */
 
 enum PlayState{
-    STOPPED,
-    PLAYING,
-    RECORDING,
-    LIVELOOPING
+  STOPPED,
+  PLAYING,
+  RECORDING
 };
 
 PlayState sequenceState = STOPPED;
@@ -59,6 +58,8 @@ void MidiInputCallback( double deltatime, vector< unsigned char > *message, void
     if(size>0){
         type = (message->at(0))>>4;//dropping the last 4 bits to get the message type
         channel = (message->at(0))&15;//masking off the first 8 bits to get the channel number
+        //add 1 to the channel number to make it consistent with the hardware midi API
+        channel++;
     }
     if(size>1)
         pitch = message->at(1);

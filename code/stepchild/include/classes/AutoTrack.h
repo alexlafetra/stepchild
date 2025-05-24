@@ -1,9 +1,13 @@
 enum TriggerSource:uint8_t{GLOBAL_TRIGGER,TRACK_TRIGGER,CHANNEL_TRIGGER};
 TriggerSource operator++(TriggerSource &c,int) {
+  if(c == CHANNEL_TRIGGER)
+    return GLOBAL_TRIGGER;
   c = static_cast<TriggerSource>(static_cast<uint8_t>(c) + 1);
   return c;
 }
 TriggerSource operator--(TriggerSource &c,int) {
+  if(c == GLOBAL_TRIGGER)
+    return CHANNEL_TRIGGER;
   c = static_cast<TriggerSource>(static_cast<uint8_t>(c) - 1);
   return c;
 }

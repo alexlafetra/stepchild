@@ -321,7 +321,7 @@ uint8_t countChar(String text,unsigned char c){
 }
 
 uint8_t getSmallTextLength(String t){
-  return t.length()*4-countChar(t,' ')*2-countChar(t,':')*2;
+  return t.length()*4-countChar(t,' ')*2-countChar(t,':')*2+countChar(t,'#')*2;
 }
 
 //Convert a list of bytes into corresponding C-B pitches
@@ -378,6 +378,26 @@ String getInterval(int root, int pitch) {
   return "";
 }
 
+String getCurveTypeString(CurveType t){
+  switch(t){
+    case LINEAR_CURVE:
+      return "linear";
+    case SINEWAVE_CURVE:
+      return "sinewave";
+    case SQUAREWAVE_CURVE:
+      return "squarewave";
+    case SAWTOOTH_CURVE:
+      return "sawtooth";
+    case TRIANGLE_CURVE:
+      return "triangle";
+    case RANDOM_CURVE:
+      return "random";
+    case NOISE_CURVE:
+      return "noise";
+    default:
+      return "idk bruh";
+  }
+}
 
 void filterOutUnisonNotes(vector<uint8_t>& notes){
   vector<uint8_t> uniqueNotes;

@@ -48,6 +48,7 @@ class SwingCurve{
 
     }
 };
+
 //Encapsulates all the special timing functions!
 class StepchildClock{
     public:
@@ -56,7 +57,7 @@ class StepchildClock{
     bool receivedClockMessage = false;
     bool isSwinging = false;
 
-    SwingCurve swingCurve = SwingCurve(SINEWAVE_CURVE,96.0,0,4000);
+    SwingCurve swingCurve = SwingCurve(SINEWAVE_CURVE,96.0,0,4208);
     int16_t swingCurveSource = -1; //-1 ==> swing curve, >= 0 ==> autotrack
     uint16_t BPM = 120;
 
@@ -77,7 +78,7 @@ class StepchildClock{
 
     //returns the amount a timestep should be shifted (in uSeconds) based on the swing curve
     int16_t swingOffset(uint16_t step){
-        // return this->swingAmplitude*sin(2*PI/this->swingSubDiv * (step-this->swingSubDiv/4));
+        // return swingAmplitude*sin(2*PI/swingSubDiv * (step-swingSubDiv/4));
         return swingCurve.getValueAt(step);
     }
 

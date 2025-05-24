@@ -247,17 +247,21 @@ bool MainMenu::mainMenuControls(){
           break;
         //fx
         case 5:
-          renderWireframes = false;
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
-          switch(fxMenu()){
-            case BACK_TO_MAIN_SEQUENCE:
-              shouldSlideOut = false;
-              return false;
-            default:
-              renderWireframes = true;
-              slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
-              return true;
-          }
+          liveLoopMenu();
+          slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          break;
+          // renderWireframes = false;
+          // slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          // switch(fxMenu()){
+          //   case BACK_TO_MAIN_SEQUENCE:
+          //     shouldSlideOut = false;
+          //     return false;
+          //   default:
+          //     renderWireframes = true;
+          //     slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          //     return true;
+          // }
         //rec
         case 6:
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
@@ -312,7 +316,7 @@ void MainMenu::drawMainMenuLabel(){
       break;
     //Loop
     case 1:
-      text = "LOOP";
+      text = "LOOPS";
       break;
     //instruments
     case 2:
@@ -328,7 +332,8 @@ void MainMenu::drawMainMenuLabel(){
       break;
     //clock
     case 5:
-      text = "FX";
+      // text = "FX";
+      text = "LIVELP";
       break;
     //rec
     case 6:

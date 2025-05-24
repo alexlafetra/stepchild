@@ -1,13 +1,256 @@
 #include "sequence.h"
 
+bool StepchildSequence::playing(){
+  return (playState == PLAYING);
+}
+bool StepchildSequence::recording(){
+  return (playState == RECORDING);
+}
+void StepchildSequence::stop(bool cleanRecording) {
+  
+  if(cleanRecording)
+    cleanupRecording(recheadPos);
+
+  for(uint16_t track = 0; track<trackData.size(); track++){
+    if(trackData[track].noteLastSent != 255){
+      MIDI.noteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
+      trackData[track].noteLastSent = 255;
+      //reset superposition flags
+      for(uint8_t i = 1; i<noteData[track].size(); i++){
+        noteData[track][i].setSuperpositioned(false);
+      }
+    }
+    // else{
+    //   MIDI.noteOff(trackData[track].pitch,0,trackData[track].channel);
+    // }
+  }
+  sentNotes.clear();
+}
+
+void StepchildSequence::stop() {
+  stop(false);
+}
+
+//I think this is redundant! these disconnects just set the fnptr to null, so it's not needed
+//unless you need to be sure you're overwriting everything
+void StepchildSequence::disconnectMIDICallbacks(){
+  //disconnecting all the midi callbacks!
+#ifndef HEADLESS
+  MIDI1.disconnectCallbackFromType(midi::NoteOn);
+  MIDI1.disconnectCallbackFromType(midi::NoteOff);
+  MIDI1.disconnectCallbackFromType(midi::Clock);
+  MIDI1.disconnectCallbackFromType(midi::Start);
+  MIDI1.disconnectCallbackFromType(midi::Stop);
+
+  MIDI0.disconnectCallbackFromType(midi::NoteOn);
+  MIDI0.disconnectCallbackFromType(midi::NoteOff);
+  MIDI0.disconnectCallbackFromType(midi::Clock);
+  MIDI0.disconnectCallbackFromType(midi::Start);
+  MIDI0.disconnectCallbackFromType(midi::Stop);
+#endif
+}
+
+void StepchildSequence::setMIDICallbacks(PlayState state){
+#ifndef HEADLESS
+  switch(state){
+    default:
+    case STOPPED:
+      MIDI0.setHandleNoteOn(handleNoteOn_Normal);
+      MIDI0.setHandleNoteOff(handleNoteOff_Normal);
+      MIDI0.setHandleStart(handleStart_Normal);
+      MIDI0.setHandleStop(handleStop_Normal);
+      MIDI0.setHandleControlChange(handleCC_Normal);
+      MIDI0.setHandlePitchBend(handlePB);
+      MIDI1.setHandleNoteOn(handleNoteOn_Normal);
+      MIDI1.setHandleNoteOff(handleNoteOff_Normal);
+      MIDI1.setHandleStart(handleStart_Normal);
+      MIDI1.setHandleStop(handleStop_Normal);
+      MIDI1.setHandleControlChange(handleCC_Normal);
+      MIDI1.setHandlePitchBend(handlePB);
+      break;
+    case PLAYING:
+      MIDI1.setHandleNoteOn(handleNoteOn_Normal);
+      MIDI1.setHandleNoteOff(handleNoteOff_Normal);
+      MIDI1.setHandleClock(handleClock_playing);
+      MIDI1.setHandleStart(handleStart_playing);
+      MIDI1.setHandleStop(handleStop_playing);
+      MIDI1.setHandlePitchBend(handlePB);
+      MIDI1.setHandleControlChange(handleCC_Normal);
+      MIDI0.setHandleNoteOn(handleNoteOn_Normal);
+      MIDI0.setHandleNoteOff(handleNoteOff_Normal);
+      MIDI0.setHandleClock(handleClock_playing);
+      MIDI0.setHandleStart(handleStart_playing);
+      MIDI0.setHandleStop(handleStop_playing);
+      MIDI0.setHandleControlChange(handleCC_Normal);
+      MIDI0.setHandlePitchBend(handlePB);
+      break;
+    case RECORDING:
+      MIDI1.setHandleNoteOn(handleNoteOn_Recording);
+      MIDI1.setHandleNoteOff(handleNoteOff_Recording);
+      MIDI1.setHandleClock(handleClock_recording);
+      MIDI1.setHandleStart(handleStart_recording);
+      MIDI1.setHandleStop(handleStop_recording);
+      MIDI1.setHandleControlChange(handleCC_Recording);
+      MIDI0.setHandleNoteOn(handleNoteOn_Recording);
+      MIDI0.setHandleNoteOff(handleNoteOff_Recording);
+      MIDI0.setHandleClock(handleClock_recording);
+      MIDI0.setHandleStart(handleStart_recording);
+      MIDI0.setHandleStop(handleStop_recording);
+      MIDI0.setHandleControlChange(handleCC_Recording);
+      break;
+  }
+#endif
+}
+
+/*
+  For toggling into/out of play states. These should only be used by the controls.
+*/
+void StepchildSequence::togglePlay(){
+  if(playState == PLAYING){
+    setNormalMode();
+  }
+  else{
+    setPlayMode();
+  }
+}
+
+void StepchildSequence::toggleRecording(bool waitForANoteBeforeStarting){
+  //this check is in here so that starting a rec while the liveLooper is active just starts the liveLooper
+  if(liveLoop.active){
+    if(playState == RECORDING){
+      liveLoop.stop();
+    }
+    else{
+      liveLoop.start(false);
+    }
+  }
+  else{
+    if(playState == RECORDING){
+      setNormalMode();
+    }
+    else{
+      setRecMode(waitForANoteBeforeStarting);
+    }
+  }
+}
+
+void StepchildSequence::setRecMode(bool waitForANoteBeforeStarting){
+  PlayState previousPlayState = playState;
+  playState = RECORDING;
+
+  //if it's recording to the loop
+  if(recMode == ONESHOT || recMode == CURRENT_LOOP)
+    recheadPos = loopData[activeLoop].start;
+  //flag which makes the sequence wait to receive a note
+  if(waitForANoteBeforeStarting)
+    waitingToReceiveANote = true;
+  //or, just start recording immediately
+  else
+    waitingToReceiveANote = false;
+  
+  if(previousPlayState == PLAYING)
+    stop();
+  #ifndef HEADLESS
+  disconnectMIDICallbacks();
+  //reconnecting the midi callbacks
+  setMIDICallbacks(RECORDING);
+  #endif
+  sequenceClock.startTime = micros();
+}
+
+
+void StepchildSequence::setNormalMode(){
+  PlayState previousPlayState = playState;
+  playState = STOPPED;//set this ASAP (or at least before you call stop()) so cpu1 doesn't play any notes
+
+  //stop the seq, and cleanup recording if you're coming from recmode
+  stop(previousPlayState == RECORDING);
+  if(arp.isActive){
+    arp.stop();
+  }
+  if(recordingToAutotrack){
+    recordingToAutotrack = false;
+    controls.counterA = 0;
+    controls.counterB = 0;
+  }
+  MIDI.sendStop();
+  globalModifiers.velocity.value = 0;
+  globalModifiers.chance.value = 0;
+  globalModifiers.pitch.value = 0;
+  CV.off();
+
+  #ifndef HEADLESS
+  disconnectMIDICallbacks();
+  setMIDICallbacks(STOPPED);
+  #endif
+}
+
+void StepchildSequence::setPlayMode(){
+  PlayState previousPlayState = playState;
+  playState = PLAYING;
+
+  #ifndef HEADLESS
+  disconnectMIDICallbacks();
+  setMIDICallbacks(PLAYING);
+  #endif
+
+  //if it's looping, set the playhead to the activeLoop start
+  if(isLooping)
+    playheadPos = loopData[activeLoop].start;
+  else
+    playheadPos = 0;
+
+  sequenceClock.startTime = micros();
+  if(arp.isActive){
+    arp.start();
+  }
+  MIDI.sendStart();
+}
+
+//looks for autotracks to trigger and triggers them
+void StepchildSequence::triggerAutotracks(uint8_t trackID, bool state){
+  for(uint8_t i = 0; i<autotrackData.size(); i++){
+    switch(autotrackData[i].triggerSource){
+      case GLOBAL_TRIGGER:
+        break;
+      case TRACK_TRIGGER:
+        //if it's a targeted autotrack
+        if(autotrackData[i].triggerTarget == trackID){
+          //triggering it on
+          if(state){
+            autotrackData[i].isActive = true;
+            autotrackData[i].playheadPos = 0;
+          }
+          //triggering it off
+          else if(autotrackData[i].gated){
+            autotrackData[i].isActive = false;
+            autotrackData[i].playheadPos = 0;
+          }
+        }
+        break;
+      case CHANNEL_TRIGGER:
+        //if it's a targeted autotrack
+        if(autotrackData[i].triggerTarget == trackData[trackID].channel){
+          //triggering it on
+          if(state){
+            autotrackData[i].isActive = true;
+            autotrackData[i].playheadPos = 0;
+          }
+          //triggering it off
+          else if(autotrackData[i].gated){
+            autotrackData[i].isActive = false;
+            autotrackData[i].playheadPos = 0;
+          }
+        }
+        break;
+    }
+  }
+}
+
 void StepchildSequence::writeNoteOn(uint16_t step, uint8_t pitch, uint8_t vel, uint8_t channel){
   uint8_t trackID = makeTrackWithPitch(pitch,channel);
   if(trackData[trackID].isPrimed()){
     Note newNote(step, step, vel);//this constuctor sets the endPos of the note at the same position
-    if(liveLooping()){
-      newNote.setSelected(true);
-      selectionCount++;
-    }
     if(lookupTable[trackID][step] != 0){
       deleteNote(trackID,step);
     }
@@ -123,7 +366,7 @@ void StepchildSequence::updateLookupData(){
 }
 
 void StepchildSequence::cleanupRecording(uint16_t stopTime){
-  for(int8_t i = 0; i<trackData.size(); i++){
+  for(uint8_t i = 0; i<trackData.size(); i++){
     //if there's a note on this track
     if(noteData[i].size()-1>0){
       //if the track was sending
@@ -144,7 +387,6 @@ void StepchildSequence::cleanupRecording(uint16_t stopTime){
 }
 
 void StepchildSequence::recordingLoop(){
-  MIDI.read();
   if(sequenceClock.clockSource == INTERNAL_CLOCK){
     if(sequenceClock.hasItBeenEnoughTime(recheadPos)){
       sequenceClock.timeLastStepPlayed = micros();
@@ -155,6 +397,7 @@ void StepchildSequence::recordingLoop(){
         MIDI.sendClock();
         recheadPos++;
         checkLoop();
+        playStep(recheadPos);
       }
     }
   }
@@ -165,13 +408,22 @@ void StepchildSequence::recordingLoop(){
       recheadPos++;
       checkLoop();
       checkAutotracks();
+      playStep(recheadPos);
     }
   }
 }
 
 
 void StepchildSequence::checkLoop(){
-  if(playing()){
+  //if it's not looping, ignore loop bounds BUT check the sequence length and wrap
+  if(!isLooping){
+    if((playState == PLAYING && playheadPos >= lookupTable[0].size()) || (playState == RECORDING && recheadPos >= lookupTable[0].size())){
+      setNormalMode();
+    }
+    return;
+  }
+  //playing
+  if(playState == PLAYING){
     if (playheadPos > loopData[activeLoop].end-1) { //if the timestep is past the end of the loop, loop it to the start
       loopCount++;
       if(loopCount > loopData[activeLoop].reps){
@@ -183,22 +435,22 @@ void StepchildSequence::checkLoop(){
           }
         }
       }
-        playheadPos = loopData[activeLoop].start;
-      if(!isLooping)
-        togglePlay();
+      playheadPos = loopData[activeLoop].start;
     }
   }
-  else if(recording()){
+  //recording
+  else if(playState == RECORDING){
     //one-shot record to current loop, without looping
     if(recMode == ONESHOT){
       if(recheadPos>=loopData[activeLoop].end){
-        toggleRecording(waitForNoteBeforeRec);
+        setNormalMode();
       }
     }
     //record to one loop over and over again
     else if(recMode == CURRENT_LOOP){
       if(recheadPos>=loopData[activeLoop].end){
         recheadPos = loopData[activeLoop].start;
+        cutLoop();
       }
     }
     //record to loops as they play in sequence
@@ -327,33 +579,14 @@ void StepchildSequence::arpLoop(){
 void StepchildSequence::defaultLoop(){
   playheadPos = loopData[activeLoop].start;
   recheadPos = loopData[activeLoop].start;
-  MIDI.read();
-}
-
-void StepchildSequence::stop() {
-  for(int track = 0; track<trackData.size(); track++){
-    if(trackData[track].noteLastSent != 255){
-      MIDI.noteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
-      trackData[track].noteLastSent = 255;
-      //reset superposition flags
-      for(uint8_t i = 1; i<noteData[track].size(); i++){
-        noteData[track][i].setSuperpositioned(false);
-      }
-    }
-    else{
-      MIDI.noteOff(trackData[track].pitch, 0, trackData[track].channel);
-    }
-
-  }
-  sentNotes.clear();
 }
 
 void StepchildSequence::playStep(uint16_t timestep) {
   playPCData(timestep);
   //playing each track
   for (uint8_t track = 0; track < trackData.size(); track++) {
-    //if it's unmuted or solo'd, play it
-    if(!trackData[track].isMuted() || trackData[track].isSolo())
+    //if it's unmuted or solo'd, or if you're in rec mode but the track isn't primed, play it
+    if((playState == PLAYING && (!trackData[track].isMuted() || trackData[track].isSolo())) || (playState == RECORDING && !trackData[track].isPrimed()))
       playTrack(track,timestep);
   }
   //playing autotracks too
@@ -1130,6 +1363,7 @@ void StepchildSequence::setLoopPoint(int32_t start, bool which){
       menuText = "loop end: "+stepsToPosition(this->loopData[this->activeLoop].end,true);
   }
 }
+
 void StepchildSequence::addLoop(Loop newLoop){
   this->loopData.push_back(newLoop);
 }
@@ -1656,6 +1890,30 @@ void StepchildSequence::toggleSolo(uint16_t id){
 void StepchildSequence::eraseMultipleTracks(vector<uint8_t> ids){
   for(uint16_t track = 0; track<ids.size(); track++){
     eraseTrack(ids[track]);
+  }
+}
+
+void StepchildSequence::unprimeTracksWithNotes(){
+  for(uint16_t track = 0; track<trackData.size(); track++){
+    if(noteData[track].size() > 1){
+      trackData[track].setPrimed(false);
+    }
+    else{
+      trackData[track].setPrimed(true);
+    }
+  }
+}
+void StepchildSequence::temporarilyUnprimeTracksWithNotes(){
+  for(uint16_t track = 0; track<trackData.size(); track++){
+    trackData[track].storePrimeState();
+    if(noteData[track].size() > 1){
+      trackData[track].setPrimed(false);
+    }
+  }
+}
+void StepchildSequence::reprimeTracks(){
+  for(uint16_t track = 0; track<trackData.size(); track++){
+    trackData[track].reprime();
   }
 }
 
@@ -2240,325 +2498,4 @@ if(this->trackData.size()>this->maxTracksShown){
 return false;
 }
 
-bool StepchildSequence::playing(){
-  return (playState == PLAYING);
-}
-bool StepchildSequence::recording(){
-  return (playState == RECORDING);
-}
-bool StepchildSequence::liveLooping(){
-  return (playState == LIVELOOPING);
-}
-void StepchildSequence::setNormalMode(){
-  stop();
-  if(arp.isActive){
-    arp.stop();
-  }
-  if(recordingToAutotrack){
-    recordingToAutotrack = false;
-    controls.counterA = 0;
-    controls.counterB = 0;
-  }
-  #ifndef HEADLESS
-  MIDI1.disconnectCallbackFromType(midi::Clock);
-  MIDI1.disconnectCallbackFromType(midi::Start);
-  MIDI1.disconnectCallbackFromType(midi::Stop);
-  MIDI1.disconnectCallbackFromType(midi::NoteOn);
-  MIDI1.disconnectCallbackFromType(midi::NoteOff);
-  MIDI1.disconnectCallbackFromType(midi::ControlChange);
-
-  MIDI0.disconnectCallbackFromType(midi::Clock);
-  MIDI0.disconnectCallbackFromType(midi::Start);
-  MIDI0.disconnectCallbackFromType(midi::Stop);
-  MIDI0.disconnectCallbackFromType(midi::NoteOn);
-  MIDI0.disconnectCallbackFromType(midi::NoteOff);
-  MIDI0.disconnectCallbackFromType(midi::ControlChange);
-
-  MIDI0.setHandleNoteOn(handleNoteOn_Normal);
-  MIDI0.setHandleNoteOff(handleNoteOff_Normal);
-  MIDI0.setHandleStart(handleStart_Normal);
-  MIDI0.setHandleStop(handleStop_Normal);
-
-  MIDI1.setHandleNoteOn(handleNoteOn_Normal);
-  MIDI1.setHandleNoteOff(handleNoteOff_Normal);
-  MIDI1.setHandleStart(handleStart_Normal);
-  MIDI1.setHandleStop(handleStop_Normal);
-
-  MIDI0.setHandleControlChange(handleCC_Normal);
-  MIDI1.setHandleControlChange(handleCC_Normal);
-
-  MIDI0.setHandlePitchBend(handlePB);
-  MIDI1.setHandlePitchBend(handlePB);
-  #endif
-}
-
-void StepchildSequence::togglePlay(){
-  if(playing()){
-    playState = STOPPED;
-  }
-  else{
-    playState = PLAYING;
-  }
-  //if it's looping, set the playhead to the activeLoop start
-  if(isLooping)
-    playheadPos = loopData[activeLoop].start;
-  else
-    playheadPos = 0;
-  if(playing()){
-    if(recording()){
-      toggleRecording(waitForNoteBeforeRec);
-    }
-    #ifndef HEADLESS
-    MIDI1.setHandleNoteOn(handleNoteOn_Normal);
-    MIDI1.setHandleNoteOff(handleNoteOff_Normal);
-    MIDI1.setHandleClock(handleClock_playing);
-    MIDI1.setHandleStart(handleStart_playing);
-    MIDI1.setHandleStop(handleStop_playing);
-
-    MIDI0.setHandleNoteOn(handleNoteOn_Normal);
-    MIDI0.setHandleNoteOff(handleNoteOff_Normal);
-    MIDI0.setHandleClock(handleClock_playing);
-    MIDI0.setHandleStart(handleStart_playing);
-    MIDI0.setHandleStop(handleStop_playing);
-    #endif
-
-    sequenceClock.startTime = micros();
-    if(arp.isActive){
-      arp.start();
-    }
-    MIDI.sendStart();
-  }
-  else{
-    stop();
-    setNormalMode();
-    MIDI.sendStop();
-    globalModifiers.velocity.value = 0;
-    globalModifiers.chance.value = 0;
-    globalModifiers.pitch.value = 0;
-    CV.off();
-  }
-}
-void StepchildSequence::toggleRecording(bool butWait){
-  if(recording()){
-    playState = STOPPED;
-  }
-  else{
-    playState = RECORDING;
-  }
-  //if it stopped recording
-  if(!recording())
-    cleanupRecording(recheadPos);
-  //if it's recording to the loop
-  if(recMode == ONESHOT || recMode == CURRENT_LOOP)
-    recheadPos = loopData[activeLoop].start;
-  // else
-  //   recheadPos = ONESHOT;
-  if(butWait)
-    waitingToReceiveANote = true;
-  else
-    waitingToReceiveANote = false;
-  if(recording()){
-    if(playing()){
-      togglePlay();
-    }
-    stop();
-    #ifndef HEADLESS
-    //disconnecting all the midi callbacks!
-    MIDI1.disconnectCallbackFromType(midi::NoteOn);
-    MIDI1.disconnectCallbackFromType(midi::NoteOff);
-    MIDI1.disconnectCallbackFromType(midi::Clock);
-    MIDI1.disconnectCallbackFromType(midi::Start);
-    MIDI1.disconnectCallbackFromType(midi::Stop);
-
-    MIDI0.disconnectCallbackFromType(midi::NoteOn);
-    MIDI0.disconnectCallbackFromType(midi::NoteOff);
-    MIDI0.disconnectCallbackFromType(midi::Clock);
-    MIDI0.disconnectCallbackFromType(midi::Start);
-    MIDI0.disconnectCallbackFromType(midi::Stop);
-
-    //reconnecting the midi callbacks
-    MIDI1.setHandleNoteOn(handleNoteOn_Recording);
-    MIDI1.setHandleNoteOff(handleNoteOff_Recording);
-    MIDI1.setHandleClock(handleClock_recording);
-    MIDI1.setHandleStart(handleStart_recording);
-    MIDI1.setHandleStop(handleStop_recording);
-    MIDI1.setHandleControlChange(handleCC_Recording);
-
-    MIDI0.setHandleNoteOn(handleNoteOn_Recording);
-    MIDI0.setHandleNoteOff(handleNoteOff_Recording);
-    MIDI0.setHandleClock(handleClock_recording);
-    MIDI0.setHandleStart(handleStart_recording);
-    MIDI0.setHandleStop(handleStop_recording);
-    MIDI0.setHandleControlChange(handleCC_Recording);
-    #endif
-    sequenceClock.startTime = micros();
-  }
-  else{//go back to normal mode
-    setNormalMode();
-  }
-}
-
-//looks for autotracks to trigger and triggers them
-void StepchildSequence::triggerAutotracks(uint8_t trackID, bool state){
-  for(uint8_t i = 0; i<autotrackData.size(); i++){
-    switch(autotrackData[i].triggerSource){
-      case GLOBAL_TRIGGER:
-        break;
-      case TRACK_TRIGGER:
-        //if it's a targeted autotrack
-        if(autotrackData[i].triggerTarget == trackID){
-          //triggering it on
-          if(state){
-            autotrackData[i].isActive = true;
-            autotrackData[i].playheadPos = 0;
-          }
-          //triggering it off
-          else if(autotrackData[i].gated){
-            autotrackData[i].isActive = false;
-            autotrackData[i].playheadPos = 0;
-          }
-        }
-        break;
-      case CHANNEL_TRIGGER:
-        //if it's a targeted autotrack
-        if(autotrackData[i].triggerTarget == trackData[trackID].channel){
-          //triggering it on
-          if(state){
-            autotrackData[i].isActive = true;
-            autotrackData[i].playheadPos = 0;
-          }
-          //triggering it off
-          else if(autotrackData[i].gated){
-            autotrackData[i].isActive = false;
-            autotrackData[i].playheadPos = 0;
-          }
-        }
-        break;
-    }
-  }
-}
-
 StepchildSequence sequence;
-
-  /*
-  ----------------------------------------------------------
-                    MIDI Input Handlers
-  ----------------------------------------------------------
-  Fns outside the Sequence class which are used as callbacks
-  */
-
-void handleStop_playing(){
-  sequence.startedPlaying = false;
-  sequence.stop();
-}
-
-void handleClock_playing(){
-  sequenceClock.receivedClockMessage = true;
-}
-
-void handleStart_playing(){
-  sequence.startedPlaying = true;
-  sequenceClock.startTime = micros();
-}
-
-void handleClock_recording(){
-  sequenceClock.receivedClockMessage = true;
-}
-
-void handleStart_recording(){
-  sequence.startedPlaying = true;
-  sequenceClock.startTime = micros();
-  if(waitForNoteBeforeRec && waitingToReceiveANote){
-    waitingToReceiveANote = false;
-  }
-}
-
-void handleStop_recording(){
-  sequence.startedPlaying = false;
-}
-
-void handleNoteOn_Recording(uint8_t channel, uint8_t note, uint8_t velocity){
-  sequence.writeNoteOn(sequence.recheadPos, note, velocity, channel);
-  MIDI.sendThruOn(channel, note, velocity);
-  waitingToReceiveANote = false;
-  recentNote.pitch = note;
-  recentNote.vel = velocity;
-  recentNote.channel = channel;
-  noteOnReceived = true;
-  receivedNotes.addNote(note,velocity,channel);
-}
-
-void handleNoteOff_Recording(uint8_t channel, uint8_t note, uint8_t velocity){
-  sequence.writeNoteOff(sequence.recheadPos, note, channel);
-  MIDI.sendThruOff(channel, note);
-  waitingToReceiveANote = false;
-  noteOffReceived = true;
-
-  //is this a good idea? idk (it messed w/ live loop so i'm disabling it)
-  //if you need this, you should have a "recentNoteOff" variable too
-  // recentNote.pitch = note;
-  // recentNote.vel = velocity;
-  // recentNote.channel = channel;
-  receivedNotes.subNote(note);
-}
-
-void handlePB(uint8_t ch, int val){
-  MIDI.sendThruPB(ch,val);
-}
-
-void handleCC_Recording(uint8_t channel, uint8_t cc, uint8_t value){
-  sequence.writeCC(sequence.recheadPos,channel,cc,value);
-  MIDI.sendThruCC(channel,cc,value);
-  recentCC.cc = cc;
-  recentCC.val = value;
-  recentCC.channel = channel;
-  waitingToReceiveANote = false;
-}
-
-void handleCC_Normal(uint8_t channel, uint8_t cc, uint8_t value){
-  MIDI.sendThruCC(channel,cc,value);
-  recentCC.cc = cc;
-  recentCC.val = value;
-  recentCC.channel = channel;
-}
-
-void handleNoteOn_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
-  int track = sequence.getTrackWithPitch(note);
-  if(track != -1){
-    sequence.trackData[track].noteLastSent = note;
-  }
-  MIDI.sendThruOn(channel, note, velocity);
-  recentNote.pitch = note;
-  recentNote.vel = velocity;
-  recentNote.channel = channel;
-  noteOnReceived = true;
-
-  receivedNotes.addNote(note,velocity,channel);  
-}
-
-void handleNoteOff_Normal(uint8_t channel, uint8_t note, uint8_t velocity){
-  int track = sequence.getTrackWithPitch(note);
-  if(track != -1){
-    sequence.trackData[track].noteLastSent = 255;
-  }
-  MIDI.sendThruOff(channel, note);
-  noteOffReceived = true;
-  receivedNotes.subNote(note);
-}
-
-void handleStart_Normal(){
-  if(sequenceClock.clockSource == EXTERNAL_CLOCK){
-    if(!sequence.playing() && !sequence.recording()){
-      sequence.togglePlay();
-    }
-  }
-}
-
-void handleStop_Normal(){
-  if(sequenceClock.clockSource == EXTERNAL_CLOCK){
-    if(sequence.playing()){
-      sequence.togglePlay();
-    }
-  }
-}
-

@@ -676,7 +676,7 @@ bool NoteEditMenu::editMenuControls_normal(){
     }
     if(controls.PLAY()){
       if(controls.SHIFT())
-      sequence.toggleRecording(waitForNoteBeforeRec);
+        sequence.toggleRecording(waitForNoteBeforeRec);
       else
         sequence.togglePlay();
       lastTime = millis();
