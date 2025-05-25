@@ -9,6 +9,8 @@
 NoteData setLiveLoopTrigger(){
     NoteData newTrigger = liveLoop.triggerNote;
     while(true){
+        newTrigger.pitch = recentNote.pitch;
+        newTrigger.channel = recentNote.channel;
         controls.readInputs();
         if(utils.itsbeen(200)){
             if(controls.MENU()){
@@ -17,9 +19,17 @@ NoteData setLiveLoopTrigger(){
             }
         }
         display.clearDisplay();
-        printSmall_centered(64,28,"",1);
+        printSmall_centered(64,10,"send a note to set trigger",1);
+        printSmall_centered(64,20,"current:",1);
+        String p = "$"+pitchToString(newTrigger.pitch,true,true);
+        printSmall(48,32,p,1);
+        uint8_t length = getSmallTextLength(p);
+        display.drawBitmap(48+length+2,32,ch_tiny,6,3,1);
+        printSmall(48+length+2+8,32,stringify(newTrigger.channel),1);
         display.display();
     }
+    if(newTrigger.pitch > 127)
+        newTrigger.pitch = 255;
     return newTrigger;
 }
 

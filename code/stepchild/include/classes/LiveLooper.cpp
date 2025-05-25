@@ -9,10 +9,10 @@ void LiveLooper::start(bool fromTrigger){
     //if it was already playing, set the rechead position to the playhead position
     if(previousPlayState == PLAYING)
         sequence.recheadPos = playheadPos;
-
     //turn off looping if it's that kind of live loop
     if(setLoopBoundsAfterRec){
-        sequence.loopData[sequence.activeLoop].start = sequence.recheadPos;
+        sequence.recheadPos = 0;
+        sequence.loopData[sequence.activeLoop].start = 0;
         sequence.isLooping = false;
     }
 }

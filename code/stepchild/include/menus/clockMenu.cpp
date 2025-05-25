@@ -251,7 +251,7 @@ void ClockMenu::displayMenu(){
 
       //x2 & /2 buttons
       graphics.drawButton(coords.start.x+54,coords.start.y+20,"tap bpm",internalMenuCursor==0 && internalMenuActive);
-      graphics.drawButton(coords.start.x+54,coords.start.y+29,"/2",internalMenuCursor==1 && internalMenuActive);
+      graphics.drawButton(coords.start.x+54,coords.start.y+29,"~2",internalMenuCursor==1 && internalMenuActive);
       graphics.drawButton(coords.start.x+54,coords.start.y+38,"x2",internalMenuCursor==2 && internalMenuActive);
 
       //metronome indicator

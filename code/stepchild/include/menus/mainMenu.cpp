@@ -333,7 +333,7 @@ void MainMenu::drawMainMenuLabel(){
     //clock
     case 5:
       // text = "FX";
-      text = "LIVELP";
+      text = "LVLOOP";
       break;
     //rec
     case 6:

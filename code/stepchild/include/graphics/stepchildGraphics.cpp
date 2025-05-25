@@ -790,14 +790,14 @@ void StepchildGraphics::drawBigPram(){
 void StepchildGraphics::drawTinyPram(){
     if(!sequence.playing() && !sequence.recording()){
         if(sequenceClock.onBeat(2,30))
-            display.drawBitmap(8,1,tinyPram,7,7,SSD1306_WHITE);
+            display.drawBitmap(4,1,tinyPram,7,7,SSD1306_WHITE);
         else
-            display.drawBitmap(8,0,tinyPram,7,7,SSD1306_WHITE);
+            display.drawBitmap(4,0,tinyPram,7,7,SSD1306_WHITE);
     }
     //pram bounces faster
     else if(sequence.playing() || sequence.recording()){
         //if the playhead/rechead is on a subdiv, bounce the pram
-        display.drawBitmap(8,!((sequence.playheadPos%24/12)%2),tinyPram,7,7,SSD1306_WHITE);
+        display.drawBitmap(4,!((sequence.playheadPos%24/12)%2),tinyPram,7,7,SSD1306_WHITE);
     }
 }
 //draws a play icon shaded according to the sequence clock state

@@ -2469,7 +2469,7 @@ this->viewEnd = 96/this->viewScale;
 checkView();
 changeSubDivInt(in);
 moveCursorIntoView();
-menuText = stepsToMeasures(this->viewStart)+"<-->"+stepsToMeasures(this->viewEnd)+"(~"+stepsToMeasures(this->subDivision)+")";
+menuText = "~"+stepsToMeasures(this->subDivision);
 }
 bool StepchildSequence::areThereAnyNotes(){
 for(uint8_t t = 0; t<this->noteData.size(); t++){

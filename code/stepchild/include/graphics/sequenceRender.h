@@ -219,13 +219,15 @@ void drawSeqBackground(SequenceRenderSettings& settings, uint8_t height){
 void drawTopIcons(SequenceRenderSettings& settings){
   //music symbol while receiving notes
   if(sequence.isReceivingOrSending()){
-    display.drawChar(21,(millis()/200)%2,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
+    display.drawChar(settings.shrinkTopDisplay?12:19,(millis()/200)%2,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
   }
 
   if(liveLoop.active){
-    display.fillCircle(23,10,3,1);
-    if(liveLoop.triggerNote.pitch != 255){
-      printSmall(28,8,pitchToString(liveLoop.triggerNote.pitch,true,true),1);
+    if(settings.shrinkTopDisplay){
+      display.fillCircle(20,3,2,1);
+    }
+    else{
+      display.fillCircle(21,11,2,1);
     }
   }
 
@@ -295,25 +297,25 @@ void drawTopIcons(SequenceRenderSettings& settings){
   else if(sequence.playing()){
     graphics.drawPlayIcon(trackDisplay+((millis()/200)%2)+1,0);
     x1 += 10;
-    switch(sequence.isLooping){
-      //if not looping
-      case 0:
-        if((millis()/10)%100>50)
-          display.drawFastVLine(x1,0,7,1);
-        printSmall(x1+3,1,"1",1);
-        x1+=10;
-        break;
-      //if looping
-      case 1:
-        if(millis()%1000>500){
-          display.drawBitmap(x1,0,toploop_arrow1,7,7,SSD1306_WHITE);
-        }
-        else{
-          display.drawBitmap(x1,0,toploop_arrow2,7,7,SSD1306_WHITE);
-        }
-        x1+=10;
-        break;
-    }
+    // switch(sequence.isLooping){
+    //   //if not looping
+    //   case 0:
+    //     if((millis()/10)%100>50)
+    //       display.drawFastVLine(x1,0,7,1);
+    //     printSmall(x1+3,1,"1",1);
+    //     x1+=10;
+    //     break;
+    //   //if looping
+    //   case 1:
+    //     if(millis()%1000>500){
+    //       display.drawBitmap(x1,0,toploop_arrow1,7,7,SSD1306_WHITE);
+    //     }
+    //     else{
+    //       display.drawBitmap(x1,0,toploop_arrow2,7,7,SSD1306_WHITE);
+    //     }
+    //     x1+=10;
+    //     break;
+    // }
   }
   //Data track icon
   if(sequence.autotrackData.size()>0){
@@ -326,10 +328,10 @@ void drawTopIcons(SequenceRenderSettings& settings){
   }
 
   //swing icon
-  if(sequenceClock.isSwinging){
-   graphics.drawPendulum(x1+2,0,7,millis()/2);
-    x1+=10;
-  }
+  // if(sequenceClock.isSwinging){
+  //  graphics.drawPendulum(x1+2,0,7,millis()/2);
+  //   x1+=10;
+  // }
   //fragment gem
   if(isFragmenting){
     graphics.drawTetra(x1,5,10+sin(float(millis())/float(500)),10+sin(float(millis())/float(500)),6+sin(float(millis())/float(500)),1+sin(float(millis())/float(500)),0,SSD1306_WHITE);
