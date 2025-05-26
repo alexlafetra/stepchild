@@ -778,26 +778,26 @@ void StepchildGraphics::drawPram(uint8_t x1, uint8_t y1){
     else
         display.drawBitmap(x1,y1,carriage_bmp,14,15,SSD1306_WHITE);
 }
-void StepchildGraphics::drawBigPram(){
+void StepchildGraphics::drawBigPram(uint8_t x, uint8_t y){
     if(!sequence.playing() && !sequence.recording()){
-        this->drawPram(3,0);
+        this->drawPram(x,y);
     }
     else if(sequence.playing() || sequence.recording()){
         //if the playhead/rechead is on a subdiv, bounce the pram 
-        display.drawBitmap(3,!((sequence.playheadPos%24/12)%2),carriage_bmp,14,15,SSD1306_WHITE);
+        display.drawBitmap(x,y+(!(sequence.playheadPos%24/12)%2),carriage_bmp,14,15,SSD1306_WHITE);
     }
 }
-void StepchildGraphics::drawTinyPram(){
+void StepchildGraphics::drawTinyPram(uint8_t x, uint8_t y){
     if(!sequence.playing() && !sequence.recording()){
         if(sequenceClock.onBeat(2,30))
-            display.drawBitmap(4,1,tinyPram,7,7,SSD1306_WHITE);
+            display.drawBitmap(x,y+1,tinyPram,7,7,SSD1306_WHITE);
         else
-            display.drawBitmap(4,0,tinyPram,7,7,SSD1306_WHITE);
+            display.drawBitmap(x,y,tinyPram,7,7,SSD1306_WHITE);
     }
     //pram bounces faster
     else if(sequence.playing() || sequence.recording()){
         //if the playhead/rechead is on a subdiv, bounce the pram
-        display.drawBitmap(4,!((sequence.playheadPos%24/12)%2),tinyPram,7,7,SSD1306_WHITE);
+        display.drawBitmap(x,y+!((sequence.playheadPos%24/12)%2),tinyPram,7,7,SSD1306_WHITE);
     }
 }
 //draws a play icon shaded according to the sequence clock state

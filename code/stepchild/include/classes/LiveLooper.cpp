@@ -10,14 +10,15 @@ void LiveLooper::start(bool fromTrigger){
     if(previousPlayState == PLAYING)
         sequence.recheadPos = playheadPos;
     //turn off looping if it's that kind of live loop
-    if(setLoopBoundsAfterRec){
+    if(setLoopBoundsAfterRec_flag){
         sequence.recheadPos = 0;
         sequence.loopData[sequence.activeLoop].start = 0;
         sequence.isLooping = false;
     }
 }
 void LiveLooper::stop(){
-    if(setLoopBoundsAfterRec){
+    if(setLoopBoundsAfterRec_flag){
+        setLoopBoundsAfterRec_flag = false;
         //turn on loop
         sequence.isLooping = true;
         //set loop end to this step

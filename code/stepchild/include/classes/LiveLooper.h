@@ -16,6 +16,7 @@ struct LiveLooper{
     bool active = false;
     //makes it so the recordhead ignores the loop bounds, and the loop end is set when recording ends
     bool setLoopBoundsAfterRec = false;
+    bool setLoopBoundsAfterRec_flag = setLoopBoundsAfterRec;
 
     //quantize (not implemented yet)
     bool quantize = false;

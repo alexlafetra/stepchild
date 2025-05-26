@@ -37,9 +37,9 @@ void MainMenu::updateMainMenuWireFrame(){
     case 1:
       icon = makeMobius(float(millis())/800.0);
       break;
-    //cassette icon
+    //apps
     case 2:
-      icon = makeCassette();
+      icon = makeHammer();
       break;
     //wrench
     case 3:
@@ -49,9 +49,9 @@ void MainMenu::updateMainMenuWireFrame(){
     case 4:
       icon = makeCD();
       break;
-    //fx
+    //liveloop
     case 5:
-      icon = makeHammer();
+      icon = makeCassette();
       break;
     //rec
     case 6:
@@ -113,7 +113,7 @@ void MainMenu::animateMainMenuWireFrame(){
     case 3:
     //quicksave
     case 4:
-    //fx
+    //liveloop
     case 5:
       icon.rotate(2,1);
       break;
@@ -332,8 +332,7 @@ void MainMenu::drawMainMenuLabel(){
       break;
     //clock
     case 5:
-      // text = "FX";
-      text = "LVLOOP";
+      text = "LIVELOOP";
       break;
     //rec
     case 6:

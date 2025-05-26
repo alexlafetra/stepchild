@@ -82,8 +82,8 @@ class StepchildGraphics{
   void drawFullKeyBed(vector<uint8_t> pressList, vector<uint8_t> mask, uint8_t activeKey,uint8_t octave);
   //draws the pram icon, bouncing to the beat of the sequence
   void drawPram(uint8_t x1, uint8_t y1);
-  void drawBigPram();
-  void drawTinyPram();
+  void drawBigPram(uint8_t x, uint8_t y);
+  void drawTinyPram(uint8_t x, uint8_t y);
   //draws a play icon shaded according to the sequence clock state
   void drawPlayIcon(int8_t x1, int8_t y1);
   //draws the power icon corresponding to USB/batt and batt level

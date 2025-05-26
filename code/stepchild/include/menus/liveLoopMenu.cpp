@@ -65,6 +65,7 @@ class LiveLoopMenu:public StepchildMenu{
                         //setLoopBounds/ignore loop
                         case 1:
                             liveLoop.setLoopBoundsAfterRec = !liveLoop.setLoopBoundsAfterRec;
+                            liveLoop.setLoopBoundsAfterRec_flag = liveLoop.setLoopBoundsAfterRec;
                             lastTime = millis();
                             break;
                         //listen for note trigger
@@ -89,6 +90,7 @@ class LiveLoopMenu:public StepchildMenu{
                         //setLoopBounds/ignore loop
                         case 1:
                             liveLoop.setLoopBoundsAfterRec = !liveLoop.setLoopBoundsAfterRec;
+                            liveLoop.setLoopBoundsAfterRec_flag = liveLoop.setLoopBoundsAfterRec;
                             break;
                         //note pitch
                         case 3:
