@@ -168,9 +168,6 @@ bool knobs(){
       }
     }
     else{
-      // //Serial.println("B:"+stringify(controls.counterB));
-      // //Serial.println("A:"+stringify(controls.counterA));
-      // Serial.flush();
       while(controls.counterB != 0){
         if(controls.counterB >= 1){
           controlKnobs[activeKnobA].increment(controls.SHIFT()?1:8);

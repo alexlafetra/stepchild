@@ -492,7 +492,7 @@ void drawPramIcon(SequenceRenderSettings& settings){
   }
   //music symbol while receiving notes
   if(sequence.isReceivingOrSending()){
-    display.drawChar(settings.shrinkTopDisplay?12:19+(liveLoop.active?0:1),(millis()/200)%2,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
+    display.drawChar(settings.shrinkTopDisplay?13:19+(liveLoop.active?0:1),(millis()/200)%2,0x0E,SSD1306_WHITE,SSD1306_BLACK,1);
   }
   if(liveLoop.active){
     if(settings.shrinkTopDisplay){

@@ -1,7 +1,11 @@
+#include <MIDI.h>
 //from the pico sdk
 extern "C" {
 #include "pico/util/queue.h"
 }
+
+using namespace std;
+
 /*
 
 Stepchild MIDI class!
@@ -38,8 +42,6 @@ MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial1, MIDI1, StepchildMIDISetting
 MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial2, MIDI2, StepchildMIDISettings);
 MIDI_CREATE_CUSTOM_INSTANCE(SoftwareSerial, Serial3, MIDI3, StepchildMIDISettings);
 MIDI_CREATE_CUSTOM_INSTANCE(SoftwareSerial, Serial4, MIDI4, StepchildMIDISettings);
-
-//at some point, create a template class that can store all the MIDI objects
 
 /*
 
@@ -83,7 +85,8 @@ class StepchildMIDI{
     MIDI_STOP = 0xFC
   };
 
-  StepchildMIDI(){}
+  StepchildMIDI(){
+  }
   bool pushMessageToQueue(multicore_midi_message_t* message){
     if(queue_try_add(&multicoreBuffer,message)){
       queueIsFull = false;
@@ -117,6 +120,7 @@ class StepchildMIDI{
     MIDI3.turnThruOff();
     MIDI4.turnThruOff();
   }
+  
   //Control Change
   void sendCC(uint8_t controller, uint8_t val, uint8_t channel){
     //check if this is called from the slow core

@@ -11,10 +11,10 @@
 
 #ifdef HEADLESS
 #include "../headless/childOS_headless/headless.h"
+
 #else
 #include <Arduino.h>
 #include <Adafruit_TinyUSB.h>
-#include <MIDI.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
 
@@ -33,9 +33,9 @@ extern "C" {
 #undef CFG_TUH_RPI_PIO_USB
 #define CFG_TUH_RPI_PIO_USB 1
 
+
 #include "hardware.h"   //button/input reading functions
-#include "display.h"
-using namespace std;
+#include "display.h"  //working with the screen
 #include "StepchildMIDI.cpp"
 #endif
 

@@ -986,8 +986,6 @@ WireFrame makeLoopArrows(float angle){
     edges.push_back({uint16_t(offset+temp.size()-1),offset});
     verties.insert(verties.end(),temp.begin(),temp.end());
   }
-  // //Serial.println("trying");
-  // Serial.flush();
   WireFrame arrows = WireFrame(verties,edges);
   arrows.xPos = screenWidth/2;
   arrows.yPos = screenHeight/2;

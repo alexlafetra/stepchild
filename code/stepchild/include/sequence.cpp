@@ -1493,12 +1493,15 @@ void StepchildSequence::cutLoop(){
 
 //true if Stepchild is sending or receiving notes
 bool StepchildSequence::isReceiving(){
-for(uint8_t i = 0; i<this->trackData.size(); i++){
-  if(this->trackData[i].noteLastSent != 255)
+  if(receivedNotes.notes.size())
     return true;
+  for(uint8_t i = 0; i<this->trackData.size(); i++){
+    if(this->trackData[i].noteLastSent != 255)
+      return true;
+  }
+  return false;
 }
-return receivedNotes.notes.size();
-}
+
 bool StepchildSequence::isSending(){
   if(sentNotes.notes.size())
     return true;
@@ -1669,76 +1672,56 @@ return sqrt(pow(this->activeTrack - track,2)+pow(((abs(note.startPos-this->curso
 }
 
 void StepchildSequence::setCursorToNearestNote(){
-const float maxPossibleDist = this->sequenceLength*this->viewScale+this->trackData.size()*trackHeight;
-float minDist = maxPossibleDist;
-uint16_t minTrack = 0;
-uint16_t minNote = 0;
-for(int track = 0; track<this->noteData.size(); track++){
-  for(int note = 1; note<this->noteData[track].size(); note++){
-    // //Serial.println("checking n:"+stringify(note)+" t:"+stringify(track));
-    // Serial.flush();
-    float distance = getDistanceFromNoteToCursor(this->noteData[track][note],track);
-    if(distance<minDist){
-      minTrack = track;
-      minNote = note;
-      minDist = distance;
-      if(minDist == 0)
-        break;
+  const float maxPossibleDist = this->sequenceLength*this->viewScale+this->trackData.size()*trackHeight;
+  float minDist = maxPossibleDist;
+  uint16_t minTrack = 0;
+  uint16_t minNote = 0;
+  for(uint8_t track = 0; track<this->noteData.size(); track++){
+    for(uint16_t note = 1; note<this->noteData[track].size(); note++){
+      float distance = getDistanceFromNoteToCursor(this->noteData[track][note],track);
+      if(distance<minDist){
+        minTrack = track;
+        minNote = note;
+        minDist = distance;
+        if(minDist == 0)
+          break;
+      }
     }
+    if(minDist == 0)
+      break;
   }
-  if(minDist == 0)
-    break;
-}
-// //Serial.println("setting cursor...");
-// Serial.flush();
-if(minDist != maxPossibleDist){
-  setCursor((this->noteData[minTrack][minNote].startPos<this->cursorPos)?this->noteData[minTrack][minNote].startPos:this->noteData[minTrack][minNote].endPos-1);
-  setActiveTrack(minTrack,false);
-}
+
+  if(minDist != maxPossibleDist){
+    setCursor((this->noteData[minTrack][minNote].startPos<this->cursorPos)?this->noteData[minTrack][minNote].startPos:this->noteData[minTrack][minNote].endPos-1);
+    setActiveTrack(minTrack,false);
+  }
 }
 
 
 uint16_t StepchildSequence::getNoteCount(){
-uint16_t count = 0;
-for(uint8_t track = 0; track<this->noteData.size(); track++){
-  count+=this->noteData[track].size()-1;
-}
-return count;
-}
-
-float StepchildSequence::getNoteDensity(uint16_t timestep){
-float density = 0;
-for(int track = 0; track<this->trackData.size(); track++){
-  if(this->lookupTable[track][timestep] != 0){
-    density++;
+  uint16_t count = 0;
+  for(uint8_t track = 0; track<this->noteData.size(); track++){
+    count+=this->noteData[track].size()-1;
   }
-}
-return density/float(this->trackData.size());
-}
-float StepchildSequence::getNoteDensity(uint16_t start, uint16_t end){
-float density = 0;
-for(int i = start; i<= end; i++){
-  density+=getNoteDensity(i);
-}
-return density/float(end-start+1);
+  return count;
 }
 
 //counts notes within a range
 uint16_t StepchildSequence::countNotesInRange(uint16_t start, uint16_t end){
-uint16_t count = 0;
-for(uint8_t t = 0; t<this->trackData.size(); t++){
-  //if there are no notes, ignore it
-  if(this->noteData[t].size() == 1)
-    continue;
-  else{
-    //move over each note
-    for(uint16_t i = 1; i<this->noteData.size(); i++){
-      if(this->noteData[t][i].startPos>=start && this->noteData[t][i].startPos<end)
-        count++;
+  uint16_t count = 0;
+  for(uint8_t t = 0; t<this->trackData.size(); t++){
+    //if there are no notes, ignore it
+    if(this->noteData[t].size() == 1)
+      continue;
+    else{
+      //move over each note
+      for(uint16_t i = 1; i<this->noteData.size(); i++){
+        if(this->noteData[t][i].startPos>=start && this->noteData[t][i].startPos<end)
+          count++;
+      }
     }
   }
-}
-return count;
+  return count;
 }
 
 

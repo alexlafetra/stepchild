@@ -239,7 +239,6 @@ void screenSaver_prams(){
       prams.push_back(Raindrop(random(0,screenWidth),5,1));
     }
     display.clearDisplay();
-    display.drawBitmap(29,0,stepchild_fullscreen,76,64,1);
     vector<Raindrop> temp;
     for(uint8_t i = 0; i<prams.size(); i++){
       prams[i].render(carriage_bmp,14,15);
@@ -250,7 +249,6 @@ void screenSaver_prams(){
     }
     display.display();
     prams.swap(temp);
-    //Serial.println(prams.size());
 
     //checking if any buttons are pressed and breaking out of the loop if so
     if(controls.anyActiveInputs()){

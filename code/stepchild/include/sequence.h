@@ -345,8 +345,6 @@ class StepchildSequence{
   //checks for notes above or below a track
   bool areThereMoreNotes(bool above);
   uint16_t getNoteCount();
-  float getNoteDensity(uint16_t timestep);
-  float getNoteDensity(uint16_t start, uint16_t end);
   //counts notes within a range
   uint16_t countNotesInRange(uint16_t start, uint16_t end);
   bool playing();

@@ -248,7 +248,6 @@ String stepsToPosition(int steps,bool verby){
 }
 
 String stepsToMeasures(int32_t stepVal){
-  // //Serial.println("steps:"+stringify(stepVal));
   String text;
   uint16_t smallest = 0;
   uint16_t steps = stepVal;
