@@ -13,7 +13,7 @@ void StepchildSequence::stop(bool cleanRecording) {
 
   for(uint16_t track = 0; track<trackData.size(); track++){
     if(trackData[track].noteLastSent != 255){
-      MIDI.noteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
+      // MIDI.noteOff(trackData[track].noteLastSent, 0, trackData[track].channel);
       trackData[track].noteLastSent = 255;
       //reset superposition flags
       for(uint8_t i = 1; i<noteData[track].size(); i++){
@@ -21,6 +21,8 @@ void StepchildSequence::stop(bool cleanRecording) {
       }
     }
   }
+
+  MIDI.allOff();
   sentNotes.clear();
 }
 
@@ -1498,13 +1500,13 @@ for(uint8_t i = 0; i<this->trackData.size(); i++){
 return receivedNotes.notes.size();
 }
 bool StepchildSequence::isSending(){
-if(sentNotes.notes.size())
-  return true;
-for(uint8_t i = 0; i<this->trackData.size(); i++){
-  if(this->trackData[i].noteLastSent != 255)
+  if(sentNotes.notes.size())
     return true;
-}
-return false;
+  for(uint8_t i = 0; i<this->trackData.size(); i++){
+    if(this->trackData[i].noteLastSent != 255)
+      return true;
+  }
+  return false;
 }
 
 bool StepchildSequence::isReceivingOrSending(){

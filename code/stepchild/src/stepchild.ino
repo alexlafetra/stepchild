@@ -116,7 +116,7 @@ void loop(){
   sequenceState = PlayState(sequence.playState);
   #endif
   ledPulse(16);
-  // MIDI.processCore1Messages();
+  MIDI.processCore1Messages();
   MIDI.read();
   switch(sequence.playState){
     case PLAYING:

@@ -679,18 +679,7 @@ const unsigned char toploop_arrow2 []  = {
 const unsigned char oneshot_arrow []  = {
 	0x20, 0x57, 0x53, 0x55, 0x54, 0x94, 0x08
 };
-// 'play_oneshot1', 8x7px
-const unsigned char oneshot1 []  = {
-	0x40, 0xa7, 0xa3, 0xa5, 0xa4, 0x98, 0x00
-};
-// 'play_oneshot2', 8x7px
-const unsigned char oneshot2 []  = {
-	0x20, 0x57, 0x53, 0x55, 0x54, 0x94, 0x08
-};
-// 'play_oneshot3', 8x7px
-const unsigned char oneshot3 []  = {
-	0x10, 0x2f, 0x2b, 0x2d, 0xcc, 0x04, 0x00
-};
+
 
 // 'one_shot_rec', 7x7px
 const unsigned char oneShot_rec []  = {
@@ -773,7 +762,7 @@ const unsigned char overwrite_2 [] = {
 };
 
 // 'oneshot', 3x5px
-const unsigned char oneshot_bmp [] = {
+const unsigned char caution_bmp [] = {
 	0x40, 0x80, 0x20, 0x80, 0x40
 };
 

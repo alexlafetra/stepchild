@@ -66,6 +66,8 @@ class StepchildMIDI{
   uint16_t midiChannelFilters[5] = {0b1111111111111111,0b1111111111111111,0b1111111111111111,0b1111111111111111,0b1111111111111111};
   uint8_t midiMuteSettings = 0b00000000;
   queue_t multicoreBuffer;
+  bool queueIsFull = false;
+
   enum MULTICORE_MIDI_MESSAGE:unsigned short int{
     //channel messages
     NOTE_OFF = 0x80,
@@ -81,15 +83,22 @@ class StepchildMIDI{
     MIDI_STOP = 0xFC
   };
 
-  StepchildMIDI(){
-    //initialize the multicore buffer queue
-    queue_init(&multicoreBuffer, sizeof(multicore_midi_message_t), MULTICORE_MIDI_BUFFER_SIZE);
-  }
+  StepchildMIDI(){}
   bool pushMessageToQueue(multicore_midi_message_t* message){
-    // return queue_try_add(&multicoreBuffer,message);
+    if(queue_try_add(&multicoreBuffer,message)){
+      queueIsFull = false;
+      return true;
+    }
+    //set the 'full' flag if the buffer is full
+    else if(queue_is_full(&multicoreBuffer)){
+      queueIsFull = true;
+    }
     return false;
   }
   void init(){
+    //initialize the multicore buffer queue
+    queue_init(&multicoreBuffer, sizeof(multicore_midi_message_t), MULTICORE_MIDI_BUFFER_SIZE);
+
     //setting MIDI serial ports to non-default pins so they don't conflict
     //with other stepchild features
     Serial1.setRX(MIDI_IN);
@@ -110,6 +119,15 @@ class StepchildMIDI{
   }
   //Control Change
   void sendCC(uint8_t controller, uint8_t val, uint8_t channel){
+    //check if this is called from the slow core
+    if(get_core_num() == 1){
+      multicore_midi_message_t message;
+      message.data[0] = NOTE_ON | channel;
+      message.data[1] = controller;
+      message.data[2] = val;
+      pushMessageToQueue(&message);
+      return;
+    }
     if(this->isChannelActive(channel, 0))
       MIDI0.sendControlChange(controller, val, channel);
     if(this->isChannelActive(channel, 1))
@@ -123,6 +141,15 @@ class StepchildMIDI{
   }
   //Program Change
   void sendPC(uint8_t port, uint8_t val, uint8_t channel){
+    //check if this is called from the slow core
+    if(get_core_num() == 1){
+      multicore_midi_message_t message;
+      message.data[0] = NOTE_ON | channel;
+      message.data[1] = port;
+      message.data[2] = val;
+      pushMessageToQueue(&message);
+      return;
+    }
     switch(port){
       case 0:
           MIDI0.sendProgramChange(val,channel);
@@ -148,8 +175,7 @@ class StepchildMIDI{
       message.data[0] = NOTE_ON | channel;
       message.data[1] = pitch;
       message.data[2] = vel;
-      if(!pushMessageToQueue(&message)){
-      }
+      pushMessageToQueue(&message);
       return;
     }
 
@@ -171,8 +197,7 @@ class StepchildMIDI{
       message.data[0] = NOTE_OFF | channel;
       message.data[1] = pitch;
       message.data[2] = vel;
-      if(!pushMessageToQueue(&message)){
-      }
+      pushMessageToQueue(&message);
       return;
     }
 
@@ -191,20 +216,29 @@ class StepchildMIDI{
     //check if this is called from the slow core
     if(get_core_num() == 1){
       multicore_midi_message_t message;
-      message.data[0] = CONTROL_CHANGE | MIDI_CHANNEL_OMNI;
+      message.data[0] = CONTROL_CHANGE;
       message.data[1] = ALL_OFF;
-      message.data[2] = 0;
-      if(!pushMessageToQueue(&message)){
-      }
+      message.data[2] = 1;
+      pushMessageToQueue(&message);
       return;
     }
-    MIDI0.sendControlChange(midi::AllSoundOff,0,MIDI_CHANNEL_OMNI);
-    MIDI1.sendControlChange(midi::AllSoundOff,0,MIDI_CHANNEL_OMNI);
-    MIDI2.sendControlChange(midi::AllSoundOff,0,MIDI_CHANNEL_OMNI);
-    MIDI3.sendControlChange(midi::AllSoundOff,0,MIDI_CHANNEL_OMNI);
-    MIDI4.sendControlChange(midi::AllSoundOff,0,MIDI_CHANNEL_OMNI);
+    //send allOff on all channels (this is at most 16x5 = 80 messages sent asap... is this a good idea?)
+    for(uint8_t i = 1; i<=16; i++){
+      MIDI0.sendControlChange(midi::AllSoundOff,0,i);
+      MIDI1.sendControlChange(midi::AllSoundOff,0,i);
+      MIDI2.sendControlChange(midi::AllSoundOff,0,i);
+      MIDI3.sendControlChange(midi::AllSoundOff,0,i);
+      MIDI4.sendControlChange(midi::AllSoundOff,0,i);
+    }
   }
   void sendClock(){
+    //check if this is called from the slow core
+    if(get_core_num() == 1){
+      multicore_midi_message_t message;
+      message.data[0] = MIDI_CLOCK;
+      pushMessageToQueue(&message);
+      return;
+    }
     MIDI0.sendRealTime(midi::Clock);
     MIDI1.sendRealTime(midi::Clock);
     MIDI2.sendRealTime(midi::Clock);
@@ -212,6 +246,13 @@ class StepchildMIDI{
     MIDI4.sendRealTime(midi::Clock);
   }
   void sendStop(){
+    //check if this is called from the slow core
+    if(get_core_num() == 1){
+      multicore_midi_message_t message;
+      message.data[0] = MIDI_STOP;
+      pushMessageToQueue(&message);
+      return;
+    }
     MIDI0.sendRealTime(midi::Stop);
     MIDI1.sendRealTime(midi::Stop);
     MIDI2.sendRealTime(midi::Stop);
@@ -219,6 +260,13 @@ class StepchildMIDI{
     MIDI4.sendRealTime(midi::Stop);
   }
   void sendStart(){
+      //check if this is called from the slow core
+    if(get_core_num() == 1){
+      multicore_midi_message_t message;
+      message.data[0] = MIDI_START;
+      pushMessageToQueue(&message);
+      return;
+    }
     MIDI0.sendRealTime(midi::Start);
     MIDI1.sendRealTime(midi::Start);
     MIDI2.sendRealTime(midi::Start);
@@ -226,14 +274,6 @@ class StepchildMIDI{
     MIDI4.sendRealTime(midi::Start);
   }
   //function that gets called from core0 to send out midi data generated by core1
-
-  /*
-  u get:
-  0b10010001
-  u need:
-  0b10010001
-  
-  */
   void processCore1Messages(){
     //if there are messages in the buffer
     while(!queue_is_empty(&multicoreBuffer)){
@@ -265,7 +305,11 @@ class StepchildMIDI{
           noteOn(pitch,vel,channel);
           break;
         case CONTROL_CHANGE:
-          sendCC(pitch,vel,channel);
+          if(pitch == ALL_OFF){
+            allOff();
+          }
+          else
+            sendCC(pitch,vel,channel);
           break;
         case PROGRAM_CHANGE:
           //this one's a little different, and uses port,value,channel, so pitch == port

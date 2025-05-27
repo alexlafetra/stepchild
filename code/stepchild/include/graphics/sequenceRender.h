@@ -260,11 +260,10 @@ void drawTopIcons(SequenceRenderSettings& settings){
     switch(sequence.recMode){
       //if one-shot rec
       case ONESHOT:
-        // display.drawBitmap(x1+((millis()/200)%2),0,oneShot_rec,7,7,SSD1306_WHITE);
         printSmall(x1,1,"1",1);
         x1+=4;
         if((millis()/10)%100>50)
-          display.drawBitmap(x1,1,oneshot_bmp,3,5,SSD1306_WHITE);
+          display.drawBitmap(x1,1,caution_bmp,3,5,SSD1306_WHITE);
         x1+=4;
         break;
       //if continuous recording
@@ -283,6 +282,11 @@ void drawTopIcons(SequenceRenderSettings& settings){
   else if(sequence.playing()){
     graphics.drawPlayIcon(trackDisplay+((millis()/200)%2)+1,0);
     x1 += 10;
+  }
+  //draw a caution sign if the queue is overloaded
+  if(MIDI.queueIsFull){
+    display.drawBitmap(x1,1,caution_bmp,3,5,SSD1306_WHITE);
+    x1+=4;
   }
   //Data track icon
   if(sequence.autotrackData.size()>0){

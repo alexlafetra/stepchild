@@ -290,7 +290,6 @@ class StepchildHardware{
   //Reads in the main button values to the controls.mainButtonState variable
   void readMainButtons(){
     this->mainButtonState = ~this->mainButtons.read();
-    Serial.println(mainButtonState,BIN);
   }
   //calls the LowerBoard's read function, which in turn updates the LowerBoard's buttonState var
   void readStepButtons(){
