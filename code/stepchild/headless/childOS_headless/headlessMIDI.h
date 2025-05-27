@@ -41,6 +41,14 @@ void handleNoteOn_Recording(uint8_t channel, uint8_t note, uint8_t velocity);
 void handleNoteOff_Recording(uint8_t channel, uint8_t note, uint8_t velocity);
 void handleCC_Recording(uint8_t channel, uint8_t cc, uint8_t value);
 
+enum MIDI_MESSAGE_TYPE:uint8_t{
+  NONE = 0,
+  NOTE_OFF = 8,
+  NOTE_ON = 9,
+  CC_MESSAGE = 11,
+  REAL_TIME_MESSAGE = 15
+};
+
 void MidiInputCallback( double deltatime, vector< unsigned char > *message, void *userData ){
     #ifdef MIDI_DEBUG
     //debug printing the message bytes out
@@ -51,15 +59,14 @@ void MidiInputCallback( double deltatime, vector< unsigned char > *message, void
     #endif
     //get the message
     uint8_t size = message->size();
-    uint8_t type = 0;
+    MIDI_MESSAGE_TYPE type = NONE;
     uint8_t channel = 0;
     uint8_t pitch = 0;
     uint8_t velocity = 0;
     if(size>0){
         type = (message->at(0))>>4;//dropping the last 4 bits to get the message type
-        channel = (message->at(0))&15;//masking off the first 8 bits to get the channel number
-        //add 1 to the channel number to make it consistent with the hardware midi API
-        channel++;
+        channel = ((message->at(0))&15)+1;//masking off the first 8 bits to get the channel number
+        //and add 1 to make it consistent with the hardware midi API
     }
     if(size>1)
         pitch = message->at(1);
@@ -76,19 +83,19 @@ void MidiInputCallback( double deltatime, vector< unsigned char > *message, void
     if(sequenceState == PLAYING){
         switch(type){
             //note off -- 1000
-            case 8:
+            case NOTE_OFF:
                 handleNoteOff_Normal(channel, pitch, velocity);
                 break;
             //note on -- 1001
-            case 9:
+            case NOTE_ON:
                 handleNoteOn_Normal(channel, pitch, velocity);
                 break;
             //CC messages -- 1011
-            case 11:
+            case CC_MESSAGE:
                 handleCC_Normal(channel,pitch,velocity);
                 break;
             //Real-Time message -- type will be 1111
-            case 15:
+            case REAL_TIME_MESSAGE:
                 switch(channel){
                     //clock -- 1000
                     case 8:
@@ -110,19 +117,19 @@ void MidiInputCallback( double deltatime, vector< unsigned char > *message, void
     else if(sequenceState == RECORDING){
         switch(type){
             //note off
-            case 8:
+            case NOTE_OFF:
                 handleNoteOff_Recording(channel, pitch, velocity);
                 break;
             //note on
-            case 9:
+            case NOTE_ON:
                 handleNoteOn_Recording(channel, pitch, velocity);
                 break;
             //CC messages
-            case 11:
+            case CC_MESSAGE:
                 handleCC_Recording(channel,pitch,velocity);
                 break;
             //Real-Time message -- type will be 1111
-            case 15:
+            case REAL_TIME_MESSAGE:
                 switch(channel){
                     //clock -- 1000
                     case 8:
@@ -143,28 +150,28 @@ void MidiInputCallback( double deltatime, vector< unsigned char > *message, void
     else{
         switch(type){
                 //note off
-            case 8:
+            case NOTE_OFF:
                 handleNoteOff_Normal(channel, pitch, velocity);
                 break;
                 //note on
-            case 9:
+            case NOTE_ON:
                 handleNoteOn_Normal(channel, pitch, velocity);
                 break;
                 //CC messages
-            case 11:
+            case CC_MESSAGE:
                 handleCC_Normal(channel, pitch, velocity);
                 break;
                 //Real-Time message -- type will be 1111
-            case 15:
+            case REAL_TIME_MESSAGE:
                 switch(channel){
-                        //clock -- 1000
+                    //clock -- 1000
                     case 8:
                         break;
-                        //start -- 1010
+                    //start -- 1010
                     case 10:
                         handleStart_Normal();
                         break;
-                        //stop -- 1100
+                    //stop -- 1100
                     case 12:
                         handleStop_Normal();
                         break;

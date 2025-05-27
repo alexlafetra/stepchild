@@ -20,9 +20,6 @@ void StepchildSequence::stop(bool cleanRecording) {
         noteData[track][i].setSuperpositioned(false);
       }
     }
-    // else{
-    //   MIDI.noteOff(trackData[track].pitch,0,trackData[track].channel);
-    // }
   }
   sentNotes.clear();
 }

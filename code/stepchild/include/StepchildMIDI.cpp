@@ -1,3 +1,7 @@
+//from the pico sdk
+extern "C" {
+#include "pico/util/queue.h"
+}
 /*
 
 Stepchild MIDI class!
@@ -36,10 +40,24 @@ MIDI_CREATE_CUSTOM_INSTANCE(SoftwareSerial, Serial3, MIDI3, StepchildMIDISetting
 MIDI_CREATE_CUSTOM_INSTANCE(SoftwareSerial, Serial4, MIDI4, StepchildMIDISettings);
 
 //at some point, create a template class that can store all the MIDI objects
-class BasicMidiObject{
-  public:
-    virtual ~BasicMidiObject() = default;
-};
+
+/*
+
+multicore midi buffer using the queue object provided by the pico sdk to pass midi messages from core 1 into core 0
+This is an experiment to see if it helps prevent tUSB disconnects!
+
+you should have a way of handling each of the possible messages
+
+good resource for the midi spec:
+https://users.cs.cf.ac.uk/dave/Multimedia/node158.html#:~:text=MIDI%20message%20includes%20a%20status%20byte%20and%20up%20to%20two%20data%20bytes.&text=The%20most%20significant%20bit%20of,remaining%20bits%20identify%20the%20message.
+
+*/
+
+typedef struct {
+    uint8_t data[3];//holds the 3 data bytes of the midi message
+} multicore_midi_message_t;
+
+#define MULTICORE_MIDI_BUFFER_SIZE 16
 
 class StepchildMIDI{
   public:
@@ -47,9 +65,31 @@ class StepchildMIDI{
   //channels are 1-16, with 0 indicating global channel
   uint16_t midiChannelFilters[5] = {0b1111111111111111,0b1111111111111111,0b1111111111111111,0b1111111111111111,0b1111111111111111};
   uint8_t midiMuteSettings = 0b00000000;
+  queue_t multicoreBuffer;
+  enum MULTICORE_MIDI_MESSAGE:unsigned short int{
+    //channel messages
+    NOTE_OFF = 0x80,
+    NOTE_ON = 0x90,
+    CONTROL_CHANGE = 0xB0,
+    PROGRAM_CHANGE = 0xC0,
+    PITCH_BEND = 0xE0,
+    ALL_OFF = 0x7B, //not actually a status byte, it's the 1st data byte of a CC message
+    //system messages
+    MIDI_CLOCK = 0xF8,
+    MIDI_START = 0xFA,
+    MIDI_CONTINUE = 0xFB,
+    MIDI_STOP = 0xFC
+  };
+
   StepchildMIDI(){
+    //initialize the multicore buffer queue
+    queue_init(&multicoreBuffer, sizeof(multicore_midi_message_t), MULTICORE_MIDI_BUFFER_SIZE);
   }
-  void start(){
+  bool pushMessageToQueue(multicore_midi_message_t* message){
+    // return queue_try_add(&multicoreBuffer,message);
+    return false;
+  }
+  void init(){
     //setting MIDI serial ports to non-default pins so they don't conflict
     //with other stepchild features
     Serial1.setRX(MIDI_IN);
@@ -102,6 +142,17 @@ class StepchildMIDI{
     }
   }
   void noteOn(uint8_t pitch, uint8_t vel, uint8_t channel){
+    //check if this is called from the slow core
+    if(get_core_num() == 1){
+      multicore_midi_message_t message;
+      message.data[0] = NOTE_ON | channel;
+      message.data[1] = pitch;
+      message.data[2] = vel;
+      if(!pushMessageToQueue(&message)){
+      }
+      return;
+    }
+
     if(this->isChannelActive(channel, 0))
       MIDI0.sendNoteOn(pitch,vel,channel);
     if(this->isChannelActive(channel, 1))
@@ -114,6 +165,17 @@ class StepchildMIDI{
       MIDI4.sendNoteOn(pitch, vel, channel);
   }
   void noteOff(uint8_t pitch, uint8_t vel, uint8_t channel){
+    //check if this is called from the slow core
+    if(get_core_num() == 1){
+      multicore_midi_message_t message;
+      message.data[0] = NOTE_OFF | channel;
+      message.data[1] = pitch;
+      message.data[2] = vel;
+      if(!pushMessageToQueue(&message)){
+      }
+      return;
+    }
+
     if(this->isChannelActive(channel, 0))
       MIDI0.sendNoteOff(pitch,vel,channel);
     if(this->isChannelActive(channel, 1))
@@ -126,15 +188,21 @@ class StepchildMIDI{
       MIDI4.sendNoteOff(pitch, vel, channel);
   }
   void allOff(){
-    MIDI0.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
-    MIDI1.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
-    MIDI2.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
-    MIDI3.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
-    MIDI4.sendControlChange(midi::AllSoundOff,1,MIDI_CHANNEL_OMNI);
-  }
-  void read(){
-    MIDI0.read();
-    MIDI1.read();
+    //check if this is called from the slow core
+    if(get_core_num() == 1){
+      multicore_midi_message_t message;
+      message.data[0] = CONTROL_CHANGE | MIDI_CHANNEL_OMNI;
+      message.data[1] = ALL_OFF;
+      message.data[2] = 0;
+      if(!pushMessageToQueue(&message)){
+      }
+      return;
+    }
+    MIDI0.sendControlChange(midi::AllSoundOff,0,MIDI_CHANNEL_OMNI);
+    MIDI1.sendControlChange(midi::AllSoundOff,0,MIDI_CHANNEL_OMNI);
+    MIDI2.sendControlChange(midi::AllSoundOff,0,MIDI_CHANNEL_OMNI);
+    MIDI3.sendControlChange(midi::AllSoundOff,0,MIDI_CHANNEL_OMNI);
+    MIDI4.sendControlChange(midi::AllSoundOff,0,MIDI_CHANNEL_OMNI);
   }
   void sendClock(){
     MIDI0.sendRealTime(midi::Clock);
@@ -156,6 +224,71 @@ class StepchildMIDI{
     MIDI2.sendRealTime(midi::Start);
     MIDI3.sendRealTime(midi::Start);
     MIDI4.sendRealTime(midi::Start);
+  }
+  //function that gets called from core0 to send out midi data generated by core1
+
+  /*
+  u get:
+  0b10010001
+  u need:
+  0b10010001
+  
+  */
+  void processCore1Messages(){
+    //if there are messages in the buffer
+    while(!queue_is_empty(&multicoreBuffer)){
+
+      multicore_midi_message_t message;
+
+      //try to read out a val
+      if(!queue_try_remove(&multicoreBuffer,&message)){
+        break;
+      }
+      //if the first 8 bits are set, it's a system message
+      MULTICORE_MIDI_MESSAGE type;
+      if((message.data[0]&0xF0) == 0xF0){
+        type = static_cast<MULTICORE_MIDI_MESSAGE>(message.data[0]);//grab the whole thing
+      }
+      else{
+        //if not, then it's a channel message (like note on/off)
+        type = static_cast<MULTICORE_MIDI_MESSAGE>(message.data[0]&0xF0);//just grab the first 4 bits
+      }
+      uint8_t channel = message.data[0] & 0x0F;//just grab the last four bits
+      uint8_t pitch = message.data[1];
+      uint8_t vel = message.data[2];
+
+      switch(type){
+        case NOTE_OFF:
+          noteOff(pitch,vel,channel);
+          break;
+        case NOTE_ON:
+          noteOn(pitch,vel,channel);
+          break;
+        case CONTROL_CHANGE:
+          sendCC(pitch,vel,channel);
+          break;
+        case PROGRAM_CHANGE:
+          //this one's a little different, and uses port,value,channel, so pitch == port
+          sendPC(pitch,vel,channel);
+          break;
+        //not implemented yet, not sure if stepchild will support this
+        case PITCH_BEND:
+          break;
+        case MIDI_CLOCK:
+          sendClock();
+          break;
+        case MIDI_START:
+          sendStart();
+          break;
+        case MIDI_STOP:
+          sendStop();
+          break;
+      }
+    }
+  }
+  void read(){
+    MIDI0.read();
+    MIDI1.read();
   }
   bool isThru(uint8_t output){
     switch(output){
@@ -279,17 +412,6 @@ class StepchildMIDI{
       this->setMidiChannel(i+1,which,isActive);
     }
   }
-  #ifdef HEADLESS
-  void sendThruOn(uint8_t c, uint8_t n, uint8_t v){
-    return;
-  }
-  void sendThruOff(uint8_t c, uint8_t n){
-    return;
-  }
-  void sendThruCC(uint8_t ch, uint8_t cc, uint8_t val){
-    return;
-  }
-  #else
   void sendThruOn(uint8_t channel, uint8_t note, uint8_t vel){
     //if it's a valid thru & channel
     if(isThru(0) && isChannelActive(channel, 0)){
@@ -362,7 +484,6 @@ class StepchildMIDI{
       MIDI4.sendPitchBend(val, ch);
     }
   }
-  #endif
 };
 
 //instance that the stepchild's code uses

@@ -27,6 +27,7 @@ extern "C" {
 #include "pico.h"
 #include "pico/time.h"
 #include "pico/bootrom.h"
+#include "pico/util/queue.h"
 }
 
 #undef CFG_TUH_RPI_PIO_USB
@@ -35,7 +36,7 @@ extern "C" {
 #include "hardware.h"   //button/input reading functions
 #include "display.h"
 using namespace std;
-#include "StepchildMIDI.h"
+#include "StepchildMIDI.cpp"
 #endif
 
 using namespace std;

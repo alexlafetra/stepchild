@@ -8,7 +8,7 @@
 #include "ChildOS.h"
 
 void headlessSetup(){
-  MIDI.start();
+  MIDI.init();
   //setting up the pinouts and the lower board
   controls.init();
   //seeding random number generator
@@ -30,11 +30,47 @@ void headlessSetup(){
   graphics.bootscreen_3();
 }
 #ifndef HEADLESS
-//CPU 0 setup
+
+//CPU 1 setup
+void setup1() {
+  while(!core0ready){
+  }
+
+  //setting up the pinouts and the lower board
+  controls.init();
+
+
+  //seeding random number generator
+  srand(1);
+  //load settings
+  loadSettings();
+
+  //setting up sequence w/ 16 tracks, 768 steps
+  sequence.init(SP404MK2_TEMPLATE);
+
+  //set the control knobs up w/ default values
+  for(uint8_t i = 0; i<16; i++){
+    controlKnobs[i].cc = i+1;
+  }
+
+  //start display
+  display.init();
+  graphics.bootscreen_3();
+
+  core1ready = true;
+  lastTime = millis();
+}
+#endif
+
+void loop1() {
+  mainSequence();
+  screenSaverCheck();
+}
+
+//CPU 0 Setup
 void setup() {
-  
   //setup MIDI ports/IO
-  MIDI.start();
+  MIDI.init();
 
   //starting serial monitor output @ 9600baud for USB communication
   Serial.begin(9600);
@@ -57,14 +93,8 @@ void setup() {
   SPI1.setSCK(SPI1_SCK);
   SPI1.begin();
 
-  //start display
-  display.init();
-
   //setup CV pins, frequency
   CV.init();
-
-  //setting up the pinouts and the lower board
-  controls.init();
 
   //wait for tinyUSB to connect, if the USB port is connected (not sure if this is necessary, need to test)
   if(tud_connected()){
@@ -73,64 +103,20 @@ void setup() {
     }
   }
 
-  //seeding random number generator
-  srand(1);
-  //load settings
-  loadSettings();
-
-  //setting up sequence w/ 16 tracks, 768 steps
-  sequence.init(SP404MK2_TEMPLATE);
-
-  //set the control knobs up w/ default values
-  for(uint8_t i = 0; i<16; i++){
-    controlKnobs[i].cc = i+1;
-  }
-
+  //core 0 can start now
   core0ready = true;
-  lastTime = millis();
-  graphics.bootscreen_3();
-}
-#endif
 
-//CPU 1 Setup
-void setup1() {
-  core1ready = true;
   //wait for core0 to initialize the sequence
-  while(!core0ready){
+  while(!core1ready){
   }
 }
-
-void testCV(){
-  uint16_t TESTVAL = 65535;
-  uint16_t gateVal = 0;
-  while(true){
-    analogWrite(CV1_PIN,TESTVAL);
-    analogWrite(CV2_PIN,TESTVAL);
-    analogWrite(CV3_PIN,TESTVAL);
-    TESTVAL++;
-    TESTVAL%=PWM_MAX_VAL;
-    // delayMicroseconds(10);
-    if(utils.itsbeen(100)){
-      lastTime = millis();
-      gateVal = 65535-gateVal;
-    }
-    display.clearDisplay();
-    printSmall(0,0,stringify(TESTVAL),1);
-    display.display();
-  }
-}
-
-void loop() {
-  mainSequence();
-  screenSaverCheck();
-}
-
 //this cpu handles time-sensitive things
-void loop1(){
+void loop(){
   #ifdef HEADLESS
   sequenceState = PlayState(sequence.playState);
   #endif
   ledPulse(16);
+  // MIDI.processCore1Messages();
   MIDI.read();
   switch(sequence.playState){
     case PLAYING:

@@ -276,6 +276,7 @@ class StepchildHardware{
     attachInterrupt(A_DATA,rotaryActionA_Handler, CHANGE);
     attachInterrupt(B_CLOCK,rotaryActionB_Handler, CHANGE);
     attachInterrupt(B_DATA,rotaryActionB_Handler, CHANGE);
+
     this->lowerBoard.initialize();
     this->turnOffLEDs();
   }
@@ -289,6 +290,7 @@ class StepchildHardware{
   //Reads in the main button values to the controls.mainButtonState variable
   void readMainButtons(){
     this->mainButtonState = ~this->mainButtons.read();
+    Serial.println(mainButtonState,BIN);
   }
   //calls the LowerBoard's read function, which in turn updates the LowerBoard's buttonState var
   void readStepButtons(){
