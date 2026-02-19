@@ -568,3 +568,11 @@ vector<NoteID> crunchNoteIDsForDeletion(vector<NoteID> targetNoteIDs){
   }
   return targetNoteIDs;
 }
+
+bool contains(vector<uint8_t> vec, uint8_t val){
+  for(uint8_t i = 0; i<vec.size(); i++){
+    if(vec[i] == val)
+      return true;
+  }
+  return false;
+}

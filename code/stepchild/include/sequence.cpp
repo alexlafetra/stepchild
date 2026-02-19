@@ -1442,7 +1442,7 @@ void StepchildSequence::nextLoop(){
               if(this->recording())
                   recheadPos = this->loopData[this->activeLoop].start;
               break;}
-          case RANDOM_SAME:{
+          case RANDOM_SAME_LENGTH:{
               //move to next loop
               if(this->activeLoop < this->loopData.size()-1)
                   this->activeLoop++;

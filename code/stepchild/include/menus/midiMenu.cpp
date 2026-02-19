@@ -53,8 +53,8 @@ class MidiMenu:public StepchildMenu{
       icon = makeMIDI();
       icon.rotate(-20,0);
       icon.scale = 2;
-      icon.xPos = 12;
-      icon.yPos = 8;
+      icon.offset.x = 12;
+      icon.offset.y = 8;
       settings.topLabels = false;
       settings.drawPram = false;
       settings.stepSequencerLEDs = false;

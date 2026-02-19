@@ -666,9 +666,6 @@ void drawSeq(SequenceRenderSettings& settings){
       cursorX = 42;
   }
 
-  //anim offset (for the pram)
-
-  animOffset = (animOffset+1)%100;
 
   //it's ok to call this in here bc the LB checks to make sure it doesn't redundantly write
   if(settings.stepSequencerLEDs)

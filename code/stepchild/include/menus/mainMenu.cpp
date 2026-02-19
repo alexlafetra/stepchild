@@ -10,8 +10,8 @@ class MainMenu:public StepchildMenu{
     MainMenu(){
       coords = CoordinatePair(25,1,93,64);
       icon = makeGraphBox(5);
-      icon.xPos = 112;
-      icon.yPos = 16;
+      icon.offset.x = 112;
+      icon.offset.y = 16;
       graphAnimation(&icon);
       settings.trackLabels = true;
       settings.topLabels = false;
@@ -52,6 +52,8 @@ void MainMenu::updateMainMenuWireFrame(){
     //liveloop
     case 5:
       icon = makeCassette();
+      icon.rotate(30,0);
+      icon.rotate(15,2);
       break;
     //rec
     case 6:
@@ -80,11 +82,11 @@ void MainMenu::updateMainMenuWireFrame(){
       icon = makeArpBoxes(millis());
       break;
   }
-  icon.xPos = 112;
+  icon.offset.x = 112;
   if(cursor == 7)
-    icon.yPos = 11;
+    icon.offset.y = 11;
   else
-    icon.yPos = 16;
+    icon.offset.y = 16;
   wireFrameID = cursor;
 }
 
@@ -102,8 +104,8 @@ void MainMenu::animateMainMenuWireFrame(){
       //cute idea to pause the loop icon, but you're never not looping!
       // if(sequence.isLooping)
       icon = makeMobius(float(millis())/800.0);
-      icon.xPos = 112;
-      icon.yPos = 16;
+      icon.offset.x = 112;
+      icon.offset.y = 16;
       icon.rotate(float(millis())/50.0,0);
       icon.rotate(-float(millis())/75.0,1);
       break;
@@ -138,14 +140,14 @@ void MainMenu::animateMainMenuWireFrame(){
     //clock
     case 10:
       metAnimation(&icon);
-      icon.yPos = 16 + 2.0*sin(float(millis())/400);
+      icon.offset.y = 16 + 2.0*sin(float(millis())/400);
       icon.setRotation(20.0*sin(float(millis())/400.0),1);
       break;
     //arp
     case 11:
       icon = makeArpBoxes(millis()/1.5);
-      icon.yPos = 16;
-      icon.xPos = 112;
+      icon.offset.y = 16;
+      icon.offset.x = 112;
       break;
   }
 }

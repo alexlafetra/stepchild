@@ -3,6 +3,16 @@
                 Pi Pico
 ----------------------------------------
 */
+
+long getMemoryUsage()
+{
+  struct rusage usage;
+  if(0 == getrusage(RUSAGE_SELF, &usage))
+    return usage.ru_maxrss; // bytes
+  else
+    return 0;
+}
+
 //dummy class for faking the rp2040 methods
 class DummyRP2040{
     public:

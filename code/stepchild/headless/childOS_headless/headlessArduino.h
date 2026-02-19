@@ -78,15 +78,6 @@ int constrain(int target, int lower, int upper){
     }
     else return target;
 }
-long getMemoryUsage()
-{
-  struct rusage usage;
-  if(0 == getrusage(RUSAGE_SELF, &usage))
-    return usage.ru_maxrss; // bytes
-  else
-    return 0;
-}
-
 
 /*
 ----------------------------------------

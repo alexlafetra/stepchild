@@ -369,6 +369,7 @@
 		FAA06B0729942479004BEC01 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		FAA06B0B29943B71004BEC01 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fonts; sourceTree = "<group>"; };
 		FAA06B0D29943BC6004BEC01 /* main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = main.cpp; sourceTree = "<group>"; };
+		FAB642662DEC4B8E003EFC69 /* headless.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headless.h; sourceTree = "<group>"; };
 		FAB6ECBA2AB2340500A32AD2 /* headlessDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = headlessDisplay.h; sourceTree = "<group>"; };
 		FAC12CDF2C1A06E20099C357 /* headlessControls.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headlessControls.h; sourceTree = "<group>"; };
 		FADB2D3C2CBDC118000F9981 /* libglfw.3.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.4.dylib; path = childOS_headless/libglfw.3.4.dylib; sourceTree = "<group>"; };
@@ -1233,6 +1234,7 @@
 			children = (
 				FAA06B0B29943B71004BEC01 /* Fonts */,
 				FAC12CDF2C1A06E20099C357 /* headlessControls.h */,
+				FAB642662DEC4B8E003EFC69 /* headless.h */,
 				FA12D85B2CC05FAE00031637 /* headlessArduino.h */,
 				FA0A413D2AD5252500013622 /* headlessFileSystem.h */,
 				FA12D85A2CC05F5800031637 /* headlessPico.h */,

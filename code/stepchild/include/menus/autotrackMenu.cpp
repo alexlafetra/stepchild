@@ -798,8 +798,6 @@ void drawAutotrackEditor(uint8_t y,uint8_t interpType,bool translation, bool set
       drawNodeEditingIcon(12,14,interpType,millis()/50,true);
     else
       drawCurveIcon(12,14,sequence.autotrackData[whichAutotrack].type,millis()/50);
-    animOffset++;
-    animOffset%=18;
 
     //menu info
     if(controls.SHIFT()){
@@ -1157,6 +1155,30 @@ class AutotrackMenu:public StepchildMenu{
       }
       return true;
     }
+    String getHelpText(){
+      if(popupMenuActive){
+        switch(popupCursor){
+          //cc
+          case 0: return "edit the CC val sent";
+          //ch
+          case 1: return "edit the channel data is sent on";
+          //primed
+          case 2: return "whether or not the track will be written to while recording";
+          //on/off
+          case 3: return "whether or not the track sends data";
+          //edit
+          case 4: return "edit track data/curve";
+          //apply
+          case 5: return "apply data to notes in sequence";
+          //set trigger
+          case 6: return "link track to note trigger";
+          default: return "";
+        }
+      }
+      else{
+        return "viewing track "+stringify(cursor);
+      }
+    }
     void displayMenu(bool clearDisplay){
       const uint8_t width = 24;
       const uint8_t height = 7;
@@ -1179,6 +1201,9 @@ class AutotrackMenu:public StepchildMenu{
       }
       // printCursive(coords.start.x+coords.start.y+25,0,"automation tracks",1);
       drawRobotSprite(coords.start.x+101,coords.start.y+40,cursor);
+      // display.drawBitmap(coords.start.x+109,coords.start.y+8,autobot_speech_bubble_bmp,18,22,1);
+      // display.fillRect(coords.start.x+102,coords.start.y+9,16,20,0);
+      // printSmall_overflow(coords.start.x+102,coords.start.y+9,5,getHelpText(),1);
 
       //display autotracks that are in the sequence
       if(sequence.autotrackData.size()){
@@ -1225,7 +1250,7 @@ class AutotrackMenu:public StepchildMenu{
         printSmall(coords.start.x+56,coords.start.y+32,stringify(sequence.autotrackData[cursor].control),1);
         uint8_t offset = 4*stringify(sequence.autotrackData[cursor].control).length();
         display.drawBitmap(coords.start.x+56+offset,coords.start.y+32,ch_tiny,6,3,SSD1306_WHITE);
-        printSmall(coords.start.x+63+offset,coords.start.y+32,stringify(sequence.autotrackData[cursor].channel+1),1);
+        printSmall(coords.start.x+63+offset,coords.start.y+32,stringify(sequence.autotrackData[cursor].channel),1);
         offset+=4*stringify(sequence.autotrackData[cursor].channel).length();
 
         //primed

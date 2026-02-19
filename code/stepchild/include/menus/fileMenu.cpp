@@ -10,8 +10,8 @@ class FileMenu:public StepchildMenu{
       coords = CoordinatePair(7,3,128,64);
       folderWireframe = makeFolder(30);
       folderWireframe.scale = 3;
-      folderWireframe.xPos = 96;
-      folderWireframe.yPos = screenHeight/2;
+      folderWireframe.offset.x = 96;
+      folderWireframe.offset.y = screenHeight/2;
       filenames = loadFiles();
     }
     void displayMenu();

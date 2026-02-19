@@ -440,7 +440,7 @@ String getLoopType(LoopType type){
       return "normal";
     case RANDOM:
       return "rnd";
-    case RANDOM_SAME:
+    case RANDOM_SAME_LENGTH:
       return "rnd same";
     case RETURN:
       return "reset";
@@ -457,7 +457,7 @@ String getLoopBehavior(LoopType type){
       return "the next loop";
     case RANDOM:
       return "a random loop";
-    case RANDOM_SAME:
+    case RANDOM_SAME_LENGTH:
       return "a random loop of same length";
     case RETURN:
       return "the 1st loop";
@@ -478,8 +478,8 @@ class LoopMenu:public StepchildMenu{
 
   LoopMenu(){
     icon = makeLoopArrows(0);
-    icon.xPos = 10;
-    icon.yPos = 5;
+    icon.offset.x = 10;
+    icon.offset.y = 5;
     // icon.scale = 1.5;
     icon.scale = 1;
     coords = CoordinatePair(0,0,128,64);
@@ -560,7 +560,7 @@ class LoopMenu:public StepchildMenu{
         else
           display.drawBitmap(x-22,y-1,loop_corner_bottom_bmp,8,8,1);
         break;
-      case RANDOM_SAME:
+      case RANDOM_SAME_LENGTH:
         if(loopID%2){
           display.drawFastHLine(x-14,y+2,3,1);
           display.drawFastHLine(x-14,y+4,3,1);

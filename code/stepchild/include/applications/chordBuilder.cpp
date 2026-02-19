@@ -160,7 +160,7 @@ void chordBuilder(){
           if(mask.size() == 0){
             //if it's within the first octave
             // if(keyCursor/12 == 0)
-              mask = genScale(MAJOR,keyCursor%12,3,octave);
+              mask = makePitchListFromScale(MAJOR,keyCursor%12,3,octave);
           }
           //if there is, unmake one
           else{

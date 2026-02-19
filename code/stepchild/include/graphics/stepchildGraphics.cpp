@@ -1362,8 +1362,8 @@ void StepchildGraphics::bootscreen(){
   uint8_t xOffset = 30;
   uint8_t yOffset = 15;
   WireFrame pram = makePram();
-  pram.yPos = 40;
-  pram.xPos = 64;
+  pram.offset.y = 40;
+  pram.offset.x = 64;
   //each letter pops in and swings into place with a x^2 parabolic motion
   while(frameCount<64){
     display.clearDisplay();

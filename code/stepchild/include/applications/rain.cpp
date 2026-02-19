@@ -6,6 +6,11 @@ const unsigned char splash_bmp [] = {
 const unsigned char drip_bmp [] = {
 	0x10, 0x10, 0x28, 0x44, 0x92, 0xa2, 0xa2, 0x82, 0x44, 0x38
 };
+// 'drip_mask', 5x7px
+const unsigned char drip_mask_bmp [] = {
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
 
 class Raindrop{
   public:
@@ -30,8 +35,7 @@ Raindrop::Raindrop(){
   madeSound = false;
 }
 Raindrop::Raindrop(uint8_t xPos, uint8_t maxVel, uint8_t minVel){
-//  vel = pow(float(random(float(minVel),float(maxVel))),1.1);
-  vel = random(float(minVel),float(maxVel));
+  vel = random(float(minVel),float(maxVel))/5.0;
   length = vel+3;
   this->x = xPos;
   this->y = -length;//starts so the bottom of the line is on the top pixel of the screen
@@ -70,7 +74,7 @@ bool Raindrop::update(){
 uint8_t positionToPitch(vector<uint8_t> pitchList, uint8_t startPitch, int8_t minOct, int8_t maxOct, uint8_t xCoord){
   if(!pitchList.size())
     return 0;
-  float pxPerOctave = float(screenWidth)/float(abs(maxOct-minOct));
+  float pxPerOctave = float(screenWidth)/max(float(abs(maxOct-minOct)),1);
   float pxPerNote = pxPerOctave/float(pitchList.size());
                     
   //the octave of the note is it's position divided by pixels/octave
@@ -151,7 +155,7 @@ bool rain(){
   bool grabNotesFromPlaylist = false;
 
   //start off w/ C major scale
-  vector<uint8_t> pitchList = genScale(MAJOR,0);
+  vector<uint8_t> pitchList = makePitchListFromScale(MAJOR,0);
 
   bool isPlaying = true;
   while(true){
@@ -393,8 +397,8 @@ bool rain(){
 
     //info
     String intensity = stringify(stormIntensity);
-    display.fillRoundRect(-2,-2,18+intensity.length()*4,14,3,0);
-    display.drawRoundRect(-2,-2,18+intensity.length()*4,14,3,1);
+    // display.fillRoundRect(-2,-2,18+intensity.length()*4,14,3,0);
+    // display.drawRoundRect(-2,-2,18+intensity.length()*4,14,3,1);
     if(isPlaying)//play icon
       display.fillTriangle(0,7,0,3,4,5,SSD1306_WHITE);
     else if(((millis())%200)>100){//pause icon
@@ -463,9 +467,7 @@ bool rain(){
     //making new drops
     for(uint8_t i = 0; i<random(0,maxDrops); i++){
       if(drops.size()<maxDrops)
-        // drops.push_back(Raindrop(random(highest(float(xCoord-xVariance),0),lowest(float(xCoord+xVariance),128)),(stormIntensity<=intensityVariance)?1:(stormIntensity-intensityVariance),stormIntensity+intensityVariance));
         drops.push_back(Raindrop(random(highest(float(xCoord-xVariance),0),lowest(float(xCoord+xVariance),128)),stormIntensity+intensityVariance,(stormIntensity<=intensityVariance)?1:(stormIntensity-intensityVariance)));
-        // drops.push_back(Raindrop(random(highest(float(xCoord-xVariance),0),lowest(float(xCoord+xVariance),128)),1,1));
     }
     if(grabNotesFromPlaylist){
       pitchList = getUnionPitchList();

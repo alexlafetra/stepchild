@@ -4,8 +4,6 @@
   "N" bytes for each section, listing the order of each section
 */
 
-
-
 //Enum to organize the header of each file
 enum FileFormatCode:uint8_t {
   BLANK,//filler
@@ -49,6 +47,13 @@ const FileFormatCode settingsFileHeader[] = {
 };
 
 #ifndef HEADLESS
+
+class StepchildFileSystem{
+  public:
+    StepchildFileSystem(){
+
+    }
+};
 
 void writeFileHeader(File& f){
   f.write(sizeof(sequenceFileHeader));//number of sections in the file
@@ -304,7 +309,7 @@ void writeCurrentSeqToSerial(bool waitForResponse){
         uint8_t bpmBytes[2] = {uint8_t(sequenceClock.BPM>>8),uint8_t(sequenceClock.BPM)};
         writeBytesToSerial(bpmBytes,2);
         //swing amount
-        uint8_t swingAmountBytes[2] = {uint8_t(sequenceClock.swingCurve.amplitude)>>8,uint8_t(sequenceClock.swingCurve.amplitude)};
+        uint8_t swingAmountBytes[2] = {uint8_t(sequenceClock.swingCurve.amplitude>>8),uint8_t(sequenceClock.swingCurve.amplitude)};
         writeBytesToSerial(swingAmountBytes,2);
         //swing subDiv
         uint8_t swingSubDivBytes[2] = {uint8_t(sequenceClock.swingCurve.period>>8),uint8_t(sequenceClock.swingCurve.period)};

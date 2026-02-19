@@ -56,8 +56,8 @@ class StepchildGraphics{
   //Draws percentage bar showing how full the sequence is
   void drawSequenceMemoryBar(uint8_t x1, uint8_t y1, uint8_t length);
 
-  // #define JOY_RIGHT 0
-  // #define JOY_LEFT 1
+  // #define RIGHT 0
+  // #define LEFT 1
   // #define UP 2
   // #define DOWN 3
   void drawArrow(uint8_t pointX, uint8_t pointY, uint8_t size, uint8_t direction, bool full);

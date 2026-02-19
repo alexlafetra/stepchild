@@ -101,13 +101,13 @@ CoordinatePair selectArea_random(){
     drawCoordinateBox(coords,settings);
     if(sequence.shrinkTopDisplay){
       dieModel.scale = 0.25;
-      dieModel.yPos = 4;
+      dieModel.offset.y = 4;
       dieModel.drawDots = false;
       dieModel.renderDie();
     }
     else{
       dieModel.scale = 0.5;
-      dieModel.yPos = 8;
+      dieModel.offset.y = 8;
       dieModel.drawDots = true;
       dieModel.renderDie();
     }

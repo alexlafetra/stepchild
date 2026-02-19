@@ -117,6 +117,7 @@ bool warpAintoB(CoordinatePair A, CoordinatePair B, bool onlySelected);
 void mainSequencerStepButtons();
 void mainSequencerEncoders();
 void yControls();
+void defaultJoystickXControls();
 void defaultEncoderControls();
 void defaultSelectBoxControls();
 void defaultJoystickControls(bool);
@@ -125,7 +126,6 @@ void defaultLoopControls();
 void defaultCopyControls();
 void rotaryActionA_Handler();
 void rotaryActionB_Handler();
-
 
 //sequence
 void updateLookupData_track(unsigned short int);
@@ -157,8 +157,8 @@ uint32_t getByteCount_standAlone(String filename);
 //Misc. helper functions
 vector<uint16_t> getSelectedNotesBoundingBox();
 vector<uint8_t> selectKeys(uint8_t startRoot);
-// vector<uint8_t> genScale(ScaleName, uint8_t);
-// vector<uint8_t> genScale(ScaleName, uint8_t, int8_t,uint8_t);
+// vector<uint8_t> makePitchListFromScale(ScaleName, uint8_t);
+// vector<uint8_t> makePitchListFromScale(ScaleName, uint8_t, int8_t,uint8_t);
 String stepsToMeasures(int32_t stepVal);
 String pitchToString(uint8_t input, bool oct, bool sharps);
 bool isInVector(int val, vector<uint8_t> vec);

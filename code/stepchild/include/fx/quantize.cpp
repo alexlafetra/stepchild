@@ -1,3 +1,5 @@
+int8_t quantizeAmount = 100;
+
 void drawLittleQuantCubes(uint8_t x1, uint8_t y1, uint8_t w, bool anim){
   graphics.drawBox(13-(millis()/200)%4,(millis()/200)%4,8,8,3,3,4);
   graphics.drawBox(6+(millis()/200)%4,5-(millis()/200)%4,8,8,3,3,0);

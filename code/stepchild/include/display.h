@@ -28,16 +28,16 @@
 #define DISPLAY_SIDEWAYS_L 1
 
 //this is a derived class so that you can still call the same draw() functions on it!
-class USBSerialCaptureCard: public Adafruit_SSD1306{
+class StepchildDisplay: public Adafruit_SSD1306{
   public:
     bool sendScreenViaUSB = false;
     uint32_t timeLastFrameSent = 0;//stores the time the last frame was sent
     const uint8_t minMsDelay = 10;//min amount of time to wait (ms) before sending a new frame
     //ridiculous derived constructor (I^2C)
-    USBSerialCaptureCard(uint8_t w, uint8_t h, TwoWire *twi = &Wire, int8_t rst_pin = -1, uint32_t clkDuring = 400000UL,
+    StepchildDisplay(uint8_t w, uint8_t h, TwoWire *twi = &Wire, int8_t rst_pin = -1, uint32_t clkDuring = 400000UL,
                    uint32_t clkAfter = 100000UL):Adafruit_SSD1306(w,h,twi,rst_pin,clkDuring,clkAfter){}
     //second ridiculous derived constructor (SPI)
-    USBSerialCaptureCard(uint8_t w, uint8_t h, SPIClass *spi, int8_t dc_pin,
+    StepchildDisplay(uint8_t w, uint8_t h, SPIClass *spi, int8_t dc_pin,
                    int8_t rst_pin, int8_t cs_pin, uint32_t bitrate = 8000000UL):Adafruit_SSD1306(w,h,spi,dc_pin,rst_pin,cs_pin,bitrate){}
     void init(){
       //start display
@@ -65,7 +65,7 @@ class USBSerialCaptureCard: public Adafruit_SSD1306{
 
 //Defining capture card switches the Adafruit_SSD1306 object to the USBSerialCaptureCard object
 #ifdef CAPTURECARD
-USBSerialCaptureCard display(SCREEN_WIDTH, SCREEN_HEIGHT,
+StepchildDisplay display(SCREEN_WIDTH, SCREEN_HEIGHT,
   &SPI1, OLED_DC, OLED_RESET, OLED_CS);
 // USBSerialCaptureCard display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #else

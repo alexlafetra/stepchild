@@ -381,7 +381,7 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
           activeScale--;
         }
       }
-      vector<uint8_t> newScale = genScale(activeScale,0);
+      vector<uint8_t> newScale = makePitchListFromScale(activeScale,0);
       //clear out old scale
       for(uint8_t i = 0; i<12; i++){
         keys[i] = false;
@@ -425,7 +425,7 @@ vector<uint8_t> selectKeys(uint8_t startRoot) {
               lastTime = millis();
             }
           }
-          vector<uint8_t> newScale = genScale(activeScale,0);
+          vector<uint8_t> newScale = makePitchListFromScale(activeScale,0);
           //clear out old scale
           for(uint8_t i = 0; i<12; i++){
             keys[i] = false;

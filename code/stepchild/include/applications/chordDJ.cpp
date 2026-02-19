@@ -130,8 +130,8 @@ QChord editChord(QChord& originalChord){
             //if there's no mask, make one
             //(mask uses highlit note as root)
             if(mask.size() == 0){
-                mask = genScale(MAJOR,keyCursor%12,4,octave?(octave-1):0);
-                // mask = genScale(keyCursor%12,0,3,octave);
+                mask = makePitchListFromScale(MAJOR,keyCursor%12,4,octave?(octave-1):0);
+                // mask = makePitchListFromScale(keyCursor%12,0,3,octave);
                 maskRoot = keyCursor%12;
             }
             //if there is, unmake one

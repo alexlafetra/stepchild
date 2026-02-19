@@ -1,4 +1,6 @@
-
+/*
+  Scrollable viewer for debugging a wireframe design
+*/
 void viewWireFrame(WireFrame& w){
   display.setTextColor(SSD1306_WHITE);
   while(true){
@@ -9,10 +11,10 @@ void viewWireFrame(WireFrame& w){
         //pan while shifting
         if(controls.SHIFT()){
           if(controls.joystickX == 1){
-            w.xPos--;
+            w.offset.x--;
           }
           else if(controls.joystickX == -1){
-            w.xPos++;
+            w.offset.x++;
           }
           lastTime = millis();
         }
@@ -43,71 +45,14 @@ void viewWireFrame(WireFrame& w){
         return;
       }
     }
-    w.rotate(1,1);
+    // w.rotate(1,1);
     display.clearDisplay();
     w.render();
     display.display();
   }
 }
-
-bool contains(vector<uint8_t> vec, uint8_t val){
-  for(uint8_t i = 0; i<vec.size(); i++){
-    if(vec[i] == val)
-      return true;
-  }
-  return false;
-}
-
-float get3Ddistance(Vertex v1, Vertex v2){
-  return sqrt(pow(v1.x-v2.x,2)+pow(v1.y-v2.y,2)+pow(v1.z-v2.z,2));
-}
-
-vector<uint8_t> getXClosestVerts(Vertex vert, WireFrame wf, uint8_t number){
-  //stores <vector id> <distance>
-  vector<float> distances;
-  vector<uint8_t> indices;
-  //get 3d distance of all the verts
-  for(uint8_t vertex = 0; vertex<wf.verts.size(); vertex++){
-    float dist = sqrt(pow(vert.x-wf.verts[vertex].x,2)+pow(vert.y-wf.verts[vertex].y,2)+pow(vert.z-wf.verts[vertex].z,2));
-    distances.push_back(dist);
-    indices.push_back(vertex);
-  }
-  //sort by distance
-  float closest = distances[0];
-  uint8_t closestVert = indices[0];
-  vector<uint8_t> xClosestVerts;
-
-  uint8_t smallest = 0;
-  //perform this operation "x times" to get a certain number of closest verts
-  for(uint8_t xTimes = 0; xTimes<number; xTimes++){
-    for(uint8_t i = 0; i<distances.size(); i++){
-      if(distances[i]<closest){
-        smallest = i;
-        closestVert = indices[i];
-
-      }
-      else{
-        continue;
-      }
-    }
-    xClosestVerts.push_back(closestVert);
-
-    //erasing last val from vector
-    vector<uint8_t> temp1;
-    vector<float> temp2;
-    for(uint8_t i = 0; i<indices.size(); i++){
-      if(i != smallest){
-        temp1.push_back(indices[i]);
-        temp2.push_back(distances[i]);
-      }
-    }
-    temp1.swap(indices);
-    temp2.swap(distances);
-  }
-  return xClosestVerts;
-}
 void animateMonitor(WireFrame& wireframe, float mag, uint8_t yCoord){
-  wireframe.yPos = yCoord+mag*sin(millis()/600.0);
+  wireframe.offset.y = yCoord+mag*sin(millis()/600.0);
   wireframe.rotate(PI/8.0*sin(millis()/400),1);
 }
 vector<WireFrame> animateRotation(vector<WireFrame> w, float angle, uint8_t speed, uint8_t axis, float xA, float yA, float zA, WireFrame frame){
@@ -204,8 +149,8 @@ WireFrame makeDieDots(uint8_t x1, uint8_t y1, uint8_t distance, float scale){
 
   vector<Vertex> verts2 = {v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12,v13,v14,v15,v16,v17,v18,v19,v20,v21};
   WireFrame allDots = WireFrame(verts2);
-  allDots.xPos = x1;
-  allDots.yPos = y1;
+  allDots.offset.x = x1;
+  allDots.offset.y = y1;
   allDots.drawEdges = false;
   allDots.drawDots = true;
   //so it draws all the dots
@@ -220,8 +165,8 @@ WireFrame makeDieDots(uint8_t x1, uint8_t y1, uint8_t distance, float scale){
 //dots ~are~ accurate
 WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float scale){
   WireFrame cube = makeCube(20);
-  cube.xPos = x1;
-  cube.yPos = y1;
+  cube.offset.x = x1;
+  cube.offset.y = y1;
   cube.scale = scale;
   WireFrame allDots = makeDieDots(x1,y1,distance,scale);
   cube.join(allDots);
@@ -256,8 +201,8 @@ WireFrame makeHouse(){
       house.edges.push_back({i,static_cast<unsigned short>(i+offset)});
   }
   house.join(makeHalfHouse(-width/2));
-  house.xPos = 64;
-  house.yPos = 40;
+  house.offset.x = 64;
+  house.offset.y = 40;
   house.scale = 12.0;
   viewWireFrame(house);
   return house;
@@ -273,10 +218,10 @@ WireFrame genFrame(){
   vector<Vertex> verts3 = {v1,v2,v3,v4};
   vector<vector<uint8_t>> edges2 = {{0,1},{1,3},{2,3},{2,0}};
   WireFrame frame = WireFrame(verts3,edges2);
-//  frame.xPos = 32;
-//  frame.yPos = 32;
-    frame.xPos = 64;
-    frame.yPos = 36;
+//  frame.offset.x = 32;
+//  frame.offset.y = 32;
+    frame.offset.x = 64;
+    frame.offset.y = 36;
   frame.rotate(-20,0);
   frame.rotate(20,1);
   frame.rotate(-20,2);
@@ -328,8 +273,8 @@ WireFrame makeHammer(){
     hammer.edges.push_back({v,uint16_t(v+13)});
   }
   hammer.scale = 2.2;
-  hammer.xPos = screenWidth/2;
-  hammer.yPos = screenHeight/2;
+  hammer.offset.x = screenWidth/2;
+  hammer.offset.y = screenHeight/2;
   hammer.rotate(15,2);
   return hammer;
 }
@@ -385,8 +330,8 @@ WireFrame makeWrench(){
                                    {10,11},{11,12},{12,13},{13,14},{14,15},{15,16},{16,17},{17,18},{18,19},{19,10},
                                    {0,10},{1,11},{2,12},{3,13},{4,14},{5,15},{6,16},{7,17},{8,18},{9,19}};
   WireFrame wrench = WireFrame(verties,edges);
-  wrench.xPos = screenWidth/2;
-  wrench.yPos = screenHeight/2;
+  wrench.offset.x = screenWidth/2;
+  wrench.offset.y = screenHeight/2;
   wrench.scale = 1.5;
   return wrench;
 }
@@ -481,14 +426,55 @@ WireFrame makeMIDI(){
   jack.dots.push_back(dotOffset+4);
 
   jack.drawDots = true;
-  jack.xPos = screenWidth/2;
-  jack.yPos = screenHeight/2;
+  jack.offset.x = screenWidth/2;
+  jack.offset.y = screenHeight/2;
   jack.scale = 3;
   jack.rotate(30,0);
   return jack;
 }
+
+WireFrame makeStretchedCircle(float x1, float x2, float y, float z, float r, float points, uint8_t vertOffset){
+  float angleIncrement = float(2*PI)/float(points);
+  vector<Vertex> verties;
+  vector<vector<uint16_t>> edges;
+  for(uint8_t i = 0; i<points; i++){
+    Vertex v;
+    if(i>=points/2)
+      v = Vertex(y+r*cos(angleIncrement*i),x1+r*sin(angleIncrement*i),z);
+    else
+      v = Vertex(y+r*cos(angleIncrement*i),x2+r*sin(angleIncrement*i),z);
+    verties.push_back(v);
+    if(i<points-1)
+      edges.push_back({uint16_t(vertOffset+i),uint16_t(vertOffset+i+1)});
+  }
+  edges.push_back({uint16_t(vertOffset+points-1),vertOffset});
+
+  WireFrame disc = WireFrame(verties,edges);
+  return disc;
+}
+
+WireFrame makeDisc(float x1, float y1, float z1, float x2, float y2, float z2, float r, uint8_t points, uint8_t vertOffset){
+  float angleIncrement = float(2.0*PI)/float(points);
+  vector<Vertex> verties;
+  vector<vector<uint16_t>> edges;
+  for(uint8_t i = 0; i<points; i++){
+    Vertex v;
+    if(i<=points/2)
+      v = Vertex(x2+r*cos(angleIncrement*i),y2+r*sin(angleIncrement*i),z2);
+    else
+      v = Vertex(x1+r*cos(angleIncrement*i),y1+r*sin(angleIncrement*i),z1);
+    verties.push_back(v);
+    if(i<points-1)
+      edges.push_back({uint16_t(vertOffset+i),uint16_t(vertOffset+i+1)});
+  }
+  edges.push_back({uint16_t(vertOffset+points-1),vertOffset});
+
+  WireFrame disc = WireFrame(verties,edges);
+  return disc;
+}
+
 //makes a disc, vertOffset is so that the disc edges stay in synch
-WireFrame makeDisc(float x1, float y1, float z1, float r, float xSpacing, uint8_t points, uint8_t vertOffset){
+WireFrame makeDisc_centered(float x1, float y1, float z1, float r, float xSpacing, uint8_t points, uint8_t vertOffset){
   float angleIncrement = float(2*PI)/float(points);
   vector<Vertex> verties;
   vector<vector<uint16_t>> edges;
@@ -538,8 +524,8 @@ WireFrame makeGyro(float angleX, float angleY, float angleZ,float angle2X, float
   arc2.rotate(angle2Z,2);
 
   arc1.join(arc2);
-  arc1.xPos = 111;
-  arc1.yPos = 16;
+  arc1.offset.x = 111;
+  arc1.offset.y = 16;
   return arc1;
 }
 
@@ -633,8 +619,8 @@ WireFrame makeCycle(){
     cycle.join(disc1);
     
     
-    cycle.xPos = 64;
-    cycle.yPos = 32;
+    cycle.offset.x = 64;
+    cycle.offset.y = 32;
     cycle.scale = 5;
     return cycle;
 }
@@ -715,9 +701,9 @@ WireFrame makePram(){
     }
     pram.join(wheel);
   }
-  pram.xPos = screenWidth/2;
-  pram.xPos-=10;
-  pram.yPos = screenHeight/2;
+  pram.offset.x = screenWidth/2;
+  pram.offset.x-=10;
+  pram.offset.y = screenHeight/2;
   pram.scale = 1.5;
   pram.rotate(15,2);
   pram.rotate(15,0);
@@ -750,8 +736,8 @@ WireFrame makeGear(float r1, float r2, uint8_t teeth, uint8_t points, bool cente
   if(center){
     gear.join(makeCircle(2,8));
   }
-  // gear.xPos = 64;
-  // gear.yPos = 32;
+  // gear.offset.x = 64;
+  // gear.offset.y = 32;
   // gear.scale = 3;
   return gear;
 }
@@ -804,12 +790,12 @@ WireFrame makeCassette(){
   //case
   WireFrame b = makeBox(12,8,2);
   //tape
-  WireFrame d = makeDisc(1,0,1,2,6,20,0);
+  WireFrame d = makeDisc_centered(1,0,1,2,6,20,0);
   d.rotate(90,2);
   b.join(d);
   //spokes
-  WireFrame a = makeDisc(-3,1,1,1,0,10,0);
-  WireFrame c = makeDisc(3,1,1,1,0,10,0);
+  WireFrame a = makeDisc_centered(-3,1,1,1,0,10,0);
+  WireFrame c = makeDisc_centered(3,1,1,1,0,10,0);
   b.join(a);
   b.join(c);
   //rectangle
@@ -822,11 +808,11 @@ WireFrame makeCassette(){
   WireFrame e = WireFrame(verts,edges);
   b.join(e);
 
-  b.xPos = screenWidth/2;
-  b.yPos = screenHeight/2;
+  b.offset.x = screenWidth/2;
+  b.offset.y = screenHeight/2;
   b.scale = 2.5;
-  b.rotate(30,0);
-  b.rotate(15,2);
+  // b.rotate(30,0);
+  // b.rotate(15,2);
   return b;
 }
 WireFrame makeGraphBox_old(float offset){
@@ -847,8 +833,8 @@ WireFrame makeGraphBox_old(float offset){
   box.edges.push_back({uint16_t(box.verts.size()-1),uint16_t(box.verts.size()-2)});
   box.dots.push_back(uint16_t(box.verts.size()-1));
 
-  box.xPos = screenWidth/2;
-  box.yPos = screenHeight/2;
+  box.offset.x = screenWidth/2;
+  box.offset.y = screenHeight/2;
   box.drawDots = true;
   box.scale = 2;
   box.rotate(20,2);
@@ -874,8 +860,8 @@ WireFrame makeGraphBox(float offset){
       box.edges.push_back({uint16_t(i-1),i});
   }
 
-  // box.xPos = screenWidth/2;
-  // box.yPos = screenHeight/2;
+  // box.offset.x = screenWidth/2;
+  // box.offset.y = screenHeight/2;
   box.scale = 2;
   box.rotate(15,0);
   return box;
@@ -918,8 +904,8 @@ WireFrame makeMetronome(float offset){
                                    {0,4},{1,5},{2,6},{3,7},//sides
                                    {8,9},{10,11}};//stick+divider
   WireFrame met = WireFrame(verties,edges);
-  met.xPos = screenWidth/2;
-  met.yPos = screenHeight/2;
+  met.offset.x = screenWidth/2;
+  met.offset.y = screenHeight/2;
   met.scale = 1.75;
   met.rotate(10,0);
   met.rotate(10,1);
@@ -930,9 +916,9 @@ WireFrame makePencil(){
   vector<Vertex> verties;
   vector<vector<uint16_t>> edges;
   WireFrame pencil;
-  pencil.xPos = screenWidth/2;
-  pencil.yPos = screenHeight/2;
-  pencil.join(makeDisc(0,20,0,4,0,6,0));
+  pencil.offset.x = screenWidth/2;
+  pencil.offset.y = screenHeight/2;
+  pencil.join(makeDisc_centered(0,20,0,4,0,6,0));
   for(uint16_t edge = 0; edge<6; edge++){
     pencil.edges.push_back({edge,uint16_t(edge+5)});
     pencil.edges.push_back({uint16_t(edge+6),uint16_t(edge+11)});
@@ -987,8 +973,8 @@ WireFrame makeLoopArrows(float angle){
     verties.insert(verties.end(),temp.begin(),temp.end());
   }
   WireFrame arrows = WireFrame(verties,edges);
-  arrows.xPos = screenWidth/2;
-  arrows.yPos = screenHeight/2;
+  arrows.offset.x = screenWidth/2;
+  arrows.offset.y = screenHeight/2;
   arrows.scale = 3;
   arrows.rotate(-angle,2);
   return arrows;
@@ -1032,8 +1018,8 @@ WireFrame makeMobius(float offset){
   edges.push_back({uint16_t(verts1.size()-1),0});
   WireFrame mobius = WireFrame(verts1,edges);
 
-  mobius.xPos = screenWidth/2;
-  mobius.yPos = screenHeight/2;
+  mobius.offset.x = screenWidth/2;
+  mobius.offset.y = screenHeight/2;
   mobius.scale = 2.5;
   mobius.rotate(60,0);
   mobius.rotate(30,2);
@@ -1075,8 +1061,8 @@ WireFrame makeLoopArrows_Old(float angle){
     verties.insert(verties.end(),temp.begin(),temp.end());
   }
   WireFrame arrows = WireFrame(verties,edges);
-  arrows.xPos = screenWidth/2;
-  arrows.yPos = screenHeight/2;
+  arrows.offset.x = screenWidth/2;
+  arrows.offset.y = screenHeight/2;
   arrows.scale = 2;
   arrows.rotate(angle,2);
   return arrows;
@@ -1127,7 +1113,7 @@ WireFrame makeKeys(){
   }
 
   WireFrame keys = WireFrame(verties,edges);
-  keys.yPos = screenHeight/2;
+  keys.offset.y = screenHeight/2;
   keys.rotate(45,0);
   keys.scale = 2;
   return keys;
@@ -1183,7 +1169,7 @@ WireFrame makeKeys(){
   // }
 
   // WireFrame keys = WireFrame(verties,edges);
-  // keys.yPos = screenHeight/2;
+  // keys.offset.y = screenHeight/2;
   // keys.rotate(60,0);
   // keys.scale = 2;
   // return keys;
@@ -1214,8 +1200,8 @@ WireFrame makeHand_flat(float f1, float f2, float f3, float f4, float f5){
   vector<Vertex> verties = {v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12,v13,v14,v15,v16,v17};
   vector<vector<uint16_t>> edges = {{0,1},{1,2},{2,3},{3,4},{4,5},{5,6},{6,7},{7,8},{8,9},{9,10},{10,11},{11,12},{12,13},{13,14},{14,15},{15,16},{16,0}};//top
   WireFrame hand = WireFrame(verties,edges);
-  hand.xPos = screenWidth/2;
-  hand.yPos = screenHeight/2;
+  hand.offset.x = screenWidth/2;
+  hand.offset.y = screenHeight/2;
   hand.scale = 3;
   return hand;
 }
@@ -1267,18 +1253,18 @@ WireFrame makeHand(float f1, float f2, float f3, float f4, float f5){
                                    {17,18},{18,19},{19,20},{20,21},{21,22},{22,23},{23,24},{24,25},{25,26},{26,27},{27,28},{28,29},{29,30},{30,31},{31,32},{32,33},{33,17},//bottom
                                    {0,17},{1,18},{2,19},{3,20},{4,21},{5,22},{6,23},{7,24},{8,25},{9,26},{10,27},{11,28},{12,29},{13,30},{14,31},{15,32},{16,33}};//connects
   WireFrame hand = WireFrame(verties,edges);
-  hand.xPos = screenWidth/2;
-  hand.yPos = screenHeight/2;
+  hand.offset.x = screenWidth/2;
+  hand.offset.y = screenHeight/2;
   hand.scale = 3;
   hand.rotate(-45,0);
   return hand;
 }
 
 WireFrame makeCD(){
-  WireFrame outerDiscTop = makeDisc(0,0,0,10,0,20,0);
-  // WireFrame outerDiscBottom = makeDisc(0,0,1,10,20,20);
-  WireFrame middleDisc = makeDisc(0,0,0,3,0,10,20);
-  WireFrame innerDisc = makeDisc(0,0,0,1,0,10,30);
+  WireFrame outerDiscTop = makeDisc_centered(0,0,0,10,0,20,0);
+  // WireFrame outerDiscBottom = makeDisc_centered(0,0,1,10,20,20);
+  WireFrame middleDisc = makeDisc_centered(0,0,0,3,0,10,20);
+  WireFrame innerDisc = makeDisc_centered(0,0,0,1,0,10,30);
   //adding middle disc
   outerDiscTop.verts.insert(outerDiscTop.verts.end(),middleDisc.verts.begin(),middleDisc.verts.end());
   outerDiscTop.edges.insert(outerDiscTop.edges.end(),middleDisc.edges.begin(),middleDisc.edges.end());
@@ -1287,8 +1273,8 @@ WireFrame makeCD(){
   outerDiscTop.verts.insert(outerDiscTop.verts.end(),innerDisc.verts.begin(),innerDisc.verts.end());
   outerDiscTop.edges.insert(outerDiscTop.edges.end(),innerDisc.edges.begin(),innerDisc.edges.end());
   
-  outerDiscTop.xPos = screenWidth/2;
-  outerDiscTop.yPos = screenHeight/2;
+  outerDiscTop.offset.x = screenWidth/2;
+  outerDiscTop.offset.y = screenHeight/2;
   outerDiscTop.scale = 1.5;
   // for(uint8_t dot = 0; dot<outerDiscTop.verts.size(); dot++){
   //   outerDiscTop.dots.push_back(dot);
@@ -1317,8 +1303,8 @@ WireFrame makeHelix(uint8_t r, uint8_t revs, float length, uint8_t points, bool 
       edges.push_back({t,uint16_t(t+1)});
   }
   WireFrame helix = WireFrame(verts,edges);
-  helix.xPos = screenWidth/2;
-  helix.yPos = screenHeight/2;
+  helix.offset.x = screenWidth/2;
+  helix.offset.y = screenHeight/2;
   return helix;
 }
 
@@ -1350,8 +1336,8 @@ WireFrame makeFolder(float openAngle){
   folder.verts[0].rotate(-openAngle,0);
   folder.verts[1].rotate(-openAngle,0);
   folder.rotate(20,2);
-  folder.xPos = screenWidth/2;
-  folder.yPos = screenHeight/2;
+  folder.offset.x = screenWidth/2;
+  folder.offset.y = screenHeight/2;
   folder.move(0,9,0);
   return folder;
 }
@@ -1385,7 +1371,7 @@ WireFrame makeMonitor(){
     screen.join(base);
 
     screen.scale = 2;
-    screen.xPos = 80;
+    screen.offset.x = 80;
     screen.move(0,0,2);
   return screen;
 }
@@ -1503,7 +1489,7 @@ void renderTest(){
       }
     }
     else{
-      meshes[activeOption].xPos = screenWidth/2;
+      meshes[activeOption].offset.x = screenWidth/2;
       if(activeOption == 1)
         folderAnimation(meshes[activeOption]);
       else if(activeOption == 2){

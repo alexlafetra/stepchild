@@ -54,7 +54,7 @@ String getScaleName(ScaleName scale){
 }
 
 //make sure 'root' isn't passed to this fn as a negative number
-vector<uint8_t> genScale(ScaleName scale, uint8_t root){
+vector<uint8_t> makePitchListFromScale(ScaleName scale, uint8_t root){
   vector<uint8_t> newScale;
   switch(scale){
     case MAJOR:
@@ -97,10 +97,10 @@ vector<uint8_t> genScale(ScaleName scale, uint8_t root){
 }
 
 //Functions and definitions for generating scales
-vector<uint8_t> genScale(ScaleName scale, uint8_t root, int8_t numOctaves, uint8_t octave){
+vector<uint8_t> makePitchListFromScale(ScaleName scale, uint8_t root, int8_t numOctaves, uint8_t octave){
   vector<uint8_t> newScale;
   for(int8_t i = octave; i<numOctaves+octave; i++){
-    vector<uint8_t> temp = genScale(scale,root%12+(i*12));
+    vector<uint8_t> temp = makePitchListFromScale(scale,root%12+(i*12));
     for(uint8_t j = 0; j<temp.size(); j++){
       newScale.push_back(temp[j]);
     }

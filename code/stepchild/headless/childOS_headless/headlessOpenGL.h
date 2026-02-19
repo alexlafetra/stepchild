@@ -22,7 +22,7 @@ bool openGLready = false;
 GLFWwindow* window;
 
 //for taking screenshots
-string screenshotFolder = "/Users/alex/Desktop/Stepchild/sequencer_proj/screenshots_headless";
+string screenshotFolder = "/Users/alex/Desktop/ongoing/Stepchild/sequencer_proj/screenshots_headless";
 int numberOfScreenshots = 0;
 void takeScreenshot(){
     bitmap_image image(128,64);
@@ -336,18 +336,8 @@ void glFillRoundRect(float x, float y, float width, float height, float radius) 
     glFillCircleSegment(left + radius, top - radius, radius, 90, 180);
 }
 
-//checks for a window update, then draws pixels to the openGL window using the 'screenPixels' buffer
-void displayWindow(void)
-{
-    //update the display if there's been an update
-    if(openGLready){
-        glClearColor(1.0f,1.0f,1.0f,1.0f);//White
-        glClear( GL_COLOR_BUFFER_BIT);
-        
-        int w, h;
-        glfwGetWindowSize(window, &w, &h);
-        
-        //drawing rounded rect to emulate screen border
+void drawButtons(int w, int h){
+ //drawing rounded rect to emulate screen border
         glColor3f(0.0,0.0,0.0);
         glFillRoundRect(sideBorder-10,topBorder-10, w-2*sideBorder+20, h-2*topBorder+20, 20);
         
@@ -414,22 +404,52 @@ void displayWindow(void)
         if(!encBPRESS)
             glDrawRadian(encoderXStart,encoderYStart-40,15,bAngle);
         
+}
+
+void drawPixel(int x1, int y1, int w){
+    glColor4f(1.0,1.0,1.0,1.0);
+    glBegin(GL_POLYGON);
+    glVertex2f(sideBorder+x1*windowScale, topBorder+y1*windowScale);
+    glVertex2f(sideBorder+x1*windowScale-w*windowScale, topBorder+y1*windowScale);
+    glVertex2f(sideBorder+x1*windowScale-w*windowScale, topBorder+y1*windowScale+1*windowScale);
+    glVertex2f(sideBorder+x1*windowScale, topBorder+y1*windowScale+1*windowScale);
+    glEnd();
+}
+
+//checks for a window update, then draws pixels to the openGL window using the 'screenPixels' buffer
+void displayWindow(void)
+{
+    //update the display if there's been an update
+    if(openGLready){
+        glClearColor(1.0f,1.0f,1.0f,1.0f);//White
+        glClear( GL_COLOR_BUFFER_BIT);
+        
+        int w, h;
+        glfwGetWindowSize(window, &w, &h);
+        drawButtons(w,h);
+       
+        int numberOfPixelsIncluded = 0;
         //drawing pixels
         for(int j = 0;j<64; j++){
             for(int i = 0; i<128; i++){
                 //draw white pixels
                 if(screenPixels[i][j] == 1){
-                    glColor4f(1.0,1.0,1.0,1.0);
-                    int x1 = i+1;
-                    int y1 = 63 - j;
-                    glBegin(GL_POLYGON);
-                    glVertex2f(sideBorder+x1*windowScale, topBorder+y1*windowScale);
-                    glVertex2f(sideBorder+x1*windowScale-1*windowScale, topBorder+y1*windowScale);
-                    glVertex2f(sideBorder+x1*windowScale-1*windowScale, topBorder+y1*windowScale+1*windowScale);
-                    glVertex2f(sideBorder+x1*windowScale, topBorder+y1*windowScale+1*windowScale);
-                    glEnd();
+                    numberOfPixelsIncluded++;
+                }
+                else{
+                    if(numberOfPixelsIncluded){
+                        int x1 = i;
+                        int y1 = 63 - j;
+                        int w = numberOfPixelsIncluded;
+                        drawPixel(x1,y1,w);
+                    }
+                    numberOfPixelsIncluded = 0;
                 }
             }
+            if(numberOfPixelsIncluded){
+                drawPixel(128,63-j,numberOfPixelsIncluded);
+            }
+            numberOfPixelsIncluded = 0;
         }
         glFlush();
         glfwSwapBuffers(window);

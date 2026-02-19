@@ -35,17 +35,34 @@ NoteData setLiveLoopTrigger(){
 
 class LiveLoopMenu:public StepchildMenu{
     public:
-        SequenceRenderSettings settings;
+        WireFrame topCassette;
+        WireFrame reelA;
         LiveLoopMenu(){
             cursor = 0;
-            coords = CoordinatePair(6,16,32,64);
-            settings.trackLabels = true;
-            settings.topLabels = false;
-            settings.drawLoopPoints = true;
-            settings.shrinkTopDisplay = false;
+            coords = CoordinatePair(0,16,32,64);
+            createTopCassettes();
         }
+        void createTopCassettes(){
+            const float r = 5;
+            //wheels
+            WireFrame a = makeDisc_centered(0,0,0,r,0,12,0);
+            a.verts.push_back(Vertex(-r/2,0,0));//L
+            a.verts.push_back(Vertex(r/2,0,0));//R
+            a.verts.push_back(Vertex(0,r/2,0));//U
+            a.verts.push_back(Vertex(0,-r/2,0));//D
+            int16_t len = a.verts.size()-1; 
+            a.edges.push_back({0,static_cast<unsigned short>(len-2)});
+            a.edges.push_back({3,static_cast<unsigned short>(len-1)});
+            a.edges.push_back({6,static_cast<unsigned short>(len-3)});
+            a.edges.push_back({9,static_cast<unsigned short>(len)});
+
+            reelA = a;
+        }
+  
         bool liveLoopMenuControls(){
             controls.readInputs();
+            defaultJoystickXControls();
+            defaultLoopControls();
             if(utils.itsbeen(200)){
                 if(controls.DOWN() && cursor){
                     cursor--;
@@ -117,12 +134,60 @@ class LiveLoopMenu:public StepchildMenu{
             return true;
         }
         void displayMenu(){
+            SequenceRenderSettings settings;
+            settings.trackLabels = false;
+            settings.topLabels = false;
+            settings.drawLoopPoints = true;
+            settings.drawLoopFlags = false;
+            settings.drawPram = false;
+            settings.shrinkTopDisplay = false;
+
             display.clearDisplay();
             //draw sequence
             drawSeq(settings);
+
+            const float r = 5.0;
+            int16_t start = (sequence.loopData[sequence.activeLoop].start-settings.start)*sequence.viewScale+32;
+            int16_t length = (sequence.loopData[sequence.activeLoop].end - sequence.loopData[sequence.activeLoop].start)*sequence.viewScale;
+            int16_t end = (sequence.loopData[sequence.activeLoop].end-settings.start)*sequence.viewScale+32;
+            
+            if(start >= 0 && end <= 121){
+             display.drawRoundRect(start-r-2,0,length+2*r+4,2*r+4,r+2,1);
+            }
+            //if start is off the left side of the screen
+            if(start<0){
+                // start = 0;
+                // length = end-start;
+                graphics.drawArrow(36+(millis()/200)%2,7,3,ARROW_LEFT,true);
+                // display.drawRoundRect(start-r-2-35,0,length+2*r+4+45,2*r+4,r+2,1);
+            }
+            if(start > 121){
+                graphics.drawArrow(120 - (millis()/200)%2,7,3,ARROW_RIGHT,true);
+            }
+            if(end>121){
+                end = 121;
+                length = end-start;
+                graphics.drawArrow(120 - (millis()/200)%2,7,3,ARROW_RIGHT,true);
+                display.drawRoundRect(start-r-2,0,length+2*r+4+10,2*r+4,r+2,1);
+            }
+            else if(end < 0){
+                graphics.drawArrow(36+(millis()/200)%2,7,3,ARROW_LEFT,true);
+            }
+            
+            // float rotation = millis()/100.0;
+            reelA.setRotation(millis()/5.0,2);
+
+            reelA.offset.y = 7;
+            reelA.offset.x = start;
+            reelA.render();
+            reelA.offset.x = end;
+            reelA.render();
+            // reelA.rotate(-rotation,2);
+
+
             //bounding box for the menu
-            display.fillRoundRect(coords.start.x-10,coords.start.y,50,51,4,0);
-            display.drawRoundRect(coords.start.x-10,coords.start.y,50,51,4,1);
+            // display.fillRoundRect(coords.start.x-10,coords.start.y,50,51,4,0);
+            // display.drawRoundRect(coords.start.x-10,coords.start.y,50,51,4,1);
 
             //buttons
             //on/off
@@ -130,10 +195,10 @@ class LiveLoopMenu:public StepchildMenu{
 
             //loop
             printSmall(coords.start.x+3,coords.start.y+10,"loop:",1);
-            graphics.drawButton(coords.start.x+6,coords.start.y+16, liveLoop.setLoopBoundsAfterRec?"new":"current",cursor == 1);
+            graphics.drawButton(coords.start.x+6,coords.start.y+16, liveLoop.setLoopBoundsAfterRec?"new":"this",cursor == 1);
             
             //trigger
-            graphics.drawButton(coords.start.x,coords.start.y+23, "trigger",cursor == 2);
+            graphics.drawButton(coords.start.x,coords.start.y+23, "strt:",cursor == 2);
             if(liveLoop.triggerNote.pitch != 255){
                 graphics.drawButton(coords.start.x+6,coords.start.y+30,"$"+pitchToString(liveLoop.triggerNote.pitch,true,true),cursor == 3);
                 String channel = stringify(liveLoop.triggerNote.channel);
@@ -143,7 +208,7 @@ class LiveLoopMenu:public StepchildMenu{
                 printSmall(coords.start.x+15,coords.start.y+38,channel,2);
             }
             else{
-                graphics.drawButton(coords.start.x+6,coords.start.y+30,"none",cursor == 3);
+                graphics.drawButton(coords.start.x+6,coords.start.y+30,"rec",cursor == 3);
             }
 
             //arrow

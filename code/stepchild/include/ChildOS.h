@@ -45,6 +45,9 @@ using namespace std;
 long mapVal(long x, long in_min, long in_max, long out_min, long out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
+float mapVal(float x, float in_min, float in_max, float out_min, float out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
 typedef uint16_t Timestep;
 typedef uint8_t TrackID;
@@ -90,7 +93,7 @@ struct SequenceRenderSettings;
 enum LoopType : uint8_t{
   NORMAL,
   RANDOM,
-  RANDOM_SAME,
+  RANDOM_SAME_LENGTH,
   RETURN,
   INFINITE
 };
@@ -134,8 +137,6 @@ struct Loop{
   }
 };
 
-uint16_t animOffset = 0;//for animating curves
-
 #include "scales.h"
 #include "classes/Curve.h"
 #include "graphics/bitmaps.h"            //bitmaps for graphics
@@ -168,9 +169,6 @@ bool waitForNoteBeforeRec = true;
 bool waitingToReceiveANote = true;//wait to receive note to begin recording
 //controls whether or not fragmenting is on
 bool isFragmenting = false;
-
-//this could definitely get consumed into the quantize() function (doesn't need to be global)
-int8_t quantizeAmount = 100;
 
 //holds all the data for the echo fx
 struct EchoData{
@@ -303,12 +301,12 @@ void webInterface(){}
 #include "menus/mainMenu.cpp"
 #include "menus/midiMenu.cpp"
 #include "menus/quickFXMenu.cpp"
+#include "menus/superPosition.h"
 
 #include "sleep.h"
 #include "fileSystem.h"
 #include "CCSelector.h"
 #include "grooves.h"
-#include "superPosition.h"
 #include "mainSequence.h"
 
 #include "TBA_Features.h"

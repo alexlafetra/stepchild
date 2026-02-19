@@ -82,6 +82,8 @@ void enterDeepSleepMode(){
 //screenSavers
 void screenSaver_cassette(){
   WireFrame cassette = makeCassette();
+  cassette.rotate(30,0);
+  cassette.rotate(15,2);
   cassette.scale = 4;
   uint16_t rotationAmount = 0;
   bool done = false;
@@ -111,7 +113,7 @@ void screenSaver_ripples(){
   const uint8_t spacing = 10;//for the spacing
   const uint8_t xCoord = 64;
   const uint8_t  yCoord = 32;
-  animOffset = 0;
+  uint16_t animOffset = 0;
   bool done = false;
   while(true){
     controls.cycleLEDs(150);
@@ -202,8 +204,8 @@ void screenSaver_template(){
 
 void screenSaver_die(){
   WireFrame cube = makeCube(20);
-  cube.xPos = 64;
-  cube.yPos = 32;
+  cube.offset.x = 64;
+  cube.offset.y = 32;
   cube.scale = 1.8;
   WireFrame dots = makeDieDots(64,32,0,1.8);
   dots.dotSize = 3;
@@ -395,9 +397,8 @@ void screenSaver(){
     return;
   }
   //running a random screen saver from the list
-  vector<void (*)()> screenSaverList = {screenSaver_prams,screenSaver_droplets,screenSaver_cassette,screenSaver_ripples,screenSaver_text};
+  vector<void (*)()> screenSaverList = {screenSaver_droplets,screenSaver_cassette,screenSaver_ripples,screenSaver_die};
   screenSaverList[random(0,screenSaverList.size())]();
-  screenSaver_droplets();
 }
 
 void screenSaverCheck(){

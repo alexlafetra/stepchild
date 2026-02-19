@@ -79,23 +79,23 @@ WireFrame SettingsMenu::getSettingsMenuWireFrame(){
     //gear
     case 0:
       w = makeThickGear(10,8,8,40,true);
-      w.xPos = 100;
-      w.yPos = 10;
+      w.offset.x = 100;
+      w.offset.y = 10;
       w.scale = 4;
       w.rotate(-30,1);
       break;
     //pram
     case 1:
       w = makePram();
-      w.xPos = 105;
-      w.yPos = 30;
+      w.offset.x = 105;
+      w.offset.y = 30;
       w.scale = 1.8;
       break;
     //computer
     case 2:
       w = makeMonitor();
-      w.xPos = 100;
-      w.yPos = 40;
+      w.offset.x = 100;
+      w.offset.y = 40;
       w.scale = 4;
       w.rotate(-30,1);
       w.rotate(-10,0);

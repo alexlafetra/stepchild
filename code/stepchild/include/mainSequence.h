@@ -12,9 +12,7 @@ void yControls(){
     }
   }
 }
-
-//moving cursor, loop, and active track. Pass "true" to allow changing the velocity of notes
-void defaultJoystickControls(bool velocityEditingAllowed){
+void defaultJoystickXControls(){
   if (utils.itsbeen(100)) {
     if (controls.joystickX == 1 && !controls.SHIFT()) {
       //if cursor isn't on a measure marker, move it to the nearest one
@@ -62,18 +60,6 @@ void defaultJoystickControls(bool velocityEditingAllowed){
       }
     }
   }
-  if(utils.itsbeen(100)){
-    if (controls.joystickY == 1 && !controls.SHIFT() && !controls.LOOP()) {
-      sequence.setActiveTrack(sequence.activeTrack + 1, !sequence.playing()  && !sequence.recording());
-      sequence.drawingNote = false;
-      lastTime = millis();
-    }
-    if (controls.joystickY == -1 && !controls.SHIFT() && !controls.LOOP()) {
-      sequence.setActiveTrack(sequence.activeTrack - 1, !sequence.playing()  && !sequence.recording());
-      sequence.drawingNote = false;
-      lastTime = millis();
-    }
-  }
   if (utils.itsbeen(50)) {
     //moving
     if (controls.joystickX == 1 && controls.SHIFT()) {
@@ -96,6 +82,25 @@ void defaultJoystickControls(bool velocityEditingAllowed){
       else if(sequence.movingLoop == MOVING_LOOP_START)
         sequence.setLoopPoint(sequence.cursorPos,false);
     }
+  }
+}
+
+//moving cursor, loop, and active track. Pass "true" to allow changing the velocity of notes
+void defaultJoystickControls(bool velocityEditingAllowed){
+  defaultJoystickXControls();
+  if(utils.itsbeen(100)){
+    if (controls.joystickY == 1 && !controls.SHIFT() && !controls.LOOP()) {
+      sequence.setActiveTrack(sequence.activeTrack + 1, !sequence.playing()  && !sequence.recording());
+      sequence.drawingNote = false;
+      lastTime = millis();
+    }
+    if (controls.joystickY == -1 && !controls.SHIFT() && !controls.LOOP()) {
+      sequence.setActiveTrack(sequence.activeTrack - 1, !sequence.playing()  && !sequence.recording());
+      sequence.drawingNote = false;
+      lastTime = millis();
+    }
+  }
+  if(utils.itsbeen(50)){
     //changing vel
     if(velocityEditingAllowed){
       if(sequence.IDAtCursor()){

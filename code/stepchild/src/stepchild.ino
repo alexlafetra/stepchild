@@ -7,60 +7,17 @@
 
 #include "ChildOS.h"
 
-void headlessSetup(){
-  MIDI.init();
-  //setting up the pinouts and the lower board
-  controls.init();
-  //seeding random number generator
-  srand(1);
-  //load settings
-  loadSettings();
-  //setting up sequence w/ 16 tracks, 768 steps
-  sequence.init(SP404MK2_TEMPLATE);
-
-  //set the control knobs up w/ default values
-  for(uint8_t i = 0; i<16; i++){
-    controlKnobs[i].cc = i+1;
-  }
-  sequence.setNormalMode();
-  core0ready = true;
-  lastTime = millis();
-  display.setTextColor(SSD1306_WHITE);
-  display.setTextSize(1);
-  graphics.bootscreen_3();
-}
-#ifndef HEADLESS
 
 //CPU 1 setup
 void setup1() {
   while(!core0ready){
   }
-
-  //setting up the pinouts and the lower board
-  controls.init();
-
-
-  //seeding random number generator
-  srand(1);
-  //load settings
-  loadSettings();
-
-  //setting up sequence w/ 16 tracks, 768 steps
-  sequence.init(SP404MK2_TEMPLATE);
-
-  //set the control knobs up w/ default values
-  for(uint8_t i = 0; i<16; i++){
-    controlKnobs[i].cc = i+1;
-  }
-
   //start display
   display.init();
-  graphics.bootscreen_3();
-
+  // graphics.bootscreen_3();
   core1ready = true;
   lastTime = millis();
 }
-#endif
 
 void loop1() {
   mainSequence();
@@ -102,6 +59,22 @@ void setup() {
       delay(1);
     }
   }
+    //setting up the pinouts and the lower board
+  controls.init();
+
+  //seeding random number generator
+  srand(1);
+  //load settings
+  loadSettings();
+
+  //setting up sequence w/ 16 tracks, 768 steps
+  sequence.init(SP404MK2_TEMPLATE);
+
+  //set the control knobs up w/ default values
+  for(uint8_t i = 0; i<16; i++){
+    controlKnobs[i].cc = i+1;
+  }
+
 
   //core 0 can start now
   core0ready = true;
@@ -110,11 +83,9 @@ void setup() {
   while(!core1ready){
   }
 }
+
 //this cpu handles time-sensitive things
 void loop(){
-  #ifdef HEADLESS
-  sequenceState = PlayState(sequence.playState);
-  #endif
   ledPulse(16);
   MIDI.processCore1Messages();
   MIDI.read();

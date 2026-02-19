@@ -30,17 +30,38 @@ void Moon::draw(uint8_t xOff, uint8_t yOff, float offset){
 
 class Planet{
   public:
-  //each planet is a vertex
+    //each planet is a vertex
     Vertex loc;
+    //size of the planet
     uint8_t size;
+    //how many steps to complete a rotation
+    uint16_t stepsPerPeriod = 6*random(1,8);
+    //phase
+    uint8_t currentStep = random(0,stepsPerPeriod);
+    //midi pitch
+    uint8_t pitch = 60;
+    //if the planet is filled or nah
     bool fill;
+
     bool ring;
+
+    bool sentNote = false;
+
+    //distance from the sun
     float orbit;
-    vector<Moon> moons;
+    //list of moons
+    vector<Planet> moons;
+
     Planet();
     Planet(Vertex,uint8_t,bool);
+    Planet(Vertex,uint8_t);
     void rotate(float,uint8_t);
     void draw(uint8_t,uint8_t,float);
+    void advanceOneStep();
+    //Common util function for getting the distance between two vertices
+    float get3Ddistance(Vertex v1, Vertex v2){
+      return sqrt(pow(v1.x-v2.x,2)+pow(v1.y-v2.y,2)+pow(v1.z-v2.z,2));
+    }
 };
 Planet::Planet(){
   loc = Vertex(0,0,0);
@@ -54,8 +75,31 @@ Planet::Planet(Vertex v, uint8_t s, bool f){
   fill = f;
   orbit = get3Ddistance(loc,Vertex(0,0,0));
 }
+Planet::Planet(Vertex v, uint8_t s){
+  loc = v;
+  size = s;
+  fill = true;
+  orbit = get3Ddistance(loc,Vertex(0,0,0));
+}
 void Planet::rotate(float angle, uint8_t axis){
   loc.rotate(angle,axis);
+}
+void Planet::advanceOneStep(){
+  float amount = 360.0 / float(stepsPerPeriod);
+  rotate(amount,1);
+  currentStep++;
+  if(currentStep == stepsPerPeriod){
+    currentStep = 0;
+    MIDI.noteOn(pitch,127,0);
+    MIDI.noteOff(pitch,127,0);
+    sentNote = true;
+  }
+  else{
+    sentNote = false;
+  }
+  for(uint8_t m = 0; m<moons.size(); m++){
+    moons[m].advanceOneStep();
+  }
 }
 void Planet::draw(uint8_t xOff, uint8_t yOff,float offset){
   // loc.render(xOff,yOff,1,size,fill);
@@ -71,8 +115,8 @@ void Planet::draw(uint8_t xOff, uint8_t yOff,float offset){
   }
   temp.rotate(offset,0);
   temp.render(xOff,yOff,1,size,fill);
-  if(ring)
-      graphics.drawEllipse(temp.x+xOff,temp.y+yOff,size+6,size,SSD1306_WHITE);
+  // if(ring)
+  //   graphics.drawEllipse(temp.x+xOff,temp.y+yOff,size+6,size,SSD1306_WHITE);
 }
 
 class SolarSystem{
@@ -85,6 +129,7 @@ class SolarSystem{
     SolarSystem(vector<Planet>);
     void rotate(float,uint8_t);
     void draw();
+    void playOneStep();
 };
 
 SolarSystem::SolarSystem(){
@@ -94,10 +139,15 @@ SolarSystem::SolarSystem(vector<Planet> p){
 }
 void SolarSystem::rotate(float a, uint8_t axis){
   for(uint8_t p = 0; p<planets.size(); p++){
-    planets[p].rotate(a+p,axis);
+    planets[p].rotate(a,axis);
     for(uint8_t m = 0; m<planets[p].moons.size(); m++){
-      planets[p].moons[m].rotate(-a*3+m,axis);
+      planets[p].moons[m].rotate(-a,axis);
     }
+  }
+}
+void SolarSystem::playOneStep(){
+  for(uint8_t p = 0; p<planets.size(); p++){
+    planets[p].advanceOneStep();
   }
 }
 
@@ -107,18 +157,25 @@ void SolarSystem::draw(){
   }
 }
 
+void drawPlanetHighlight(Planet &p){
+  display.drawCircle(p.loc.x,p.loc.z,p.size+4+(millis()/200)%2,1);
+}
+
+bool testSolarSystemControls(){
+  return true;
+}
 
 bool testSolarSystem(){
-  Planet sun = Planet(Vertex(0,0,0),8,true);
-  Planet mercury = Planet(Vertex(15,0,0),1,false);
-  Planet venus = Planet(Vertex(30,0,0),2,false);
-  Planet earth = Planet(Vertex(45,0,0),3,true);
-  Planet jupiter = Planet(Vertex(60,0,0),5,true);
+  Planet sun = Planet(Vertex(0,0,0),4,true);
+  Planet mercury = Planet(Vertex(7.5,0,0),1,false);
+  Planet venus = Planet(Vertex(15,0,0),2,false);
+  Planet earth = Planet(Vertex(22.5,0,0),3,true);
+  Planet jupiter = Planet(Vertex(30,0,0),5,true);
   //moon targeting earth
-  Moon moon = Moon(Vertex(10,0,0),1);
-  Moon io = Moon(Vertex(15,0,0),1);
-  Moon europa = Moon(Vertex(22,0,0),2);
-  Moon ganymede = Moon(Vertex(19,0,0),1);
+  Planet moon = Planet(Vertex(5,0,0),1);
+  Planet io = Planet(Vertex(7.5,0,0),1);
+  Planet europa = Planet(Vertex(11,0,0),2);
+  Planet ganymede = Planet(Vertex(9.5,0,0),1);
 
   earth.moons.push_back(moon);
   jupiter.moons.push_back(io);
@@ -130,16 +187,29 @@ bool testSolarSystem(){
   
   system.xOff = screenWidth/2;
   system.yOff = screenHeight/2;
-  system.angle = -15;
+  system.angle = 90;
+
+  uint8_t highlightedPlanet = 0;
+  bool selectingPlanet = true;
+
   while(true){
     controls.readJoystick();
     controls.readButtons();
     if(controls.joystickX != 0){
-      if(controls.joystickX == 1){
-        system.rotate(-1,1);
+      if(selectingPlanet && utils.itsbeen(200)){
+        highlightedPlanet++;
+        highlightedPlanet%=system.planets.size();
+        lastTime = millis();
       }
-      else if(controls.joystickX == -1){
-        system.rotate(1,1);
+      else{
+        if(controls.SHIFT()){
+          if(controls.joystickX == 1){
+            system.rotate(-1,1);
+          }
+          else if(controls.joystickX == -1){
+            system.rotate(1,1);
+          }
+        }
       }
     }
     if(controls.joystickY != 0){
@@ -154,9 +224,14 @@ bool testSolarSystem(){
       if(controls.MENU()){
         return false;
       }
+      if(controls.PLAY()){
+        lastTime = millis();
+        system.playOneStep();
+      }
     }
     display.clearDisplay();
     system.draw();
+    display.drawCircle(system.planets[highlightedPlanet].loc.x+system.xOff,system.planets[highlightedPlanet].loc.y+system.yOff,system.planets[highlightedPlanet].size+4+(millis()/200)%2,1);
     display.display();
   }
   return true;

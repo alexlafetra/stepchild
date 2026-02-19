@@ -98,8 +98,18 @@ class WireFrame{
   //bc each edge will only be between 2 points
   vector<vector<uint16_t>>edges;//should be 16-bit so it can handle more than 256 verts (just in case)
   vector<uint16_t> dots;
-  uint8_t xPos;
-  uint8_t yPos;
+  // uint8_t offset.y;
+
+  //struct for holding the screen-space offset of the wireframe
+  struct Offset{
+    int8_t x = 0;
+    int8_t y = 0;
+    Offset(int8_t x1, int8_t y1){
+      x = x1;
+      y = y1;
+    }
+  };
+  Offset offset = Offset(0,0);
   uint8_t dotSize = 1;
   float scale;
   bool drawEdges;
@@ -246,7 +256,7 @@ void WireFrame::renderDie(){
         continue;
       }
       else
-        display.drawLine(verts[edges[edge][0]].x*scale+xPos,verts[edges[edge][0]].y*scale+yPos,verts[edges[edge][1]].x*scale+xPos,verts[edges[edge][1]].y*scale+yPos,SSD1306_WHITE);
+        display.drawLine(verts[edges[edge][0]].x*scale+offset.x,verts[edges[edge][0]].y*scale+offset.y,verts[edges[edge][1]].x*scale+offset.x,verts[edges[edge][1]].y*scale+offset.y,SSD1306_WHITE);
     }
   }
 }
@@ -254,9 +264,9 @@ void WireFrame::renderDie(){
 void WireFrame::render(){
   if(drawDots){
     for(uint8_t i = 0; i<dots.size(); i++){
-      verts[dots[i]].render(xPos,yPos,scale,dotSize);
+      verts[dots[i]].render(offset.x,offset.y,scale,dotSize);
       //for labelling verts
-      // verts[dots[i]].render(xPos,yPos,scale,1,String(i));
+      // verts[dots[i]].render(offset.x,offset.y,scale,1,String(i));
     }
   }
   //if it's just edges
@@ -265,7 +275,7 @@ void WireFrame::render(){
     for(uint8_t edge = 0; edge<edges.size(); edge++){
       //checking to see if this very is the farthest
       //if it is, don't draw any lines
-      display.drawLine(verts[edges[edge][0]].x*scale+xPos,verts[edges[edge][0]].y*scale+yPos,verts[edges[edge][1]].x*scale+xPos,verts[edges[edge][1]].y*scale+yPos,SSD1306_WHITE);
+      display.drawLine(verts[edges[edge][0]].x*scale+offset.x,verts[edges[edge][0]].y*scale+offset.y,verts[edges[edge][1]].x*scale+offset.x,verts[edges[edge][1]].y*scale+offset.y,SSD1306_WHITE);
     }
   }
 }
@@ -273,7 +283,7 @@ void WireFrame::render(){
 void WireFrame::renderDotsIfInFrontOf(float zCutoff){
   for(uint8_t i = 0; i<dots.size(); i++){
     if(verts[dots[i]].z>zCutoff)
-      verts[dots[i]].render(xPos,yPos,scale,1);
+      verts[dots[i]].render(offset.x,offset.y,scale,1);
   }
 }
 
@@ -288,8 +298,8 @@ void WireFrame::rotate(float angle, uint8_t axis){
 }
 //resets verts rotation before and after applying the transformation
 void WireFrame::rotateVertRelative(uint8_t which, float angle, uint8_t axis){
-  verts[which].x -= xPos;
-  verts[which].y -= yPos;
+  verts[which].x -= offset.x;
+  verts[which].y -= offset.y;
   //reset rotation
   verts[which].rotate(-currentAngle[0],0);
   verts[which].rotate(-currentAngle[1],1);
@@ -302,8 +312,8 @@ void WireFrame::rotateVertRelative(uint8_t which, float angle, uint8_t axis){
   verts[which].rotate(currentAngle[0],0);
   verts[which].rotate(currentAngle[1],1);
   verts[which].rotate(currentAngle[2],2);
-  verts[which].x += xPos;
-  verts[which].y += yPos;
+  verts[which].x += offset.x;
+  verts[which].y += offset.y;
 }
 //this one resets the rotation of the target axis, THEN applies the rotation
 void WireFrame::setRotation(float angle, uint8_t axis){
