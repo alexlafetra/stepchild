@@ -1,30 +1,7 @@
-enum SlideDirection:uint8_t{
-    IN_FROM_RIGHT,
-    IN_FROM_LEFT,
-    IN_FROM_BOTTOM,
-    OUT_FROM_RIGHT,
-    OUT_FROM_LEFT,
-    OUT_FROM_BOTTOM
-};
+#pragma once
 
-// #define MENU_SLIDE_FAST 48
-// #define MENU_SLIDE_MEDIUM_FAST 30
-// #define MENU_SLIDE_MEDIUM 20
-// #define MENU_SLIDE_MEDIUM_SLOW 16
-// #define MENU_SLIDE_SLOW 10
-
-
-enum MenuReturnValue:uint8_t{
-  NO_ACTION,
-  BACK_TO_MAIN_SEQUENCE,
-  BACK_TO_MAIN_MENU
-};
-
-#define MENU_SLIDE_FAST 20
-#define MENU_SLIDE_MEDIUM_FAST 10
-#define MENU_SLIDE_MEDIUM 10
-#define MENU_SLIDE_MEDIUM_SLOW 10
-#define MENU_SLIDE_SLOW 5
+#include "commonEnums.h"
+#include "commonStructs.h"
 
 //generic menu class
 class StepchildMenu{
@@ -34,70 +11,8 @@ class StepchildMenu{
         //stores the current cursor position/active item
         uint8_t cursor = 0;
         //a function that needs to be overridden by each menu's derived class
-        virtual void displayMenu(){};
-        StepchildMenu(){}
-        void slideIn(SlideDirection origin,uint8_t speed){
-            if(origin == IN_FROM_RIGHT){
-                //store original coords
-                CoordinatePair targetCoords = coords;
-                //then, offset the menu coordinates
-                int16_t offset = screenWidth-coords.start.x;
-                coords.start.x = screenWidth;
-                coords.end.x = coords.start.x+offset;
-                //continuously move the menu coords and display it, until it reaches original position
-                while(coords.start.x>targetCoords.start.x){
-                    coords.end.x -= speed;
-                    coords.start.x -= speed;
-                    if(coords.start.x<targetCoords.start.x){
-                        coords = targetCoords;
-                        break;
-                    }
-                    displayMenu();
-                }
-                coords = targetCoords;
-            }
-            else if(origin == IN_FROM_BOTTOM){
-                //store original coords
-                CoordinatePair targetCoords = coords;
-                //then, offset the menu coordinates
-                int16_t offset = screenHeight-coords.start.y;
-                coords.start.y += offset;
-                coords.end.y += offset;
-                //continuously move the menu coords and display it, until it reaches original position
-                while(coords.start.y>targetCoords.start.y){
-                    coords.start.y-= speed;
-                    coords.end.y-= speed;
-                    if(coords.start.y<targetCoords.start.y){
-                        coords = targetCoords;
-                        break;
-                    }
-                    displayMenu();
-                }
-                coords = targetCoords;
-            }
-        };
-        void slideOut(SlideDirection destination, uint8_t speed){
-            if(destination == OUT_FROM_RIGHT){
-                CoordinatePair originalCoords = coords;
-                while(coords.start.x<screenWidth){
-                    coords.start.x+=speed;
-                    coords.end.x+=speed;
-                    displayMenu();
-                }
-                coords = originalCoords;
-            }
-            else if(destination == OUT_FROM_BOTTOM){
-                CoordinatePair originalCoords = coords;
-                while(coords.start.y<screenHeight){
-                    coords.start.y+=speed;
-                    coords.end.y+=speed;
-                    //make sure y bounds don't glitch out
-                    if(coords.end.y>screenHeight){
-                        coords.end.y = screenHeight;
-                    }
-                    displayMenu();
-                }
-                coords = originalCoords;
-            }
-        }
+        virtual void displayMenu();
+        StepchildMenu();
+        void slideIn(SlideDirection origin,MenuSlideSpeed speed);
+        void slideOut(SlideDirection destination, MenuSlideSpeed speed);
 };

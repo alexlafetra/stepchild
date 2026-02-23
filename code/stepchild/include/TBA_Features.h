@@ -1,13 +1,3 @@
-void muteGroups(int callingTrack, int group){
-  for(int track = 0; track<sequence.trackData.size(); track++){
-    if(track != callingTrack && sequence.trackData[track].muteGroup == group && sequence.trackData[track].noteLastSent != 255){
-      MIDI.noteOff(sequence.trackData[track].noteLastSent,0,sequence.trackData[track].channel);
-      sentNotes.subNote(sequence.trackData[track].noteLastSent);
-      sequence.trackData[track].noteLastSent = 255;
-    }
-  }
-}
-
 void makeMuteGroup(){
   // vector<unsigned short int> trackIDs = selectMultipleTracks("Tracks in the group...");
 }
@@ -35,15 +25,15 @@ void genFragment(){
   fragmentStep = 0;
 
   //set the active playhead to the start of the fragment
-  if(sequence.playing())
-      sequence.playheadPos = fragmentData[2][0];
-  else if(sequence.recording())
-      sequence.recheadPos = fragmentData[2][0];
+  if(stepchild.playing())
+      stepchild.playheadPos = fragmentData[2][0];
+  else if(stepchild.recording())
+      stepchild.recheadPos = fragmentData[2][0];
   fragmentStep = 0;
 }
 
 void checkFragment(){
-  if(isFragmenting){
+  if(stepchild.isFragmenting){
     fragmentStep++;
     //if the seq is past the end of the fragment
     if(fragmentStep>=fragmentData[0][0]*fragmentSubDiv){
@@ -92,53 +82,6 @@ void toggleFragmentTriplets(){
   }
   else if(!(fragmentSubDiv%2)){//if it was in triplet mode...
     fragmentSubDiv = 3*fragmentSubDiv/2;//set it to 1/4 mode
-  }
-}
-
-void fragmentAnimation(bool in){
-  if(in){
-    int width = 20;
-    int height = 20;
-    int xDepth = 10;
-    int yDepth = 10;
-    int maxWidth = 100;
-    int maxHeight = 100;
-    int h = 64;
-    int k = 40;
-    while(maxWidth>1){
-      if(millis()%1000>10){
-        height = random(maxHeight-10,maxHeight);
-        width = random(maxWidth-10,maxWidth);
-      }
-      display.clearDisplay();
-      graphics.drawTetra(h,k,height,width,xDepth,yDepth,0,SSD1306_WHITE);
-      maxWidth-=15;
-      maxHeight-=15;
-      k-=3;
-      display.display();
-    }
-  }
-  else if(!in){
-    int width = 20;
-    int height = 20;
-    int xDepth = 10;
-    int yDepth = 10;
-    int maxWidth = 0;
-    int maxHeight = 0;
-    int h = 64;
-    int k = 20;
-    while(maxWidth<100){
-      if(millis()%1000>10){
-        height = random(maxHeight-10,maxHeight);
-        width = random(maxWidth-10,maxWidth);
-      }
-      display.clearDisplay();
-      graphics.drawTetra(h,k,height,width,xDepth,yDepth,0,SSD1306_WHITE);
-      maxWidth+=15;
-      maxHeight+=15;
-      k+=3;
-      display.display();
-    }
   }
 }
 

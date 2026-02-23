@@ -30,7 +30,7 @@
 //buttons/inputs
 /*
   These vals don't correspond to hardware pins; they're the bit place value of each buttons' state
-  As stored by the controls.mainButtons byte
+  As stored by the stepchild.buttons.mainButtons byte
 */
 #define NEW_BUTTON 7
 #define SHIFT_BUTTON 6

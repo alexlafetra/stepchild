@@ -1,8 +1,16 @@
+#pragma once
+
+#include "Stepchild.h"
+#include "StepchildGraphics.h"
+
+extern StepchildGraphics graphics;
+extern Stepchild stepchild;
+
 //chord object
 class Chord{
   public:
   //intervals represented as half steps from root note
-  vector<uint8_t> intervals;
+  std::vector<uint8_t> intervals;
   //root note
   uint8_t root;
   //stores the inversion of the chord
@@ -10,7 +18,7 @@ class Chord{
   uint8_t inversion;
   uint16_t length;
   Chord();
-  Chord(uint8_t, vector<uint8_t>, uint16_t);
+  Chord(uint8_t, std::vector<uint8_t>, uint16_t);
   void play();
   void stop();
   void draw(uint8_t, uint8_t);
@@ -25,7 +33,7 @@ Chord::Chord(){
   length = 24;
 }
 
-Chord::Chord(uint8_t r, vector<uint8_t> i, uint16_t l){
+Chord::Chord(uint8_t r, std::vector<uint8_t> i, uint16_t l){
   root = r;
   intervals = i;
   length = l;
@@ -34,32 +42,32 @@ Chord::Chord(uint8_t r, vector<uint8_t> i, uint16_t l){
 //sends a midi on for each of the notes in the chord
 void Chord::play(){
   for(uint8_t i = 0; i<intervals.size(); i++){
-    MIDI.noteOn(intervals[i]+root,127,0);
+    stepchild.midi.noteOn(intervals[i]+root,127,0);
   }
 }
 
 //sends a midi off for each of the notes in the chord
 void Chord::stop(){
   for(uint8_t i = 0; i<intervals.size(); i++){
-    MIDI.noteOff(intervals[i]+root,0,0);
+    stepchild.midi.noteOff(intervals[i]+root,0,0);
   }
 }
 
 void Chord::printPitchList(uint8_t x1, uint8_t y1){
   String text = "(";
   for(uint8_t i = 0; i<intervals.size();i++){
-    text+=pitchToString(intervals[i]+root,false,true);
+    text+=stepchild.pitchToString(intervals[i]+root,false,true);
     if(i != intervals.size()-1)
       text+=",";
     else
       text+=")";
   }
-  printSmall(x1-(text.length()-1)*2,y1,text,SSD1306_WHITE);
+  graphics.printSmall(x1-(text.length()-1)*2,y1,text,SSD1306_WHITE);
 }
 String Chord::getPitchList(uint8_t x1, uint8_t y1){
   String text;
   for(uint8_t i = 0; i<intervals.size();i++){
-    text+=pitchToString(intervals[i]+root,false,true);
+    text+=stepchild.pitchToString(intervals[i]+root,false,true);
     if(i != intervals.size()-1)
       text+=",";
   }
@@ -73,15 +81,15 @@ void Chord::draw(uint8_t x1, uint8_t y1){
     return;
   int8_t y2 = y1-(chordHeight+1)*intervals.size();
   for(uint8_t i = 0; i<intervals.size(); i++){
-    display.drawRoundRect(x1,y2+i*(chordHeight+1),length/4,chordHeight,3,SSD1306_WHITE);
+    stepchild.display.drawRoundRect(x1,y2+i*(chordHeight+1),length/4,chordHeight,3,SSD1306_WHITE);
   }
 }
 
 class Progression{
   public:
-  vector<Chord> chords;
+  std::vector<Chord> chords;
   Progression();
-  Progression(vector<Chord>);
+  Progression(std::vector<Chord>);
   void drawProg(uint8_t, uint8_t, int8_t);
   void add(Chord);
   void duplicate(uint8_t);
@@ -92,7 +100,7 @@ class Progression{
 
 Progression::Progression(){
 }
-Progression::Progression(vector<Chord> c){
+Progression::Progression(std::vector<Chord> c){
   chords = c;
 }
 void Progression::add(Chord c){
@@ -100,7 +108,7 @@ void Progression::add(Chord c){
 }
 
 void Progression::remove(uint8_t chord){
-  vector<Chord> newChords;
+  std::vector<Chord> newChords;
   for(uint8_t i = 0; i<chords.size(); i++){
     if(i != chord)
       newChords.push_back(chords[i]);
@@ -109,7 +117,7 @@ void Progression::remove(uint8_t chord){
 }
 
 void Progression::duplicate(uint8_t chord){
-  vector<Chord> newChords;
+  std::vector<Chord> newChords;
   for(uint8_t i = 0; i<chords.size(); i++){
     newChords.push_back(chords[i]);
     if(i == chord)
@@ -141,19 +149,19 @@ void Progression::drawProg(uint8_t x1, uint8_t y1,int8_t activeChord){
     chords[i].draw(x2,y1);
     if(activeChord != -1){
       if(i == activeChord){
-        // display.drawFastHLine(x2,y1+3,chords[i].length/4,SSD1306_WHITE);
+        // stepchild.display.drawFastHLine(x2,y1+3,chords[i].length/4,SSD1306_WHITE);
         chords[i].printPitchList(x2,y1+6);
       }
     }
     x2+=chords[i].length/4+1;
   }
-  // display.drawRoundRect(x1-2,y1-height,screenWidth-x1,height+2,3,SSD1306_WHITE);
+  // stepchild.display.drawRoundRect(x1-2,y1-height,stepchild.SCREEN_WIDTH-x1,height+2,3,SSD1306_WHITE);
 }
 
 //makes tracks and notes and places them in the sequence
 void Progression::commit(){
   //get unique pitches
-  vector<uint8_t> uniquePitches;
+  std::vector<uint8_t> uniquePitches;
   for(uint8_t i = 0; i<chords.size(); i++){
     for(uint8_t j = 0; j<chords[i].intervals.size(); j++){
       //if a pitch isn't in the vector, add it
@@ -164,21 +172,21 @@ void Progression::commit(){
   }
   //for knowing which tracks are 'new'
   //so we don't add a bunch of notes to old tracks
-  uint8_t trackOffset = sequence.trackData.size();
+  uint8_t trackOffset = stepchild.trackData.size();
   //make a new track for each unique pitch
   for(uint8_t i = 0; i<uniquePitches.size(); i++){
-    sequence.addTrack(Track(uniquePitches[i],1), false);
+    stepchild.addTrack(Track(uniquePitches[i],1), false);
   }
   //get the corresponding track for each note and make it
   uint16_t writeHead = 0;//records the start of each chord
   for(uint8_t i = 0; i<chords.size(); i++){
     for(uint8_t j = 0; j<chords[i].intervals.size(); j++){
-      uint8_t track = sequence.getTrackWithPitch_above(chords[i].intervals[j]+chords[i].root,trackOffset);
+      uint8_t track = stepchild.getTrackWithPitch_above(chords[i].intervals[j]+chords[i].root,trackOffset);
       // delay(10);
       Note newNote = Note(writeHead,writeHead+chords[i].length,127,100,false,false);
-      sequence.makeNote(newNote,track,false);
-      // sequence.activeTrack = track;
-      if(writeHead>=sequence.sequenceLength)
+      stepchild.makeNote(newNote,track,false);
+      // stepchild.activeTrack = track;
+      if(writeHead>=stepchild.sequenceLength)
         return;
     }
     writeHead+=chords[i].length;

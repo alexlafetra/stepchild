@@ -1,4 +1,7 @@
-const uint8_t orthoMatrix[2][3] = {{1,0,0},{0,1,0}};
+#pragma once
+
+#include "Stepchild.h"
+extern Stepchild stepchild;
 
 class Vertex{
   public:
@@ -12,92 +15,17 @@ class Vertex{
   void render(uint8_t, uint8_t, float, uint8_t, bool);
   void render(uint8_t, uint8_t,float, uint8_t, String);
   void rotate(float, uint8_t);
-  void coordTransform(vector<vector<float>>);
+  void coordTransform(std::vector<std::vector<float>>);
 };
-
-Vertex::Vertex(){
-  x = 0;
-  y = 0;
-  z = 0;
-}
-Vertex::Vertex(float x1, float y1, float z1){
-  x = x1;
-  y = y1;
-  z = z1;
-}
-void Vertex::render(uint8_t xOffset,uint8_t yOffset, float scale){
-  display.fillCircle(x*scale+xOffset,y*scale+yOffset,2,SSD1306_WHITE);
-}
-void Vertex::render(uint8_t xOffset,uint8_t yOffset, float scale, uint8_t size){
-  display.fillCircle(x*scale+xOffset,y*scale+yOffset,size,SSD1306_WHITE);
-}
-void Vertex::render(uint8_t xOffset,uint8_t yOffset, float scale, uint8_t size, bool full){
-  if(full)
-    display.fillCircle(x*scale+xOffset,y*scale+yOffset,size,SSD1306_WHITE);
-  else
-    display.drawCircle(x*scale+xOffset,y*scale+yOffset,size,SSD1306_WHITE);
-}
-void Vertex::render(uint8_t xOffset,uint8_t yOffset, float scale, uint8_t size, String text){
-  display.fillCircle(x*scale+xOffset,y*scale+yOffset,size,SSD1306_WHITE);
-  printSmall(x*scale+xOffset+3,y*scale+yOffset-5,text,SSD1306_WHITE);
-}
-
-//multiplies a vertex by a transformation matrix
-void Vertex::coordTransform(vector<vector<float>> transformer){
-  float x1 = 0, y1 = 0, z1 = 0;
-  if(transformer.size() == 3){
-    //multiplying columns
-    for(uint8_t a = 0; a<3; a++){
-      float temp = transformer[a][0] * x + transformer[a][1] * y + transformer[a][2] * z;
-      switch(a){
-        case 0:
-          x1 = temp;
-          break;
-        case 1:
-          y1 = temp;
-          break;
-        case 2:
-          z1 = temp;
-      }
-    }
-      x = x1;
-      y = y1;
-      z = z1;
-  }
-}
-
-//rotates a vertex around x (0) y (1) or z (2) axes
-void Vertex::rotate(float angle, uint8_t axis){
-  if(axis>2)
-    return;
-  vector<vector<float>> rotationMatrix;
-  //convert to radians
-  angle = angle*(PI/180.0);
-  switch(axis){
-    //x
-    case 0:
-      rotationMatrix = {{1,0,0},{0,cos(angle),-sin(angle)},{0,sin(angle),cos(angle)}};
-      break;
-    //y
-    case 1:
-      rotationMatrix = {{cos(angle),0,sin(angle)},{0,1,0},{-sin(angle),0,cos(angle)}};
-      break;
-    //z
-    case 2:
-      rotationMatrix = {{cos(angle),-sin(angle),0},{sin(angle),cos(angle),0},{0,0,1}};
-      break;
-  }
-  coordTransform(rotationMatrix);
-}
 
 class WireFrame{
   public:
   float currentAngle[3];
-  vector<Vertex> verts;
+  std::vector<Vertex> verts;
   //this should also be a vector of arrays instead of a vec of vecs
   //bc each edge will only be between 2 points
-  vector<vector<uint16_t>>edges;//should be 16-bit so it can handle more than 256 verts (just in case)
-  vector<uint16_t> dots;
+  std::vector<std::vector<uint16_t>>edges;//should be 16-bit so it can handle more than 256 verts (just in case)
+  std::vector<uint16_t> dots;
   // uint8_t offset.y;
 
   //struct for holding the screen-space offset of the wireframe
@@ -115,9 +43,9 @@ class WireFrame{
   bool drawEdges;
   bool drawDots;
   WireFrame(){};
-  WireFrame(vector<Vertex>);
-  WireFrame(vector<Vertex>,vector<vector<uint8_t>>);
-  WireFrame(vector<Vertex>,vector<vector<uint16_t>>);
+  WireFrame(std::vector<Vertex>);
+  WireFrame(std::vector<Vertex>,std::vector<std::vector<uint8_t>>);
+  WireFrame(std::vector<Vertex>,std::vector<std::vector<uint16_t>>);
 
   void render();
   void renderDie();
@@ -132,209 +60,104 @@ class WireFrame{
   void resetExceptFor(uint8_t);
   void rotateVertRelative(uint8_t,float,uint8_t);
   void join(WireFrame);
-  void addVerts(vector<Vertex>);
-  void addEdges(vector<vector<uint16_t>>);
+  void addVerts(std::vector<Vertex>);
+  void addEdges(std::vector<std::vector<uint16_t>>);
   void move(float,float,float);
 };
-WireFrame::WireFrame(vector<Vertex> vertices){
-  verts = vertices;
-  scale = 1;
-  drawEdges = true;
-  drawDots = false;
-}
-WireFrame::WireFrame(vector<Vertex> vertices,vector<vector<uint8_t>> edgeList){
-  verts = vertices;
-  //casting to 16-bit
-  vector<vector<uint16_t>> edgeVec16Bit;
-  for(int i = 0; i<edgeList.size(); i++){
-    vector<uint16_t> tempVec = {uint16_t(edgeList[i][0]),uint16_t(edgeList[i][1])};
-    edgeVec16Bit.push_back(tempVec);
-  }
-  edges = edgeVec16Bit;
-  scale = 1;
-  drawEdges = true;
-  drawDots = false;
-}
-WireFrame::WireFrame(vector<Vertex> vertices,vector<vector<uint16_t>> edgeList){
-  verts = vertices;
-  edges = edgeList;
-  scale = 1;
-  drawEdges = true;
-  drawDots = false;
-}
-void WireFrame::join(WireFrame w){
 
-  int16_t offset = verts.size();
 
-  //increment dot and edge indices, then add them to the mesh
-  for(uint16_t e = 0; e<w.edges.size(); e++){
-    edges.push_back({uint16_t(w.edges[e][0]+offset),uint16_t(w.edges[e][1]+offset)});
-  }
-  //adding dots
-  for(uint16_t d = 0; d<w.dots.size(); d++){
-    dots.push_back({uint16_t(w.dots[d]+offset)});
-  }
-  //finally, add verts
-  verts.insert(verts.end(),w.verts.begin(),w.verts.end());
-}
+void viewWireFrame(WireFrame& w);
+void animateMonitor(WireFrame& wireframe, float mag, uint8_t yCoord);
+std::vector<WireFrame> animateRotation(std::vector<WireFrame> w, float angle, uint8_t speed, uint8_t axis, float xA, float yA, float zA, WireFrame frame);
+//used to calculate which side of the die you're on
+uint8_t getSide(WireFrame die);
+WireFrame makeCube(uint8_t size);
+WireFrame makeHalfHouse(float width);
+WireFrame makeHouse();
+WireFrame genFrame();
+WireFrame makeHammer();
+WireFrame makeWrench();
+//drawing a circular din jack
+WireFrame makeMIDI();
+WireFrame makeStretchedCircle(float x1, float x2, float y, float z, float r, float points, uint8_t vertOffset);
+WireFrame makeDisc(float x1, float y1, float z1, float x2, float y2, float z2, float r, uint8_t points, uint8_t vertOffset);
 
-void WireFrame::move(float x1, float y1, float z1){
-  for(int i = 0; i<verts.size(); i++){
-    verts[i].x += x1;
-    verts[i].y += y1;
-    verts[i].z += z1;
-  }
-}
-void WireFrame::addVerts(vector<Vertex> v){
-  for(Vertex vert:v){
-      this->verts.push_back(vert);
-  }
-}
-void WireFrame::addEdges(vector<vector<uint16_t>> e){
-  for(vector<uint16_t> edge:e){
-      this->edges.push_back(edge);
-  }
-}
+//makes a disc, vertOffset is so that the disc edges stay in synch
+WireFrame makeDisc_centered(float x1, float y1, float z1, float r, float xSpacing, uint8_t points, uint8_t vertOffset);
 
-bool WireFrame::isFarthestVert(uint8_t which){
-  for(uint8_t v =0; v<verts.size(); v++){
-    if(verts[v].z<verts[which].z)
-      return false;
-  }
-  return true;
-}
+WireFrame makeCircle(float r1, uint8_t points);
 
-bool WireFrame::isClosestVert(uint8_t which){
-  for(uint8_t v = 0; v<verts.size(); v++){
-    //if any coordinate is closer, u know it's not the closest
-    if(verts[v].z>verts[which].z)
-      return false;
-  }
-  return true;
-}
-uint8_t WireFrame::getFarthestVert(){
-  uint8_t farthest = 0;
-  float lowestZ = verts[0].z;
-  for(uint8_t v = 1; v<verts.size(); v++){
-    if(verts[v].z<lowestZ){
-      farthest = v;
-      lowestZ = verts[v].z;
-    }
-  }
-  return farthest;
-}
-uint8_t WireFrame::getClosestVert(){
-  uint8_t closest = 0;
-  float highestZ = verts[0].z;
-  for(uint8_t v = 1; v<verts.size(); v++){
-    if(verts[v].z>highestZ){
-      closest = v;
-      highestZ = verts[v].z;
-    }
-  }
-  return closest;
-}
-void WireFrame::renderDie(){
-  //stores index of the farthest vertex
-  if(drawDots){
-    renderDotsIfInFrontOf(0.0);
-  }
-  if(drawEdges){
-    uint8_t farthestVert;
-    //loop thru each vertex and drW it if it's not the farthest one
-    for(uint8_t vertex = 0; vertex<verts.size(); vertex++){
-      if(isFarthestVert(vertex)){
-        farthestVert = vertex;
-        continue;
-      }
-    }
-    //draw edges
-    for(uint8_t edge = 0; edge<edges.size(); edge++){
-      //checking to see if this very is the farthest
-      //if it is, don't draw any lines
-      if(isFarthestVert(edges[edge][0]) || isFarthestVert(edges[edge][1])){
-        continue;
-      }
-      else
-        display.drawLine(verts[edges[edge][0]].x*scale+offset.x,verts[edges[edge][0]].y*scale+offset.y,verts[edges[edge][1]].x*scale+offset.x,verts[edges[edge][1]].y*scale+offset.y,SSD1306_WHITE);
-    }
-  }
-}
+WireFrame makeGyro(float angleX, float angleY, float angleZ,float angle2X, float angle2Y, float angle2Z);
 
-void WireFrame::render(){
-  if(drawDots){
-    for(uint8_t i = 0; i<dots.size(); i++){
-      verts[dots[i]].render(offset.x,offset.y,scale,dotSize);
-      //for labelling verts
-      // verts[dots[i]].render(offset.x,offset.y,scale,1,String(i));
-    }
-  }
-  //if it's just edges
-  if(drawEdges){
-    //draw edges
-    for(uint8_t edge = 0; edge<edges.size(); edge++){
-      //checking to see if this very is the farthest
-      //if it is, don't draw any lines
-      display.drawLine(verts[edges[edge][0]].x*scale+offset.x,verts[edges[edge][0]].y*scale+offset.y,verts[edges[edge][1]].x*scale+offset.x,verts[edges[edge][1]].y*scale+offset.y,SSD1306_WHITE);
-    }
-  }
-}
+WireFrame makeCycle();
 
-void WireFrame::renderDotsIfInFrontOf(float zCutoff){
-  for(uint8_t i = 0; i<dots.size(); i++){
-    if(verts[dots[i]].z>zCutoff)
-      verts[dots[i]].render(offset.x,offset.y,scale,1);
-  }
-}
+//makes a pram outline
+WireFrame makeHalfPramBody(float zOff);
+WireFrame makeHalfPramLegs(float zOff);
 
-//roates each vert
-void WireFrame::rotate(float angle, uint8_t axis){
-  for(uint8_t vertex = 0; vertex<verts.size(); vertex++){
-    verts[vertex].rotate(angle,axis);
-  }
-  currentAngle[axis] += angle;
-  if(currentAngle[axis] > 360)
-    currentAngle[axis]-=360;
-}
-//resets verts rotation before and after applying the transformation
-void WireFrame::rotateVertRelative(uint8_t which, float angle, uint8_t axis){
-  verts[which].x -= offset.x;
-  verts[which].y -= offset.y;
-  //reset rotation
-  verts[which].rotate(-currentAngle[0],0);
-  verts[which].rotate(-currentAngle[1],1);
-  verts[which].rotate(-currentAngle[2],2);
-  
-  //actual rotation
-  verts[which].rotate(angle,axis);
+WireFrame makePram();
 
-  //reset rotation
-  verts[which].rotate(currentAngle[0],0);
-  verts[which].rotate(currentAngle[1],1);
-  verts[which].rotate(currentAngle[2],2);
-  verts[which].x += offset.x;
-  verts[which].y += offset.y;
-}
-//this one resets the rotation of the target axis, THEN applies the rotation
-void WireFrame::setRotation(float angle, uint8_t axis){
-  if(axis>2)
-    return;
-  // float oldAngles[3] = {currentAngle[0],currentAngle[1],currentAngle[2]};
-  //reset current rotation, then rotate to the new rotation (in one line)
-  rotate(angle-currentAngle[axis],axis);
-}
+WireFrame makeGear(float r1, float r2, uint8_t teeth, uint8_t points, bool center, float zPos);
 
-//resets the rotation of the WF based on the stored angle
-void WireFrame::reset(uint8_t axis){
-  for(uint8_t vertex = 0; vertex<verts.size(); vertex++){
-    verts[vertex].rotate(-currentAngle[axis],axis);
-  }
-}
-void WireFrame::resetExceptFor(uint8_t exceptFor){
-  for(uint8_t vertex = 0; vertex<verts.size(); vertex++){
-    for(uint8_t axis = 0; axis<3; axis++){
-      if(axis != exceptFor)
-        verts[vertex].rotate(-currentAngle[axis],axis);
-    }
-  }
-}
+WireFrame makeThickGear(float r1, float r2, uint8_t teeth, uint8_t points, bool center);
+
+//makes a generic box centered on 0,0,0
+WireFrame makeBox(uint8_t w, uint8_t h, uint8_t d);
+WireFrame makeCassette();
+WireFrame makeGraphBox_old(float offset);
+
+WireFrame makeGraphBox(float offset);
+
+//makes a metronome (with an adjustable angle)
+WireFrame makeMetronome(float offset);
+//this is busted
+WireFrame makePencil();
+
+WireFrame makeLoopArrows(float angle);
+
+WireFrame makeMobius(float offset);
+
+WireFrame makeLoopArrows_Old(float angle);
+WireFrame makeKeys();
+//hand for arp menu
+WireFrame makeHand_flat(float f1, float f2, float f3, float f4, float f5);
+
+//hand for arp menu
+WireFrame makeHand(float f1, float f2, float f3, float f4, float f5);
+
+WireFrame makeCD();
+
+WireFrame makeHelix(uint8_t r, uint8_t revs, float length, uint8_t points, bool chirality);
+
+//folder anim works correctly now :)
+WireFrame makeFolder(float openAngle);
+
+//builds a rectangle in the XY plane centered on c with height = h and width = w
+WireFrame makeRect(float w, float h, Vertex c);
+
+WireFrame makeMonitor();
+
+//keys are three rectangular prisms that each ebb and flow
+WireFrame makeArpBoxes(float keyOffsetTimer);
+
+
+void openFolderAnimation(WireFrame& w,float amount);
+
+//opening and closing
+void folderAnimation(WireFrame& w);
+void handAnimation(WireFrame* w);
+void keysAnimation(WireFrame* w);
+void loopArrowAnimation(WireFrame* w);
+void metAnimation(WireFrame* w);
+void graphAnimation(WireFrame* w);
+
+void renderTest();
+
+WireFrame makeDieDots(uint8_t x1, uint8_t y1, uint8_t distance, float scale);
+
+//makes a cube with die dots!
+//dots ~are~ accurate
+WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float scale);
+
+
+

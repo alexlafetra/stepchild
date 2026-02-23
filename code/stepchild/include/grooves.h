@@ -52,8 +52,8 @@ class Groove{
             else{
                 for(uint16_t i = start; i<end; i+=stepSize){
                     //if a note starts right here
-                    if(sequence.IDAt(track,i) != 0 && sequence.noteAt(track,i).startPos == i){
-                        Note targetNote = sequence.noteAt(track,i);
+                    if(stepchild.IDAt(track,i) != 0 && stepchild.noteAt(track,i).startPos == i){
+                        Note targetNote = stepchild.noteAt(track,i);
                         switch(targetType){
                             case GrooveTargetType::Velocity:
                                 targetNote.velocity = this->data[currentGrooveStep];
@@ -62,7 +62,7 @@ class Groove{
                                 targetNote.chance = this->data[currentGrooveStep];
                                 break;
                         }
-                        sequence.noteData[track][sequence.IDAt(track,i)] = targetNote;
+                        stepchild.noteData[track][stepchild.IDAt(track,i)] = targetNote;
                     }
                     currentGrooveStep++;
                 }
@@ -83,7 +83,7 @@ Groove createGrooveFromAutotrack(uint8_t which, uint16_t start, uint16_t end, ui
     uint16_t stepLength = (end-start)/steps;
     vector<uint8_t> newData;
     for(uint16_t i = start; i<end; i+=stepLength){
-        newData.push_back(sequence.autotrackData[which].data[i]);
+        newData.push_back(stepchild.autotrackData[which].data[i]);
     }
     return Groove(newData);
 }

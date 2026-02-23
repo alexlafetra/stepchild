@@ -1,7 +1,10 @@
+#pragma once
+#include "commonStructs.h"
+
 //Live Loop Mode!
 /*
 
-    This little app lets you do performance-focused looping, with reduced editing controls.
+    This little app lets you do performance-focused looping, with reduced editing stepchild.buttons.
     While the seq is playing, the encoders are also used to send CC data.
 
     when the livelooper is enabled, some changes occur in the way the stepchild handles midi data:
@@ -31,5 +34,3 @@ struct LiveLooper{
     void stop();
     bool checkNote(uint8_t channel, uint8_t note, uint8_t vel);
 };
-
-LiveLooper liveLoop;

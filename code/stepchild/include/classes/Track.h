@@ -1,3 +1,6 @@
+#pragma once
+#include <Arduino.h>
+
 //track class
 class Track {
   public:
@@ -18,27 +21,13 @@ class Track {
   uint8_t flags = 0b00101000;//tracks start primed
   
   //constructor for each track
-  Track() {
-    muteGroup = 0;
-    noteLastSent = 255;
-  }
-
-  Track(unsigned char p, unsigned char c){
-    pitch = p;
-    channel = c;
-    muteGroup = 0;
-    noteLastSent = 255;
-  }
+  Track();
+  Track(unsigned char p, unsigned char c);
 
   //Returns a formatted string containing the track's pitch and octave
-  String getPitchAndOctave(){
-    return pitchToString(this->pitch,true, true);
-  }
+  String getPitchAndOctave();
   //Returns a formatted string containing the track's pitch
-  String getPitch(){
-    return pitchToString(this->pitch, false, true);
-  }
-
+  String getPitch();
   void setFlag(TrackFlagBit b, bool s);
   bool isSelected();
   bool isMuted();
@@ -53,51 +42,4 @@ class Track {
   void setSolo(bool);
   void setMuted(bool);
   bool checkFlag(TrackFlagBit);
-
 };
-
-void Track::reprime(){
-  setPrimed(checkFlag(PRIME_BACKUP_WHILE_LIVELOOPING));
-}
-void Track::storePrimeState(){
-  setFlag(PRIME_BACKUP_WHILE_LIVELOOPING,isPrimed());
-}
-void Track::setFlag(TrackFlagBit b, bool state){
-  if(state)
-    flags |= (1<<b);
-  else
-    flags &= ~(1<<b);
-}
-bool Track::checkFlag(TrackFlagBit b){
-  return flags&(1<<b);
-}
-bool Track::isSelected(){
-  return checkFlag(SELECTED);
-}
-bool Track::isPrimed(){
-  return checkFlag(PRIMED);
-}
-bool Track::isSolo(){
-  return checkFlag(SOLO);
-}
-bool Track::isMuted(){
-  return checkFlag(MUTED);
-}
-bool Track::isLatched(){
-  return checkFlag(LATCHED);
-}
-void Track::setPrimed(bool state){
-  setFlag(PRIMED,state);
-}
-void Track::setSolo(bool state){
-  setFlag(SOLO,state);
-}
-void Track::setSelected(bool state){
-  setFlag(SELECTED,state);
-}
-void Track::setMuted(bool state){
-  setFlag(MUTED,state);
-}
-void Track::setLatched(bool state){
-  setFlag(LATCHED,state);
-}

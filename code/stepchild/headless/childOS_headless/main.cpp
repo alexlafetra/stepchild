@@ -4,15 +4,15 @@
 
 //cpu0 setup
 void setup(){
-  MIDI.init();
+  stepchild.midi.init();
   //setting up the pinouts and the lower board
-  controls.init();
+  stepchild.buttons.init();
   //seeding random number generator
   srand(1);
   //load settings
   loadSettings();
   //setting up sequence w/ 16 tracks, 768 steps
-  sequence.init(SP404MK2_TEMPLATE);
+  stepchild.init(SP404MK2_TEMPLATE);
 
   //set the control knobs up w/ default values
   for(uint8_t i = 0; i<16; i++){
@@ -25,24 +25,24 @@ void setup(){
   
 }
 void loop(){
-  sequenceState = PlayState(sequence.playState);
+  sequenceState = PlayState(stepchild.playState);
   ledPulse(16);
-  MIDI.processCore1Messages();
-  MIDI.read();
-  switch(sequence.playState){
+  stepchild.midi.processCore1Messages();
+  stepchild.midi.read();
+  switch(stepchild.playState){
     case PLAYING:
-      sequence.playingLoop();
+      stepchild.playingLoop();
       break;
     case RECORDING:
-      sequence.recordingLoop();
+      stepchild.recordingLoop();
       break;
     case STOPPED:
-      sequence.defaultLoop();
+      stepchild.defaultLoop();
       break;
   }
   //run the arpeggiator, if it's active
-  if(arp.isActive){
-    sequence.arpLoop();
+  if(stepchild.arpeggiator.isActive){
+    stepchild.arpLoop();
   }
 }
 
@@ -51,9 +51,9 @@ void setup1() {
   while(!core0ready){
   }
   //start display
-  display.init();
-  display.setTextColor(SSD1306_WHITE);
-  display.setTextSize(1);
+  stepchild.display.init();
+  stepchild.display.setTextColor(SSD1306_WHITE);
+  stepchild.display.setTextSize(1);
   graphics.bootscreen_3();
   // graphics.bootscreen_3();
   core1ready = true;
