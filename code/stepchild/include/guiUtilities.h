@@ -1,5 +1,5 @@
 #pragma once
-#include <Arduino.h>
+#include <cstdint>
 #include <vector>
 #include "commonStructs.h"
 #include "graphics/SequenceRenderSettings.h"

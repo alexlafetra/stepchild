@@ -1,11 +1,11 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
+
 #include "mainSequence.h"
 
 using namespace std;
 
-extern Stepchild stepchild;
-extern StepchildGraphics graphics;
+;
+
 
 void drumPadAnimation(uint8_t xStart,uint8_t yStart, uint8_t startPad, uint8_t numberOfPads, bool into){
   uint8_t width = 15;

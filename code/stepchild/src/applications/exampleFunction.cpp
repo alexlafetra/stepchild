@@ -13,7 +13,7 @@
 //Import the stepchild class
 #include "Stepchild.h"
 //use the global instance of the stepchild object
-extern Stepchild stepchild;
+;
 
 using namespace std;
 

@@ -1,6 +1,6 @@
-#include "StepchildGraphics.h"
+
 #include "Stepchild.h"
-extern Stepchild stepchild;
+;
 using namespace std;
 
 //CHUNKY CHARACTERS----------------------------------

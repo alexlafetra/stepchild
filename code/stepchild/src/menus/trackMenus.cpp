@@ -1,9 +1,9 @@
 #include "Stepchild.h"
 #include "graphics/SequenceRenderSettings.h"
-#include "StepchildGraphics.h"
+
 #include "guiUtilities.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+;
 extern void drawSeq();
 
 using namespace std;

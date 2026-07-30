@@ -1,11 +1,11 @@
 #include "classes/Progression.h"
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
+
 #include "stringPatch.h"
 #include "utils.h"
 
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+;
 
 using namespace std;
 //this generator makes a chord from a scale (or all twelve keys), and can be specified to include notes

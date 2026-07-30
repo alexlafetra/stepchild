@@ -1,32 +1,25 @@
+#ifndef HEADLESS
+#warning "HEADLESS not defined in build settings>preprocessor macros, files might not compile for headless mode correctly"
 #define HEADLESS
+#endif
 
-#include "../../include/childOS.h"
+#include "Stepchild.h"
+#include "mainSequence.h"
+#include "screensavers.h"
+
+extern GLFWwindow* window;
+extern bool openGLready;
+extern PlayState sequenceState;
+
+using namespace std;
 
 //cpu0 setup
 void setup(){
-  stepchild.midi.init();
-  //setting up the pinouts and the lower board
-  stepchild.buttons.init();
-  //seeding random number generator
-  srand(1);
-  //load settings
-  loadSettings();
-  //setting up sequence w/ 16 tracks, 768 steps
-  stepchild.init(SP404MK2_TEMPLATE);
-
-  //set the control knobs up w/ default values
-  for(uint8_t i = 0; i<16; i++){
-    controlKnobs[i].cc = i+1;
-  }
-  core0ready = true;
-  lastTime = millis();
-  while(!core1ready){
-  }
-  
+//  stepchild.init();
 }
+
 void loop(){
   sequenceState = PlayState(stepchild.playState);
-  ledPulse(16);
   stepchild.midi.processCore1Messages();
   stepchild.midi.read();
   switch(stepchild.playState){
@@ -48,16 +41,10 @@ void loop(){
 
 //CPU 1 setup
 void setup1() {
-  while(!core0ready){
-  }
   //start display
   stepchild.display.init();
-  stepchild.display.setTextColor(SSD1306_WHITE);
-  stepchild.display.setTextSize(1);
-  graphics.bootscreen_3();
   // graphics.bootscreen_3();
-  core1ready = true;
-  lastTime = millis();
+  stepchild.lastTime = millis();
 }
 
 void loop1(){
@@ -82,9 +69,13 @@ void cpu1() {
 }
 
 int main() {
-  delay(1000);
+  //this was needed for glfw to launch a window... nobody knew why! Xcode seems to work without the delay now
+//  delay(1000);
+  stepchild.init();
   // setup graphics window
-  window = initGlfw();
+//  window = initGlfw();
+  launchWindow();
+//  loadImageTexture("assets/hardware_overlay.png");
   while (!openGLready) {
   }
 

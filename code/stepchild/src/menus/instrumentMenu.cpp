@@ -1,9 +1,9 @@
 #include "Stepchild.h"
 #include "classes/StepchildMenu.h"
-#include "StepchildGraphics.h"
 
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+
+;
 extern bool (*const instrumentApplicationFunctions[])();
 extern const String instrumentApplicationInfo[];
 extern const unsigned char* instrumentApplicationIcons[];

@@ -1,6 +1,6 @@
 #include "classes/Knob.h"
 #include "Stepchild.h"
-extern Stepchild stepchild;
+;
 
 using namespace std;
 

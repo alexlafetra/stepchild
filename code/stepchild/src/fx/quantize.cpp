@@ -1,7 +1,7 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+
+;
 using namespace std;
 
 void drawLittleQuantCubes(uint8_t x1, uint8_t y1, uint8_t w, bool anim){

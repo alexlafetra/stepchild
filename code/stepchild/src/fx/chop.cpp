@@ -1,9 +1,6 @@
 #include "Stepchild.h"
-#include "graphics/bitmaps.h"
-#include "StepchildGraphics.h"
 #include "guiUtilities.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
 using namespace std;
 
 uint8_t getVelWithSlope(uint16_t start, uint16_t end, uint16_t location, float& velSlope){

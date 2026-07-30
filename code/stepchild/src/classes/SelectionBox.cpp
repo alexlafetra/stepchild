@@ -1,6 +1,6 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
-extern StepchildGraphics graphics;
+
+
 using namespace std;
 
 void SelectionBox::render(SequenceRenderSettings& settings){

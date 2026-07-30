@@ -1,9 +1,9 @@
-#include "StepchildGraphics.h"
+
 #include "Stepchild.h"
 #include "graphics/WireFrame.h"
 
-extern Stepchild stepchild;
-extern StepchildGraphics graphics;
+;
+
 
 using namespace std;
 

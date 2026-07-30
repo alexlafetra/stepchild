@@ -1,5 +1,6 @@
 #pragma once
-#include <Arduino.h>
+#include <cstdint>
+#include "Arduino.h"
 
 //track class
 class Track {

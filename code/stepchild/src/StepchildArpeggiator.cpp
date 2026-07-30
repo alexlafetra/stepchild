@@ -1,4 +1,4 @@
-#include <Arduino.h>
+#include "Arduino.h"
 #include <vector>
 #include <algorithm>
 #include "StepchildArpeggiator.h"
@@ -7,7 +7,7 @@
 
 using namespace std;
 
-extern Stepchild stepchild;
+;
 
 ArpSource operator++(ArpSource &c,int) {
   c = static_cast<ArpSource>(static_cast<uint8_t>(c) + 1);

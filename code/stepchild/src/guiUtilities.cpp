@@ -1,12 +1,9 @@
-#include <Arduino.h>
+#include "Arduino.h"
 #include <vector>
 #include "commonEnums.h"
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
-#include "mainSequence.h"
 
-extern Stepchild stepchild;
-extern StepchildGraphics graphics;
+#include "mainSequence.h"
 
 using namespace std;
 

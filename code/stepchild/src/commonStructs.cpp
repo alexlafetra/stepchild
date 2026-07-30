@@ -1,8 +1,8 @@
-#include <Arduino.h>
+#include "Arduino.h"
 #include "commonStructs.h"
 #include "Stepchild.h"
 
-extern Stepchild stepchild;
+;
 
 using namespace std;
 

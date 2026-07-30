@@ -1,10 +1,10 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
+
 #include "guiUtilities.h"
 #include "mainSequence.h"
 #include "graphics/WireFrame.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+;
 
 using namespace std;
 

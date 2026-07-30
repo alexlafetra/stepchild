@@ -1,5 +1,8 @@
+#include "Stepchild.h"
 #include "menus.h"
 #include "graphics/bitmaps.h"
+#include "stringPatch.h"
+#include "Arduino.h"
 
 /*
     Contains code for the FX applications and Instrument applications!

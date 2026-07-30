@@ -1,10 +1,6 @@
 #pragma once
 
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
-
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
 
 //chord object
 class Chord{

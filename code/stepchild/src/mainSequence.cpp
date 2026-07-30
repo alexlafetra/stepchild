@@ -1,10 +1,7 @@
 #include "Stepchild.h"
 #include "menus/superpositionMenu.h"
-#include "StepchildGraphics.h"
-#include "menus.h"
 
-extern Stepchild stepchild;
-extern StepchildGraphics graphics;
+#include "menus.h"
 
 extern bool (*const fxApplicationFunctions[])();
 

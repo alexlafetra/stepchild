@@ -1,8 +1,9 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
 
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+#include "stringPatch.h"
+
+
+;
 
 void gridAnimation(bool in){
   //draws box, growing out from top left and bottom right corners

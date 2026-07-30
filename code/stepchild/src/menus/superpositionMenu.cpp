@@ -1,8 +1,8 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
+
 #include "menus/superpositionMenu.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+;
 
 using namespace std;
 
@@ -74,7 +74,7 @@ void SuperpositionMenu::drawSuperposSelect(){
   // NoteCoords n2Coords = nCoords;
   NoteCoords n2Coords = graphics.getNoteScreenCoords(note, track, settings);
   n2Coords.y1 = nCoords.y1+(int16_t(stepchild.trackData[track].pitch)-int16_t(note.superposition.pitch)) * stepchild.trackHeight;
-  n2Coords.y2 = n2Coords.y1 + stepchild.trackHeight;
+  n2Coords.y2 = n2Coords.y1 + stepchild.trackHeight-3;
 
   if(n2Coords.y1<headerHeight){
     nCoords.offsetY(-n2Coords.y1+headerHeight);
@@ -103,12 +103,16 @@ void SuperpositionMenu::drawSuperposSelect(){
   if(note.superposition.pitch>stepchild.trackData[track].pitch)
     txt = "+"+txt;
 
+  n2Coords.x1++;
+  n2Coords.length-=2;
+  n2Coords.y1++;
+  n2Coords.y2++;
   //draw superposition
   graphics.fillRectWithMissingCorners(n2Coords.x1, n2Coords.y1-1, n2Coords.length+1, stepchild.trackHeight, SSD1306_BLACK);
   graphics.drawRectWithMissingCorners(n2Coords.x1, n2Coords.y1-1, n2Coords.length+1, stepchild.trackHeight, SSD1306_WHITE);
 
   graphics.printSmall(n2Coords.x1+n2Coords.length+4,n2Coords.y1+2,txt+"("+stepchild.pitchToString(note.superposition.pitch,true,true)+")",1);
-  graphics.drawNote(note, track, nCoords, settings);//draw the note (like normal)
+  graphics.drawNote(note, track, nCoords, settings, false);//draw the note (like normal, but no superpos ghost)
 
   //draw probability
   graphics.fillSquareDiagonally(0,0,15,note.superposition.odds);

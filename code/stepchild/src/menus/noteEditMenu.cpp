@@ -1,10 +1,9 @@
 #include "Stepchild.h"
 #include "menus/superpositionMenu.h"
-#include "StepchildGraphics.h"
+
 #include "mainSequence.h"
 
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+// 
 extern void chop();
 extern bool (*const fxApplicationFunctions[])();
 extern const String fxApplicationInfo[];
@@ -314,7 +313,6 @@ bool NoteEditMenu::editMenuControls_editing(){
       else if(cursor == 5){
         stepchild.moveToNextNote_inTrack(true);
       }
-      stepchild.drawingNote = false;
       stepchild.lastTime = millis();
     }
     if (stepchild.buttons.joystickY == -1){
@@ -347,7 +345,6 @@ bool NoteEditMenu::editMenuControls_editing(){
       else if(cursor == 5){
         stepchild.moveToNextNote_inTrack(false);
       }
-      stepchild.drawingNote = false;
       stepchild.lastTime = millis();
     }
   }
@@ -457,7 +454,7 @@ bool NoteEditMenu::editMenuControls_editing(){
       stepchild.lastTime = millis();
       return true;
     }
-    if(stepchild.buttons.LOOP()){
+    if(stepchild.buttons.NEW() || stepchild.buttons.DELETE()){
       switch(cursor){
         //in move/length/vel/chance mode, "loop" just toggles editing
         case 0:
@@ -472,6 +469,7 @@ bool NoteEditMenu::editMenuControls_editing(){
         case 6:
           stepchild.lastTime = millis();
           stepchild.buttons.setLOOP(false);
+          stepchild.buttons.setNEW(false);
           fxApplicationFunctions[currentQuickFunction]();
           break;
       }
@@ -494,9 +492,6 @@ bool NoteEditMenu::editMenuControls_normal(){
     stepchild.selectionBox.coords.end.y = stepchild.activeTrack;
     stepchild.selectionBox.select();
     stepchild.selectionBox.begun = false;
-  }
-  if(!stepchild.buttons.NEW()){
-    stepchild.drawingNote = false;
   }
   //encoderA changes zoom AND +stepchild.buttons.SHIFT() changes the stencil
   while(stepchild.buttons.counterA != 0){
@@ -605,7 +600,7 @@ bool NoteEditMenu::editMenuControls_normal(){
         }
       }
     }
-    if(stepchild.buttons.LOOP()){
+    if(stepchild.buttons.NEW()){
       if(stepchild.buttons.SHIFT()){
         switch(cursor){
           //quick fx
@@ -659,21 +654,15 @@ bool NoteEditMenu::editMenuControls_normal(){
         }
       }
     }
-    if(stepchild.buttons.NEW() && !stepchild.drawingNote && !stepchild.buttons.SELECT() ){
-      if(stepchild.buttons.SHIFT()){
-        stepchild.lastTime = millis();
-        stepchild.stencilNotes(stencil);
-      }
+    if(stepchild.buttons.LOOP()){
+      stepchild.lastTime = millis();
+      stepchild.stencilNotes(stencil);
     }
     if(stepchild.buttons.SELECT()  && !stepchild.selectionBox.begun){
       unsigned short int id;
       id = stepchild.IDAtCursor();
-      //select all
-      if(stepchild.buttons.NEW()){
-        stepchild.selectAll();
-      }
       //select only one
-      else if(stepchild.buttons.SHIFT()){
+      if(stepchild.buttons.SHIFT()){
         stepchild.clearSelection();
         stepchild.toggleSelectNote(stepchild.activeTrack, id, false);
       }

@@ -1,7 +1,7 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+
+;
 using namespace std;
 /*
     Code for the strum FX and strum menu

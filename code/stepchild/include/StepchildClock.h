@@ -1,6 +1,8 @@
 #pragma once
-#include <Arduino.h>
+#include <cstdint>
 #include "commonEnums.h"
+#include "Arduino.h"
+
 
 enum ClockSource:uint8_t{
     INTERNAL_CLOCK,
@@ -47,6 +49,10 @@ class SwingCurve{
                 else
                     return ((point+phase)%period) * slope - amplitude;
             }
+          	case RANDOM_CURVE:
+          	case NOISE_CURVE:
+          	default:
+            	return 0;
         }
         return 0;
 

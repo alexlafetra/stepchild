@@ -1,5 +1,5 @@
 #include "Stepchild.h"
-extern Stepchild stepchild;
+;
 /*
 ----------------------------------------------------------
                   MIDI Input Handlers

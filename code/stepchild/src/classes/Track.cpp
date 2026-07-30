@@ -1,7 +1,7 @@
 #include "classes/Track.h"
 #include "Stepchild.h"
 
-extern Stepchild stepchild;
+;
 
 //constructor for each track
 Track::Track() {

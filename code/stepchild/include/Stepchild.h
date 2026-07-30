@@ -21,24 +21,36 @@ and then the screen/display class is a member of it too
 #pragma once
 
 #ifdef HEADLESS
-#include "../headless/childOS_headless/headless.h"
-#else
-// #include <Arduino.h>
-// #include "pico/stdlib.h"
-//from the pico sdk
-// extern "C" {
-// #include "pico.h"
-// #include "pico/time.h"
-// #include "pico/bootrom.h"
-// #include "pico/util/queue.h"
-// }
 
-#endif
+#define DISPLAY_UPRIGHT 2
+#define DISPLAY_UPSIDEDOWN 0
+#define DISPLAY_SIDEWAYS_R 3
+#define DISPLAY_SIDEWAYS_L 1
 
+#define SCREENWIDTH 128
+#define SCREENHEIGHT 64
+
+#define SSD1306_WHITE 1
+#define SSD1306_BLACK 0
+#define SSD1306_SETCONTRAST 0
+
+#include <string>
+#include <iostream>
+#include <cstdlib>
 #include <vector>
-#include <Arduino.h>
-#include "commonStructs.h"
-#include "commonEnums.h"
+#include <cstdint>
+#include <cmath>
+#include <chrono>//for emulating millis() and micros()
+#include <unistd.h>
+#include <thread>//for multithreading
+#include "headlessOpenGL.h"
+#include "headlessMIDI.h"
+#include "headlessFileSystem.h"
+#include "Arduino.h"//this IS actually the headless variant!
+#include "headlessPico.h"
+#include "headlessDisplay.h"
+#include "headlessControls.h"
+
 #include "classes/Track.h"
 #include "classes/Note.h"
 #include "classes/Autotrack.h"
@@ -49,6 +61,53 @@ and then the screen/display class is a member of it too
 #include "classes/PlayList.h"
 #include "classes/SelectionBox.h"
 #include "classes/StepchildMenu.h"
+#include "classes/Clipboard.h"
+
+#include "commonStructs.h"
+#include "commonEnums.h"
+
+#include "StepchildClock.h"
+#include "StepchildArpeggiator.h"
+#include "StepchildCV.h"
+#include "headlessFileSystem.h"
+#include "headlessMIDI.h"
+//#include "StepchildMIDI.h"
+#include "headlessDisplay.h"
+//#include "StepchildDisplay.h"
+#include "headlessControls.h"
+//#include "StepchildIO.h"
+//#include "stringPatch.h"
+#include "utils.h"
+
+extern DummyRP2040 rp2040;
+
+#else
+#include "Arduino.h"
+// #include "pico/stdlib.h"
+//from the pico sdk
+// extern "C" {
+// #include "pico.h"
+// #include "pico/time.h"
+// #include "pico/bootrom.h"
+// #include "pico/util/queue.h"
+// }
+#include <vector>
+#include <cstdint>
+#include "classes/Track.h"
+#include "classes/Note.h"
+#include "classes/Autotrack.h"
+#include "classes/ProgramChange.h"
+#include "classes/SequenceTemplate.h"
+#include "classes/LiveLooper.h"
+#include "classes/Knob.h"
+#include "classes/PlayList.h"
+#include "classes/SelectionBox.h"
+#include "classes/StepchildMenu.h"
+#include "classes/Clipboard.h"
+
+#include "commonStructs.h"
+#include "commonEnums.h"
+
 #include "StepchildFileSystem.h"
 #include "StepchildClock.h"
 #include "StepchildArpeggiator.h"
@@ -58,8 +117,15 @@ and then the screen/display class is a member of it too
 #include "StepchildIO.h"
 #include "stringPatch.h"
 #include "utils.h"
-// #include "graphics/WireFrame.h"
-#include "classes/Clipboard.h"
+#endif
+
+#include "StepchildGraphics.h"
+#include "graphics/bitmaps.h"
+#include "ControlChange.h"
+#include "utils.h"
+#include "guiUtilities.h"
+#include <algorithm>
+
 
 class Stepchild{
   public:
@@ -72,10 +138,13 @@ class Stepchild{
 
     StepchildCV cv;
     StepchildIO buttons;
-
-    StepchildDisplay display = StepchildDisplay(SCREEN_WIDTH, SCREEN_HEIGHT,&SPI1, OLED_DC, OLED_RESET, OLED_CS);
+#ifndef HEADLESS
+    StepchildDisplay display = StepchildDisplay(SCREEN_WIDTH, SCREEN_HEIGHT, &SPI1, OLED_DC, OLED_RESET, OLED_CS);
     // I2C variant vv
     // StepchildDisplay display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+#else
+  StepchildDisplay display = StepchildDisplay(SCREEN_WIDTH, SCREEN_HEIGHT);
+#endif
     StepchildMIDI midi;
     StepchildFileSystem filesystem;
     StepchildClock clock;
@@ -176,7 +245,7 @@ class Stepchild{
     //and set to false when the note is received
     volatile bool idlingUntilNoteReceived = false;
 
-    //Startup templates/templates you can swap to for automatically 
+    //Startup templates/templates you can swap to automatically 
     const static SequenceTemplate GENERIC_KEYBOARD_TEMPLATE;
     const static SequenceTemplate SP404MK2_TEMPLATE;
 
@@ -536,3 +605,5 @@ class Stepchild{
    void leaveDeepSleepMode();
    void enterDeepSleepMode();
 };
+
+extern Stepchild stepchild;

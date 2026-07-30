@@ -1,9 +1,9 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
 
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
-extern const unsigned char epd_bitmap_small_note[];
+
+
+;
+//extern const unsigned char epd_bitmap_small_note[];
 using namespace std;
 
 
@@ -94,7 +94,7 @@ void console(){
     stepchild.display.drawBitmap(116,1+((millis()/400)%2),mainMenu_icons[7],12,12,1);
 
     //note icon
-    stepchild.display.drawBitmap(3,1,epd_bitmap_small_note,5,5,1);
+//    stepchild.display.drawBitmap(3,1,epd_bitmap_small_note,5,5,1);
     graphics.printSmall(20,1,"V",1);
     stepchild.display.drawBitmap(34,2,ch_tiny,6,3,1);
 

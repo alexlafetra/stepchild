@@ -1,5 +1,5 @@
 #include "Stepchild.h"
-extern Stepchild stepchild;
+;
 using namespace std;
 
 void LiveLooper::start(bool fromTrigger){

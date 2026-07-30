@@ -1,16 +1,16 @@
 #include <algorithm>
 #include <vector>
-#include <Arduino.h>
+#include "Arduino.h"
 #include "graphics/SequenceRenderSettings.h"
 #include "guiUtilities.h"
-#include "StepchildGraphics.h"
+
 #include "Stepchild.h"
 #include "stringPatch.h"
 #include "mainSequence.h"
 #include "utils.h"
 
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+;
 
 using namespace std;
 

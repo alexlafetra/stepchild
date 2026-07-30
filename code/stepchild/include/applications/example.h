@@ -32,7 +32,6 @@
 */
 
 #include "Stepchild.h"
-extern Stepchild stepchild;
 using namespace std;
 
 //the default app function.

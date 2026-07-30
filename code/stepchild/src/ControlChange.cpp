@@ -1,13 +1,9 @@
-#include <Arduino.h>
+#include "Arduino.h"
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
+
 #include "ControlChange.h"
 #include "stringPatch.h"
-#include "graphics/bitmaps.h"
 
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
-extern const unsigned char carriage_bmp[];
 using namespace std;
 
 /*

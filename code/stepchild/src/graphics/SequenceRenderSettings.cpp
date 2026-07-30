@@ -1,6 +1,6 @@
 #include "graphics/SequenceRenderSettings.h"
 #include "Stepchild.h"
-extern Stepchild stepchild;
+;
 
 SequenceRenderSettings::SequenceRenderSettings(){
         shadeOutsideLoop = false;

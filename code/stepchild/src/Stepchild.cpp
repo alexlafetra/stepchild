@@ -1,28 +1,4 @@
-#include <Arduino.h>
-#include <vector>
-#include <algorithm>
 #include "Stepchild.h"
-#include "StepchildFileSystem.h"
-#include "StepchildArpeggiator.h"
-#include "StepchildFileSystem.h"
-#include "StepchildClock.h"
-#include "StepchildCV.h"
-#include "StepchildMIDI.h"
-#include "classes/Track.h"
-#include "classes/Note.h"
-#include "classes/Autotrack.h"
-#include "classes/ProgramChange.h"
-#include "classes/SequenceTemplate.h"
-#include "classes/LiveLooper.h"
-#include "classes/Knob.h"
-#include "classes/PlayList.h"
-#include "commonStructs.h"
-#include "commonEnums.h"
-#include "pins.h"
-#include "StepchildGraphics.h"
-#include "stringPatch.h"
-#include "guiUtilities.h"
-#include "classes/Clipboard.h"
 
 using namespace std;
 
@@ -81,6 +57,8 @@ void Stepchild::init(){
   //starting serial monitor output @ 9600baud for USB communication
   //do u need this for USB midi?
   Serial.begin(9600);
+  
+#ifndef HEADLESS
 
   //Set USB device info
   // these two strings must be exactly 32 characters long:
@@ -99,6 +77,8 @@ void Stepchild::init(){
       delay(1);
     }
   }
+  
+#endif
   
   //setup CV pins, frequency
   cv.init();

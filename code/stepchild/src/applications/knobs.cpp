@@ -1,9 +1,8 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
-#include "ControlChange.h"
 
-extern Stepchild stepchild;
-extern StepchildGraphics graphics;
+#include "stringPatch.h"
+
+
 
 using namespace std;
 

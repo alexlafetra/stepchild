@@ -5,7 +5,7 @@
 #include "graphics/bitmaps.h"
 #include "Stepchild.h"
 #include "graphics/WireFrame.h"
-extern Stepchild stepchild;
+;
 
 using namespace std;
 
@@ -86,24 +86,25 @@ uint8_t StepchildGraphics::getSmallTextLength(String t){
   return t.length()*4-countChar(t,' ')*2-countChar(t,':')*2+countChar(t,'#')*2;
 }
 
+void StepchildGraphics::drawNoteBracket(uint8_t x1, uint8_t y1, uint8_t w, uint8_t y2, bool animated){
+  uint8_t offset = animated?((millis()/400)%2):0;
+  //topL
+  stepchild.display.drawLine(x1-offset,y1-1-offset,x1+3-offset,y1-1-offset,SSD1306_WHITE);
+  stepchild.display.drawLine(x1-offset,y1-1-offset,x1-offset,y1+2-offset,SSD1306_WHITE);
+  //topR
+  stepchild.display.drawLine(x1+w+offset,y1-1-offset,x1+w-3+offset,y1-1-offset,SSD1306_WHITE);
+  stepchild.display.drawLine(x1+w+offset,y1-1-offset,x1+w+offset,y1+2-offset,SSD1306_WHITE);
+  //bottomL
+  stepchild.display.drawLine(x1-offset,y2+offset+2,x1+3-offset,y2+offset+2,SSD1306_WHITE);
+  stepchild.display.drawLine(x1-offset,y2+offset+2,x1-offset,y2-3+offset+2,SSD1306_WHITE);
+  //bottomR
+  stepchild.display.drawLine(x1+w+offset,y2+offset+2,x1+w-3+offset,y2+offset+2,SSD1306_WHITE);
+  stepchild.display.drawLine(x1+w+offset,y2+offset+2,x1+w+offset,y2-3+offset+2,SSD1306_WHITE);
+}
 
 void StepchildGraphics::drawNoteBracket(NoteCoords& n, bool animated){
   uint8_t offset = animated?((millis()/400)%2):0;
-  n.x1++;
-  n.y1++;
-  n.length-=2;
-  //topL
-  stepchild.display.drawLine(n.x1-2-offset,n.y1-2-offset,n.x1+1-offset,n.y1-2-offset,SSD1306_WHITE);
-  stepchild.display.drawLine(n.x1-2-offset,n.y1-2-offset,n.x1-2-offset,n.y1+1-offset,SSD1306_WHITE);
-  //topR
-  stepchild.display.drawLine(n.x1+n.length+2+offset,n.y1-2-offset,n.x1+n.length-1+offset,n.y1-2-offset,SSD1306_WHITE);
-  stepchild.display.drawLine(n.x1+n.length+2+offset,n.y1-2-offset,n.x1+n.length+2+offset,n.y1+1-offset,SSD1306_WHITE);
-  //bottomL
-  stepchild.display.drawLine(n.x1-2-offset,n.y2+offset,n.x1+1-offset,n.y2+offset,SSD1306_WHITE);
-  stepchild.display.drawLine(n.x1-2-offset,n.y2+offset,n.x1-2-offset,n.y2-3+offset,SSD1306_WHITE);
-  //bottomR
-  stepchild.display.drawLine(n.x1+n.length+2+offset,n.y2+offset,n.x1+n.length-1+offset,n.y2+offset,SSD1306_WHITE);
-  stepchild.display.drawLine(n.x1+n.length+2+offset,n.y2+offset,n.x1+n.length+2+offset,n.y2-3+offset,SSD1306_WHITE);
+  drawNoteBracket(n.x1,n.y1,n.length,n.y2,animated);
 }
 
 void StepchildGraphics::drawNoteBracket(Note& note, uint8_t track, SequenceRenderSettings& settings){
@@ -354,7 +355,7 @@ void StepchildGraphics::drawNotePreviewOutline(Note& note, uint8_t track, Sequen
   drawNotePreviewOutline(note, track, getNoteScreenCoords(note,track,settings), settings);
 }
 
-void StepchildGraphics::drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSettings& settings){
+void StepchildGraphics::drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSettings& settings, bool renderSuperPosTooltip){
   
   //if the note is currently superpositioned, draw it where it should be, but not if it's out of view
   if(note.isSuperpositioned()){
@@ -365,7 +366,7 @@ void StepchildGraphics::drawNote(Note& note, uint8_t track, NoteCoords noteCoord
   if(noteCoords.x1>=stepchild.SCREEN_WIDTH)
     return;
   //if it's not actively in superposition, BUT it has one and the cursor is over it, draw a rounded rect behind it
-  if(!note.isSuperpositioned() && note.superposition.pitch != 255 && stepchild.cursorPos<note.endPos && stepchild.cursorPos >= note.startPos && stepchild.activeTrack == track){
+  if(!note.isSuperpositioned() && note.superposition.pitch != 255 && stepchild.cursorPos<note.endPos && stepchild.cursorPos >= note.startPos && stepchild.activeTrack == track  && renderSuperPosTooltip){
     int8_t offset = note.superposition.pitch-stepchild.trackData[track].pitch;
     if(stepchild.cursorPos == note.startPos){
         offset += (millis()/100)%2;
@@ -397,8 +398,17 @@ void StepchildGraphics::drawNote(Note& note, uint8_t track, NoteCoords noteCoord
       this->drawRectWithMissingCorners(noteCoords.x1+1, noteCoords.y1+1, noteCoords.length-1, stepchild.trackHeight-2, SSD1306_WHITE);
     }
     else{
+      //blink notes while they're playing
       if(note.isPlaying()){
         shade = 0;
+      }
+      //blink notes that the cursor is on
+      if(note.startPos <= stepchild.cursorPos && note.endPos > stepchild.cursorPos && track == stepchild.activeTrack){
+        if((millis()/400)%2){
+          shade = 2;
+        }
+        drawNoteBracket(noteCoords, true);
+
       }
       drawNoteSprite(noteCoords,shade);
       //line at the end, if there's something at the end
@@ -412,6 +422,9 @@ void StepchildGraphics::drawNote(Note& note, uint8_t track, NoteCoords noteCoord
       stepchild.display.drawRect(noteCoords.x1+1,noteCoords.y1+1,noteCoords.length-1,stepchild.trackHeight-2,SSD1306_BLACK);
     }
   }
+}
+void StepchildGraphics::drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSettings& settings){
+  drawNote(note, track, getNoteScreenCoords(note,track,settings), settings, true);
 }
 void StepchildGraphics::drawNote(Note& note, uint8_t track, SequenceRenderSettings& settings){
   drawNote(note, track, getNoteScreenCoords(note,track,settings), settings);

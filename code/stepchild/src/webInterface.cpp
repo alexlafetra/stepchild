@@ -1,8 +1,5 @@
 #include "webInterface.h"
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
-extern Stepchild stepchild;
-extern StepchildGraphics graphics;
 
 using namespace std;
 

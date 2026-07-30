@@ -1,10 +1,10 @@
 #include "Stepchild.h"
 #include "menus.h"
 #include "graphics/bitmaps.h"
-#include "StepchildGraphics.h"
+
 #include "graphics/WireFrame.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+;
 extern WireFrame genRandMenuObjects(uint8_t x1, uint8_t y1, uint8_t distance, float scale);
 extern bool loadBackup();
 

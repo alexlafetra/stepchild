@@ -1,8 +1,8 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
+
 #include "graphics/WireFrame.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+;
 using namespace std;
 
 // uint16_t midiChannelFilter = 65535;

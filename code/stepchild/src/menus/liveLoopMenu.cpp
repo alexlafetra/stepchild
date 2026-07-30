@@ -1,9 +1,9 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
+
 #include "graphics/WireFrame.h"
 #include "mainSequence.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+;
 using namespace std;
 
 //settings are:

@@ -1,7 +1,7 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+
+;
 extern bool (*const fxApplicationFunctions[])();
 extern const String fxApplicationInfo[];
 extern const unsigned char* fxApplicationIcons[];

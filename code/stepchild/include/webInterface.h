@@ -1,4 +1,3 @@
-#include "StepchildGraphics.h"
 #include "Stepchild.h"
 
 class Console{

@@ -1,9 +1,4 @@
 #include "Stepchild.h"
-#include "ControlChange.h"
-#include "graphics/bitmaps.h"
-#include "StepchildGraphics.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
 
 using namespace std;
 

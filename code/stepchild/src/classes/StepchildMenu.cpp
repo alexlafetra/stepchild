@@ -1,7 +1,7 @@
 #include "Stepchild.h"
 #include "classes/StepchildMenu.h"
 
-extern Stepchild stepchild;
+;
 using namespace std;
 
 StepchildMenu::StepchildMenu(){};

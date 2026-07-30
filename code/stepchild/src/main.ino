@@ -10,14 +10,13 @@
   Header file for ChildOS
 
 */
+#ifndef HEADLESS
 
 #define FIRMWARE_VERSION '0.9.2'
 
 #include "Stepchild.h"
 #include "mainSequence.h"
 #include "screensavers.h"
-
-extern Stepchild stepchild;
 
 using namespace std;
 
@@ -60,3 +59,6 @@ void loop(){
     stepchild.arpLoop();
   }
 }
+
+
+#endif

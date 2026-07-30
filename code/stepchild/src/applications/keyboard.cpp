@@ -3,10 +3,10 @@
 */
 
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
+
 #include "mainSequence.h"
-extern Stepchild stepchild;
-extern StepchildGraphics graphics;
+;
+
 using namespace std;
 
 //drawing keys

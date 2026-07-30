@@ -5,9 +5,9 @@ Maybe consider making them GFX glyphs? So you can integrate it w/ the adafruit l
 */
 
 
-#include "StepchildGraphics.h"
+
 #include "Stepchild.h"
-extern Stepchild stepchild;
+;
 using namespace std;
 
 

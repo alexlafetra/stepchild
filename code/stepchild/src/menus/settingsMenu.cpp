@@ -24,10 +24,11 @@ rethinking this:
 #include "guiUtilities.h"
 #include "Stepchild.h"
 #include "menus.h"
-#include "StepchildGraphics.h"
+
 #include "graphics/WireFrame.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+
+;
 extern void webInterface();
 using namespace std;
 

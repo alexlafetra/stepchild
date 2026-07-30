@@ -1,9 +1,9 @@
 #include "Stepchild.h"
 #include "utils.h"
-#include "StepchildGraphics.h"
+
 #include "guiUtilities.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+;
 using namespace std;
 
 void applySwingToSequence(){

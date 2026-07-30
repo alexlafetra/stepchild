@@ -10,23 +10,107 @@
 		FA01CE662AC2F93D005BBB0F /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE652AC2F93D005BBB0F /* CoreAudio.framework */; };
 		FA01CE682AC2F94C005BBB0F /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE672AC2F94C005BBB0F /* CoreMIDI.framework */; };
 		FA01CE6A2AC2F955005BBB0F /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA01CE692AC2F955005BBB0F /* CoreFoundation.framework */; };
+		FA4527BC3016DCE700BEDB24 /* headlessPico.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA4527BB3016DB2500BEDB24 /* headlessPico.cpp */; };
+		FA73B2132F4CEF27001ADD66 /* planets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1C82F4CEF27001ADD66 /* planets.cpp */; };
+		FA73B2142F4CEF27001ADD66 /* fileMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1F72F4CEF27001ADD66 /* fileMenu.cpp */; };
+		FA73B2152F4CEF27001ADD66 /* keyboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1C62F4CEF27001ADD66 /* keyboard.cpp */; };
+		FA73B2172F4CEF27001ADD66 /* liveLoopMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1FB2F4CEF27001ADD66 /* liveLoopMenu.cpp */; };
+		FA73B2182F4CEF27001ADD66 /* 7_segment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1E42F4CEF27001ADD66 /* 7_segment.cpp */; };
+		FA73B2192F4CEF27001ADD66 /* mainMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1FD2F4CEF27001ADD66 /* mainMenu.cpp */; };
+		FA73B21A2F4CEF27001ADD66 /* programChangeEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B2002F4CEF27001ADD66 /* programChangeEditor.cpp */; };
+		FA73B21B2F4CEF27001ADD66 /* applications.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1C12F4CEF27001ADD66 /* applications.cpp */; };
+		FA73B21C2F4CEF27001ADD66 /* webInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B2122F4CEF27001ADD66 /* webInterface.cpp */; };
+		FA73B21D2F4CEF27001ADD66 /* settingsMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B2022F4CEF27001ADD66 /* settingsMenu.cpp */; };
+		FA73B21E2F4CEF27001ADD66 /* guiUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1EF2F4CEF27001ADD66 /* guiUtilities.cpp */; };
+		FA73B21F2F4CEF27001ADD66 /* chop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1DB2F4CEF27001ADD66 /* chop.cpp */; };
+		FA73B2202F4CEF27001ADD66 /* StepchildCV.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B20B2F4CEF27001ADD66 /* StepchildCV.cpp */; };
+		FA73B2212F4CEF27001ADD66 /* fragmentMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1F82F4CEF27001ADD66 /* fragmentMenu.cpp */; };
+		FA73B2222F4CEF27001ADD66 /* quickFXMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B2012F4CEF27001ADD66 /* quickFXMenu.cpp */; };
+		FA73B2232F4CEF27001ADD66 /* Note.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1D12F4CEF27001ADD66 /* Note.cpp */; };
+		FA73B2242F4CEF27001ADD66 /* mainSequence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1F12F4CEF27001ADD66 /* mainSequence.cpp */; };
+		FA73B2252F4CEF27001ADD66 /* Clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1CE2F4CEF27001ADD66 /* Clipboard.cpp */; };
+		FA73B2262F4CEF27001ADD66 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B2112F4CEF27001ADD66 /* utils.cpp */; };
+		FA73B2272F4CEF27001ADD66 /* xy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1CB2F4CEF27001ADD66 /* xy.cpp */; };
+		FA73B2282F4CEF27001ADD66 /* WireFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1ED2F4CEF27001ADD66 /* WireFrame.cpp */; };
+		FA73B2292F4CEF27001ADD66 /* rattle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1CA2F4CEF27001ADD66 /* rattle.cpp */; };
+		FA73B22A2F4CEF27001ADD66 /* Stepchild.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B2082F4CEF27001ADD66 /* Stepchild.cpp */; };
+		FA73B22B2F4CEF27001ADD66 /* noteEditMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1FF2F4CEF27001ADD66 /* noteEditMenu.cpp */; };
+		FA73B22C2F4CEF27001ADD66 /* StepchildClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B20A2F4CEF27001ADD66 /* StepchildClock.cpp */; };
+		FA73B22D2F4CEF27001ADD66 /* cursive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1E72F4CEF27001ADD66 /* cursive.cpp */; };
+		FA73B22E2F4CEF27001ADD66 /* chordBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1C22F4CEF27001ADD66 /* chordBuilder.cpp */; };
+		FA73B22F2F4CEF27001ADD66 /* SelectionBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1D32F4CEF27001ADD66 /* SelectionBox.cpp */; };
+		FA73B2302F4CEF27001ADD66 /* instrumentMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1FA2F4CEF27001ADD66 /* instrumentMenu.cpp */; };
+		FA73B2312F4CEF27001ADD66 /* drumPads.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1C42F4CEF27001ADD66 /* drumPads.cpp */; };
+		FA73B2322F4CEF27001ADD66 /* arp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1E52F4CEF27001ADD66 /* arp.cpp */; };
+		FA73B2332F4CEF27001ADD66 /* stepchildGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B20D2F4CEF27001ADD66 /* stepchildGraphics.cpp */; };
+		FA73B2342F4CEF27001ADD66 /* strum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1E12F4CEF27001ADD66 /* strum.cpp */; };
+		FA73B2352F4CEF27001ADD66 /* midiInputHandlers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B2062F4CEF27001ADD66 /* midiInputHandlers.cpp */; };
+		FA73B2362F4CEF27001ADD66 /* StepchildMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1D52F4CEF27001ADD66 /* StepchildMenu.cpp */; };
+		FA73B2372F4CEF27001ADD66 /* chunky.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1E62F4CEF27001ADD66 /* chunky.cpp */; };
+		FA73B2382F4CEF27001ADD66 /* echo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1DC2F4CEF27001ADD66 /* echo.cpp */; };
+		FA73B2392F4CEF27001ADD66 /* superpositionMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B2032F4CEF27001ADD66 /* superpositionMenu.cpp */; };
+		FA73B23A2F4CEF27001ADD66 /* commonEnums.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1D82F4CEF27001ADD66 /* commonEnums.cpp */; };
+		FA73B23B2F4CEF27001ADD66 /* LiveLooper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1D02F4CEF27001ADD66 /* LiveLooper.cpp */; };
+		FA73B23C2F4CEF27001ADD66 /* ControlChange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1DA2F4CEF27001ADD66 /* ControlChange.cpp */; };
+		FA73B23D2F4CEF27001ADD66 /* midiMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1FE2F4CEF27001ADD66 /* midiMenu.cpp */; };
+		FA73B23E2F4CEF27001ADD66 /* clockMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1F42F4CEF27001ADD66 /* clockMenu.cpp */; };
+		FA73B23F2F4CEF27001ADD66 /* SequenceTemplate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1D42F4CEF27001ADD66 /* SequenceTemplate.cpp */; };
+		FA73B2402F4CEF27001ADD66 /* Track.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1D62F4CEF27001ADD66 /* Track.cpp */; };
+		FA73B2412F4CEF27001ADD66 /* quantize.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1DE2F4CEF27001ADD66 /* quantize.cpp */; };
+		FA73B2422F4CEF27001ADD66 /* loopMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1FC2F4CEF27001ADD66 /* loopMenu.cpp */; };
+		FA73B2442F4CEF27001ADD66 /* rain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1C92F4CEF27001ADD66 /* rain.cpp */; };
+		FA73B2452F4CEF27001ADD66 /* small.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1E92F4CEF27001ADD66 /* small.cpp */; };
+		FA73B2462F4CEF27001ADD66 /* fxMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1F92F4CEF27001ADD66 /* fxMenu.cpp */; };
+		FA73B2472F4CEF27001ADD66 /* arpMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1F22F4CEF27001ADD66 /* arpMenu.cpp */; };
+		FA73B2482F4CEF27001ADD66 /* Knob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1CF2F4CEF27001ADD66 /* Knob.cpp */; };
+		FA73B2492F4CEF27001ADD66 /* humanize.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1DD2F4CEF27001ADD66 /* humanize.cpp */; };
+		FA73B24A2F4CEF27001ADD66 /* Autotrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1CD2F4CEF27001ADD66 /* Autotrack.cpp */; };
+		FA73B24B2F4CEF27001ADD66 /* randomMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1DF2F4CEF27001ADD66 /* randomMenu.cpp */; };
+		FA73B24D2F4CEF27001ADD66 /* screensavers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B2072F4CEF27001ADD66 /* screensavers.cpp */; };
+		FA73B24E2F4CEF27001ADD66 /* exampleFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1C52F4CEF27001ADD66 /* exampleFunction.cpp */; };
+		FA73B24F2F4CEF27001ADD66 /* commonStructs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1D92F4CEF27001ADD66 /* commonStructs.cpp */; };
+		FA73B2502F4CEF27001ADD66 /* warpMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1E22F4CEF27001ADD66 /* warpMenu.cpp */; };
+		FA73B2512F4CEF27001ADD66 /* StepchildArpeggiator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B2092F4CEF27001ADD66 /* StepchildArpeggiator.cpp */; };
+		FA73B2522F4CEF27001ADD66 /* trackMenus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B2042F4CEF27001ADD66 /* trackMenus.cpp */; };
+		FA73B2532F4CEF27001ADD66 /* reverse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1E02F4CEF27001ADD66 /* reverse.cpp */; };
+		FA73B2542F4CEF27001ADD66 /* bitmaps.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1EB2F4CEF27001ADD66 /* bitmaps.cpp */; };
+		FA73B2552F4CEF27001ADD66 /* italic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1E82F4CEF27001ADD66 /* italic.cpp */; };
+		FA73B2562F4CEF27001ADD66 /* autotrackMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1F32F4CEF27001ADD66 /* autotrackMenu.cpp */; };
+		FA73B2572F4CEF27001ADD66 /* stringPatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B2102F4CEF27001ADD66 /* stringPatch.cpp */; };
+		FA73B2582F4CEF27001ADD66 /* consoleMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1F52F4CEF27001ADD66 /* consoleMenu.cpp */; };
+		FA73B2592F4CEF27001ADD66 /* CVMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1F62F4CEF27001ADD66 /* CVMenu.cpp */; };
+		FA73B25A2F4CEF27001ADD66 /* chordDJ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1C32F4CEF27001ADD66 /* chordDJ.cpp */; };
+		FA73B25B2F4CEF27001ADD66 /* knobs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1C72F4CEF27001ADD66 /* knobs.cpp */; };
+		FA73B25C2F4CEF27001ADD66 /* SequenceRenderSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1EC2F4CEF27001ADD66 /* SequenceRenderSettings.cpp */; };
+		FA73B25D2F4CEF27001ADD66 /* PlayList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA73B1D22F4CEF27001ADD66 /* PlayList.cpp */; };
+		FA73B25E2F4CEF27001ADD66 /* main.ino in Resources */ = {isa = PBXBuildFile; fileRef = FA73B1F02F4CEF27001ADD66 /* main.ino */; };
+		FA73B28D2F4CEF4C001ADD66 /* buildFonts.py in Resources */ = {isa = PBXBuildFile; fileRef = FA73B2732F4CEF4C001ADD66 /* buildFonts.py */; };
+		FA73B28E2F4CEF4C001ADD66 /* README in Resources */ = {isa = PBXBuildFile; fileRef = FA73B27E2F4CEF4C001ADD66 /* README */; };
 		FAA06B06299423D4004BEC01 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA06B05299423D4004BEC01 /* OpenGL.framework */; };
 		FAA06B0E29943BC7004BEC01 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAA06B0D29943BC6004BEC01 /* main.cpp */; };
+		FABFA2E230172769009EC22F /* headlessControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FABFA2E130172769009EC22F /* headlessControls.cpp */; };
+		FABFA2E430172A3F009EC22F /* headlessOpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FABFA2E330172A3F009EC22F /* headlessOpenGL.cpp */; };
+		FABFA2E630172B13009EC22F /* headlessDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FABFA2E530172B13009EC22F /* headlessDisplay.cpp */; };
+		FABFA2E930172CCB009EC22F /* Arduino.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FABFA2E830172CCB009EC22F /* Arduino.cpp */; };
+		FABFA2EB30172E64009EC22F /* headlessFileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FABFA2EA30172E64009EC22F /* headlessFileSystem.cpp */; };
+		FABFA2ED30172F62009EC22F /* headlessMIDI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FABFA2EC30172F62009EC22F /* headlessMIDI.cpp */; };
 		FADB2D3D2CBDC118000F9981 /* libglfw.3.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FADB2D3C2CBDC118000F9981 /* libglfw.3.4.dylib */; };
 		FADB2D3E2CBDC118000F9981 /* libglfw.3.4.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = FADB2D3C2CBDC118000F9981 /* libglfw.3.4.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		FADB2D432CBDD086000F9981 /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA3C21932AD4E009004634E6 /* RtMidi.cpp */; };
+		FAF2F1A73018818E00A87A3F /* hardware_overlay.png in Resources */ = {isa = PBXBuildFile; fileRef = FAF2F1A43018818E00A87A3F /* hardware_overlay.png */; };
+		FAF2F1A83018818E00A87A3F /* hardware_overlay_transparent.png in Resources */ = {isa = PBXBuildFile; fileRef = FAF2F1A53018818E00A87A3F /* hardware_overlay_transparent.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		FAA06AF829942167004BEC01 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 16;
 			files = (
 			);
 			name = "Copy Files";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		FADB2D3F2CBDC118000F9981 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -48,90 +132,7 @@
 		FA01CE702AC35CBB005BBB0F /* headlessMIDI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = headlessMIDI.h; sourceTree = "<group>"; };
 		FA0A413D2AD5252500013622 /* headlessFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headlessFileSystem.h; sourceTree = "<group>"; };
 		FA12D85A2CC05F5800031637 /* headlessPico.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headlessPico.h; sourceTree = "<group>"; };
-		FA12D85B2CC05FAE00031637 /* headlessArduino.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headlessArduino.h; sourceTree = "<group>"; };
-		FA16CCCA2CBE003D00329124 /* applications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = applications.h; sourceTree = "<group>"; };
-		FA16CCCB2CBE003D00329124 /* chordBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chordBuilder.cpp; sourceTree = "<group>"; };
-		FA16CCCC2CBE003D00329124 /* chordDJ.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chordDJ.cpp; sourceTree = "<group>"; };
-		FA16CCCD2CBE003D00329124 /* drumPads.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = drumPads.cpp; sourceTree = "<group>"; };
-		FA16CCCE2CBE003D00329124 /* exampleFunction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = exampleFunction.cpp; sourceTree = "<group>"; };
-		FA16CCCF2CBE003D00329124 /* keyboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = keyboard.h; sourceTree = "<group>"; };
-		FA16CCD02CBE003D00329124 /* knobs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = knobs.cpp; sourceTree = "<group>"; };
-		FA16CCD12CBE003D00329124 /* liveLoop.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = liveLoop.cpp; sourceTree = "<group>"; };
-		FA16CCD22CBE003D00329124 /* planets.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = planets.cpp; sourceTree = "<group>"; };
-		FA16CCD32CBE003D00329124 /* rain.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rain.cpp; sourceTree = "<group>"; };
-		FA16CCD42CBE003D00329124 /* rattle.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rattle.cpp; sourceTree = "<group>"; };
-		FA16CCD52CBE003D00329124 /* userApplications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = userApplications.h; sourceTree = "<group>"; };
-		FA16CCD62CBE003D00329124 /* xy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = xy.cpp; sourceTree = "<group>"; };
-		FA16CCD82CBE003D00329124 /* Arp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Arp.h; sourceTree = "<group>"; };
-		FA16CCD92CBE003D00329124 /* AutoTrack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AutoTrack.h; sourceTree = "<group>"; };
-		FA16CCDA2CBE003D00329124 /* Knob.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Knob.h; sourceTree = "<group>"; };
-		FA16CCDB2CBE003D00329124 /* Note.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Note.h; sourceTree = "<group>"; };
-		FA16CCDC2CBE003D00329124 /* NoteID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoteID.h; sourceTree = "<group>"; };
-		FA16CCDD2CBE003D00329124 /* PlayList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlayList.h; sourceTree = "<group>"; };
-		FA16CCDE2CBE003D00329124 /* Progression.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Progression.h; sourceTree = "<group>"; };
-		FA16CCDF2CBE003D00329124 /* SelectionBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SelectionBox.h; sourceTree = "<group>"; };
-		FA16CCE02CBE003D00329124 /* Track.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Track.h; sourceTree = "<group>"; };
-		FA16CCE22CBE003D00329124 /* chop.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chop.cpp; sourceTree = "<group>"; };
-		FA16CCE32CBE003D00329124 /* echo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = echo.cpp; sourceTree = "<group>"; };
-		FA16CCE42CBE003D00329124 /* humanizeMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = humanizeMenu.cpp; sourceTree = "<group>"; };
-		FA16CCE52CBE003D00329124 /* quantizeMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = quantizeMenu.cpp; sourceTree = "<group>"; };
-		FA16CCE62CBE003D00329124 /* randomMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = randomMenu.cpp; sourceTree = "<group>"; };
-		FA16CCE72CBE003D00329124 /* reverseMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = reverseMenu.cpp; sourceTree = "<group>"; };
-		FA16CCE82CBE003D00329124 /* strumMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = strumMenu.cpp; sourceTree = "<group>"; };
-		FA16CCE92CBE003D00329124 /* warpMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = warpMenu.cpp; sourceTree = "<group>"; };
-		FA16CCEB2CBE003D00329124 /* 7_segment.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = 7_segment.cpp; sourceTree = "<group>"; };
-		FA16CCEC2CBE003D00329124 /* arp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = arp.cpp; sourceTree = "<group>"; };
-		FA16CCED2CBE003D00329124 /* chunky.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chunky.cpp; sourceTree = "<group>"; };
-		FA16CCEE2CBE003D00329124 /* cursive.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cursive.cpp; sourceTree = "<group>"; };
-		FA16CCEF2CBE003D00329124 /* italic.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = italic.cpp; sourceTree = "<group>"; };
-		FA16CCF02CBE003D00329124 /* small.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = small.cpp; sourceTree = "<group>"; };
-		FA16CCF22CBE003D00329124 /* sequenceRender.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sequenceRender.h; sourceTree = "<group>"; };
-		FA16CCF32CBE003D00329124 /* stepchildGraphics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stepchildGraphics.h; sourceTree = "<group>"; };
-		FA16CCF42CBE003D00329124 /* stepchildGraphics.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stepchildGraphics.cpp; sourceTree = "<group>"; };
-		FA16CCF52CBE003D00329124 /* WireFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WireFrame.h; sourceTree = "<group>"; };
-		FA16CCF62CBE003D00329124 /* wireframeObjects.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = wireframeObjects.h; sourceTree = "<group>"; };
-		FA16CCF82CBE003D00329124 /* arpMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = arpMenu.cpp; sourceTree = "<group>"; };
-		FA16CCF92CBE003D00329124 /* autotrackMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = autotrackMenu.cpp; sourceTree = "<group>"; };
-		FA16CCFA2CBE003D00329124 /* clockMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = clockMenu.cpp; sourceTree = "<group>"; };
-		FA16CCFB2CBE003D00329124 /* consoleMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = consoleMenu.cpp; sourceTree = "<group>"; };
-		FA16CCFC2CBE003D00329124 /* fileMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fileMenu.cpp; sourceTree = "<group>"; };
-		FA16CCFD2CBE003D00329124 /* fragmentMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fragmentMenu.cpp; sourceTree = "<group>"; };
-		FA16CCFE2CBE003D00329124 /* fxMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fxMenu.cpp; sourceTree = "<group>"; };
-		FA16CCFF2CBE003D00329124 /* instrumentMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = instrumentMenu.cpp; sourceTree = "<group>"; };
-		FA16CD002CBE003D00329124 /* loopMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = loopMenu.cpp; sourceTree = "<group>"; };
-		FA16CD012CBE003D00329124 /* mainMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mainMenu.cpp; sourceTree = "<group>"; };
-		FA16CD022CBE003D00329124 /* midiMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = midiMenu.cpp; sourceTree = "<group>"; };
-		FA16CD032CBE003D00329124 /* noteEditMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = noteEditMenu.cpp; sourceTree = "<group>"; };
-		FA16CD042CBE003D00329124 /* settingsMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = settingsMenu.cpp; sourceTree = "<group>"; };
-		FA16CD052CBE003D00329124 /* StepchildMenu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StepchildMenu.h; sourceTree = "<group>"; };
-		FA16CD062CBE003D00329124 /* trackMenus.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = trackMenus.cpp; sourceTree = "<group>"; };
-		FA16CD082CBE003D00329124 /* bitmaps.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bitmaps.h; sourceTree = "<group>"; };
-		FA16CD092CBE003D00329124 /* CCSelector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CCSelector.h; sourceTree = "<group>"; };
-		FA16CD0A2CBE003D00329124 /* ChildOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChildOS.h; sourceTree = "<group>"; };
-		FA16CD0B2CBE003D00329124 /* clock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = clock.h; sourceTree = "<group>"; };
-		FA16CD0C2CBE003D00329124 /* CV.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CV.h; sourceTree = "<group>"; };
-		FA16CD0D2CBE003D00329124 /* display.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = display.h; sourceTree = "<group>"; };
-		FA16CD0E2CBE003D00329124 /* fileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fileSystem.h; sourceTree = "<group>"; };
-		FA16CD0F2CBE003D00329124 /* functionPrototypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = functionPrototypes.h; sourceTree = "<group>"; };
-		FA16CD102CBE003D00329124 /* global.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = global.h; sourceTree = "<group>"; };
-		FA16CD112CBE003D00329124 /* grooves.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = grooves.h; sourceTree = "<group>"; };
-		FA16CD122CBE003D00329124 /* hardware.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hardware.h; sourceTree = "<group>"; };
-		FA16CD132CBE003D00329124 /* helperFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helperFunctions.h; sourceTree = "<group>"; };
-		FA16CD142CBE003D00329124 /* internalCC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = internalCC.h; sourceTree = "<group>"; };
-		FA16CD152CBE003D00329124 /* mainSequence.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mainSequence.h; sourceTree = "<group>"; };
-		FA16CD172CBE003D00329124 /* playback.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = playback.h; sourceTree = "<group>"; };
-		FA16CD182CBE003D00329124 /* programChange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = programChange.h; sourceTree = "<group>"; };
-		FA16CD192CBE003D00329124 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
-		FA16CD1A2CBE003D00329124 /* sequence.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sequence.h; sourceTree = "<group>"; };
-		FA16CD1B2CBE003D00329124 /* sequence.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sequence.cpp; sourceTree = "<group>"; };
-		FA16CD1C2CBE003D00329124 /* sleep.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sleep.h; sourceTree = "<group>"; };
-		FA16CD1E2CBE003D00329124 /* stepchildGUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stepchildGUI.h; sourceTree = "<group>"; };
-		FA16CD1F2CBE003D00329124 /* StepchildMIDI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StepchildMIDI.h; sourceTree = "<group>"; };
-		FA16CD202CBE003D00329124 /* TBA_Features.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TBA_Features.h; sourceTree = "<group>"; };
-		FA16CD212CBE003D00329124 /* trackEditing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = trackEditing.h; sourceTree = "<group>"; };
-		FA16CD222CBE003D00329124 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
-		FA16CD232CBE003D00329124 /* webInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = webInterface.h; sourceTree = "<group>"; };
-		FA1852DD2D53413A00979694 /* stepchild.ino */ = {isa = PBXFileReference; lastKnownFileType = text; path = stepchild.ino; sourceTree = "<group>"; };
+		FA12D85B2CC05FAE00031637 /* Arduino.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Arduino.h; sourceTree = "<group>"; };
 		FA3C21892AD4DBB8004634E6 /* RtMidi.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = "childOS_headless/rtmidi-6.0.0/RtMidi.cpp"; sourceTree = "<group>"; };
 		FA3C218B2AD4DBC8004634E6 /* RtMidi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = "childOS_headless/rtmidi-6.0.0/RtMidi.h"; sourceTree = "<group>"; };
 		FA3C21922AD4E009004634E6 /* libtool */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = libtool; sourceTree = "<group>"; };
@@ -363,16 +364,142 @@
 		FA3C22AA2AD4E00A004634E6 /* Makefile.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.in; sourceTree = "<group>"; };
 		FA3C22AB2AD4E00A004634E6 /* aclocal.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = aclocal.m4; sourceTree = "<group>"; };
 		FA3C22AC2AD4E00A004634E6 /* autogen.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = autogen.sh; sourceTree = "<group>"; };
+		FA4527BB3016DB2500BEDB24 /* headlessPico.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = headlessPico.cpp; sourceTree = "<group>"; };
+		FA73B1C12F4CEF27001ADD66 /* applications.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = applications.cpp; sourceTree = "<group>"; };
+		FA73B1C22F4CEF27001ADD66 /* chordBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chordBuilder.cpp; sourceTree = "<group>"; };
+		FA73B1C32F4CEF27001ADD66 /* chordDJ.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chordDJ.cpp; sourceTree = "<group>"; };
+		FA73B1C42F4CEF27001ADD66 /* drumPads.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = drumPads.cpp; sourceTree = "<group>"; };
+		FA73B1C52F4CEF27001ADD66 /* exampleFunction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = exampleFunction.cpp; sourceTree = "<group>"; };
+		FA73B1C62F4CEF27001ADD66 /* keyboard.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = keyboard.cpp; sourceTree = "<group>"; };
+		FA73B1C72F4CEF27001ADD66 /* knobs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = knobs.cpp; sourceTree = "<group>"; };
+		FA73B1C82F4CEF27001ADD66 /* planets.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = planets.cpp; sourceTree = "<group>"; };
+		FA73B1C92F4CEF27001ADD66 /* rain.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rain.cpp; sourceTree = "<group>"; };
+		FA73B1CA2F4CEF27001ADD66 /* rattle.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rattle.cpp; sourceTree = "<group>"; };
+		FA73B1CB2F4CEF27001ADD66 /* xy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = xy.cpp; sourceTree = "<group>"; };
+		FA73B1CD2F4CEF27001ADD66 /* Autotrack.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Autotrack.cpp; sourceTree = "<group>"; };
+		FA73B1CE2F4CEF27001ADD66 /* Clipboard.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Clipboard.cpp; sourceTree = "<group>"; };
+		FA73B1CF2F4CEF27001ADD66 /* Knob.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Knob.cpp; sourceTree = "<group>"; };
+		FA73B1D02F4CEF27001ADD66 /* LiveLooper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LiveLooper.cpp; sourceTree = "<group>"; };
+		FA73B1D12F4CEF27001ADD66 /* Note.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Note.cpp; sourceTree = "<group>"; };
+		FA73B1D22F4CEF27001ADD66 /* PlayList.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlayList.cpp; sourceTree = "<group>"; };
+		FA73B1D32F4CEF27001ADD66 /* SelectionBox.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SelectionBox.cpp; sourceTree = "<group>"; };
+		FA73B1D42F4CEF27001ADD66 /* SequenceTemplate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SequenceTemplate.cpp; sourceTree = "<group>"; };
+		FA73B1D52F4CEF27001ADD66 /* StepchildMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StepchildMenu.cpp; sourceTree = "<group>"; };
+		FA73B1D62F4CEF27001ADD66 /* Track.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Track.cpp; sourceTree = "<group>"; };
+		FA73B1D82F4CEF27001ADD66 /* commonEnums.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = commonEnums.cpp; sourceTree = "<group>"; };
+		FA73B1D92F4CEF27001ADD66 /* commonStructs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = commonStructs.cpp; sourceTree = "<group>"; };
+		FA73B1DA2F4CEF27001ADD66 /* ControlChange.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ControlChange.cpp; sourceTree = "<group>"; };
+		FA73B1DB2F4CEF27001ADD66 /* chop.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chop.cpp; sourceTree = "<group>"; };
+		FA73B1DC2F4CEF27001ADD66 /* echo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = echo.cpp; sourceTree = "<group>"; };
+		FA73B1DD2F4CEF27001ADD66 /* humanize.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = humanize.cpp; sourceTree = "<group>"; };
+		FA73B1DE2F4CEF27001ADD66 /* quantize.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = quantize.cpp; sourceTree = "<group>"; };
+		FA73B1DF2F4CEF27001ADD66 /* randomMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = randomMenu.cpp; sourceTree = "<group>"; };
+		FA73B1E02F4CEF27001ADD66 /* reverse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = reverse.cpp; sourceTree = "<group>"; };
+		FA73B1E12F4CEF27001ADD66 /* strum.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = strum.cpp; sourceTree = "<group>"; };
+		FA73B1E22F4CEF27001ADD66 /* warpMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = warpMenu.cpp; sourceTree = "<group>"; };
+		FA73B1E42F4CEF27001ADD66 /* 7_segment.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = 7_segment.cpp; sourceTree = "<group>"; };
+		FA73B1E52F4CEF27001ADD66 /* arp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = arp.cpp; sourceTree = "<group>"; };
+		FA73B1E62F4CEF27001ADD66 /* chunky.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = chunky.cpp; sourceTree = "<group>"; };
+		FA73B1E72F4CEF27001ADD66 /* cursive.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cursive.cpp; sourceTree = "<group>"; };
+		FA73B1E82F4CEF27001ADD66 /* italic.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = italic.cpp; sourceTree = "<group>"; };
+		FA73B1E92F4CEF27001ADD66 /* small.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = small.cpp; sourceTree = "<group>"; };
+		FA73B1EB2F4CEF27001ADD66 /* bitmaps.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bitmaps.cpp; sourceTree = "<group>"; };
+		FA73B1EC2F4CEF27001ADD66 /* SequenceRenderSettings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SequenceRenderSettings.cpp; sourceTree = "<group>"; };
+		FA73B1ED2F4CEF27001ADD66 /* WireFrame.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WireFrame.cpp; sourceTree = "<group>"; };
+		FA73B1EF2F4CEF27001ADD66 /* guiUtilities.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = guiUtilities.cpp; sourceTree = "<group>"; };
+		FA73B1F02F4CEF27001ADD66 /* main.ino */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.ino; sourceTree = "<group>"; };
+		FA73B1F12F4CEF27001ADD66 /* mainSequence.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mainSequence.cpp; sourceTree = "<group>"; };
+		FA73B1F22F4CEF27001ADD66 /* arpMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = arpMenu.cpp; sourceTree = "<group>"; };
+		FA73B1F32F4CEF27001ADD66 /* autotrackMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = autotrackMenu.cpp; sourceTree = "<group>"; };
+		FA73B1F42F4CEF27001ADD66 /* clockMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = clockMenu.cpp; sourceTree = "<group>"; };
+		FA73B1F52F4CEF27001ADD66 /* consoleMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = consoleMenu.cpp; sourceTree = "<group>"; };
+		FA73B1F62F4CEF27001ADD66 /* CVMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CVMenu.cpp; sourceTree = "<group>"; };
+		FA73B1F72F4CEF27001ADD66 /* fileMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fileMenu.cpp; sourceTree = "<group>"; };
+		FA73B1F82F4CEF27001ADD66 /* fragmentMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fragmentMenu.cpp; sourceTree = "<group>"; };
+		FA73B1F92F4CEF27001ADD66 /* fxMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fxMenu.cpp; sourceTree = "<group>"; };
+		FA73B1FA2F4CEF27001ADD66 /* instrumentMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = instrumentMenu.cpp; sourceTree = "<group>"; };
+		FA73B1FB2F4CEF27001ADD66 /* liveLoopMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = liveLoopMenu.cpp; sourceTree = "<group>"; };
+		FA73B1FC2F4CEF27001ADD66 /* loopMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = loopMenu.cpp; sourceTree = "<group>"; };
+		FA73B1FD2F4CEF27001ADD66 /* mainMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mainMenu.cpp; sourceTree = "<group>"; };
+		FA73B1FE2F4CEF27001ADD66 /* midiMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = midiMenu.cpp; sourceTree = "<group>"; };
+		FA73B1FF2F4CEF27001ADD66 /* noteEditMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = noteEditMenu.cpp; sourceTree = "<group>"; };
+		FA73B2002F4CEF27001ADD66 /* programChangeEditor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = programChangeEditor.cpp; sourceTree = "<group>"; };
+		FA73B2012F4CEF27001ADD66 /* quickFXMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = quickFXMenu.cpp; sourceTree = "<group>"; };
+		FA73B2022F4CEF27001ADD66 /* settingsMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = settingsMenu.cpp; sourceTree = "<group>"; };
+		FA73B2032F4CEF27001ADD66 /* superpositionMenu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = superpositionMenu.cpp; sourceTree = "<group>"; };
+		FA73B2042F4CEF27001ADD66 /* trackMenus.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = trackMenus.cpp; sourceTree = "<group>"; };
+		FA73B2062F4CEF27001ADD66 /* midiInputHandlers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = midiInputHandlers.cpp; sourceTree = "<group>"; };
+		FA73B2072F4CEF27001ADD66 /* screensavers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = screensavers.cpp; sourceTree = "<group>"; };
+		FA73B2082F4CEF27001ADD66 /* Stepchild.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Stepchild.cpp; sourceTree = "<group>"; };
+		FA73B2092F4CEF27001ADD66 /* StepchildArpeggiator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StepchildArpeggiator.cpp; sourceTree = "<group>"; };
+		FA73B20A2F4CEF27001ADD66 /* StepchildClock.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StepchildClock.cpp; sourceTree = "<group>"; };
+		FA73B20B2F4CEF27001ADD66 /* StepchildCV.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StepchildCV.cpp; sourceTree = "<group>"; };
+		FA73B20C2F4CEF27001ADD66 /* StepchildFileSystem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StepchildFileSystem.cpp; sourceTree = "<group>"; };
+		FA73B20D2F4CEF27001ADD66 /* stepchildGraphics.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stepchildGraphics.cpp; sourceTree = "<group>"; };
+		FA73B2102F4CEF27001ADD66 /* stringPatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stringPatch.cpp; sourceTree = "<group>"; };
+		FA73B2112F4CEF27001ADD66 /* utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cpp; sourceTree = "<group>"; };
+		FA73B2122F4CEF27001ADD66 /* webInterface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = webInterface.cpp; sourceTree = "<group>"; };
+		FA73B25F2F4CEF4C001ADD66 /* example.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = example.h; sourceTree = "<group>"; };
+		FA73B2602F4CEF4C001ADD66 /* Raindrop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Raindrop.h; sourceTree = "<group>"; };
+		FA73B2622F4CEF4C001ADD66 /* Autotrack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Autotrack.h; sourceTree = "<group>"; };
+		FA73B2632F4CEF4C001ADD66 /* Clipboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Clipboard.h; sourceTree = "<group>"; };
+		FA73B2642F4CEF4C001ADD66 /* Knob.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Knob.h; sourceTree = "<group>"; };
+		FA73B2652F4CEF4C001ADD66 /* LiveLooper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LiveLooper.h; sourceTree = "<group>"; };
+		FA73B2662F4CEF4C001ADD66 /* Note.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Note.h; sourceTree = "<group>"; };
+		FA73B2672F4CEF4C001ADD66 /* PlayList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlayList.h; sourceTree = "<group>"; };
+		FA73B2682F4CEF4C001ADD66 /* ProgramChange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProgramChange.h; sourceTree = "<group>"; };
+		FA73B2692F4CEF4C001ADD66 /* Progression.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Progression.h; sourceTree = "<group>"; };
+		FA73B26A2F4CEF4C001ADD66 /* SelectionBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SelectionBox.h; sourceTree = "<group>"; };
+		FA73B26B2F4CEF4C001ADD66 /* SequenceTemplate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SequenceTemplate.h; sourceTree = "<group>"; };
+		FA73B26C2F4CEF4C001ADD66 /* StepchildMenu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StepchildMenu.h; sourceTree = "<group>"; };
+		FA73B26D2F4CEF4C001ADD66 /* Track.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Track.h; sourceTree = "<group>"; };
+		FA73B26F2F4CEF4C001ADD66 /* commonEnums.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = commonEnums.h; sourceTree = "<group>"; };
+		FA73B2702F4CEF4C001ADD66 /* commonStructs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = commonStructs.h; sourceTree = "<group>"; };
+		FA73B2712F4CEF4C001ADD66 /* ControlChange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ControlChange.h; sourceTree = "<group>"; };
+		FA73B2722F4CEF4C001ADD66 /* bitmaps.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bitmaps.h; sourceTree = "<group>"; };
+		FA73B2732F4CEF4C001ADD66 /* buildFonts.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = buildFonts.py; sourceTree = "<group>"; };
+		FA73B2742F4CEF4C001ADD66 /* SequenceRenderSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SequenceRenderSettings.h; sourceTree = "<group>"; };
+		FA73B2752F4CEF4C001ADD66 /* WireFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WireFrame.h; sourceTree = "<group>"; };
+		FA73B2772F4CEF4C001ADD66 /* grooves.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = grooves.h; sourceTree = "<group>"; };
+		FA73B2782F4CEF4C001ADD66 /* guiUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = guiUtilities.h; sourceTree = "<group>"; };
+		FA73B2792F4CEF4C001ADD66 /* mainSequence.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mainSequence.h; sourceTree = "<group>"; };
+		FA73B27A2F4CEF4C001ADD66 /* menus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = menus.h; sourceTree = "<group>"; };
+		FA73B27B2F4CEF4C001ADD66 /* superpositionMenu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = superpositionMenu.h; sourceTree = "<group>"; };
+		FA73B27D2F4CEF4C001ADD66 /* pins.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pins.h; sourceTree = "<group>"; };
+		FA73B27E2F4CEF4C001ADD66 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		FA73B27F2F4CEF4C001ADD66 /* screensavers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = screensavers.h; sourceTree = "<group>"; };
+		FA73B2802F4CEF4C001ADD66 /* Stepchild.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Stepchild.h; sourceTree = "<group>"; };
+		FA73B2812F4CEF4C001ADD66 /* StepchildArpeggiator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StepchildArpeggiator.h; sourceTree = "<group>"; };
+		FA73B2822F4CEF4C001ADD66 /* StepchildClock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StepchildClock.h; sourceTree = "<group>"; };
+		FA73B2832F4CEF4C001ADD66 /* StepchildCV.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StepchildCV.h; sourceTree = "<group>"; };
+		FA73B2842F4CEF4C001ADD66 /* StepchildDisplay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StepchildDisplay.h; sourceTree = "<group>"; };
+		FA73B2852F4CEF4C001ADD66 /* StepchildFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StepchildFileSystem.h; sourceTree = "<group>"; };
+		FA73B2862F4CEF4C001ADD66 /* StepchildGraphics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StepchildGraphics.h; sourceTree = "<group>"; };
+		FA73B2872F4CEF4C001ADD66 /* StepchildIO.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StepchildIO.h; sourceTree = "<group>"; };
+		FA73B2882F4CEF4C001ADD66 /* StepchildMIDI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StepchildMIDI.h; sourceTree = "<group>"; };
+		FA73B2892F4CEF4C001ADD66 /* stringPatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stringPatch.h; sourceTree = "<group>"; };
+		FA73B28A2F4CEF4C001ADD66 /* TBA_Features.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TBA_Features.h; sourceTree = "<group>"; };
+		FA73B28B2F4CEF4C001ADD66 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
+		FA73B28C2F4CEF4C001ADD66 /* webInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = webInterface.h; sourceTree = "<group>"; };
+		FA73B28F2F4CF18D001ADD66 /* headlessOpenGL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headlessOpenGL.h; sourceTree = "<group>"; };
 		FA7578F92996F34000378FA9 /* bitmap */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bitmap; sourceTree = "<group>"; };
 		FAA06AFA29942167004BEC01 /* childOS_headless */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = childOS_headless; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAA06B05299423D4004BEC01 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		FAA06B0729942479004BEC01 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		FAA06B0B29943B71004BEC01 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fonts; sourceTree = "<group>"; };
 		FAA06B0D29943BC6004BEC01 /* main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = main.cpp; sourceTree = "<group>"; };
-		FAB642662DEC4B8E003EFC69 /* headless.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headless.h; sourceTree = "<group>"; };
 		FAB6ECBA2AB2340500A32AD2 /* headlessDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = headlessDisplay.h; sourceTree = "<group>"; };
+		FABFA2E130172769009EC22F /* headlessControls.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = headlessControls.cpp; sourceTree = "<group>"; };
+		FABFA2E330172A3F009EC22F /* headlessOpenGL.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = headlessOpenGL.cpp; sourceTree = "<group>"; };
+		FABFA2E530172B13009EC22F /* headlessDisplay.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = headlessDisplay.cpp; sourceTree = "<group>"; };
+		FABFA2E830172CCB009EC22F /* Arduino.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = Arduino.cpp; sourceTree = "<group>"; };
+		FABFA2EA30172E64009EC22F /* headlessFileSystem.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = headlessFileSystem.cpp; sourceTree = "<group>"; };
+		FABFA2EC30172F62009EC22F /* headlessMIDI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = headlessMIDI.cpp; sourceTree = "<group>"; };
 		FAC12CDF2C1A06E20099C357 /* headlessControls.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headlessControls.h; sourceTree = "<group>"; };
 		FADB2D3C2CBDC118000F9981 /* libglfw.3.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.4.dylib; path = childOS_headless/libglfw.3.4.dylib; sourceTree = "<group>"; };
+		FAF2F1A330187E8800A87A3F /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
+		FAF2F1A43018818E00A87A3F /* hardware_overlay.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hardware_overlay.png; sourceTree = "<group>"; };
+		FAF2F1A53018818E00A87A3F /* hardware_overlay_transparent.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hardware_overlay_transparent.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -391,139 +518,36 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		FA16CCD72CBE003D00329124 /* applications */ = {
-			isa = PBXGroup;
-			children = (
-				FA16CCCA2CBE003D00329124 /* applications.h */,
-				FA16CCCB2CBE003D00329124 /* chordBuilder.cpp */,
-				FA16CCCC2CBE003D00329124 /* chordDJ.cpp */,
-				FA16CCCD2CBE003D00329124 /* drumPads.cpp */,
-				FA16CCCE2CBE003D00329124 /* exampleFunction.cpp */,
-				FA16CCCF2CBE003D00329124 /* keyboard.h */,
-				FA16CCD02CBE003D00329124 /* knobs.cpp */,
-				FA16CCD12CBE003D00329124 /* liveLoop.cpp */,
-				FA16CCD22CBE003D00329124 /* planets.cpp */,
-				FA16CCD32CBE003D00329124 /* rain.cpp */,
-				FA16CCD42CBE003D00329124 /* rattle.cpp */,
-				FA16CCD52CBE003D00329124 /* userApplications.h */,
-				FA16CCD62CBE003D00329124 /* xy.cpp */,
-			);
-			path = applications;
-			sourceTree = "<group>";
-		};
-		FA16CCE12CBE003D00329124 /* classes */ = {
-			isa = PBXGroup;
-			children = (
-				FA16CCD82CBE003D00329124 /* Arp.h */,
-				FA16CCD92CBE003D00329124 /* AutoTrack.h */,
-				FA16CCDA2CBE003D00329124 /* Knob.h */,
-				FA16CCDB2CBE003D00329124 /* Note.h */,
-				FA16CCDC2CBE003D00329124 /* NoteID.h */,
-				FA16CCDD2CBE003D00329124 /* PlayList.h */,
-				FA16CCDE2CBE003D00329124 /* Progression.h */,
-				FA16CCDF2CBE003D00329124 /* SelectionBox.h */,
-				FA16CCE02CBE003D00329124 /* Track.h */,
-			);
-			path = classes;
-			sourceTree = "<group>";
-		};
-		FA16CCEA2CBE003D00329124 /* fx */ = {
-			isa = PBXGroup;
-			children = (
-				FA16CCE22CBE003D00329124 /* chop.cpp */,
-				FA16CCE32CBE003D00329124 /* echo.cpp */,
-				FA16CCE42CBE003D00329124 /* humanizeMenu.cpp */,
-				FA16CCE52CBE003D00329124 /* quantizeMenu.cpp */,
-				FA16CCE62CBE003D00329124 /* randomMenu.cpp */,
-				FA16CCE72CBE003D00329124 /* reverseMenu.cpp */,
-				FA16CCE82CBE003D00329124 /* strumMenu.cpp */,
-				FA16CCE92CBE003D00329124 /* warpMenu.cpp */,
-			);
-			path = fx;
-			sourceTree = "<group>";
-		};
-		FA16CCF12CBE003D00329124 /* fonts */ = {
-			isa = PBXGroup;
-			children = (
-				FA16CCEB2CBE003D00329124 /* 7_segment.cpp */,
-				FA16CCEC2CBE003D00329124 /* arp.cpp */,
-				FA16CCED2CBE003D00329124 /* chunky.cpp */,
-				FA16CCEE2CBE003D00329124 /* cursive.cpp */,
-				FA16CCEF2CBE003D00329124 /* italic.cpp */,
-				FA16CCF02CBE003D00329124 /* small.cpp */,
-			);
-			path = fonts;
-			sourceTree = "<group>";
-		};
-		FA16CCF72CBE003D00329124 /* graphics */ = {
-			isa = PBXGroup;
-			children = (
-				FA16CCF12CBE003D00329124 /* fonts */,
-				FA16CCF22CBE003D00329124 /* sequenceRender.h */,
-				FA16CCF32CBE003D00329124 /* stepchildGraphics.h */,
-				FA16CCF42CBE003D00329124 /* stepchildGraphics.cpp */,
-				FA16CCF52CBE003D00329124 /* WireFrame.h */,
-				FA16CCF62CBE003D00329124 /* wireframeObjects.h */,
-			);
-			path = graphics;
-			sourceTree = "<group>";
-		};
-		FA16CD072CBE003D00329124 /* menus */ = {
-			isa = PBXGroup;
-			children = (
-				FA16CCF82CBE003D00329124 /* arpMenu.cpp */,
-				FA16CCF92CBE003D00329124 /* autotrackMenu.cpp */,
-				FA16CCFA2CBE003D00329124 /* clockMenu.cpp */,
-				FA16CCFB2CBE003D00329124 /* consoleMenu.cpp */,
-				FA16CCFC2CBE003D00329124 /* fileMenu.cpp */,
-				FA16CCFD2CBE003D00329124 /* fragmentMenu.cpp */,
-				FA16CCFE2CBE003D00329124 /* fxMenu.cpp */,
-				FA16CCFF2CBE003D00329124 /* instrumentMenu.cpp */,
-				FA16CD002CBE003D00329124 /* loopMenu.cpp */,
-				FA16CD012CBE003D00329124 /* mainMenu.cpp */,
-				FA16CD022CBE003D00329124 /* midiMenu.cpp */,
-				FA16CD032CBE003D00329124 /* noteEditMenu.cpp */,
-				FA16CD042CBE003D00329124 /* settingsMenu.cpp */,
-				FA16CD052CBE003D00329124 /* StepchildMenu.h */,
-				FA16CD062CBE003D00329124 /* trackMenus.cpp */,
-			);
-			path = menus;
-			sourceTree = "<group>";
-		};
 		FA16CD242CBE003D00329124 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				FA16CCD72CBE003D00329124 /* applications */,
-				FA16CCE12CBE003D00329124 /* classes */,
-				FA16CCEA2CBE003D00329124 /* fx */,
-				FA16CCF72CBE003D00329124 /* graphics */,
-				FA16CD072CBE003D00329124 /* menus */,
-				FA16CD082CBE003D00329124 /* bitmaps.h */,
-				FA16CD092CBE003D00329124 /* CCSelector.h */,
-				FA16CD0A2CBE003D00329124 /* ChildOS.h */,
-				FA16CD0B2CBE003D00329124 /* clock.h */,
-				FA16CD0C2CBE003D00329124 /* CV.h */,
-				FA16CD0D2CBE003D00329124 /* display.h */,
-				FA16CD0E2CBE003D00329124 /* fileSystem.h */,
-				FA16CD0F2CBE003D00329124 /* functionPrototypes.h */,
-				FA16CD102CBE003D00329124 /* global.h */,
-				FA16CD112CBE003D00329124 /* grooves.h */,
-				FA16CD122CBE003D00329124 /* hardware.h */,
-				FA16CD132CBE003D00329124 /* helperFunctions.h */,
-				FA16CD142CBE003D00329124 /* internalCC.h */,
-				FA16CD152CBE003D00329124 /* mainSequence.h */,
-				FA16CD172CBE003D00329124 /* playback.h */,
-				FA16CD182CBE003D00329124 /* programChange.h */,
-				FA16CD192CBE003D00329124 /* README */,
-				FA16CD1A2CBE003D00329124 /* sequence.h */,
-				FA16CD1B2CBE003D00329124 /* sequence.cpp */,
-				FA16CD1C2CBE003D00329124 /* sleep.h */,
-				FA16CD1E2CBE003D00329124 /* stepchildGUI.h */,
-				FA16CD1F2CBE003D00329124 /* StepchildMIDI.h */,
-				FA16CD202CBE003D00329124 /* TBA_Features.h */,
-				FA16CD212CBE003D00329124 /* trackEditing.h */,
-				FA16CD222CBE003D00329124 /* utils.h */,
-				FA16CD232CBE003D00329124 /* webInterface.h */,
+				FA73B2612F4CEF4C001ADD66 /* applications */,
+				FA73B26E2F4CEF4C001ADD66 /* classes */,
+				FA73B26F2F4CEF4C001ADD66 /* commonEnums.h */,
+				FA73B2702F4CEF4C001ADD66 /* commonStructs.h */,
+				FA73B2712F4CEF4C001ADD66 /* ControlChange.h */,
+				FA73B2762F4CEF4C001ADD66 /* graphics */,
+				FA73B2772F4CEF4C001ADD66 /* grooves.h */,
+				FA73B2782F4CEF4C001ADD66 /* guiUtilities.h */,
+				FA73B2792F4CEF4C001ADD66 /* mainSequence.h */,
+				FA73B27A2F4CEF4C001ADD66 /* menus.h */,
+				FA73B27C2F4CEF4C001ADD66 /* menus */,
+				FA73B27D2F4CEF4C001ADD66 /* pins.h */,
+				FA73B27E2F4CEF4C001ADD66 /* README */,
+				FA73B27F2F4CEF4C001ADD66 /* screensavers.h */,
+				FA73B2802F4CEF4C001ADD66 /* Stepchild.h */,
+				FA73B2812F4CEF4C001ADD66 /* StepchildArpeggiator.h */,
+				FA73B2822F4CEF4C001ADD66 /* StepchildClock.h */,
+				FA73B2832F4CEF4C001ADD66 /* StepchildCV.h */,
+				FA73B2842F4CEF4C001ADD66 /* StepchildDisplay.h */,
+				FA73B2852F4CEF4C001ADD66 /* StepchildFileSystem.h */,
+				FA73B2862F4CEF4C001ADD66 /* StepchildGraphics.h */,
+				FA73B2872F4CEF4C001ADD66 /* StepchildIO.h */,
+				FA73B2882F4CEF4C001ADD66 /* StepchildMIDI.h */,
+				FA73B2892F4CEF4C001ADD66 /* stringPatch.h */,
+				FA73B28A2F4CEF4C001ADD66 /* TBA_Features.h */,
+				FA73B28B2F4CEF4C001ADD66 /* utils.h */,
+				FA73B28C2F4CEF4C001ADD66 /* webInterface.h */,
 			);
 			name = include;
 			path = ../include;
@@ -532,7 +556,28 @@
 		FA1852DE2D53413A00979694 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				FA1852DD2D53413A00979694 /* stepchild.ino */,
+				FA73B1CC2F4CEF27001ADD66 /* applications */,
+				FA73B1D72F4CEF27001ADD66 /* classes */,
+				FA73B1D82F4CEF27001ADD66 /* commonEnums.cpp */,
+				FA73B1D92F4CEF27001ADD66 /* commonStructs.cpp */,
+				FA73B1DA2F4CEF27001ADD66 /* ControlChange.cpp */,
+				FA73B1E32F4CEF27001ADD66 /* fx */,
+				FA73B1EE2F4CEF27001ADD66 /* graphics */,
+				FA73B1EF2F4CEF27001ADD66 /* guiUtilities.cpp */,
+				FA73B1F02F4CEF27001ADD66 /* main.ino */,
+				FA73B1F12F4CEF27001ADD66 /* mainSequence.cpp */,
+				FA73B2052F4CEF27001ADD66 /* menus */,
+				FA73B2062F4CEF27001ADD66 /* midiInputHandlers.cpp */,
+				FA73B2072F4CEF27001ADD66 /* screensavers.cpp */,
+				FA73B2082F4CEF27001ADD66 /* Stepchild.cpp */,
+				FA73B2092F4CEF27001ADD66 /* StepchildArpeggiator.cpp */,
+				FA73B20A2F4CEF27001ADD66 /* StepchildClock.cpp */,
+				FA73B20B2F4CEF27001ADD66 /* StepchildCV.cpp */,
+				FA73B20C2F4CEF27001ADD66 /* StepchildFileSystem.cpp */,
+				FA73B20D2F4CEF27001ADD66 /* stepchildGraphics.cpp */,
+				FA73B2102F4CEF27001ADD66 /* stringPatch.cpp */,
+				FA73B2112F4CEF27001ADD66 /* utils.cpp */,
+				FA73B2122F4CEF27001ADD66 /* webInterface.cpp */,
 			);
 			name = src;
 			path = ../src;
@@ -1207,6 +1252,153 @@
 			path = .deps;
 			sourceTree = "<group>";
 		};
+		FA73B1CC2F4CEF27001ADD66 /* applications */ = {
+			isa = PBXGroup;
+			children = (
+				FA73B1C12F4CEF27001ADD66 /* applications.cpp */,
+				FA73B1C22F4CEF27001ADD66 /* chordBuilder.cpp */,
+				FA73B1C32F4CEF27001ADD66 /* chordDJ.cpp */,
+				FA73B1C42F4CEF27001ADD66 /* drumPads.cpp */,
+				FA73B1C52F4CEF27001ADD66 /* exampleFunction.cpp */,
+				FA73B1C62F4CEF27001ADD66 /* keyboard.cpp */,
+				FA73B1C72F4CEF27001ADD66 /* knobs.cpp */,
+				FA73B1C82F4CEF27001ADD66 /* planets.cpp */,
+				FA73B1C92F4CEF27001ADD66 /* rain.cpp */,
+				FA73B1CA2F4CEF27001ADD66 /* rattle.cpp */,
+				FA73B1CB2F4CEF27001ADD66 /* xy.cpp */,
+			);
+			path = applications;
+			sourceTree = "<group>";
+		};
+		FA73B1D72F4CEF27001ADD66 /* classes */ = {
+			isa = PBXGroup;
+			children = (
+				FA73B1CD2F4CEF27001ADD66 /* Autotrack.cpp */,
+				FA73B1CE2F4CEF27001ADD66 /* Clipboard.cpp */,
+				FA73B1CF2F4CEF27001ADD66 /* Knob.cpp */,
+				FA73B1D02F4CEF27001ADD66 /* LiveLooper.cpp */,
+				FA73B1D12F4CEF27001ADD66 /* Note.cpp */,
+				FA73B1D22F4CEF27001ADD66 /* PlayList.cpp */,
+				FA73B1D32F4CEF27001ADD66 /* SelectionBox.cpp */,
+				FA73B1D42F4CEF27001ADD66 /* SequenceTemplate.cpp */,
+				FA73B1D52F4CEF27001ADD66 /* StepchildMenu.cpp */,
+				FA73B1D62F4CEF27001ADD66 /* Track.cpp */,
+			);
+			path = classes;
+			sourceTree = "<group>";
+		};
+		FA73B1E32F4CEF27001ADD66 /* fx */ = {
+			isa = PBXGroup;
+			children = (
+				FA73B1DB2F4CEF27001ADD66 /* chop.cpp */,
+				FA73B1DC2F4CEF27001ADD66 /* echo.cpp */,
+				FA73B1DD2F4CEF27001ADD66 /* humanize.cpp */,
+				FA73B1DE2F4CEF27001ADD66 /* quantize.cpp */,
+				FA73B1DF2F4CEF27001ADD66 /* randomMenu.cpp */,
+				FA73B1E02F4CEF27001ADD66 /* reverse.cpp */,
+				FA73B1E12F4CEF27001ADD66 /* strum.cpp */,
+				FA73B1E22F4CEF27001ADD66 /* warpMenu.cpp */,
+			);
+			path = fx;
+			sourceTree = "<group>";
+		};
+		FA73B1EA2F4CEF27001ADD66 /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				FA73B1E42F4CEF27001ADD66 /* 7_segment.cpp */,
+				FA73B1E52F4CEF27001ADD66 /* arp.cpp */,
+				FA73B1E62F4CEF27001ADD66 /* chunky.cpp */,
+				FA73B1E72F4CEF27001ADD66 /* cursive.cpp */,
+				FA73B1E82F4CEF27001ADD66 /* italic.cpp */,
+				FA73B1E92F4CEF27001ADD66 /* small.cpp */,
+			);
+			path = fonts;
+			sourceTree = "<group>";
+		};
+		FA73B1EE2F4CEF27001ADD66 /* graphics */ = {
+			isa = PBXGroup;
+			children = (
+				FA73B1EA2F4CEF27001ADD66 /* fonts */,
+				FA73B1EB2F4CEF27001ADD66 /* bitmaps.cpp */,
+				FA73B1EC2F4CEF27001ADD66 /* SequenceRenderSettings.cpp */,
+				FA73B1ED2F4CEF27001ADD66 /* WireFrame.cpp */,
+			);
+			path = graphics;
+			sourceTree = "<group>";
+		};
+		FA73B2052F4CEF27001ADD66 /* menus */ = {
+			isa = PBXGroup;
+			children = (
+				FA73B1F22F4CEF27001ADD66 /* arpMenu.cpp */,
+				FA73B1F32F4CEF27001ADD66 /* autotrackMenu.cpp */,
+				FA73B1F42F4CEF27001ADD66 /* clockMenu.cpp */,
+				FA73B1F52F4CEF27001ADD66 /* consoleMenu.cpp */,
+				FA73B1F62F4CEF27001ADD66 /* CVMenu.cpp */,
+				FA73B1F72F4CEF27001ADD66 /* fileMenu.cpp */,
+				FA73B1F82F4CEF27001ADD66 /* fragmentMenu.cpp */,
+				FA73B1F92F4CEF27001ADD66 /* fxMenu.cpp */,
+				FA73B1FA2F4CEF27001ADD66 /* instrumentMenu.cpp */,
+				FA73B1FB2F4CEF27001ADD66 /* liveLoopMenu.cpp */,
+				FA73B1FC2F4CEF27001ADD66 /* loopMenu.cpp */,
+				FA73B1FD2F4CEF27001ADD66 /* mainMenu.cpp */,
+				FA73B1FE2F4CEF27001ADD66 /* midiMenu.cpp */,
+				FA73B1FF2F4CEF27001ADD66 /* noteEditMenu.cpp */,
+				FA73B2002F4CEF27001ADD66 /* programChangeEditor.cpp */,
+				FA73B2012F4CEF27001ADD66 /* quickFXMenu.cpp */,
+				FA73B2022F4CEF27001ADD66 /* settingsMenu.cpp */,
+				FA73B2032F4CEF27001ADD66 /* superpositionMenu.cpp */,
+				FA73B2042F4CEF27001ADD66 /* trackMenus.cpp */,
+			);
+			path = menus;
+			sourceTree = "<group>";
+		};
+		FA73B2612F4CEF4C001ADD66 /* applications */ = {
+			isa = PBXGroup;
+			children = (
+				FA73B25F2F4CEF4C001ADD66 /* example.h */,
+				FA73B2602F4CEF4C001ADD66 /* Raindrop.h */,
+			);
+			path = applications;
+			sourceTree = "<group>";
+		};
+		FA73B26E2F4CEF4C001ADD66 /* classes */ = {
+			isa = PBXGroup;
+			children = (
+				FA73B2622F4CEF4C001ADD66 /* Autotrack.h */,
+				FA73B2632F4CEF4C001ADD66 /* Clipboard.h */,
+				FA73B2642F4CEF4C001ADD66 /* Knob.h */,
+				FA73B2652F4CEF4C001ADD66 /* LiveLooper.h */,
+				FA73B2662F4CEF4C001ADD66 /* Note.h */,
+				FA73B2672F4CEF4C001ADD66 /* PlayList.h */,
+				FA73B2682F4CEF4C001ADD66 /* ProgramChange.h */,
+				FA73B2692F4CEF4C001ADD66 /* Progression.h */,
+				FA73B26A2F4CEF4C001ADD66 /* SelectionBox.h */,
+				FA73B26B2F4CEF4C001ADD66 /* SequenceTemplate.h */,
+				FA73B26C2F4CEF4C001ADD66 /* StepchildMenu.h */,
+				FA73B26D2F4CEF4C001ADD66 /* Track.h */,
+			);
+			path = classes;
+			sourceTree = "<group>";
+		};
+		FA73B2762F4CEF4C001ADD66 /* graphics */ = {
+			isa = PBXGroup;
+			children = (
+				FA73B2722F4CEF4C001ADD66 /* bitmaps.h */,
+				FA73B2732F4CEF4C001ADD66 /* buildFonts.py */,
+				FA73B2742F4CEF4C001ADD66 /* SequenceRenderSettings.h */,
+				FA73B2752F4CEF4C001ADD66 /* WireFrame.h */,
+			);
+			path = graphics;
+			sourceTree = "<group>";
+		};
+		FA73B27C2F4CEF4C001ADD66 /* menus */ = {
+			isa = PBXGroup;
+			children = (
+				FA73B27B2F4CEF4C001ADD66 /* superpositionMenu.h */,
+			);
+			path = menus;
+			sourceTree = "<group>";
+		};
 		FAA06AF129942167004BEC01 = {
 			isa = PBXGroup;
 			children = (
@@ -1234,12 +1426,21 @@
 			children = (
 				FAA06B0B29943B71004BEC01 /* Fonts */,
 				FAC12CDF2C1A06E20099C357 /* headlessControls.h */,
-				FAB642662DEC4B8E003EFC69 /* headless.h */,
-				FA12D85B2CC05FAE00031637 /* headlessArduino.h */,
+				FABFA2E130172769009EC22F /* headlessControls.cpp */,
+				FA73B28F2F4CF18D001ADD66 /* headlessOpenGL.h */,
+				FABFA2E330172A3F009EC22F /* headlessOpenGL.cpp */,
+				FAF2F1A330187E8800A87A3F /* stb_image.h */,
+				FA12D85B2CC05FAE00031637 /* Arduino.h */,
+				FABFA2E830172CCB009EC22F /* Arduino.cpp */,
 				FA0A413D2AD5252500013622 /* headlessFileSystem.h */,
+				FABFA2EA30172E64009EC22F /* headlessFileSystem.cpp */,
 				FA12D85A2CC05F5800031637 /* headlessPico.h */,
+				FA4527BB3016DB2500BEDB24 /* headlessPico.cpp */,
 				FA01CE702AC35CBB005BBB0F /* headlessMIDI.h */,
+				FABFA2EC30172F62009EC22F /* headlessMIDI.cpp */,
 				FAB6ECBA2AB2340500A32AD2 /* headlessDisplay.h */,
+				FABFA2E530172B13009EC22F /* headlessDisplay.cpp */,
+				FAF2F1A63018818E00A87A3F /* assets */,
 				FA7578F92996F34000378FA9 /* bitmap */,
 				FAA06B0D29943BC6004BEC01 /* main.cpp */,
 			);
@@ -1259,6 +1460,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		FAF2F1A63018818E00A87A3F /* assets */ = {
+			isa = PBXGroup;
+			children = (
+				FAF2F1A43018818E00A87A3F /* hardware_overlay.png */,
+				FAF2F1A53018818E00A87A3F /* hardware_overlay_transparent.png */,
+			);
+			path = assets;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1268,8 +1478,8 @@
 			buildPhases = (
 				FAA06AF629942167004BEC01 /* Sources */,
 				FAA06AF729942167004BEC01 /* Frameworks */,
-				FAA06AF829942167004BEC01 /* Copy Files */,
 				FAB99E4E29959C340045ABA0 /* Resources */,
+				FAA06AF829942167004BEC01 /* Copy Files */,
 				FADB2D3F2CBDC118000F9981 /* Embed Libraries */,
 			);
 			buildRules = (
@@ -1319,6 +1529,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAF2F1A73018818E00A87A3F /* hardware_overlay.png in Resources */,
+				FAF2F1A83018818E00A87A3F /* hardware_overlay_transparent.png in Resources */,
+				FA73B28D2F4CEF4C001ADD66 /* buildFonts.py in Resources */,
+				FA73B28E2F4CEF4C001ADD66 /* README in Resources */,
+				FA73B25E2F4CEF27001ADD66 /* main.ino in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1331,6 +1546,85 @@
 			files = (
 				FADB2D432CBDD086000F9981 /* RtMidi.cpp in Sources */,
 				FAA06B0E29943BC7004BEC01 /* main.cpp in Sources */,
+				FA73B2132F4CEF27001ADD66 /* planets.cpp in Sources */,
+				FA73B2142F4CEF27001ADD66 /* fileMenu.cpp in Sources */,
+				FA73B2152F4CEF27001ADD66 /* keyboard.cpp in Sources */,
+				FA73B2172F4CEF27001ADD66 /* liveLoopMenu.cpp in Sources */,
+				FA73B2182F4CEF27001ADD66 /* 7_segment.cpp in Sources */,
+				FA73B2192F4CEF27001ADD66 /* mainMenu.cpp in Sources */,
+				FA4527BC3016DCE700BEDB24 /* headlessPico.cpp in Sources */,
+				FA73B21A2F4CEF27001ADD66 /* programChangeEditor.cpp in Sources */,
+				FA73B21B2F4CEF27001ADD66 /* applications.cpp in Sources */,
+				FA73B21C2F4CEF27001ADD66 /* webInterface.cpp in Sources */,
+				FA73B21D2F4CEF27001ADD66 /* settingsMenu.cpp in Sources */,
+				FA73B21E2F4CEF27001ADD66 /* guiUtilities.cpp in Sources */,
+				FABFA2E930172CCB009EC22F /* Arduino.cpp in Sources */,
+				FA73B21F2F4CEF27001ADD66 /* chop.cpp in Sources */,
+				FA73B2202F4CEF27001ADD66 /* StepchildCV.cpp in Sources */,
+				FA73B2212F4CEF27001ADD66 /* fragmentMenu.cpp in Sources */,
+				FA73B2222F4CEF27001ADD66 /* quickFXMenu.cpp in Sources */,
+				FA73B2232F4CEF27001ADD66 /* Note.cpp in Sources */,
+				FA73B2242F4CEF27001ADD66 /* mainSequence.cpp in Sources */,
+				FA73B2252F4CEF27001ADD66 /* Clipboard.cpp in Sources */,
+				FA73B2262F4CEF27001ADD66 /* utils.cpp in Sources */,
+				FA73B2272F4CEF27001ADD66 /* xy.cpp in Sources */,
+				FA73B2282F4CEF27001ADD66 /* WireFrame.cpp in Sources */,
+				FA73B2292F4CEF27001ADD66 /* rattle.cpp in Sources */,
+				FA73B22A2F4CEF27001ADD66 /* Stepchild.cpp in Sources */,
+				FA73B22B2F4CEF27001ADD66 /* noteEditMenu.cpp in Sources */,
+				FA73B22C2F4CEF27001ADD66 /* StepchildClock.cpp in Sources */,
+				FA73B22D2F4CEF27001ADD66 /* cursive.cpp in Sources */,
+				FA73B22E2F4CEF27001ADD66 /* chordBuilder.cpp in Sources */,
+				FA73B22F2F4CEF27001ADD66 /* SelectionBox.cpp in Sources */,
+				FA73B2302F4CEF27001ADD66 /* instrumentMenu.cpp in Sources */,
+				FA73B2312F4CEF27001ADD66 /* drumPads.cpp in Sources */,
+				FA73B2322F4CEF27001ADD66 /* arp.cpp in Sources */,
+				FA73B2332F4CEF27001ADD66 /* stepchildGraphics.cpp in Sources */,
+				FA73B2342F4CEF27001ADD66 /* strum.cpp in Sources */,
+				FA73B2352F4CEF27001ADD66 /* midiInputHandlers.cpp in Sources */,
+				FA73B2362F4CEF27001ADD66 /* StepchildMenu.cpp in Sources */,
+				FA73B2372F4CEF27001ADD66 /* chunky.cpp in Sources */,
+				FA73B2382F4CEF27001ADD66 /* echo.cpp in Sources */,
+				FA73B2392F4CEF27001ADD66 /* superpositionMenu.cpp in Sources */,
+				FA73B23A2F4CEF27001ADD66 /* commonEnums.cpp in Sources */,
+				FA73B23B2F4CEF27001ADD66 /* LiveLooper.cpp in Sources */,
+				FA73B23C2F4CEF27001ADD66 /* ControlChange.cpp in Sources */,
+				FA73B23D2F4CEF27001ADD66 /* midiMenu.cpp in Sources */,
+				FABFA2E430172A3F009EC22F /* headlessOpenGL.cpp in Sources */,
+				FA73B23E2F4CEF27001ADD66 /* clockMenu.cpp in Sources */,
+				FA73B23F2F4CEF27001ADD66 /* SequenceTemplate.cpp in Sources */,
+				FA73B2402F4CEF27001ADD66 /* Track.cpp in Sources */,
+				FA73B2412F4CEF27001ADD66 /* quantize.cpp in Sources */,
+				FA73B2422F4CEF27001ADD66 /* loopMenu.cpp in Sources */,
+				FA73B2442F4CEF27001ADD66 /* rain.cpp in Sources */,
+				FABFA2ED30172F62009EC22F /* headlessMIDI.cpp in Sources */,
+				FA73B2452F4CEF27001ADD66 /* small.cpp in Sources */,
+				FA73B2462F4CEF27001ADD66 /* fxMenu.cpp in Sources */,
+				FABFA2E630172B13009EC22F /* headlessDisplay.cpp in Sources */,
+				FA73B2472F4CEF27001ADD66 /* arpMenu.cpp in Sources */,
+				FA73B2482F4CEF27001ADD66 /* Knob.cpp in Sources */,
+				FA73B2492F4CEF27001ADD66 /* humanize.cpp in Sources */,
+				FA73B24A2F4CEF27001ADD66 /* Autotrack.cpp in Sources */,
+				FABFA2E230172769009EC22F /* headlessControls.cpp in Sources */,
+				FA73B24B2F4CEF27001ADD66 /* randomMenu.cpp in Sources */,
+				FA73B24D2F4CEF27001ADD66 /* screensavers.cpp in Sources */,
+				FA73B24E2F4CEF27001ADD66 /* exampleFunction.cpp in Sources */,
+				FA73B24F2F4CEF27001ADD66 /* commonStructs.cpp in Sources */,
+				FA73B2502F4CEF27001ADD66 /* warpMenu.cpp in Sources */,
+				FA73B2512F4CEF27001ADD66 /* StepchildArpeggiator.cpp in Sources */,
+				FA73B2522F4CEF27001ADD66 /* trackMenus.cpp in Sources */,
+				FA73B2532F4CEF27001ADD66 /* reverse.cpp in Sources */,
+				FA73B2542F4CEF27001ADD66 /* bitmaps.cpp in Sources */,
+				FA73B2552F4CEF27001ADD66 /* italic.cpp in Sources */,
+				FABFA2EB30172E64009EC22F /* headlessFileSystem.cpp in Sources */,
+				FA73B2562F4CEF27001ADD66 /* autotrackMenu.cpp in Sources */,
+				FA73B2572F4CEF27001ADD66 /* stringPatch.cpp in Sources */,
+				FA73B2582F4CEF27001ADD66 /* consoleMenu.cpp in Sources */,
+				FA73B2592F4CEF27001ADD66 /* CVMenu.cpp in Sources */,
+				FA73B25A2F4CEF27001ADD66 /* chordDJ.cpp in Sources */,
+				FA73B25B2F4CEF27001ADD66 /* knobs.cpp in Sources */,
+				FA73B25C2F4CEF27001ADD66 /* SequenceRenderSettings.cpp in Sources */,
+				FA73B25D2F4CEF27001ADD66 /* PlayList.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1457,25 +1751,19 @@
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					__MACOSX_CORE__,
-					RTMIDI_DEBUG,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
 					"DEBUG=1",
 					__MACOSX_CORE__,
 					RTMIDI_DEBUG,
+					HEADLESS,
 				);
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					"/Users/alex/Documents/Arduino/stepchild/src/headless/childOS_headless/rtmidi-6.0.0",
+					"$(PROJECT_DIR)/rtmidi-6.0.0",
+					"'/Users/alex/Desktop/ongoing/Stepchild Project/stepchild/code/stepchild/include'",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/usr/local/Cellar/glfw/3.4/lib,
-					"$(PROJECT_DIR)/childOS_headless",
-				);
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/childOS_headless";
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1487,15 +1775,13 @@
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					"/Users/alex/Documents/Arduino/stepchild/src/headless/childOS_headless/rtmidi-6.0.0",
+					"$(PROJECT_DIR)/rtmidi-6.0.0",
+					"'/Users/alex/Desktop/ongoing/Stepchild Project/stepchild/code/stepchild/include'",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/usr/local/Cellar/glfw/3.4/lib,
-					"$(PROJECT_DIR)/childOS_headless",
-				);
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/childOS_headless";
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Stepchild.h"
-extern Stepchild stepchild;
+;
 
 class Vertex{
   public:

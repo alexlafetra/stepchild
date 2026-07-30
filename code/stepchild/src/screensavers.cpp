@@ -1,10 +1,7 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
 #include "graphics/WireFrame.h"
 #include "applications/Raindrop.h"
 
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
 using namespace std;
 
 //screenSavers

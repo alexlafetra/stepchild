@@ -1,9 +1,9 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
+
 #include "mainSequence.h"
 #include "guiUtilities.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+;
 
 using namespace std;
 

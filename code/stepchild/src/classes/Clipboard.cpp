@@ -1,5 +1,6 @@
 #include "classes/Clipboard.h"
 #include "Stepchild.h"
+#include "stringPatch.h"
 
 using namespace std;
 

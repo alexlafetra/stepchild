@@ -1,7 +1,7 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+
+;
 using namespace std;
 
 bool echoMenuControls(uint8_t* cursor);

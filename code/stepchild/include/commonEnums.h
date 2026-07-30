@@ -1,5 +1,5 @@
 #pragma once
-#include <Arduino.h>
+#include <cstdint>
 
 typedef uint16_t Timestep;
 typedef uint8_t TrackID;

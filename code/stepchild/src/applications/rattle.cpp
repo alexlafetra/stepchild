@@ -1,8 +1,9 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
 
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+#include "stringPatch.h"
+
+
+;
 
 using namespace std;
 

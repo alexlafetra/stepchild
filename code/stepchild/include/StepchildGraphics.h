@@ -1,13 +1,12 @@
 #pragma once
 
 #include <vector>
-#include <Arduino.h>
+#include <cstdint>
 #include "Stepchild.h"
 #include "graphics/SequenceRenderSettings.h"
 #include "commonStructs.h"
 #include "commonEnums.h"
 #include "classes/Note.h"
-#include "graphics/bitmaps.h"
 
 //Holds all the graphics functions
 //Accessed thru graphics.function();
@@ -28,11 +27,13 @@ class StepchildGraphics{
   void drawNoteSprite(NoteCoords& noteCoords, uint8_t shade);
   void drawNotePreviewOutline(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSettings& settings);
   void drawNotePreviewOutline(Note& note, uint8_t track, SequenceRenderSettings& settings);
-  void drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSettings& settings);
+  void drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSettings& settings, bool renderSuperPos);
+    void drawNote(Note& note, uint8_t track, NoteCoords noteCoords, SequenceRenderSettings& settings);
   void drawNote(Note& note, uint8_t track, SequenceRenderSettings& settings);
   void drawPramIcon(SequenceRenderSettings& settings);
   void drawNoteBracket(NoteCoords& n, bool animated);
   void drawNoteBracket(Note& note, uint8_t track, SequenceRenderSettings& settings);
+  void drawNoteBracket(uint8_t x1, uint8_t y1, uint8_t w, uint8_t h, bool animated);
   void drawSelectionBracket(SequenceRenderSettings& settings);
   void drawSelectionBracket();
   
@@ -198,3 +199,5 @@ class StepchildGraphics{
   void drawQuickFunctionIcon(uint8_t x1, uint8_t y1, uint8_t w, bool anim);
   void drawQuantBrackets(uint8_t x1, uint8_t y1);
 };
+
+extern StepchildGraphics graphics;

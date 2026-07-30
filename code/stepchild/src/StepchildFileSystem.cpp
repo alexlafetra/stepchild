@@ -1,6 +1,4 @@
-#ifndef HEADLESS
-
-#include <Arduino.h>
+#include "Arduino.h"
 #include <vector>
 #include <algorithm>
 #include "Stepchild.h"
@@ -8,7 +6,7 @@
 #include "guiUtilities.h"
 #include "stringPatch.h"
 
-extern Stepchild stepchild;
+;
 
 using namespace std;
 
@@ -705,58 +703,3 @@ void StepchildFileSystem::writeFileToSerial(File f){
     Serial.write(data,fileSize);//write the buffer to the serial buffer
     Serial.flush();//wait for data to be sent
 }
-
-//For headless mode
-#else
-  void flashTest(){
-    return;
-  }
-  void writeSeqFile(String fname){
-    return;
-  }
-//  void writeBytesToSerial(uint8_t* byteArray, uint16_t number){
-//    return;
-//  }
-  void writeCurrentSeqToSerial(bool w){
-    return;
-  }
-  void sendByteCount(String filename){
-    return;
-  }
-  void sendFileName(String filename){
-    return;
-  }
-  uint32_t getByteCount_standAlone(String filename){
-    return 0;
-  }
-  uint32_t getByteCount(String filename){
-    return 0;
-  }
-  void loadSeqFile(String filename){
-    return;
-  }
-  vector<String> loadFilesAndSizes(){
-    vector<String> fileSizes = {"0"};
-    return fileSizes;
-  }
-  vector<String> loadFiles(){
-    vector<String> filenames = {"*new*","test","beebebebbe","idk","i love you","sp404","microKORG"};
-    return filenames;
-  }
-  void renameSeqFile(String filename){
-    return;
-  }
-  bool deleteSeqFile(String filename){
-    return false;
-  }
-  void duplicateSeqFile(String filename){
-    return;
-  }
-  void writeCurrentSettingsToFile(){
-  }
-
-  void loadSavedSettingsFromFile(){
-  }
-  void loadSettings(){
-  }
-#endif

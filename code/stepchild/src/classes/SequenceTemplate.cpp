@@ -27,6 +27,8 @@ vector<Track> SequenceTemplate::loadTemplate(){
             return tracks;
         case GENERATE_FROM_FUNCTION:
             return trackBuildingFn();
+      case UNDEFINED:
+      default:
+        return vector<Track>{Track()};
     }
-    return vector<Track>{Track()};
 }

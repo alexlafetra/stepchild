@@ -3,9 +3,9 @@
 #include "commonStructs.h"
 #include <algorithm>
 #include "guiUtilities.h"
-#include "StepchildGraphics.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+
+;
 
 using namespace std;
 

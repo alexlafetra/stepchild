@@ -1,13 +1,13 @@
 #include "Stepchild.h"
-#include "StepchildGraphics.h"
-#include <Arduino.h>
+
+#include "Arduino.h"
 #include <algorithm>
 #include "stringPatch.h"
 #include "guiUtilities.h"
 #include "utils.h"
 
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+;
 
 using namespace std;
 
@@ -489,6 +489,5 @@ bool rain(){
       std::sort(pitchList.begin(),pitchList.end());
     }
   }
-  stepchild.buttons.turnOffLEDs();
   return true;
 }

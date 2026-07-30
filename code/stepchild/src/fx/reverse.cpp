@@ -1,8 +1,8 @@
 #include "Stepchild.h"
 #include "guiUtilities.h"
-#include "StepchildGraphics.h"
-extern StepchildGraphics graphics;
-extern Stepchild stepchild;
+
+
+;
 using namespace std;
 
 //lines floating to the left
