@@ -9,39 +9,36 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-GLuint uiOverlayTexture = 0;
-int uiOverlayTextureWidth = 0, uiOverlayTextureHeight = 0;
-float uiOverlayTextureOffsetX = 0;
-float uiOverlayTextureOffsetY = 0;
+struct Texture{
+  GLuint tex;
+  int width;
+  int height;
+  float x;
+  float y;
+  float rotation = 0;
+  Texture(float xOff, float yOff){
+    x = xOff;
+    y = yOff;
+  }
+  Texture(GLuint t,int w, int h, float xOff, float yOff){
+    tex = t;
+    width = w;
+    height = h;
+    x = xOff;
+    y = yOff;
+  }
+};
 
-//encode image rotations
-float rotation_amount_A = 00.0;
-float rotation_amount_B = 0.0;
+float windowWidth = 800.0;
+float windowHeight = 800.0;
 
-GLuint stepchildTexture = 0;
-int stepchildTextureWidth = 0, stepchildTextureHeight = 0;
-float stepchildTextureOffsetX = 88;
-float stepchildTextureOffsetY = 80;
+Texture uiOverlayTexture(0,0);
+Texture stepchildTexture(0,0);
+Texture encoderTextureA(0.722*windowWidth,0.578*windowHeight);
+Texture encoderTextureB(0.722*windowWidth,0.425*windowHeight);
+Texture joystickTexture(0.6625*windowWidth,0.3*windowHeight);
 
-float screenOffsetX = 190;
-float screenOffsetY = 255;
-
-GLuint encoderTexture = 0;
-int encoderTextureWidth = 0, encoderTextureHeight = 0;
-float encoderTextureOffsetX = 390;
-float encoderTextureOffsetY_A = 312;
-float encoderTextureOffsetY_B = encoderTextureOffsetY_A-82;
-
-GLuint joystickTexture = 0;
-int joystickTextureWidth = 0, joystickTextureHeight = 0;
-float joystickTextureOffsetX = 358;
-float joystickTextureOffsetY = 162;
-float joystickMovement = 4;
-
-//scale of the display window
-float windowScale = 1.3;
-int topBorder = 0;
-int sideBorder = 0;
+float joystickMovement = 10;
 
 //this is the array holding what's shown at any given moment
 //the displayBuffer in the display object is what gets changed and PUSHED to this
@@ -91,6 +88,96 @@ int playKeyVal;//c
 int copyKeyVal;//v
 int menuKeyVal;//b
 
+enum ButtonCode:int{
+  NEW_BUTTON,
+  SHIFT_BUTTON,
+  SELECT_BUTTON,
+  DELETE_BUTTON,
+  LOOP_BUTTON,
+  PLAY_BUTTON,
+  COPY_BUTTON,
+  MENU_BUTTON,
+  A_PRESS,
+  A_UP,
+  A_DOWN,
+  B_PRESS,
+  B_UP,
+  B_DOWN,
+  JOYSTICK_UP,
+  JOYSTICK_DOWN,
+  JOYSTICK_LEFT,
+  JOYSTICK_RIGHT,
+  NONE = -1
+};
+
+struct ButtonDisplay{
+  std::vector<ButtonCode> recents;
+  int listLength = 4;
+  ButtonDisplay(){
+  
+  }
+  void push(ButtonCode b){
+    //don't double add it if it's the same
+    if(recents.size())
+    	if(recents[recents.size()-1] == b)
+      	return;
+    if(recents.size() >= listLength){
+      std::vector<ButtonCode> temp;
+      for(int i = 1; i<recents.size(); i++){
+        temp.push_back(recents[i]);
+      }
+      temp.push_back(b);
+      recents.swap(temp);
+    }
+    else{
+      recents.push_back(b);
+    }
+  }
+};
+
+ButtonDisplay recentButton;
+
+//buttons
+Texture button_new(0,0);
+Texture button_shift(0,0);
+Texture button_select(0,0);
+Texture button_delete(0,0);
+Texture button_loop(0,0);
+Texture button_play(0,0);
+Texture button_copy(0,0);
+Texture button_menu(0,0);
+Texture button_encoder_a_up(0,0);
+Texture button_encoder_a_down(0,0);
+Texture button_encoder_a_click(0,0);
+Texture button_encoder_b_up(0,0);
+Texture button_encoder_b_down(0,0);
+Texture button_encoder_b_click(0,0);
+Texture button_up(0,0);
+Texture button_down(0,0);
+Texture button_left(0,0);
+Texture button_right(0,0);
+
+Texture* button_images[] = {
+  &button_new,
+  &button_shift,
+  &button_select,
+  &button_delete,
+  &button_loop,
+  &button_play,
+  &button_copy,
+  &button_menu,
+  &button_encoder_a_click,
+  &button_encoder_a_up,
+  &button_encoder_a_down,
+  &button_encoder_b_click,
+  &button_encoder_b_up,
+  &button_encoder_b_down,
+  &button_up,
+  &button_down,
+  &button_left,
+  &button_right
+};
+
 bool leds[16] = {false,false,false,false,false,false,false,false,
   false,false,false,false,false,false,false,false};
 bool headlessStepButtons[16] = {false,false,false,false,false,false,false,false,
@@ -101,93 +188,120 @@ static void key_callback(GLFWwindow* w, int key, int scancode, int action, int m
 {
   //new
   //'1'
-  if(key == 49 && action == GLFW_PRESS)
+  if(key == 49 && action == GLFW_PRESS){
+    recentButton.push(NEW_BUTTON);
     newKeyVal = 1;
-  if(key == 49 && action == GLFW_RELEASE)
+  }
+  if(key == 49 && action == GLFW_RELEASE){
     newKeyVal = 0;
+  }
   //shift
   //'q'
-  if(key == 81 && action == GLFW_PRESS)
+  if(key == 81 && action == GLFW_PRESS){
+    recentButton.push(SHIFT_BUTTON);
     shiftKeyVal = 1;
+  }
   if(key == 81 && action == GLFW_RELEASE)
     shiftKeyVal = 0;
   //select
   //'a'
-  if(key == 65 && action == GLFW_PRESS)
+  if(key == 65 && action == GLFW_PRESS){
+    recentButton.push(SELECT_BUTTON);
     selectKeyVal = 1;
+  }
   if(key == 65 && action == GLFW_RELEASE)
     selectKeyVal = 0;
   //delete
   //'z'
-  if(key == 90 && action == GLFW_PRESS)
+  if(key == 90 && action == GLFW_PRESS){
+    recentButton.push(DELETE_BUTTON);
     deleteKeyVal = 1;
+  }
   if(key == 90 && action == GLFW_RELEASE)
     deleteKeyVal = 0;
   //loop
   //'x'
-  if(key == 88 && action == GLFW_PRESS)
+  if(key == 88 && action == GLFW_PRESS){
+    recentButton.push(LOOP_BUTTON);
     loopKeyVal = 1;
+  }
   if(key == 88 && action == GLFW_RELEASE)
     loopKeyVal = 0;
   //play
   //'c
-  if(key == 67 && action == GLFW_PRESS)
+  if(key == 67 && action == GLFW_PRESS){
+    recentButton.push(PLAY_BUTTON);
     playKeyVal = 1;
+  }
   if(key == 67 && action == GLFW_RELEASE)
     playKeyVal = 0;
   //copy
   //'v'
-  if(key == 86 && action == GLFW_PRESS)
+  if(key == 86 && action == GLFW_PRESS){
+    recentButton.push(COPY_BUTTON);
     copyKeyVal = 1;
+  }
   if(key == 86 && action == GLFW_RELEASE)
     copyKeyVal = 0;
   //menu
   //'b'
-  if(key == 66 && action == GLFW_PRESS)
+  if(key == 66 && action == GLFW_PRESS){
+    recentButton.push(MENU_BUTTON);
     menuKeyVal = 1;
+  }
   if(key == 66 && action == GLFW_RELEASE)
     menuKeyVal = 0;
   
   //encoders
   //0
   if(key == 48 && action == GLFW_PRESS){
+    recentButton.push(A_UP);
     headlessCounterA++;
-    rotation_amount_A += 360/16;
+    encoderTextureA.rotation += 360/16;
   }
   //k
   if(key == 75 && action == GLFW_PRESS){
+    recentButton.push(A_DOWN);
     headlessCounterA--;
-    rotation_amount_A -= 360/16;
+    encoderTextureA.rotation -= 360/16;
   }
   //o
-  if(key == 79 && action == GLFW_PRESS)
+  if(key == 79 && action == GLFW_PRESS){
+    recentButton.push(A_PRESS);
     encAPRESS = 1;
+  }
   if(key == 79 && action == GLFW_RELEASE)
     encAPRESS = 0;
   //-
   if(key == '-' && action == GLFW_PRESS){
+    recentButton.push(B_UP);
     headlessCounterB++;
-    rotation_amount_B += 360/16;
+    encoderTextureB.rotation += 360/16;
   }
   //l
   if(key == 76 && action == GLFW_PRESS){
+    recentButton.push(B_DOWN);
     headlessCounterB--;
-    rotation_amount_B -= 360/16;
+    encoderTextureB.rotation -= 360/16;
   }
   //p
-  if(key == 80 && action == GLFW_PRESS)
+  if(key == 80 && action == GLFW_PRESS){
+    recentButton.push(B_PRESS);
     encBPRESS = 1;
+  }
   if(key == 80 && action == GLFW_RELEASE)
     encBPRESS = 0;
   
   //arrowkeys
   if(key == GLFW_KEY_RIGHT && action == GLFW_PRESS){
+    recentButton.push(JOYSTICK_LEFT);
     xKeyVal = -1;
   }
   if(key == GLFW_KEY_RIGHT && action == GLFW_RELEASE){
     xKeyVal = 0;
   }
   if(key == GLFW_KEY_LEFT && action == GLFW_PRESS){
+    recentButton.push(JOYSTICK_RIGHT);
     xKeyVal = 1;
   }
   if(key == GLFW_KEY_LEFT && action == GLFW_RELEASE){
@@ -195,12 +309,14 @@ static void key_callback(GLFWwindow* w, int key, int scancode, int action, int m
   }
   
   if(key == GLFW_KEY_UP && action == GLFW_PRESS){
+    recentButton.push(JOYSTICK_UP);
     yKeyVal = -1;
   }
   if(key == GLFW_KEY_UP && action == GLFW_RELEASE){
     yKeyVal = 0;
   }
   if(key == GLFW_KEY_DOWN && action == GLFW_PRESS){
+    recentButton.push(JOYSTICK_DOWN);
     yKeyVal = 1;
   }
   if(key == GLFW_KEY_DOWN && action == GLFW_RELEASE){
@@ -223,20 +339,6 @@ void error_callback(int error, const char* description)
 }
 
 void window_size_callback(GLFWwindow* window, int width, int height){
-  //    // vv these two lines avoid stretching when the window is resized
-  //    glLoadIdentity();                           //reload projection matrix
-  //    glOrtho(0.0,width,0.0,height,-1.0,1.0);     //reload orthographic projection dimensions
-  //
-  //    if(width>(2*height)){
-  //        topBorder = ((width/10)>60)?60:width/10;
-  //        windowScale = (float)(height-2*topBorder)/64.0;
-  //        sideBorder = (width-128*windowScale)/2;
-  //    }
-  //    else{
-  //        sideBorder = ((height/10)>60)?60:height/10;
-  //        windowScale = (float)(width-2*sideBorder)/128.0;
-  //        topBorder = (height-64*windowScale)/2;
-  //    }
 }
 
 GLFWwindow* initGlfw(){
@@ -245,20 +347,15 @@ GLFWwindow* initGlfw(){
     while(true){
     }
   }
-  int width, height;
-  //    width = 128*windowScale+sideBorder*2;
-  //    height = 64*windowScale+topBorder*2;
-  width = 540;
-  height = 540;
   
   glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
-  GLFWwindow* window = glfwCreateWindow(width, height, "childOS [Headless]", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "childOS [Headless]", NULL, NULL);
   glfwMakeContextCurrent(window);
   
   glClearColor(0.0, 0.0, 0.0, 0.0);         // black background
   glMatrixMode(GL_PROJECTION);                // setup viewing projection
   glLoadIdentity();                           // start with identity matrix
-  glOrtho(0.0,width,0.0,height,-1.0,1.0);
+  glOrtho(0.0,windowWidth,0.0,windowHeight,-1.0,1.0);
   
   
   glfwSetErrorCallback(error_callback);
@@ -384,77 +481,6 @@ void glFillRect(float x, float y, float width, float height){
   glEnd();
 }
 
-void drawButtons(int w, int h){
-  //drawing rounded rect to emulate screen border
-  glColor3f(0.0,0.0,0.0);
-  glFillRoundRect(sideBorder-10,topBorder-10, w-2*sideBorder+20, h-2*topBorder+20, 20);
-  
-  //drawing buttons
-  const int buttonX = (sideBorder-10)/2;
-  const int buttonY = topBorder - 25;
-  const int buttonGap = 30;
-  glColor3f(1.0,0.0,0.0); //delete
-  deleteKeyVal?glDrawCircle(buttonX,buttonY+buttonGap,10,20):glFillCircle(buttonX,buttonY+buttonGap,10,20);
-  glColor3f(1.0,1.0,0.0); //select
-  selectKeyVal?glDrawCircle(buttonX,buttonY+2*buttonGap,10,20):glFillCircle(buttonX,buttonY+2*buttonGap,10,20);
-  glColor3f(0.9,0.9,0.9); //shift
-  shiftKeyVal?glDrawCircle(buttonX,buttonY+3*buttonGap,10,20):glFillCircle(buttonX,buttonY+3*buttonGap,10,20);
-  glColor3f(0.0,1.0,0.0); //new
-  newKeyVal?glDrawCircle(buttonX,buttonY+4*buttonGap,10,20):glFillCircle(buttonX,buttonY+4*buttonGap,10,20);
-  
-  glColor3f(0.0,0.0,1.0); //Loop
-  loopKeyVal?glDrawCircle(buttonX+buttonGap,buttonY,10,20):glFillCircle(buttonX+buttonGap,buttonY,10,20);
-  glColor3f(0.9,0.9,0.9); //play
-  playKeyVal?glDrawCircle(buttonX+2*buttonGap,buttonY,10,20):glFillCircle(buttonX+2*buttonGap,buttonY,10,20);
-  glColor3f(0.6,0.6,0.6); //copy
-  copyKeyVal?glDrawCircle(buttonX+3*buttonGap,buttonY,10,20):glFillCircle(buttonX+3*buttonGap,buttonY,10,20);
-  glColor3f(0.0,0.0,0.0); //menu
-  menuKeyVal?glDrawCircle(buttonX+4*buttonGap,buttonY,10,20):glFillCircle(buttonX+4*buttonGap,buttonY,10,20);
-  
-  //drawing leds
-  const int ledStartX = (buttonX+5*buttonGap);
-  const int ledLength = w/3;
-  for(int i = 0; i<16; i++){
-    if(leds[i]){
-      glColor3f(1.0,0.0,0.0); //red
-    }
-    else{
-      glColor3f(0.0,0.0,0.0); //dark
-    }
-    glFillCircle((ledLength)/16*i+ledStartX,(i%2)?buttonY-20:buttonY,3,6);
-  }
-  
-  //joystick
-  int yOffset = 0;
-  if(yKeyVal>0)
-    yOffset = -10;
-  else if(yKeyVal<0)
-    yOffset = 10;
-  int xOffset = 0;
-  if(xKeyVal>0)
-    xOffset = -10;
-  else if(xKeyVal<0)
-    xOffset = 10;
-  glColor3f(0.0,0.0,0.0);
-  glDrawCircle(ledStartX + ledLength + 20, buttonY-10, 25, 20);
-  glFillCircle(ledStartX + ledLength + 20 + xOffset, buttonY-10 + yOffset, 20, 20);
-  
-  //drawing encoders
-  const int encoderXStart = w - sideBorder/2+10;
-  const int encoderYStart = h - topBorder - 10;
-  float aAngle = float(encASTATE)/16.0 * 2.0*M_PI;
-  float bAngle = float(encBSTATE)/16.0 * 2.0*M_PI;
-  glColor3f(0.0,0.0,0.0); //dark
-  glDrawCircle(encoderXStart, encoderYStart, 15, 20);
-  if(!encAPRESS)
-    glDrawRadian(encoderXStart,encoderYStart,15,aAngle);
-  glDrawCircle(encoderXStart, encoderYStart - 40, 15, 20);
-  if(!encBPRESS)
-    glDrawRadian(encoderXStart,encoderYStart-40,15,bAngle);
-  
-}
-
-
 void drawPixel(float x1, float y1, float w, float h){
   glColor4f(1.0,1.0,1.0,1.0);
   glBegin(GL_POLYGON);
@@ -465,68 +491,98 @@ void drawPixel(float x1, float y1, float w, float h){
   glEnd();
 }
 
+void drawButtons(){
+  float buttonX = 10;
+  float buttonY = 420;
+  float buttonScale = 4.0;
+  float buttonGap = 30;
+  for(int i = 0; i<recentButton.recents.size(); i++){
+    if(recentButton.recents[i] == NONE){
+      return;
+    }
+    else{
+      Texture* img = button_images[recentButton.recents[i]];
+      img->x = buttonX;
+      img->y = buttonY - i*buttonGap;
+      drawImage(*img,buttonScale);
+    }
+  }
+}
+
 //checks for a window update, then draws pixels to the openGL window using the 'screenPixels' buffer
 void displayWindow(void)
 {
   //update the display if there's been an update
-  if(openGLready){
-//    glClearColor(1.0f,1.0f,1.0f,1.0f);//White
-    glClearColor(0.0f,0.0f,1.0f,1.0f);//blue
-//          	glClearColor(1.0f,1.0f,1.0f,0.0f);//transp
-    //      glClearColor(0.0f,0.0f,0.0f,1.0f);//black
-    glClear( GL_COLOR_BUFFER_BIT);
-    
-    int w, h;
-    glfwGetWindowSize(window, &w, &h);
-    
-    //skirt around screen pixels, but beneath stepchild case
-    int numberOfPixelsIncluded = 0;
-    float gapX = 10;
-    float gapY = 10;
-    glColor4f(0.0f,0.0f,0.0f,1.0f);
-    glFillRect(screenOffsetX-gapX,screenOffsetY-gapY,128*windowScale+2*gapX,64*windowScale+2*gapY);
-    
-    float imgScale = 1080.0/381.0;
-    
-    //stepchild case
-    drawImage(stepchildTexture, stepchildTextureOffsetX, stepchildTextureOffsetY, 381, 381, 0);
-    //controls
-    drawImage(encoderTexture, encoderTextureOffsetX, encoderTextureOffsetY_A, encoderTextureWidth/imgScale, encoderTextureHeight/imgScale, rotation_amount_A);
-    drawImage(encoderTexture, encoderTextureOffsetX, encoderTextureOffsetY_B, encoderTextureWidth/imgScale, encoderTextureHeight/imgScale, rotation_amount_B);
-    drawImage(joystickTexture, joystickTextureOffsetX+((xKeyVal == -1)?(joystickMovement):(xKeyVal == 1?-joystickMovement:0)), joystickTextureOffsetY+((yKeyVal == -1)?(joystickMovement):(yKeyVal == 1?-joystickMovement:0)), joystickTextureWidth/imgScale, joystickTextureHeight/imgScale, 0);
-    drawImage(uiOverlayTexture, uiOverlayTextureOffsetX, uiOverlayTextureOffsetY, 540, 540, 0);
-    //drawing pixels
-    for(int j = 0;j<64; j++){
-      for(int i = 0; i<128; i++){
-        //draw white pixels
-        if(screenPixels[i][j] == 1){
-          numberOfPixelsIncluded++;
-        }
-        else{
-          if(numberOfPixelsIncluded){
-            float x1 = i;
-            float y1 = 63 - j;
-            float w = numberOfPixelsIncluded;
-            drawPixel(windowScale*x1+screenOffsetX,windowScale*y1+screenOffsetY,windowScale*w, windowScale);
-          }
-          numberOfPixelsIncluded = 0;
-        }
+  if(!openGLready)
+    return;
+//  glClearColor(1.0f,1.0f,1.0f,1.0f);//White
+  glClearColor(0.0f,0.0f,1.0f,1.0f);//blue
+//  glClearColor(0.0f,0.0f,1.0f,0.0f);//transp blue
+//  glClearColor(0.0f,0.0f,0.0f,0.0f);//transp
+//  glClearColor(0.0f,0.0f,0.0f,1.0f);//black
+  glClear( GL_COLOR_BUFFER_BIT);
+  
+  int w, h;
+  glfwGetWindowSize(window, &w, &h);
+  
+  //scale of the display window
+  float pixelWindowScale = 1.6;
+  float pixelScreenOffsetX = 0.36667*windowWidth;
+  float pixelScreenOffsetY = 0.4861111*windowHeight;
+  
+  //skirt around screen pixels, but beneath stepchild case
+  int numberOfPixelsIncluded = 0;
+  float gapX = 10;
+  float gapY = 10;
+  glColor4f(0.0f,0.0f,0.0f,1.0f);
+  glFillRect(pixelScreenOffsetX-gapX,pixelScreenOffsetY-gapY,128*pixelWindowScale+2*gapX,64*pixelWindowScale+2*gapY);
+  float imgScale = 0.002375*windowWidth;
+
+  //stepchild case
+  stepchildTexture.x = 0.15972*windowWidth;
+  stepchildTexture.y = 0.14583*windowHeight;
+  drawImage(stepchildTexture,imgScale);
+  //controls
+  drawImage(encoderTextureA,imgScale);
+  drawImage(encoderTextureB,imgScale);
+  float texOffsetX = (xKeyVal == -1)?(joystickMovement):(xKeyVal == 1?-joystickMovement:0);
+  float texOffsetY = (yKeyVal == -1)?(joystickMovement):(yKeyVal == 1?-joystickMovement:0);
+  joystickTexture.x = 0.6625*windowWidth + texOffsetX;
+  joystickTexture.y = 0.3*windowHeight + texOffsetY;
+  drawImage(joystickTexture,imgScale);
+  drawImage(uiOverlayTexture,1357.0/windowWidth);
+  drawButtons();
+  //drawing pixels
+  for(int j = 0;j<64; j++){
+    for(int i = 0; i<128; i++){
+      //draw white pixels
+      if(screenPixels[i][j] == 1){
+        numberOfPixelsIncluded++;
       }
-      if(numberOfPixelsIncluded){
-        drawPixel(windowScale*128+screenOffsetX,windowScale*(63-j)+screenOffsetY,windowScale*numberOfPixelsIncluded, windowScale);
-        //                drawPixel(windowScale * 128-oledOffsetX,windowScale * (63-j-oledOffsetY),windowScale * numberOfPixelsIncluded, windowScale);
+      else{
+        if(numberOfPixelsIncluded){
+          float x1 = i;
+          float y1 = 63 - j;
+          float w = numberOfPixelsIncluded;
+          drawPixel(pixelWindowScale*x1+pixelScreenOffsetX,pixelWindowScale*y1+pixelScreenOffsetY,pixelWindowScale*w, pixelWindowScale);
+        }
+        numberOfPixelsIncluded = 0;
       }
-      numberOfPixelsIncluded = 0;
     }
-    glFlush();
-    glfwSwapBuffers(window);
+    if(numberOfPixelsIncluded){
+      drawPixel(pixelWindowScale*128+pixelScreenOffsetX,pixelWindowScale*(63-j)+pixelScreenOffsetY,pixelWindowScale*numberOfPixelsIncluded, pixelWindowScale);
+    }
+    numberOfPixelsIncluded = 0;
   }
+  glFlush();
+  glfwSwapBuffers(window);
 }
 
-void loadImageTexture(GLuint &texture, int &imageWidth, int &imageHeight, const char* path) {
+void loadImageTexture(Texture& t, const char* path){
+
   stbi_set_flip_vertically_on_load(true);
   int channels;
-  unsigned char* data = stbi_load(path, &imageWidth, &imageHeight, &channels, 0);
+  unsigned char* data = stbi_load(path, &t.width, &t.height, &channels, 0);
   if (!data) {
     std::cout << "Failed to load image: " << path << std::endl;
     return;
@@ -534,21 +590,20 @@ void loadImageTexture(GLuint &texture, int &imageWidth, int &imageHeight, const 
   
   GLenum format = (channels == 4) ? GL_RGBA : (channels == 3) ? GL_RGB : GL_LUMINANCE;
   
-  glGenTextures(1, &texture);
-  glBindTexture(GL_TEXTURE_2D, texture);
+  glGenTextures(1, &t.tex);
+  glBindTexture(GL_TEXTURE_2D, t.tex);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D, 0, format, imageWidth, imageHeight, 0,
+  glTexImage2D(GL_TEXTURE_2D, 0, format, t.width, t.height, 0,
                format, GL_UNSIGNED_BYTE, data);
   
   stbi_image_free(data);
-  glBindTexture(GL_TEXTURE_2D, texture);
+  glBindTexture(GL_TEXTURE_2D, t.tex);
 }
-
-// draws the image as a quad, immediate-mode style — same pattern as drawPixel()
-void drawImage(GLuint &imageTexture, float x, float y, float w, float h, float rotationDegrees) {
+void drawImage(Texture &t, float scale){
+  
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, imageTexture);
+	glBindTexture(GL_TEXTURE_2D, t.tex);
   
   //allow alpha blending
   glEnable(GL_BLEND);
@@ -559,14 +614,14 @@ void drawImage(GLuint &imageTexture, float x, float y, float w, float h, float r
 //  push matrix for rotating image
   glPushMatrix();
   
-  float imageCenterX = x + w / 2.0;
-  float imageCenterY = y + w / 2.0;
+  float imageCenterX = t.x + t.width / 2.0 / scale;
+  float imageCenterY = t.y + t.width / 2.0 / scale;
   
   glTranslatef(imageCenterX,imageCenterY,0.0);
-  glRotatef(rotationDegrees,0.0,0.0,1.0);
+  glRotatef(t.rotation,0.0,0.0,1.0);
   
-  float halfH = h/2.0;
-  float halfW = w/2.0;
+  float halfH = t.height/2.0/scale;
+  float halfW = t.width/2.0/scale;
   
   glBegin(GL_QUADS);
   glTexCoord2f(0.0f, 0.0f); glVertex2f(-halfW,-halfH);
@@ -577,16 +632,37 @@ void drawImage(GLuint &imageTexture, float x, float y, float w, float h, float r
   
   glPopMatrix();
   
-//  glDisable(GL_BLEND);
+  glDisable(GL_BLEND);
   glBindTexture(GL_TEXTURE_2D, 0);
   glDisable(GL_TEXTURE_2D);
 }
 
 void launchWindow(){
   window = initGlfw();
-  loadImageTexture(stepchildTexture,stepchildTextureWidth,stepchildTextureHeight,"hardware_overlay_transparent.png");
-//  loadImageTexture(stepchildTexture,stepchildTextureWidth,stepchildTextureHeight,"hardware_overlay.png");
-  loadImageTexture(encoderTexture,encoderTextureWidth,encoderTextureHeight,"encoder.png");
-  loadImageTexture(joystickTexture,joystickTextureWidth,joystickTextureHeight,"joystick.png");
-  loadImageTexture(uiOverlayTexture,uiOverlayTextureWidth,uiOverlayTextureHeight,"ui_overlay.png");
+  loadImageTexture(stepchildTexture, "hardware_overlay_transparent.png");
+//  loadImageTexture(stepchildTexture,"hardware_overlay.png");
+  loadImageTexture(encoderTextureA,"encoder.png");
+  loadImageTexture(encoderTextureB,"encoder.png");
+  loadImageTexture(joystickTexture,"joystick.png");
+  loadImageTexture(uiOverlayTexture,"ui_overlay.png");
+  
+  loadImageTexture(button_new, "buttons/new.png");
+  loadImageTexture(button_shift, "buttons/shift.png");
+  loadImageTexture(button_select, "buttons/select.png");
+  loadImageTexture(button_delete, "buttons/delete.png");
+  loadImageTexture(button_loop, "buttons/loop.png");
+  loadImageTexture(button_play, "buttons/play.png");
+  loadImageTexture(button_copy, "buttons/copy.png");
+  loadImageTexture(button_menu, "buttons/menu.png");
+  loadImageTexture(button_up, "buttons/up.png");
+  loadImageTexture(button_down, "buttons/down.png");
+  loadImageTexture(button_left, "buttons/left.png");
+  loadImageTexture(button_right, "buttons/right.png");
+  loadImageTexture(button_encoder_a_up, "buttons/encoder_A_up.png");
+  loadImageTexture(button_encoder_a_down, "buttons/encoder_A_down.png");
+  loadImageTexture(button_encoder_a_click, "buttons/encoder_A_press.png");
+  loadImageTexture(button_encoder_b_up, "buttons/encoder_B_up.png");
+  loadImageTexture(button_encoder_b_down, "buttons/encoder_B_down.png");
+  loadImageTexture(button_encoder_b_click, "buttons/encoder_B_press.png");
+
 }

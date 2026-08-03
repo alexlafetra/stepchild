@@ -10,7 +10,7 @@ inline GFXglyph *pgm_read_glyph_ptr(const GFXfont *gfxFont, uint8_t c) {
   // expression in __AVR__ section may generate "dereferencing type-punned
   // pointer will break strict-aliasing rules" warning In fact, on other
   // platforms (such as STM32) there is no need to do this pointer magic as
-  // program memory may be read in a usual way So expression may be simplified
+  // program memory may be read in a usual way So expreplssion may be simplified
   return gfxFont->glyph + c;
 }
 
@@ -27,7 +27,9 @@ StepchildDisplay::StepchildDisplay(int w, int h){
   rotation = 0;
   cursor_y = cursor_x = 0;
   textsize_x = textsize_y = 1;
-  textcolor = textbgcolor = 0xFFFF;
+//  textcolor = textbgcolor = 0xFFFF;
+  textcolor = 1;
+  textbgcolor = 1;
   wrap = true;
   _cp437 = false;
   gfxFont = NULL;

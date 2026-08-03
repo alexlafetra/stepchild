@@ -384,6 +384,8 @@ void MainMenu::displayMenu(){
   graphics.drawSeq(settings);
 
   graphics.ditherBackground(32,16,128,64);
+//  stepchild.display.display();
+//  return;
 
   if(renderWireframes){
     stepchild.display.fillCircle(111,15,23,0);

@@ -16,6 +16,8 @@
 //for writing bitmaps
 #include "bitmap/bitmap_image.hpp"
 
+struct Texture;
+
 void takeScreenshot();
 
 //int encoderA, encoderB;
@@ -45,6 +47,7 @@ void drawPixel(int x1, int y1, int w, int h);
 //checks for a window update, then draws pixels to the openGL window using the 'screenPixels' buffer
 void displayWindow(void);
 
-void loadImageTexture(const char* path);
-void drawImage(GLuint& imageTexture, float x, float y, float w, float h, float r);
+void loadImageTexture(Texture &t, const char* path);
+void drawImage(Texture &t,float scale);
+  
 void launchWindow();

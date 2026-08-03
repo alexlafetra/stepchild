@@ -478,6 +478,12 @@ bool ClockMenu::clockMenuControls(){
             stepchild.lastTime = millis();
             applySwingToSequence();
           }
+          if(stepchild.buttons.SELECT()){
+            if(internalMenuCursor == 0)
+              stepchild.clock.isSwinging = !stepchild.clock.isSwinging;
+          	stepchild.lastTime = millis();
+            
+          }
           while(stepchild.buttons.counterA){
             switch(internalMenuCursor){
               //swing on/off

@@ -2571,9 +2571,21 @@ void StepchildGraphics::drawQuantBrackets(uint8_t x1, uint8_t y1){
 
 void StepchildGraphics::ditherBackground(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1){
   //dithering background
-  for(uint8_t i = x0/4; i<x1/4; i++){
-    for(uint8_t j = y0/4; j<y1/4; j++){
-      stepchild.display.drawBitmap(i*4,j*4,dither_tile_2_bmp,4,4,1);
+//  for(uint8_t i = x0/4; i<x1/4; i++){
+//    for(uint8_t j = y0/4; j<y1/4; j++){
+//      stepchild.display.drawBitmap(i*4,j*4,dither_tile_2_bmp,4,4,1);
+//    }
+//  }
+  uint8_t gap = 3;
+  
+  for(uint8_t i = x0; i<x1; i++){
+    if(i%gap == 0){
+      stepchild.display.drawLine(i,y0,x0,y0+i-x0,1);
+    }
+  }
+  for(uint8_t j = y0; j<y1; j++){
+    if((x1-j)%gap == 0){
+      stepchild.display.drawLine(x1,j,x1-y1+j,y1,1);
     }
   }
 }

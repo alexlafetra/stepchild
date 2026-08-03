@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OLED UI Layout Designer</title>
+<link rel="stylesheet" href="styles.css">
+<script src = "main.js" defer></script>
+
+</head>
+<body>
+
+<header>
+  <h1><span>Stepchild</span> UI Sketchbook</h1>
+  <div class="sub">layout tool for the Stepchild graphics library</div>
+  <div class="fill"></div>
+  <button class="example" id="clearBtn">Clear canvas</button>
+</header>
+
+<div class="main">
+
+  <aside class="toolbar">
+    <h2>Graphics primitives:</h2>
+    <button class="tool-btn" data-add="rect">
+      <img class = "tool_icon" src = "assets/rectangle.bmp">
+      Rectangle
+    </button>
+    <button class="tool-btn" data-add="rrect">
+      <img class = "tool_icon" src = "assets/rounded_rectangle.bmp">
+      Rounded rect
+    </button>
+    <button class="tool-btn" data-add="circle">
+      <img class = "tool_icon" src = "assets/bitmap_icon.bmp">
+      Circle
+    </button>
+    <button class="tool-btn" data-add="line">
+      <img class = "tool_icon" src = "assets/line.bmp">
+      Line
+    </button>
+    <button class="tool-btn" data-add="text">
+      <img class = "tool_icon" src = "assets/text.bmp">
+      Text
+    </button>
+    <button class="tool-btn" data-add="bitmap">
+      <img class = "tool_icon" src = "assets/bitmap_icon.bmp">
+      Bitmap icon
+    </button>
+
+    <h2>Layers</h2>
+    <div id="layerList"></div>
+
+    <h2>Screen</h2>
+    <label class="field"><span class="lbltext">Zoom</span>
+    <input id = "zoom_slider" type = "range" min = "1" max = "16" step = "0.1" value = "1">
+    </label>
+    <label class="chk"><input type="checkbox" id="gridChk"> Show pixel grid</label>
+  </aside>
+
+  <div class="canvas-area">
+    <div id = "canvas_container">
+      <div id = "pixel_grid"></div>
+      <img id = "hardware_overlay" src = "assets/hardware_overlay_transparent.png">
+      <canvas id="main_canvas"></canvas>
+      <div id = "selected_element_label"></div>
+      <div class = "resize_handle" id = "resize_handle_top_left"></div>
+      <div class = "resize_handle" id = "resize_handle_bottom_right"></div>
+      <div id = "selection_box"></div>
+    </div>
+  </div>
+
+  <aside class="props" id="propsPanel">
+    <!-- populated by JS -->
+  </aside>
+
+</div>
+
+<div class="code-panel">
+  <div class="code-header">
+    <span>Generated C++</span>
+    <div class="fill"></div>
+    <button id="copyBtn">Copy code</button>
+  </div>
+  <pre id="codeOut"></pre>
+</div>
+</body>
+</html>
