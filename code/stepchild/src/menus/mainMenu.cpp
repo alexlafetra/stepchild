@@ -247,7 +247,9 @@ bool MainMenu::mainMenuControls(){
           renderWireframes = false;
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           settingsMenu();
-          return false;
+          slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          renderWireframes = true;
+          break;
         //quicksave
         case 4:
           //if you're shifting, load most recent backup

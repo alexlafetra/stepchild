@@ -1,4 +1,7 @@
 #include "headlessDisplay.h"
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
 #include "Arduino.h"
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -639,6 +642,9 @@ void StepchildDisplay::display(void){
     }
   }
   displayWindow();
+  #ifdef __EMSCRIPTEN__
+  emscripten_sleep(0);
+  #endif
 }
 
 //Display display;

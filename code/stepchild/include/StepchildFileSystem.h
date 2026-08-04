@@ -1,6 +1,6 @@
 #pragma once
-#include <LittleFS.h>
 #include <vector>
+#include <LittleFS.h>
 
 class Stepchild;   // forward declaration
 
@@ -86,5 +86,4 @@ class StepchildFileSystem{
     //formats a number of bytes into a XXXB or XXXkB string
     String bytesToString(uint32_t bytes);
     void writeFileToSerial(File f);
-
 };

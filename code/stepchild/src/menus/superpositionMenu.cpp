@@ -1,8 +1,5 @@
 #include "Stepchild.h"
-
 #include "menus/superpositionMenu.h"
-
-;
 
 using namespace std;
 

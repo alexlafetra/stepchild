@@ -9,11 +9,12 @@
  + -------------------
  */
 #include "headlessMIDI.h"
+#include <cstdint>
 
 PlayState sequenceState = STOPPED;
 
-RtMidiIn *virtualMidiIn;
-RtMidiOut *virtualMidiOut;
+// RtMidiIn *virtualMidiIn;
+// RtMidiOut *virtualMidiOut;
 
 void MidiInputCallback( double deltatime, std::vector< unsigned char > *message, void *userData ){
 #ifdef MIDI_DEBUG
@@ -182,23 +183,23 @@ void MidiInputCallback( double deltatime, std::vector< unsigned char > *message,
     //        std::vector<uint8_t> message = {static_cast<unsigned char>((11<<4)|(c&15)),cc,v};
     //or, you can use the binary numbersdirectly
     std::vector<uint8_t> message = {static_cast<unsigned char>(0b10110000|(0b01111111&c)),cc,v};
-    virtualMidiOut->sendMessage( &message );
+    // virtualMidiOut->sendMessage( &message );
   }
   void StepchildMIDI::allOff(){
     //        std::vector<uint8_t> message = {11<<4,123,0};//all off on channel 0 (should you implement the other channels?)
     std::vector<uint8_t> message = {0b10110000,123,0};//all off on channel 0 (should you implement the other channels?)
-    virtualMidiOut->sendMessage( &message );
+    // virtualMidiOut->sendMessage( &message );
   }
   void StepchildMIDI::noteOn(uint8_t pitch, uint8_t vel, uint8_t channel){
     // 11<<4 to turn it into 10010000, then | with the channel to add the channel
     std::vector<uint8_t> message = {static_cast<unsigned char>(0b10010000|(channel&(uint8_t)15)),pitch,vel};
-    virtualMidiOut->sendMessage( &message );
+    // virtualMidiOut->sendMessage( &message );
   }
   void StepchildMIDI::noteOff(uint8_t pitch, uint8_t vel, uint8_t channel){
     // 11<<4 to turn it into 10000000, then | with the channel to add the channel
     //        std::vector<uint8_t> message = {static_cast<unsigned char>((8<<4)|(channel&15)),pitch,vel};
     std::vector<uint8_t> message = {static_cast<unsigned char>(0b10000000|(channel&15)),pitch,vel};
-    virtualMidiOut->sendMessage( &message );
+    // virtualMidiOut->sendMessage( &message );
   }
   //not really applicable in headless mode! the midi ports are *always* listening
   void StepchildMIDI::read(){
@@ -208,81 +209,82 @@ void MidiInputCallback( double deltatime, std::vector< unsigned char > *message,
   void StepchildMIDI::sendClock(){
     //only one byte -- 11111010
     std::vector<uint8_t> message = {248};
-    virtualMidiOut->sendMessage( &message );
+    //virtualMidiOut->sendMessage( &message );
   }
   void StepchildMIDI::sendStart(){
     //only one byte -- 11111000
     std::vector<uint8_t> message = {250};
-    virtualMidiOut->sendMessage( &message );
+    //virtualMidiOut->sendMessage( &message );
   }
   void StepchildMIDI::sendStop(){
     //only one byte -- 11111100
     std::vector<uint8_t> message = {252};
-    virtualMidiOut->sendMessage( &message );
+    //virtualMidiOut->sendMessage( &message );
   }
   void StepchildMIDI::sendPC(uint8_t port, uint8_t val, uint8_t channel){
     std::vector<uint8_t> message = {static_cast<unsigned char>((12<<4)|(channel&15)),val};
-    virtualMidiOut->sendMessage( &message );
+    //virtualMidiOut->sendMessage( &message );
   }
   //function for selecting the correct MIDI API
-  RtMidi::Api StepchildMIDI::chooseMidiApi()
-  {
-    std::vector< RtMidi::Api > apis;
-    RtMidi::getCompiledApi(apis);
+  // RtMidi::Api StepchildMIDI::chooseMidiApi()
+  // {
+  //   std::vector< RtMidi::Api > apis;
+  //   RtMidi::getCompiledApi(apis);
     
-    if (apis.size() <= 1){
-      std::cout<<"going w/"+RtMidi::getApiDisplayName(apis[0])+" MIDI api\n";
-      return apis[0];
-    }
+  //   if (apis.size() <= 1){
+  //     std::cout<<"going w/"+RtMidi::getApiDisplayName(apis[0])+" MIDI api\n";
+  //     return apis[0];
+  //   }
     
-    std::cout << "\nAPIs\n  API #0: unspecified / default\n";
-    for (size_t n = 0; n < apis.size(); n++)
-      std::cout << "  API #" << apis[n] << ": " << RtMidi::getApiDisplayName(apis[n]) << "\n";
+  //   std::cout << "\nAPIs\n  API #0: unspecified / default\n";
+  //   for (size_t n = 0; n < apis.size(); n++)
+  //     std::cout << "  API #" << apis[n] << ": " << RtMidi::getApiDisplayName(apis[n]) << "\n";
     
-    std::cout << "\nChoose an API number: ";
-    unsigned int i;
-    std::cin >> i;
+  //   std::cout << "\nChoose an API number: ";
+  //   unsigned int i;
+  //   std::cin >> i;
     
-    std::string dummy;
-    std::getline(std::cin, dummy);  // used to clear out stdin
+  //   std::string dummy;
+  //   std::getline(std::cin, dummy);  // used to clear out stdin
     
-    return static_cast<RtMidi::Api>(i);
-  }
+  //   return static_cast<RtMidi::Api>(i);
+  // }
   void StepchildMIDI::start(){
     //Setting up MIDI Input
     //-------------------------------------
     //init the virtualMidiIn
-    try {
-      virtualMidiIn = new RtMidiIn();
-    } catch (RtMidiError &error) {
-      error.printMessage();
-    }
+    // try {
+      //virtualMidiIn = new RtMidiIn();
+    // } catch (RtMidiError &error) {
+    //   error.printMessage();
+    // }
     // Check available ports.
-    unsigned int nPorts = virtualMidiIn->getPortCount();
+    // unsigned int nPorts = virtualMidiIn->getPortCount();
+    unsigned int nPorts = 0;
     if ( nPorts == 0 ) {
       std::cout << "No MIDI ports available!\n";
     }
     //if there's a port, open it and set up MIDI Input
     else{
-      virtualMidiIn->openPort( 0 );
-      // Don't ignore sysex, timing, or active sensing messages.
-      virtualMidiIn->ignoreTypes( false, false, false );
+      // virtualMidiIn->openPort( 0 );
+      // // Don't ignore sysex, timing, or active sensing messages.
+      // virtualMidiIn->ignoreTypes( false, false, false );
       
-      // Set our callback function.  This should be done immediately after
-      // opening the port to avoid having incoming messages written to the
-      // queue.
-      virtualMidiIn->setCallback( &MidiInputCallback );
+      // // Set our callback function.  This should be done immediately after
+      // // opening the port to avoid having incoming messages written to the
+      // // queue.
+      // virtualMidiIn->setCallback( &MidiInputCallback );
     }
     
     //Setting up MIDI Output
     //-------------------------------------
-    try{
-      virtualMidiOut = new RtMidiOut(chooseMidiApi());
-    }
-    catch ( RtMidiError &error ) {
-      error.printMessage();
-    }
-    virtualMidiOut->openVirtualPort("Stepchild (headless)");
+    // try{
+    //   //virtualMidiOut = new RtMidiOut(chooseMidiApi());
+    // }
+    // catch ( RtMidiError &error ) {
+    //   error.printMessage();
+    // }
+    //virtualMidiOut->openVirtualPort("Stepchild (headless)");
   }
   bool StepchildMIDI::isThru(uint8_t output){
     return dummyThruSettings[output];

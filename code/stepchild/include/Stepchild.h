@@ -37,8 +37,6 @@ and then the screen/display class is a member of it too
 #include <string>
 #include <iostream>
 #include <cstdlib>
-#include <vector>
-#include <cstdint>
 #include <cmath>
 #include <chrono>//for emulating millis() and micros()
 #include <unistd.h>
@@ -50,34 +48,10 @@ and then the screen/display class is a member of it too
 #include "headlessPico.h"
 #include "headlessDisplay.h"
 #include "headlessControls.h"
-
-#include "classes/Track.h"
-#include "classes/Note.h"
-#include "classes/Autotrack.h"
-#include "classes/ProgramChange.h"
-#include "classes/SequenceTemplate.h"
-#include "classes/LiveLooper.h"
-#include "classes/Knob.h"
-#include "classes/PlayList.h"
-#include "classes/SelectionBox.h"
-#include "classes/StepchildMenu.h"
-#include "classes/Clipboard.h"
-
-#include "commonStructs.h"
-#include "commonEnums.h"
-
-#include "StepchildClock.h"
-#include "StepchildArpeggiator.h"
-#include "StepchildCV.h"
 #include "headlessFileSystem.h"
 #include "headlessMIDI.h"
-//#include "StepchildMIDI.h"
 #include "headlessDisplay.h"
-//#include "StepchildDisplay.h"
 #include "headlessControls.h"
-//#include "StepchildIO.h"
-//#include "stringPatch.h"
-#include "utils.h"
 
 extern DummyRP2040 rp2040;
 
@@ -91,8 +65,19 @@ extern DummyRP2040 rp2040;
 // #include "pico/bootrom.h"
 // #include "pico/util/queue.h"
 // }
-#include <vector>
+#include <LittleFS.h>
+
+#include "StepchildFileSystem.h"
+#include "StepchildMIDI.h"
+#include "StepchildDisplay.h"
+#include "StepchildIO.h"
+#include "stringPatch.h"
+#endif
+
 #include <cstdint>
+#include <vector>
+#include "commonStructs.h"
+#include "commonEnums.h"
 #include "classes/Track.h"
 #include "classes/Note.h"
 #include "classes/Autotrack.h"
@@ -104,24 +89,12 @@ extern DummyRP2040 rp2040;
 #include "classes/SelectionBox.h"
 #include "classes/StepchildMenu.h"
 #include "classes/Clipboard.h"
-
-#include "commonStructs.h"
-#include "commonEnums.h"
-
-#include "StepchildFileSystem.h"
-#include "StepchildClock.h"
-#include "StepchildArpeggiator.h"
-#include "StepchildCV.h"
-#include "StepchildMIDI.h"
-#include "StepchildDisplay.h"
-#include "StepchildIO.h"
-#include "stringPatch.h"
-#include "utils.h"
-#endif
-
 #include "StepchildGraphics.h"
 #include "graphics/bitmaps.h"
 #include "ControlChange.h"
+#include "StepchildClock.h"
+#include "StepchildArpeggiator.h"
+#include "StepchildCV.h"
 #include "utils.h"
 #include "guiUtilities.h"
 #include <algorithm>

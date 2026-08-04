@@ -13,6 +13,64 @@ extern PlayState sequenceState;
 
 using namespace std;
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+// source ./emsdk_env.sh
+void setup(){
+
+}
+void setup1(){
+  //start display
+  stepchild.display.init();
+  // graphics.bootscreen_3();
+  stepchild.lastTime = millis();
+}
+void loop(){
+  sequenceState = PlayState(stepchild.playState);
+  stepchild.midi.processCore1Messages();
+  stepchild.midi.read();
+  switch(stepchild.playState){
+    case PLAYING:
+      stepchild.playingLoop();
+      break;
+    case RECORDING:
+      stepchild.recordingLoop();
+      break;
+    case STOPPED:
+      stepchild.defaultLoop();
+      break;
+  }
+  //run the arpeggiator, if it's active
+  if(stepchild.arpeggiator.isActive){
+    stepchild.arpLoop();
+  }
+}
+
+void loop1(){
+  mainSequence();
+  screenSaverCheck();
+  loop();
+}
+
+int main() {
+  stepchild.init();
+  window = initGlfw();
+  while (!openGLready) {
+  }
+  // launch the cpu1 thread to run the clock
+  // thread core1(loop);
+
+  // and then launch into the main thread
+  emscripten_set_main_loop(loop1, 0, 1); // 0 = use requestAnimationFrame, 1 = infinite loop takeover
+
+  // wait for the other thread to exit before killing the window
+  // core1.join();
+  // when you're ready to exit, close the window
+  glfwDestroyWindow(window);
+  glfwTerminate();
+  return 0;
+}
+#else
 //cpu0 setup
 void setup(){
 //  stepchild.init();
@@ -73,9 +131,7 @@ int main() {
 //  delay(1000);
   stepchild.init();
   // setup graphics window
-//  window = initGlfw();
-  launchWindow();
-//  loadImageTexture("assets/hardware_overlay.png");
+  window = initGlfw();
   while (!openGLready) {
   }
 
@@ -93,3 +149,4 @@ int main() {
   glfwTerminate();
   return 0;
 }
+#endif

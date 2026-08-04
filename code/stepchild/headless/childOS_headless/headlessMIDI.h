@@ -11,18 +11,23 @@
 
 #pragma once
 
+#include <cstdint>
+#include <vector>
+#include <iostream>
+
 enum PlayState{
   STOPPED,
   PLAYING,
   RECORDING
 };
 
-#include <CoreAudio/CoreAudio.h>
-#include <CoreMIDI/CoreMIDI.h>
-#include <CoreFoundation/CoreFoundation.h>
+// #include <CoreAudio/CoreAudio.h>
+// #include <CoreMIDI/CoreMIDI.h>
+// #include <CoreFoundation/CoreFoundation.h>
 
 //#define __MACOSX_CORE__
-#include "rtmidi-6.0.0/RtMidi.h"
+// #include "rtmidi-6.0.0/RtMidi.h"
+
 
 void handleCC_Normal(uint8_t channel, uint8_t cc, uint8_t value);
 void handleNoteOn_Normal(uint8_t channel, uint8_t note, uint8_t velocity);
@@ -77,7 +82,7 @@ public:
   void sendStop();
   void sendPC(uint8_t port, uint8_t val, uint8_t channel);
   //function for selecting the correct MIDI API
-  RtMidi::Api chooseMidiApi();
+  // RtMidi::Api chooseMidiApi();
   void start();
   bool isThru(uint8_t output);
   void setThru(uint8_t which, bool value);
