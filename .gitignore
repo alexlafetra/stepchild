@@ -9,3 +9,4 @@ site/
 .gitignore
 
 /code/stepchild/headless/build-wasm
+/code/stepchild/headless/build-native
