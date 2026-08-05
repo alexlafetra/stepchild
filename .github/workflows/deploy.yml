@@ -18,23 +18,23 @@ jobs:
           version: 6.0.5
 
       - name: Configure
-        working-directory: code/stepchild/headless
+        working-directory: childOS/headless
         run: |
           mkdir -p build-wasm
           cd build-wasm
           emcmake cmake ..
 
       - name: Build
-        working-directory: code/stepchild/headless/build-wasm
+        working-directory: childOS/headless/build-wasm
         run: emmake make
 
       - name: Prepare deploy folder
         run: |
           mkdir -p deploy
-          cp code/stepchild/headless/build-wasm/headless.html deploy/index.html
-          cp code/stepchild/headless/build-wasm/headless.js deploy/
-          cp code/stepchild/headless/build-wasm/headless.wasm deploy/
-          cp code/stepchild/headless/coi-serviceworker.js deploy/
+          cp childOS/headless/build-wasm/headless.html deploy/index.html
+          cp childOS/headless/build-wasm/headless.js deploy/
+          cp childOS/headless/build-wasm/headless.wasm deploy/
+          cp childOS/headless/coi-serviceworker.js deploy/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
