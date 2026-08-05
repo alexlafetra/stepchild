@@ -10,18 +10,76 @@
  */
 #include "headlessMIDI.h"
 #include <cstdint>
-
-PlayState sequenceState = STOPPED;
+using namespace std;
 
 // RtMidiIn *virtualMidiIn;
 // RtMidiOut *virtualMidiOut;
+
+PlayState sequenceState = STOPPED;
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#include <emscripten/threading.h>
+// define sendMidiMessageJS
+// EM_JS(void, sendMidiMessageJS, (int status, int data1, int data2), {
+//     if (midiOutput) {
+//       let output = [status];
+//       if(data1 != -1)
+//         output.push(data1);
+//       if(data2 != -1)
+//         output.push(data2);
+//       console.log(output);
+//       midiOutput.send(output);
+//     }
+//     else {
+//       console.warn("No MIDI output connected");
+//     }
+// });
+
+void sendMidiMessageJS(int status, int data1, int data2) {
+    MAIN_THREAD_EM_ASM({
+        var s = $0;
+        var d1 = $1;
+        var d2 = $2;
+        var msg = [];
+        msg.push(s);
+        if (d1 >= 0) { msg.push(d1); }
+        if (d2 >= 0) { msg.push(d2); }
+        if (midiOutput) {
+            midiOutput.send(msg);
+        } else {
+            console.warn("No MIDI output connected");
+        }
+    }, status, data1, data2);
+}
+
+extern "C" {
+    EMSCRIPTEN_KEEPALIVE
+    void onMidiMessage(int status, int data1, int data2) {
+      vector<uint8_t> temp = {static_cast<unsigned char>(status),static_cast<unsigned char>(data1),static_cast<unsigned char>(data2)};
+      MidiInputCallback(0,&temp,nullptr);
+    }
+}
+#endif
+
+void sendMidiMessage(std::vector<int> message) {
+#ifdef __EMSCRIPTEN__
+  while(message.size() < 3){
+    message.push_back(-1);
+  }
+  sendMidiMessageJS(message[0], message[1], message[2]);
+#else
+    // existing RtMidi output call, e.g.:
+    // midiOut->sendMessage(&message);
+#endif
+}
 
 void MidiInputCallback( double deltatime, std::vector< unsigned char > *message, void *userData ){
 #ifdef MIDI_DEBUG
   //debug printing the message bytes out
   cout<<"---------------------\n";
   for(uint8_t i = 0; i<message->size(); i++){
-    cout<<to_string(message->at(i))<<endl;
+    cout<<to_string(message->at(i))<<std::endl;
   }
 #endif
   //get the message
@@ -182,24 +240,24 @@ void MidiInputCallback( double deltatime, std::vector< unsigned char > *message,
     // 11<<4 to turn it into 10110000, then | with the channel to add the channel
     //        std::vector<uint8_t> message = {static_cast<unsigned char>((11<<4)|(c&15)),cc,v};
     //or, you can use the binary numbersdirectly
-    std::vector<uint8_t> message = {static_cast<unsigned char>(0b10110000|(0b01111111&c)),cc,v};
-    // virtualMidiOut->sendMessage( &message );
+    std::vector<int> message = {static_cast<unsigned char>(0b10110000|(0b01111111&c)),cc,v};
+    sendMidiMessage(message);
   }
   void StepchildMIDI::allOff(){
     //        std::vector<uint8_t> message = {11<<4,123,0};//all off on channel 0 (should you implement the other channels?)
-    std::vector<uint8_t> message = {0b10110000,123,0};//all off on channel 0 (should you implement the other channels?)
-    // virtualMidiOut->sendMessage( &message );
+    std::vector<int> message = {0b10110000,123,0};//all off on channel 0 (should you implement the other channels?)
+    sendMidiMessage(message);
   }
   void StepchildMIDI::noteOn(uint8_t pitch, uint8_t vel, uint8_t channel){
     // 11<<4 to turn it into 10010000, then | with the channel to add the channel
-    std::vector<uint8_t> message = {static_cast<unsigned char>(0b10010000|(channel&(uint8_t)15)),pitch,vel};
-    // virtualMidiOut->sendMessage( &message );
+    std::vector<int> message = {static_cast<unsigned char>(0b10010000|(channel&(uint8_t)15)),pitch,vel};
+    sendMidiMessage(message);
   }
   void StepchildMIDI::noteOff(uint8_t pitch, uint8_t vel, uint8_t channel){
     // 11<<4 to turn it into 10000000, then | with the channel to add the channel
     //        std::vector<uint8_t> message = {static_cast<unsigned char>((8<<4)|(channel&15)),pitch,vel};
-    std::vector<uint8_t> message = {static_cast<unsigned char>(0b10000000|(channel&15)),pitch,vel};
-    // virtualMidiOut->sendMessage( &message );
+    std::vector<int> message = {static_cast<unsigned char>(0b10000000|(channel&15)),pitch,vel};
+    sendMidiMessage(message);
   }
   //not really applicable in headless mode! the midi ports are *always* listening
   void StepchildMIDI::read(){
@@ -208,22 +266,22 @@ void MidiInputCallback( double deltatime, std::vector< unsigned char > *message,
   
   void StepchildMIDI::sendClock(){
     //only one byte -- 11111010
-    std::vector<uint8_t> message = {248};
-    //virtualMidiOut->sendMessage( &message );
+    std::vector<int> message = {248};
+    sendMidiMessage(message);
   }
   void StepchildMIDI::sendStart(){
     //only one byte -- 11111000
-    std::vector<uint8_t> message = {250};
-    //virtualMidiOut->sendMessage( &message );
+    std::vector<int> message = {250};
+    sendMidiMessage(message);
   }
   void StepchildMIDI::sendStop(){
     //only one byte -- 11111100
-    std::vector<uint8_t> message = {252};
-    //virtualMidiOut->sendMessage( &message );
+    std::vector<int> message = {252};
+    sendMidiMessage(message);
   }
   void StepchildMIDI::sendPC(uint8_t port, uint8_t val, uint8_t channel){
-    std::vector<uint8_t> message = {static_cast<unsigned char>((12<<4)|(channel&15)),val};
-    //virtualMidiOut->sendMessage( &message );
+    std::vector<int> message = {static_cast<unsigned char>((12<<4)|(channel&15)),val};
+    sendMidiMessage(message);
   }
   //function for selecting the correct MIDI API
   // RtMidi::Api StepchildMIDI::chooseMidiApi()

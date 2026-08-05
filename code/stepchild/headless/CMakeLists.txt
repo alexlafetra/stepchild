@@ -14,6 +14,8 @@
 # emcmake cmake ..
 # emmake make
 
+# RUN PYTHON SERVER: python3 serve.py
+
 cmake_minimum_required(VERSION 3.13)
 project(headless)
 
@@ -75,8 +77,9 @@ if (EMSCRIPTEN)
         -sGL_ENABLE_GET_PROC_ADDRESS=1
         -sALLOW_MEMORY_GROWTH=1
         -sASYNCIFY=1
-    #    -pthread
-    #    -sPTHREAD_POOL_SIZE=2
+        -pthread
+        -sPTHREAD_POOL_SIZE=2
+        -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap']
         --shell-file ${SHELL_FILE}
     )
     set_target_properties(headless PROPERTIES

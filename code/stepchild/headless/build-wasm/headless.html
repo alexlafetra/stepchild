@@ -23,6 +23,10 @@
             font-family: 'sf-compact-rounded-bold';
             src: url(../assets/SF-Compact-Rounded-Bold.ttf);
         }
+        @font-face {
+            font-family: 'chopin';
+            src: url(../assets/chopin.ttf);
+        }
         html{
             background:var(--bg);
             /* font-family:var(--mono); */
@@ -71,6 +75,9 @@
             justify-self: center;
             width:calc(var(--ui-scale) * var(--render-scale) * 370px);
         }
+        #title_image{
+            width:200px;
+        }
         #button_container{
             position:absolute;
             align-self: center;
@@ -83,6 +90,7 @@
             top:calc(var(--ui-scale) * -63px * var(--render-scale));
             transform: rotate(var(--encoder-rotation-A));
             transform-origin: center;
+            /* transition:0.1s; */
         }
         #encoder_B_image{
             width:calc(var(--ui-scale) * var(--render-scale) * 50px);
@@ -90,18 +98,51 @@
             top:calc(var(--ui-scale) * 16px * var(--render-scale));
             transform: rotate(var(--encoder-rotation-B));
             transform-origin: center;
+            /* transition:0.1s; */
         }
         #joystick_image{
             width:calc(var(--ui-scale) * var(--render-scale) * 30px);
             left:calc(var(--ui-scale) * 79px * var(--render-scale) + var(--joystick-offset-x));
             top:calc(var(--ui-scale) * 101px * var(--render-scale) + var(--joystick-offset-y));
+            /* transition:0.1s; */
         }
         #ui_container{
             position:absolute;
             left:0px;
             top:0px;
+            padding:20px;
+            display:flex;
+            flex-direction: column;
+            align-items: center;
+            gap:10px;
+        }
+        .cursive_text{
+            font-family:'chopin';
+            color:white;
+            transform:scaleY(0.5);
+            font-size:84px;
+        }
+        .button{
+            font-family: 'sf-compact-rounded-bold';
+            font-size:16px;
+            width:fit-content;
+            padding:10px;
+            border-radius: 2ch;
+            cursor:pointer;
+            color:var(--bg);
+            background:white;
+            transition:0.1s;
+        }
+        .button:hover{
+            background:var(--bg);
+            color:white;
+        }
+        .slider_container{
+            display:flex;
+            flex-direction: row;
         }
     </style>
+    <script src="../coi-serviceworker.min.js" type = "text/javascript"></script>
 </head>
 <body>
     <div id = "app_container">
@@ -115,14 +156,22 @@
             </div>
         </div>
         <div id = "ui_container">
-            hello! testing
-            <input id = "zoom_slider" type = "range" min = "1" max = "16" step = "0.1" value = "3">
+            <div id = "title" style = "flex-direction:row;display:flex;">
+                <img id = "title_image" src = "../assets/title.svg">
+                <div class = "cursive_text">Headless</div>
+            </div>
+            <div class = "button" id = "init_midi_button">connect MIDI</div>
+            <div class = "slider_container">
+                <div class = "slider_label">zoom</div>
+                <input id = "zoom_slider" type = "range" min = "1" max = "8" step = "0.1" value = "3">
+            </div>
         </div>
     </div>
     <div id="status">Loading...</div>
-
     <script>
         let rotationA = 0, rotationB = 0;
+        var midiInput = null;
+        var midiOutput = null;
         var Module = {
             canvas: document.getElementById('canvas'),
             setStatus: function(text) {
@@ -132,6 +181,37 @@
                 console.log(text);
             }
         };
+        function initMIDI(){
+            navigator.requestMIDIAccess().then(function(midiAccess) {
+                for (let output of midiAccess.outputs.values()) {
+                    midiOutput = output;
+                    console.log(midiOutput);
+                    break; // grabbing the first available output, same as input
+                }
+                for (let input of midiAccess.inputs.values()) {
+                    midiInput = input;
+                    input.onmidimessage = function(event) {
+                        // event.data is a Uint8Array: [status, data1, data2]
+                        Module.ccall(
+                            'onMidiMessage',
+                            null,
+                            ['number', 'number', 'number'],
+                            [event.data[0], event.data[1] || 0, event.data[2] || 0]
+                        );
+                    };
+                    break; // just grabbing the first available input for now
+                }
+                // document.documentElement.style.setProperty("--midi-connected", parseFloat(event.target.value));
+                document.getElementById('init_midi_button').innerText = "MIDI connected";
+            }).catch(function(err) {
+                console.warn('Web MIDI access denied or unavailable:', err);
+            });
+        }
+        initMIDI();
+        // initialize midi button
+        document.getElementById("init_midi_button").addEventListener('click',(event)=>{
+            initMIDI();
+        })
         // zoom slider
         document.getElementById("zoom_slider").addEventListener('input',(event)=>{
             document.documentElement.style.setProperty("--ui-scale", parseFloat(event.target.value));
@@ -190,7 +270,7 @@
             else if(e.key == 'ArrowUp' || e.key == 'ArrowDown')
                 document.documentElement.style.setProperty("--joystick-offset-y", "0px");
         }, false);
-        </script>
+    </script>
 
     <!-- Emscripten injects the generated JS loader here -->
     <script async type="text/javascript" src="headless.js"></script>

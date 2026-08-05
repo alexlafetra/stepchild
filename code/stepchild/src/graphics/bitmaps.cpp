@@ -638,8 +638,8 @@ const unsigned char* mainMenu_icons[12] = {
 
   epd_bitmap_CD,
   live_loop_bmp,
-//   epd_bitmap_fx,
-  random_bmp,
+  epd_bitmap_fx,
+//   random_bmp,
 //   playback1_bmp,
   epd_bitmap_console,
 

@@ -662,4 +662,26 @@ CMakeFiles/headless.dir/childOS_headless/headlessMIDI.cpp.o: \
   /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/stack \
   /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__fwd/stack.h \
   /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/print \
-  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/unistd.h
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/unistd.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/emscripten.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/em_asm.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/em_js.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/em_macros.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/stdbool.h \
+  /Users/alex/emsdk/upstream/lib/clang/24/include/stdbool.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/stdbool.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/em_types.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/promise.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/version.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/wget.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/threading.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/atomic.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/inttypes.h \
+  /Users/alex/emsdk/upstream/lib/clang/24/include/inttypes.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/inttypes.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/threading_legacy.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/html5.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/console.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/eventloop.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/html5_webgl.h \
+  /Users/alex/emsdk/upstream/emscripten/cache/sysroot/include/emscripten/threading_primitives.h

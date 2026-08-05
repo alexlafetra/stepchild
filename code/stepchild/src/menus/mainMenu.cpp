@@ -10,6 +10,15 @@ extern bool loadBackup();
 
 using namespace std;
 
+// 'track_t', 6x6px
+const unsigned char track_icon_bmp [] = {
+	0x78, 0x78, 0x30, 0x30, 0x30, 0x30
+};
+// 'note', 6x6px
+const unsigned char note_icon_bmp [] = {
+	0x1c, 0x18, 0x10, 0x70, 0x90, 0x60
+};
+
 class MainMenu:public StepchildMenu{
   public:
     WireFrame icon;
@@ -171,12 +180,22 @@ bool MainMenu::mainMenuControls(){
     if(stepchild.buttons.joystickX != 0){
       if(stepchild.buttons.joystickX == -1){
         //if it's not divisible by four (in which case this would be 0)
-        if((cursor+1)%4)
+        // if((cursor+1)%4)
+        //   cursor++;
+        if(cursor == 12)
+          cursor = 13;
+        else if(cursor == 13)
+          cursor = 12;
+        else if((cursor+1)%4)
           cursor++;
         stepchild.lastTime = millis();
       }
       else if(stepchild.buttons.joystickX == 1){
-        if((cursor)%4)
+        if(cursor == 12)
+          cursor = 13;
+        else if(cursor == 13)
+          cursor = 12;
+        else if((cursor)%4)
           cursor--;
         stepchild.lastTime = millis();
       }
@@ -184,14 +203,22 @@ bool MainMenu::mainMenuControls(){
     if(stepchild.buttons.joystickY != 0){
       if(stepchild.buttons.joystickY == 1){
         //first row
-        if(cursor < 8)
+        if(cursor == 12)
+          cursor = 2;
+        else if(cursor == 13)
+          cursor = 3;
+        else if(cursor < 8)
           cursor += 4;
         stepchild.lastTime = millis();
       }
       else if(stepchild.buttons.joystickY == -1){
         //second row
-        if(cursor > 3)
+        if(cursor > 3 && cursor < 12)
           cursor -= 4;
+        else if(cursor < 3)
+          cursor = 12;
+        else if(cursor < 12)
+          cursor = 13;
         stepchild.lastTime = millis();
       }
     }
@@ -283,7 +310,7 @@ bool MainMenu::mainMenuControls(){
         //rec
         case 6:
           slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
-          randomMenu();
+          fxMenu();
           slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           break;
         //console
@@ -319,6 +346,18 @@ bool MainMenu::mainMenuControls(){
           arpMenu();
           slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
           break;
+        //NOTE
+        case 12:
+          slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          editMenu();
+          slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          break;
+        //track
+        case 13:
+          slideOut(OUT_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          trackMenu();
+          slideIn(IN_FROM_BOTTOM,MENU_SLIDE_MEDIUM);
+          break;
       }
     }
   }
@@ -352,9 +391,9 @@ void MainMenu::drawMainMenuLabel(){
     case 5:
       text = "LIVELOOP";
       break;
-    //rec
+    //fx
     case 6:
-      text = "RANDOM";
+      text = "FX";
       break;
     //heart
     case 7:
@@ -375,6 +414,12 @@ void MainMenu::drawMainMenuLabel(){
     //arp menu
     case 11:
       text = "ARP";
+      break;
+    case 12:
+      text = "NOTE";
+      break;
+    case 13:
+      text = "TRACK";
       break;
   }
   graphics.drawLabel(112,34,text,true);
@@ -397,6 +442,16 @@ void MainMenu::displayMenu(){
   //drawing menu box (+16 so the title is transparent)
   stepchild.display.fillRect(coords.start.x,coords.start.y+12, coords.end.x-coords.start.x, coords.end.y-coords.start.y, SSD1306_BLACK);
   stepchild.display.drawRoundRect(coords.start.x,coords.start.y+12, coords.end.x-coords.start.x, coords.end.y-coords.start.y-12, 3, SSD1306_WHITE);
+
+  stepchild.display.fillRoundRect(coords.end.x-24,coords.start.y+sin(millis()/200+12), 10, 10, 3, cursor == 12?1:0);
+  stepchild.display.drawBitmap(coords.end.x-22,coords.start.y+2+sin(millis()/200+12),note_icon_bmp,6,6,2);
+  if(cursor != 12)
+    stepchild.display.drawRoundRect(coords.end.x-24,coords.start.y+sin(millis()/200+12), 10, 10, 3, SSD1306_WHITE);
+
+  stepchild.display.fillRoundRect(coords.end.x-12,coords.start.y+sin(millis()/200+13), 10, 10, 3, cursor == 13?1:0);
+  stepchild.display.drawBitmap(coords.end.x-10,coords.start.y+2+sin(millis()/200+13),track_icon_bmp,6,6,2);
+  if(cursor != 13)
+    stepchild.display.drawRoundRect(coords.end.x-12,coords.start.y+sin(millis()/200+13), 10, 10, 3, SSD1306_WHITE);
 
   //if the title will be on screen
   if(coords.start.x+coords.start.y-1<stepchild.SCREEN_WIDTH){
