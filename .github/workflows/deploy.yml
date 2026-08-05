@@ -31,7 +31,7 @@ jobs:
       - name: Prepare deploy folder
         run: |
           mkdir -p deploy/app
-          cp childOS/headless/build-wasm/headless.html deploy/headless/index.html
+          cp childOS/headless/build-wasm/index.html deploy/headless/index.html
           cp childOS/headless/build-wasm/headless.js deploy/headless/
           cp childOS/headless/build-wasm/headless.wasm deploy/headless/
           cp childOS/headless/build-wasm/headless.data deploy/headless/ 2>/dev/null || true
