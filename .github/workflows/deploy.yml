@@ -35,6 +35,7 @@ jobs:
           cp childOS/headless/build-wasm/headless.js deploy/headless/
           cp childOS/headless/build-wasm/headless.wasm deploy/headless/
           cp childOS/headless/build-wasm/headless.data deploy/headless/ 2>/dev/null || true
+          cp childOS/headless/coi-serviceworker.js deploy/headless/
           cp -r childOS/headless/assets deploy/assets
 
       - name: Deploy to GitHub Pages
