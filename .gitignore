@@ -1,12 +1,11 @@
+# .gitignore
 .VSCodeCounter
 **/.DS_Store
-code/headless/childOS_headless/.DS_Store
-.VSCodeCounter
 .vscode
 todo.md
 site/
 .gitattributes
 .gitignore
 
-/code/stepchild/headless/build-wasm
-/code/stepchild/headless/build-native
+**/build-wasm/
+**/build-native/
