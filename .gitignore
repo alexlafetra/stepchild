@@ -8,3 +8,4 @@ site/
 .gitattributes
 .gitignore
 
+/code/stepchild/headless/build-wasm
