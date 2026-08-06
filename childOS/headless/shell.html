@@ -16,6 +16,20 @@
             --render-scale:0.8;
             --ui-visibility:visible;
         }
+        @media all and (max-width: 650px) {
+            :root{
+                --ui-scale:2.3;
+                --pixel-grid-visibility:hidden;
+                --encoder-rotation-A:0deg;
+                --encoder-rotation-B:0deg;
+                --joystick-offset-x:0px;
+                --joystick-offset-y:0px;
+                --render-scale:0.8;
+                --ui-visibility:visible;
+                --bg: red;
+                --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            }
+        }
         @font-face {
             font-family: 'sf-compact-rounded-regular';
             src: url(../assets/SF-Compact-Rounded-Regular.ttf);
@@ -199,16 +213,6 @@
             top:calc(var(--ui-scale) * 132.5px * var(--render-scale));
             background:#060602;
         }
-        #button_tooltip_overlay{
-            position:absolute;
-            visibility: var(--ui-visibility);
-            user-select: none;
-            pointer-events: none;
-            width:calc(var(--ui-scale) * var(--render-scale) * 500px);
-            height:auto;
-            left:calc(var(--ui-scale) * -255px * var(--render-scale));
-            top:calc(var(--ui-scale) * -130px * var(--render-scale));
-        }
         #headless_title{
             position:absolute;
             right:20px;
@@ -239,29 +243,34 @@
             visibility: visible;
         }
         .encoder_button{
-            width:30px;
-            height:30px;
-            font-size:24px;
+            width:calc(15px * var(--ui-scale));;
+            height:calc(15px * var(--ui-scale));
+            font-size:calc(14px * var(--ui-scale));
             background:black;
-            outline:2px solid white;
+            outline:solid white;
+            outline-width:calc(1px * var(--ui-scale));
             color:white;
-            border-radius:15px;
+            border-radius:calc(7.5px * var(--ui-scale));
             position:absolute;
             text-align: center;
+            display:flex;
+            align-items: center;
+            justify-content: center;
             cursor:pointer;
             /* visibility:hidden; */
             user-select: none;
-            right:-10px;
+            right:calc(-5px * var(--ui-scale));
+            font-family:'sf-compact-rounded-bold';
         }
         .encoder_button:hover{
             background:white;
             color:black;
         }
         .up_button{
-            top:-10px;
+            top:calc(-5px * var(--ui-scale));
         }
         .down_button{
-            bottom:-10px;
+            bottom:calc(-5px * var(--ui-scale));
         }
         #joystick_buttons{
             position:absolute;
@@ -273,13 +282,12 @@
             top:calc(var(--ui-scale) * 101px * var(--render-scale) + var(--joystick-offset-y)); */
         }
         .joystick_button{
-            width:30px;
-            height:30px;
-            font-size:24px;
+            width:calc(15px * var(--ui-scale));
+            height:calc(15px * var(--ui-scale));
             background:black;
             outline:2px solid white;
             color:white;
-            border-radius:15px;
+            border-radius:calc(7.5px * var(--ui-scale));;
             position:absolute;
             text-align: center;
             cursor:pointer;
@@ -297,21 +305,130 @@
             background:white;
         }
         #J_up{
-            top:-10px;
-            left:calc(50% - 15px);
+            top:calc(-5px * var(--ui-scale));
+            left:calc(50% - 7.5px * var(--ui-scale));
         }
         #J_down{
-            bottom:-10px;
-            left:calc(50% - 15px);
+            bottom:calc(-5px * var(--ui-scale));
+            left:calc(50% - 7.5px * var(--ui-scale));
         }
         #J_left{
-            bottom:calc(50% - 15px);
-            left:-10px;
+            bottom:calc(50% - 7.5px * var(--ui-scale));
+            left:calc(-5px * var(--ui-scale));
         }
         #J_right{
-            bottom:calc(50% - 15px);
-            right:-10px;
+            bottom:calc(50% - 7.5px * var(--ui-scale));
+            right:calc(-5px * var(--ui-scale));
         }
+        .ui_text{
+            font-family: monospace;
+            white-space: pre;
+        }
+        .button_tooltip{
+            user-select: none;
+            font-size:calc(15px * var(--ui-scale));
+            position:absolute;
+            display:flex;
+            width:fit-content;
+            height:fit-content;
+            font-family:'sf-compact-rounded-bold';
+            align-items: center;
+            gap:calc(5px * var(--ui-scale));
+            position:absolute;
+            flex-direction: row;
+            visibility: var(--ui-visibility);
+        }
+        .tooltip_label{
+            user-select: none;
+        }
+        .left{
+            right:calc(100% + 10px * var(--ui-scale));
+            top:calc(50% - 9px * var(--ui-scale));
+            /* float:right; */
+        }
+        .bottom{
+            top:calc(100% + 10px * var(--ui-scale));
+            right:calc(50% - 9px * var(--ui-scale));
+            flex-direction: column-reverse;
+        }
+        .joystick_keys{
+            display:grid;
+            width:fit-content;
+            height: fit-content;
+            grid-template-columns: auto auto auto;
+            grid-template-rows:auto auto;
+            grid-template-areas: 
+            "none UP none2"
+            "LEFT DOWN RIGHT";
+            top: calc(220% - var(--joystick-offset-y));
+            right: calc(-80% + var(--joystick-offset-x));
+            gap:calc(2.5px * var(--ui-scale));
+            justify-self: center;
+
+        }
+        .joystick_up{
+            grid-area: UP;
+            transform:rotatez(180deg);
+        }
+        .joystick_left{
+            grid-area: LEFT;
+        }
+        .joystick_down{
+            grid-area: DOWN;
+        }
+        .joystick_right{
+            grid-area: RIGHT;
+        }
+        .encoder{
+            display:grid;
+            width:calc(20px * var(--ui-scale));
+            height: fit-content;
+            grid-template-columns: auto auto auto;
+            grid-template-rows:auto auto auto;
+            grid-template-areas: 
+            "none1 UP UP"
+            "PRESS PRESS LABEL"
+            "none3 DOWN DOWN";
+            left:calc(100% + 10px * var(--ui-scale));
+            top: -33.33%;
+            gap:calc(2.5px * var(--ui-scale));
+            /* align-self: center; */
+
+        }
+        .encoder .tooltip_label{
+            grid-area: LABEL;
+        }
+        .encoder_up{
+            grid-area:UP;
+        }
+        .encoder_press{
+            grid-area:PRESS;
+        }
+        .encoder_down{
+            grid-area:DOWN;
+        }
+        .bottom .tooltip_label{
+            writing-mode: vertical-rl;
+        }
+        .tooltip_label{
+            font-size:calc(15px * var(--ui-scale));
+        }
+        .tooltip_key{
+            font-size:calc(15px * var(--ui-scale));
+            padding:0px;
+            display:flex;
+            width:fit-content;
+            margin:auto;
+            justify-content: center;
+            align-items: center;
+            border:solid white;
+            border-width:calc(2px * var(--ui-scale));
+            border-radius:calc(5px * var(--ui-scale));
+            width:calc(15px * var(--ui-scale));
+            height:calc(15px * var(--ui-scale));
+            display:flex;
+        }
+
     </style>
     <script src="../coi-serviceworker.min.js" type = "text/javascript"></script>
 </head>
@@ -321,19 +438,18 @@
             <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
             <img id = "hardware_overlay_image" class = "hardware_overlay" src = "../assets/hardware_overlay_transparent.png">
             <div id = "button_container">
-                <img id = "button_tooltip_overlay" src = "../assets/button_tooltip.svg">
-                <div id = "NEW_button" class = "hardware_button"></div>
-                <div id = "SHIFT_button" class = "hardware_button"></div>
-                <div id = "SELECT_button" class = "hardware_button"></div>
-                <div id = "DELETE_button" class = "hardware_button"></div>
-                <div id = "LOOP_button" class = "hardware_button"></div>
-                <div id = "PLAY_button" class = "hardware_button"></div>
-                <div id = "COPY_button" class = "hardware_button"></div>
-                <div id = "MENU_button" class = "hardware_button"></div>
-                <div id = "encoder_A_buttons"><div class = "encoder_button up_button" id = "A_up">+</div><div class = "encoder_button down_button" id = "A_down">-</div></div>
-                <img id = "encoder_A_image" class = "hardware_button" src = "../assets/encoder.png">
-                <div id = "encoder_B_buttons"><div class = "encoder_button up_button" id = "B_up">+</div><div class = "encoder_button down_button" id = "B_down">-</div></div>
-                <img id = "encoder_B_image" class = "hardware_button" src = "../assets/encoder.png">
+                <div id = "NEW_button" class = "hardware_button"><div class = "button_tooltip left"><div class = "tooltip_label">new</div><div id = "NEW_key" class = "tooltip_key">1</div></div></div>
+                <div id = "SHIFT_button" class = "hardware_button"><div class = "button_tooltip left"><div class = "tooltip_label">shift</div><div id = "SHIFT_key"  class = "tooltip_key">Q</div></div></div>
+                <div id = "SELECT_button" class = "hardware_button"><div class = "button_tooltip left"><div class = "tooltip_label">select</div><div id = "SELECT_key"  class = "tooltip_key">A</div></div></div>
+                <div id = "DELETE_button" class = "hardware_button"><div class = "button_tooltip left"><div class = "tooltip_label">delete</div><div id = "DELETE_key"  class = "tooltip_key">Z</div></div></div>
+                <div id = "LOOP_button" class = "hardware_button"><div class = "button_tooltip bottom"><div class = "tooltip_label">loop</div><div id = "LOOP_key"  class = "tooltip_key">X</div></div></div>
+                <div id = "PLAY_button" class = "hardware_button"><div class = "button_tooltip bottom"><div class = "tooltip_label">play</div><div id = "PLAY_key"  class = "tooltip_key">C</div></div></div>
+                <div id = "COPY_button" class = "hardware_button"><div class = "button_tooltip bottom"><div class = "tooltip_label">copy</div><div id = "COPY_key"  class = "tooltip_key">V</div></div></div>
+                <div id = "MENU_button" class = "hardware_button"><div class = "button_tooltip bottom"><div class = "tooltip_label">menu</div><div id = "MENU_key"  class = "tooltip_key">B</div></div></div>
+                <div id = "encoder_A_buttons"><div class = "encoder_button up_button" id = "A_up">+</div><div class = "encoder_button down_button" id = "A_down">-</div><div class = "button_tooltip encoder"><div id = "A_UP_key"  class = "tooltip_key encoder_up">0</div><div id = "A_PRESS_key"  class = "tooltip_key encoder_press">O</div><div class = "tooltip_label">A</div><div id = "A_DOWN_key"  class = "tooltip_key encoder_down">K</div></div></div>
+                <img draggable = "false" id = "encoder_A_image" class = "hardware_button" src = "../assets/encoder.png">
+                <div id = "encoder_B_buttons"><div class = "encoder_button up_button" id = "B_up">+</div><div class = "encoder_button down_button" id = "B_down">-</div><div class = "button_tooltip encoder"><div id = "B_UP_key"  class = "tooltip_key encoder_up">-</div><div id = "B_PRESS_key"  class = "tooltip_key encoder_press">P</div><div class = "tooltip_label">B</div><div id = "B_DOWN_key"  class = "tooltip_key encoder_down">L</div></div></div>
+                <img draggable = "false" id = "encoder_B_image" class = "hardware_button" src = "../assets/encoder.png">
                 <div id = "joystick_image" draggable = "false" class = "hardware_button" >
                     <div id = "joystick_buttons">
                         <div class = "joystick_button" id = "J_right"></div>
@@ -342,21 +458,22 @@
                         <div class = "joystick_button" id = "J_down"></div>
                     </div>
                     <img id = "joystick_image" draggable = "false" src = "../assets/joystick.png">
+                    <div class = "button_tooltip joystick_keys"><div id = "UP_key"  class = "tooltip_key joystick_up">v</div><div id = "LEFT_key"  class = "tooltip_key joystick_left"><</div><div id = "DOWN_key"  class = "tooltip_key joystick_down">v</div><div id = "RIGHT_key"  class = "tooltip_key joystick_right">></div></div>
                 </div>
             </div>
         </div>
         <div id = "headless_title" class = "cursive_text">Headless</div>
         <div id = "ui_container">
             <div id = "title" style = "flex-direction:row;display:flex;">
-                <img id = "title_image" src = "../assets/title.svg">
+                <img draggable = "false" id = "title_image" src = "../assets/title.svg">
             </div>
             <div style = "display:flex;flex-direction: row;">
-                <div>UI overlay:</div>
+                <div class = "ui_text">UI overlay:</div>
                 <input type = "checkbox" id = "ui_overlay_checkbox" checked = "true">
             </div>
             <div class = "button" id = "init_midi_button">connect MIDI</div>
             <div class = "slider_container">
-                <div class = "slider_label">zoom</div>
+                <div class = "slider_label ui_text">zoom </div>
                 <input id = "zoom_slider" type = "range" min = "1" max = "8" step = "0.1" value = "3">
             </div>
         </div>
@@ -407,6 +524,7 @@
         })
         // zoom slider
         document.getElementById("zoom_slider").addEventListener('input',(event)=>{
+            console.log(event.target.value);
             document.documentElement.style.setProperty("--ui-scale", parseFloat(event.target.value));
         })
         // ui checkbox
@@ -610,75 +728,112 @@
             if (preventDefaultKeys.has(e.key)) {
                 e.preventDefault();
             }
+            let id = null;
             switch(e.key){
                 // NEW
                 case '1':
                     document.getElementById('NEW_button').style.background = 'white';
+                    document.getElementById('NEW_key').style.background = 'white';
+                    document.getElementById('NEW_key').style.color = 'blue';
                     break;
                 case 'q':
                     document.getElementById('SHIFT_button').style.background = 'white';
+                    document.getElementById('SHIFT_key').style.background = 'white';
+                    document.getElementById('SHIFT_key').style.color = 'blue';
                     break;
                 case 'a':
                     document.getElementById('SELECT_button').style.background = 'white';
+                    document.getElementById('SELECT_key').style.background = 'white';
+                    document.getElementById('SELECT_key').style.color = 'blue';
                     break;
                 case 'z':
                     document.getElementById('DELETE_button').style.background = 'white';
+                    document.getElementById('DELETE_key').style.background = 'white';
+                    document.getElementById('DELETE_key').style.color = 'blue';
                     break;
                 case 'x':
                     document.getElementById('LOOP_button').style.background = 'white';
+                    document.getElementById('LOOP_key').style.background = 'white';
+                    document.getElementById('LOOP_key').style.color = 'blue';
                     break;
                 case 'c':
                     document.getElementById('PLAY_button').style.background = 'white';
+                    document.getElementById('PLAY_key').style.background = 'white';
+                    document.getElementById('PLAY_key').style.color = 'blue';
                     break;
                 case 'v':
                     document.getElementById('COPY_button').style.background = 'white';
+                    document.getElementById('COPY_key').style.background = 'white';
+                    document.getElementById('COPY_key').style.color = 'blue';
                     break;
                 case 'b':
                     document.getElementById('MENU_button').style.background = 'white';
+                    document.getElementById('MENU_key').style.background = 'white';
+                    document.getElementById('MENU_key').style.color = 'blue';
                     break;
                 // joystick
                 case 'ArrowUp':
                     document.getElementById('J_up').style.background = 'white';
                     document.documentElement.style.setProperty("--joystick-offset-y", "-20px");
+                    document.getElementById('UP_key').style.background = 'white';
+                    document.getElementById('UP_key').style.color = 'blue';
                     break;
                 case 'ArrowDown':
                     document.getElementById('J_down').style.background = 'white';
                     document.documentElement.style.setProperty("--joystick-offset-y", "20px");
+                    document.getElementById('DOWN_key').style.background = 'white';
+                    document.getElementById('DOWN_key').style.color = 'blue';
                     break;
                 case 'ArrowLeft':
                     document.getElementById('J_left').style.background = 'white';
                     document.documentElement.style.setProperty("--joystick-offset-x", "-20px");
+                    document.getElementById('LEFT_key').style.background = 'white';
+                    document.getElementById('LEFT_key').style.color = 'blue';
                     break;
                 case 'ArrowRight':
                     document.getElementById('J_right').style.background = 'white';
                     document.documentElement.style.setProperty("--joystick-offset-x", "20px");
+                    document.getElementById('RIGHT_key').style.background = 'white';
+                    document.getElementById('RIGHT_key').style.color = 'blue';
                     break;
                 // encoders
                 case '0':
                     rotationA -= 360/16;
                     document.getElementById('A_up').style.background = 'white';
                     document.documentElement.style.setProperty("--encoder-rotation-A", `${rotationA}deg`);
+                    document.getElementById('A_UP_key').style.background = 'white';
+                    document.getElementById('A_UP_key').style.color = 'blue';
                     break;
                 case 'k':
                     rotationA += 360/16;
                     document.getElementById('A_down').style.background = 'white';
-                    document.documentElement.style.setProperty("--encoder-rotation-A", `${rotationA}deg`)
+                    document.documentElement.style.setProperty("--encoder-rotation-A", `${rotationA}deg`);
+                    document.getElementById('A_DOWN_key').style.background = 'white';
+                    document.getElementById('A_DOWN_key').style.color = 'blue';
                     break;
                 case '-':
                     rotationB -= 360/16;
                     document.getElementById('B_up').style.background = 'white';
                     document.documentElement.style.setProperty("--encoder-rotation-B", `${rotationB}deg`);
+                    document.getElementById('B_UP_key').style.background = 'white';
+                    document.getElementById('B_UP_key').style.color = 'blue';
                     break;
                 case 'l':
                     rotationB += 360/16;
                     document.getElementById('B_down').style.background = 'white';
-                    document.documentElement.style.setProperty("--encoder-rotation-B", `${rotationB}deg`)
+                    document.documentElement.style.setProperty("--encoder-rotation-B", `${rotationB}deg`);
+                    document.getElementById('B_DOWN_key').style.background = 'white';
+                    document.getElementById('B_DOWN_key').style.color = 'blue';
                     break;
                 case 'p':
                     document.getElementById('encoder_B_image').style.outline = '2px solid white';
+                    document.getElementById('B_PRESS_key').style.background = 'white';
+                    document.getElementById('B_PRESS_key').style.color = 'blue';
                     break;
                 case 'o':
                     document.getElementById('encoder_A_image').style.outline = '2px solid white';
+                    document.getElementById('A_PRESS_key').style.background = 'white';
+                    document.getElementById('A_PRESS_key').style.color = 'blue';
                     break;
                 
             }
@@ -689,66 +844,101 @@
                 e.preventDefault();
             }
             switch(e.key){
-                // NEW
+               // NEW
                 case '1':
-                    document.getElementById('NEW_button').style.background = null;
+                    document.getElementById('NEW_button').style.background= null;
+                    document.getElementById('NEW_key').style.background= null;
+                    document.getElementById('NEW_key').style.color= null;
                     break;
                 case 'q':
-                    document.getElementById('SHIFT_button').style.background = null;
+                    document.getElementById('SHIFT_button').style.background= null;
+                    document.getElementById('SHIFT_key').style.background= null;
+                    document.getElementById('SHIFT_key').style.color= null;
                     break;
                 case 'a':
-                    document.getElementById('SELECT_button').style.background = null;
+                    document.getElementById('SELECT_button').style.background= null;
+                    document.getElementById('SELECT_key').style.background= null;
+                    document.getElementById('SELECT_key').style.color= null;
                     break;
                 case 'z':
-                    document.getElementById('DELETE_button').style.background = null;
+                    document.getElementById('DELETE_button').style.background= null;
+                    document.getElementById('DELETE_key').style.background= null;
+                    document.getElementById('DELETE_key').style.color= null;
                     break;
                 case 'x':
-                    document.getElementById('LOOP_button').style.background = null;
+                    document.getElementById('LOOP_button').style.background= null;
+                    document.getElementById('LOOP_key').style.background= null;
+                    document.getElementById('LOOP_key').style.color= null;
                     break;
                 case 'c':
-                    document.getElementById('PLAY_button').style.background = null;
+                    document.getElementById('PLAY_button').style.background= null;
+                    document.getElementById('PLAY_key').style.background= null;
+                    document.getElementById('PLAY_key').style.color= null;
                     break;
                 case 'v':
-                    document.getElementById('COPY_button').style.background = null;
+                    document.getElementById('COPY_button').style.background= null;
+                    document.getElementById('COPY_key').style.background= null;
+                    document.getElementById('COPY_key').style.color= null;
                     break;
                 case 'b':
-                    document.getElementById('MENU_button').style.background = null;
+                    document.getElementById('MENU_button').style.background= null;
+                    document.getElementById('MENU_key').style.background= null;
+                    document.getElementById('MENU_key').style.color= null;
                     break;
                 case 'p':
                     document.getElementById('encoder_B_image').style.outline = null;
+                    document.getElementById('B_PRESS_key').style.background = null;
+                    document.getElementById('B_PRESS_key').style.color = null;
                     break;
                 case 'o':
                     document.getElementById('encoder_A_image').style.outline = null;
+                    document.getElementById('A_PRESS_key').style.background = null;
+                    document.getElementById('A_PRESS_key').style.color = null;
+                    break;
+                case '0':
+                        document.getElementById('A_up').style.background = null;
+                    document.getElementById('A_UP_key').style.background = null;
+                    document.getElementById('A_UP_key').style.color = null;
+                    break;
+                case 'k':
+                    document.getElementById('A_down').style.background = null;
+                    document.getElementById('A_DOWN_key').style.background = null;
+                    document.getElementById('A_DOWN_key').style.color = null;
+                    break;
+                case '-':
+                    document.getElementById('B_up').style.background = null;
+                    document.getElementById('B_UP_key').style.background = null;
+                    document.getElementById('B_UP_key').style.color = null;
+                    break;
+                case 'l':
+                    document.getElementById('B_down').style.background = null;
+                    document.getElementById('B_DOWN_key').style.background = null;
+                    document.getElementById('B_DOWN_key').style.color = null;
                     break;
                 // joystick
                 case 'ArrowUp':
                     document.getElementById('J_up').style.background = null;
                     document.documentElement.style.setProperty("--joystick-offset-y", "0px");
+                    document.getElementById('UP_key').style.background = null;
+                    document.getElementById('UP_key').style.color = null;
                     break;
                 case 'ArrowDown':
                     document.getElementById('J_down').style.background = null;
                     document.documentElement.style.setProperty("--joystick-offset-y", "0px");
+                    document.getElementById('DOWN_key').style.background = null;
+                    document.getElementById('DOWN_key').style.color = null;
                     break;
                 case 'ArrowLeft':
                     document.getElementById('J_left').style.background = null;
                     document.documentElement.style.setProperty("--joystick-offset-x", "0px");
+                    document.getElementById('LEFT_key').style.background = null;
+                    document.getElementById('LEFT_key').style.color = null;
                     break;
                 case 'ArrowRight':
                     document.getElementById('J_right').style.background = null;
                     document.documentElement.style.setProperty("--joystick-offset-x", "0px");
-                    break;
-                // encoders
-                case '0':
-                    document.getElementById('A_up').style.background = null;
-                    break;
-                case 'k':
-                    document.getElementById('A_down').style.background = null;
-                    break;
-                case '-':
-                    document.getElementById('B_up').style.background = null;
-                    break;
-                case 'l':
-                    document.getElementById('B_down').style.background = null;
+                    document.getElementById('RIGHT_key').style.background = null;
+                    document.getElementById('RIGHT_key').style.color = null;
                     break;
                 
             }
