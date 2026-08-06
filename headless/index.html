@@ -203,6 +203,7 @@
             position:absolute;
             visibility: var(--ui-visibility);
             user-select: none;
+            pointer-events: none;
             width:calc(var(--ui-scale) * var(--render-scale) * 500px);
             height:auto;
             left:calc(var(--ui-scale) * -255px * var(--render-scale));
@@ -428,7 +429,17 @@
                 rotationA -= 360/16;
                 document.documentElement.style.setProperty("--encoder-rotation-A", `${rotationA}deg`);
             });
+            encoders[0].addEventListener('touchstart',(event)=>{
+                Module.ccall('pressButtonFromJS', null, ['number'], [8]);
+                rotationA -= 360/16;
+                document.documentElement.style.setProperty("--encoder-rotation-A", `${rotationA}deg`);
+            });
             encoders[1].addEventListener('mousedown',(event)=>{
+                Module.ccall('pressButtonFromJS', null, ['number'], [9]);
+                rotationA += 360/16;
+                document.documentElement.style.setProperty("--encoder-rotation-A", `${rotationA}deg`);
+            });
+            encoders[1].addEventListener('touchstart',(event)=>{
                 Module.ccall('pressButtonFromJS', null, ['number'], [9]);
                 rotationA += 360/16;
                 document.documentElement.style.setProperty("--encoder-rotation-A", `${rotationA}deg`);
@@ -438,7 +449,17 @@
                 rotationB -= 360/16;
                 document.documentElement.style.setProperty("--encoder-rotation-B", `${rotationB}deg`);
             });
+            encoders[2].addEventListener('touchstart',(event)=>{
+                Module.ccall('pressButtonFromJS', null, ['number'], [11]);
+                rotationB -= 360/16;
+                document.documentElement.style.setProperty("--encoder-rotation-B", `${rotationB}deg`);
+            });
             encoders[3].addEventListener('mousedown',(event)=>{
+                Module.ccall('pressButtonFromJS', null, ['number'], [12]);
+                rotationB += 360/16;
+                document.documentElement.style.setProperty("--encoder-rotation-B", `${rotationB}deg`);
+            });
+            encoders[3].addEventListener('touchstart',(event)=>{
                 Module.ccall('pressButtonFromJS', null, ['number'], [12]);
                 rotationB += 360/16;
                 document.documentElement.style.setProperty("--encoder-rotation-B", `${rotationB}deg`);
@@ -452,6 +473,12 @@
                 joysticks[j].addEventListener('mouseup',(event)=>{
                     Module.ccall('unpressButtonFromJS', null, ['number'], [j+14]);
                 });
+                joysticks[j].addEventListener('touchstart',(event)=>{
+                    Module.ccall('pressButtonFromJS', null, ['number'], [j+14]);
+                });
+                joysticks[j].addEventListener('touchend',(event)=>{
+                    Module.ccall('unpressButtonFromJS', null, ['number'], [j+14]);
+                });
             }
             let buttons = document.getElementsByClassName('hardware_button');
             for(let i = 0; i<8; i++){
@@ -459,6 +486,12 @@
                     Module.ccall('pressButtonFromJS', null, ['number'], [i]);
                 });
                 buttons[i].addEventListener('mouseup',(event)=>{
+                    Module.ccall('unpressButtonFromJS', null, ['number'], [i]);
+                });
+                buttons[i].addEventListener('touchstart',(event)=>{
+                    Module.ccall('pressButtonFromJS', null, ['number'], [i]);
+                });
+                buttons[i].addEventListener('touchend',(event)=>{
                     Module.ccall('unpressButtonFromJS', null, ['number'], [i]);
                 });
             }
@@ -475,6 +508,18 @@
             buttons[9].addEventListener('mouseup',(event)=>{
                 Module.ccall('unpressButtonFromJS', null, ['number'], [13]);
             });
+            buttons[8].addEventListener('touchstart',(event)=>{
+                Module.ccall('pressButtonFromJS', null, ['number'], [10]);
+            });
+            buttons[8].addEventListener('touchend',(event)=>{
+                Module.ccall('unpressButtonFromJS', null, ['number'], [10]);
+            });
+            buttons[9].addEventListener('touchstart',(event)=>{
+                Module.ccall('pressButtonFromJS', null, ['number'], [13]);
+            });
+            buttons[9].addEventListener('touchend',(event)=>{
+                Module.ccall('unpressButtonFromJS', null, ['number'], [13]);
+            });
 
             // joystick
             buttons[10].addEventListener('mousedown',(event)=>{
@@ -484,7 +529,23 @@
                     drag : true
                 }
             });
+            buttons[10].addEventListener('touchstart',(event)=>{
+                joystickCoords = {
+                    x : event.clientX,
+                    y : event.clientY,
+                    drag : true
+                }
+            });
             window.addEventListener('mouseup',(event) => {
+                if(!joystickCoords.drag)
+                    return;
+                joystickCoords.drag = false;
+                Module.ccall('unpressButtonFromJS', null, ['number'], [14]);
+                Module.ccall('unpressButtonFromJS', null, ['number'], [16]);
+                document.documentElement.style.setProperty("--joystick-offset-x", `0px`);
+                document.documentElement.style.setProperty("--joystick-offset-y", `0px`);
+            });
+            window.addEventListener('touchend',(event) => {
                 if(!joystickCoords.drag)
                     return;
                 joystickCoords.drag = false;
@@ -517,7 +578,32 @@
                     Module.ccall('unpressButtonFromJS', null, ['number'], [16]);
                     document.documentElement.style.setProperty("--joystick-offset-y", `0px`);
                 }
-            })
+            });
+            window.addEventListener('touchmove',(event) => {
+                if(!joystickCoords.drag)
+                    return;
+                const dragMargin = 10;
+                if(!joystickCoords.drag)
+                    return;
+                let xKey = (joystickCoords.x - event.clientX > dragMargin)?-1:(joystickCoords.x - event.clientX < -dragMargin)?1:0;
+                if(xKey != 0){
+                    Module.ccall('pressButtonFromJS', null, ['number'], [xKey == 1?14:15]);
+                    document.documentElement.style.setProperty("--joystick-offset-x", `${xKey == -1?-20:20}px`);
+                }
+                else{
+                    Module.ccall('unpressButtonFromJS', null, ['number'], [14]);
+                    document.documentElement.style.setProperty("--joystick-offset-x", `0px`);
+                }
+                let yKey = (joystickCoords.y - event.clientY > dragMargin)?-1:(joystickCoords.y - event.clientY < -dragMargin)?1:0;
+                if(yKey != 0){
+                    Module.ccall('pressButtonFromJS', null, ['number'], [yKey == -1?16:17]);
+                    document.documentElement.style.setProperty("--joystick-offset-y", `${yKey == -1?-20:20}px`);
+                }
+                else{
+                    Module.ccall('unpressButtonFromJS', null, ['number'], [16]);
+                    document.documentElement.style.setProperty("--joystick-offset-y", `0px`);
+                }
+            });
         }
         initButtonCallbacks();
         window.addEventListener('keydown', function(e) {
