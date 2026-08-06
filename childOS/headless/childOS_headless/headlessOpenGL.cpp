@@ -45,6 +45,122 @@ bool leds[16] = {false,false,false,false,false,false,false,false,
 bool headlessStepButtons[16] = {false,false,false,false,false,false,false,false,
   false,false,false,false,false,false,false,false};
 
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+extern "C"{
+
+EMSCRIPTEN_KEEPALIVE
+void pressButtonFromJS(int which){
+  switch(which){
+    case 0:
+      newKeyVal = 1;
+      break;
+    case 1:
+      shiftKeyVal = 1;
+      break;
+    case 2:
+      selectKeyVal = 1;
+      break;
+    case 3:
+      deleteKeyVal = 1;
+      break;
+    case 4:
+      loopKeyVal = 1;
+      break;
+    case 5:
+      playKeyVal = 1;
+      break;
+    case 6:
+      copyKeyVal = 1;
+      break;
+    case 7:
+      menuKeyVal = 1;
+      break;
+    case 8:
+      headlessCounterA++;
+      break;
+    case 9:
+      headlessCounterA--;
+      break;
+    case 10:
+      encAPRESS = 1;
+      break;
+    case 11:
+      headlessCounterB++;
+      break;
+    case 12:
+      headlessCounterB--;
+      break;
+    case 13:
+      encBPRESS = 1;
+      break;
+    case 14:
+      xKeyVal = -1;
+      break;
+    case 15:
+      xKeyVal = 1;
+      break;
+    case 16:
+      yKeyVal = -1;
+      break;
+    case 17:
+      yKeyVal = 1;
+      break;
+  }
+}
+
+EMSCRIPTEN_KEEPALIVE
+void unpressButtonFromJS(int which){
+  switch(which){
+    case 0:
+      newKeyVal = 0;
+      break;
+    case 1:
+      shiftKeyVal = 0;
+      break;
+    case 2:
+      selectKeyVal = 0;
+      break;
+    case 3:
+      deleteKeyVal = 0;
+      break;
+    case 4:
+      loopKeyVal = 0;
+      break;
+    case 5:
+      playKeyVal = 0;
+      break;
+    case 6:
+      copyKeyVal = 0;
+      break;
+    case 7:
+      menuKeyVal = 0;
+      break;
+    case 10:
+      encAPRESS = 0;
+      break;
+    case 13:
+      encBPRESS = 0;
+      break;
+    case 14:
+      xKeyVal = 0;
+      break;
+    case 15:
+      xKeyVal = 0;
+      break;
+    case 16:
+      yKeyVal = 0;
+      break;
+    case 17:
+      yKeyVal = 0;
+      break;
+  }
+}
+}
+
+#endif
+
 //int encoderA, encoderB;
 static void key_callback(GLFWwindow* w, int key, int scancode, int action, int mods){
   //new
