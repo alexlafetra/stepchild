@@ -7,13 +7,14 @@
         :root{
             --bg: blue;
             --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-            --ui-scale:3.0;
+            --ui-scale:2.0;
             --pixel-grid-visibility:hidden;
             --encoder-rotation-A:0deg;
             --encoder-rotation-B:0deg;
             --joystick-offset-x:0px;
             --joystick-offset-y:0px;
             --render-scale:0.8;
+            --ui-visibility:visible;
         }
         @font-face {
             font-family: 'sf-compact-rounded-regular';
@@ -31,7 +32,7 @@
             background:var(--bg);
             /* font-family:var(--mono); */
             font-family:'sf-compact-rounded-regular';
-            font-size:24px;
+            font-size:16px;
             color:white;
             display:flex;
             flex-direction:column;
@@ -85,6 +86,8 @@
             width:fit-content;
         }
         #encoder_A_image{
+            border-radius:calc(var(--ui-scale) * var(--render-scale) * 25px);
+            height:calc(var(--ui-scale) * var(--render-scale) * 50px);
             width:calc(var(--ui-scale) * var(--render-scale) * 50px);
             left:calc(var(--ui-scale) * 109px * var(--render-scale));
             top:calc(var(--ui-scale) * -63px * var(--render-scale));
@@ -93,6 +96,8 @@
             /* transition:0.1s; */
         }
         #encoder_B_image{
+            border-radius:calc(var(--ui-scale) * var(--render-scale) * 25px);
+            height:calc(var(--ui-scale) * var(--render-scale) * 50px);
             width:calc(var(--ui-scale) * var(--render-scale) * 50px);
             left:calc(var(--ui-scale) * 109px * var(--render-scale));
             top:calc(var(--ui-scale) * 16px * var(--render-scale));
@@ -101,6 +106,8 @@
             /* transition:0.1s; */
         }
         #joystick_image{
+            border-radius:calc(var(--ui-scale) * var(--render-scale) * 15px);
+            height:calc(var(--ui-scale) * var(--render-scale) * 30px);
             width:calc(var(--ui-scale) * var(--render-scale) * 30px);
             left:calc(var(--ui-scale) * 79px * var(--render-scale) + var(--joystick-offset-x));
             top:calc(var(--ui-scale) * 101px * var(--render-scale) + var(--joystick-offset-y));
@@ -115,12 +122,6 @@
             flex-direction: column;
             align-items: center;
             gap:10px;
-        }
-        .cursive_text{
-            font-family:'chopin';
-            color:white;
-            transform:scaleY(0.5);
-            font-size:84px;
         }
         .button{
             font-family: 'sf-compact-rounded-bold';
@@ -141,6 +142,75 @@
             display:flex;
             flex-direction: row;
         }
+        .hardware_button{
+            position:absolute;
+            user-select: none;
+            cursor:pointer;
+            width:calc(var(--ui-scale) * var(--render-scale) * 15px);
+            height:calc(var(--ui-scale) * var(--render-scale) * 15px);
+            outline:0px solid;
+            border-radius:calc(var(--ui-scale) * var(--render-scale) * 15px * 0.5);
+        }
+        .hardware_button:hover{
+            outline-width: 2px;
+        }
+        #NEW_button{
+            left:calc(var(--ui-scale) * -161.5px * var(--render-scale));
+            top:calc(var(--ui-scale) * 32px * var(--render-scale));
+            background:#6CAD54;
+        }
+        #SHIFT_button{
+            left:calc(var(--ui-scale) * -161.5px * var(--render-scale));
+            top:calc(var(--ui-scale) * 56.75px * var(--render-scale));
+            background:#C5C7C1;
+        }
+        #SELECT_button{
+            left:calc(var(--ui-scale) * -161.5px * var(--render-scale));
+            top:calc(var(--ui-scale) * 81.5px * var(--render-scale));
+            background:#C8B673;
+        }
+        #DELETE_button{
+            left:calc(var(--ui-scale) * -161.5px * var(--render-scale));
+            top:calc(var(--ui-scale) * 106.25px * var(--render-scale));
+            background:#CD554E;
+        }
+        #LOOP_button{
+            left:calc(var(--ui-scale) * -135.5px * var(--render-scale));
+            top:calc(var(--ui-scale) * 132.5px * var(--render-scale));
+            background:#3360C2;
+        }
+        #PLAY_button{
+            left:calc(var(--ui-scale) * -110.75px * var(--render-scale));
+            top:calc(var(--ui-scale) * 132.5px * var(--render-scale));
+            background:#C5C7C1;
+        }
+        #COPY_button{
+            left:calc(var(--ui-scale) * -86px * var(--render-scale));
+            top:calc(var(--ui-scale) * 132.5px * var(--render-scale));
+            background:#A7A4A0;
+        }
+        #MENU_button{
+            left:calc(var(--ui-scale) * -61.25px * var(--render-scale));
+            top:calc(var(--ui-scale) * 132.5px * var(--render-scale));
+            background:#060602;
+        }
+        #button_tooltip_overlay{
+            position:absolute;
+            visibility: var(--ui-visibility);
+            width:calc(var(--ui-scale) * var(--render-scale) * 500px);
+            height:auto;
+            left:calc(var(--ui-scale) * -255px * var(--render-scale));
+            top:calc(var(--ui-scale) * -130px * var(--render-scale));
+        }
+        #headless_title{
+            position:absolute;
+            right:20px;
+            top:-40px;
+            font-family:'chopin';
+            color:white;
+            transform:scaleY(0.35);
+            font-size:120px;
+        }
     </style>
     <script src="../coi-serviceworker.min.js" type = "text/javascript"></script>
 </head>
@@ -150,15 +220,28 @@
             <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
             <img id = "hardware_overlay_image" class = "hardware_overlay" src = "../assets/hardware_overlay_transparent.png">
             <div id = "button_container">
-                <img id = "encoder_A_image" class = "hardware_overlay" src = "../assets/encoder.png">
-                <img id = "encoder_B_image" class = "hardware_overlay" src = "../assets/encoder.png">
-                <img id = "joystick_image" class = "hardware_overlay" src = "../assets/joystick.png">
+                <img id = "button_tooltip_overlay" src = "../assets/button_tooltip.svg">
+                <img id = "encoder_A_image" class = "hardware_button" src = "../assets/encoder.png">
+                <img id = "encoder_B_image" class = "hardware_button" src = "../assets/encoder.png">
+                <img id = "joystick_image" class = "hardware_button" src = "../assets/joystick.png">
+                <div id = "NEW_button" class = "hardware_button"></div>
+                <div id = "SHIFT_button" class = "hardware_button"></div>
+                <div id = "SELECT_button" class = "hardware_button"></div>
+                <div id = "DELETE_button" class = "hardware_button"></div>
+                <div id = "LOOP_button" class = "hardware_button"></div>
+                <div id = "PLAY_button" class = "hardware_button"></div>
+                <div id = "COPY_button" class = "hardware_button"></div>
+                <div id = "MENU_button" class = "hardware_button"></div>
             </div>
         </div>
+        <div id = "headless_title" class = "cursive_text">Headless</div>
         <div id = "ui_container">
             <div id = "title" style = "flex-direction:row;display:flex;">
                 <img id = "title_image" src = "../assets/title.svg">
-                <div class = "cursive_text">Headless</div>
+            </div>
+            <div style = "display:flex;flex-direction: row;">
+                <div>UI overlay:</div>
+                <input type = "checkbox" id = "ui_overlay_checkbox" checked = "true">
             </div>
             <div class = "button" id = "init_midi_button">connect MIDI</div>
             <div class = "slider_container">
@@ -215,6 +298,10 @@
         // zoom slider
         document.getElementById("zoom_slider").addEventListener('input',(event)=>{
             document.documentElement.style.setProperty("--ui-scale", parseFloat(event.target.value));
+        })
+        // ui checkbox
+        document.getElementById("ui_overlay_checkbox").addEventListener('change',(event)=>{
+            document.documentElement.style.setProperty("--ui-visibility", event.target.checked?'visible':'hidden');
         })
         const preventDefaultKeys = new Set([
             'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
