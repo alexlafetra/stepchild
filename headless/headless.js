@@ -8727,6 +8727,10 @@ var _main = Module["_main"] = makeInvalidEarlyAccess("_main");
 
 var _onMidiMessage = Module["_onMidiMessage"] = makeInvalidEarlyAccess("_onMidiMessage");
 
+var _pressButtonFromJS = Module["_pressButtonFromJS"] = makeInvalidEarlyAccess("_pressButtonFromJS");
+
+var _unpressButtonFromJS = Module["_unpressButtonFromJS"] = makeInvalidEarlyAccess("_unpressButtonFromJS");
+
 var __emscripten_tls_init = makeInvalidEarlyAccess("__emscripten_tls_init");
 
 var _pthread_self = makeInvalidEarlyAccess("_pthread_self");
@@ -8832,6 +8836,8 @@ var __indirect_function_table = makeInvalidEarlyAccess("__indirect_function_tabl
 function assignWasmExports(wasmExports) {
   assert(typeof wasmExports["main"] != "undefined", "missing Wasm export: main");
   assert(typeof wasmExports["onMidiMessage"] != "undefined", "missing Wasm export: onMidiMessage");
+  assert(typeof wasmExports["pressButtonFromJS"] != "undefined", "missing Wasm export: pressButtonFromJS");
+  assert(typeof wasmExports["unpressButtonFromJS"] != "undefined", "missing Wasm export: unpressButtonFromJS");
   assert(typeof wasmExports["_emscripten_tls_init"] != "undefined", "missing Wasm export: _emscripten_tls_init");
   assert(typeof wasmExports["pthread_self"] != "undefined", "missing Wasm export: pthread_self");
   assert(typeof wasmExports["_emscripten_thread_init"] != "undefined", "missing Wasm export: _emscripten_thread_init");
@@ -8885,6 +8891,8 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports["__indirect_function_table"] != "undefined", "missing Wasm export: __indirect_function_table");
   _main = Module["_main"] = createExportWrapper("main", wasmExports["main"], 2);
   _onMidiMessage = Module["_onMidiMessage"] = createExportWrapper("onMidiMessage", wasmExports["onMidiMessage"], 3);
+  _pressButtonFromJS = Module["_pressButtonFromJS"] = createExportWrapper("pressButtonFromJS", wasmExports["pressButtonFromJS"], 1);
+  _unpressButtonFromJS = Module["_unpressButtonFromJS"] = createExportWrapper("unpressButtonFromJS", wasmExports["unpressButtonFromJS"], 1);
   __emscripten_tls_init = createExportWrapper("_emscripten_tls_init", wasmExports["_emscripten_tls_init"], 0);
   _pthread_self = wasmExports["pthread_self"];
   __emscripten_thread_init = createExportWrapper("_emscripten_thread_init", wasmExports["_emscripten_thread_init"], 6);
