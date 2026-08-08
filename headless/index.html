@@ -583,36 +583,36 @@
         function initButtonCallbacks(){
             let joysticks = document.getElementsByClassName('joystick_button');
             for(let j = 0; j<joysticks.length; j++){
-                joysticks[j].addEventListener('mousedown',(event)=>{
+                joysticks[j].addEventListener('pointerdown',(event)=>{
                     Module.ccall('pressButtonFromJS', null, ['number'], [j+14]);
                 });
-                joysticks[j].addEventListener('mouseup',(event)=>{
+                joysticks[j].addEventListener('pointerup',(event)=>{
                     Module.ccall('unpressButtonFromJS', null, ['number'], [j+14]);
                 });
             }
             let buttons = document.getElementsByClassName('hardware_button');
             for(let i = 0; i<8; i++){
-                buttons[i].addEventListener('mousedown',(event)=>{
+                buttons[i].addEventListener('pointerdown',(event)=>{
                     Module.ccall('pressButtonFromJS', null, ['number'], [i]);
                 });
-                buttons[i].addEventListener('mouseup',(event)=>{
+                buttons[i].addEventListener('pointerup',(event)=>{
                     Module.ccall('unpressButtonFromJS', null, ['number'], [i]);
                 });
             }
             //encoders
-            buttons[8].addEventListener('mousedown',(event)=>{
+            buttons[8].addEventListener('pointerdown',(event)=>{
                 encoders.A.start(event);
             });
-            buttons[8].addEventListener('mouseup',(event)=>{
+            buttons[8].addEventListener('pointerup',(event)=>{
                 if(encoders.A.changed == false){
                     Module.ccall('pressButtonFromJS', null, ['number'], [10]);
                     window.setTimeout(()=>Module.ccall('unpressButtonFromJS', null, ['number'], [10]),100);
                 }
             });
-            buttons[9].addEventListener('mousedown',(event)=>{
+            buttons[9].addEventListener('pointerdown',(event)=>{
                 encoders.B.start(event);
             });
-            buttons[9].addEventListener('mouseup',(event)=>{
+            buttons[9].addEventListener('pointerup',(event)=>{
                 if(encoders.B.changed == false){
                     Module.ccall('pressButtonFromJS', null, ['number'], [13]);
                     window.setTimeout(()=>Module.ccall('unpressButtonFromJS', null, ['number'], [13]),100);
@@ -620,14 +620,14 @@
             });
             
             // joystick
-            buttons[10].addEventListener('mousedown',(event)=>{
+            buttons[10].addEventListener('pointerdown',(event)=>{
                 joystickCoords = {
                     x : event.clientX,
                     y : event.clientY,
                     drag : true
                 }
             });
-            window.addEventListener('mouseup',(event) => {
+            window.addEventListener('pointerup',(event) => {
                 if(encoders.A.drag){
                     encoders.A.drag = false;
                     encoders.A.changed = false;
@@ -644,7 +644,7 @@
                     document.documentElement.style.setProperty("--joystick-offset-y", `0px`);
                 }
             });
-            window.addEventListener('mousemove',(event) => {
+            window.addEventListener('pointermove',(event) => {
                 encoders.A.update(event);
                 encoders.B.update(event);
                 if(joystickCoords.drag){
