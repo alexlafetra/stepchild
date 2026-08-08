@@ -18,9 +18,7 @@ extern int xKeyVal;//arrow keys
 extern int yKeyVal;
 
 //encoders
-extern int encASTATE;//0, //k
 extern int encAPRESS;//o
-extern int encBSTATE;//p, ,
 extern int encBPRESS;//l
 extern int headlessCounterA, headlessCounterB;
 
@@ -145,8 +143,6 @@ extern bool headlessStepButtons[16];
     }
       counterA += headlessCounterA;
       counterB += headlessCounterB;
-      encASTATE += headlessCounterA;
-      encBSTATE += headlessCounterB;
       headlessCounterA = 0;
       headlessCounterB = 0;
     this->readMainButtons();

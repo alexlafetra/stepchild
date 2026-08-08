@@ -23,9 +23,7 @@ int xKeyVal;//arrow keys
 int yKeyVal;
 
 //encoders
-int encASTATE;//0, //k
 int encAPRESS;//o
-int encBSTATE;//p, ,
 int encBPRESS;//l
 int headlessCounterA = 0, headlessCounterB = 0;
 
@@ -49,6 +47,26 @@ bool headlessStepButtons[16] = {false,false,false,false,false,false,false,false,
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 extern "C"{
+
+EMSCRIPTEN_KEEPALIVE
+void changeEncoderCount(int which,int val){
+  if(which == 0 && headlessCounterA == 0){
+    headlessCounterA += val;
+  }
+  else if(which == 1 && headlessCounterB == 0){
+    headlessCounterB += val;
+  }
+}
+
+EMSCRIPTEN_KEEPALIVE
+void setEncoderCount(int which,int val){
+  if(which == 0){
+    headlessCounterA = val;
+  }
+  else{
+    headlessCounterB = val;
+  }
+}
 
 EMSCRIPTEN_KEEPALIVE
 void pressButtonFromJS(int which){
