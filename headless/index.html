@@ -128,8 +128,8 @@
             border-radius:calc(var(--ui-scale) * var(--render-scale) * 15px);
             height:calc(var(--ui-scale) * var(--render-scale) * 30px);
             width:calc(var(--ui-scale) * var(--render-scale) * 30px);
-            left:calc(var(--ui-scale) * 79px * var(--render-scale) + var(--joystick-offset-x));
-            top:calc(var(--ui-scale) * 101px * var(--render-scale) + var(--joystick-offset-y));
+            left:calc(var(--ui-scale) * 79px * var(--render-scale) + var(--ui-scale) * var(--joystick-offset-x));
+            top:calc(var(--ui-scale) * 101px * var(--render-scale) + var(--ui-scale) * var(--joystick-offset-y));
             /* transition:0.1s; */
         }
         #ui_container{
@@ -209,7 +209,7 @@
             background:#A7A4A0;
         }
         #MENU_button{
-            left:calc(var(--ui-scale) * -61.25px * var(--render-scale));
+            left:calc(var(--ui-scale) * -61px * var(--render-scale));
             top:calc(var(--ui-scale) * 132.5px * var(--render-scale));
             background:#060602;
         }
@@ -360,8 +360,8 @@
             grid-template-areas: 
             "none UP none2"
             "LEFT DOWN RIGHT";
-            top: calc(220% - var(--joystick-offset-y));
-            right: calc(-80% + var(--joystick-offset-x));
+            top: calc(220% - var(--ui-scale) * var(--joystick-offset-y));
+            right: calc(-80% + var(--ui-scale) * var(--joystick-offset-x));
             gap:calc(2.5px * var(--ui-scale));
             justify-self: center;
 
@@ -427,6 +427,12 @@
             width:calc(15px * var(--ui-scale));
             height:calc(15px * var(--ui-scale));
             display:flex;
+            user-select: none;
+        }
+        .tooltip_key:hover{
+            color:blue;
+            background:white;
+            cursor:pointer;
         }
 
     </style>
@@ -446,9 +452,9 @@
                 <div id = "PLAY_button" class = "hardware_button"><div class = "button_tooltip bottom"><div class = "tooltip_label">play</div><div id = "PLAY_key"  class = "tooltip_key">C</div></div></div>
                 <div id = "COPY_button" class = "hardware_button"><div class = "button_tooltip bottom"><div class = "tooltip_label">copy</div><div id = "COPY_key"  class = "tooltip_key">V</div></div></div>
                 <div id = "MENU_button" class = "hardware_button"><div class = "button_tooltip bottom"><div class = "tooltip_label">menu</div><div id = "MENU_key"  class = "tooltip_key">B</div></div></div>
-                <div id = "encoder_A_buttons"><div class = "encoder_button up_button" id = "A_up">+</div><div class = "encoder_button down_button" id = "A_down">-</div><div class = "button_tooltip encoder"><div id = "A_UP_key"  class = "tooltip_key encoder_up">0</div><div id = "A_PRESS_key"  class = "tooltip_key encoder_press">O</div><div class = "tooltip_label">A</div><div id = "A_DOWN_key"  class = "tooltip_key encoder_down">K</div></div></div>
+                <div id = "encoder_A_buttons"><div class = "button_tooltip encoder"><div id = "A_UP_key"  class = "tooltip_key encoder_up">0</div><div id = "A_PRESS_key"  class = "tooltip_key encoder_press">O</div><div class = "tooltip_label">A</div><div id = "A_DOWN_key"  class = "tooltip_key encoder_down">K</div></div></div>
                 <img draggable = "false" id = "encoder_A_image" class = "hardware_button" src = "../assets/encoder.png">
-                <div id = "encoder_B_buttons"><div class = "encoder_button up_button" id = "B_up">+</div><div class = "encoder_button down_button" id = "B_down">-</div><div class = "button_tooltip encoder"><div id = "B_UP_key"  class = "tooltip_key encoder_up">-</div><div id = "B_PRESS_key"  class = "tooltip_key encoder_press">P</div><div class = "tooltip_label">B</div><div id = "B_DOWN_key"  class = "tooltip_key encoder_down">L</div></div></div>
+                <div id = "encoder_B_buttons"><div class = "button_tooltip encoder"><div id = "B_UP_key"  class = "tooltip_key encoder_up">-</div><div id = "B_PRESS_key"  class = "tooltip_key encoder_press">P</div><div class = "tooltip_label">B</div><div id = "B_DOWN_key"  class = "tooltip_key encoder_down">L</div></div></div>
                 <img draggable = "false" id = "encoder_B_image" class = "hardware_button" src = "../assets/encoder.png">
                 <div id = "joystick_image" draggable = "false" class = "hardware_button" >
                     <div id = "joystick_buttons">
@@ -540,61 +546,47 @@
             x:0,
             y:0
         };
+        const encoder = (id) => {return{
+            drag : false,
+            y_start : 0,
+            lastCount : 0,
+            changed : false,
+            startRotation : 0,
+            rotation : 0,
+            id : id,
+            start : function(event){
+                this.drag = true;
+                this.y_start = event.clientY;
+                this.startRotation = this.rotation;
+                this.lastCount = 0;
+                this.changed = false;
+            },
+            update : function(event){
+                if(!this.drag)
+                    return;
+                const y_dist = event.clientY - this.y_start;
+                const clicks = Math.trunc(y_dist / 40);
+                this.rotation = clicks * 360/16 + this.startRotation;
+                document.documentElement.style.setProperty("--encoder-rotation-"+(this.id==0?"A":"B"), `${this.rotation}deg`);
+                const dir = this.lastCount - clicks;
+                if(dir){
+                    this.lastCount = clicks;
+                    this.changed = true;
+                    Module.ccall('changeEncoderCount', null, ['number'], [this.id,dir]);
+                }
+            }
+        }}
+        let encoders = {
+            A : encoder(0),
+            B : encoder(1)
+        }
         function initButtonCallbacks(){
-            let encoders = document.getElementsByClassName('encoder_button');
-            encoders[0].addEventListener('mousedown',(event)=>{
-                Module.ccall('pressButtonFromJS', null, ['number'], [8]);
-                rotationA -= 360/16;
-                document.documentElement.style.setProperty("--encoder-rotation-A", `${rotationA}deg`);
-            });
-            encoders[0].addEventListener('touchstart',(event)=>{
-                Module.ccall('pressButtonFromJS', null, ['number'], [8]);
-                rotationA -= 360/16;
-                document.documentElement.style.setProperty("--encoder-rotation-A", `${rotationA}deg`);
-            });
-            encoders[1].addEventListener('mousedown',(event)=>{
-                Module.ccall('pressButtonFromJS', null, ['number'], [9]);
-                rotationA += 360/16;
-                document.documentElement.style.setProperty("--encoder-rotation-A", `${rotationA}deg`);
-            });
-            encoders[1].addEventListener('touchstart',(event)=>{
-                Module.ccall('pressButtonFromJS', null, ['number'], [9]);
-                rotationA += 360/16;
-                document.documentElement.style.setProperty("--encoder-rotation-A", `${rotationA}deg`);
-            });
-            encoders[2].addEventListener('mousedown',(event)=>{
-                Module.ccall('pressButtonFromJS', null, ['number'], [11]);
-                rotationB -= 360/16;
-                document.documentElement.style.setProperty("--encoder-rotation-B", `${rotationB}deg`);
-            });
-            encoders[2].addEventListener('touchstart',(event)=>{
-                Module.ccall('pressButtonFromJS', null, ['number'], [11]);
-                rotationB -= 360/16;
-                document.documentElement.style.setProperty("--encoder-rotation-B", `${rotationB}deg`);
-            });
-            encoders[3].addEventListener('mousedown',(event)=>{
-                Module.ccall('pressButtonFromJS', null, ['number'], [12]);
-                rotationB += 360/16;
-                document.documentElement.style.setProperty("--encoder-rotation-B", `${rotationB}deg`);
-            });
-            encoders[3].addEventListener('touchstart',(event)=>{
-                Module.ccall('pressButtonFromJS', null, ['number'], [12]);
-                rotationB += 360/16;
-                document.documentElement.style.setProperty("--encoder-rotation-B", `${rotationB}deg`);
-            });
-
             let joysticks = document.getElementsByClassName('joystick_button');
             for(let j = 0; j<joysticks.length; j++){
                 joysticks[j].addEventListener('mousedown',(event)=>{
                     Module.ccall('pressButtonFromJS', null, ['number'], [j+14]);
                 });
                 joysticks[j].addEventListener('mouseup',(event)=>{
-                    Module.ccall('unpressButtonFromJS', null, ['number'], [j+14]);
-                });
-                joysticks[j].addEventListener('touchstart',(event)=>{
-                    Module.ccall('pressButtonFromJS', null, ['number'], [j+14]);
-                });
-                joysticks[j].addEventListener('touchend',(event)=>{
                     Module.ccall('unpressButtonFromJS', null, ['number'], [j+14]);
                 });
             }
@@ -606,39 +598,27 @@
                 buttons[i].addEventListener('mouseup',(event)=>{
                     Module.ccall('unpressButtonFromJS', null, ['number'], [i]);
                 });
-                buttons[i].addEventListener('touchstart',(event)=>{
-                    Module.ccall('pressButtonFromJS', null, ['number'], [i]);
-                });
-                buttons[i].addEventListener('touchend',(event)=>{
-                    Module.ccall('unpressButtonFromJS', null, ['number'], [i]);
-                });
             }
             //encoders
             buttons[8].addEventListener('mousedown',(event)=>{
-                Module.ccall('pressButtonFromJS', null, ['number'], [10]);
+                encoders.A.start(event);
             });
             buttons[8].addEventListener('mouseup',(event)=>{
-                Module.ccall('unpressButtonFromJS', null, ['number'], [10]);
+                if(encoders.A.changed == false){
+                    Module.ccall('pressButtonFromJS', null, ['number'], [10]);
+                    window.setTimeout(()=>Module.ccall('unpressButtonFromJS', null, ['number'], [10]),100);
+                }
             });
             buttons[9].addEventListener('mousedown',(event)=>{
-                Module.ccall('pressButtonFromJS', null, ['number'], [13]);
+                encoders.B.start(event);
             });
             buttons[9].addEventListener('mouseup',(event)=>{
-                Module.ccall('unpressButtonFromJS', null, ['number'], [13]);
+                if(encoders.B.changed == false){
+                    Module.ccall('pressButtonFromJS', null, ['number'], [13]);
+                    window.setTimeout(()=>Module.ccall('unpressButtonFromJS', null, ['number'], [13]),100);
+                }
             });
-            buttons[8].addEventListener('touchstart',(event)=>{
-                Module.ccall('pressButtonFromJS', null, ['number'], [10]);
-            });
-            buttons[8].addEventListener('touchend',(event)=>{
-                Module.ccall('unpressButtonFromJS', null, ['number'], [10]);
-            });
-            buttons[9].addEventListener('touchstart',(event)=>{
-                Module.ccall('pressButtonFromJS', null, ['number'], [13]);
-            });
-            buttons[9].addEventListener('touchend',(event)=>{
-                Module.ccall('unpressButtonFromJS', null, ['number'], [13]);
-            });
-
+            
             // joystick
             buttons[10].addEventListener('mousedown',(event)=>{
                 joystickCoords = {
@@ -647,79 +627,46 @@
                     drag : true
                 }
             });
-            buttons[10].addEventListener('touchstart',(event)=>{
-                joystickCoords = {
-                    x : event.clientX,
-                    y : event.clientY,
-                    drag : true
-                }
-            });
             window.addEventListener('mouseup',(event) => {
-                if(!joystickCoords.drag)
-                    return;
-                joystickCoords.drag = false;
-                Module.ccall('unpressButtonFromJS', null, ['number'], [14]);
-                Module.ccall('unpressButtonFromJS', null, ['number'], [16]);
-                document.documentElement.style.setProperty("--joystick-offset-x", `0px`);
-                document.documentElement.style.setProperty("--joystick-offset-y", `0px`);
-            });
-            window.addEventListener('touchend',(event) => {
-                if(!joystickCoords.drag)
-                    return;
-                joystickCoords.drag = false;
-                Module.ccall('unpressButtonFromJS', null, ['number'], [14]);
-                Module.ccall('unpressButtonFromJS', null, ['number'], [16]);
-                document.documentElement.style.setProperty("--joystick-offset-x", `0px`);
-                document.documentElement.style.setProperty("--joystick-offset-y", `0px`);
+                if(encoders.A.drag){
+                    encoders.A.drag = false;
+                    encoders.A.changed = false;
+                }
+                if(encoders.B.drag){
+                    encoders.B.drag = false;
+                    encoders.B.changed = false;
+                }
+                if(joystickCoords.drag){
+                    joystickCoords.drag = false;
+                    Module.ccall('unpressButtonFromJS', null, ['number'], [14]);
+                    Module.ccall('unpressButtonFromJS', null, ['number'], [16]);
+                    document.documentElement.style.setProperty("--joystick-offset-x", `0px`);
+                    document.documentElement.style.setProperty("--joystick-offset-y", `0px`);
+                }
             });
             window.addEventListener('mousemove',(event) => {
-                if(!joystickCoords.drag)
-                    return;
-                const dragMargin = 10;
-                if(!joystickCoords.drag)
-                    return;
-                let xKey = (joystickCoords.x - event.clientX > dragMargin)?-1:(joystickCoords.x - event.clientX < -dragMargin)?1:0;
-                if(xKey != 0){
-                    Module.ccall('pressButtonFromJS', null, ['number'], [xKey == 1?14:15]);
-                    document.documentElement.style.setProperty("--joystick-offset-x", `${xKey == -1?-20:20}px`);
-                }
-                else{
-                    Module.ccall('unpressButtonFromJS', null, ['number'], [14]);
-                    document.documentElement.style.setProperty("--joystick-offset-x", `0px`);
-                }
-                let yKey = (joystickCoords.y - event.clientY > dragMargin)?-1:(joystickCoords.y - event.clientY < -dragMargin)?1:0;
-                if(yKey != 0){
-                    Module.ccall('pressButtonFromJS', null, ['number'], [yKey == -1?16:17]);
-                    document.documentElement.style.setProperty("--joystick-offset-y", `${yKey == -1?-20:20}px`);
-                }
-                else{
-                    Module.ccall('unpressButtonFromJS', null, ['number'], [16]);
-                    document.documentElement.style.setProperty("--joystick-offset-y", `0px`);
-                }
-            });
-            window.addEventListener('touchmove',(event) => {
-                if(!joystickCoords.drag)
-                    return;
-                const dragMargin = 10;
-                if(!joystickCoords.drag)
-                    return;
-                let xKey = (joystickCoords.x - event.clientX > dragMargin)?-1:(joystickCoords.x - event.clientX < -dragMargin)?1:0;
-                if(xKey != 0){
-                    Module.ccall('pressButtonFromJS', null, ['number'], [xKey == 1?14:15]);
-                    document.documentElement.style.setProperty("--joystick-offset-x", `${xKey == -1?-20:20}px`);
-                }
-                else{
-                    Module.ccall('unpressButtonFromJS', null, ['number'], [14]);
-                    document.documentElement.style.setProperty("--joystick-offset-x", `0px`);
-                }
-                let yKey = (joystickCoords.y - event.clientY > dragMargin)?-1:(joystickCoords.y - event.clientY < -dragMargin)?1:0;
-                if(yKey != 0){
-                    Module.ccall('pressButtonFromJS', null, ['number'], [yKey == -1?16:17]);
-                    document.documentElement.style.setProperty("--joystick-offset-y", `${yKey == -1?-20:20}px`);
-                }
-                else{
-                    Module.ccall('unpressButtonFromJS', null, ['number'], [16]);
-                    document.documentElement.style.setProperty("--joystick-offset-y", `0px`);
+                encoders.A.update(event);
+                encoders.B.update(event);
+                if(joystickCoords.drag){
+                    const dragMargin = 10;
+                    let xKey = (joystickCoords.x - event.clientX > dragMargin)?-1:(joystickCoords.x - event.clientX < -dragMargin)?1:0;
+                    if(xKey != 0){
+                        Module.ccall('pressButtonFromJS', null, ['number'], [xKey == 1?14:15]);
+                        document.documentElement.style.setProperty("--joystick-offset-x", `${xKey == -1?-10:10}px`);
+                    }
+                    else{
+                        Module.ccall('unpressButtonFromJS', null, ['number'], [14]);
+                        document.documentElement.style.setProperty("--joystick-offset-x", `0px`);
+                    }
+                    let yKey = (joystickCoords.y - event.clientY > dragMargin)?-1:(joystickCoords.y - event.clientY < -dragMargin)?1:0;
+                    if(yKey != 0){
+                        Module.ccall('pressButtonFromJS', null, ['number'], [yKey == -1?16:17]);
+                        document.documentElement.style.setProperty("--joystick-offset-y", `${yKey == -1?-10:10}px`);
+                    }
+                    else{
+                        Module.ccall('unpressButtonFromJS', null, ['number'], [16]);
+                        document.documentElement.style.setProperty("--joystick-offset-y", `0px`);
+                    }
                 }
             });
         }
@@ -774,53 +721,49 @@
                 // joystick
                 case 'ArrowUp':
                     document.getElementById('J_up').style.background = 'white';
-                    document.documentElement.style.setProperty("--joystick-offset-y", "-20px");
+                    document.documentElement.style.setProperty("--joystick-offset-y", "-10px");
                     document.getElementById('UP_key').style.background = 'white';
                     document.getElementById('UP_key').style.color = 'blue';
                     break;
                 case 'ArrowDown':
                     document.getElementById('J_down').style.background = 'white';
-                    document.documentElement.style.setProperty("--joystick-offset-y", "20px");
+                    document.documentElement.style.setProperty("--joystick-offset-y", "10px");
                     document.getElementById('DOWN_key').style.background = 'white';
                     document.getElementById('DOWN_key').style.color = 'blue';
                     break;
                 case 'ArrowLeft':
                     document.getElementById('J_left').style.background = 'white';
-                    document.documentElement.style.setProperty("--joystick-offset-x", "-20px");
+                    document.documentElement.style.setProperty("--joystick-offset-x", "-10px");
                     document.getElementById('LEFT_key').style.background = 'white';
                     document.getElementById('LEFT_key').style.color = 'blue';
                     break;
                 case 'ArrowRight':
                     document.getElementById('J_right').style.background = 'white';
-                    document.documentElement.style.setProperty("--joystick-offset-x", "20px");
+                    document.documentElement.style.setProperty("--joystick-offset-x", "10px");
                     document.getElementById('RIGHT_key').style.background = 'white';
                     document.getElementById('RIGHT_key').style.color = 'blue';
                     break;
                 // encoders
                 case '0':
-                    rotationA -= 360/16;
-                    document.getElementById('A_up').style.background = 'white';
-                    document.documentElement.style.setProperty("--encoder-rotation-A", `${rotationA}deg`);
+                    encoders.A.rotation -= 360/16;
+                    document.documentElement.style.setProperty("--encoder-rotation-A", `${encoders.A.rotation}deg`);
                     document.getElementById('A_UP_key').style.background = 'white';
                     document.getElementById('A_UP_key').style.color = 'blue';
                     break;
                 case 'k':
-                    rotationA += 360/16;
-                    document.getElementById('A_down').style.background = 'white';
-                    document.documentElement.style.setProperty("--encoder-rotation-A", `${rotationA}deg`);
+                    encoders.A.rotation += 360/16;
+                    document.documentElement.style.setProperty("--encoder-rotation-A", `${encoders.A.rotation}deg`);
                     document.getElementById('A_DOWN_key').style.background = 'white';
                     document.getElementById('A_DOWN_key').style.color = 'blue';
                     break;
                 case '-':
                     rotationB -= 360/16;
-                    document.getElementById('B_up').style.background = 'white';
                     document.documentElement.style.setProperty("--encoder-rotation-B", `${rotationB}deg`);
                     document.getElementById('B_UP_key').style.background = 'white';
                     document.getElementById('B_UP_key').style.color = 'blue';
                     break;
                 case 'l':
                     rotationB += 360/16;
-                    document.getElementById('B_down').style.background = 'white';
                     document.documentElement.style.setProperty("--encoder-rotation-B", `${rotationB}deg`);
                     document.getElementById('B_DOWN_key').style.background = 'white';
                     document.getElementById('B_DOWN_key').style.color = 'blue';
@@ -896,22 +839,18 @@
                     document.getElementById('A_PRESS_key').style.color = null;
                     break;
                 case '0':
-                        document.getElementById('A_up').style.background = null;
                     document.getElementById('A_UP_key').style.background = null;
                     document.getElementById('A_UP_key').style.color = null;
                     break;
                 case 'k':
-                    document.getElementById('A_down').style.background = null;
                     document.getElementById('A_DOWN_key').style.background = null;
                     document.getElementById('A_DOWN_key').style.color = null;
                     break;
                 case '-':
-                    document.getElementById('B_up').style.background = null;
                     document.getElementById('B_UP_key').style.background = null;
                     document.getElementById('B_UP_key').style.color = null;
                     break;
                 case 'l':
-                    document.getElementById('B_down').style.background = null;
                     document.getElementById('B_DOWN_key').style.background = null;
                     document.getElementById('B_DOWN_key').style.color = null;
                     break;
