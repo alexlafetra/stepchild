@@ -52,6 +52,8 @@
             flex-direction:column;
             margin:0px;
             padding:0px;
+            overflow-y: hidden;
+            height:100%;
         }
         body{
             margin:0px;
@@ -79,6 +81,9 @@
             width:calc(var(--ui-scale) * 128px);
             height:calc(var(--ui-scale) * 64px);
             border:10px solid black;
+        }
+        img{
+            user-select: none;
         }
         .hardware_overlay{
             position:absolute;
@@ -499,6 +504,8 @@
             }
         };
         function initMIDI(){
+            if(!navigator.requestMIDIAccess)
+                return;
             navigator.requestMIDIAccess().then(function(midiAccess) {
                 for (let output of midiAccess.outputs.values()) {
                     midiOutput = output;
@@ -584,6 +591,7 @@
             let joysticks = document.getElementsByClassName('joystick_button');
             for(let j = 0; j<joysticks.length; j++){
                 joysticks[j].addEventListener('pointerdown',(event)=>{
+                    console.log(event);
                     Module.ccall('pressButtonFromJS', null, ['number'], [j+14]);
                 });
                 joysticks[j].addEventListener('pointerup',(event)=>{
@@ -593,6 +601,7 @@
             let buttons = document.getElementsByClassName('hardware_button');
             for(let i = 0; i<8; i++){
                 buttons[i].addEventListener('pointerdown',(event)=>{
+                    console.log(event);
                     Module.ccall('pressButtonFromJS', null, ['number'], [i]);
                 });
                 buttons[i].addEventListener('pointerup',(event)=>{
