@@ -398,8 +398,13 @@
                 --button-offset:5px;
                 --button-size:50px;
             }
+            /* disable double-tap zoom so the user can press buttons w/o zooming */
+            html{
+                touch-action: manipulation;
+                user-select: none;
+            }
             #ui_container{
-                margin-top:80px;
+                margin-top:70px;
             }
             .button_tooltip{
                 visibility: hidden;
