@@ -2,7 +2,9 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Stepchild — Headless</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>childOS</title>
+    <link rel="icon" type="image/x-icon" href="../assets/sc_1_icon.svg">
     <style>
         :root{
             --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -390,11 +392,14 @@
             background:white;
             cursor:pointer;
         }
-        @media all and (max-width: 650px) {
+        @media all and (max-width: 480px) {
             :root{
-                --button-spacing:85px;
-                --button-offset:10px;
-                --button-size:80px;
+                --button-spacing:60px;
+                --button-offset:5px;
+                --button-size:50px;
+            }
+            #ui_container{
+                margin-top:80px;
             }
             .button_tooltip{
                 visibility: hidden;
@@ -439,8 +444,8 @@
                 height:100px;
                 width:100px;
                 position:fixed;
-                right:calc(10px - var(--joystick-offset-x));
-                bottom:calc(10px -  var(--joystick-offset-y));
+                right:calc(30px - var(--joystick-offset-x));
+                bottom:calc(30px -  var(--joystick-offset-y));
                 left:auto;
                 top:auto;
                 outline:2px solid white;
