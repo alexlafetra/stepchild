@@ -141,10 +141,10 @@ extern bool headlessStepButtons[16];
     catch(...){
         std::cout<<"oh shit";
     }
-      counterA += headlessCounterA;
-      counterB += headlessCounterB;
-      headlessCounterA = 0;
-      headlessCounterB = 0;
+    counterA += headlessCounterA;
+    counterB += headlessCounterB;
+    headlessCounterA = 0;
+    headlessCounterB = 0;
     this->readMainButtons();
     this->readEncoderButtons();
     this->readStepButtons();

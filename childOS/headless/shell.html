@@ -5,7 +5,6 @@
     <title>Stepchild — Headless</title>
     <style>
         :root{
-            --bg: blue;
             --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
             --ui-scale:2.0;
             --pixel-grid-visibility:hidden;
@@ -15,20 +14,6 @@
             --joystick-offset-y:0px;
             --render-scale:0.8;
             --ui-visibility:visible;
-        }
-        @media all and (max-width: 650px) {
-            :root{
-                --ui-scale:2.3;
-                --pixel-grid-visibility:hidden;
-                --encoder-rotation-A:0deg;
-                --encoder-rotation-B:0deg;
-                --joystick-offset-x:0px;
-                --joystick-offset-y:0px;
-                --render-scale:0.8;
-                --ui-visibility:visible;
-                --bg: red;
-                --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-            }
         }
         @font-face {
             font-family: 'sf-compact-rounded-regular';
@@ -43,7 +28,7 @@
             src: url(../assets/chopin.ttf);
         }
         html{
-            background:var(--bg);
+            background:blue;
             /* font-family:var(--mono); */
             font-family:'sf-compact-rounded-regular';
             font-size:16px;
@@ -67,7 +52,6 @@
             justify-content:center;
             overflow:auto;
             position:relative;
-            background:var(--bg);
             width:100%;
             height:100%;
         }
@@ -104,14 +88,26 @@
             justify-self: center;
             width:fit-content;
         }
+        .encoder_image{
+            width:100%;
+            height:100%;
+            transform-origin: center;
+            z-index:10;
+        }
+        #encoder_A{
+            transform: rotate(var(--encoder-rotation-A));
+        }
+        #encoder_B{
+            transform: rotate(var(--encoder-rotation-B));
+        }
+
         #encoder_A_image{
+            position:absolute;
             border-radius:calc(var(--ui-scale) * var(--render-scale) * 25px);
             height:calc(var(--ui-scale) * var(--render-scale) * 50px);
             width:calc(var(--ui-scale) * var(--render-scale) * 50px);
             left:calc(var(--ui-scale) * 109px * var(--render-scale));
             top:calc(var(--ui-scale) * -63px * var(--render-scale));
-            transform: rotate(var(--encoder-rotation-A));
-            transform-origin: center;
             /* transition:0.1s; */
         }
         #encoder_B_image{
@@ -120,9 +116,13 @@
             width:calc(var(--ui-scale) * var(--render-scale) * 50px);
             left:calc(var(--ui-scale) * 109px * var(--render-scale));
             top:calc(var(--ui-scale) * 16px * var(--render-scale));
-            transform: rotate(var(--encoder-rotation-B));
-            transform-origin: center;
-            /* transition:0.1s; */
+        }
+        .encoder_buttons{
+            position:absolute;
+            height:calc(var(--ui-scale) * var(--render-scale) * 50px);
+            width:calc(var(--ui-scale) * var(--render-scale) * 50px);
+            left:calc(var(--ui-scale) * 10px * var(--render-scale));
+            top:calc(var(--ui-scale) * 0px * var(--render-scale));
         }
         #joystick_image img{
             position:absolute;
@@ -154,12 +154,12 @@
             padding:10px;
             border-radius: 2ch;
             cursor:pointer;
-            color:var(--bg);
+            color:blue;
             background:white;
             transition:0.1s;
         }
         .button:hover{
-            background:var(--bg);
+            background:blue;
             color:white;
         }
         .slider_container{
@@ -227,56 +227,7 @@
             transform:scaleY(0.35);
             font-size:120px;
         }
-        #encoder_A_buttons{
-            position:absolute;
-            height:calc(var(--ui-scale) * var(--render-scale) * 50px);
-            width:calc(var(--ui-scale) * var(--render-scale) * 50px);
-            left:calc(var(--ui-scale) * 109px * var(--render-scale));
-            top:calc(var(--ui-scale) * -63px * var(--render-scale));
-        }
-        #encoder_A_buttons:hover .encoder_button{
-            visibility: visible;
-        }
-        #encoder_B_buttons{
-            position:absolute;
-            height:calc(var(--ui-scale) * var(--render-scale) * 50px);
-            width:calc(var(--ui-scale) * var(--render-scale) * 50px);
-            left:calc(var(--ui-scale) * 109px * var(--render-scale));
-            top:calc(var(--ui-scale) * 16px * var(--render-scale));
-        }
-        #encoder_B_buttons:hover .encoder_button{
-            visibility: visible;
-        }
-        .encoder_button{
-            width:calc(15px * var(--ui-scale));;
-            height:calc(15px * var(--ui-scale));
-            font-size:calc(14px * var(--ui-scale));
-            background:black;
-            outline:solid white;
-            outline-width:calc(1px * var(--ui-scale));
-            color:white;
-            border-radius:calc(7.5px * var(--ui-scale));
-            position:absolute;
-            text-align: center;
-            display:flex;
-            align-items: center;
-            justify-content: center;
-            cursor:pointer;
-            /* visibility:hidden; */
-            user-select: none;
-            right:calc(-5px * var(--ui-scale));
-            font-family:'sf-compact-rounded-bold';
-        }
-        .encoder_button:hover{
-            background:white;
-            color:black;
-        }
-        .up_button{
-            top:calc(-5px * var(--ui-scale));
-        }
-        .down_button{
-            bottom:calc(-5px * var(--ui-scale));
-        }
+
         #joystick_buttons{
             position:absolute;
             height:100%;
@@ -439,7 +390,112 @@
             background:white;
             cursor:pointer;
         }
+        @media all and (max-width: 650px) {
+            :root{
+                --button-spacing:85px;
+                --button-offset:10px;
+                --button-size:80px;
+            }
+            .button_tooltip{
+                visibility: hidden;
+            }
+            #button_container{
+                position:absolute;
+                align-self: center;
+                justify-self: center;
+                width:fit-content;
+                /* display:grid; */
+            }
+            .hardware_button{
+                position:fixed;
+                user-select: none;
+                cursor:pointer;
+                width:var(--button-size);
+                height:var(--button-size);
+                outline:0px solid;
+                border-radius:50px;
+            }
+            #encoder_A_image{
+                bottom:300px;
+                right:10px;
+                position:fixed;
+                height:100px;
+                width:100px;
+                left:auto;
+                top:auto;
+                border-radius:50%;
+            }
+            #encoder_B_image{
+                bottom:180px;
+                right:10px;
+                position:fixed;
+                height:100px;
+                width:100px;
+                left:auto;
+                top:auto;
+                border-radius:50%;
+            }
+            #joystick_image{
+                height:100px;
+                width:100px;
+                position:fixed;
+                right:calc(10px - var(--joystick-offset-x));
+                bottom:calc(10px -  var(--joystick-offset-y));
+                left:auto;
+                top:auto;
+                outline:2px solid white;
+                border-radius:50%;
+            }
+            #NEW_button{
+                left:10px;
+                top:auto;
+                bottom: calc(var(--button-spacing) * 4 + var(--button-offset));
+                background:#6CAD54;
+            }
+            #SHIFT_button{
+                left:10px;
+                top:auto;
+                bottom: calc(var(--button-spacing) * 3 + var(--button-offset));
+                background:#C5C7C1;
+            }
+            #SELECT_button{
+                left:10px;
+                top:auto;
+                bottom: calc(var(--button-spacing) * 2 + var(--button-offset));
+                background:#C8B673;
+            }
+            #DELETE_button{
+                left:10px;
+                bottom: calc(var(--button-spacing) * 1 + var(--button-offset));
+                background:#CE564F;
+                top:auto;
+            }
+            #LOOP_button{
+                left: calc(var(--button-spacing) * 1 + var(--button-offset));
+                bottom:10px;
+                background:#3360C2;
+                top:auto;
+            }
+            #PLAY_button{
+                left: calc(var(--button-spacing) * 2 + var(--button-offset));
+                bottom:10px;
+                background:#C5C7C1;
+                top:auto;
+            }
+            #COPY_button{
+                left: calc(var(--button-spacing) * 3 + var(--button-offset));
+                bottom:10px;
+                background:#A7A4A0;
+                top:auto;
+            }
+            #MENU_button{
+                left: calc(var(--button-spacing) * 4 + var(--button-offset));
+                bottom:10px;
+                background:#060602;
+                top:auto;
+            }
 
+        }
     </style>
     <script src="../coi-serviceworker.min.js" type = "text/javascript"></script>
 </head>
@@ -457,10 +513,8 @@
                 <div id = "PLAY_button" class = "hardware_button"><div class = "button_tooltip bottom"><div class = "tooltip_label">play</div><div id = "PLAY_key"  class = "tooltip_key">C</div></div></div>
                 <div id = "COPY_button" class = "hardware_button"><div class = "button_tooltip bottom"><div class = "tooltip_label">copy</div><div id = "COPY_key"  class = "tooltip_key">V</div></div></div>
                 <div id = "MENU_button" class = "hardware_button"><div class = "button_tooltip bottom"><div class = "tooltip_label">menu</div><div id = "MENU_key"  class = "tooltip_key">B</div></div></div>
-                <div id = "encoder_A_buttons"><div class = "button_tooltip encoder"><div id = "A_UP_key"  class = "tooltip_key encoder_up">0</div><div id = "A_PRESS_key"  class = "tooltip_key encoder_press">O</div><div class = "tooltip_label">A</div><div id = "A_DOWN_key"  class = "tooltip_key encoder_down">K</div></div></div>
-                <img draggable = "false" id = "encoder_A_image" class = "hardware_button" src = "../assets/encoder.png">
-                <div id = "encoder_B_buttons"><div class = "button_tooltip encoder"><div id = "B_UP_key"  class = "tooltip_key encoder_up">-</div><div id = "B_PRESS_key"  class = "tooltip_key encoder_press">P</div><div class = "tooltip_label">B</div><div id = "B_DOWN_key"  class = "tooltip_key encoder_down">L</div></div></div>
-                <img draggable = "false" id = "encoder_B_image" class = "hardware_button" src = "../assets/encoder.png">
+                <div id = "encoder_A_image" class = "hardware_button encoder_button"><img draggable = "false" id = "encoder_A" class = "encoder_image" src = "../assets/encoder.png"><div class = "encoder_buttons"><div class = "button_tooltip encoder"><div id = "A_UP_key"  class = "tooltip_key encoder_up">0</div><div id = "A_PRESS_key"  class = "tooltip_key encoder_press">O</div><div class = "tooltip_label">A</div><div id = "A_DOWN_key"  class = "tooltip_key encoder_down">K</div></div></div></div>
+                <div id = "encoder_B_image" class = "hardware_button encoder_button"><img draggable = "false" id = "encoder_B"  class = "encoder_image"  src = "../assets/encoder.png"><div class = "encoder_buttons"><div class = "button_tooltip encoder"><div id = "B_UP_key"  class = "tooltip_key encoder_up">-</div><div id = "B_PRESS_key"  class = "tooltip_key encoder_press">P</div><div class = "tooltip_label">B</div><div id = "B_DOWN_key"  class = "tooltip_key encoder_down">L</div></div></div></div>
                 <div id = "joystick_image" draggable = "false" class = "hardware_button" >
                     <div id = "joystick_buttons">
                         <div class = "joystick_button" id = "J_right"></div>
@@ -549,6 +603,59 @@
             ' ',        // spacebar
             'Tab'
         ]);
+        const button_enums = {
+            NEW : 0,
+            SHIFT : 1,
+            SELECT : 2,
+            DELETE : 3,
+            LOOP : 4,
+            PLAY : 5,
+            COPY : 6,
+            MENU : 7,
+            COUNTER_A_UP : 8,
+            COUNTER_A_DOWN : 9,
+            A_PRESS : 10,
+            COUNTER_B_UP : 11,
+            COUNTER_B_DOWN : 12,
+            B_PRESS : 13,
+            JOY_LEFT : 14,
+            JOY_RIGHT : 15,
+            JOY_UP : 16,
+            JOY_DOWN : 17
+        }
+        function pressButton(which){
+            if(typeof(which) == "string")
+                which = button_enums[which];
+            Module.ccall('pressButtonFromJS', null, ['number'], [which]);
+        }
+        function unpressButton(which){
+            if(typeof(which) == "string")
+                which = button_enums[which];
+            Module.ccall('unpressButtonFromJS', null, ['number'], [which]);
+        }
+        function triggerButton(which){
+            if(typeof(which) == "string")
+                which = button_enums[which];
+            Module.ccall('pressButtonFromJS', null, ['number'], [which]);
+            window.setTimeout(()=>Module.ccall('unpressButtonFromJS', null, ['number'], [which]),100);
+        }
+        function attachTimedTrigger(element,which){
+            if(typeof(which) == "string")
+                which = button_enums[which];
+            element.addEventListener('pointerdown',(event) => {
+                triggerButton(which);
+            });
+        }
+        function attachTrigger(element,which){
+            if(typeof(which) == "string")
+                which = button_enums[which];
+            element.addEventListener('pointerdown',(event) => {
+                pressButton(which);
+            });
+            element.addEventListener('pointerup',(event) => {
+                unpressButton(which);
+            });
+        }
         let joystickCoords = {
             x:0,
             y:0
@@ -590,43 +697,27 @@
         function initButtonCallbacks(){
             let joysticks = document.getElementsByClassName('joystick_button');
             for(let j = 0; j<joysticks.length; j++){
-                joysticks[j].addEventListener('pointerdown',(event)=>{
-                    Module.ccall('pressButtonFromJS', null, ['number'], [j+14]);
-                });
-                joysticks[j].addEventListener('pointerup',(event)=>{
-                    Module.ccall('unpressButtonFromJS', null, ['number'], [j+14]);
-                });
+                attachTimedTrigger(joysticks[j],j+14);
             }
             let buttons = document.getElementsByClassName('hardware_button');
             for(let i = 0; i<8; i++){
-                buttons[i].addEventListener('pointerdown',(event)=>{
-                    console.log(event);
-                    Module.ccall('pressButtonFromJS', null, ['number'], [i]);
-                });
-                buttons[i].addEventListener('pointerup',(event)=>{
-                    Module.ccall('unpressButtonFromJS', null, ['number'], [i]);
-                });
+                attachTrigger(buttons[i],i);
             }
-            //encoders
-            buttons[8].addEventListener('pointerdown',(event)=>{
-                encoders.A.start(event);
-            });
-            buttons[8].addEventListener('pointerup',(event)=>{
-                if(encoders.A.changed == false){
-                    Module.ccall('pressButtonFromJS', null, ['number'], [10]);
-                    window.setTimeout(()=>Module.ccall('unpressButtonFromJS', null, ['number'], [10]),100);
+            let encoderElements = document.getElementsByClassName('encoder_button');
+            for(let i = 0; i<2; i++){
+                if(encoderElements[i]){
+                    let targetEncoder = encoders[i?'B':'A'];
+                    encoderElements[i].addEventListener('pointerdown',(event)=>{
+                        targetEncoder.start(event);
+                    });
+                    encoderElements[i].addEventListener('pointerup',(event)=>{
+                        if(targetEncoder.changed == false){
+                            Module.ccall('pressButtonFromJS', null, ['number'], [i?10:13]);
+                            window.setTimeout(()=>Module.ccall('unpressButtonFromJS', null, ['number'], [i?10:13]),100);
+                        }
+                    });
                 }
-            });
-            buttons[9].addEventListener('pointerdown',(event)=>{
-                encoders.B.start(event);
-            });
-            buttons[9].addEventListener('pointerup',(event)=>{
-                if(encoders.B.changed == false){
-                    Module.ccall('pressButtonFromJS', null, ['number'], [13]);
-                    window.setTimeout(()=>Module.ccall('unpressButtonFromJS', null, ['number'], [13]),100);
-                }
-            });
-            
+            }
             // joystick
             buttons[10].addEventListener('pointerdown',(event)=>{
                 joystickCoords = {
@@ -634,7 +725,6 @@
                     y : event.clientY,
                     drag : true
                 }
-                console.log(event);
             });
             window.addEventListener('pointerup',(event) => {
                 if(encoders.A.drag){
@@ -658,7 +748,6 @@
                 encoders.B.update(event);
                 if(joystickCoords.drag){
                     const dragMargin = 10;
-                    console.log(event);
                     let xKey = (joystickCoords.x - event.clientX > dragMargin)?-1:(joystickCoords.x - event.clientX < -dragMargin)?1:0;
                     if(xKey != 0){
                         document.documentElement.style.setProperty("--joystick-offset-x", `${xKey == -1?-10:10}px`);
@@ -743,9 +832,9 @@
                     break;
                 case 'ArrowLeft':
                     document.getElementById('J_left').style.background = 'white';
-                    document.documentElement.style.setProperty("--joystick-offset-x", "-10px");
                     document.getElementById('LEFT_key').style.background = 'white';
                     document.getElementById('LEFT_key').style.color = 'blue';
+                    document.documentElement.style.setProperty("--joystick-offset-x", "-10px");
                     break;
                 case 'ArrowRight':
                     document.getElementById('J_right').style.background = 'white';
